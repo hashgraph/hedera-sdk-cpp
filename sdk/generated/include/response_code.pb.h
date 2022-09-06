@@ -335,12 +335,13 @@ enum ResponseCodeEnum : int {
   INVALID_FULL_PREFIX_SIGNATURE_FOR_PRECOMPILE = 326,
   INSUFFICIENT_BALANCES_FOR_STORAGE_RENT = 327,
   MAX_CHILD_RECORDS_EXCEEDED = 328,
+  INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES = 329,
   ResponseCodeEnum_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   ResponseCodeEnum_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool ResponseCodeEnum_IsValid(int value);
 constexpr ResponseCodeEnum ResponseCodeEnum_MIN = OK;
-constexpr ResponseCodeEnum ResponseCodeEnum_MAX = MAX_CHILD_RECORDS_EXCEEDED;
+constexpr ResponseCodeEnum ResponseCodeEnum_MAX = INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES;
 constexpr int ResponseCodeEnum_ARRAYSIZE = ResponseCodeEnum_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ResponseCodeEnum_descriptor();
