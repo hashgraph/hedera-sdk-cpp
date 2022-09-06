@@ -29,7 +29,7 @@ static constexpr ::_pbi::MigrationSchema* schemas = nullptr;
 static constexpr ::_pb::Message* const* file_default_instances = nullptr;
 
 const char descriptor_table_protodef_response_5fcode_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\023response_code.proto\022\005proto*\301J\n\020Respons"
+  "\n\023response_code.proto\022\005proto*\356J\n\020Respons"
   "eCodeEnum\022\006\n\002OK\020\000\022\027\n\023INVALID_TRANSACTION"
   "\020\001\022\033\n\027PAYER_ACCOUNT_NOT_FOUND\020\002\022\030\n\024INVAL"
   "ID_NODE_ACCOUNT\020\003\022\027\n\023TRANSACTION_EXPIRED"
@@ -268,12 +268,13 @@ const char descriptor_table_protodef_response_5fcode_2eproto[] PROTOBUF_SECTION_
   "1\n,INVALID_FULL_PREFIX_SIGNATURE_FOR_PRE"
   "COMPILE\020\306\002\022+\n&INSUFFICIENT_BALANCES_FOR_"
   "STORAGE_RENT\020\307\002\022\037\n\032MAX_CHILD_RECORDS_EXC"
-  "EEDED\020\310\002B&\n\"com.hederahashgraph.api.prot"
-  "o.javaP\001b\006proto3"
+  "EEDED\020\310\002\022+\n&INSUFFICIENT_BALANCES_FOR_RE"
+  "NEWAL_FEES\020\311\002B&\n\"com.hederahashgraph.api"
+  ".proto.javaP\001b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_response_5fcode_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_response_5fcode_2eproto = {
-    false, false, 9616, descriptor_table_protodef_response_5fcode_2eproto,
+    false, false, 9661, descriptor_table_protodef_response_5fcode_2eproto,
     "response_code.proto",
     &descriptor_table_response_5fcode_2eproto_once, nullptr, 0, 0,
     schemas, file_default_instances, TableStruct_response_5fcode_2eproto::offsets,
@@ -580,6 +581,7 @@ bool ResponseCodeEnum_IsValid(int value) {
     case 326:
     case 327:
     case 328:
+    case 329:
       return true;
     default:
       return false;
