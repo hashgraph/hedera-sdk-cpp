@@ -104,13 +104,16 @@ add_library(${PROJECT_NAME} SHARED
     sdk/generated/src/transaction.pb.cc
     sdk/generated/src/unchecked_submit.pb.cc
     sdk/generated/src/util_prng.pb.cc
-    sdk/generated/src/util_service.pb.cc)
+    sdk/generated/src/util_service.pb.cc
+    
+    sdk/main/src/HbarUnit.cc)
 
 include_directories(${PROJECT_NAME} PRIVATE
-    sdk/generated/include)
+    sdk/generated/include
+    sdk/main/include)
 
 target_link_libraries(${PROJECT_NAME} ${Protobuf_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
-#set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/my.h)
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER sdk/main/include/HbarUnit.h)
