@@ -17,10 +17,18 @@
  * limitations under the License.
  *
  */
+#ifndef HBAR_UNIT_H_
+#define HBAR_UNIT_H_
+
+#include <map>
 #include <string>
 
 namespace Hedera
 {
+
+/**
+ * Common units of hbar; for the most part they follow SI prefix conventions.
+ */
 class HbarUnit
 {
 public:
@@ -64,25 +72,62 @@ public:
      */
     static const HbarUnit GIGABAR;
 
+    /**
+     * Get the preferred symbol of the current unit.
+     * E.g. HbarUnit::TINYBAR.getSymbol() returns "tℏ".
+     *
+     * @return The symbol of this unit
+     */
+    inline std::string getSymbol() const
+    {
+        return mSymbol;
+    }
+
+    /**
+     * Get the value of this unit, in tinybars
+     *
+     * @return The unit value, in tinybars
+     */
+    inline long long getTinybars() const
+    {
+        return mTinybars;
+    }
+
+    /**
+     * Get the name of this unit.
+     * E.g. TINYBAR.toString() returns "tinybar".
+     *
+     * @return The name of this unit
+     */
+    inline std::string toString() const
+    {
+        return nameMap.at(this);
+    }
+
 private:
     /**
      * Constructor
      * @param sym  The symbol of the unit
      * @param val  The value of the unit, in tinybars
      */
-    HbarUnit(const std::string& sym, const unsigned long long& val);
+    HbarUnit(const std::string& sym, const long long& val);
+
+    /**
+     * Keep a map of the unit names
+     */
+    static const std::map<const HbarUnit*, std::string> nameMap;
 
     /**
      * The associated symbol of this unit
-     * 
      */
-    std::string symbol;
+    std::string mSymbol;
 
     /**
-     * The value of this unit
-     * 
+     * The value of this unit, in tinybars
      */
-    unsigned long long value;
+    long long mTinybars;
 };
     
 } // namespace Hedera
+
+#endif // HBAR_UNIT_H_
