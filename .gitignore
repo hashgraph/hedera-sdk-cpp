@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+CTestTestfile.cmake
+libhedera-sdk-cpp*
+.vscode/
+build/
+.editorconfig

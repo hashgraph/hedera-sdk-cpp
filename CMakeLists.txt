@@ -106,6 +106,7 @@ add_library(${PROJECT_NAME} SHARED
     sdk/generated/src/util_prng.pb.cc
     sdk/generated/src/util_service.pb.cc
     
+    sdk/main/src/AccountAllowanceApproveTransaction.cc
     sdk/main/src/HbarUnit.cc)
 
 include_directories(${PROJECT_NAME} PRIVATE

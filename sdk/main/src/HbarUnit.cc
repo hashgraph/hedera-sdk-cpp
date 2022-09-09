@@ -19,30 +19,21 @@
  */
 #include "HbarUnit.h"
 
-namespace Hedera
-{
+namespace Hedera {
 const HbarUnit HbarUnit::TINYBAR("tℏ", 1LL);
 const HbarUnit HbarUnit::MICROBAR("μℏ", 100LL);
 const HbarUnit HbarUnit::MILLIBAR("mℏ", 100000LL);
-const HbarUnit HbarUnit::HBAR("ℏ",  100000000LL);
+const HbarUnit HbarUnit::HBAR("ℏ", 100000000LL);
 const HbarUnit HbarUnit::KILOBAR("kℏ", 100000000000LL);
 const HbarUnit HbarUnit::MEGABAR("Mℏ", 100000000000000LL);
 const HbarUnit HbarUnit::GIGABAR("Gℏ", 100000000000000000LL);
 
 const std::map<const HbarUnit*, std::string> HbarUnit::nameMap = {
-    { &TINYBAR, "tinybar" },
-    { &MICROBAR, "microbar" },
-    { &MILLIBAR, "millibar" },
-    { &HBAR, "hbar" },
-    { &KILOBAR, "kilobar" },
-    { &MEGABAR, "megabar" },
-    { &GIGABAR, "gigabar" }
-};
+    {&TINYBAR, "tinybar"}, {&MICROBAR, "microbar"}, {&MILLIBAR, "millibar"},
+    {&HBAR, "hbar"},       {&KILOBAR, "kilobar"},   {&MEGABAR, "megabar"},
+    {&GIGABAR, "gigabar"}};
 
-HbarUnit::HbarUnit(const std::string& sym, const long long& val) :
-    mSymbol(sym),
-    mTinybars(val)
-{
-}
+HbarUnit::HbarUnit(const std::string& sym, const long long& val)
+    : mSymbol(sym), mTinybars(val) {}
 
-} // namespace Hedera
+}  // namespace Hedera
