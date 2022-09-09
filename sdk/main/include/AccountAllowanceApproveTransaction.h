@@ -255,8 +255,8 @@ private:
 
   /**
    * A map of NFT information.
-   * key is "{ownerId}:{spenderId}:{tokenId}". OwnerId may be "FEE_PAYER".
-   * The index is the index into the mNftAllowances list.
+   * Key is "{ownerId}:{spenderId}:{tokenId}". OwnerId may be "FEE_PAYER" if the
+   * owner is not valid. The value is the index into the mNftAllowances list.
    */
   std::unordered_map<std::string, size_t> mNftMap;
 };
