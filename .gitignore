@@ -9,3 +9,4 @@ CTestTestfile.cmake
 libhedera-sdk-cpp*
 .vscode/
 build/
+.editorconfig
