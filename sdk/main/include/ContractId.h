@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_ID_H_
-#define ACCOUNT_ID_H_
+#ifndef CONTRACT_ID_H_
+#define CONTRACT_ID_H_
 
 /**
  * Library includes
@@ -35,7 +35,7 @@
  */
 namespace proto
 {
-class AccountID;
+class ContractID;
 } // namespace proto
 
 /**
@@ -52,16 +52,16 @@ class Client;
 namespace Hedera
 {
 /**
- * The ID for a crypto-currency account on Hedera.
+ * The ID for a smart contract instance on Hedera.
  */
-class AccountId
+class ContractId
 {
 public:
-  AccountId() {}
+  ContractId() {}
 
-  static AccountId fromProtobuf(const proto::AccountID& id)
+  static ContractId fromProtobuf(const proto::ContractID& id)
   {
-    return AccountId();
+    return ContractId();
   }
 
   inline std::string toString() const { return std::string(); }
@@ -71,10 +71,10 @@ public:
   unsigned long long mRealm;
   unsigned long long mShard;
 
-  InitType<unsigned long long> mAccountNum;
-  InitType<std::string> mAlias;
+  InitType<unsigned long long> mContractNum;
+  InitType<std::string> mEvmAddress;
 };
 
 } // namespace Hedera
 
-#endif // ACCOUNT_ID_H_
+#endif // CONTRACT_ID_H_
