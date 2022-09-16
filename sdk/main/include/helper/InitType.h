@@ -61,12 +61,17 @@ public:
   }
 
   /**
-   * @brief Determine if this value has been initialized
+   * Determine if this value has been initialized
    *
    * @return \c TRUE if this value has been initialized,
    *         otherwise \c FALSE
    */
   inline bool isValid() const { return mInitialized; }
+
+  /**
+   * Invalidate this value.
+   */
+  inline void reset() { mInitialized = false; }
 
 private:
   /**

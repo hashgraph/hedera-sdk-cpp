@@ -21,6 +21,11 @@
 #define TRANSACTION_H_
 
 /**
+ * Library includes
+ */
+#include "Hbar.h"
+
+/**
  * Protobuf includes
  */
 #include "transaction_body.pb.h"
@@ -28,6 +33,7 @@
 /**
  * STL includes
  */
+#include <chrono>
 #include <unordered_map>
 
 /**
@@ -36,6 +42,7 @@
 namespace Hedera
 {
 class AccountId;
+class Client;
 class TransactionId;
 } // namespace Hedera
 
@@ -61,9 +68,20 @@ protected:
 
   Transaction(const proto::TransactionBody& transaction) {}
 
+  /**
+   * Validate the checksums.
+   *
+   * @param client The client with which to validate the checksums
+   */
+  virtual void validateChecksums(const Client& client) const = 0;
+
   void requireNotFrozen() {}
 
   proto::TransactionBody mSourceTransactionBody;
+
+  Hbar mDefaultMaxTransactionFee;
+
+  std::chrono::days mDefaultAutoRenewPeriod;
 };
 
 } // namespace Hedera
