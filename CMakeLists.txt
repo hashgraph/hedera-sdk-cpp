@@ -3,7 +3,7 @@ project(hedera-sdk-cpp VERSION 0.1.0 DESCRIPTION "Hedera SDK C++")
 
 find_package(Protobuf REQUIRED)
 include_directories(${Protobuf_INCLUDE_DIRS})
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
 
 add_library(${PROJECT_NAME} SHARED
     sdk/generated/src/basic_types.pb.cc
@@ -110,6 +110,7 @@ add_library(${PROJECT_NAME} SHARED
     sdk/main/src/AccountAllowanceDeleteTransaction.cc
     sdk/main/src/AccountBalance.cc
     sdk/main/src/AccountBalanceQuery.cc
+    sdk/main/src/AccountCreateTransaction.cc
     sdk/main/src/HbarUnit.cc)
 
 include_directories(${PROJECT_NAME} PRIVATE
