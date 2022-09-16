@@ -111,6 +111,7 @@ add_library(${PROJECT_NAME} SHARED
     sdk/main/src/AccountBalance.cc
     sdk/main/src/AccountBalanceQuery.cc
     sdk/main/src/AccountCreateTransaction.cc
+    sdk/main/src/AccountDeleteTransaction.cc
     sdk/main/src/HbarUnit.cc)
 
 include_directories(${PROJECT_NAME} PRIVATE
