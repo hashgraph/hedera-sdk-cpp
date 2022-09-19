@@ -20,15 +20,24 @@
 #ifndef PUBLIC_KEY_H_
 #define PUBLIC_KEY_H_
 
+/**
+ * Library includes
+ */
+#include "Key.h"
+
 namespace Hedera
 {
-class PublicKey
+class PublicKey : public Key
 {
 public:
   static PublicKey fromAliasBytes(const std::string& bytes)
   {
     return PublicKey();
   }
+
+  bool operator==(const PublicKey& key) const { return true; }
+
+  std::string toStringDER() const { return std::string(); }
 };
 } // namespace Hedera
 

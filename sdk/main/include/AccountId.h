@@ -23,11 +23,14 @@
 /**
  * Library includes
  */
+#include "EvmAddress.h"
+#include "PublicKey.h"
 #include "helper/InitType.h"
 
 /**
  * STL includes
  */
+#include <regex>
 #include <string>
 
 /**
@@ -57,22 +60,166 @@ namespace Hedera
 class AccountId
 {
 public:
-  AccountId() {}
+  /**
+   * Constructor
+   */
+  AccountId();
 
-  static AccountId fromProtobuf(const proto::AccountID& id)
-  {
-    return AccountId();
-  }
+  /**
+   * Construct with the account number part of the account ID.
+   *
+   * @param num The account number with which to construct this account ID.
+   */
+  explicit AccountId(const unsigned long long& num);
 
-  inline std::string toString() const { return std::string(); }
+  /**
+   * Construct with all parts of the account ID.
+   *
+   * @param shard The shard number to set.
+   * @param realm The realm number to set.
+   * @param num   The account number to set.
+   */
+  explicit AccountId(const unsigned long long& shard,
+                     const unsigned long long& realm,
+                     const unsigned long long& num);
 
-  inline void validateChecksum(const Client& client) const {}
+  /**
+   * Construct with all parts of the account ID and the checksum.
+   *
+   * @param shard    The shard number to set.
+   * @param realm    The realm number to set.
+   * @param num      The account number to set.
+   * @param checksum The checksum of the account ID.
+   */
+  explicit AccountId(const unsigned long long& shard,
+                     const unsigned long long& realm,
+                     const unsigned long long& num,
+                     const InitType<std::string>& checksum);
 
-  unsigned long long mRealm;
+  /**
+   * Construct with all parts of the account ID, the checksum, and the aliases.
+   *
+   * @param shard        The shard number to set.
+   * @param realm        The realm number to set.
+   * @param num          The account number to set.
+   * @param aliasKey     The key of the account alias.
+   * @param aliasEvmAddr The EVM address of the account alias.
+   * @param checksum     The checksum of the account ID.
+   */
+  explicit AccountId(const unsigned long long& shard,
+                     const unsigned long long& realm,
+                     const unsigned long long& num,
+                     const InitType<PublicKey>& aliasKey,
+                     const InitType<EvmAddress>& aliasEvmAddr,
+                     const InitType<std::string>& checksum);
+
+  /**
+   * Determine if this account ID is equal to another.
+   *
+   * @param other The account ID with which to compare
+   * @return \c TRUE if the input account ID equals this one, otherwise \c FALSE
+   */
+  bool operator==(const AccountId& other) const;
+
+  /**
+   * Retrieve the account ID from a string.
+   *
+   * @param id A string representing a valid account ID.
+   * @return   The account ID object.
+   */
+  static AccountId fromString(const std::string& id);
+
+  /**
+   * Retrieve the account ID from a solidity address.
+   *
+   * @param address A string representing the solidity address.
+   * @return        The account ID object.
+   */
+  static AccountId fromSolidityAddress(const std::string& address);
+
+  /**
+   * Retrieve the account ID from a protobuf.
+   *
+   * @param id The account ID protobuf object.
+   * @return   The account ID object.
+   */
+  static AccountId fromProtobuf(const proto::AccountID& id);
+
+  /**
+   * Extract the solidity address.
+   *
+   * @return The solidity address as a string.
+   */
+  std::string toSolidityAddress() const;
+
+  /**
+   * Convert this account ID to its corresponding protobuf object.
+   *
+   * @return A dynamically-allocated account ID protobuf object filled-in with
+   *         this account ID's data. It's the responsibility of the user to
+   *         delete this object when done with it.
+   */
+  proto::AccountID* toProtobuf() const;
+
+  /**
+   * Verify that the client has a valid checksum.
+   *
+   * @param client The client to verify
+   */
+  void validateChecksum(const Client& client) const;
+
+  /**
+   * Extract a string represenation of this account ID.
+   *
+   * @return A string representation of this account ID.
+   */
+  std::string toString() const;
+
+  /**
+   * Extract a string representation of this account ID with the checksum.
+   *
+   * @param client The client with which the checksum is generated.
+   * @return       The account ID with checksum.
+   */
+  std::string toStringWithChecksum(const Client& client) const;
+
+  /**
+   * Extract the checksum of this account ID.
+   *
+   * @return This account ID's checksum and its validity.
+   */
+  inline InitType<std::string> getChecksum() const { return mChecksum; }
+
+  /**
+   * The shard number.
+   */
   unsigned long long mShard;
 
-  InitType<unsigned long long> mAccountNum;
-  InitType<std::string> mAlias;
+  /**
+   * The realm number.
+   */
+  unsigned long long mRealm;
+
+  /**
+   * The id number.
+   */
+  unsigned long long mAccountNum;
+
+  /**
+   * The alias key.
+   */
+  InitType<PublicKey> mAliasKey;
+
+  /**
+   * The alias EVM address.
+   */
+  InitType<EvmAddress> mAliasEvmAddress;
+
+private:
+  /**
+   * This account ID's checksum.
+   */
+  InitType<std::string> mChecksum;
 };
 
 } // namespace Hedera

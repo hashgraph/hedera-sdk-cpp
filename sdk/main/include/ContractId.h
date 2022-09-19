@@ -64,6 +64,8 @@ public:
     return ContractId();
   }
 
+  proto::ContractID* toProtobuf() const { return new proto::ContractID; }
+
   inline std::string toString() const { return std::string(); }
 
   inline void validateChecksum(const Client& client) const {}

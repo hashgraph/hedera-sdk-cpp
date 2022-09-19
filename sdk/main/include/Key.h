@@ -21,12 +21,9 @@
 #define KEY_H_
 
 /**
- * Protobuf forward declarations
+ * Protobuf includes
  */
-namespace proto
-{
-class Key;
-} // namespace proto
+#include "basic_types.pb.h"
 
 namespace Hedera
 {
@@ -34,6 +31,8 @@ class Key
 {
 public:
   static Key fromProtobuf(const proto::Key& key) { return Key(); }
+
+  virtual proto::Key toProtobuf() const { return proto::Key(); }
 };
 } // namespace Hedera
 
