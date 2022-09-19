@@ -20,15 +20,29 @@
 #ifndef EVM_ADDRESS_H_
 #define EVM_ADDRESS_H_
 
+/**
+ * Library includes
+ */
+#include "Key.h"
+
+/**
+ * STL includes
+ */
+#include <string>
+
 namespace Hedera
 {
-class EvmAddress
+class EvmAddress : public Key
 {
 public:
   static EvmAddress fromAliasBytes(const std::string& bytes)
   {
     return EvmAddress();
   }
+
+  bool operator==(const EvmAddress& addr) const { return true; }
+
+  std::string toString() const { return std::string(); }
 };
 } // namespace Hedera
 

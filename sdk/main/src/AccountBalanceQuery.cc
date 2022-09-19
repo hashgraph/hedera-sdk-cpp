@@ -69,39 +69,14 @@ AccountBalanceQuery::onMakeRequest(proto::Query* query,
 
   if (mAccountId.isValid())
   {
-    proto::AccountID* accountId = getAccountBalanceQuery->mutable_accountid();
-    accountId->set_realmnum(mAccountId.getValue().mRealm);
-    accountId->set_shardnum(mAccountId.getValue().mShard);
-
-    if (mAccountId.getValue().mAccountNum.isValid())
-    {
-      accountId->set_accountnum(mAccountId.getValue().mAccountNum.getValue());
-    }
-
-    if (mAccountId.getValue().mAlias.isValid())
-    {
-      accountId->set_alias(mAccountId.getValue().mAlias.getValue());
-    }
+    getAccountBalanceQuery->set_allocated_accountid(
+      mAccountId.getValue().toProtobuf());
   }
 
   if (mContractId.isValid())
   {
-    proto::ContractID* contractId =
-      getAccountBalanceQuery->mutable_contractid();
-    contractId->set_realmnum(mContractId.getValue().mRealm);
-    contractId->set_shardnum(mContractId.getValue().mShard);
-
-    if (mContractId.getValue().mContractNum.isValid())
-    {
-      contractId->set_contractnum(
-        mContractId.getValue().mContractNum.getValue());
-    }
-
-    if (mContractId.getValue().mEvmAddress.isValid())
-    {
-      contractId->set_evm_address(
-        mContractId.getValue().mEvmAddress.getValue());
-    }
+    getAccountBalanceQuery->set_allocated_contractid(
+      mContractId.getValue().toProtobuf());
   }
 
   getAccountBalanceQuery->set_allocated_header(header);
