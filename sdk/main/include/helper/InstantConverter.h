@@ -17,23 +17,37 @@
  * limitations under the License.
  *
  */
-#ifndef KEY_H_
-#define KEY_H_
+#ifndef HELPER_INSTANT_CONVERTER_H_
+#define HELPER_INSTANT_CONVERTER_H_
 
 /**
  * Protobuf includes
  */
-#include "basic_types.pb.h"
+#include "timestamp.pb.h"
+
+/**
+ * STL includes
+ */
+#include <chrono>
 
 namespace Hedera
 {
-class Key
+namespace InstantConverter
 {
-public:
-  static Key fromProtobuf(const proto::Key& key) { return Key(); }
+/**
+ * Create a nanoseconds object from a timestamp protobuf.
+ *
+ * @param timestamp The timestamp protobuf.
+ * @return          The nanoseconds from epoch represented by the input
+ *                  timestamp.
+ */
+std::chrono::nanoseconds
+fromProtobuf(const proto::Timestamp& timestamp);
 
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
-};
+proto::Timestamp*
+toProtobuf(const std::chrono::nanoseconds& nano);
+
+} // namespace InstantConverter
 } // namespace Hedera
 
-#endif // KEY_H_
+#endif // HELPER_INSTANT_CONVERTER_H_

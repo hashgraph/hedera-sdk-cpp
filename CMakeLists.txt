@@ -113,7 +113,11 @@ add_library(${PROJECT_NAME} SHARED
     sdk/main/src/AccountCreateTransaction.cc
     sdk/main/src/AccountDeleteTransaction.cc
     sdk/main/src/AccountId.cc
-    sdk/main/src/HbarUnit.cc)
+    sdk/main/src/AccountInfo.cc
+    sdk/main/src/HbarUnit.cc
+    
+    sdk/main/src/helper/DurationConverter.cc
+    sdk/main/src/helper/InstantConverter.cc)
 
 include_directories(${PROJECT_NAME} PRIVATE
     sdk/generated/include
