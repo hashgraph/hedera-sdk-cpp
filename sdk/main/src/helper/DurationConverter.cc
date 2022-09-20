@@ -17,23 +17,25 @@
  * limitations under the License.
  *
  */
-#ifndef KEY_H_
-#define KEY_H_
-
-/**
- * Protobuf includes
- */
-#include "basic_types.pb.h"
+#include "helper/DurationConverter.h"
 
 namespace Hedera
 {
-class Key
+namespace DurationConverter
 {
-public:
-  static Key fromProtobuf(const proto::Key& key) { return Key(); }
+//----
+std::chrono::days
+fromProtobuf(const proto::Duration& duration)
+{
+  return std::chrono::days();
+}
 
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
-};
+//-----
+proto::Duration*
+toProtobuf(const std::chrono::seconds& secs)
+{
+  return new proto::Duration();
+}
+
+} // namespace DurationConverter
 } // namespace Hedera
-
-#endif // KEY_H_

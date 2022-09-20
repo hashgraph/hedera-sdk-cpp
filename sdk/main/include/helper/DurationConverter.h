@@ -21,6 +21,11 @@
 #define HELPER_DURATION_CONVERTER_H_
 
 /**
+ * Protobuf includes
+ */
+#include "duration.pb.h"
+
+/**
  * STL includes
  */
 #include <chrono>
@@ -36,10 +41,10 @@ namespace DurationConverter
  * @return         The days represented by the input duration.
  */
 std::chrono::days
-fromProtobuf(const proto::Duration& duration)
-{
-  return std::chrono::days();
-}
+fromProtobuf(const proto::Duration& duration);
+
+proto::Duration*
+toProtobuf(const std::chrono::seconds& secs);
 
 } // namespace DurationConverter
 } // namespace Hedera

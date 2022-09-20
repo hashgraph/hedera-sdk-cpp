@@ -17,8 +17,13 @@
  * limitations under the License.
  *
  */
-#ifndef KEY_H_
-#define KEY_H_
+#ifndef LEDGER_ID_H_
+#define LEDGER_ID_H_
+
+/**
+ * STL includes
+ */
+#include <string>
 
 /**
  * Protobuf includes
@@ -27,13 +32,16 @@
 
 namespace Hedera
 {
-class Key
+class LedgerId
 {
 public:
-  static Key fromProtobuf(const proto::Key& key) { return Key(); }
+  static LedgerId fromByteString(const std::string& proto)
+  {
+    return LedgerId();
+  }
 
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
+  std::string toByteString() const { return std::string(); }
 };
 } // namespace Hedera
 
-#endif // KEY_H_
+#endif // LEDGER_ID_H_

@@ -17,23 +17,25 @@
  * limitations under the License.
  *
  */
-#ifndef KEY_H_
-#define KEY_H_
-
-/**
- * Protobuf includes
- */
-#include "basic_types.pb.h"
+#include "helper/InstantConverter.h"
 
 namespace Hedera
 {
-class Key
+namespace InstantConverter
 {
-public:
-  static Key fromProtobuf(const proto::Key& key) { return Key(); }
+//-----
+std::chrono::nanoseconds
+fromProtobuf(const proto::Timestamp& timestamp)
+{
+  return std::chrono::nanoseconds();
+}
 
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
-};
+//-----
+proto::Timestamp*
+toProtobuf(const std::chrono::nanoseconds& nano)
+{
+  return new proto::Timestamp();
+}
+
+} // namespace InstantConverter
 } // namespace Hedera
-
-#endif // KEY_H_

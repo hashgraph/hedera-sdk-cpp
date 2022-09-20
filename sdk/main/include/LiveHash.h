@@ -17,23 +17,27 @@
  * limitations under the License.
  *
  */
-#ifndef KEY_H_
-#define KEY_H_
+#ifndef LIVE_HASH_H_
+#define LIVE_HASH_H_
 
 /**
- * Protobuf includes
+ * Protobuf forward declarations
  */
-#include "basic_types.pb.h"
+namespace proto
+{
+class LiveHash;
+} // namespace proto
 
 namespace Hedera
 {
-class Key
+class LiveHash
 {
 public:
-  static Key fromProtobuf(const proto::Key& key) { return Key(); }
-
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
+  static LiveHash fromProtobuf(const proto::LiveHash& proto)
+  {
+    return LiveHash();
+  }
 };
 } // namespace Hedera
 
-#endif // KEY_H_
+#endif // LIVE_HASH_H_

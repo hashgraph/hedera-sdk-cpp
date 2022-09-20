@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef KEY_H_
-#define KEY_H_
+#ifndef STAKING_INFO_H_
+#define STAKING_INFO_H_
 
 /**
  * Protobuf includes
@@ -27,13 +27,16 @@
 
 namespace Hedera
 {
-class Key
+class StakingInfo
 {
 public:
-  static Key fromProtobuf(const proto::Key& key) { return Key(); }
+  static StakingInfo fromProtobuf(const proto::StakingInfo& proto)
+  {
+    return StakingInfo();
+  }
 
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
+  proto::StakingInfo* toProtobuf() const { return new proto::StakingInfo(); }
 };
 } // namespace Hedera
 
-#endif // KEY_H_
+#endif // STAKING_INFO_H_
