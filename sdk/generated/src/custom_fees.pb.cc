@@ -68,6 +68,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR CustomFee::CustomFee(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.fee_collector_account_id_)*/nullptr
+  , /*decltype(_impl_.all_collectors_are_exempt_)*/false
   , /*decltype(_impl_.fee_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
   , /*decltype(_impl_._oneof_case_)*/{}} {}
@@ -138,6 +139,7 @@ const uint32_t TableStruct_custom_5ffees_2eproto::offsets[] PROTOBUF_SECTION_VAR
   ::_pbi::kInvalidFieldOffsetTag,
   ::_pbi::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::proto::CustomFee, _impl_.fee_collector_account_id_),
+  PROTOBUF_FIELD_OFFSET(::proto::CustomFee, _impl_.all_collectors_are_exempt_),
   PROTOBUF_FIELD_OFFSET(::proto::CustomFee, _impl_.fee_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::proto::AssessedCustomFee, _internal_metadata_),
@@ -155,7 +157,7 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 10, -1, -1, sizeof(::proto::FixedFee)},
   { 18, -1, -1, sizeof(::proto::RoyaltyFee)},
   { 26, -1, -1, sizeof(::proto::CustomFee)},
-  { 37, -1, -1, sizeof(::proto::AssessedCustomFee)},
+  { 38, -1, -1, sizeof(::proto::AssessedCustomFee)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -176,24 +178,25 @@ const char descriptor_table_protodef_custom_5ffees_2eproto[] PROTOBUF_SECTION_VA
   "2\016.proto.TokenID\"e\n\nRoyaltyFee\0220\n\027exchan"
   "ge_value_fraction\030\001 \001(\0132\017.proto.Fraction"
   "\022%\n\014fallback_fee\030\002 \001(\0132\017.proto.FixedFee\""
-  "\306\001\n\tCustomFee\022$\n\tfixed_fee\030\001 \001(\0132\017.proto"
+  "\351\001\n\tCustomFee\022$\n\tfixed_fee\030\001 \001(\0132\017.proto"
   ".FixedFeeH\000\022.\n\016fractional_fee\030\002 \001(\0132\024.pr"
   "oto.FractionalFeeH\000\022(\n\013royalty_fee\030\004 \001(\013"
   "2\021.proto.RoyaltyFeeH\000\0222\n\030fee_collector_a"
-  "ccount_id\030\003 \001(\0132\020.proto.AccountIDB\005\n\003fee"
-  "\"\257\001\n\021AssessedCustomFee\022\016\n\006amount\030\001 \001(\003\022 "
-  "\n\010token_id\030\002 \001(\0132\016.proto.TokenID\0222\n\030fee_"
-  "collector_account_id\030\003 \001(\0132\020.proto.Accou"
-  "ntID\0224\n\032effective_payer_account_id\030\004 \003(\013"
-  "2\020.proto.AccountIDB&\n\"com.hederahashgrap"
-  "h.api.proto.javaP\001b\006proto3"
+  "ccount_id\030\003 \001(\0132\020.proto.AccountID\022!\n\031all"
+  "_collectors_are_exempt\030\005 \001(\010B\005\n\003fee\"\257\001\n\021"
+  "AssessedCustomFee\022\016\n\006amount\030\001 \001(\003\022 \n\010tok"
+  "en_id\030\002 \001(\0132\016.proto.TokenID\0222\n\030fee_colle"
+  "ctor_account_id\030\003 \001(\0132\020.proto.AccountID\022"
+  "4\n\032effective_payer_account_id\030\004 \003(\0132\020.pr"
+  "oto.AccountIDB&\n\"com.hederahashgraph.api"
+  ".proto.javaP\001b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_custom_5ffees_2eproto_deps[1] = {
   &::descriptor_table_basic_5ftypes_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_custom_5ffees_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_custom_5ffees_2eproto = {
-    false, false, 786, descriptor_table_protodef_custom_5ffees_2eproto,
+    false, false, 821, descriptor_table_protodef_custom_5ffees_2eproto,
     "custom_fees.proto",
     &descriptor_table_custom_5ffees_2eproto_once, descriptor_table_custom_5ffees_2eproto_deps, 1, 5,
     schemas, file_default_instances, TableStruct_custom_5ffees_2eproto::offsets,
@@ -1053,6 +1056,7 @@ CustomFee::CustomFee(const CustomFee& from)
   CustomFee* const _this = this; (void)_this;
   new (&_impl_) Impl_{
       decltype(_impl_.fee_collector_account_id_){nullptr}
+    , decltype(_impl_.all_collectors_are_exempt_){}
     , decltype(_impl_.fee_){}
     , /*decltype(_impl_._cached_size_)*/{}
     , /*decltype(_impl_._oneof_case_)*/{}};
@@ -1061,6 +1065,7 @@ CustomFee::CustomFee(const CustomFee& from)
   if (from._internal_has_fee_collector_account_id()) {
     _this->_impl_.fee_collector_account_id_ = new ::proto::AccountID(*from._impl_.fee_collector_account_id_);
   }
+  _this->_impl_.all_collectors_are_exempt_ = from._impl_.all_collectors_are_exempt_;
   clear_has_fee();
   switch (from.fee_case()) {
     case kFixedFee: {
@@ -1091,6 +1096,7 @@ inline void CustomFee::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.fee_collector_account_id_){nullptr}
+    , decltype(_impl_.all_collectors_are_exempt_){false}
     , decltype(_impl_.fee_){}
     , /*decltype(_impl_._cached_size_)*/{}
     , /*decltype(_impl_._oneof_case_)*/{}
@@ -1158,6 +1164,7 @@ void CustomFee::Clear() {
     delete _impl_.fee_collector_account_id_;
   }
   _impl_.fee_collector_account_id_ = nullptr;
+  _impl_.all_collectors_are_exempt_ = false;
   clear_fee();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1196,6 +1203,14 @@ const char* CustomFee::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_royalty_fee(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // bool all_collectors_are_exempt = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
+          _impl_.all_collectors_are_exempt_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1257,6 +1272,12 @@ uint8_t* CustomFee::_InternalSerialize(
         _Internal::royalty_fee(this).GetCachedSize(), target, stream);
   }
 
+  // bool all_collectors_are_exempt = 5;
+  if (this->_internal_all_collectors_are_exempt() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteBoolToArray(5, this->_internal_all_collectors_are_exempt(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1278,6 +1299,11 @@ size_t CustomFee::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *_impl_.fee_collector_account_id_);
+  }
+
+  // bool all_collectors_are_exempt = 5;
+  if (this->_internal_all_collectors_are_exempt() != 0) {
+    total_size += 1 + 1;
   }
 
   switch (fee_case()) {
@@ -1328,6 +1354,9 @@ void CustomFee::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROT
     _this->_internal_mutable_fee_collector_account_id()->::proto::AccountID::MergeFrom(
         from._internal_fee_collector_account_id());
   }
+  if (from._internal_all_collectors_are_exempt() != 0) {
+    _this->_internal_set_all_collectors_are_exempt(from._internal_all_collectors_are_exempt());
+  }
   switch (from.fee_case()) {
     case kFixedFee: {
       _this->_internal_mutable_fixed_fee()->::proto::FixedFee::MergeFrom(
@@ -1365,7 +1394,12 @@ bool CustomFee::IsInitialized() const {
 void CustomFee::InternalSwap(CustomFee* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_.fee_collector_account_id_, other->_impl_.fee_collector_account_id_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(CustomFee, _impl_.all_collectors_are_exempt_)
+      + sizeof(CustomFee::_impl_.all_collectors_are_exempt_)
+      - PROTOBUF_FIELD_OFFSET(CustomFee, _impl_.fee_collector_account_id_)>(
+          reinterpret_cast<char*>(&_impl_.fee_collector_account_id_),
+          reinterpret_cast<char*>(&other->_impl_.fee_collector_account_id_));
   swap(_impl_.fee_, other->_impl_.fee_);
   swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
 }
