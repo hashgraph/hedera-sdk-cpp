@@ -737,6 +737,7 @@ class CustomFee final :
 
   enum : int {
     kFeeCollectorAccountIdFieldNumber = 3,
+    kAllCollectorsAreExemptFieldNumber = 5,
     kFixedFeeFieldNumber = 1,
     kFractionalFeeFieldNumber = 2,
     kRoyaltyFeeFieldNumber = 4,
@@ -758,6 +759,15 @@ class CustomFee final :
   void unsafe_arena_set_allocated_fee_collector_account_id(
       ::proto::AccountID* fee_collector_account_id);
   ::proto::AccountID* unsafe_arena_release_fee_collector_account_id();
+
+  // bool all_collectors_are_exempt = 5;
+  void clear_all_collectors_are_exempt();
+  bool all_collectors_are_exempt() const;
+  void set_all_collectors_are_exempt(bool value);
+  private:
+  bool _internal_all_collectors_are_exempt() const;
+  void _internal_set_all_collectors_are_exempt(bool value);
+  public:
 
   // .proto.FixedFee fixed_fee = 1;
   bool has_fixed_fee() const;
@@ -830,6 +840,7 @@ class CustomFee final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::proto::AccountID* fee_collector_account_id_;
+    bool all_collectors_are_exempt_;
     union FeeUnion {
       constexpr FeeUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
@@ -1805,6 +1816,26 @@ inline void CustomFee::set_allocated_fee_collector_account_id(::proto::AccountID
   }
   _impl_.fee_collector_account_id_ = fee_collector_account_id;
   // @@protoc_insertion_point(field_set_allocated:proto.CustomFee.fee_collector_account_id)
+}
+
+// bool all_collectors_are_exempt = 5;
+inline void CustomFee::clear_all_collectors_are_exempt() {
+  _impl_.all_collectors_are_exempt_ = false;
+}
+inline bool CustomFee::_internal_all_collectors_are_exempt() const {
+  return _impl_.all_collectors_are_exempt_;
+}
+inline bool CustomFee::all_collectors_are_exempt() const {
+  // @@protoc_insertion_point(field_get:proto.CustomFee.all_collectors_are_exempt)
+  return _internal_all_collectors_are_exempt();
+}
+inline void CustomFee::_internal_set_all_collectors_are_exempt(bool value) {
+  
+  _impl_.all_collectors_are_exempt_ = value;
+}
+inline void CustomFee::set_all_collectors_are_exempt(bool value) {
+  _internal_set_all_collectors_are_exempt(value);
+  // @@protoc_insertion_point(field_set:proto.CustomFee.all_collectors_are_exempt)
 }
 
 inline bool CustomFee::has_fee() const {
