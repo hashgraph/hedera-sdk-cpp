@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_INFO_QUERY_H_
-#define ACCOUNT_INFO_QUERY_H_
+#ifndef ACCOUNT_RECORDS_QUERY_H_
+#define ACCOUNT_RECORDS_QUERY_H_
 
 /**
  * Library includes
@@ -26,6 +26,11 @@
 #include "AccountId.h"
 #include "Query.h"
 #include "helper/InitType.h"
+
+/**
+ * STL includes
+ */
+#include <vector>
 
 /**
  * Protobuf forward declarations
@@ -43,23 +48,24 @@ class ResponseHeader;
  */
 namespace Hedera
 {
-class AccountInfo;
 class Client;
+class TransactionRecord;
 } // namespace Hedera
 
 namespace Hedera
 {
 /**
- * Get all the information about an account, including the balance.
- * This does not get the list of account records.
+ * Get all the records for an account for any transfers into it and out of it,
+ * that were above the threshold, during the last 25 hours.
  */
-class AccountInfoQuery : public Query<AccountInfo, AccountInfoQuery>
+class AccountRecordsQuery
+  : public Query<std::vector<TransactionRecord>, AccountRecordsQuery>
 {
 public:
   /**
    * Constructor
    */
-  AccountInfoQuery();
+  AccountRecordsQuery();
 
   /**
    * Derived from Query. Validate the checksums of the account ID.
@@ -105,9 +111,10 @@ public:
    * @param query     The original query.
    * @return          The account info data.
    */
-  virtual AccountInfo mapResponse(const proto::Response& response,
-                                  const AccountId& accountId,
-                                  const proto::Query& query) const override;
+  virtual std::vector<TransactionRecord> mapResponse(
+    const proto::Response& response,
+    const AccountId& accountId,
+    const proto::Query& query) const override;
 
   /**
    * Sets the account ID for which information is requested.
@@ -115,7 +122,7 @@ public:
    * @param accountId The AccountId to be set
    * @return {@code this}
    */
-  AccountInfoQuery& setAccountId(const AccountId& accountId);
+  AccountRecordsQuery& setAccountId(const AccountId& accountId);
 
   /**
    * Extract the account id.
@@ -132,4 +139,4 @@ private:
 };
 } // namespace Hedera
 
-#endif // ACCOUNT_INFO_QUERY_H_
+#endif // ACCOUNT_RECORDS_QUERY_H_

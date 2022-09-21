@@ -36,6 +36,12 @@
 namespace Hedera
 {
 //-----
+AccountInfoQuery::AccountInfoQuery()
+  : mAccountId()
+{
+}
+
+//-----
 void
 AccountInfoQuery::validateChecksums(const Client& client) const
 {
@@ -90,4 +96,5 @@ AccountInfoQuery::setAccountId(const AccountId& accountId)
   mAccountId.setValue(accountId);
   return *this;
 }
+
 } // namespace Hedera
