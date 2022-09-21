@@ -19,18 +19,12 @@
  */
 #include "AccountAllowanceDeleteTransaction.h"
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "NftAllowance.h"
 #include "NftId.h"
 #include "TokenId.h"
 #include "helper/InitType.h"
 
-/**
- * Protobuf includes
- */
 #include "crypto_delete_allowance.pb.h"
 #include "transaction_body.pb.h"
 

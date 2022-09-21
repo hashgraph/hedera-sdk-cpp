@@ -20,22 +20,16 @@
 #ifndef HBAR_ALLOWANCE_H_
 #define HBAR_ALLOWANCE_H_
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class CryptoAllowance;
-} // namespace proto
+}
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 class AccountId;
 class Hbar;
-} // namespace Hedera
+}
 
 namespace Hedera
 {

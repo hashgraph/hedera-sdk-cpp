@@ -20,9 +20,6 @@
 #ifndef NFT_ID_H_
 #define NFT_ID_H_
 
-/**
- * Library includes
- */
 #include "TokenId.h"
 
 namespace Hedera

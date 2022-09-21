@@ -20,13 +20,10 @@
 #ifndef PROXY_STAKER_H_
 #define PROXY_STAKER_H_
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class ProxyStaker;
-} // namespace proto
+}
 
 namespace Hedera
 {
@@ -38,6 +35,7 @@ public:
     return ProxyStaker();
   }
 };
+
 } // namespace Hedera
 
 #endif // PROXY_STAKER_H_

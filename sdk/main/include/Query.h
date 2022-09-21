@@ -20,25 +20,19 @@
 #ifndef QUERY_H_
 #define QUERY_H_
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 class AccountId;
 class Client;
-} // namespace Hedera
+}
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class Query;
 class QueryHeader;
 class Response;
 class ResponseHeader;
-} // namespace proto
+}
 
 namespace Hedera
 {

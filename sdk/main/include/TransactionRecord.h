@@ -20,13 +20,10 @@
 #ifndef TRANSACTION_RECORD_H_
 #define TRANSACTION_RECORD_H_
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class TransactionRecord;
-} // namespace proto
+}
 
 namespace Hedera
 {
@@ -38,5 +35,7 @@ public:
     return TransactionRecord();
   }
 };
+
 } // namespace Hedera
+
 #endif // TRANSACTION_RECORD_H_

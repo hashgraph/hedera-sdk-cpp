@@ -20,9 +20,6 @@
 #ifndef KEY_H_
 #define KEY_H_
 
-/**
- * Protobuf includes
- */
 #include "basic_types.pb.h"
 
 namespace Hedera
@@ -34,6 +31,7 @@ public:
 
   virtual proto::Key* toProtobuf() const { return new proto::Key(); }
 };
+
 } // namespace Hedera
 
 #endif // KEY_H_

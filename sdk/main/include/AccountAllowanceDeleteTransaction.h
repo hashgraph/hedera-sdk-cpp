@@ -20,28 +20,16 @@
 #ifndef ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 #define ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 
-/**
- * Library includes
- */
 #include "Transaction.h"
 
-/**
- * STL includes
- */
 #include <unordered_map>
 #include <vector>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class TransactionBody;
-} // namespace proto
+}
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 template<typename T>
@@ -50,7 +38,7 @@ class InitType;
 class NftAllowance;
 class NftId;
 class TokenId;
-} // namespace Hedera
+}
 
 namespace Hedera
 {
@@ -67,23 +55,25 @@ public:
   AccountAllowanceDeleteTransaction();
 
   /**
-   * Construct from a map of TransactionId's to their corresponding AccountId's
-   * and Transactions
+   * Construct from a map of transaction ID's to their corresponding account
+   * ID's and protobuf transactions.
    *
-   * @param transactions  Compound list of transaction ID's list of (AccountId,
-   *                      TransactionBody) records
+   * @param transactions Map of transaction IDs to their corresponding account
+   *                     ID's and protobuf transactions.
    */
-  AccountAllowanceDeleteTransaction(
+  explicit AccountAllowanceDeleteTransaction(
     const std::unordered_map<
       TransactionId,
       std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
-   * Constructor from a TransactionBody object
+   * Construct from a protobuf transaction object.
    *
-   * @param transaction  protobuf TransactionBody
+   * @param transaction The protobuf transaction object from which to construct
+   *                    this transaction.
    */
-  AccountAllowanceDeleteTransaction(const proto::TransactionBody& transaction);
+  explicit AccountAllowanceDeleteTransaction(
+    const proto::TransactionBody& transaction);
 
   /**
    * Delete all NFT allowances.

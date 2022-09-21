@@ -20,28 +20,16 @@
 #ifndef ACCOUNT_ALLOWANCE_APPROVE_TRANSACTION_H_
 #define ACCOUNT_ALLOWANCE_APPROVE_TRANSACTION_H_
 
-/**
- * Library includes
- */
 #include "Transaction.h"
 
-/**
- * STL includes
- */
 #include <unordered_map>
 #include <vector>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class TransactionBody;
-} // namespace proto
+}
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 template<typename T>
@@ -55,7 +43,7 @@ class NftId;
 class TokenAllowance;
 class TokenId;
 class TransactionId;
-} // namespace Hedera
+}
 
 namespace Hedera
 {
@@ -72,31 +60,33 @@ public:
   AccountAllowanceApproveTransaction();
 
   /**
-   * Construct from a map of TransactionId's to their corresponding AccountId's
-   * and Transactions
+   * Construct from a map of transaction ID's to their corresponding account
+   * ID's and protobuf transactions.
    *
-   * @param transactions  Compound list of transaction ID's list of (AccountId,
-   *                      TransactionBody) records
+   * @param transactions Map of transaction IDs to their corresponding account
+   *                     ID's and protobuf transactions.
    */
-  AccountAllowanceApproveTransaction(
+  explicit AccountAllowanceApproveTransaction(
     const std::unordered_map<
       TransactionId,
       std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
-   * Constructor from a TransactionBody object
+   * Construct from a protobuf transaction object.
    *
-   * @param transaction  protobuf TransactionBody
+   * @param transaction The protobuf transaction object from which to construct
+   *                    this transaction.
    */
-  AccountAllowanceApproveTransaction(const proto::TransactionBody& transaction);
+  explicit AccountAllowanceApproveTransaction(
+    const proto::TransactionBody& transaction);
 
   /**
-   * Approves the Hbar allowance.
+   * Approve an hbar allowance.
    *
    * @param ownerAccountId   The owner's account ID. Can be null if there is no
    *                         owner.
    * @param spenderAccountId The spender's account ID.
-   * @param amount           The amount of Hbar to add. This amount must be
+   * @param amount           The amount of hbar to add. This amount must be
    *                         positive.
    * @return Reference to this AccountAllowanceApproveTransaction object
    */
@@ -106,7 +96,7 @@ public:
     const Hbar& amount);
 
   /**
-   * Approves the token allowance.
+   * Approve a token allowance.
    *
    * @param tokenId          The token's ID.
    * @param ownerAccountId   The owner's account ID. Can be null if there is no
@@ -119,7 +109,7 @@ public:
     const TokenId& tokenId,
     const InitType<AccountId>& ownerAccountId,
     const AccountId& spenderAccountId,
-    const long long& amount);
+    const int64_t& amount);
 
   /**
    * Approves the NFT allowance.
@@ -181,8 +171,7 @@ public:
 
 private:
   /**
-   * Function used to initialize an AccountAllowanceApproveTransaction object
-   * from a protobuf TransactionBody object
+   * Initialize this object from a protobuf transaction body.
    */
   void initFromTransactionBody();
 
@@ -195,10 +184,9 @@ private:
    * @param spenderAccountId The spender's account ID.
    * @return The list of NFT serial numbers for the input token.
    */
-  std::vector<long long> getNftSerials(
-    const TokenId& tokenId,
-    const InitType<AccountId>& ownerAccountId,
-    const AccountId& spenderAccountId);
+  std::vector<int64_t> getNftSerials(const TokenId& tokenId,
+                                     const InitType<AccountId>& ownerAccountId,
+                                     const AccountId& spenderAccountId);
 
   /**
    * Save an NFT serial number for a specific token.
@@ -209,7 +197,7 @@ private:
    *                         owner.
    * @param spenderAccountId The spender's account ID.
    */
-  void saveNftSerial(const long long& serial,
+  void saveNftSerial(const int64_t& serial,
                      const TokenId& tokenId,
                      const InitType<AccountId>& ownerAccountId,
                      const AccountId& spenderAccountId);

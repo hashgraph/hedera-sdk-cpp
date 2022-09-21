@@ -20,18 +20,12 @@
 #ifndef TOKEN_ID_H_
 #define TOKEN_ID_H_
 
-/**
- * STL includes
- */
 #include <string>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class TokenID;
-} // namespace proto
+}
 
 namespace Hedera
 {

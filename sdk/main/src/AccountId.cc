@@ -19,14 +19,8 @@
  */
 #include "AccountId.h"
 
-/**
- * Library includes
- */
 #include "EntityIdHelper.h"
 
-/**
- * Protobuf includes
- */
 #include "basic_types.pb.h"
 
 namespace Hedera

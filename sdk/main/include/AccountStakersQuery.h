@@ -20,37 +20,26 @@
 #ifndef ACCOUNT_STAKERS_QUERY_H_
 #define ACCOUNT_STAKERS_QUERY_H_
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "Query.h"
+
 #include "helper/InitType.h"
 
-/**
- * STL includes
- */
 #include <vector>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class Query;
 class QueryHeader;
 class Response;
 class ResponseHeader;
-} // namespace proto
+}
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 class Client;
 class ProxyStaker;
-} // namespace Hedera
+}
 
 namespace Hedera
 {

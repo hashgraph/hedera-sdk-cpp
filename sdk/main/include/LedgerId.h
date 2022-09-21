@@ -20,15 +20,9 @@
 #ifndef LEDGER_ID_H_
 #define LEDGER_ID_H_
 
-/**
- * STL includes
- */
-#include <string>
-
-/**
- * Protobuf includes
- */
 #include "basic_types.pb.h"
+
+#include <string>
 
 namespace Hedera
 {
@@ -42,6 +36,7 @@ public:
 
   std::string toByteString() const { return std::string(); }
 };
+
 } // namespace Hedera
 
 #endif // LEDGER_ID_H_

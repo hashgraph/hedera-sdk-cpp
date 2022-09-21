@@ -20,14 +20,8 @@
 #ifndef EVM_ADDRESS_H_
 #define EVM_ADDRESS_H_
 
-/**
- * Library includes
- */
 #include "Key.h"
 
-/**
- * STL includes
- */
 #include <string>
 
 namespace Hedera
@@ -44,6 +38,7 @@ public:
 
   std::string toString() const { return std::string(); }
 };
+
 } // namespace Hedera
 
 #endif // EVM_ADDRESS_H_

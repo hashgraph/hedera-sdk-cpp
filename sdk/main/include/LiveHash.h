@@ -20,13 +20,10 @@
 #ifndef LIVE_HASH_H_
 #define LIVE_HASH_H_
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class LiveHash;
-} // namespace proto
+}
 
 namespace Hedera
 {
@@ -38,6 +35,7 @@ public:
     return LiveHash();
   }
 };
+
 } // namespace Hedera
 
 #endif // LIVE_HASH_H_

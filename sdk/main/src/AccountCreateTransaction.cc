@@ -19,14 +19,8 @@
  */
 #include "AccountCreateTransaction.h"
 
-/**
- * Library includes
- */
 #include "helper/DurationConverter.h"
 
-/**
- * Protobuf includes
- */
 #include "crypto_create.pb.h"
 
 namespace Hedera

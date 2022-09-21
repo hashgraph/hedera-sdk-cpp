@@ -20,34 +20,22 @@
 #ifndef CONTRACT_ID_H_
 #define CONTRACT_ID_H_
 
-/**
- * Library includes
- */
 #include "helper/InitType.h"
 
-/**
- * STL includes
- */
 #include <string>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class ContractID;
-} // namespace proto
+}
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 template<typename T>
 class InitType;
 
 class Client;
-} // namespace Hedera
+}
 
 namespace Hedera
 {

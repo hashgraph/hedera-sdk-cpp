@@ -19,16 +19,10 @@
  */
 #include "AccountRecordsQuery.h"
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "AccountInfo.h"
 #include "TransactionRecord.h"
 
-/**
- * Protobuf includes
- */
 #include "crypto_get_account_records.pb.h"
 #include "query.pb.h"
 #include "query_header.pb.h"

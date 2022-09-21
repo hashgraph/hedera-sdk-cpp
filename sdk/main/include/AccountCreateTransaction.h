@@ -20,30 +20,22 @@
 #ifndef ACCOUNT_CREATE_TRANSACTION_H_
 #define ACCOUNT_CREATE_TRANSACTION_H_
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
 #include "Key.h"
 #include "PublicKey.h"
 #include "Transaction.h"
+
 #include "helper/InitType.h"
 
-/**
- * STL includes
- */
 #include <chrono>
 #include <unordered_map>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class TransactionBody;
-} // namespace proto
+}
 
 namespace Hedera
 {
@@ -54,16 +46,16 @@ class AccountCreateTransaction : public Transaction<AccountCreateTransaction>
 {
 public:
   /**
-   * Constructor
+   * Default constructor.
    */
   AccountCreateTransaction();
 
   /**
-   * Construct from a map of TransactionId's to their corresponding AccountId's
-   * and Transactions.
+   * Construct from a map of transaction ID's to their corresponding account
+   * ID's and protobuf transactions.
    *
-   * @param transactions Compound list of transaction ID's list of (AccountId,
-   *                     TransactionBody) records.
+   * @param transactions Map of transaction IDs to their corresponding account
+   *                     ID's and protobuf transactions.
    */
   explicit AccountCreateTransaction(
     const std::unordered_map<
@@ -71,9 +63,10 @@ public:
       std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
-   * Constructor from a TransactionBody object.
+   * Construct from a protobuf transaction object.
    *
-   * @param transaction The protobuf transaction body.
+   * @param transaction The protobuf transaction object from which to construct
+   *                    this transaction.
    */
   explicit AccountCreateTransaction(const proto::TransactionBody& transaction);
 

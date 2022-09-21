@@ -19,16 +19,11 @@
  */
 #include "AccountInfo.h"
 
-/**
- * Library includes
- */
 #include "LiveHash.h"
+
 #include "helper/DurationConverter.h"
 #include "helper/InstantConverter.h"
 
-/**
- * Protobuf includes
- */
 #include "crypto_get_info.pb.h"
 
 namespace Hedera

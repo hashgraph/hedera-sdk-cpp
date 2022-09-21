@@ -19,14 +19,8 @@
  */
 #include "AccountBalanceQuery.h"
 
-/**
- * Library includes
- */
 #include "AccountBalance.h"
 
-/**
- * Protobuf includes
- */
 #include "basic_types.pb.h"
 #include "crypto_get_account_balance.pb.h"
 #include "query.pb.h"
