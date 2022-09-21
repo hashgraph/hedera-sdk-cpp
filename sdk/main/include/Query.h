@@ -25,6 +25,7 @@
  */
 namespace Hedera
 {
+class AccountId;
 class Client;
 } // namespace Hedera
 
@@ -91,7 +92,8 @@ public:
    * @param query  The query of which to extract the header.
    * @return       The query header.
    */
-  virtual proto::QueryHeader mapRequestHeader(const proto::Query& query) const = 0;
+  virtual proto::QueryHeader mapRequestHeader(
+    const proto::Query& query) const = 0;
 
   /**
    * Validate the checksums.

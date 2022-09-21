@@ -27,6 +27,7 @@
 #include "Hbar.h"
 #include "Key.h"
 #include "LedgerId.h"
+#include "LiveHash.h"
 #include "StakingInfo.h"
 #include "helper/InitType.h"
 
@@ -44,14 +45,6 @@ namespace proto
 {
 class CryptoGetInfoResponse_AccountInfo;
 } // namespace proto
-
-/**
- * Hedera forward declarations
- */
-namespace Hedera
-{
-class LiveHash;
-} // namespace Hedera
 
 namespace Hedera
 {
