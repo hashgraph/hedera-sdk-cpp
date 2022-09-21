@@ -86,7 +86,7 @@ public:
 
   /**
    * Set the key for this account. The key that must sign each transfer out of
-   * the account. If receiverSignatureRequired is true, then it must also sign
+   * the account. If mReceiverSignatureRequired is true, then it must also sign
    * any transfer into the account.
    *
    * @param key The key for this account.

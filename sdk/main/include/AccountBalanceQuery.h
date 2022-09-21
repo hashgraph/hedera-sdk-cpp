@@ -137,7 +137,7 @@ public:
   /**
    * Return the account ID of the account for which this query is meant.
    *
-   * @return The AccountId of the query.
+   * @return The account ID of the query.
    */
   inline InitType<AccountId> getAccountId() { return mAccountId; }
 
@@ -145,7 +145,7 @@ public:
    * The account ID for which the balance is being requested. This is mutually
    * exclusive with setContractId().
    *
-   * @param accountId The AccountId to set.
+   * @param accountId The account ID to set.
    * @return Reference to this AccountBalanceQuery object.
    */
   inline AccountBalanceQuery& setAccountId(const AccountId& accountId)
