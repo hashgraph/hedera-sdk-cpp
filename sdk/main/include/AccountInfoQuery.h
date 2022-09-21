@@ -120,7 +120,7 @@ public:
   /**
    * Extract the account id.
    *
-   * @return                          the account id
+   * @return The account id.
    */
   inline InitType<AccountId> getAccountId() { return mAccountId; }
 
@@ -130,6 +130,7 @@ private:
    */
   InitType<AccountId> mAccountId;
 };
+
 } // namespace Hedera
 
 #endif // ACCOUNT_INFO_QUERY_H_

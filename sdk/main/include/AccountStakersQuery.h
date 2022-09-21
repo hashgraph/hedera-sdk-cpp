@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_RECORDS_QUERY_H_
-#define ACCOUNT_RECORDS_QUERY_H_
+#ifndef ACCOUNT_STAKERS_QUERY_H_
+#define ACCOUNT_STAKERS_QUERY_H_
 
 /**
  * Library includes
@@ -49,23 +49,25 @@ class ResponseHeader;
 namespace Hedera
 {
 class Client;
-class TransactionRecord;
+class ProxyStaker;
 } // namespace Hedera
 
 namespace Hedera
 {
 /**
- * Get all the records for an account for any transfers into it and out of it,
- * that were above the threshold, during the last 25 hours.
+ * Get all the accounts that are proxy staking to this account.
+ * For each of them, give the amount currently staked.
+ *
+ * This is not yet implemented, but will be in a future version of the API.
  */
-class AccountRecordsQuery
-  : public Query<std::vector<TransactionRecord>, AccountRecordsQuery>
+class AccountStakersQuery
+  : public Query<std::vector<ProxyStaker>, AccountStakersQuery>
 {
 public:
   /**
    * Constructor
    */
-  AccountRecordsQuery();
+  AccountStakersQuery();
 
   /**
    * Derived from Query. Validate the checksums of the account ID.
@@ -85,7 +87,7 @@ public:
                              proto::QueryHeader* header) const override;
 
   /**
-   * Derived from Query. Get the account records header from the response.
+   * Derived from Query. Get the account stakers header from the response.
    *
    * @param response The associated response to this query.
    * @return         The response header for the derived class's query.
@@ -94,24 +96,24 @@ public:
     proto::Response* response) const override;
 
   /**
-   * Derived from Query. Grab the account records query header.
+   * Derived from Query. Grab the account stakers query header.
    *
    * @param query  The query of which to extract the header.
-   * @return       The account records query header.
+   * @return       The account stakers query header.
    */
   virtual proto::QueryHeader mapRequestHeader(
     const proto::Query& query) const override;
 
   /**
-   * Derived from Query. Extract the account records data from the response
+   * Derived from Query. Extract the account stakers data from the response
    * object.
    *
    * @param response  The received response from Hedera.
    * @param accountId The account ID that made the request.
    * @param query     The original query.
-   * @return          The account records data.
+   * @return          The account stakers data.
    */
-  virtual std::vector<TransactionRecord> mapResponse(
+  virtual std::vector<ProxyStaker> mapResponse(
     const proto::Response& response,
     const AccountId& accountId,
     const proto::Query& query) const override;
@@ -122,7 +124,7 @@ public:
    * @param accountId The AccountId to be set
    * @return {@code this}
    */
-  AccountRecordsQuery& setAccountId(const AccountId& accountId);
+  AccountStakersQuery& setAccountId(const AccountId& accountId);
 
   /**
    * Extract the account id.
@@ -140,4 +142,4 @@ private:
 
 } // namespace Hedera
 
-#endif // ACCOUNT_RECORDS_QUERY_H_
+#endif // ACCOUNT_STAKERS_QUERY_H_
