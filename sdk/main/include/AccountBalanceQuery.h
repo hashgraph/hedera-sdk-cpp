@@ -106,9 +106,9 @@ public:
    * @param query     The original query.
    * @return          The account balance data.
    */
-  AccountBalance mapResponse(const proto::Response& response,
-                             const AccountId& accountId,
-                             const proto::Query& query) const override;
+  virtual AccountBalance mapResponse(const proto::Response& response,
+                                     const AccountId& accountId,
+                                     const proto::Query& query) const override;
 
   /**
    * Derived from Query. Grab the account balance query header.
