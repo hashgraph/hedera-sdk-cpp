@@ -20,18 +20,12 @@
 #ifndef NFT_ALLOWANCE_H_
 #define NFT_ALLOWANCE_H_
 
-/**
- * STL includes
- */
 #include <vector>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class NftAllowance;
-} // namespace proto
+}
 
 namespace Hedera
 {
@@ -40,7 +34,7 @@ class InitType;
 
 class AccountId;
 class TokenId;
-} // namespace Hedera
+}
 
 namespace Hedera
 {
@@ -55,7 +49,7 @@ public:
   NftAllowance(const InitType<TokenId>& tokenId,
                const InitType<AccountId>& ownerAccountId,
                const InitType<AccountId>& spenderAccountId,
-               const std::vector<long long>& serialNumbers,
+               const std::vector<int64_t>& serialNumbers,
                bool allSerials)
   {
   }
@@ -65,7 +59,7 @@ public:
     return NftAllowance();
   }
 
-  std::vector<long long> mSerialNumbers;
+  std::vector<int64_t> mSerialNumbers;
   bool allSerials;
 };
 

@@ -20,14 +20,8 @@
 #ifndef HELPER_DURATION_CONVERTER_H_
 #define HELPER_DURATION_CONVERTER_H_
 
-/**
- * Protobuf includes
- */
 #include "duration.pb.h"
 
-/**
- * STL includes
- */
 #include <chrono>
 
 namespace Hedera

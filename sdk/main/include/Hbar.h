@@ -20,14 +20,8 @@
 #ifndef HBAR_H_
 #define HBAR_H_
 
-/**
- * Library includes
- */
 #include "HbarUnit.h"
 
-/**
- * STL includes
- */
 #include <cmath>
 
 namespace Hedera

@@ -20,9 +20,6 @@
 #ifndef HBAR_UNIT_H_
 #define HBAR_UNIT_H_
 
-/**
- * STL includes
- */
 #include <map>
 #include <string>
 

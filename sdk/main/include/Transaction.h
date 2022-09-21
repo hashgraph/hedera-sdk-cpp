@@ -20,31 +20,19 @@
 #ifndef TRANSACTION_H_
 #define TRANSACTION_H_
 
-/**
- * Library includes
- */
 #include "Hbar.h"
 
-/**
- * Protobuf includes
- */
 #include "transaction_body.pb.h"
 
-/**
- * STL includes
- */
 #include <chrono>
 #include <unordered_map>
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 class AccountId;
 class Client;
 class TransactionId;
-} // namespace Hedera
+}
 
 namespace Hedera
 {

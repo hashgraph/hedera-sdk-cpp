@@ -20,32 +20,24 @@
 #ifndef ACCOUNT_INFO_QUERY_H_
 #define ACCOUNT_INFO_QUERY_H_
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "Query.h"
+
 #include "helper/InitType.h"
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class Query;
 class QueryHeader;
 class Response;
 class ResponseHeader;
-} // namespace proto
+}
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 class AccountInfo;
 class Client;
-} // namespace Hedera
+}
 
 namespace Hedera
 {

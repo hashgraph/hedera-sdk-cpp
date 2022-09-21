@@ -19,20 +19,15 @@
  */
 #include "AccountAllowanceApproveTransaction.h"
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "Hbar.h"
 #include "HbarAllowance.h"
 #include "NftAllowance.h"
 #include "NftId.h"
 #include "TokenAllowance.h"
+
 #include "helper/InitType.h"
 
-/**
- * Protobuf includes
- */
 #include "basic_types.pb.h"
 #include "crypto_approve_allowance.pb.h"
 #include "transaction_body.pb.h"
@@ -92,7 +87,7 @@ AccountAllowanceApproveTransaction::approveTokenAllowance(
   const TokenId& tokenId,
   const InitType<AccountId>& ownerAccountId,
   const AccountId& spenderAccountId,
-  const long long& amount)
+  const int64_t& amount)
 {
   requireNotFrozen();
 
@@ -188,7 +183,7 @@ AccountAllowanceApproveTransaction::initFromTransactionBody()
 }
 
 //-----
-std::vector<long long>
+std::vector<int64_t>
 AccountAllowanceApproveTransaction::getNftSerials(
   const TokenId& tokenId,
   const InitType<AccountId>& ownerAccountId,
@@ -202,13 +197,13 @@ AccountAllowanceApproveTransaction::getNftSerials(
     return mNftAllowances.at(mNftMap.at(key)).mSerialNumbers;
   }
 
-  return std::vector<long long>();
+  return std::vector<int64_t>();
 }
 
 //-----
 void
 AccountAllowanceApproveTransaction::saveNftSerial(
-  const long long& serial,
+  const int64_t& serial,
   const TokenId& tokenId,
   const InitType<AccountId>& ownerAccountId,
   const AccountId& spenderAccountId)
@@ -226,7 +221,7 @@ AccountAllowanceApproveTransaction::saveNftSerial(
     mNftAllowances.push_back(NftAllowance(InitType<TokenId>(tokenId),
                                           ownerAccountId,
                                           InitType<AccountId>(spenderAccountId),
-                                          std::vector<long long>({ serial }),
+                                          std::vector<int64_t>({ serial }),
                                           false));
   }
 }
@@ -251,7 +246,7 @@ AccountAllowanceApproveTransaction::saveAllNftSerials(
     mNftAllowances.push_back(NftAllowance(InitType<TokenId>(tokenId),
                                           ownerAccountId,
                                           InitType<AccountId>(spenderAccountId),
-                                          std::vector<long long>(),
+                                          std::vector<int64_t>(),
                                           true));
   }
 }

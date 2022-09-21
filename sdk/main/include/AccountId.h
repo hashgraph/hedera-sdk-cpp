@@ -20,37 +20,26 @@
 #ifndef ACCOUNT_ID_H_
 #define ACCOUNT_ID_H_
 
-/**
- * Library includes
- */
 #include "EvmAddress.h"
 #include "PublicKey.h"
+
 #include "helper/InitType.h"
 
-/**
- * STL includes
- */
 #include <regex>
 #include <string>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class AccountID;
-} // namespace proto
+}
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 template<typename T>
 class InitType;
 
 class Client;
-} // namespace Hedera
+}
 
 namespace Hedera
 {

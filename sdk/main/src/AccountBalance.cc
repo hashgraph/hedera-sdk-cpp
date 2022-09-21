@@ -19,9 +19,6 @@
  */
 #include "AccountBalance.h"
 
-/**
- * Protobuf includes
- */
 #include "crypto_get_account_balance.pb.h"
 
 namespace Hedera

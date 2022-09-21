@@ -42,7 +42,7 @@ public:
   TokenAllowance(const TokenId& tokenId,
                  const InitType<AccountId>& ownerAccountId,
                  const AccountId& spenderAccountId,
-                 const long long& amount)
+                 const int64_t& amount)
   {
   }
 

@@ -20,14 +20,8 @@
 #ifndef HELPER_INSTANT_CONVERTER_H_
 #define HELPER_INSTANT_CONVERTER_H_
 
-/**
- * Protobuf includes
- */
 #include "timestamp.pb.h"
 
-/**
- * STL includes
- */
 #include <chrono>
 
 namespace Hedera

@@ -19,16 +19,10 @@
  */
 #include "AccountStakersQuery.h"
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "AccountInfo.h"
 #include "ProxyStaker.h"
 
-/**
- * Protobuf includes
- */
 #include "crypto_get_stakers.pb.h"
 #include "query.pb.h"
 #include "query_header.pb.h"

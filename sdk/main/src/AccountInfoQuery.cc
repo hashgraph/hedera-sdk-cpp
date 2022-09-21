@@ -19,15 +19,9 @@
  */
 #include "AccountInfoQuery.h"
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "AccountInfo.h"
 
-/**
- * Protobuf includes
- */
 #include "crypto_get_info.pb.h"
 #include "query.pb.h"
 #include "query_header.pb.h"

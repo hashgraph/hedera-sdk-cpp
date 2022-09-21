@@ -20,18 +20,12 @@
 #ifndef ACCOUNT_BALANCE_H_
 #define ACCOUNT_BALANCE_H_
 
-/**
- * Libary includes
- */
 #include "Hbar.h"
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class CryptoGetAccountBalanceResponse;
-} // namespace proto
+}
 
 namespace Hedera
 {

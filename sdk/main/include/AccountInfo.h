@@ -20,31 +20,23 @@
 #ifndef ACCOUNT_INFO_H_
 #define ACCOUNT_INFO_H_
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "Hbar.h"
 #include "Key.h"
 #include "LedgerId.h"
 #include "LiveHash.h"
 #include "StakingInfo.h"
+
 #include "helper/InitType.h"
 
-/**
- * STL includes
- */
 #include <chrono>
 #include <string>
 #include <vector>
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class CryptoGetInfoResponse_AccountInfo;
-} // namespace proto
+}
 
 namespace Hedera
 {
@@ -212,6 +204,7 @@ public:
    */
   InitType<StakingInfo> mStakingInfo;
 };
+
 } // namespace Hedera
 
 #endif // ACCOUNT_INFO_H_

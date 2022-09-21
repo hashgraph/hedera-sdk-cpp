@@ -20,9 +20,6 @@
 #ifndef PUBLIC_KEY_H_
 #define PUBLIC_KEY_H_
 
-/**
- * Library includes
- */
 #include "Key.h"
 
 namespace Hedera
@@ -39,6 +36,7 @@ public:
 
   std::string toStringDER() const { return std::string(); }
 };
+
 } // namespace Hedera
 
 #endif // PUBLIC_KEY_H_

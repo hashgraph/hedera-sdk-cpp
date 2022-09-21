@@ -19,9 +19,6 @@
  */
 #include "AccountDeleteTransaction.h"
 
-/**
- * Protobuf includes
- */
 #include "crypto_delete.pb.h"
 
 namespace Hedera

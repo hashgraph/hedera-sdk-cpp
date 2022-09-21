@@ -20,33 +20,25 @@
 #ifndef ACCOUNT_BALANCE_QUERY_H_
 #define ACCOUNT_BALANCE_QUERY_H_
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 #include "ContractId.h"
 #include "Query.h"
+
 #include "helper/InitType.h"
 
-/**
- * Protobuf forward declarations
- */
 namespace proto
 {
 class Query;
 class QueryHeader;
 class Response;
 class ResponseHeader;
-} // namespace proto
+}
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 class AccountBalance;
 class Client;
-} // namespace Hedera
+}
 
 namespace Hedera
 {

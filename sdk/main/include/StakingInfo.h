@@ -20,9 +20,6 @@
 #ifndef STAKING_INFO_H_
 #define STAKING_INFO_H_
 
-/**
- * Protobuf includes
- */
 #include "basic_types.pb.h"
 
 namespace Hedera
@@ -37,6 +34,7 @@ public:
 
   proto::StakingInfo* toProtobuf() const { return new proto::StakingInfo(); }
 };
+
 } // namespace Hedera
 
 #endif // STAKING_INFO_H_

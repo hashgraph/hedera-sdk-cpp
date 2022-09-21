@@ -20,26 +20,17 @@
 #ifndef ENTITY_ID_HELPER_H_
 #define ENTITY_ID_HELPER_H_
 
-/**
- * Library includes
- */
 #include "AccountId.h"
 
-/**
- * STL includes
- */
 #include <string>
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 template<typename T>
 class InitType;
 
 class Client;
-} // namespace Hedera
+}
 
 namespace Hedera
 {
