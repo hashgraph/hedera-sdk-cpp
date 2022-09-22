@@ -22,12 +22,9 @@
 
 #include "helper/InitType.h"
 
-#include <string>
+#include "basic_types.pb.h"
 
-namespace proto
-{
-class ContractID;
-}
+#include <string>
 
 namespace Hedera
 {

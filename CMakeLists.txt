@@ -118,6 +118,7 @@ add_library(${PROJECT_NAME} SHARED
     sdk/main/src/AccountRecordsQuery.cc
     sdk/main/src/AccountStakersQuery.cc
     sdk/main/src/AccountUpdateTransaction.cc
+    sdk/main/src/ContractByteCodeQuery.cc
     sdk/main/src/HbarUnit.cc
     
     sdk/main/src/helper/DurationConverter.cc
