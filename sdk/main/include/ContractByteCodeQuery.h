@@ -17,13 +17,20 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_INFO_QUERY_H_
-#define ACCOUNT_INFO_QUERY_H_
+#ifndef CONTRACT_BYTE_CODE_QUERY_H_
+#define CONTRACT_BYTE_CODE_QUERY_H_
 
-#include "AccountId.h"
+#include "ContractId.h"
 #include "Query.h"
 
 #include "helper/InitType.h"
+
+#include <string>
+
+namespace Hedera
+{
+class Client;
+}
 
 namespace proto
 {
@@ -35,28 +42,18 @@ class ResponseHeader;
 
 namespace Hedera
 {
-class AccountInfo;
-class Client;
-}
-
-namespace Hedera
-{
-/**
- * Get all the information about an account, including the balance.
- * This does not get the list of account records.
- */
-class AccountInfoQuery : public Query<AccountInfo, AccountInfoQuery>
+class ContractByteCodeQuery : public Query<std::string, ContractByteCodeQuery>
 {
 public:
   /**
-   * Constructor
+   * Constructor.
    */
-  AccountInfoQuery();
+  ContractByteCodeQuery();
 
   /**
-   * Derived from Query. Validate the checksums of the account ID.
+   * Derived from Query. Validate the checksums.
    *
-   * @param client  The client with which to validate the checksums
+   * @param client The client with which to validate the checksums.
    */
   virtual void validateChecksums(const Client& client) const override;
 
@@ -71,7 +68,7 @@ public:
                              proto::QueryHeader* header) const override;
 
   /**
-   * Derived from Query. Get the account info header from the response.
+   * Derived from Query. Get the contract byte code header from the response.
    *
    * @param response The associated response to this query.
    * @return         The response header for the derived class's query.
@@ -80,7 +77,7 @@ public:
     proto::Response* response) const override;
 
   /**
-   * Derived from Query. Grab the account info query header.
+   * Derived from Query. Grab the contract byte code query header.
    *
    * @param query  The query of which to extract the header.
    * @return       The account info query header.
@@ -89,40 +86,39 @@ public:
     const proto::Query& query) const override;
 
   /**
-   * Derived from Query. Extract the account info data from the response
+   * Derived from Query. Extract the contract byte code data from the response
    * object.
    *
    * @param response  The received response from Hedera.
    * @param accountId The account ID that made the request.
    * @param query     The original query.
-   * @return          The account info data.
+   * @return          The contract byte code data.
    */
-  virtual AccountInfo mapResponse(const proto::Response& response,
+  virtual std::string mapResponse(const proto::Response& response,
                                   const AccountId& accountId,
                                   const proto::Query& query) const override;
 
   /**
-   * Sets the account ID for which information is requested.
+   * Sets the contract ID for which information is requested.
    *
-   * @param accountId The AccountId to be set
-   * @return          Reference to this AccountInfoQuery object.
+   * @param contractId The contract ID to be set.
+   * @return           Reference to this ContractByteCodeQuery object.
    */
-  AccountInfoQuery& setAccountId(const AccountId& accountId);
+  ContractByteCodeQuery& setContractId(const ContractId& contractId);
 
   /**
-   * Extract the account id.
+   * Extract the contract ID.
    *
-   * @return The account id.
+   * @return The contract ID. Can be invalid if not set.
    */
-  inline InitType<AccountId> getAccountId() { return mAccountId; }
+  inline InitType<ContractId> getContractId() { return mContractId; }
 
 private:
   /**
-   * The account ID of the account of which to get the account information.
+   * The contract ID of the contract for which information is requested.
    */
-  InitType<AccountId> mAccountId;
+  InitType<ContractId> mContractId;
 };
-
 } // namespace Hedera
 
-#endif // ACCOUNT_INFO_QUERY_H_
+#endif // CONTRACT_BYTE_CODE_QUERY_H_
