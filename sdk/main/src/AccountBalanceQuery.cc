@@ -114,4 +114,20 @@ AccountBalanceQuery::mapRequestHeader(const proto::Query& query) const
   return query.cryptogetaccountbalance().header();
 }
 
+//-----
+AccountBalanceQuery&
+AccountBalanceQuery::setAccountId(const AccountId& accountId)
+{
+  mAccountId.setValue(accountId);
+  return *this;
+}
+
+//-----
+AccountBalanceQuery&
+AccountBalanceQuery::setContractId(const ContractId& contractId)
+{
+  mContractId.setValue(contractId);
+  return *this;
+}
+
 } // namespace Hedera

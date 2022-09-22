@@ -137,7 +137,7 @@ public:
    * @return                Reference to this AccountUpdateTransaction object.
    */
   AccountUpdateTransaction& setMaxAutomaticTokenAssociations(
-    int maxAssociations);
+    int32_t maxAssociations);
 
   /**
    * Sets the staked account ID for this account update.
@@ -154,7 +154,7 @@ public:
    * @param stakedNodeId The staked node ID of this account update.
    * @return             Reference to this AccountUpdateTransaction object.
    */
-  AccountUpdateTransaction& setStakedNodeId(const long long& stakedNodeId);
+  AccountUpdateTransaction& setStakedNodeId(const int64_t& stakedNodeId);
 
   /**
    * Set that this account update is decling staking rewards.
@@ -212,7 +212,7 @@ public:
    * @return The max automatic token associations of this account update.
    * Invalid if not set.
    */
-  inline InitType<int> getMaxAutomaticTokenAssociations() const
+  inline InitType<int32_t> getMaxAutomaticTokenAssociations() const
   {
     return mMaxAutomaticTokenAssociations;
   }
@@ -232,7 +232,7 @@ public:
    *
    * @return The staked node ID of this account update. Invalid if not set.
    */
-  inline InitType<long long> getStakedNodeId() const { return mStakedNodeId; }
+  inline InitType<int64_t> getStakedNodeId() const { return mStakedNodeId; }
 
   /**
    * @brief Determine if this account update is declining staking rewards.
@@ -256,9 +256,9 @@ private:
   InitType<std::chrono::nanoseconds> mExpirationTime;
   InitType<std::chrono::days> mAutoRenewPeriod;
   InitType<std::string> mAccountMemo;
-  InitType<int> mMaxAutomaticTokenAssociations;
+  InitType<int32_t> mMaxAutomaticTokenAssociations;
   InitType<AccountId> mStakedAccountId;
-  InitType<long long> mStakedNodeId;
+  InitType<int64_t> mStakedNodeId;
   InitType<bool> mDeclineStakingReward;
 };
 

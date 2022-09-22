@@ -126,7 +126,8 @@ public:
    * @param associations The maximum amount of associations to set.
    * @return             Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setMaxAutomaticTokenAssociations(int associations);
+  AccountCreateTransaction& setMaxAutomaticTokenAssociations(
+    int32_t associations);
 
   /**
    * Assign a memo to the account.
@@ -137,7 +138,8 @@ public:
   AccountCreateTransaction& setAccountMemo(const std::string& memo);
 
   /**
-   * Set the account to which this account will stake.
+   * Set the account to which this account will stake. This will reset the value
+   * of the staked node ID if it is set.
    *
    * @param stakedAccountId The ID of the account to which this account will
    *                        stake.
@@ -147,13 +149,13 @@ public:
     const AccountId& stakedAccountId);
 
   /**
-   * Set the node to which this account will stake.
+   * Set the node to which this account will stake. This will reset the value of
+   * the staked account ID if it is set.
    *
    * @param stakedNodeId The ID of the node to which this account will stake.
    * @return             Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setStakedNodeId(
-    const unsigned long long& stakedNodeId);
+  AccountCreateTransaction& setStakedNodeId(const int64_t& stakedNodeId);
 
   /**
    * Set this account's staking reward reception policy.
@@ -240,7 +242,7 @@ public:
    *
    * @return The max automatic token associations.
    */
-  inline int getMaxAutomaticTokenAssociations() const
+  inline int32_t getMaxAutomaticTokenAssociations() const
   {
     return mMaxAutomaticTokenAssociations;
   }
@@ -267,10 +269,7 @@ public:
    *
    * @return ID of the node to which this account will stake.
    */
-  inline InitType<unsigned long long> getStakedNodeId() const
-  {
-    return mStakedNodeId;
-  }
+  inline InitType<int64_t> getStakedNodeId() const { return mStakedNodeId; }
 
   /**
    * Extract if this account declines receiving staking rewards.
@@ -338,7 +337,7 @@ private:
   /**
    * The maximum number of token associations for this account. Defaults to 0.
    */
-  int mMaxAutomaticTokenAssociations;
+  int32_t mMaxAutomaticTokenAssociations;
 
   /**
    * The account to which this account is staked. Defaults to uninitialized.
@@ -348,7 +347,7 @@ private:
   /**
    * The node to which this account is staked. Defaults to uninitialized.
    */
-  InitType<unsigned long long> mStakedNodeId;
+  InitType<int64_t> mStakedNodeId;
 
   /**
    * \c TRUE if the account should decline staking rewards, otherwise \c FALSE.

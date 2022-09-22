@@ -31,7 +31,7 @@ class NftId
 {
 public:
   TokenId mTokenId;
-  long long mSerial;
+  int64_t mSerial;
 };
 
 } // namespace Hedera

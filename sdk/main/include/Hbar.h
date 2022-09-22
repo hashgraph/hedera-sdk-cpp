@@ -48,7 +48,7 @@ public:
    *
    * @param amount The amount of Hbar
    */
-  explicit Hbar(const long long& amount)
+  explicit Hbar(const int64_t& amount)
     : Hbar(amount, HbarUnit::HBAR)
   {
   }
@@ -59,7 +59,7 @@ public:
    * @param amount The amount
    * @param unit   The unit for amount
    */
-  explicit Hbar(const long long& amount, const HbarUnit& unit)
+  explicit Hbar(const int64_t& amount, const HbarUnit& unit)
     : mValueInTinybar(amount * unit.getTinybars())
   {
   }
@@ -100,7 +100,7 @@ public:
    * @param amount The amount of Hbar
    * @return       An Hbar object with the specified amount
    */
-  static inline Hbar from(const long long& amount)
+  static inline Hbar from(const int64_t& amount)
   {
     return Hbar(amount, HbarUnit::HBAR);
   }
@@ -112,7 +112,7 @@ public:
    * @param unit   The unit to convert from to Hbar
    * @return       An Hbar object with the specified amount and unit
    */
-  static inline Hbar from(const long long& amount, const HbarUnit& unit)
+  static inline Hbar from(const int64_t& amount, const HbarUnit& unit)
   {
     return Hbar(amount, unit);
   }
@@ -146,7 +146,7 @@ public:
    * @param tinybars The long representing the amount of tinybar
    * @return         An Hbar object with the specified amount and unit
    */
-  static inline Hbar fromTinybars(const long long& tinybars)
+  static inline Hbar fromTinybars(const int64_t& tinybars)
   {
     return Hbar(tinybars, HbarUnit::TINYBAR);
   }

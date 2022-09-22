@@ -58,10 +58,10 @@ public:
 
   inline void validateChecksum(const Client& client) const {}
 
-  unsigned long long mRealm;
-  unsigned long long mShard;
+  int64_t mRealm;
+  int64_t mShard;
 
-  InitType<unsigned long long> mContractNum;
+  InitType<int64_t> mContractNum;
   InitType<std::string> mEvmAddress;
 };
 
