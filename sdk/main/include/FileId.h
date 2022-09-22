@@ -17,25 +17,28 @@
  * limitations under the License.
  *
  */
-#include "helper/DurationConverter.h"
+#ifndef FILE_ID_H_
+#define FILE_ID_H_
 
 namespace Hedera
 {
-namespace DurationConverter
-{
-//----
-std::chrono::seconds
-fromProtobuf(const proto::Duration& duration)
-{
-  return std::chrono::seconds();
+class Client;
 }
 
-//-----
-proto::Duration*
-toProtobuf(const std::chrono::seconds& secs)
+namespace proto
 {
-  return new proto::Duration();
+class FileID;
 }
 
-} // namespace DurationConverter
+namespace Hedera
+{
+class FileId
+{
+public:
+  static FileId fromProtobuf(const proto::FileID& proto) { return FileId(); }
+  proto::FileID* toProtobuf() const { return new proto::FileID(); }
+  void validateChecksum(const Client& client) const { return; }
+};
 } // namespace Hedera
+
+#endif // FILE_ID_H_

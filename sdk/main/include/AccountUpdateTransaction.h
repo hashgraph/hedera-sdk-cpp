@@ -110,7 +110,7 @@ public:
    * @return                Reference to this AccountUpdateTransaction object.
    */
   AccountUpdateTransaction& setAutoRenewPeriod(
-    const std::chrono::days& autoRenewPeriod);
+    const std::chrono::seconds& autoRenewPeriod);
 
   /**
    * Set that this account update is requiring receiver signatures.
@@ -194,7 +194,7 @@ public:
    *
    * @return The auto renew period of this account update. Invalid if not set.
    */
-  inline InitType<std::chrono::days> getAutoRenewPeriod() const
+  inline InitType<std::chrono::seconds> getAutoRenewPeriod() const
   {
     return mAutoRenewPeriod;
   }
@@ -254,7 +254,7 @@ private:
   InitType<AccountId> mAccountId;
   InitType<Key> mKey;
   InitType<std::chrono::nanoseconds> mExpirationTime;
-  InitType<std::chrono::days> mAutoRenewPeriod;
+  InitType<std::chrono::seconds> mAutoRenewPeriod;
   InitType<std::string> mAccountMemo;
   InitType<int32_t> mMaxAutomaticTokenAssociations;
   InitType<AccountId> mStakedAccountId;

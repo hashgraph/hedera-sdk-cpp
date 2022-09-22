@@ -34,7 +34,7 @@ namespace DurationConverter
  * @param duration The duration protobuf.
  * @return         The days represented by the input duration.
  */
-std::chrono::days
+std::chrono::seconds
 fromProtobuf(const proto::Duration& duration);
 
 proto::Duration*

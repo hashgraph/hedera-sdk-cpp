@@ -90,7 +90,7 @@ AccountUpdateTransaction::setExpirationTime(
 //-----
 AccountUpdateTransaction&
 AccountUpdateTransaction::setAutoRenewPeriod(
-  const std::chrono::days& autoRenewPeriod)
+  const std::chrono::seconds& autoRenewPeriod)
 {
   requireNotFrozen();
 

@@ -118,7 +118,7 @@ public:
    * @return                Reference to this AccountCreateTransaction object.
    */
   AccountCreateTransaction& setAutoRenewPeriod(
-    const std::chrono::days& autoRenewPeriod);
+    const std::chrono::seconds& autoRenewPeriod);
 
   /**
    * Set the maximum automatic token associations.
@@ -232,7 +232,7 @@ public:
    *
    * @return The duration for auto-renew period.
    */
-  inline std::chrono::days getAutoRenewPeriod() const
+  inline std::chrono::seconds getAutoRenewPeriod() const
   {
     return mAutoRenewPeriod;
   }
@@ -332,7 +332,7 @@ private:
    * If the balance is zero when it expires, then the account is deleted.
    * Defaults to 3 months (90 days).
    */
-  std::chrono::days mAutoRenewPeriod;
+  std::chrono::seconds mAutoRenewPeriod;
 
   /**
    * The maximum number of token associations for this account. Defaults to 0.

@@ -105,7 +105,7 @@ AccountCreateTransaction::setReceiverSignatureRequired(
 //-----
 AccountCreateTransaction&
 AccountCreateTransaction::setAutoRenewPeriod(
-  const std::chrono::days& autoRenewPeriod)
+  const std::chrono::seconds& autoRenewPeriod)
 {
   requireNotFrozen();
 

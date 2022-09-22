@@ -156,7 +156,7 @@ public:
    *
    * @return The amount this Hbar object contains in tinybars
    */
-  inline long long toTinybars() const { return mValueInTinybar; }
+  inline int64_t toTinybars() const { return mValueInTinybar; }
 
   /**
    * Convert this hbar value to a different unit.
@@ -222,7 +222,7 @@ private:
   /**
    * The value of this Hbar object in tinybars
    */
-  long long mValueInTinybar;
+  int64_t mValueInTinybar;
 };
 
 } // namespace Hedera

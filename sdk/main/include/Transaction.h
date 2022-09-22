@@ -69,7 +69,7 @@ protected:
 
   Hbar mDefaultMaxTransactionFee;
 
-  std::chrono::days mDefaultAutoRenewPeriod;
+  std::chrono::seconds mDefaultAutoRenewPeriod;
 };
 
 } // namespace Hedera
