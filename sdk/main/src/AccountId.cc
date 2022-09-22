@@ -44,7 +44,7 @@ AccountId::AccountId()
 }
 
 //-----
-AccountId::AccountId(const unsigned long long& num)
+AccountId::AccountId(const int64_t& num)
   : mShard(0)
   , mRealm(0)
   , mAccountNum(num)
@@ -55,9 +55,9 @@ AccountId::AccountId(const unsigned long long& num)
 }
 
 //-----
-AccountId::AccountId(const unsigned long long& shard,
-                     const unsigned long long& realm,
-                     const unsigned long long& num)
+AccountId::AccountId(const int64_t& shard,
+                     const int64_t& realm,
+                     const int64_t& num)
   : mShard(shard)
   , mRealm(realm)
   , mAccountNum(num)
@@ -68,9 +68,9 @@ AccountId::AccountId(const unsigned long long& shard,
 }
 
 //-----
-AccountId::AccountId(const unsigned long long& shard,
-                     const unsigned long long& realm,
-                     const unsigned long long& num,
+AccountId::AccountId(const int64_t& shard,
+                     const int64_t& realm,
+                     const int64_t& num,
                      const InitType<PublicKey>& aliasKey,
                      const InitType<EvmAddress>& aliasEvmAddr,
                      const InitType<std::string>& checksum)
@@ -123,9 +123,9 @@ AccountId
 AccountId::fromProtobuf(const proto::AccountID& id)
 {
   return AccountId(
-    static_cast<unsigned long long>(id.shardnum()),
-    static_cast<unsigned long long>(id.realmnum()),
-    static_cast<unsigned long long>(id.accountnum()),
+    id.shardnum(),
+    id.realmnum(),
+    id.accountnum(),
     (id.has_alias() ? InitType<PublicKey>(PublicKey::fromAliasBytes(id.alias()))
                     : InitType<PublicKey>()),
     (id.has_alias()

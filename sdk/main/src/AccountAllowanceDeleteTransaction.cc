@@ -99,7 +99,7 @@ AccountAllowanceDeleteTransaction::initFromTransactionBody()
 //-----
 void
 AccountAllowanceDeleteTransaction::saveNftSerial(
-  const long long& serial,
+  const int64_t& serial,
   const TokenId& tokenId,
   const AccountId& ownerAccountId)
 {
@@ -115,7 +115,7 @@ AccountAllowanceDeleteTransaction::saveNftSerial(
     mNftAllowances.push_back(NftAllowance(InitType<TokenId>(tokenId),
                                           InitType<AccountId>(ownerAccountId),
                                           InitType<AccountId>(),
-                                          std::vector<long long>(),
+                                          std::vector<int64_t>(),
                                           false));
   }
 }

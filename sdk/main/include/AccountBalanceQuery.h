@@ -115,16 +115,35 @@ public:
    * Derived from Query. Validate the checksums of the account ID or contract
    * ID.
    *
-   * @param client  The client with which to validate the checksums
+   * @param client The client with which to validate the checksums.
    */
   virtual void validateChecksums(const Client& client) const override;
 
   /**
-   * Determine if payment is required for this query.
+   * Derived from Query. Determine if payment is required for this query.
    *
    * @return \c FALSE to indicate this query is free.
    */
   virtual inline bool isPaymentRequired() const override { return false; }
+
+  /**
+   * The account ID for which the balance is being requested. This is mutually
+   * exclusive with setContractId().
+   *
+   * @param accountId The account ID to set.
+   * @return Reference to this AccountBalanceQuery object.
+   */
+  AccountBalanceQuery& setAccountId(const AccountId& accountId);
+
+  /**
+   * The contract ID for which the balance is being requested.
+   *
+   * This is mutually exclusive with setAccountId();
+   *
+   * @param contractId The ContractId to set.
+   * @return Reference to this AccountBalanceQuery object.
+   */
+  AccountBalanceQuery& setContractId(const ContractId& contractId);
 
   /**
    * Return the account ID of the account for which this query is meant.
@@ -134,38 +153,11 @@ public:
   inline InitType<AccountId> getAccountId() { return mAccountId; }
 
   /**
-   * The account ID for which the balance is being requested. This is mutually
-   * exclusive with setContractId().
-   *
-   * @param accountId The account ID to set.
-   * @return Reference to this AccountBalanceQuery object.
-   */
-  inline AccountBalanceQuery& setAccountId(const AccountId& accountId)
-  {
-    mAccountId.setValue(accountId);
-    return *this;
-  }
-
-  /**
    * Extract the contract id with which this request is associated.
    *
    * @return The contract id with which this request is associated.
    */
   inline InitType<ContractId> getContractId() { return mContractId; }
-
-  /**
-   * The contract ID for which the balance is being requested.
-   *
-   * This is mutually exclusive with setAccountId();
-   *
-   * @param contractId The ContractId to set
-   * @return Reference to this AccountBalanceQuery object.
-   */
-  inline AccountBalanceQuery& setContractId(const ContractId& contractId)
-  {
-    mContractId.setValue(contractId);
-    return *this;
-  }
 
 private:
   /**

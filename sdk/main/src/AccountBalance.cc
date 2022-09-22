@@ -44,12 +44,15 @@ AccountBalance::fromProtobuf(
 }
 
 //-----
-proto::CryptoGetAccountBalanceResponse
-AccountBalance::toProtobuf() const
+void
+AccountBalance::setBalance(const Hbar& hbars)
 {
-  proto::CryptoGetAccountBalanceResponse response;
-  response.set_balance(mBalance.toTinybars());
-  return response;
+  if (hbars.toTinybars() < 0)
+  {
+    // TODO: throw
+  }
+
+  mBalance = hbars;
 }
 
 } // namespace Hedera

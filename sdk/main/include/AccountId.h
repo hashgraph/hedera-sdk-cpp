@@ -59,7 +59,7 @@ public:
    *
    * @param num The account number with which to construct this account ID.
    */
-  explicit AccountId(const unsigned long long& num);
+  explicit AccountId(const int64_t& num);
 
   /**
    * Construct with all parts of the account ID.
@@ -68,9 +68,9 @@ public:
    * @param realm The realm number to set.
    * @param num   The account number to set.
    */
-  explicit AccountId(const unsigned long long& shard,
-                     const unsigned long long& realm,
-                     const unsigned long long& num);
+  explicit AccountId(const int64_t& shard,
+                     const int64_t& realm,
+                     const int64_t& num);
 
   /**
    * Construct with all parts of the account ID and the checksum.
@@ -80,9 +80,9 @@ public:
    * @param num      The account number to set.
    * @param checksum The checksum of the account ID.
    */
-  explicit AccountId(const unsigned long long& shard,
-                     const unsigned long long& realm,
-                     const unsigned long long& num,
+  explicit AccountId(const int64_t& shard,
+                     const int64_t& realm,
+                     const int64_t& num,
                      const InitType<std::string>& checksum);
 
   /**
@@ -95,9 +95,9 @@ public:
    * @param aliasEvmAddr The EVM address of the account alias.
    * @param checksum     The checksum of the account ID.
    */
-  explicit AccountId(const unsigned long long& shard,
-                     const unsigned long long& realm,
-                     const unsigned long long& num,
+  explicit AccountId(const int64_t& shard,
+                     const int64_t& realm,
+                     const int64_t& num,
                      const InitType<PublicKey>& aliasKey,
                      const InitType<EvmAddress>& aliasEvmAddr,
                      const InitType<std::string>& checksum);
@@ -182,17 +182,17 @@ public:
   /**
    * The shard number.
    */
-  unsigned long long mShard;
+  int64_t mShard;
 
   /**
    * The realm number.
    */
-  unsigned long long mRealm;
+  int64_t mRealm;
 
   /**
    * The id number.
    */
-  unsigned long long mAccountNum;
+  int64_t mAccountNum;
 
   /**
    * The alias key.

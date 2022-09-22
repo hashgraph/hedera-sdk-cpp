@@ -110,7 +110,8 @@ AccountUpdateTransaction::setAccountMemo(const std::string& accountMemo)
 
 //-----
 AccountUpdateTransaction&
-AccountUpdateTransaction::setMaxAutomaticTokenAssociations(int maxAssociations)
+AccountUpdateTransaction::setMaxAutomaticTokenAssociations(
+  int32_t maxAssociations)
 {
   requireNotFrozen();
 
@@ -130,7 +131,7 @@ AccountUpdateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 
 //-----
 AccountUpdateTransaction&
-AccountUpdateTransaction::setStakedNodeId(const long long& stakedNodeId)
+AccountUpdateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 {
   requireNotFrozen();
 

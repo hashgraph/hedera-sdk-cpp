@@ -83,27 +83,6 @@ AccountAllowanceApproveTransaction::approveHbarAllowance(
 
 //-----
 AccountAllowanceApproveTransaction&
-AccountAllowanceApproveTransaction::approveTokenAllowance(
-  const TokenId& tokenId,
-  const InitType<AccountId>& ownerAccountId,
-  const AccountId& spenderAccountId,
-  const int64_t& amount)
-{
-  requireNotFrozen();
-
-  if (amount < 0)
-  {
-    // TODO: throw
-  }
-
-  mTokenAllowances.push_back(
-    TokenAllowance(tokenId, ownerAccountId, spenderAccountId, amount));
-
-  return *this;
-}
-
-//-----
-AccountAllowanceApproveTransaction&
 AccountAllowanceApproveTransaction::approveNftAllowance(
   const NftId& nftId,
   const InitType<AccountId>& ownerAccountId,
@@ -132,6 +111,27 @@ AccountAllowanceApproveTransaction::approveNftAllowanceAllSerials(
 }
 
 //-----
+AccountAllowanceApproveTransaction&
+AccountAllowanceApproveTransaction::approveTokenAllowance(
+  const TokenId& tokenId,
+  const InitType<AccountId>& ownerAccountId,
+  const AccountId& spenderAccountId,
+  const int64_t& amount)
+{
+  requireNotFrozen();
+
+  if (amount < 0)
+  {
+    // TODO: throw
+  }
+
+  mTokenAllowances.push_back(
+    TokenAllowance(tokenId, ownerAccountId, spenderAccountId, amount));
+
+  return *this;
+}
+
+//-----
 void
 AccountAllowanceApproveTransaction::initFromTransactionBody()
 {
@@ -144,12 +144,6 @@ AccountAllowanceApproveTransaction::initFromTransactionBody()
     {
       mHbarAllowances.push_back(
         HbarAllowance::fromProtobuf(body.cryptoallowances(i)));
-    }
-
-    for (int i = 0; i < body.tokenallowances_size(); ++i)
-    {
-      mTokenAllowances.push_back(
-        TokenAllowance::fromProtobuf(body.tokenallowances(i)));
     }
 
     for (int i = 0; i < body.nftallowances_size(); ++i)
@@ -178,6 +172,12 @@ AccountAllowanceApproveTransaction::initFromTransactionBody()
           saveNftSerial(nft.serial_numbers(i), tokenId, owner, spender);
         }
       }
+    }
+
+    for (int i = 0; i < body.tokenallowances_size(); ++i)
+    {
+      mTokenAllowances.push_back(
+        TokenAllowance::fromProtobuf(body.tokenallowances(i)));
     }
   }
 }

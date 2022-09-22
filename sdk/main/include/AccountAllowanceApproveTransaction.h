@@ -96,22 +96,6 @@ public:
     const Hbar& amount);
 
   /**
-   * Approve a token allowance.
-   *
-   * @param tokenId          The token's ID.
-   * @param ownerAccountId   The owner's account ID. Can be null if there is no
-   *                         owner.
-   * @param spenderAccountId The spender's account ID.
-   * @param amount           The amount of tokens.
-   * @return Reference to this AccountAllowanceApproveTransaction object
-   */
-  AccountAllowanceApproveTransaction& approveTokenAllowance(
-    const TokenId& tokenId,
-    const InitType<AccountId>& ownerAccountId,
-    const AccountId& spenderAccountId,
-    const int64_t& amount);
-
-  /**
    * Approves the NFT allowance.
    *
    * @param nftId            The NFT's ID.
@@ -140,6 +124,22 @@ public:
     const AccountId& spenderAccountId);
 
   /**
+   * Approve a token allowance.
+   *
+   * @param tokenId          The token's ID.
+   * @param ownerAccountId   The owner's account ID. Can be null if there is no
+   *                         owner.
+   * @param spenderAccountId The spender's account ID.
+   * @param amount           The amount of tokens.
+   * @return Reference to this AccountAllowanceApproveTransaction object
+   */
+  AccountAllowanceApproveTransaction& approveTokenAllowance(
+    const TokenId& tokenId,
+    const InitType<AccountId>& ownerAccountId,
+    const AccountId& spenderAccountId,
+    const int64_t& amount);
+
+  /**
    * Extract the list of Hbar allowance approvals.
    *
    * @return The list of Hbar allowance approvals.
@@ -150,6 +150,16 @@ public:
   }
 
   /**
+   * Extract the list of NFT allowance approvals.
+   *
+   * @return The list of NFT allowance approvals.
+   */
+  inline std::vector<NftAllowance> getNftApprovals() const
+  {
+    return mNftAllowances;
+  }
+
+  /**
    * Extract the list of token allowance approvals.
    *
    * @return The list of token allowance approvals.
@@ -157,16 +167,6 @@ public:
   inline std::vector<TokenAllowance> getTokenApprovals() const
   {
     return mTokenAllowances;
-  }
-
-  /**
-   * Extract the list of token NFT allowance approvals.
-   *
-   * @return The list of token NFT allowance approvals.
-   */
-  inline std::vector<NftAllowance> getTokenNftApprovals() const
-  {
-    return mNftAllowances;
   }
 
 private:
@@ -227,19 +227,19 @@ private:
                            const TokenId& tokenId) const;
 
   /**
-   * A list of added Hbar allowances.
+   * List of hbar allowances approved by the account owner.
    */
   std::vector<HbarAllowance> mHbarAllowances;
 
   /**
-   * A list of added token allowances.
-   */
-  std::vector<TokenAllowance> mTokenAllowances;
-
-  /**
-   * A list of added NFT allowances.
+   * List of non-fungible token allowances approved by the account owner.
    */
   std::vector<NftAllowance> mNftAllowances;
+
+  /**
+   * List of fungible token allowances approved by the account owner.
+   */
+  std::vector<TokenAllowance> mTokenAllowances;
 
   /**
    * A map of NFT information.

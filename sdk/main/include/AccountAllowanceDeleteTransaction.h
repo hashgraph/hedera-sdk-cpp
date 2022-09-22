@@ -110,7 +110,7 @@ private:
    * @param tokenId          The token's ID.
    * @param ownerAccountId   The owner's account ID.
    */
-  void saveNftSerial(const long long& serial,
+  void saveNftSerial(const int64_t& serial,
                      const TokenId& tokenId,
                      const AccountId& ownerAccountId);
 

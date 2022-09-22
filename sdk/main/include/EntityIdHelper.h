@@ -49,34 +49,32 @@ fromSolidityAddress(const std::string& address)
 }
 
 std::string
-toSolidityAddress(const unsigned long long& shard,
-                  const unsigned long long& realm,
-                  const unsigned long long& num)
+toSolidityAddress(const int64_t& shard,
+                  const int64_t& realm,
+                  const int64_t& num)
 {
   return std::string();
 }
 
 void
-validate(const unsigned long long& shard,
-         const unsigned long long& realm,
-         const unsigned long long& num,
+validate(const int64_t& shard,
+         const int64_t& realm,
+         const int64_t& num,
          const Client& client,
          const InitType<std::string>& checksum)
 {
 }
 
 std::string
-toString(const unsigned long long& shard,
-         const unsigned long long& realm,
-         const unsigned long long& num)
+toString(const int64_t& shard, const int64_t& realm, const int64_t& num)
 {
   return std::string();
 }
 
 std::string
-toStringWithChecksum(const unsigned long long& shard,
-                     const unsigned long long& realm,
-                     const unsigned long long& num,
+toStringWithChecksum(const int64_t& shard,
+                     const int64_t& realm,
+                     const int64_t& num,
                      const Client& client,
                      const InitType<std::string>& checksum)
 {

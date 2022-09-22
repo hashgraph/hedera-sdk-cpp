@@ -115,7 +115,7 @@ AccountCreateTransaction::setAutoRenewPeriod(
 
 //-----
 AccountCreateTransaction&
-AccountCreateTransaction::setMaxAutomaticTokenAssociations(int associations)
+AccountCreateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
 {
   requireNotFrozen();
 
@@ -147,8 +147,7 @@ AccountCreateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 
 //-----
 AccountCreateTransaction&
-AccountCreateTransaction::setStakedNodeId(
-  const unsigned long long& stakedNodeId)
+AccountCreateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 {
   requireNotFrozen();
 

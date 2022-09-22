@@ -84,7 +84,7 @@ public:
    *
    * @return The unit value, in tinybars
    */
-  inline long long getTinybars() const { return mTinybars; }
+  inline int64_t getTinybars() const { return mTinybars; }
 
   /**
    * Get the name of this unit.
@@ -100,7 +100,7 @@ private:
    * @param sym  The symbol of the unit
    * @param val  The value of the unit, in tinybars
    */
-  HbarUnit(const std::string& sym, const long long& val);
+  HbarUnit(const std::string& sym, const int64_t& val);
 
   /**
    * Keep a map of the unit names
@@ -115,7 +115,7 @@ private:
   /**
    * The value of this unit, in tinybars
    */
-  long long mTinybars;
+  int64_t mTinybars;
 };
 
 } // namespace Hedera

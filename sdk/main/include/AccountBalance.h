@@ -57,26 +57,11 @@ public:
     const proto::CryptoGetAccountBalanceResponse& protobuf);
 
   /**
-   * Convert this AccountBalance object into a protobuf object.
-   *
-   * @return The protobuf object.
-   */
-  proto::CryptoGetAccountBalanceResponse toProtobuf() const;
-
-  /**
    * Set the account balance.
    *
    * @param hbars The new amount of Hbars with which to set the account balance.
    */
-  inline void setBalance(const Hbar& hbars)
-  {
-    if (hbars.toTinybars() < 0)
-    {
-      // TODO: throw
-    }
-
-    mBalance = hbars;
-  }
+  void setBalance(const Hbar& hbars);
 
   /**
    * Get the account balance.
