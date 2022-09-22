@@ -42,6 +42,9 @@ class ResponseHeader;
 
 namespace Hedera
 {
+/**
+ * Get the bytecode for a smart contract instance.
+ */
 class ContractByteCodeQuery : public Query<std::string, ContractByteCodeQuery>
 {
 public:
@@ -71,7 +74,7 @@ public:
    * Derived from Query. Get the contract byte code header from the response.
    *
    * @param response The associated response to this query.
-   * @return         The response header for the derived class's query.
+   * @return         The response header for the contract byte code query.
    */
   virtual proto::ResponseHeader mapResponseHeader(
     proto::Response* response) const override;
