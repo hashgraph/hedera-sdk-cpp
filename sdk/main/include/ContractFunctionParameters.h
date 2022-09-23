@@ -27,7 +27,7 @@ class ContractFunctionParameters
 public:
   ContractFunctionParameters() {}
 
-  std::string toByteArrayWithName(const std::string& name) const
+  std::string toByteArray(const std::string& name = std::string()) const
   {
     return std::string();
   }

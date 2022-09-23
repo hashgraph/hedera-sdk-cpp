@@ -223,8 +223,7 @@ ContractCreateTransaction&
 ContractCreateTransaction::setConstructorParameters(
   const ContractFunctionParameters& constructorParameters)
 {
-  return setConstructorParameters(
-    constructorParameters.toByteArrayWithName(""));
+  return setConstructorParameters(constructorParameters.toByteArray());
 }
 
 //-----

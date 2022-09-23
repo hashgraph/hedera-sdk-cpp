@@ -131,7 +131,7 @@ ContractCallQuery&
 ContractCallQuery::setFunction(const std::string& name,
                                const ContractFunctionParameters& params)
 {
-  setFunctionParameters(params.toByteArrayWithName(name));
+  setFunctionParameters(params.toByteArray(name));
   return *this;
 }
 
