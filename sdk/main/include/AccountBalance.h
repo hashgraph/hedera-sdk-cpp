@@ -57,13 +57,6 @@ public:
     const proto::CryptoGetAccountBalanceResponse& protobuf);
 
   /**
-   * Set the account balance.
-   *
-   * @param hbars The new amount of Hbars with which to set the account balance.
-   */
-  void setBalance(const Hbar& hbars);
-
-  /**
    * Get the account balance.
    *
    * @return The account balance.

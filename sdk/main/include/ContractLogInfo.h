@@ -17,35 +17,24 @@
  * limitations under the License.
  *
  */
-#include "AccountBalance.h"
+#ifndef CONTRACT_LOG_INFO_H_
+#define CONTRACT_LOG_INFO_H_
 
-#include "crypto_get_account_balance.pb.h"
+namespace proto
+{
+class ContractLoginfo;
+} // namespace proto
 
 namespace Hedera
 {
-//-----
-AccountBalance::AccountBalance()
-  : mBalance(0LL)
+class ContractLogInfo
 {
-}
-
-//-----
-AccountBalance::AccountBalance(const Hbar& balance)
-{
-  if (balance.toTinybars() < 0)
+public:
+  static ContractLogInfo fromProtobuf(const proto::ContractLoginfo& proto)
   {
-    // TODO: throw
+    return ContractLogInfo();
   }
-
-  mBalance = balance;
-}
-
-//-----
-AccountBalance
-AccountBalance::fromProtobuf(
-  const proto::CryptoGetAccountBalanceResponse& protobuf)
-{
-  return AccountBalance(Hbar::fromTinybars(protobuf.balance()));
-}
-
+};
 } // namespace Hedera
+
+#endif // CONTRACT_LOG_INFO_H_
