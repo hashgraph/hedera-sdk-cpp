@@ -52,7 +52,7 @@ public:
   AccountInfo();
 
   /**
-   * @brief Construct with initialization values.
+   * Construct with initialization values.
    *
    * @param accountId         The account ID of the account.
    * @param contractAccountId The account ID and the contract instance.
