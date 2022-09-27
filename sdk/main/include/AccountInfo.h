@@ -103,7 +103,7 @@ public:
     const proto::CryptoGetInfoResponse_AccountInfo& accountInfo);
 
   /**
-   * Convert an account info object into a protobuf.
+   * Convert this account info object into a protobuf.
    *
    * @return The account info protobuf object.
    */

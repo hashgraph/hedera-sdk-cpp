@@ -123,6 +123,7 @@ add_library(${PROJECT_NAME} SHARED
     sdk/main/src/ContractCreateTransaction.cc
     sdk/main/src/ContractDeleteTransaction.cc
     sdk/main/src/ContractExecuteTransaction.cc
+    sdk/main/src/ContractFunctionResult.cc
     sdk/main/src/HbarUnit.cc
     
     sdk/main/src/helper/DurationConverter.cc
