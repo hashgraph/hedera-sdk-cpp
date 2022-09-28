@@ -1,0 +1,6 @@
+[submodule "sdk/protobuf"]
+	path = sdk/protobuf
+	url = git@github.com:protocolbuffers/protobuf.git
+[submodule "sdk/hedera-protobufs"]
+	path = sdk/hedera-protobufs
+	url = git@github.com:hashgraph/hedera-protobufs.git
