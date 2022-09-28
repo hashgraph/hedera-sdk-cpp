@@ -20,14 +20,11 @@
 #ifndef FILE_ID_H_
 #define FILE_ID_H_
 
+#include "basic_types.pb.h"
+
 namespace Hedera
 {
 class Client;
-}
-
-namespace proto
-{
-class FileID;
 }
 
 namespace Hedera
