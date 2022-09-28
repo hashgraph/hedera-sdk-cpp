@@ -129,6 +129,7 @@ add_library(${PROJECT_NAME} SHARED
     sdk/main/src/ContractUpdateTransaction.cc
     sdk/main/src/EthereumTransaction.cc
     sdk/main/src/FileAppendTransaction.cc
+    sdk/main/src/FileContentsQuery.cc
     sdk/main/src/HbarUnit.cc
     
     sdk/main/src/helper/DurationConverter.cc
