@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+
+# Generated folders
+build/
+sdk/generated/
+
+# Generated files
+*.cmake
+.editorconfig
+CMakeLists.txt.user
+CMakeCache.txt
+Makefile
