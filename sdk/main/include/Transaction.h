@@ -34,6 +34,11 @@ class Client;
 class TransactionId;
 }
 
+namespace proto
+{
+class SchedulableTransactionBody;
+}
+
 namespace Hedera
 {
 /**
@@ -44,17 +49,25 @@ namespace Hedera
 template<typename T>
 class Transaction
 {
+public:
+  virtual ~Transaction() = default;
+
 protected:
-  Transaction() {}
+  Transaction() = default;
+  Transaction(const Transaction&) = default;
+  Transaction& operator=(const Transaction&) = default;
+  Transaction(const Transaction&&) = delete;
+  Transaction& operator=(const Transaction&&) = delete;
 
   Transaction(
     const std::unordered_map<
       TransactionId,
       std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
   {
+    (void)transactions;
   }
 
-  Transaction(const proto::TransactionBody& transaction) {}
+  Transaction(const proto::TransactionBody& transaction) { (void)transaction; }
 
   /**
    * Validate the checksums.
@@ -62,6 +75,18 @@ protected:
    * @param client The client with which to validate the checksums
    */
   virtual void validateChecksums(const Client& client) const = 0;
+
+  /**
+   * Called in freezeWith(Client) just before the transaction body is built. The
+   * intent is for the derived class to assign their data variant to the
+   * transaction body.
+   */
+  virtual void onFreeze(proto::TransactionBody* body) const = 0;
+
+  /**
+   * Called in schedule() when converting transaction into a scheduled version.
+   */
+  virtual void onScheduled(proto::SchedulableTransactionBody* body) const = 0;
 
   void requireNotFrozen() {}
 

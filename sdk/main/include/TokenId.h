@@ -35,7 +35,11 @@ namespace Hedera
 class TokenId
 {
 public:
-  static TokenId fromProtobuf(const proto::TokenID& proto) { return TokenId(); }
+  static TokenId fromProtobuf(const proto::TokenID& proto)
+  {
+    (void)proto;
+    return TokenId();
+  }
   std::string toString() const { return std::string(); }
 };
 

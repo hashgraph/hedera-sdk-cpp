@@ -22,6 +22,7 @@
 #include "helper/DurationConverter.h"
 
 #include "crypto_create.pb.h"
+#include "schedulable_transaction_body.pb.h"
 
 namespace Hedera
 {
@@ -69,6 +70,68 @@ AccountCreateTransaction::validateChecksums(const Client& client) const
   {
     mStakedAccountId.getValue().validateChecksum(client);
   }
+}
+
+//-----
+void
+AccountCreateTransaction::onFreeze(proto::TransactionBody* body) const
+{
+  body->set_allocated_cryptocreateaccount(build());
+}
+
+//-----
+void
+AccountCreateTransaction::onScheduled(
+  proto::SchedulableTransactionBody* body) const
+{
+  body->set_allocated_cryptocreateaccount(build());
+}
+
+//-----
+proto::CryptoCreateTransactionBody*
+AccountCreateTransaction::build() const
+{
+  proto::CryptoCreateTransactionBody* body =
+    new proto::CryptoCreateTransactionBody;
+
+  if (mKey.isValid())
+  {
+    body->set_allocated_key(mKey.getValue().toProtobuf());
+  }
+
+  body->set_memo(mAccountMemo);
+  body->set_initialbalance(mInitialBalance.toTinybars());
+  body->set_receiversigrequired(mReceiverSignatureRequired);
+  body->set_allocated_autorenewperiod(
+    DurationConverter::toProtobuf(mAutoRenewPeriod));
+  body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
+
+  if (mStakedAccountId.isValid())
+  {
+    body->set_allocated_staked_account_id(
+      mStakedAccountId.getValue().toProtobuf());
+  }
+
+  if (mStakedNodeId.isValid())
+  {
+    body->set_staked_node_id(mStakedNodeId.getValue());
+  }
+
+  body->set_decline_reward(mDeclineStakingReward);
+
+  if (mAliasKey.isValid())
+  {
+    body->set_allocated_alias(
+      new std::string(mAliasKey.getValue().toStringDER()));
+  }
+
+  if (mAliasEvmAddress.isValid())
+  {
+    body->set_allocated_alias(
+      new std::string(mAliasEvmAddress.getValue().toString()));
+  }
+
+  return body;
 }
 
 //-----

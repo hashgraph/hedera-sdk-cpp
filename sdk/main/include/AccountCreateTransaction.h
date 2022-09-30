@@ -78,6 +78,26 @@ public:
   virtual void validateChecksums(const Client& client) const override;
 
   /**
+   * Derived from Transaction. Called in freezeWith(Client) just before the
+   * transaction body is built. The intent is for the derived class to assign
+   * their data variant to the transaction body.
+   */
+  virtual void onFreeze(proto::TransactionBody* body) const override;
+
+  /**
+   * Called in schedule() when converting transaction into a scheduled version.
+   */
+  virtual void onScheduled(
+    proto::SchedulableTransactionBody* body) const override;
+
+  /**
+   * Build a create account protobuf message based on the data in this class.
+   *
+   * @return A create account protobuf message.
+   */
+  proto::CryptoCreateTransactionBody* build() const;
+
+  /**
    * Set the key for this account. The key that must sign each transfer out of
    * the account. If mReceiverSignatureRequired is true, then it must also sign
    * any transfer into the account.

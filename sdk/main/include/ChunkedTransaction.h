@@ -41,7 +41,7 @@ template<typename T>
 class ChunkedTransaction : public Transaction<T>
 {
 public:
-  T setChunkSize(int chunkSize) { return T(); }
+  void setChunkSize(int chunkSize) { return; }
 
 protected:
   ChunkedTransaction() {}

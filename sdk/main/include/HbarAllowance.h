@@ -27,7 +27,11 @@ class CryptoAllowance;
 
 namespace Hedera
 {
+template<typename T>
+class InitType;
+
 class AccountId;
+class Client;
 class Hbar;
 }
 
@@ -45,12 +49,18 @@ public:
                 const AccountId& spenderAccountId,
                 const Hbar& amount)
   {
+    (void)ownerAccountId;
+    (void)spenderAccountId;
+    (void)amount;
   }
 
   static HbarAllowance fromProtobuf(const proto::CryptoAllowance& proto)
   {
+    (void)proto;
     return HbarAllowance();
   }
+
+  void validateChecksums(const Client& client) const { (void)client; }
 };
 
 } // namespace Hedera

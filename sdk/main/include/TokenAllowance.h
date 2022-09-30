@@ -20,14 +20,17 @@
 #ifndef TOKEN_ALLOWANCE_H_
 #define TOKEN_ALLOWANCE_H_
 
-/**
- * Hedera forward declarations
- */
 namespace Hedera
 {
 class AccountId;
+class Client;
 class TokenId;
-} // namespace Hedera
+}
+
+namespace proto
+{
+class TokenAllowance;
+}
 
 namespace Hedera
 {
@@ -44,12 +47,19 @@ public:
                  const AccountId& spenderAccountId,
                  const int64_t& amount)
   {
+    (void)tokenId;
+    (void)ownerAccountId;
+    (void)spenderAccountId;
+    (void)amount;
   }
 
-  static TokenAllowance fromProtobuf(const ::proto::TokenAllowance& proto)
+  static TokenAllowance fromProtobuf(const proto::TokenAllowance& proto)
   {
+    (void)proto;
     return TokenAllowance();
   }
+
+  void validateChecksums(const Client& client) const { (void)client; }
 };
 
 } // namespace Hedera

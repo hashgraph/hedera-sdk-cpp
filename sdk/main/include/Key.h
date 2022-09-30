@@ -27,7 +27,18 @@ namespace Hedera
 class Key
 {
 public:
-  static Key fromProtobuf(const proto::Key& key) { return Key(); }
+  Key() = default;
+  Key(const Key& other) = default;
+  Key& operator=(const Key& other) = default;
+  Key(const Key&& other) = delete;
+  Key& operator=(const Key&& other) = delete;
+
+  virtual ~Key() = default;
+  static Key fromProtobuf(const proto::Key& key)
+  {
+    (void)key;
+    return Key();
+  }
 
   virtual proto::Key* toProtobuf() const { return new proto::Key(); }
 };

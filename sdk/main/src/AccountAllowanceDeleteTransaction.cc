@@ -26,6 +26,7 @@
 #include "helper/InitType.h"
 
 #include "crypto_delete_allowance.pb.h"
+#include "schedulable_transaction_body.pb.h"
 #include "transaction_body.pb.h"
 
 namespace Hedera
@@ -53,6 +54,48 @@ AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(
   : Transaction(transaction)
 {
   initFromTransactionBody();
+}
+
+//-----
+void
+AccountAllowanceDeleteTransaction::validateChecksums(const Client& client) const
+{
+  for (size_t i = 0; i < mNftAllowances.size(); ++i)
+  {
+    mNftAllowances.at(i).validateChecksums(client);
+  }
+}
+
+//-----
+void
+AccountAllowanceDeleteTransaction::onFreeze(proto::TransactionBody* body) const
+{
+  body->set_allocated_cryptodeleteallowance(build());
+}
+
+//-----
+void
+AccountAllowanceDeleteTransaction::onScheduled(
+  proto::SchedulableTransactionBody* body) const
+{
+  body->set_allocated_cryptodeleteallowance(build());
+}
+
+//-----
+proto::CryptoDeleteAllowanceTransactionBody*
+AccountAllowanceDeleteTransaction::build() const
+{
+  proto::CryptoDeleteAllowanceTransactionBody* body =
+    new proto::CryptoDeleteAllowanceTransactionBody;
+
+  for (size_t i = 0; i < mNftAllowances.size(); ++i)
+  {
+    proto::NftRemoveAllowance* allow = body->add_nftallowances();
+    (void)allow;
+    // TODO: fill out nft removal allowance
+  }
+
+  return body;
 }
 
 //-----

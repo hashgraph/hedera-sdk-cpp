@@ -29,12 +29,24 @@ namespace Hedera
 class EvmAddress : public Key
 {
 public:
+  EvmAddress() = default;
+  virtual ~EvmAddress() = default;
+  EvmAddress(const EvmAddress& other) = default;
+  EvmAddress(const EvmAddress&& other) = delete;
+  EvmAddress& operator=(const EvmAddress& other) = default;
+  EvmAddress& operator=(const EvmAddress&& other) = delete;
+
   static EvmAddress fromAliasBytes(const std::string& bytes)
   {
+    (void)bytes;
     return EvmAddress();
   }
 
-  bool operator==(const EvmAddress& addr) const { return true; }
+  bool operator==(const EvmAddress& addr) const
+  {
+    (void)addr;
+    return true;
+  }
 
   std::string toString() const { return std::string(); }
 };

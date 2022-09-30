@@ -20,6 +20,7 @@
 #ifndef ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 #define ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 
+#include "NftAllowance.h"
 #include "Transaction.h"
 
 #include <unordered_map>
@@ -35,7 +36,6 @@ namespace Hedera
 template<typename T>
 class InitType;
 
-class NftAllowance;
 class NftId;
 class TokenId;
 }
@@ -74,6 +74,34 @@ public:
    */
   explicit AccountAllowanceDeleteTransaction(
     const proto::TransactionBody& transaction);
+
+  /**
+   * Validate the checksums.
+   *
+   * @param client The client with which to validate the checksums
+   */
+  virtual void validateChecksums(const Client& client) const override;
+
+  /**
+   * Derived from Transaction. Called in freezeWith(Client) just before the
+   * transaction body is built. The intent is for the derived class to assign
+   * their data variant to the transaction body.
+   */
+  virtual void onFreeze(proto::TransactionBody* body) const override;
+
+  /**
+   * Called in schedule() when converting transaction into a scheduled version.
+   */
+  virtual void onScheduled(
+    proto::SchedulableTransactionBody* body) const override;
+
+  /**
+   * Build an account allowance delete protobuf message based on the data in
+   * this class.
+   *
+   * @return An account allowance delete protobuf message.
+   */
+  proto::CryptoDeleteAllowanceTransactionBody* build() const;
 
   /**
    * Delete all NFT allowances.

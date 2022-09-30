@@ -52,7 +52,7 @@ class AccountBalanceQuery : public Query<AccountBalance, AccountBalanceQuery>
 {
 public:
   /**
-   * Constructor
+   * Constructor.
    */
   AccountBalanceQuery();
 
