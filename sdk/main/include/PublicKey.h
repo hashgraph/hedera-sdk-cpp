@@ -29,10 +29,15 @@ class PublicKey : public Key
 public:
   static PublicKey fromAliasBytes(const std::string& bytes)
   {
+    (void)bytes;
     return PublicKey();
   }
 
-  bool operator==(const PublicKey& key) const { return true; }
+  bool operator==(const PublicKey& key) const
+  {
+    (void)key;
+    return true;
+  }
 
   std::string toStringDER() const { return std::string(); }
 };

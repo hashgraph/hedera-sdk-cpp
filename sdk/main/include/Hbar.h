@@ -166,6 +166,7 @@ public:
    */
   double to(const HbarUnit& unit) const
   {
+    (void)unit;
     // TODO: finish this
     return 0.0;
   }

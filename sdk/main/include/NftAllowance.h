@@ -33,6 +33,7 @@ template<typename T>
 class InitType;
 
 class AccountId;
+class Client;
 class TokenId;
 }
 
@@ -52,12 +53,20 @@ public:
                const std::vector<int64_t>& serialNumbers,
                bool allSerials)
   {
+    (void)tokenId;
+    (void)ownerAccountId;
+    (void)spenderAccountId;
+    (void)serialNumbers;
+    (void)allSerials;
   }
 
-  static NftAllowance fromProtobuf(const ::proto::NftAllowance& proto)
+  static NftAllowance fromProtobuf(const proto::NftAllowance& proto)
   {
+    (void)proto;
     return NftAllowance();
   }
+
+  void validateChecksums(const Client& client) const { (void)client; }
 
   std::vector<int64_t> mSerialNumbers;
   bool allSerials;

@@ -39,6 +39,6 @@ Makefile
 cmake_install.cmake
 CTestTestfile.cmake
 libhedera-sdk-cpp*
-.vscode/
+.codechecker/
 build/
 .editorconfig

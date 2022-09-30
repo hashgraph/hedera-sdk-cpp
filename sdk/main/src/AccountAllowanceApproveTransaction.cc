@@ -21,15 +21,13 @@
 
 #include "AccountId.h"
 #include "Hbar.h"
-#include "HbarAllowance.h"
-#include "NftAllowance.h"
 #include "NftId.h"
-#include "TokenAllowance.h"
 
 #include "helper/InitType.h"
 
 #include "basic_types.pb.h"
 #include "crypto_approve_allowance.pb.h"
+#include "schedulable_transaction_body.pb.h"
 #include "transaction_body.pb.h"
 
 namespace Hedera
@@ -59,6 +57,73 @@ AccountAllowanceApproveTransaction::AccountAllowanceApproveTransaction(
   : Transaction(transaction)
 {
   initFromTransactionBody();
+}
+
+//-----
+void
+AccountAllowanceApproveTransaction::validateChecksums(
+  const Client& client) const
+{
+  for (size_t i = 0; i < mHbarAllowances.size(); ++i)
+  {
+    mHbarAllowances.at(i).validateChecksums(client);
+  }
+
+  for (size_t i = 0; i < mNftAllowances.size(); ++i)
+  {
+    mNftAllowances.at(i).validateChecksums(client);
+  }
+
+  for (size_t i = 0; i < mTokenAllowances.size(); ++i)
+  {
+    mTokenAllowances.at(i).validateChecksums(client);
+  }
+}
+
+//-----
+void
+AccountAllowanceApproveTransaction::onFreeze(proto::TransactionBody* body) const
+{
+  body->set_allocated_cryptoapproveallowance(build());
+}
+
+//-----
+void
+AccountAllowanceApproveTransaction::onScheduled(
+  proto::SchedulableTransactionBody* body) const
+{
+  body->set_allocated_cryptoapproveallowance(build());
+}
+
+//----
+proto::CryptoApproveAllowanceTransactionBody*
+AccountAllowanceApproveTransaction::build() const
+{
+  proto::CryptoApproveAllowanceTransactionBody* body =
+    new proto::CryptoApproveAllowanceTransactionBody;
+
+  for (size_t i = 0; i < mHbarAllowances.size(); ++i)
+  {
+    proto::CryptoAllowance* allow = body->add_cryptoallowances();
+    (void)allow;
+    //  TODO: fill out crypto fields
+  }
+
+  for (size_t i = 0; i < mNftAllowances.size(); ++i)
+  {
+    proto::NftAllowance* allow = body->add_nftallowances();
+    (void)allow;
+    //  TODO: fill out nft fields
+  }
+
+  for (size_t i = 0; i < mTokenAllowances.size(); ++i)
+  {
+    proto::TokenAllowance* allow = body->add_tokenallowances();
+    (void)allow;
+    //  TODO: fill out token fields
+  }
+
+  return body;
 }
 
 //-----
