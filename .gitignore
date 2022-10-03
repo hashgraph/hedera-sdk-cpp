@@ -42,3 +42,4 @@ libhedera-sdk-cpp*
 .codechecker/
 build/
 .editorconfig
+sonar-cache/
