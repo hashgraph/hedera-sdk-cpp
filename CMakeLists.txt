@@ -144,4 +144,4 @@ target_link_libraries(${PROJECT_NAME} ${Protobuf_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER sdk/main/include/HbarUnit.h)
+#set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER sdk/main/include/HbarUnit.h)
