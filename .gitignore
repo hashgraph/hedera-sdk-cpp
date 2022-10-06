@@ -30,16 +30,19 @@
 *.exe
 *.out
 *.app
+
+# Generated folders
+_deps/
+.codechecker/
+bin/
+build/
+CMakeFiles/
+lib/
+sonar-cache/
+
+# Generated files
+*.cmake
+.editorconfig
 CMakeLists.txt.user
 CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
 Makefile
-cmake_install.cmake
-CTestTestfile.cmake
-libhedera-sdk-cpp*
-.codechecker/
-build/
-.editorconfig
-sonar-cache/
