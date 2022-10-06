@@ -1,5 +1,9 @@
-find_package(Protobuf REQUIRED)
-include_directories(${Protobuf_INCLUDE_DIRS})
+include(FetchContent)
+
+FetchContent_Declare(protobuf
+    GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
+    GIT_TAG        v3.21.7)
+FetchContent_MakeAvailable(protobuf)
 
 add_library(${PROJECT_NAME} SHARED
     ../generated/src/basic_types.pb.cc
@@ -134,8 +138,9 @@ add_library(${PROJECT_NAME} SHARED
 
 include_directories(${PROJECT_NAME} PUBLIC include)
 include_directories(${PROJECT_NAME} PRIVATE ../generated/include)
+include_directories(${protobuf_SOURCE_DIR}/src)
 
-target_link_libraries(${PROJECT_NAME} ${Protobuf_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} libprotobuf)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
