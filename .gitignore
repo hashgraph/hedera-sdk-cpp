@@ -34,6 +34,10 @@
 # Generated folders
 build/
 sdk/generated/
+_deps/
+CMakeFiles/*
+sdk/CMakeFiles
+sdk/main/CMakeFiles
 
 # Generated files
 *.cmake
@@ -41,3 +45,6 @@ sdk/generated/
 CMakeLists.txt.user
 CMakeCache.txt
 Makefile
+
+# whitelist find sodium file
+!sdk/main/cmake/modules/FindSodium.cmake

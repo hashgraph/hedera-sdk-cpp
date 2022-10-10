@@ -144,3 +144,7 @@ target_link_libraries(${PROJECT_NAME} libprotobuf)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/modules")
+find_package(Sodium REQUIRED)
+include_directories(${sodium_INCLUDE_DIR})
