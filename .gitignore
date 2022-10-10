@@ -41,3 +41,6 @@ sdk/generated/
 CMakeLists.txt.user
 CMakeCache.txt
 Makefile
+
+# whitelist find sodium file
+!sdk/main/cmake/modules/FindSodium.cmake
