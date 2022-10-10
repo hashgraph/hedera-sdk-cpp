@@ -75,5 +75,9 @@
         "regex": "cpp"
     },
     "cmake.configureOnOpen": true,
-    "codechecker.backend.compilationDatabasePath": "${workspaceFolder}/compile_commands.json"
+    "doxdocgen.generic.briefTemplate": "{text}",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "sonarlint.testFilePattern": "${workspaceFolder}/sdk/tests/**"
 }

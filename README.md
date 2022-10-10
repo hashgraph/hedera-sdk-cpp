@@ -9,6 +9,30 @@
 
 ## SDK IS NOT READY FOR PRODUCTION USE. IT IS CURRENTLY STILL UNDER DEVELOPEMENT.
 
+## Generate the protobuf files
+
+In order to get the C++ SDK to build, you must generate the protobuf files that
+it uses. This can be done in a couple steps:
+
+1. Follow the instructions at the [Google's Protobuf GitHub Page] to build the protobuf compiler and get the protobuf source files.
+2. Pull down the [Hedera Protobufs] to get the proto files.
+3. Follow the instructions at the [Google Protobuf Developer's Page] to then generate the C++ files.
+4. Follow these steps to then copy the generated files into the correct locations in the SDK:
+
+```sh
+cd sdk
+mkdir generated
+cd generated
+mkdir include
+mkdir src
+cp <FOLDER-CONTAINING-GENERATED-C++-FILES>/*.h include/
+cp <FOLDER-CONTAINING-GENERATED-C++-FILES>/*.cc src/
+```
+
+[Google's Protobuf GitHub Page]: https://github.com/protocolbuffers/protobuf
+[Hedera Protobufs]: https://github.com/hashgraph/hedera-protobufs
+[Google Protobuf Developer's Page]: https://developers.google.com/protocol-buffers/docs/cpptutorial#compiling-your-protocol-buffers
+
 ## Build
 
 ```sh
@@ -32,6 +56,20 @@ To run a specific test:
 cd build
 ctest -R <name-of-test>
 ```
+
+## Recommendations
+
+We suggest using [Visual Studio Code] to do development work. It provides a variety of different extensions to make development work easier, such as simplifying builds, testing, static analysis, and documentation generation. We recommend the following extensions:
+ - [C/C++ Extension Pack]
+ - [Better C++ Syntax]
+ - [Doxygen Documentation Generator]
+ - [SonarLint]
+
+[Visual Studio Code]: https://code.visualstudio.com/
+[C/C++ Extension Pack]: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack
+[Better C++ Syntax]: https://marketplace.visualstudio.com/items?itemName=jeff-hykin.better-cpp-syntax
+[Doxygen Documentation Generator]: https://marketplace.visualstudio.com/items?itemName=cschlosser.doxdocgen
+[SonarLint]: https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode
 
 ## Contributing
 

@@ -32,13 +32,8 @@
 *.app
 
 # Generated folders
-_deps/
-.codechecker/
-bin/
 build/
-CMakeFiles/
-lib/
-sonar-cache/
+sdk/generated/
 
 # Generated files
 *.cmake
