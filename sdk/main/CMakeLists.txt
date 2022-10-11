@@ -127,6 +127,9 @@ add_library(${PROJECT_NAME} SHARED
     src/ContractInfo.cc
     src/ContractInfoQuery.cc
     src/ContractUpdateTransaction.cc
+    src/ED25519Keypair.cc
+    src/ED25519PrivateKey.cc
+    src/ED25519PublicKey.cc
     src/EthereumTransaction.cc
     src/FileAppendTransaction.cc
     src/FileContentsQuery.cc
@@ -148,3 +151,4 @@ set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/modules")
 find_package(Sodium REQUIRED)
 include_directories(${sodium_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} ${sodium_LIBRARY_RELEASE})
