@@ -18,8 +18,8 @@ jobs:
         include:
 #          - os: ubuntu-latest
 #            preset: linux-x64
-          - os: macos-latest
-            preset: macos-x64
+#          - os: macos-latest
+#            preset: macos-x64
           - os: windows-latest
             preset: windows-x64
     steps:
