@@ -54,7 +54,7 @@ jobs:
           buildPreset: ${{ matrix.preset }}-release
 
       - name: List Directory Structure
-        if: ${{ contains(os.runner, 'Windows') && always() }}
+        if: ${{ contains(runner.os, 'Windows') && always() }}
         run: tree build
 
       - name: Compute Short SHA
