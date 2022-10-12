@@ -22,8 +22,6 @@ jobs:
             preset: macos-x64
           - os: windows-latest
             preset: windows-x64
-    needs:
-      - hapi-version
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
