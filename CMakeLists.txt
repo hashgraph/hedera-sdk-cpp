@@ -26,7 +26,15 @@ FetchContent_MakeAvailable(hapi)
 
 set(HAPI_INCLUDE_DIR ${hapi_SOURCE_DIR}/${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR}/include)
 set(HAPI_LIB_DIR ${hapi_SOURCE_DIR}/${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR}/lib)
-file(GLOB HAPI_LINK_TARGET ${HAPI_LIB_DIR}/*hapi.*)
+set(HAPI_LINK_TARGET ${HAPI_LIB_DIR}/libhapi.a)
+
+if (NOT EXISTS ${HAPI_LINK_TARGET})
+    set(HAPI_LINK_TARGET ${HAPI_LIB_DIR}/hapi.lib)
+
+    if (NOT EXISTS ${HAPI_LINK_TARGET})
+        message(FATAL_ERROR "Failed to locate the HAPI_LINK_TARGET at `${HAPI_LIB_DIR}/(libhapi.a|hapi.lib)`")
+    endif()
+endif()
 
 message(WARNING "HAPI_INCLUDE_DIR=${HAPI_INCLUDE_DIR}")
 message(WARNING "HAPI_LIB_DIR=${HAPI_LIB_DIR}")
