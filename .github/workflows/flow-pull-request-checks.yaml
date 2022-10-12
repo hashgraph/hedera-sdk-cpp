@@ -1,0 +1,27 @@
+name: PR Checks
+on:
+  workflow_dispatch:
+    inputs:
+      hapi-version-tag:
+        description: "HAPI Protobuf Release Tag:"
+        type: string
+        required: false
+        default: "v0.30.0"
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+
+concurrency:
+  group: pr-checks-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Code
+    uses: ./.github/workflows/zxc-build-library.yaml
