@@ -53,6 +53,10 @@ jobs:
           configurePreset: ${{ matrix.preset }}-release
           buildPreset: ${{ matrix.preset }}-release
 
+      - name: List Directory Structure
+        if: ${{ contains(os.runner, 'Windows') && always() }}
+        run: tree build
+
       - name: Compute Short SHA
         id: sha
         run: echo "::set-output name=short::$(echo -n "${{ github.sha }}" | cut -c1-8)"
