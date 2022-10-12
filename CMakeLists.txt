@@ -9,6 +9,7 @@ set(CMAKE_INSTALL_PREFIX  ${CMAKE_INSTALL_PREFIX}/${CMAKE_BUILD_TYPE}/${CMAKE_HO
 include(FetchContent)
 
 find_package(OpenSSL REQUIRED)
+find_package(Threads REQUIRED)
 
 set(HAPI_LIBRARY_HASH "783876b3a61f38827acd798cda441e18e48fc09eeb5f00561c9fac5e2223f112" CACHE STRING "Use the configured hash to verify the Hedera API protobuf library release")
 set(HAPI_LIBRARY_URL "https://github.com/hashgraph/hedera-protobufs-cpp/releases/download/v0.30.0/hapi-library-af52e908.tar.gz" CACHE STRING "Use the configured URL to download the Hedera API protobuf library package")
