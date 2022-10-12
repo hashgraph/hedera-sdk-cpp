@@ -44,3 +44,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/modules")
 find_package(Sodium REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${sodium_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${sodium_LIBRARY_RELEASE})
+
+# Install Library & Headers
+install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib)
+install(DIRECTORY include/ TYPE INCLUDE FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${HAPI_INCLUDE_DIR}/ TYPE INCLUDE)
+install(DIRECTORY ${HAPI_LIB_DIR}/ TYPE LIB)
+install(DIRECTORY ${Protobuf_INCLUDE_DIRS} DESTINATION ${CMAKE_INSTALL_PREFIX})

@@ -1,7 +1,8 @@
 {
-  "name": "hedera-protobufs-cpp",
-  "version-string": "0.30.0",
+  "name": "hedera-sdk-cpp",
+  "version-string": "0.1.0",
   "dependencies": [
+    "libsodium",
     "openssl"
   ]
 }
