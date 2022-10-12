@@ -26,7 +26,7 @@
 
 #include "helper/InitType.h"
 
-#include "ethereum_transaction.pb.h"
+#include <proto/ethereum_transaction.pb.h>
 
 #include <string>
 #include <unordered_map>

@@ -19,7 +19,7 @@
  */
 #include "ContractDeleteTransaction.h"
 
-#include "contract_delete.pb.h"
+#include <proto/contract_delete.pb.h>
 
 namespace Hedera
 {

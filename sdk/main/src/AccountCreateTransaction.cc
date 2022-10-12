@@ -21,8 +21,8 @@
 
 #include "helper/DurationConverter.h"
 
-#include "crypto_create.pb.h"
-#include "schedulable_transaction_body.pb.h"
+#include <proto/crypto_create.pb.h>
+#include <proto/schedulable_transaction_body.pb.h>
 
 namespace Hedera
 {

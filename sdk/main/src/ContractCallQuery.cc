@@ -21,10 +21,10 @@
 
 #include "ContractFunctionResult.h"
 
-#include "contract_call.pb.h"
-#include "query.pb.h"
-#include "query_header.pb.h"
-#include "response.pb.h"
+#include <proto/contract_call.pb.h>
+#include <proto/query.pb.h>
+#include <proto/query_header.pb.h>
+#include <proto/response.pb.h>
 
 namespace Hedera
 {

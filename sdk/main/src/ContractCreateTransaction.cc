@@ -23,7 +23,7 @@
 
 #include "helper/DurationConverter.h"
 
-#include "contract_create.pb.h"
+#include <proto/contract_create.pb.h>
 
 namespace Hedera
 {

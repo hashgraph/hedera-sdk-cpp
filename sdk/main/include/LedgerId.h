@@ -20,7 +20,7 @@
 #ifndef LEDGER_ID_H_
 #define LEDGER_ID_H_
 
-#include "basic_types.pb.h"
+#include <proto/basic_types.pb.h>
 
 #include <string>
 

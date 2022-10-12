@@ -21,11 +21,11 @@
 
 #include "AccountBalance.h"
 
-#include "basic_types.pb.h"
-#include "crypto_get_account_balance.pb.h"
-#include "query.pb.h"
-#include "query_header.pb.h"
-#include "response.pb.h"
+#include <proto/basic_types.pb.h>
+#include <proto/crypto_get_account_balance.pb.h>
+#include <proto/query.pb.h>
+#include <proto/query_header.pb.h>
+#include <proto/response.pb.h>
 
 namespace Hedera
 {

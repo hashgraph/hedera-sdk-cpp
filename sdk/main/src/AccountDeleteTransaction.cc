@@ -19,7 +19,7 @@
  */
 #include "AccountDeleteTransaction.h"
 
-#include "crypto_delete.pb.h"
+#include <proto/crypto_delete.pb.h>
 
 namespace Hedera
 {

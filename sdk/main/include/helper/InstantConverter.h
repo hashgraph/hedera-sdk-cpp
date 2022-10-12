@@ -20,7 +20,7 @@
 #ifndef HELPER_INSTANT_CONVERTER_H_
 #define HELPER_INSTANT_CONVERTER_H_
 
-#include "timestamp.pb.h"
+#include <proto/timestamp.pb.h>
 
 #include <chrono>
 

@@ -25,10 +25,10 @@
 
 #include "helper/InitType.h"
 
-#include "basic_types.pb.h"
-#include "crypto_approve_allowance.pb.h"
-#include "schedulable_transaction_body.pb.h"
-#include "transaction_body.pb.h"
+#include <proto/basic_types.pb.h>
+#include <proto/crypto_approve_allowance.pb.h>
+#include <proto/schedulable_transaction_body.pb.h>
+#include <proto/transaction_body.pb.h>
 
 namespace Hedera
 {

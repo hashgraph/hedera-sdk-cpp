@@ -19,7 +19,7 @@
  */
 #include "AccountBalance.h"
 
-#include "crypto_get_account_balance.pb.h"
+#include <proto/crypto_get_account_balance.pb.h>
 
 namespace Hedera
 {

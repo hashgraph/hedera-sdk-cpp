@@ -23,10 +23,10 @@
 #include "AccountInfo.h"
 #include "TransactionRecord.h"
 
-#include "crypto_get_account_records.pb.h"
-#include "query.pb.h"
-#include "query_header.pb.h"
-#include "response.pb.h"
+#include <proto/crypto_get_account_records.pb.h>
+#include <proto/query.pb.h>
+#include <proto/query_header.pb.h>
+#include <proto/response.pb.h>
 
 namespace Hedera
 {

@@ -19,7 +19,7 @@
  */
 #include "ContractFunctionResult.h"
 
-#include "contract_call_local.pb.h"
+#include <proto/contract_call_local.pb.h>
 
 namespace Hedera
 {
