@@ -56,7 +56,7 @@ jobs:
       - name: List Directory Structure
         if: ${{ contains(runner.os, 'Windows') && always() }}
         shell: pwsh
-        run: tree build
+        run: tree /F build
 
       - name: Compute Short SHA
         id: sha
