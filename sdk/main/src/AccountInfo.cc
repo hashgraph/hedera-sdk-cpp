@@ -24,7 +24,7 @@
 #include "helper/DurationConverter.h"
 #include "helper/InstantConverter.h"
 
-#include "crypto_get_info.pb.h"
+#include <proto/crypto_get_info.pb.h>
 
 namespace Hedera
 {

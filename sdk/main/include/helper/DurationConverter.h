@@ -20,7 +20,7 @@
 #ifndef HELPER_DURATION_CONVERTER_H_
 #define HELPER_DURATION_CONVERTER_H_
 
-#include "duration.pb.h"
+#include <proto/duration.pb.h>
 
 #include <chrono>
 

@@ -25,7 +25,7 @@
 
 #include "helper/InitType.h"
 
-#include "file_append.pb.h"
+#include <proto/file_append.pb.h>
 
 #include <string>
 

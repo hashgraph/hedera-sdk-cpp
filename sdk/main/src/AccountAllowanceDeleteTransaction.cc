@@ -25,9 +25,9 @@
 #include "TokenId.h"
 #include "helper/InitType.h"
 
-#include "crypto_delete_allowance.pb.h"
-#include "schedulable_transaction_body.pb.h"
-#include "transaction_body.pb.h"
+#include <proto/crypto_delete_allowance.pb.h>
+#include <proto/schedulable_transaction_body.pb.h>
+#include <proto/transaction_body.pb.h>
 
 namespace Hedera
 {

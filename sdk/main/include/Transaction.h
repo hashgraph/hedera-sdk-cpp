@@ -22,7 +22,7 @@
 
 #include "Hbar.h"
 
-#include "transaction_body.pb.h"
+#include <proto/transaction_body.pb.h>
 
 #include <chrono>
 #include <unordered_map>

@@ -1,0 +1,70 @@
+name: "ZXC: Build Library"
+on:
+  workflow_call:
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+#          - os: ubuntu-latest
+#            preset: linux-x64
+#          - os: macos-12
+#            preset: macos-x64
+          - os: windows-latest
+            preset: windows-x64
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Fixup VCPkg Triplets
+        run: echo "set(VCPKG_BUILD_TYPE release)" | tee -a vcpkg/triplets/x64-windows-static.cmake
+
+      - name: Install Linux Headers
+        if: ${{ contains(runner.os, 'Linux') }}
+        run: sudo apt update && sudo apt install -y linux-headers-5.15.0-50-generic
+
+      - name: Install CMake & Ninja
+        uses: lukka/get-cmake@latest
+
+      - name: Setup VCPkg
+        uses: lukka/run-vcpkg@v10
+
+#      - name: CMake Build (Debug)
+#        uses: lukka/run-cmake@v10
+#        with:
+#          configurePreset: ${{ matrix.preset }}
+#          buildPreset: ${{ matrix.preset }}-debug
+
+      - name: CMake Build (Release)
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: ${{ matrix.preset }}-release
+          buildPreset: ${{ matrix.preset }}-release
+
+#      - name: List Directory Structure
+#        if: ${{ contains(runner.os, 'Windows') && always() }}
+#        shell: pwsh
+#        run: tree /F build
+
+      - name: Compute Short SHA
+        id: sha
+        run: echo "::set-output name=short::$(echo -n "${{ github.sha }}" | cut -c1-8)"
+
+      - name: Attach Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
+          path: package/
+          if-no-files-found: warn

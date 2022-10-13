@@ -28,7 +28,7 @@
 
 #include "helper/InitType.h"
 
-#include "contract_get_info.pb.h"
+#include <proto/contract_get_info.pb.h>
 
 #include <chrono>
 #include <string>

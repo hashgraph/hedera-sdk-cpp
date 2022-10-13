@@ -20,7 +20,7 @@
 #ifndef STAKING_INFO_H_
 #define STAKING_INFO_H_
 
-#include "basic_types.pb.h"
+#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {

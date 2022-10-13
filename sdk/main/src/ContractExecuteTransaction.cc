@@ -21,7 +21,7 @@
 
 #include "ContractFunctionParameters.h"
 
-#include "contract_call.pb.h"
+#include <proto/contract_call.pb.h>
 
 namespace Hedera
 {
