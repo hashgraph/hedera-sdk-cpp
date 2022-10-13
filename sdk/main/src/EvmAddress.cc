@@ -17,32 +17,11 @@
  * limitations under the License.
  *
  */
-#ifndef KEY_H_
-#define KEY_H_
 
-#include <proto/basic_types.pb.h>
+#include "EvmAddress.h"
 
-namespace Hedera
-{
-class Key
-{
-public:
-  Key() = default;
-  Key(const Key& other) = default;
-  Key& operator=(const Key& other) = default;
-  Key(const Key&& other) = delete;
-  Key& operator=(const Key&& other) = delete;
-
-  virtual ~Key() = default;
-  static Key fromProtobuf(const proto::Key& key)
-  {
-    (void)key;
-    return Key();
-  }
-
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
-};
-
-} // namespace Hedera
-
-#endif // KEY_H_
+namespace Hedera {
+EvmAddress::EvmAddress() {
+    
+}
+}

@@ -18,6 +18,7 @@
  *
  */
 #include "AccountUpdateTransaction.h"
+#include "PublicKeyFactory.h"
 
 #include "helper/DurationConverter.h"
 #include "helper/InstantConverter.h"
@@ -40,25 +41,21 @@ AccountUpdateTransaction::AccountUpdateTransaction()
 
 //-----
 AccountUpdateTransaction::AccountUpdateTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
+  const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
   : Transaction(transactions)
 {
   initFromTransactionBody();
 }
 
 //-----
-AccountUpdateTransaction::AccountUpdateTransaction(
-  const proto::TransactionBody& transaction)
+AccountUpdateTransaction::AccountUpdateTransaction(const proto::TransactionBody& transaction)
   : Transaction(transaction)
 {
   initFromTransactionBody();
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setAccountId(const AccountId& accountId)
+AccountUpdateTransaction& AccountUpdateTransaction::setAccountId(const AccountId& accountId)
 {
   requireNotFrozen();
 
@@ -67,19 +64,16 @@ AccountUpdateTransaction::setAccountId(const AccountId& accountId)
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setKey(const Key& key)
+AccountUpdateTransaction& AccountUpdateTransaction::setKey(const std::shared_ptr<PublicKey> key)
 {
   requireNotFrozen();
 
-  mKey.setValue(key);
+  this->mKey = key;
   return *this;
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setExpirationTime(
-  const std::chrono::nanoseconds& expirationTime)
+AccountUpdateTransaction& AccountUpdateTransaction::setExpirationTime(const std::chrono::nanoseconds& expirationTime)
 {
   requireNotFrozen();
 
@@ -88,9 +82,7 @@ AccountUpdateTransaction::setExpirationTime(
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setAutoRenewPeriod(
-  const std::chrono::seconds& autoRenewPeriod)
+AccountUpdateTransaction& AccountUpdateTransaction::setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod)
 {
   requireNotFrozen();
 
@@ -99,8 +91,7 @@ AccountUpdateTransaction::setAutoRenewPeriod(
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setAccountMemo(const std::string& accountMemo)
+AccountUpdateTransaction& AccountUpdateTransaction::setAccountMemo(const std::string& accountMemo)
 {
   requireNotFrozen();
 
@@ -109,9 +100,7 @@ AccountUpdateTransaction::setAccountMemo(const std::string& accountMemo)
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setMaxAutomaticTokenAssociations(
-  int32_t maxAssociations)
+AccountUpdateTransaction& AccountUpdateTransaction::setMaxAutomaticTokenAssociations(int32_t maxAssociations)
 {
   requireNotFrozen();
 
@@ -120,8 +109,7 @@ AccountUpdateTransaction::setMaxAutomaticTokenAssociations(
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
+AccountUpdateTransaction& AccountUpdateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 {
   requireNotFrozen();
 
@@ -130,8 +118,7 @@ AccountUpdateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
+AccountUpdateTransaction& AccountUpdateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 {
   requireNotFrozen();
 
@@ -140,8 +127,7 @@ AccountUpdateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 }
 
 //-----
-AccountUpdateTransaction&
-AccountUpdateTransaction::setDeclineStakingReward(bool declineStakingReward)
+AccountUpdateTransaction& AccountUpdateTransaction::setDeclineStakingReward(bool declineStakingReward)
 {
   requireNotFrozen();
 
@@ -150,13 +136,11 @@ AccountUpdateTransaction::setDeclineStakingReward(bool declineStakingReward)
 }
 
 //-----
-void
-AccountUpdateTransaction::initFromTransactionBody()
+void AccountUpdateTransaction::initFromTransactionBody()
 {
   if (mSourceTransactionBody.has_cryptoupdateaccount())
   {
-    const proto::CryptoUpdateTransactionBody& body =
-      mSourceTransactionBody.cryptoupdateaccount();
+    const proto::CryptoUpdateTransactionBody& body = mSourceTransactionBody.cryptoupdateaccount();
 
     if (body.has_accountidtoupdate())
     {
@@ -165,19 +149,17 @@ AccountUpdateTransaction::initFromTransactionBody()
 
     if (body.has_key())
     {
-      mKey.setValue(Key::fromProtobuf(body.key()));
+      mKey = std::move(PublicKeyFactory::fromProtobuf(body.key()));
     }
 
     if (body.has_expirationtime())
     {
-      mExpirationTime.setValue(
-        InstantConverter::fromProtobuf(body.expirationtime()));
+      mExpirationTime.setValue(InstantConverter::fromProtobuf(body.expirationtime()));
     }
 
     if (body.has_autorenewperiod())
     {
-      mAutoRenewPeriod.setValue(
-        DurationConverter::fromProtobuf(body.autorenewperiod()));
+      mAutoRenewPeriod.setValue(DurationConverter::fromProtobuf(body.autorenewperiod()));
     }
 
     if (body.has_memo())
@@ -187,14 +169,12 @@ AccountUpdateTransaction::initFromTransactionBody()
 
     if (body.has_max_automatic_token_associations())
     {
-      mMaxAutomaticTokenAssociations.setValue(
-        body.max_automatic_token_associations().value());
+      mMaxAutomaticTokenAssociations.setValue(body.max_automatic_token_associations().value());
     }
 
     if (body.has_staked_account_id())
     {
-      mStakedAccountId.setValue(
-        AccountId::fromProtobuf(body.staked_account_id()));
+      mStakedAccountId.setValue(AccountId::fromProtobuf(body.staked_account_id()));
     }
 
     if (body.has_staked_node_id())

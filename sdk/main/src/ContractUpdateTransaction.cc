@@ -18,6 +18,7 @@
  *
  */
 #include "ContractUpdateTransaction.h"
+#include "PublicKeyFactory.h"
 
 #include "helper/DurationConverter.h"
 #include "helper/InstantConverter.h"
@@ -42,24 +43,20 @@ ContractUpdateTransaction::ContractUpdateTransaction()
 
 //-----
 ContractUpdateTransaction::ContractUpdateTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
+  const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
   : Transaction(transactions)
 {
   initFromTransactionBody();
 }
 
 //-----
-ContractUpdateTransaction::ContractUpdateTransaction(
-  const proto::TransactionBody& transaction)
+ContractUpdateTransaction::ContractUpdateTransaction(const proto::TransactionBody& transaction)
 {
   initFromTransactionBody();
 }
 
 //-----
-void
-ContractUpdateTransaction::validateChecksums(const Client& client) const
+void ContractUpdateTransaction::validateChecksums(const Client& client) const
 {
   if (mContractId.isValid())
   {
@@ -78,8 +75,7 @@ ContractUpdateTransaction::validateChecksums(const Client& client) const
 }
 
 //-----
-proto::ContractUpdateTransactionBody
-ContractUpdateTransaction::build() const
+proto::ContractUpdateTransactionBody ContractUpdateTransaction::build() const
 {
   proto::ContractUpdateTransactionBody proto;
 
@@ -90,19 +86,17 @@ ContractUpdateTransaction::build() const
 
   if (mExpirationTime.isValid())
   {
-    proto.set_allocated_expirationtime(
-      InstantConverter::toProtobuf(mExpirationTime.getValue()));
+    proto.set_allocated_expirationtime(InstantConverter::toProtobuf(mExpirationTime.getValue()));
   }
 
-  if (mAdminKey.isValid())
+  if (mAdminKey.get() != nullptr)
   {
-    proto.set_allocated_adminkey(mAdminKey.getValue().toProtobuf());
+    proto.set_allocated_adminkey(mAdminKey->toProtobuf());
   }
 
   if (mAutoRenewPeriod.isValid())
   {
-    proto.set_allocated_autorenewperiod(
-      DurationConverter::toProtobuf(mAutoRenewPeriod.getValue()));
+    proto.set_allocated_autorenewperiod(DurationConverter::toProtobuf(mAutoRenewPeriod.getValue()));
   }
 
   if (mMemo.isValid())
@@ -113,21 +107,18 @@ ContractUpdateTransaction::build() const
 
   if (mMaxAutomaticTokenAssociations.isValid())
   {
-    google::protobuf::Int32Value* intVal =
-      proto.mutable_max_automatic_token_associations();
+    google::protobuf::Int32Value* intVal = proto.mutable_max_automatic_token_associations();
     intVal->set_value(mMaxAutomaticTokenAssociations.getValue());
   }
 
   if (mAutoRenewAccountId.isValid())
   {
-    proto.set_allocated_auto_renew_account_id(
-      mAutoRenewAccountId.getValue().toProtobuf());
+    proto.set_allocated_auto_renew_account_id(mAutoRenewAccountId.getValue().toProtobuf());
   }
 
   if (mStakedAccountId.isValid())
   {
-    proto.set_allocated_staked_account_id(
-      mStakedAccountId.getValue().toProtobuf());
+    proto.set_allocated_staked_account_id(mStakedAccountId.getValue().toProtobuf());
   }
 
   if (mStakedNodeId.isValid())
@@ -145,8 +136,7 @@ ContractUpdateTransaction::build() const
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setContractId(const ContractId& contractId)
+ContractUpdateTransaction& ContractUpdateTransaction::setContractId(const ContractId& contractId)
 {
   requireNotFrozen();
 
@@ -155,9 +145,7 @@ ContractUpdateTransaction::setContractId(const ContractId& contractId)
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setExpirationTime(
-  const std::chrono::nanoseconds& expirationTime)
+ContractUpdateTransaction& ContractUpdateTransaction::setExpirationTime(const std::chrono::nanoseconds& expirationTime)
 {
   requireNotFrozen();
 
@@ -166,9 +154,7 @@ ContractUpdateTransaction::setExpirationTime(
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setAutoRenewPeriod(
-  const std::chrono::seconds& autoRenewPeriod)
+ContractUpdateTransaction& ContractUpdateTransaction::setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod)
 {
   requireNotFrozen();
 
@@ -177,8 +163,7 @@ ContractUpdateTransaction::setAutoRenewPeriod(
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setMemo(const std::string& memo)
+ContractUpdateTransaction& ContractUpdateTransaction::setMemo(const std::string& memo)
 {
   requireNotFrozen();
 
@@ -187,8 +172,7 @@ ContractUpdateTransaction::setMemo(const std::string& memo)
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setMaxAutomaticTokenAssociations(
+ContractUpdateTransaction& ContractUpdateTransaction::setMaxAutomaticTokenAssociations(
   int32_t maxAutomaticTokenAssociations)
 {
   requireNotFrozen();
@@ -198,9 +182,7 @@ ContractUpdateTransaction::setMaxAutomaticTokenAssociations(
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setAutoRenewAccountId(
-  const AccountId& autoRenewAccountId)
+ContractUpdateTransaction& ContractUpdateTransaction::setAutoRenewAccountId(const AccountId& autoRenewAccountId)
 {
   requireNotFrozen();
 
@@ -209,8 +191,7 @@ ContractUpdateTransaction::setAutoRenewAccountId(
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
+ContractUpdateTransaction& ContractUpdateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 {
   requireNotFrozen();
 
@@ -221,8 +202,7 @@ ContractUpdateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
+ContractUpdateTransaction& ContractUpdateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 {
   requireNotFrozen();
 
@@ -233,8 +213,7 @@ ContractUpdateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 }
 
 //-----
-ContractUpdateTransaction&
-ContractUpdateTransaction::setDeclineRewards(bool declineRewards)
+ContractUpdateTransaction& ContractUpdateTransaction::setDeclineRewards(bool declineRewards)
 {
   requireNotFrozen();
 
@@ -243,13 +222,11 @@ ContractUpdateTransaction::setDeclineRewards(bool declineRewards)
 }
 
 //-----
-void
-ContractUpdateTransaction::initFromTransactionBody()
+void ContractUpdateTransaction::initFromTransactionBody()
 {
   if (mSourceTransactionBody.has_contractupdateinstance())
   {
-    const proto::ContractUpdateTransactionBody& body =
-      mSourceTransactionBody.contractupdateinstance();
+    const proto::ContractUpdateTransactionBody& body = mSourceTransactionBody.contractupdateinstance();
 
     if (body.has_contractid())
     {
@@ -258,19 +235,17 @@ ContractUpdateTransaction::initFromTransactionBody()
 
     if (body.has_expirationtime())
     {
-      mExpirationTime.setValue(
-        InstantConverter::fromProtobuf(body.expirationtime()));
+      mExpirationTime.setValue(InstantConverter::fromProtobuf(body.expirationtime()));
     }
 
     if (body.has_adminkey())
     {
-      mAdminKey.setValue(Key::fromProtobuf(body.adminkey()));
+      mAdminKey = PublicKeyFactory::fromProtobuf(body.adminkey());
     }
 
     if (body.has_autorenewperiod())
     {
-      mAutoRenewPeriod.setValue(
-        DurationConverter::fromProtobuf(body.autorenewperiod()));
+      mAutoRenewPeriod.setValue(DurationConverter::fromProtobuf(body.autorenewperiod()));
     }
 
     if (body.has_memowrapper())
@@ -280,20 +255,17 @@ ContractUpdateTransaction::initFromTransactionBody()
 
     if (body.has_max_automatic_token_associations())
     {
-      mMaxAutomaticTokenAssociations.setValue(
-        body.max_automatic_token_associations().value());
+      mMaxAutomaticTokenAssociations.setValue(body.max_automatic_token_associations().value());
     }
 
     if (body.has_auto_renew_account_id())
     {
-      mAutoRenewAccountId.setValue(
-        AccountId::fromProtobuf(body.auto_renew_account_id()));
+      mAutoRenewAccountId.setValue(AccountId::fromProtobuf(body.auto_renew_account_id()));
     }
 
     if (body.has_staked_account_id())
     {
-      mStakedAccountId.setValue(
-        AccountId::fromProtobuf(body.staked_account_id()));
+      mStakedAccountId.setValue(AccountId::fromProtobuf(body.staked_account_id()));
     }
 
     if (body.has_staked_node_id())

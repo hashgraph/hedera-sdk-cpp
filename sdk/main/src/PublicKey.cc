@@ -1,6 +1,6 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hedera Java SDK
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
@@ -17,26 +17,10 @@
  * limitations under the License.
  *
  */
-#ifndef PUBLIC_KEY_H_
-#define PUBLIC_KEY_H_
 
-#include <proto/basic_types.pb.h>
+#include "PublicKey.h"
 
 namespace Hedera
 {
-class PublicKey
-{
-public:
-  PublicKey();
-  PublicKey(const PublicKey& other) = default;
-  PublicKey& operator=(const PublicKey& other) = default;
-  PublicKey& operator=(const PublicKey&& other) = delete;
-
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
-
-  std::string toStringDER() const { return std::string(); }
-};
-
-} // namespace Hedera
-
-#endif // PUBLIC_KEY_H_
+PublicKey::PublicKey() {}
+}
