@@ -18,8 +18,8 @@ jobs:
         include:
 #          - os: ubuntu-latest
 #            preset: linux-x64
-#          - os: macos-latest
-#            preset: macos-x64
+          - os: macos-latest
+            preset: macos-x64
           - os: windows-latest
             preset: windows-x64
     steps:
@@ -53,10 +53,10 @@ jobs:
           configurePreset: ${{ matrix.preset }}-release
           buildPreset: ${{ matrix.preset }}-release
 
-      - name: List Directory Structure
-        if: ${{ contains(runner.os, 'Windows') && always() }}
-        shell: pwsh
-        run: tree /F build
+#      - name: List Directory Structure
+#        if: ${{ contains(runner.os, 'Windows') && always() }}
+#        shell: pwsh
+#        run: tree /F build
 
       - name: Compute Short SHA
         id: sha
