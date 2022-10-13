@@ -16,8 +16,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            preset: linux-x64
+#          - os: ubuntu-latest
+#            preset: linux-x64
 #          - os: macos-12
 #            preset: macos-x64
           - os: windows-latest
