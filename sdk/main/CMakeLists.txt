@@ -11,6 +11,8 @@ add_library(${PROJECT_NAME} STATIC
     src/AccountRecordsQuery.cc
     src/AccountStakersQuery.cc
     src/AccountUpdateTransaction.cc
+    src/Channel.cc
+    src/Client.cc
     src/ContractByteCodeQuery.cc
     src/ContractCallQuery.cc
     src/ContractCreateTransaction.cc
@@ -28,6 +30,9 @@ add_library(${PROJECT_NAME} STATIC
     src/FileContentsQuery.cc
     src/FileCreateTransaction.cc
     src/HbarUnit.cc
+    src/Network.cc
+    src/Node.cc
+    src/NodeAddress.cc
 
     src/helper/DurationConverter.cc
     src/helper/InstantConverter.cc)
