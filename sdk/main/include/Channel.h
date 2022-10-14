@@ -20,6 +20,7 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+#include <proto/crypto_service.grpc.pb.h>
 #include <string>
 
 namespace Hedera
