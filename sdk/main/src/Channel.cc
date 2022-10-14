@@ -19,6 +19,7 @@
  */
 #include "Channel.h"
 
+#include <grpc++/create_channel.h>
 #include <proto/crypto_service.grpc.pb.h>
 
 namespace Hedera
