@@ -101,7 +101,7 @@ public:
    * @param key The key for this account.
    * @return    Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setKey(const std::shared_ptr<PublicKey> key);
+  AccountCreateTransaction& setKey(std::shared_ptr<PublicKey> key);
 
   /**
    * Set the initial amount to transfer into this account.
@@ -179,40 +179,22 @@ public:
   AccountCreateTransaction& setDeclineStakingReward(bool declineStakingReward);
 
   /**
-   * The key to be used as this account's alias. Currently only primitive key
-   * bytes are supported as the key for an account with an alias. ThresholdKey,
-   * KeyList, ContractID, and delegatable_contract_id are not supported.
+   * The key to be used as this account's alias. Currently, only primitive keys and EVM addresses are supported.
+   * ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported.
+   * <p>
+   * An EVM address may be either the encoded form of the shard.realm.num, or the keccak-256 hash of a ECDSA_SECP256K1
+   * primitive key.
+   * <p>
+   * A given alias can map to at most one account on the network at a time. This uniqueness will be
+   * enforced relative to aliases currently on the network at alias assignment.
+   * <p>
+   * If a transaction creates an account using an alias, any further crypto transfers to that alias will simply be
+   * deposited in that account, without creating anything, and with no creation fee being charged.
    *
-   * A given alias can map to at most one account on the network at a time. This
-   * uniqueness will be enforced relative to aliases currently on the network at
-   * alias assignment.
-   *
-   * If a transaction creates an account using an alias, any further crypto
-   * transfers to that alias will simply be deposited in that account, without
-   * creating anything, and with no creation fee being charged.
-   *
-   * @param aliasKey The key to be used as the account's alias.
+   * @param alias The key to be used as the account's alias.
    * @return         Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setAliasKey(const std::shared_ptr<PublicKey> aliasKey);
-
-  /**
-   * The ethereum account 20-byte EVM address to be used as the account's alias.
-   * This EVM address may be either the encoded form of the shard.realm.num or
-   * the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
-   *
-   * A given alias can map to at most one account on the network at a time. This
-   * uniqueness will be enforced relative to aliases currently on the network at
-   * alias assignment.
-   *
-   * If a transaction creates an account using an alias, any further crypto
-   * transfers to that alias will simply be deposited in that account, without
-   * creating anything, and with no creation fee being charged.
-   *
-   * @param aliasEvmAddress The EVM address to be used as this account's alias.
-   * @return                Reference to this AccountCreateTransaction object.
-   */
-  AccountCreateTransaction& setAliasEvmAddress(const std::shared_ptr<EvmAddress> aliasEvmAddress);
+  AccountCreateTransaction& setAlias(std::shared_ptr<PublicKey> alias);
 
   /**
    * Extract the key.
@@ -283,15 +265,7 @@ public:
    *
    * @return The key to be used as this account's alias.
    */
-  inline std::shared_ptr<PublicKey> getAliasKey() { return mAliasKey; }
-
-  /**
-   * Extract the ethereum account 20-byte EVM address being used as this
-   * account's alias.
-   *
-   * @return The EVM address being used as this account's alias.
-   */
-  inline std::shared_ptr<EvmAddress> getAliasEvmAddress() const { return mAliasEvmAddress; }
+  inline std::shared_ptr<PublicKey> getAlias() { return mAlias; }
 
 private:
   /**
@@ -352,15 +326,9 @@ private:
   bool mDeclineStakingReward;
 
   /**
-   * The key to be used as this account's alias. Defaults to uninitialized.
+   * The native key, or 20-byte EVM address, to be used as this account's alias. Defaults to uninitialized
    */
-  std::shared_ptr<PublicKey> mAliasKey;
-
-  /**
-   * The ethereum account 20-byte EVM address to be used as the account's alias.
-   * Defaults to uninitialized.
-   */
-  std::shared_ptr<EvmAddress> mAliasEvmAddress;
+  std::shared_ptr<PublicKey> mAlias;
 };
 
 } // namespace Hedera

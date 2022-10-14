@@ -21,11 +21,13 @@
 #include "EvmAddress.h"
 
 namespace Hedera {
-EvmAddress::EvmAddress() {
-    
-}
 proto::Key* EvmAddress::toProtobuf() const
 {
   return nullptr;
+}
+
+std::string EvmAddress::toString() const
+{
+  return std::string();
 }
 }
