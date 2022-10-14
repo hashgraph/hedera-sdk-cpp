@@ -47,7 +47,7 @@ public:
   /**
    * Shutdown connections with the node.
    */
-  void shutdown();
+  void shutdown() const;
 
 private:
   /**

@@ -29,7 +29,7 @@ Node::Node(const std::string& url, const AccountId& accountId)
 }
 
 //-----
-void Node::shutdown()
+void Node::shutdown() const
 {
   mChannel.shutdown();
 }

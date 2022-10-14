@@ -25,7 +25,6 @@
 #include "helper/StringHash.h"
 
 #include <unordered_map>
-#include <unordered_set>
 
 namespace Hedera
 {
@@ -79,19 +78,19 @@ void Network::setNetwork(
   const std::unordered_map<std::string, AccountId, StringHash, std::equal_to<>>&
     network)
 {
-  for (auto nodeIter = network.cbegin(); nodeIter != network.cend(); ++nodeIter)
+  for (const auto& [url, accountId] : network)
   {
-    Node node(nodeIter->first, nodeIter->second);
+    Node node(url, accountId);
     mNodes.push_back(node);
   }
 }
 
 //-----
-void Network::close()
+void Network::close() const
 {
-  for (size_t i = 0; i < mNodes.size(); ++i)
+  for (const auto& node : mNodes)
   {
-    mNodes[i].shutdown();
+    node.shutdown();
   }
 }
 

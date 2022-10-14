@@ -48,7 +48,7 @@ public:
   /**
    * Close this network.
    */
-  void close();
+  void close() const;
 
 private:
   /**

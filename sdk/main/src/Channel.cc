@@ -19,41 +19,64 @@
  */
 #include "Channel.h"
 
-#include <grpc/grpc.h>
-#include <grpcpp/channel.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+#include <proto/crypto_service.grpc.pb.h>
 
 namespace Hedera
 {
 //-----
-void Channel::initChannel(const std::string& url)
+class Channel::ChannelImpl
+{
+public:
+  std::string mUrl;
+  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
+};
+
+//-----
+Channel::Channel()
+  : mImpl(std::make_unique<ChannelImpl>())
+{
+}
+
+//-----
+Channel::~Channel() = default;
+
+//-----
+Channel::Channel(const Channel& other)
+{
+  initChannel(other.mImpl->mUrl);
+}
+
+//-----
+Channel& Channel::operator=(const Hedera::Channel& other)
+{
+  initChannel(other.mImpl->mUrl);
+  return *this;
+}
+
+//-----
+void Channel::initChannel(const std::string& url) const
 {
   shutdownChannel();
 
-  mCryptoStub = new proto::CryptoService::Stub(
+  mImpl->mUrl = url;
+  mImpl->mCryptoStub = proto::CryptoService::NewStub(
     grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
 }
 
 //-----
-Channel::~Channel()
+void Channel::shutdown() const
 {
   shutdownChannel();
 }
 
 //-----
-void Channel::shutdown()
+void Channel::shutdownChannel() const
 {
-  shutdownChannel();
-}
-
-//-----
-void Channel::shutdownChannel()
-{
-  if (mCryptoStub)
+  if (mImpl->mCryptoStub)
   {
-    delete mCryptoStub;
-    mCryptoStub = nullptr;
+    mImpl->mCryptoStub.reset();
   }
 }
 

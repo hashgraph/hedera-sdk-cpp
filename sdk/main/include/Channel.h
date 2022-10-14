@@ -20,8 +20,7 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
-#include <proto/crypto_service.grpc.pb.h>
-
+#include <memory>
 #include <string>
 
 namespace Hedera
@@ -32,7 +31,7 @@ public:
   /**
    * Default constructor.
    */
-  Channel() = default;
+  Channel();
 
   /**
    * Destructor.
@@ -40,28 +39,44 @@ public:
   ~Channel();
 
   /**
+   * Copy constructor.
+   *
+   * @param other The Channel to copy.
+   */
+  Channel(const Channel& other);
+
+  /**
+   * Copy assignment operator.
+   *
+   * @param other The Channel to copy.
+   * @return Reference to this Channel with the copied data.
+   */
+  Channel& operator=(const Channel& other);
+
+  /**
    * Initialize this channel to communicate with a node URL.
    *
    * @param url The URL and port of the gRPC service with which this channel
    *            should communicate.
    */
-  void initChannel(const std::string& url);
+  void initChannel(const std::string& url) const;
 
   /**
    * Shutdown the channel.
    */
-  void shutdown();
+  void shutdown() const;
 
 private:
   /**
    * Helper function to close/shutdown/delete channels.
    */
-  void shutdownChannel();
+  void shutdownChannel() const;
 
   /**
-   * The stub used to communicate with the crypto service.
+   * Implementation object used to hide implementation details and gRPC headers.
    */
-  proto::CryptoService::Stub* mCryptoStub;
+  class ChannelImpl;
+  std::unique_ptr<ChannelImpl> mImpl;
 };
 
 } // namespace Hedera
