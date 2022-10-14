@@ -21,12 +21,14 @@
 
 #include <proto/crypto_service.grpc.pb.h>
 
+#include <memory>
+
 namespace Hedera
 {
 class Channel::ChannelImpl
 {
 public:
-  proto::CryptoService::Stub mCryptoStub;
+  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
 };
 
 } // namespace Hedera
