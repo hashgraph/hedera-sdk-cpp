@@ -20,6 +20,7 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+#include <memory>
 #include <string>
 
 namespace Hedera
@@ -27,11 +28,14 @@ namespace Hedera
 class Channel
 {
 public:
+  explicit Channel(const std::string& url);
+
+private:
   /**
    * Implementation object used to hide implementation details and gRPC headers.
    */
   class ChannelImpl;
-  ChannelImpl* mImpl;
+  std::shared_ptr<ChannelImpl> mImpl;
 };
 
 } // namespace Hedera

@@ -25,7 +25,7 @@ namespace Hedera
 Node::Node(const std::string& url, const Hedera::AccountId& accountId)
   : mAccountId(accountId)
   , mAddress(NodeAddress::fromString(url))
-  //, mChannel(url)
+  , mChannel(url)
 {
 }
 

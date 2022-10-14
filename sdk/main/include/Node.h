@@ -58,7 +58,7 @@ private:
   /**
    * The channels this node is using to communicate.
    */
-  //Channel mChannel;
+  Channel mChannel;
 };
 
 } // namespace Hedera
