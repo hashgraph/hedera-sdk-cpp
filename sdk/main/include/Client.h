@@ -40,11 +40,6 @@ class Client
 {
 public:
   /**
-   * Default constructor.
-   */
-  Client() = default;
-
-  /**
    * Construct a Hedera client pre-configured for Testnet access.
    *
    * @return Client object that can communicate with Testnet.

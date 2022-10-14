@@ -80,15 +80,16 @@ void Network::setNetwork(
 {
   for (const auto& [url, accountId] : network)
   {
-    Node node(url, accountId);
+    Node node;
+    node.initNode(url, accountId);
     mNodes.push_back(node);
   }
 }
 
 //-----
-void Network::close() const
+void Network::close()
 {
-  for (const auto& node : mNodes)
+  for (auto& node : mNodes)
   {
     node.shutdown();
   }

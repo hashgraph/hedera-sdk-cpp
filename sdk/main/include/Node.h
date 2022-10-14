@@ -32,22 +32,17 @@ class Node
 {
 public:
   /**
-   * Default constructor.
-   */
-  Node() = default;
-
-  /**
-   * Construct a node from a URL and an account ID.
+   * Initialize this node with the URL and the account ID.
    *
    * @param url       The URL of the node.
    * @param accountId The account ID of the node.
    */
-  explicit Node(const std::string& url, const AccountId& accountId);
+  void initNode(const std::string& url, const AccountId& accountId);
 
   /**
    * Shutdown connections with the node.
    */
-  void shutdown() const;
+  void shutdown();
 
 private:
   /**
