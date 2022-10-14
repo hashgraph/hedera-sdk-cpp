@@ -19,11 +19,7 @@
  */
 #include "Channel.h"
 
-#include <grpcpp/create_channel.h>
-#include <grpcpp/security/credentials.h>
 #include <proto/crypto_service.grpc.pb.h>
-
-#include <memory>
 
 namespace Hedera
 {
