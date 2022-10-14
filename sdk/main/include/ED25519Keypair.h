@@ -6,10 +6,11 @@
 #include <openssl/evp.h>
 
 #include "ED25519PublicKey.h"
+#include "Keypair.h"
 
 namespace Hedera
 {
-class ED25519Keypair
+class ED25519Keypair : public Keypair
 {
 public:
   ED25519Keypair();
