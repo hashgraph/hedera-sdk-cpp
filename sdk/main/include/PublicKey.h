@@ -21,8 +21,8 @@
 #define PUBLIC_KEY_H_
 
 #include <string>
-
-#include <proto/basic_types.pb.h>
+#include <memory>
+//#include <proto/basic_types.pb.h>
 
 namespace proto
 {
