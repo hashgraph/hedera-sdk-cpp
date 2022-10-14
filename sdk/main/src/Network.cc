@@ -80,9 +80,7 @@ void Network::setNetwork(
 {
   for (const auto& [url, accountId] : network)
   {
-    Node node;
-    node.initNode(url, accountId);
-    mNodes.push_back(node);
+    mNodes.push_back(Node(url, accountId));
   }
 }
 

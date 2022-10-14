@@ -20,6 +20,9 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+#include <proto/crypto_service.grpc.pb.h>
+
+#include <memory>
 #include <string>
 
 namespace Hedera
@@ -28,69 +31,28 @@ class Channel
 {
 public:
   /**
-   * Default constructor.
-   */
-  Channel();
-
-  /**
-   * Destructor.
-   */
-  ~Channel();
-
-  /**
-   * Copy constructor.
-   *
-   * @param other The Channel to copy.
-   */
-  Channel(const Channel& other);
-
-  /**
-   * Move constructor.
-   *
-   * @param other The Channel to move.
-   */
-  Channel(const Channel&& other) noexcept;
-
-  /**
-   * Copy assignment operator.
-   *
-   * @param other The Channel to copy.
-   * @return Reference to this Channel with the copied data.
-   */
-  Channel& operator=(const Channel& other);
-
-  /**
-   * Move assignment operator.
-   *
-   * @param other The Channel to move.
-   * @return Reference to this Channel with the moved data.
-   */
-  Channel& operator=(const Channel&& other);
-
-  /**
-   * Initialize this channel to communicate with a node URL.
+   * Construct this channel with a node URL with which to communicate.
    *
    * @param url The URL and port of the gRPC service with which this channel
    *            should communicate.
    */
-  void initChannel(const std::string& url) const;
+  explicit Channel(const std::string& url);
 
   /**
    * Shutdown the channel.
    */
-  void shutdown() const;
+  void shutdown();
 
 private:
   /**
    * Helper function to close/shutdown/delete channels.
    */
-  void shutdownChannel() const;
+  void shutdownChannel();
 
   /**
    * Implementation object used to hide implementation details and gRPC headers.
    */
-  class ChannelImpl;
-  ChannelImpl* mImpl;
+  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
 };
 
 } // namespace Hedera

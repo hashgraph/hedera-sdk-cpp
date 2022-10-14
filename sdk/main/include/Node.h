@@ -32,12 +32,12 @@ class Node
 {
 public:
   /**
-   * Initialize this node with the URL and the account ID.
+   * Construct this node with the URL and the account ID.
    *
    * @param url       The URL of the node.
    * @param accountId The account ID of the node.
    */
-  void initNode(const std::string& url, const AccountId& accountId);
+  explicit Node(const std::string& url, const AccountId& accountId);
 
   /**
    * Shutdown connections with the node.
