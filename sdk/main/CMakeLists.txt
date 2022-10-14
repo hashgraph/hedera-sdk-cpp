@@ -23,9 +23,9 @@ add_library(${PROJECT_NAME} STATIC
     src/ContractInfoQuery.cc
     src/ContractUpdateTransaction.cc
     src/ED25519Keypair.cc
-    src/ED25519PrivateKey.cc
     src/ED25519PublicKey.cc
     src/EthereumTransaction.cc
+    src/EvmAddress.cc
     src/FileAppendTransaction.cc
     src/FileContentsQuery.cc
     src/FileCreateTransaction.cc
@@ -33,6 +33,7 @@ add_library(${PROJECT_NAME} STATIC
     src/Network.cc
     src/Node.cc
     src/NodeAddress.cc
+    src/PublicKey.cc
 
     src/helper/DurationConverter.cc
     src/helper/InstantConverter.cc)
@@ -44,11 +45,6 @@ target_link_libraries(${PROJECT_NAME} hapi)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/modules")
-find_package(Sodium REQUIRED)
-target_include_directories(${PROJECT_NAME} PRIVATE ${sodium_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${sodium_LIBRARY_RELEASE})
 
 # Install Library & Headers
 install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib)

@@ -27,7 +27,7 @@ namespace Hedera
 class PrivateKey
 {
 public:
-  PublicKey getPublicKey() const { return PublicKey(); }
+  std::shared_ptr<PublicKey> getPublicKey() const { return std::shared_ptr<PublicKey>(); }
 };
 
 } // namespace Hedera

@@ -23,7 +23,6 @@
 #include "AccountId.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
-#include "Key.h"
 #include "PublicKey.h"
 #include "Transaction.h"
 
@@ -58,9 +57,7 @@ public:
    *                     ID's and protobuf transactions.
    */
   explicit AccountCreateTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
    * Construct from a protobuf transaction object.
@@ -87,8 +84,7 @@ public:
   /**
    * Called in schedule() when converting transaction into a scheduled version.
    */
-  virtual void onScheduled(
-    proto::SchedulableTransactionBody* body) const override;
+  virtual void onScheduled(proto::SchedulableTransactionBody* body) const override;
 
   /**
    * Build a create account protobuf message based on the data in this class.
@@ -105,7 +101,7 @@ public:
    * @param key The key for this account.
    * @return    Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setKey(const Key& key);
+  AccountCreateTransaction& setKey(const std::shared_ptr<PublicKey> key);
 
   /**
    * Set the initial amount to transfer into this account.
@@ -124,8 +120,7 @@ public:
    *                                 receiving Hbars, otherwise \c FALSE.
    * @return Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setReceiverSignatureRequired(
-    bool receiveSignatureRequired);
+  AccountCreateTransaction& setReceiverSignatureRequired(bool receiveSignatureRequired);
 
   /**
    * Set the auto renew period for this account. A Hedera™ account is charged to
@@ -137,8 +132,7 @@ public:
    * @param autoRenewPeriod The auto renew period to set.
    * @return                Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setAutoRenewPeriod(
-    const std::chrono::seconds& autoRenewPeriod);
+  AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod);
 
   /**
    * Set the maximum automatic token associations.
@@ -146,8 +140,7 @@ public:
    * @param associations The maximum amount of associations to set.
    * @return             Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setMaxAutomaticTokenAssociations(
-    int32_t associations);
+  AccountCreateTransaction& setMaxAutomaticTokenAssociations(int32_t associations);
 
   /**
    * Assign a memo to the account.
@@ -165,8 +158,7 @@ public:
    *                        stake.
    * @return                Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setStakedAccountId(
-    const AccountId& stakedAccountId);
+  AccountCreateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
   /**
    * Set the node to which this account will stake. This will reset the value of
@@ -202,7 +194,7 @@ public:
    * @param aliasKey The key to be used as the account's alias.
    * @return         Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setAliasKey(const PublicKey& aliasKey);
+  AccountCreateTransaction& setAliasKey(const std::shared_ptr<PublicKey> aliasKey);
 
   /**
    * The ethereum account 20-byte EVM address to be used as the account's alias.
@@ -220,15 +212,14 @@ public:
    * @param aliasEvmAddress The EVM address to be used as this account's alias.
    * @return                Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setAliasEvmAddress(
-    const EvmAddress& aliasEvmAddress);
+  AccountCreateTransaction& setAliasEvmAddress(const std::shared_ptr<EvmAddress> aliasEvmAddress);
 
   /**
    * Extract the key.
    *
    * @return The creating account's key.
    */
-  inline InitType<Key> getKey() const { return mKey; }
+  inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
 
   /**
    * Extract the initial balance in Hbar.
@@ -242,30 +233,21 @@ public:
    *
    * @return \c TRUE if the receiver is required to sign, otherwise \c FALSE.
    */
-  inline bool getReceiverSignatureRequired() const
-  {
-    return mReceiverSignatureRequired;
-  }
+  inline bool getReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
 
   /**
    * Extract the duration for the auto renew period.
    *
    * @return The duration for auto-renew period.
    */
-  inline std::chrono::seconds getAutoRenewPeriod() const
-  {
-    return mAutoRenewPeriod;
-  }
+  inline std::chrono::seconds getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Extract the maximum automatic token associations.
    *
    * @return The max automatic token associations.
    */
-  inline int32_t getMaxAutomaticTokenAssociations() const
-  {
-    return mMaxAutomaticTokenAssociations;
-  }
+  inline int32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
    * Extract the account memo.
@@ -279,10 +261,7 @@ public:
    *
    * @return ID of the account to which this account will stake.
    */
-  inline InitType<AccountId> getStakedAccountId() const
-  {
-    return mStakedAccountId;
-  }
+  inline InitType<AccountId> getStakedAccountId() const { return mStakedAccountId; }
 
   /**
    * Extract the ID of the node to which this account will stake.
@@ -304,7 +283,7 @@ public:
    *
    * @return The key to be used as this account's alias.
    */
-  inline InitType<PublicKey> getAliasKey() { return mAliasKey; }
+  inline std::shared_ptr<PublicKey> getAliasKey() { return mAliasKey; }
 
   /**
    * Extract the ethereum account 20-byte EVM address being used as this
@@ -312,10 +291,7 @@ public:
    *
    * @return The EVM address being used as this account's alias.
    */
-  inline InitType<EvmAddress> getAliasEvmAddress() const
-  {
-    return mAliasEvmAddress;
-  }
+  inline std::shared_ptr<EvmAddress> getAliasEvmAddress() const { return mAliasEvmAddress; }
 
 private:
   /**
@@ -328,7 +304,7 @@ private:
    * mReceiverSignatureRequired is true, then it must also sign any transfer
    * into the account. Defaults to uninitialized.
    */
-  InitType<Key> mKey;
+  std::shared_ptr<PublicKey> mKey;
 
   /**
    * A memo for this account. Defaults to empty.
@@ -378,13 +354,13 @@ private:
   /**
    * The key to be used as this account's alias. Defaults to uninitialized.
    */
-  InitType<PublicKey> mAliasKey;
+  std::shared_ptr<PublicKey> mAliasKey;
 
   /**
    * The ethereum account 20-byte EVM address to be used as the account's alias.
    * Defaults to uninitialized.
    */
-  InitType<EvmAddress> mAliasEvmAddress;
+  std::shared_ptr<EvmAddress> mAliasEvmAddress;
 };
 
 } // namespace Hedera

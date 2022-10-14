@@ -2,18 +2,23 @@
 #define ED25519_PUBLIC_KEY_H_
 
 #include <memory>
-#include <sodium.h>
+#include <openssl/crypto.h>
+#include <openssl/evp.h>
+
+#include "PublicKey.h"
 
 namespace Hedera
 {
-class ED25519PublicKey
+class ED25519PublicKey : public PublicKey
 {
 public:
-  ED25519PublicKey(
-    const unsigned char publicKeyBytes[crypto_sign_PUBLICKEYBYTES]);
+  ED25519PublicKey(unsigned char* encodedPublicKey);
+  ~ED25519PublicKey();
+
+  [[nodiscard]] proto::Key* toProtobuf() const override;
 
 private:
-  std::unique_ptr<unsigned char[]> publicKeyBytes;
+  EVP_PKEY* publicKey;
 };
 }
 

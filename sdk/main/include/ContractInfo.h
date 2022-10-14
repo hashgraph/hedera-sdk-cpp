@@ -23,7 +23,7 @@
 #include "AccountId.h"
 #include "ContractId.h"
 #include "Hbar.h"
-#include "Key.h"
+#include "PublicKey.h"
 #include "StakingInfo.h"
 
 #include "helper/InitType.h"
@@ -54,8 +54,7 @@ public:
    * @param proto The contract info protobuf object.
    * @return The contract info object.
    */
-  static ContractInfo fromProtobuf(
-    const proto::ContractGetInfoResponse_ContractInfo& proto);
+  static ContractInfo fromProtobuf(const proto::ContractGetInfoResponse_ContractInfo& proto);
 
   /**
    * Build a contract info protobuf object from this contract info object.
@@ -90,17 +89,14 @@ public:
    *
    * @return The admin key associated with this contract.
    */
-  inline InitType<Key> getAdminKey() const { return mAdminKey; }
+  inline std::shared_ptr<PublicKey> getAdminKey() const { return mAdminKey; }
 
   /**
    * Extract the expiration time of this contract.
    *
    * @return The expiration time of this contract.
    */
-  inline InitType<std::chrono::nanoseconds> getExpirationTime() const
-  {
-    return mExpirationTime;
-  }
+  inline InitType<std::chrono::nanoseconds> getExpirationTime() const { return mExpirationTime; }
 
   /**
    * Extract the amount of time added to the expiration date when the contract
@@ -109,10 +105,7 @@ public:
    * @return The amount of time added to the expiration date when the contract
    * instance automatically renews.
    */
-  inline InitType<std::chrono::seconds> getAutoRenewPeriod() const
-  {
-    return mAutoRenewPeriod;
-  }
+  inline InitType<std::chrono::seconds> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Extract the storage space of this contract, in bytes.
@@ -154,20 +147,14 @@ public:
    *
    * @return The account ID to charge for auto-renewal.
    */
-  inline InitType<AccountId> getAutoRenewAccountId() const
-  {
-    return mAutoRenewAccountId;
-  }
+  inline InitType<AccountId> getAutoRenewAccountId() const { return mAutoRenewAccountId; }
 
   /**
    * Extract the maximum number of token associations for this contract.
    *
    * @return The maximum number of token associations for this contract.
    */
-  inline int32_t getMaxAutomaticTokenAssociations() const
-  {
-    return mMaxAutomaticTokenAssociations;
-  }
+  inline int32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
    * Extract the staking metadata for this contract.
@@ -203,7 +190,7 @@ private:
    * authorize changing the admin keys, so there can never be any admin keys for
    * that instance.
    */
-  InitType<Key> mAdminKey;
+  std::shared_ptr<PublicKey> mAdminKey;
 
   /**
    * The current time at which this contract instance (and its account) is set

@@ -68,9 +68,7 @@ public:
    * @param realm The realm number to set.
    * @param num   The account number to set.
    */
-  explicit AccountId(const int64_t& shard,
-                     const int64_t& realm,
-                     const int64_t& num);
+  explicit AccountId(const int64_t& shard, const int64_t& realm, const int64_t& num);
 
   /**
    * Construct with all parts of the account ID and the checksum.
@@ -98,8 +96,8 @@ public:
   explicit AccountId(const int64_t& shard,
                      const int64_t& realm,
                      const int64_t& num,
-                     const InitType<PublicKey>& aliasKey,
-                     const InitType<EvmAddress>& aliasEvmAddr,
+                     const std::shared_ptr<PublicKey> aliasKey,
+                     const std::shared_ptr<EvmAddress> aliasEvmAddr,
                      const InitType<std::string>& checksum);
 
   /**
@@ -197,12 +195,12 @@ public:
   /**
    * The alias key.
    */
-  InitType<PublicKey> mAliasKey;
+  std::shared_ptr<PublicKey> mAliasKey;
 
   /**
    * The alias EVM address.
    */
-  InitType<EvmAddress> mAliasEvmAddress;
+  std::shared_ptr<EvmAddress> mAliasEvmAddress;
 
 private:
   /**
