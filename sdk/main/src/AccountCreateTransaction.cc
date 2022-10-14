@@ -40,8 +40,7 @@ AccountCreateTransaction::AccountCreateTransaction()
   , mStakedAccountId()
   , mStakedNodeId()
   , mDeclineStakingReward(false)
-  , mAliasKey()
-  , mAliasEvmAddress()
+  , mAlias()
 {
   mDefaultMaxTransactionFee = Hbar::from(5LL);
 }
@@ -87,7 +86,7 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 {
   proto::CryptoCreateTransactionBody* body = new proto::CryptoCreateTransactionBody;
 
-  if (mKey.get() != nullptr)
+  if (mKey != nullptr)
   {
     body->set_allocated_key(mKey->toProtobuf());
   }
@@ -110,14 +109,9 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   body->set_decline_reward(mDeclineStakingReward);
 
-  if (mAliasKey.get() != nullptr)
+  if (mAlias != nullptr)
   {
-    body->set_allocated_alias(new std::string(mAliasKey->toStringDER()));
-  }
-
-  if (mAliasEvmAddress.get() != nullptr)
-  {
-    body->set_allocated_alias(new std::string(mAliasEvmAddress->toString()));
+    body->set_allocated_alias(new std::string(mAlias->toString()));
   }
 
   return body;
@@ -209,21 +203,11 @@ AccountCreateTransaction& AccountCreateTransaction::setDeclineStakingReward(bool
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAliasKey(const std::shared_ptr<PublicKey> aliasKey)
+AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_ptr<PublicKey> alias)
 {
   requireNotFrozen();
 
-  this->mAliasKey = aliasKey;
-  return *this;
-}
-
-//-----
-AccountCreateTransaction& AccountCreateTransaction::setAliasEvmAddress(
-  const std::shared_ptr<EvmAddress> aliasEvmAddress)
-{
-  requireNotFrozen();
-
-  this->mAliasEvmAddress = aliasEvmAddress;
+  this->mAlias = alias;
   return *this;
 }
 
@@ -260,12 +244,7 @@ void AccountCreateTransaction::initFromTransactionBody()
       mStakedNodeId.setValue(body.staked_node_id());
     }
 
-    // TODO: this may need to change based on what the alias bytes represent
-    mAliasKey = PublicKey::fromAliasBytes(body.alias());
-
-    // TODO this is commented out, because the member variables mAliasKey and mAliasEvmAddress should be combined. They
-    // are both types of public key, and PublicKeyFactory should just return the correct type from the fromAliasBytes
-    // function mAliasEvmAddress = EvmAddress::fromAliasBytes(body.alias());
+    mAlias = PublicKey::fromAliasBytes(body.alias());
   }
 }
 

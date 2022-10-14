@@ -89,15 +89,13 @@ public:
    * @param shard        The shard number to set.
    * @param realm        The realm number to set.
    * @param num          The account number to set.
-   * @param aliasKey     The key of the account alias.
-   * @param aliasEvmAddr The EVM address of the account alias.
+   * @param alias        The account alias, which may be a native key or an EVM address
    * @param checksum     The checksum of the account ID.
    */
   explicit AccountId(const int64_t& shard,
                      const int64_t& realm,
                      const int64_t& num,
-                     const std::shared_ptr<PublicKey> aliasKey,
-                     const std::shared_ptr<EvmAddress> aliasEvmAddr,
+                     const std::shared_ptr<PublicKey> alias,
                      const InitType<std::string>& checksum);
 
   /**
@@ -193,14 +191,9 @@ public:
   int64_t mAccountNum;
 
   /**
-   * The alias key.
+   * The alias, which may be a native key or an EVM address
    */
-  std::shared_ptr<PublicKey> mAliasKey;
-
-  /**
-   * The alias EVM address.
-   */
-  std::shared_ptr<EvmAddress> mAliasEvmAddress;
+  std::shared_ptr<PublicKey> mAlias;
 
 private:
   /**

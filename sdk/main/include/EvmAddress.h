@@ -30,27 +30,20 @@ namespace Hedera
 class EvmAddress : public PublicKey
 {
 public:
-  EvmAddress();
+  EvmAddress() = default;
   virtual ~EvmAddress() = default;
   EvmAddress(const EvmAddress& other) = default;
   EvmAddress& operator=(const EvmAddress& other) = default;
   EvmAddress& operator=(const EvmAddress&& other) = delete;
 
-  static std::unique_ptr<EvmAddress> fromAliasBytes(const std::string& bytes)
-  {
-    (void)bytes;
-    return std::make_unique<EvmAddress>(EvmAddress());
-  }
-
-  virtual proto::Key* toProtobuf() const override;
+  [[nodiscard]] proto::Key* toProtobuf() const override;
+  [[nodiscard]] std::string toString() const override;
 
   bool operator==(const EvmAddress& addr) const
   {
     (void)addr;
     return true;
   }
-
-  std::string toString() const { return std::string(); }
 };
 
 } // namespace Hedera
