@@ -20,4 +20,9 @@ proto::Key* ED25519PublicKey::toProtobuf() const
 {
   return nullptr;
 }
+
+std::string ED25519PublicKey::toString() const
+{
+  return std::string();
+}
 }

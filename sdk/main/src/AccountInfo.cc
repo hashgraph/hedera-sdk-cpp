@@ -144,7 +144,7 @@ proto::CryptoGetInfoResponse_AccountInfo AccountInfo::toProtobuf() const
 
   if (mAliasKey.get() != nullptr)
   {
-    proto.set_allocated_alias(new std::string(mAliasKey->toStringDER()));
+    proto.set_allocated_alias(new std::string(mAliasKey->toString()));
   }
 
   proto.set_ledger_id(mLedgerId.toByteString());

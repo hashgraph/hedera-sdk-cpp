@@ -38,8 +38,7 @@ AccountId::AccountId()
   : mShard(0)
   , mRealm(0)
   , mAccountNum(0)
-  , mAliasKey()
-  , mAliasEvmAddress()
+  , mAlias()
   , mChecksum()
 {
 }
@@ -49,8 +48,7 @@ AccountId::AccountId(const int64_t& num)
   : mShard(0)
   , mRealm(0)
   , mAccountNum(num)
-  , mAliasKey()
-  , mAliasEvmAddress()
+  , mAlias()
   , mChecksum()
 {
 }
@@ -60,8 +58,7 @@ AccountId::AccountId(const int64_t& shard, const int64_t& realm, const int64_t& 
   : mShard(shard)
   , mRealm(realm)
   , mAccountNum(num)
-  , mAliasKey()
-  , mAliasEvmAddress()
+  , mAlias()
   , mChecksum()
 {
 }
@@ -70,14 +67,12 @@ AccountId::AccountId(const int64_t& shard, const int64_t& realm, const int64_t& 
 AccountId::AccountId(const int64_t& shard,
                      const int64_t& realm,
                      const int64_t& num,
-                     const std::shared_ptr<PublicKey> aliasKey,
-                     const std::shared_ptr<EvmAddress> aliasEvmAddr,
+                     const std::shared_ptr<PublicKey> alias,
                      const InitType<std::string>& checksum)
   : mShard(shard)
   , mRealm(realm)
   , mAccountNum(num)
-  , mAliasKey(aliasKey)
-  , mAliasEvmAddress(aliasEvmAddr)
+  , mAlias(alias)
   , mChecksum(checksum)
 {
 }
@@ -86,7 +81,7 @@ AccountId::AccountId(const int64_t& shard,
 bool AccountId::operator==(const AccountId& other) const
 {
   return mShard == other.mShard && mRealm == other.mRealm && mAccountNum == other.mAccountNum &&
-         mAliasKey.get() == other.mAliasKey.get() && mAliasEvmAddress.get() == other.mAliasEvmAddress.get();
+         mAlias.get() == other.mAlias.get();
 }
 
 //-----
@@ -109,7 +104,6 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& id)
                    id.realmnum(),
                    id.accountnum(),
                    id.has_alias() ? PublicKey::fromAliasBytes(id.alias()) : nullptr,
-                   id.has_alias() ? EvmAddress::fromAliasBytes(id.alias()) : nullptr,
                    InitType<std::string>());
 }
 
@@ -126,13 +120,9 @@ proto::AccountID* AccountId::toProtobuf() const
   proto->set_shardnum(mShard);
   proto->set_realmnum(mRealm);
 
-  if (mAliasKey.get() != nullptr)
+  if (mAlias != nullptr)
   {
-    proto->set_alias(mAliasKey->toStringDER());
-  }
-  else if (mAliasEvmAddress.get() != nullptr)
-  {
-    proto->set_alias(mAliasEvmAddress->toString());
+    proto->set_alias(mAlias->toString());
   }
   else
   {
@@ -145,7 +135,7 @@ proto::AccountID* AccountId::toProtobuf() const
 //-----
 void AccountId::validateChecksum(const Client& client) const
 {
-  if (mAliasKey.get() == nullptr && mAliasEvmAddress.get() == nullptr)
+  if (mAlias == nullptr)
   {
     EntityIdHelper::validate(mShard, mRealm, mAccountNum, client, mChecksum);
   }
@@ -154,13 +144,9 @@ void AccountId::validateChecksum(const Client& client) const
 //-----
 std::string AccountId::toString() const
 {
-  if (mAliasKey.get() != nullptr)
+  if (mAlias != nullptr)
   {
-    return std::to_string(mShard + '.' + mRealm + '.') + mAliasKey->toStringDER();
-  }
-  else if (mAliasEvmAddress.get() != nullptr)
-  {
-    return std::to_string(mShard + '.' + mRealm + '.') + mAliasEvmAddress->toString();
+    return std::to_string(mShard + '.' + mRealm + '.') + mAlias->toString();
   }
   else
   {
@@ -171,7 +157,7 @@ std::string AccountId::toString() const
 //-----
 std::string AccountId::toStringWithChecksum(const Client& client) const
 {
-  if (mAliasKey.get() != nullptr || mAliasEvmAddress.get() != nullptr)
+  if (mAlias != nullptr)
   {
     // TODO: throw
     return std::string();

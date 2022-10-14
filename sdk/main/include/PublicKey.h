@@ -21,6 +21,7 @@
 #define PUBLIC_KEY_H_
 
 #include <string>
+#include <memory>
 
 namespace proto
 {
@@ -42,7 +43,7 @@ public:
   static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& key);
   static std::shared_ptr<PublicKey> fromAliasBytes(const std::string& bytes);
 
-  std::string toStringDER() const { return std::string(); }
+  [[nodiscard]] virtual std::string toString() const = 0;
 };
 
 } // namespace Hedera

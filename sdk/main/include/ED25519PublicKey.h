@@ -12,10 +12,11 @@ namespace Hedera
 class ED25519PublicKey : public PublicKey
 {
 public:
-  ED25519PublicKey(unsigned char* encodedPublicKey);
+  explicit ED25519PublicKey(unsigned char* encodedPublicKey);
   ~ED25519PublicKey();
 
   [[nodiscard]] proto::Key* toProtobuf() const override;
+  [[nodiscard]] std::string toString() const override;
 
 private:
   EVP_PKEY* publicKey;
