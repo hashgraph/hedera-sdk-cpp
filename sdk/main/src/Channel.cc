@@ -27,7 +27,7 @@ class Channel::ChannelImpl
 {
 public:
   ChannelImpl() = default;
-  proto::CryptoService::Stub* mCryptoStub;
+  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
 };
 
 //-----
