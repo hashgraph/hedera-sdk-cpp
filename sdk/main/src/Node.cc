@@ -32,7 +32,7 @@ Node::Node(const std::string& url, const Hedera::AccountId& accountId)
 //-----
 void Node::shutdown()
 {
-  //mChannel.shutdown();
+  mChannel.shutdown();
 }
 
 } // namespace Hedera

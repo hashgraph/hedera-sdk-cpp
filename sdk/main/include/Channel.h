@@ -20,6 +20,7 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+#include <memory>
 #include <string>
 
 namespace Hedera
@@ -27,16 +28,63 @@ namespace Hedera
 class Channel
 {
 public:
+  /**
+   * Default constructor.
+   */
   Channel();
 
-  Channel(const std::string& url);
+  /**
+   * Construct this channel to communicate with a node URL.
+   *
+   * @param url The URL and port of the gRPC service with which this channel
+   *            should communicate.
+   */
+  explicit Channel(const std::string& url);
+
+  /**
+   * Default destructor.
+   */
+  ~Channel();
+
+  /**
+   * Copy constructor.
+   *
+   * @param other The Channel to copy.
+   */
+  Channel(const Channel& other);
+
+  /**
+   * Copy assignment operator.
+   *
+   * @param other The Channel to copy.
+   * @return Reference to this Channel with the copied data.
+   */
+  Channel& operator=(const Channel& other);
+
+  /**
+   * Initialize this channel to communicate with a node URL.
+   *
+   * @param url The URL and port of the gRPC service with which this channel
+   *            should communicate.
+   */
+  void initChannel(const std::string& url);
+
+  /**
+   * Shutdown the channel.
+   */
+  void shutdown();
 
 private:
   /**
+   * Helper function to close/shutdown/delete channels.
+   */
+  void shutdownChannel();
+
+  /**
    * Implementation object used to hide implementation details and gRPC headers.
    */
-  class ChannelImpl;
-  ChannelImpl* mImpl;
+  struct ChannelImpl;
+  std::unique_ptr<ChannelImpl> mImpl;
 };
 
 } // namespace Hedera
