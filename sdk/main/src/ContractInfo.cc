@@ -18,7 +18,7 @@
  *
  */
 #include "ContractInfo.h"
-#include "PublicKeyFactory.h"
+#include "PublicKey.h"
 
 #include "helper/DurationConverter.h"
 #include "helper/InstantConverter.h"
@@ -63,7 +63,7 @@ ContractInfo ContractInfo::fromProtobuf(const proto::ContractGetInfoResponse_Con
 
   if (proto.has_adminkey())
   {
-    contractInfo.mAdminKey = std::move(PublicKeyFactory::fromProtobuf(proto.adminkey()));
+    contractInfo.mAdminKey = std::move(PublicKey::fromProtobuf(proto.adminkey()));
   }
 
   if (proto.has_expirationtime())

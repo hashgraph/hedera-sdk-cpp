@@ -24,4 +24,8 @@ namespace Hedera {
 EvmAddress::EvmAddress() {
     
 }
+proto::Key* EvmAddress::toProtobuf() const
+{
+  return nullptr;
+}
 }

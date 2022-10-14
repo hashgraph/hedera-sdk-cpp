@@ -18,7 +18,7 @@
  *
  */
 #include "AccountInfo.h"
-#include "PublicKeyFactory.h"
+#include "PublicKey.h"
 
 #include "LiveHash.h"
 
@@ -101,7 +101,7 @@ AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_Account
                      accountInfo.contractaccountid(),
                      accountInfo.deleted(),
                      accountInfo.proxyreceived(),
-                     PublicKeyFactory::fromProtobuf(accountInfo.key()),
+                     PublicKey::fromProtobuf(accountInfo.key()),
                      accountInfo.balance(),
                      accountInfo.receiversigrequired(),
                      InstantConverter::fromProtobuf(accountInfo.expirationtime()),
@@ -110,7 +110,7 @@ AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_Account
                      accountInfo.memo(),
                      accountInfo.ownednfts(),
                      accountInfo.max_automatic_token_associations(),
-                     PublicKeyFactory::fromAliasBytes(accountInfo.alias()),
+                     PublicKey::fromAliasBytes(accountInfo.alias()),
                      LedgerId::fromByteString(accountInfo.ledger_id()),
                      accountInfo.ethereum_nonce(),
                      (accountInfo.has_staking_info())

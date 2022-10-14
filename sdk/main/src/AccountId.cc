@@ -21,7 +21,7 @@
 
 #include "EntityIdHelper.h"
 
-#include "PublicKeyFactory.h"
+#include "PublicKey.h"
 
 #include <proto/basic_types.pb.h>
 
@@ -108,7 +108,7 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& id)
   return AccountId(id.shardnum(),
                    id.realmnum(),
                    id.accountnum(),
-                   id.has_alias() ? PublicKeyFactory::fromAliasBytes(id.alias()) : nullptr,
+                   id.has_alias() ? PublicKey::fromAliasBytes(id.alias()) : nullptr,
                    id.has_alias() ? EvmAddress::fromAliasBytes(id.alias()) : nullptr,
                    InitType<std::string>());
 }

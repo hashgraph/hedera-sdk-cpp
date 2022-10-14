@@ -42,6 +42,8 @@ public:
     return std::make_unique<EvmAddress>(EvmAddress());
   }
 
+  virtual proto::Key* toProtobuf() const override;
+
   bool operator==(const EvmAddress& addr) const
   {
     (void)addr;

@@ -20,7 +20,42 @@
 
 #include "PublicKey.h"
 
+#include "ED25519PublicKey.h"
+
+#include <proto/basic_types.pb.h>
+
 namespace Hedera
 {
-PublicKey::PublicKey() {}
+PublicKey::PublicKey() = default;
+
+std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
+{
+  {
+    switch (key.key_case())
+    {
+      case proto::Key::KeyCase::kEd25519:
+      {
+        std::string keyString = key.ed25519();
+        unsigned char keyBytes[20]; // TODO define a key length variable somewhere, 20 isn't correct
+        std::copy(keyString.begin(), keyString.end(), keyBytes);
+
+        return std::make_shared<ED25519PublicKey>(ED25519PublicKey(keyBytes));
+      }
+      default:
+      {
+        // TODO throw
+        break;
+      }
+    }
+  }
+}
+
+std::shared_ptr<PublicKey> PublicKey::fromAliasBytes(const std::string& bytes)
+{
+  {
+    // TODO this implementation is meaningless, only acts as a stub
+    unsigned char keyBytes[20];
+    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(keyBytes));
+  }
+}
 }

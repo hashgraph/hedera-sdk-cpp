@@ -18,7 +18,6 @@
  *
  */
 #include "AccountUpdateTransaction.h"
-#include "PublicKeyFactory.h"
 
 #include "helper/DurationConverter.h"
 #include "helper/InstantConverter.h"
@@ -149,7 +148,7 @@ void AccountUpdateTransaction::initFromTransactionBody()
 
     if (body.has_key())
     {
-      mKey = std::move(PublicKeyFactory::fromProtobuf(body.key()));
+      mKey = std::move(PublicKey::fromProtobuf(body.key()));
     }
 
     if (body.has_expirationtime())

@@ -15,4 +15,9 @@ ED25519PublicKey::~ED25519PublicKey()
 {
   EVP_PKEY_free(this->publicKey);
 }
+
+proto::Key* ED25519PublicKey::toProtobuf() const
+{
+  return nullptr;
+}
 }

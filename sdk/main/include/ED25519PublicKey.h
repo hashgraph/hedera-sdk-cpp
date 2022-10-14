@@ -15,6 +15,8 @@ public:
   ED25519PublicKey(unsigned char* encodedPublicKey);
   ~ED25519PublicKey();
 
+  [[nodiscard]] proto::Key* toProtobuf() const override;
+
 private:
   EVP_PKEY* publicKey;
 };

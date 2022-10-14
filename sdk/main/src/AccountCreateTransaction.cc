@@ -24,7 +24,7 @@
 #include <proto/crypto_create.pb.h>
 #include <proto/schedulable_transaction_body.pb.h>
 
-#include "PublicKeyFactory.h"
+#include "PublicKey.h"
 
 namespace Hedera
 {
@@ -236,7 +236,7 @@ void AccountCreateTransaction::initFromTransactionBody()
 
     if (body.has_key())
     {
-      mKey = PublicKeyFactory::fromProtobuf(body.key());
+      mKey = PublicKey::fromProtobuf(body.key());
     }
 
     if (body.has_autorenewperiod())
@@ -261,7 +261,7 @@ void AccountCreateTransaction::initFromTransactionBody()
     }
 
     // TODO: this may need to change based on what the alias bytes represent
-    mAliasKey = PublicKeyFactory::fromAliasBytes(body.alias());
+    mAliasKey = PublicKey::fromAliasBytes(body.alias());
 
     // TODO this is commented out, because the member variables mAliasKey and mAliasEvmAddress should be combined. They
     // are both types of public key, and PublicKeyFactory should just return the correct type from the fromAliasBytes

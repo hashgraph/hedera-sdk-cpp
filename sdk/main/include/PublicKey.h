@@ -20,7 +20,12 @@
 #ifndef PUBLIC_KEY_H_
 #define PUBLIC_KEY_H_
 
-#include <proto/basic_types.pb.h>
+#include <string>
+
+namespace proto
+{
+class Key;
+}
 
 namespace Hedera
 {
@@ -32,7 +37,10 @@ public:
   PublicKey& operator=(const PublicKey& other) = default;
   PublicKey& operator=(const PublicKey&& other) = delete;
 
-  virtual proto::Key* toProtobuf() const { return new proto::Key(); }
+  [[nodiscard]] virtual proto::Key* toProtobuf() const = 0;
+
+  static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& key);
+  static std::shared_ptr<PublicKey> fromAliasBytes(const std::string& bytes);
 
   std::string toStringDER() const { return std::string(); }
 };

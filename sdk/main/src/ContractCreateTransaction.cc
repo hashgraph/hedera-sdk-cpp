@@ -21,7 +21,7 @@
 
 #include "ContractFunctionParameters.h"
 
-#include "PublicKeyFactory.h"
+#include "PublicKey.h"
 
 #include "helper/DurationConverter.h"
 
@@ -288,7 +288,7 @@ void ContractCreateTransaction::initFromTransactionBody()
 
     if (body.has_adminkey())
     {
-      mAdminKey = std::move(PublicKeyFactory::fromProtobuf(body.adminkey()));
+      mAdminKey = std::move(PublicKey::fromProtobuf(body.adminkey()));
     }
 
     mGas = body.gas();

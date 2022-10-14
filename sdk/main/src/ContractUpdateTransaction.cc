@@ -18,7 +18,7 @@
  *
  */
 #include "ContractUpdateTransaction.h"
-#include "PublicKeyFactory.h"
+#include "PublicKey.h"
 
 #include "helper/DurationConverter.h"
 #include "helper/InstantConverter.h"
@@ -240,7 +240,7 @@ void ContractUpdateTransaction::initFromTransactionBody()
 
     if (body.has_adminkey())
     {
-      mAdminKey = PublicKeyFactory::fromProtobuf(body.adminkey());
+      mAdminKey = PublicKey::fromProtobuf(body.adminkey());
     }
 
     if (body.has_autorenewperiod())
