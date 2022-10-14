@@ -1,6 +1,6 @@
 /*-
 *
-* Hedera Java SDK
+* Hedera C++ SDK
 *
 * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
 *
