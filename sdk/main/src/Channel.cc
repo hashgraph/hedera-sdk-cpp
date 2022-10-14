@@ -35,13 +35,15 @@ public:
 
   explicit ChannelImpl(const std::string& url)
     : mUrl(url)
-    , mCryptoStub(std::make_unique<proto::CryptoService::Stub>(
+    , mCryptoStub(new proto::CryptoService::Stub(
         grpc::CreateChannel(url, grpc::InsecureChannelCredentials())))
   {
   }
 
+  ~ChannelImpl() { delete mCryptoStub; }
+
   std::string mUrl;
-  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
+  proto::CryptoService::Stub* mCryptoStub;
 };
 
 //-----
@@ -94,8 +96,8 @@ void Channel::initChannel(const std::string& url)
   shutdownChannel();
 
   mImpl->mUrl = url;
-  mImpl->mCryptoStub = std::move(proto::CryptoService::NewStub(
-    grpc::CreateChannel(url, grpc::InsecureChannelCredentials())));
+  mImpl->mCryptoStub = new proto::CryptoService::Stub(
+    grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
 }
 
 //-----
@@ -109,7 +111,7 @@ void Channel::shutdownChannel()
 {
   if (mImpl->mCryptoStub)
   {
-    mImpl->mCryptoStub.reset();
+    delete mImpl->mCryptoStub;
   }
 }
 
