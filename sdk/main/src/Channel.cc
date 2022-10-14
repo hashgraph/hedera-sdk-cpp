@@ -30,7 +30,9 @@ namespace Hedera
 class Channel::ChannelImpl
 {
 public:
-  proto::CryptoService::Stub* mCryptoStub;
+  ChannelImpl() = default;
+  // proto::CryptoService::Stub* mCryptoStub;
+  int i;
 };
 
 //-----

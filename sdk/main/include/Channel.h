@@ -20,7 +20,6 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
-#include <memory>
 #include <string>
 
 namespace Hedera
