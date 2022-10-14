@@ -25,7 +25,7 @@
 namespace Hedera
 {
 /**
- * Helper transparent hasher object used during heterogenous comparisons where a
+ * Helper transparent hasher object used during heterogeneous comparisons where a
  * std::string is used as key to prevent temporary std::string objects to be
  * created during comparison when using a non-std::string object as a key (such
  * as a char* or std::string_view).
