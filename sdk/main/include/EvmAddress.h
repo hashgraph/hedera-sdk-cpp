@@ -20,27 +20,29 @@
 #ifndef EVM_ADDRESS_H_
 #define EVM_ADDRESS_H_
 
-#include "Key.h"
+#include "PublicKey.h"
 
+#include <memory.h>
 #include <string>
 
 namespace Hedera
 {
-class EvmAddress : public Key
+class EvmAddress : public PublicKey
 {
 public:
-  EvmAddress() = default;
+  EvmAddress();
   virtual ~EvmAddress() = default;
   EvmAddress(const EvmAddress& other) = default;
-  EvmAddress(const EvmAddress&& other) = delete;
   EvmAddress& operator=(const EvmAddress& other) = default;
   EvmAddress& operator=(const EvmAddress&& other) = delete;
 
-  static EvmAddress fromAliasBytes(const std::string& bytes)
+  static std::unique_ptr<EvmAddress> fromAliasBytes(const std::string& bytes)
   {
     (void)bytes;
-    return EvmAddress();
+    return std::make_unique<EvmAddress>(EvmAddress());
   }
+
+  virtual proto::Key* toProtobuf() const override;
 
   bool operator==(const EvmAddress& addr) const
   {

@@ -21,6 +21,8 @@
 
 #include "ContractFunctionParameters.h"
 
+#include "PublicKey.h"
+
 #include "helper/DurationConverter.h"
 
 #include <proto/contract_create.pb.h>
@@ -50,25 +52,21 @@ ContractCreateTransaction::ContractCreateTransaction()
 
 //-----
 ContractCreateTransaction::ContractCreateTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
+  const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
   : Transaction(transactions)
 {
   initFromTransactionBody();
 }
 
 //-----
-ContractCreateTransaction::ContractCreateTransaction(
-  const proto::TransactionBody& transaction)
+ContractCreateTransaction::ContractCreateTransaction(const proto::TransactionBody& transaction)
   : Transaction(transaction)
 {
   initFromTransactionBody();
 }
 
 //-----
-void
-ContractCreateTransaction::validateChecksums(const Client& client) const
+void ContractCreateTransaction::validateChecksums(const Client& client) const
 {
   if (mInitCodeFileId.isValid())
   {
@@ -87,8 +85,7 @@ ContractCreateTransaction::validateChecksums(const Client& client) const
 }
 
 //-----
-proto::ContractCreateTransactionBody
-ContractCreateTransaction::build() const
+proto::ContractCreateTransactionBody ContractCreateTransaction::build() const
 {
   proto::ContractCreateTransactionBody body;
 
@@ -102,9 +99,9 @@ ContractCreateTransaction::build() const
     body.set_initcode(mInitCodeByteCode.getValue());
   }
 
-  if (mAdminKey.isValid())
+  if (mAdminKey.get() != nullptr)
   {
-    body.set_allocated_adminkey(mAdminKey.getValue().toProtobuf());
+    body.set_allocated_adminkey(mAdminKey->toProtobuf());
   }
 
   body.set_gas(mGas);
@@ -112,8 +109,7 @@ ContractCreateTransaction::build() const
 
   if (body.has_autorenewperiod())
   {
-    body.set_allocated_autorenewperiod(
-      DurationConverter::toProtobuf(mAutoRenewPeriod.getValue()));
+    body.set_allocated_autorenewperiod(DurationConverter::toProtobuf(mAutoRenewPeriod.getValue()));
   }
 
   body.set_constructorparameters(mConstructorParameters);
@@ -122,14 +118,12 @@ ContractCreateTransaction::build() const
 
   if (body.has_auto_renew_account_id())
   {
-    body.set_allocated_auto_renew_account_id(
-      mAutoRenewAccountId.getValue().toProtobuf());
+    body.set_allocated_auto_renew_account_id(mAutoRenewAccountId.getValue().toProtobuf());
   }
 
   if (body.has_staked_account_id())
   {
-    body.set_allocated_staked_account_id(
-      mStakedAccountId.getValue().toProtobuf());
+    body.set_allocated_staked_account_id(mStakedAccountId.getValue().toProtobuf());
   }
 
   if (body.has_staked_node_id())
@@ -143,8 +137,7 @@ ContractCreateTransaction::build() const
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setInitCodeFileId(const FileId& bytecodeFileId)
+ContractCreateTransaction& ContractCreateTransaction::setInitCodeFileId(const FileId& bytecodeFileId)
 {
   requireNotFrozen();
 
@@ -155,8 +148,7 @@ ContractCreateTransaction::setInitCodeFileId(const FileId& bytecodeFileId)
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setInitCodeByteCode(const std::string& bytecode)
+ContractCreateTransaction& ContractCreateTransaction::setInitCodeByteCode(const std::string& bytecode)
 {
   requireNotFrozen();
 
@@ -167,18 +159,16 @@ ContractCreateTransaction::setInitCodeByteCode(const std::string& bytecode)
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setAdminKey(const Key& adminKey)
+ContractCreateTransaction& ContractCreateTransaction::setAdminKey(const std::shared_ptr<PublicKey> adminKey)
 {
   requireNotFrozen();
 
-  mAdminKey.setValue(adminKey);
+  mAdminKey = adminKey;
   return *this;
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setGas(const int64_t& gas)
+ContractCreateTransaction& ContractCreateTransaction::setGas(const int64_t& gas)
 {
   requireNotFrozen();
 
@@ -187,8 +177,7 @@ ContractCreateTransaction::setGas(const int64_t& gas)
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setInitialBalance(const Hbar& initialBalance)
+ContractCreateTransaction& ContractCreateTransaction::setInitialBalance(const Hbar& initialBalance)
 {
   requireNotFrozen();
 
@@ -197,9 +186,7 @@ ContractCreateTransaction::setInitialBalance(const Hbar& initialBalance)
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setAutoRenewPeriod(
-  const std::chrono::seconds& autoRenewPeriod)
+ContractCreateTransaction& ContractCreateTransaction::setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod)
 {
   requireNotFrozen();
 
@@ -208,9 +195,7 @@ ContractCreateTransaction::setAutoRenewPeriod(
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setConstructorParameters(
-  const std::string& constructorParameters)
+ContractCreateTransaction& ContractCreateTransaction::setConstructorParameters(const std::string& constructorParameters)
 {
   requireNotFrozen();
 
@@ -219,16 +204,14 @@ ContractCreateTransaction::setConstructorParameters(
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setConstructorParameters(
+ContractCreateTransaction& ContractCreateTransaction::setConstructorParameters(
   const ContractFunctionParameters& constructorParameters)
 {
   return setConstructorParameters(constructorParameters.toByteArray());
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setMaxAutomaticTokenAssociations(
+ContractCreateTransaction& ContractCreateTransaction::setMaxAutomaticTokenAssociations(
   int32_t maxAutomaticTokenAssociations)
 {
   requireNotFrozen();
@@ -238,8 +221,7 @@ ContractCreateTransaction::setMaxAutomaticTokenAssociations(
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setContractMemo(const std::string& memo)
+ContractCreateTransaction& ContractCreateTransaction::setContractMemo(const std::string& memo)
 {
   requireNotFrozen();
 
@@ -248,9 +230,7 @@ ContractCreateTransaction::setContractMemo(const std::string& memo)
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setAutoRenewAccountId(
-  const AccountId& autoRenewAccountId)
+ContractCreateTransaction& ContractCreateTransaction::setAutoRenewAccountId(const AccountId& autoRenewAccountId)
 {
   requireNotFrozen();
 
@@ -259,8 +239,7 @@ ContractCreateTransaction::setAutoRenewAccountId(
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
+ContractCreateTransaction& ContractCreateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 {
   requireNotFrozen();
 
@@ -271,8 +250,7 @@ ContractCreateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
+ContractCreateTransaction& ContractCreateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 {
   requireNotFrozen();
 
@@ -283,8 +261,7 @@ ContractCreateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 }
 
 //-----
-ContractCreateTransaction&
-ContractCreateTransaction::setDeclineStakingReward(bool declineStakingReward)
+ContractCreateTransaction& ContractCreateTransaction::setDeclineStakingReward(bool declineStakingReward)
 {
   requireNotFrozen();
 
@@ -293,13 +270,11 @@ ContractCreateTransaction::setDeclineStakingReward(bool declineStakingReward)
 }
 
 //-----
-void
-ContractCreateTransaction::initFromTransactionBody()
+void ContractCreateTransaction::initFromTransactionBody()
 {
   if (mSourceTransactionBody.has_contractcreateinstance())
   {
-    const proto::ContractCreateTransactionBody& body =
-      mSourceTransactionBody.contractcreateinstance();
+    const proto::ContractCreateTransactionBody& body = mSourceTransactionBody.contractcreateinstance();
 
     if (body.has_fileid())
     {
@@ -313,7 +288,7 @@ ContractCreateTransaction::initFromTransactionBody()
 
     if (body.has_adminkey())
     {
-      mAdminKey.setValue(Key::fromProtobuf(body.adminkey()));
+      mAdminKey = std::move(PublicKey::fromProtobuf(body.adminkey()));
     }
 
     mGas = body.gas();
@@ -321,8 +296,7 @@ ContractCreateTransaction::initFromTransactionBody()
 
     if (body.has_autorenewperiod())
     {
-      mAutoRenewPeriod.setValue(
-        DurationConverter::fromProtobuf(body.autorenewperiod()));
+      mAutoRenewPeriod.setValue(DurationConverter::fromProtobuf(body.autorenewperiod()));
     }
 
     mConstructorParameters = body.constructorparameters();
@@ -331,14 +305,12 @@ ContractCreateTransaction::initFromTransactionBody()
 
     if (body.has_auto_renew_account_id())
     {
-      mAutoRenewAccountId.setValue(
-        AccountId::fromProtobuf(body.auto_renew_account_id()));
+      mAutoRenewAccountId.setValue(AccountId::fromProtobuf(body.auto_renew_account_id()));
     }
 
     if (body.has_staked_account_id())
     {
-      mStakedAccountId.setValue(
-        AccountId::fromProtobuf(body.staked_account_id()));
+      mStakedAccountId.setValue(AccountId::fromProtobuf(body.staked_account_id()));
     }
 
     if (body.has_staked_node_id())

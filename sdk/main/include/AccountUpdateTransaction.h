@@ -21,7 +21,7 @@
 #define ACCOUNT_UDPATE_TRANSACTION_H_
 
 #include "AccountId.h"
-#include "Key.h"
+#include "PublicKey.h"
 #include "Transaction.h"
 
 #include "helper/InitType.h"
@@ -58,9 +58,7 @@ public:
    *                     ID's and protobuf transactions.
    */
   explicit AccountUpdateTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
    * Construct from a protobuf transaction object.
@@ -92,7 +90,7 @@ public:
    * @param key The key for this account update.
    * @return    Reference to this AccountUpdateTransaction object.
    */
-  AccountUpdateTransaction& setKey(const Key& key);
+  AccountUpdateTransaction& setKey(const std::shared_ptr<PublicKey> key);
 
   /**
    * Sets the expiration time for this account update.
@@ -100,8 +98,7 @@ public:
    * @param expirationTime The expiration time for this account update.
    * @return               Reference to this AccountUpdateTransaction object.
    */
-  AccountUpdateTransaction& setExpirationTime(
-    const std::chrono::nanoseconds& expirationTime);
+  AccountUpdateTransaction& setExpirationTime(const std::chrono::nanoseconds& expirationTime);
 
   /**
    * Sets the auto renew period for this account update.
@@ -109,8 +106,7 @@ public:
    * @param autoRenewPeriod The auto renew period for this account update.
    * @return                Reference to this AccountUpdateTransaction object.
    */
-  AccountUpdateTransaction& setAutoRenewPeriod(
-    const std::chrono::seconds& autoRenewPeriod);
+  AccountUpdateTransaction& setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod);
 
   /**
    * Set that this account update is requiring receiver signatures.
@@ -136,8 +132,7 @@ public:
    *                        account update.
    * @return                Reference to this AccountUpdateTransaction object.
    */
-  AccountUpdateTransaction& setMaxAutomaticTokenAssociations(
-    int32_t maxAssociations);
+  AccountUpdateTransaction& setMaxAutomaticTokenAssociations(int32_t maxAssociations);
 
   /**
    * Sets the staked account ID for this account update.
@@ -145,8 +140,7 @@ public:
    * @param stakedAccountId The staked account ID for this account update.
    * @return                Reference to this AccountUpdateTransaction object.
    */
-  AccountUpdateTransaction& setStakedAccountId(
-    const AccountId& stakedAccountId);
+  AccountUpdateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
   /**
    * Sets the staked node ID for this account update.
@@ -177,27 +171,21 @@ public:
    *
    * @return The key of this account update. Invalid if not set.
    */
-  inline InitType<Key> getKey() const { return mKey; }
+  inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
 
   /**
    * @brief Extract the expiration time of this account update.
    *
    * @return The expiration time of this account update. Invalid if not set.
    */
-  inline InitType<std::chrono::nanoseconds> getExpirationTime() const
-  {
-    return mExpirationTime;
-  }
+  inline InitType<std::chrono::nanoseconds> getExpirationTime() const { return mExpirationTime; }
 
   /**
    * @brief Extract the auto renew period of this account update.
    *
    * @return The auto renew period of this account update. Invalid if not set.
    */
-  inline InitType<std::chrono::seconds> getAutoRenewPeriod() const
-  {
-    return mAutoRenewPeriod;
-  }
+  inline InitType<std::chrono::seconds> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * @brief Extract the account memo of this account update.
@@ -212,20 +200,14 @@ public:
    * @return The max automatic token associations of this account update.
    * Invalid if not set.
    */
-  inline InitType<int32_t> getMaxAutomaticTokenAssociations() const
-  {
-    return mMaxAutomaticTokenAssociations;
-  }
+  inline InitType<int32_t> getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
    * @brief Extract the staked account ID of this account update.
    *
    * @return The staked account ID of this account update. Invalid if not set.
    */
-  inline InitType<AccountId> getStakedAccountId() const
-  {
-    return mStakedAccountId;
-  }
+  inline InitType<AccountId> getStakedAccountId() const { return mStakedAccountId; }
 
   /**
    * @brief Extract the staked node ID of this account update.
@@ -240,10 +222,7 @@ public:
    * @return \c TRUE if this account update is declining staking rewards,
    *         otherwise \c FALSE. Invalid if not set.
    */
-  inline InitType<bool> getDeclineStakingReward() const
-  {
-    return mDeclineStakingReward;
-  }
+  inline InitType<bool> getDeclineStakingReward() const { return mDeclineStakingReward; }
 
 private:
   /**
@@ -252,7 +231,7 @@ private:
   void initFromTransactionBody();
 
   InitType<AccountId> mAccountId;
-  InitType<Key> mKey;
+  std::shared_ptr<PublicKey> mKey;
   InitType<std::chrono::nanoseconds> mExpirationTime;
   InitType<std::chrono::seconds> mAutoRenewPeriod;
   InitType<std::string> mAccountMemo;

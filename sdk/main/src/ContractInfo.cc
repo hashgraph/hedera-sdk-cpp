@@ -18,6 +18,7 @@
  *
  */
 #include "ContractInfo.h"
+#include "PublicKey.h"
 
 #include "helper/DurationConverter.h"
 #include "helper/InstantConverter.h"
@@ -44,71 +45,60 @@ ContractInfo::ContractInfo()
 }
 
 //-----
-ContractInfo
-ContractInfo::fromProtobuf(
-  const proto::ContractGetInfoResponse_ContractInfo& proto)
+ContractInfo ContractInfo::fromProtobuf(const proto::ContractGetInfoResponse_ContractInfo& proto)
 {
   ContractInfo contractInfo;
 
   if (proto.has_contractid())
   {
-    contractInfo.mContractId.setValue(
-      ContractId::fromProtobuf(proto.contractid()));
+    contractInfo.mContractId.setValue(ContractId::fromProtobuf(proto.contractid()));
   }
 
   if (proto.has_accountid())
   {
-    contractInfo.mAccountId.setValue(
-      AccountId::fromProtobuf(proto.accountid()));
+    contractInfo.mAccountId.setValue(AccountId::fromProtobuf(proto.accountid()));
   }
 
   contractInfo.mContractAccountId = proto.contractaccountid();
 
   if (proto.has_adminkey())
   {
-    contractInfo.mAdminKey.setValue(Key::fromProtobuf(proto.adminkey()));
+    contractInfo.mAdminKey = std::move(PublicKey::fromProtobuf(proto.adminkey()));
   }
 
   if (proto.has_expirationtime())
   {
-    contractInfo.mExpirationTime.setValue(
-      InstantConverter::fromProtobuf(proto.expirationtime()));
+    contractInfo.mExpirationTime.setValue(InstantConverter::fromProtobuf(proto.expirationtime()));
   }
 
   if (proto.has_autorenewperiod())
   {
-    contractInfo.mAutoRenewPeriod.setValue(
-      DurationConverter::fromProtobuf(proto.autorenewperiod()));
+    contractInfo.mAutoRenewPeriod.setValue(DurationConverter::fromProtobuf(proto.autorenewperiod()));
   }
 
   contractInfo.mStorage = proto.storage();
   contractInfo.mMemo = proto.memo();
-  contractInfo.mBalance =
-    Hbar::fromTinybars(static_cast<uint64_t>(proto.balance()));
+  contractInfo.mBalance = Hbar::fromTinybars(static_cast<uint64_t>(proto.balance()));
   contractInfo.mDeleted = proto.deleted();
   contractInfo.mLedgerId = proto.ledger_id();
 
   if (proto.has_auto_renew_account_id())
   {
-    contractInfo.mAutoRenewAccountId.setValue(
-      AccountId::fromProtobuf(proto.auto_renew_account_id()));
+    contractInfo.mAutoRenewAccountId.setValue(AccountId::fromProtobuf(proto.auto_renew_account_id()));
   }
 
-  contractInfo.mMaxAutomaticTokenAssociations =
-    proto.max_automatic_token_associations();
+  contractInfo.mMaxAutomaticTokenAssociations = proto.max_automatic_token_associations();
 
   if (proto.has_staking_info())
   {
-    contractInfo.mStakingInfo.setValue(
-      StakingInfo::fromProtobuf(proto.staking_info()));
+    contractInfo.mStakingInfo.setValue(StakingInfo::fromProtobuf(proto.staking_info()));
   }
 
   return contractInfo;
 }
 
 //-----
-proto::ContractGetInfoResponse_ContractInfo
-ContractInfo::toProtobuf() const
+proto::ContractGetInfoResponse_ContractInfo ContractInfo::toProtobuf() const
 {
   proto::ContractGetInfoResponse_ContractInfo proto;
 
@@ -124,21 +114,19 @@ ContractInfo::toProtobuf() const
 
   proto.set_contractaccountid(mContractAccountId);
 
-  if (mAdminKey.isValid())
+  if (mAdminKey.get() != nullptr)
   {
-    proto.set_allocated_adminkey(mAdminKey.getValue().toProtobuf());
+    proto.set_allocated_adminkey(mAdminKey->toProtobuf());
   }
 
   if (mExpirationTime.isValid())
   {
-    proto.set_allocated_expirationtime(
-      InstantConverter::toProtobuf(mExpirationTime.getValue()));
+    proto.set_allocated_expirationtime(InstantConverter::toProtobuf(mExpirationTime.getValue()));
   }
 
   if (mAutoRenewPeriod.isValid())
   {
-    proto.set_allocated_autorenewperiod(
-      DurationConverter::toProtobuf(mAutoRenewPeriod.getValue()));
+    proto.set_allocated_autorenewperiod(DurationConverter::toProtobuf(mAutoRenewPeriod.getValue()));
   }
 
   proto.set_storage(mStorage);
@@ -149,8 +137,7 @@ ContractInfo::toProtobuf() const
 
   if (mAutoRenewAccountId.isValid())
   {
-    proto.set_allocated_auto_renew_account_id(
-      mAutoRenewAccountId.getValue().toProtobuf());
+    proto.set_allocated_auto_renew_account_id(mAutoRenewAccountId.getValue().toProtobuf());
   }
 
   proto.set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);

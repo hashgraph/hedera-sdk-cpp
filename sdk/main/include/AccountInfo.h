@@ -22,9 +22,9 @@
 
 #include "AccountId.h"
 #include "Hbar.h"
-#include "Key.h"
 #include "LedgerId.h"
 #include "LiveHash.h"
+#include "PublicKey.h"
 #include "StakingInfo.h"
 
 #include "helper/InitType.h"
@@ -32,6 +32,7 @@
 #include <chrono>
 #include <string>
 #include <vector>
+#include <memory.h>
 
 namespace proto
 {
@@ -79,7 +80,7 @@ public:
               const std::string& contractAccountId,
               bool isDeleted,
               const long long& proxyReceived,
-              const Key& key,
+              const std::shared_ptr<PublicKey> key,
               const long long& balance,
               bool receiverSignatureRequired,
               const std::chrono::nanoseconds& expirationTime,
@@ -88,7 +89,7 @@ public:
               const std::string& accountMemo,
               const unsigned long long& ownedNfts,
               unsigned int maxAutomaticTokenAssociations,
-              const InitType<PublicKey> aliasKey,
+              const std::shared_ptr<PublicKey> aliasKey,
               const LedgerId& ledgerId,
               const long long& ethereumNonce,
               const InitType<StakingInfo> stakingInfo);
@@ -99,8 +100,7 @@ public:
    * @param accountInfo The account info protobuf object.
    * @return            An account info object.
    */
-  static AccountInfo fromProtobuf(
-    const proto::CryptoGetInfoResponse_AccountInfo& accountInfo);
+  static AccountInfo fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& accountInfo);
 
   /**
    * Convert this account info object into a protobuf.
@@ -137,7 +137,7 @@ public:
    * The key for the account, which must sign in order to transfer out, or to
    * modify the account in any way other than extending its expiration date.
    */
-  Key mKey;
+  std::shared_ptr<PublicKey> mKey;
 
   /**
    * The current balance of account.
@@ -187,7 +187,7 @@ public:
   /**
    * The public key which aliases to this account.
    */
-  InitType<PublicKey> mAliasKey;
+  std::shared_ptr<PublicKey> mAliasKey;
 
   /**
    * The ledger ID from which the response was returned.
