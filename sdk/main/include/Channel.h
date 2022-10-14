@@ -28,6 +28,7 @@ namespace Hedera
 class Channel
 {
 public:
+  Channel() = default;
   explicit Channel(const std::string& url);
 
 private:
