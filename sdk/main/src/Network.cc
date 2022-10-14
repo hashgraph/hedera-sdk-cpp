@@ -20,11 +20,6 @@
 #include "Network.h"
 
 #include "AccountId.h"
-#include "Node.h"
-
-#include "helper/StringHash.h"
-
-#include <unordered_map>
 
 namespace Hedera
 {
