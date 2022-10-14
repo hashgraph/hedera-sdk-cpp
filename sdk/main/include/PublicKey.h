@@ -22,6 +22,8 @@
 
 #include <string>
 
+#include <proto/basic_types.pb.h>
+
 namespace proto
 {
 class Key;
