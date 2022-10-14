@@ -44,4 +44,11 @@ Channel::Channel()
   // mImpl->mCryptoStub = proto::CryptoService::NewStub(grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
 }
 
+//-----
+Channel::Channel(const std::string& url)
+  : mImpl(new ChannelImpl)
+{
+  mImpl->mCryptoStub = proto::CryptoService::NewStub(grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
+}
+
 } // namespace Hedera

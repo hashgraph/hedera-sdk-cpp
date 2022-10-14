@@ -29,6 +29,8 @@ class Channel
 public:
   Channel();
 
+  Channel(const std::string& url);
+
 private:
   /**
    * Implementation object used to hide implementation details and gRPC headers.
