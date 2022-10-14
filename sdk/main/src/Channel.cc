@@ -28,7 +28,6 @@ class Channel::ChannelImpl
 public:
   ChannelImpl() = default;
   proto::CryptoService::Stub* mCryptoStub;
-  int i;
 };
 
 //-----
