@@ -22,7 +22,6 @@
 
 #include <string>
 #include <memory>
-//#include <proto/basic_types.pb.h>
 
 namespace proto
 {
