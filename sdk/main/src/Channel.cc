@@ -21,7 +21,7 @@
 
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include <proto/crypto_service.grpc.pb.h>
+//#include <proto/crypto_service.grpc.pb.h>
 
 namespace Hedera
 {
@@ -30,7 +30,7 @@ class Channel::ChannelImpl
 {
 public:
   std::string mUrl;
-  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
+  //std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
 };
 
 //-----
@@ -77,8 +77,8 @@ void Channel::initChannel(const std::string& url) const
   shutdownChannel();
 
   mImpl->mUrl = url;
-  mImpl->mCryptoStub = proto::CryptoService::NewStub(
-    grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
+  //mImpl->mCryptoStub = proto::CryptoService::NewStub(
+  //  grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
 }
 
 //-----
@@ -90,10 +90,10 @@ void Channel::shutdown() const
 //-----
 void Channel::shutdownChannel() const
 {
-  if (mImpl->mCryptoStub)
-  {
-    mImpl->mCryptoStub.reset();
-  }
+  //if (mImpl->mCryptoStub)
+  //{
+  //  mImpl->mCryptoStub.reset();
+  //}
 }
 
 } // namespace Hedera
