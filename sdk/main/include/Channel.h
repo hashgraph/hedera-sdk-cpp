@@ -28,15 +28,14 @@ namespace Hedera
 class Channel
 {
 public:
-  Channel() = default;
-  explicit Channel(const std::string& url);
+  Channel();
 
 private:
   /**
    * Implementation object used to hide implementation details and gRPC headers.
    */
   class ChannelImpl;
-  std::shared_ptr<ChannelImpl> mImpl;
+  ChannelImpl* mImpl;
 };
 
 } // namespace Hedera
