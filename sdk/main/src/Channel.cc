@@ -30,7 +30,7 @@ namespace Hedera
 class Channel::ChannelImpl
 {
 public:
-  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
+  std::shared_ptr<proto::CryptoService::Stub> mCryptoStub;
 };
 
 //-----
