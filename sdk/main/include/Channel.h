@@ -20,7 +20,6 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
-#include <memory>
 #include <string>
 
 namespace Hedera
@@ -46,12 +45,27 @@ public:
   Channel(const Channel& other);
 
   /**
+   * Move constructor.
+   *
+   * @param other The Channel to move.
+   */
+  Channel(const Channel&& other) noexcept;
+
+  /**
    * Copy assignment operator.
    *
    * @param other The Channel to copy.
    * @return Reference to this Channel with the copied data.
    */
   Channel& operator=(const Channel& other);
+
+  /**
+   * Move assignment operator.
+   *
+   * @param other The Channel to move.
+   * @return Reference to this Channel with the moved data.
+   */
+  Channel& operator=(const Channel&& other);
 
   /**
    * Initialize this channel to communicate with a node URL.
@@ -76,7 +90,7 @@ private:
    * Implementation object used to hide implementation details and gRPC headers.
    */
   class ChannelImpl;
-  std::unique_ptr<ChannelImpl> mImpl;
+  ChannelImpl* mImpl;
 };
 
 } // namespace Hedera

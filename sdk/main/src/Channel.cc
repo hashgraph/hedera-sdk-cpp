@@ -35,12 +35,15 @@ public:
 
 //-----
 Channel::Channel()
-  : mImpl(std::make_unique<ChannelImpl>())
+  : mImpl(new ChannelImpl)
 {
 }
 
 //-----
-Channel::~Channel() = default;
+Channel::~Channel()
+{
+  delete mImpl;
+}
 
 //-----
 Channel::Channel(const Channel& other)
@@ -49,9 +52,22 @@ Channel::Channel(const Channel& other)
 }
 
 //-----
+Channel::Channel(const Channel&& other) noexcept
+{
+  this->mImpl = other.mImpl;
+}
+
+//-----
 Channel& Channel::operator=(const Hedera::Channel& other)
 {
   initChannel(other.mImpl->mUrl);
+  return *this;
+}
+
+//-----
+Channel& Channel::operator=(const Hedera::Channel&& other)
+{
+  this->mImpl = other.mImpl;
   return *this;
 }
 
