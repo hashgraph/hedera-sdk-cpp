@@ -23,7 +23,7 @@
 #include "AccountId.h"
 #include "FileId.h"
 #include "Hbar.h"
-#include "Key.h"
+#include "PublicKey.h"
 #include "Transaction.h"
 
 #include "helper/InitType.h"
@@ -31,6 +31,7 @@
 #include <chrono>
 #include <string>
 #include <unordered_map>
+#include <memory.h>
 
 namespace Hedera
 {
@@ -129,9 +130,7 @@ public:
    *                     ID's and protobuf transactions.
    */
   explicit ContractCreateTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
    * Construct from a protobuf transaction object.
@@ -189,7 +188,7 @@ public:
    * @param adminKey The admin key to set.
    * @return Reference to this ContractCreateTransaction object.
    */
-  ContractCreateTransaction& setAdminKey(const Key& adminKey);
+  ContractCreateTransaction& setAdminKey(const std::shared_ptr<PublicKey> adminKey);
 
   /**
    * Sets the gas to run the constructor.
@@ -215,8 +214,7 @@ public:
    * @param autoRenewPeriod The auto renew period to set for auto renewal.
    * @return Reference to this ContractCreateTransaction object.
    */
-  ContractCreateTransaction& setAutoRenewPeriod(
-    const std::chrono::seconds& autoRenewPeriod);
+  ContractCreateTransaction& setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod);
 
   /**
    * Sets the constructor parameters as their raw bytes.
@@ -227,8 +225,7 @@ public:
    * @param constructorParameters The constructor parameters to set.
    * @return Reference to this ContractCreateTransaction object.
    */
-  ContractCreateTransaction& setConstructorParameters(
-    const std::string& constructorParameters);
+  ContractCreateTransaction& setConstructorParameters(const std::string& constructorParameters);
 
   /**
    * Sets the parameters to pass to the constructor.
@@ -236,8 +233,7 @@ public:
    * @param constructorParameters The contructor parameters to set.
    * @return Reference to this ContractCreateTransaction object.
    */
-  ContractCreateTransaction& setConstructorParameters(
-    const ContractFunctionParameters& constructorParameters);
+  ContractCreateTransaction& setConstructorParameters(const ContractFunctionParameters& constructorParameters);
 
   /**
    * Sets the memo to be associated with this contract.
@@ -255,8 +251,7 @@ public:
    *                                      associations to set.
    * @return Reference to this ContractCreateTransaction object.
    */
-  ContractCreateTransaction& setMaxAutomaticTokenAssociations(
-    int32_t maxAutomaticTokenAssociations);
+  ContractCreateTransaction& setMaxAutomaticTokenAssociations(int32_t maxAutomaticTokenAssociations);
 
   /**
    * Set the account to charge for auto-renewal of this contract. If not set, or
@@ -266,8 +261,7 @@ public:
    * @param autoRenewAccountId The auto renew account ID to set.
    * @return Reference to this ContractCreateTransaction object.
    */
-  ContractCreateTransaction& setAutoRenewAccountId(
-    const AccountId& autoRenewAccountId);
+  ContractCreateTransaction& setAutoRenewAccountId(const AccountId& autoRenewAccountId);
 
   /**
    * Set the account to which this contract will stake.
@@ -275,8 +269,7 @@ public:
    * @param stakedAccountId The staked account ID to set.
    * @return Reference to this ContractCreateTransaction object.
    */
-  ContractCreateTransaction& setStakedAccountId(
-    const AccountId& stakedAccountId);
+  ContractCreateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
   /**
    * Set the node to which this contract will stake.
@@ -307,17 +300,14 @@ public:
    *
    * @return The init code byte code.
    */
-  inline InitType<std::string> getInitCodeByteCode() const
-  {
-    return mInitCodeByteCode;
-  }
+  inline InitType<std::string> getInitCodeByteCode() const { return mInitCodeByteCode; }
 
   /**
    * Extract the admin key.
    *
    * @return The admin key.
    */
-  inline InitType<Key> getAdminKey() const { return mAdminKey; }
+  inline std::shared_ptr<PublicKey> getAdminKey() const { return mAdminKey; }
 
   /**
    * Extract the gas.
@@ -338,20 +328,14 @@ public:
    *
    * @return The auto renew period.
    */
-  inline InitType<std::chrono::seconds> getAutoRenewPeriod() const
-  {
-    return mAutoRenewPeriod;
-  }
+  inline InitType<std::chrono::seconds> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Extract the constructor parameters.
    *
    * @return The constructor parameters.
    */
-  inline std::string getConstructorParameters() const
-  {
-    return mConstructorParameters;
-  }
+  inline std::string getConstructorParameters() const { return mConstructorParameters; }
   /**
    * Extract the memo.
    *
@@ -364,30 +348,21 @@ public:
    *
    * @return The max automatic token associations.
    */
-  inline int32_t getMaxAutomaticTokenAssociations() const
-  {
-    return mMaxAutomaticTokenAssociations;
-  }
+  inline int32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
    * Extract the auto renew account ID.
    *
    * @return The auto renew account ID.
    */
-  inline InitType<AccountId> getAutoRenewAccountId() const
-  {
-    return mAutoRenewAccountId;
-  }
+  inline InitType<AccountId> getAutoRenewAccountId() const { return mAutoRenewAccountId; }
 
   /**
    * Extract the ID of the account to which this contract will stake.
    *
    * @return The ID of the account to which this contract will stake.
    */
-  inline InitType<AccountId> getStakedAccountId() const
-  {
-    return mStakedAccountId;
-  }
+  inline InitType<AccountId> getStakedAccountId() const { return mStakedAccountId; }
 
   /**
    * Extract the ID of the node to which this contract will stake.
@@ -433,7 +408,7 @@ private:
    * authorize changing the admin keys, so there can never be any admin keys for
    * that instance.
    */
-  InitType<Key> mAdminKey;
+  std::shared_ptr<PublicKey> mAdminKey;
 
   /**
    * The gas to run the constructor.

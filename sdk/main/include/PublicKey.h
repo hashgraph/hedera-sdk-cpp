@@ -20,26 +20,30 @@
 #ifndef PUBLIC_KEY_H_
 #define PUBLIC_KEY_H_
 
-#include "Key.h"
+#include <string>
+#include <memory>
+
+namespace proto
+{
+class Key;
+}
 
 namespace Hedera
 {
-class PublicKey : public Key
+class PublicKey
 {
 public:
-  static PublicKey fromAliasBytes(const std::string& bytes)
-  {
-    (void)bytes;
-    return PublicKey();
-  }
+  PublicKey();
+  PublicKey(const PublicKey& other) = default;
+  PublicKey& operator=(const PublicKey& other) = default;
+  PublicKey& operator=(const PublicKey&& other) = delete;
 
-  bool operator==(const PublicKey& key) const
-  {
-    (void)key;
-    return true;
-  }
+  [[nodiscard]] virtual proto::Key* toProtobuf() const = 0;
 
-  std::string toStringDER() const { return std::string(); }
+  static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& key);
+  static std::shared_ptr<PublicKey> fromAliasBytes(const std::string& bytes);
+
+  [[nodiscard]] virtual std::string toString() const = 0;
 };
 
 } // namespace Hedera

@@ -20,7 +20,7 @@
 #ifndef FILE_CREATE_TRANSACTION_H_
 #define FILE_CREATE_TRANSACTION_H_
 
-#include "Key.h"
+#include "PublicKey.h"
 #include "KeyList.h"
 #include "Transaction.h"
 

@@ -20,11 +20,6 @@
 #include "Network.h"
 
 #include "AccountId.h"
-#include "Node.h"
-
-#include "helper/StringHash.h"
-
-#include <unordered_map>
 
 namespace Hedera
 {
@@ -80,9 +75,7 @@ void Network::setNetwork(
 {
   for (const auto& [url, accountId] : network)
   {
-    Node node;
-    node.initNode(url, accountId);
-    mNodes.push_back(node);
+    mNodes.push_back(Node(url, accountId));
   }
 }
 

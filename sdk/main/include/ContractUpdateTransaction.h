@@ -22,7 +22,7 @@
 
 #include "AccountId.h"
 #include "ContractId.h"
-#include "Key.h"
+#include "PublicKey.h"
 #include "Transaction.h"
 
 #include "helper/InitType.h"
@@ -83,9 +83,7 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    *                     ID's and protobuf transactions.
    */
   explicit ContractUpdateTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
    * Construct from a protobuf transaction object.
@@ -124,8 +122,7 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    * @param expirationTime The expiration time to be set.
    * @return Reference to this ContractUpdateTransaction.
    */
-  ContractUpdateTransaction& setExpirationTime(
-    const std::chrono::nanoseconds& expirationTime);
+  ContractUpdateTransaction& setExpirationTime(const std::chrono::nanoseconds& expirationTime);
 
   /**
    * Sets the admin key.
@@ -133,7 +130,7 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    * @param adminKey The admin key to be set.
    * @return Reference to this ContractUpdateTransaction.
    */
-  ContractUpdateTransaction& setAdminKey(const Key& adminKey);
+  ContractUpdateTransaction& setAdminKey(const PublicKey& adminKey);
 
   /**
    * Sets the auto-renew period.
@@ -141,8 +138,7 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    * @param autoRenewPeriod The auto-renew period to be set.
    * @return Reference to this ContractUpdateTransaction.
    */
-  ContractUpdateTransaction& setAutoRenewPeriod(
-    const std::chrono::seconds& autoRenewPeriod);
+  ContractUpdateTransaction& setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod);
 
   /**
    * Sets the memo.
@@ -159,8 +155,7 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    *                                      to be set.
    * @return Reference to this ContractUpdateTransaction.
    */
-  ContractUpdateTransaction& setMaxAutomaticTokenAssociations(
-    int32_t maxAutomaticTokenAssociations);
+  ContractUpdateTransaction& setMaxAutomaticTokenAssociations(int32_t maxAutomaticTokenAssociations);
 
   /**
    * Sets the auto-renew account ID.
@@ -168,8 +163,7 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    * @param autoRenewAccountId The auto-renew account ID to be set.
    * @return Reference to this ContractUpdateTransaction.
    */
-  ContractUpdateTransaction& setAutoRenewAccountId(
-    const AccountId& autoRenewAccountId);
+  ContractUpdateTransaction& setAutoRenewAccountId(const AccountId& autoRenewAccountId);
 
   /**
    * Sets the staked account ID.
@@ -177,8 +171,7 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    * @param stakedAccountId The staked account ID to be set.
    * @return Reference to this ContractUpdateTransaction.
    */
-  ContractUpdateTransaction& setStakedAccountId(
-    const AccountId& stakedAccountId);
+  ContractUpdateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
   /**
    * Sets the staked node ID.
@@ -208,27 +201,21 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    *
    * @return The expiration time.
    */
-  inline InitType<std::chrono::nanoseconds> getExpirationTime()
-  {
-    return mExpirationTime;
-  }
+  inline InitType<std::chrono::nanoseconds> getExpirationTime() { return mExpirationTime; }
 
   /**
    * Extract the admin key.
    *
    * @return The admin key.
    */
-  inline InitType<Key> getAdminKey() { return mAdminKey; }
+  inline std::shared_ptr<PublicKey> getAdminKey() { return mAdminKey; }
 
   /**
    * Extract the auto-renew period.
    *
    * @return The auto-renew period.
    */
-  inline InitType<std::chrono::seconds> getAutoRenewPeriod()
-  {
-    return mAutoRenewPeriod;
-  }
+  inline InitType<std::chrono::seconds> getAutoRenewPeriod() { return mAutoRenewPeriod; }
 
   /**
    * Extract the memo.
@@ -242,20 +229,14 @@ class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
    *
    * @return The max automatic token associations.
    */
-  inline InitType<int32_t> getMaxAutomaticTokenAssociations()
-  {
-    return mMaxAutomaticTokenAssociations;
-  }
+  inline InitType<int32_t> getMaxAutomaticTokenAssociations() { return mMaxAutomaticTokenAssociations; }
 
   /**
    * Extract the auto-renew account ID.
    *
    * @return The auto-renew account ID.
    */
-  inline InitType<AccountId> getAutoRenewAccountId()
-  {
-    return mAutoRenewAccountId;
-  }
+  inline InitType<AccountId> getAutoRenewAccountId() { return mAutoRenewAccountId; }
 
   /**
    * Extract the staked account ID.
@@ -299,7 +280,7 @@ private:
   /**
    * The new key to control updates to the contract.
    */
-  InitType<Key> mAdminKey;
+  std::shared_ptr<PublicKey> mAdminKey;
 
   /**
    * (NOT YET IMPLEMENTED) The new interval at which the contract will pay to

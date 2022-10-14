@@ -22,10 +22,11 @@
 namespace Hedera
 {
 //-----
-void Node::initNode(const std::string& url, const Hedera::AccountId& accountId)
+Node::Node(const std::string& url, const Hedera::AccountId& accountId)
+  : mAccountId(accountId)
+  , mAddress(NodeAddress::fromString(url))
+  , mChannel(url)
 {
-  mAddress = NodeAddress::fromString(url);
-  mAccountId = accountId;
 }
 
 //-----

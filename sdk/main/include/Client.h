@@ -98,7 +98,7 @@ public:
    *
    * @return The public key of this client's operator, if valid.
    */
-  inline InitType<PublicKey> getOperatorPublicKey() const
+  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const
   {
     return mOperator.mPublicKey;
   }
@@ -128,7 +128,7 @@ private:
     /**
      * The public key of the account.
      */
-    InitType<PublicKey> mPublicKey;
+    std::shared_ptr<PublicKey> mPublicKey;
   };
 
   /**

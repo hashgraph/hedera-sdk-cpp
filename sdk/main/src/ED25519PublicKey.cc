@@ -1,12 +1,28 @@
 #include "ED25519PublicKey.h"
 
-#include <sodium.h>
-
 namespace Hedera
 {
-ED25519PublicKey::ED25519PublicKey(
-  const unsigned char publicKeyBytes[crypto_box_PUBLICKEYBYTES])
+ED25519PublicKey::ED25519PublicKey(unsigned char* encodedPublicKey) : PublicKey()
 {
-  this->publicKeyBytes = std::make_unique<unsigned char[]>(*publicKeyBytes);
+  EVP_PKEY_CTX* keyAlgorithmContext = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, NULL);
+
+  this->publicKey = EVP_PKEY_new();
+
+  // EVP_PKEY_set1_encoded_public_key(this->publicKey, encodedPublicKey, )
+}
+
+ED25519PublicKey::~ED25519PublicKey()
+{
+  EVP_PKEY_free(this->publicKey);
+}
+
+proto::Key* ED25519PublicKey::toProtobuf() const
+{
+  return nullptr;
+}
+
+std::string ED25519PublicKey::toString() const
+{
+  return std::string();
 }
 }
