@@ -26,6 +26,17 @@
 
 #include <string>
 
+namespace grpc
+{
+class Status;
+}
+
+namespace proto
+{
+class Query;
+class Response;
+}
+
 namespace Hedera
 {
 class Node
@@ -40,9 +51,26 @@ public:
   explicit Node(const std::string& url, const AccountId& accountId);
 
   /**
+   * Submit a query request to this node.
+   *
+   * @param  request      The request to send.
+   * @param  timeout      The timeout duration.
+   * @return The protobuf response object and the gRPC status.
+   */
+  std::pair<proto::Response, grpc::Status> submitRequest(const proto::Query& request,
+                                                         const std::chrono::duration<double>& timeout);
+
+  /**
    * Shutdown connections with the node.
    */
   void shutdown();
+
+  /**
+   * Extract the account ID.
+   *
+   * @return The account ID.
+   */
+  inline AccountId getAccountId() const { return mAccountId; }
 
 private:
   /**

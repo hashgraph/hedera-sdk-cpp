@@ -21,6 +21,7 @@
 
 #include <proto/crypto_service.grpc.pb.h>
 
+#include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
@@ -35,7 +36,7 @@ struct Channel::ChannelImpl
 
 //-----
 Channel::Channel()
-  : mImpl(new ChannelImpl)
+  : mImpl(std::make_unique<ChannelImpl>())
 {
 }
 
@@ -70,6 +71,30 @@ void Channel::initChannel(const std::string& url)
 
   mImpl->mUrl = url;
   mImpl->mCryptoStub = proto::CryptoService::NewStub(grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
+}
+
+//-----
+std::pair<proto::Response, grpc::Status> Channel::submitRequest(const proto::Query& request,
+                                                                const std::chrono::duration<double>& timeout)
+{
+  grpc::ClientContext context;
+  std::chrono::system_clock::time_point deadline =
+    std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::milliseconds>(timeout);
+  context.set_deadline(deadline);
+
+  proto::Response response;
+  switch (request.query_case())
+  {
+    case proto::Query::QueryCase::kCryptogetAccountBalance:
+    {
+      grpc::Status grpcStatus = mImpl->mCryptoStub->cryptoGetBalance(&context, request, &response);
+      return { response, grpcStatus };
+    }
+    default:
+    {
+      return { response, grpc::Status::CANCELLED };
+    }
+  }
 }
 
 //-----

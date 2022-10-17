@@ -21,113 +21,52 @@
 
 #include "AccountBalance.h"
 
-#include <proto/basic_types.pb.h>
 #include <proto/crypto_get_account_balance.pb.h>
 #include <proto/query.pb.h>
-#include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
 
 namespace Hedera
 {
 //-----
-AccountBalanceQuery::AccountBalanceQuery()
-  : Query()
-  , mAccountId()
-  , mContractId()
+AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountId)
 {
+  mAccountId = std::make_shared<AccountId>(accountId);
+  mContractId.reset();
+
+  return *this;
 }
 
 //-----
-AccountBalanceQuery::AccountBalanceQuery(const AccountId& accountId)
-  : Query()
-  , mContractId()
+AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contractId)
 {
-  mAccountId.setValue(accountId);
+  mContractId = std::make_shared<ContractId>(contractId);
+  mAccountId.reset();
+
+  return *this;
 }
-
 //-----
-AccountBalanceQuery::AccountBalanceQuery(const ContractId& contractId)
-  : Query()
-  , mAccountId()
+proto::Query AccountBalanceQuery::makeRequest() const
 {
-  mContractId.setValue(contractId);
-}
+  proto::Query query;
+  proto::CryptoGetAccountBalanceQuery* getAccountBalanceQuery = query.mutable_cryptogetaccountbalance();
 
-//-----
-void
-AccountBalanceQuery::onMakeRequest(proto::Query* query,
-                                   proto::QueryHeader* header) const
-{
-  proto::CryptoGetAccountBalanceQuery* getAccountBalanceQuery =
-    query->mutable_cryptogetaccountbalance();
-
-  if (mAccountId.isValid())
+  if (mAccountId)
   {
-    getAccountBalanceQuery->set_allocated_accountid(
-      mAccountId.getValue().toProtobuf());
+    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf());
   }
 
-  if (mContractId.isValid())
+  if (mContractId)
   {
-    getAccountBalanceQuery->set_allocated_contractid(
-      mContractId.getValue().toProtobuf());
+    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf());
   }
 
-  getAccountBalanceQuery->set_allocated_header(header);
+  return query;
 }
 
 //-----
-proto::ResponseHeader
-AccountBalanceQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->cryptogetaccountbalance().header();
-}
-
-//-----
-void
-AccountBalanceQuery::validateChecksums(const Client& client) const
-{
-  if (mAccountId.isValid())
-  {
-    mAccountId.getValue().validateChecksum(client);
-  }
-
-  if (mContractId.isValid())
-  {
-    mContractId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-AccountBalance
-AccountBalanceQuery::mapResponse(const proto::Response& response,
-                                 const AccountId& accountId,
-                                 const proto::Query& query) const
+AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response) const
 {
   return AccountBalance::fromProtobuf(response.cryptogetaccountbalance());
-}
-
-//-----
-proto::QueryHeader
-AccountBalanceQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.cryptogetaccountbalance().header();
-}
-
-//-----
-AccountBalanceQuery&
-AccountBalanceQuery::setAccountId(const AccountId& accountId)
-{
-  mAccountId.setValue(accountId);
-  return *this;
-}
-
-//-----
-AccountBalanceQuery&
-AccountBalanceQuery::setContractId(const ContractId& contractId)
-{
-  mContractId.setValue(contractId);
-  return *this;
 }
 
 } // namespace Hedera

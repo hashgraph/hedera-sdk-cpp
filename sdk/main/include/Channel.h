@@ -23,6 +23,17 @@
 #include <memory>
 #include <string>
 
+namespace grpc
+{
+class Status;
+}
+
+namespace proto
+{
+class Query;
+class Response;
+}
+
 namespace Hedera
 {
 class Channel
@@ -68,6 +79,16 @@ public:
    *            should communicate.
    */
   void initChannel(const std::string& url);
+
+  /**
+   * Submit a query request on this channel.
+   *
+   * @param  request      The request to send.
+   * @param  timeout      The timeout duration.
+   * @return The protobuf response object and the gRPC status.
+   */
+  std::pair<proto::Response, grpc::Status> submitRequest(const proto::Query& request,
+                                                         const std::chrono::duration<double>& timeout);
 
   /**
    * Shutdown the channel.

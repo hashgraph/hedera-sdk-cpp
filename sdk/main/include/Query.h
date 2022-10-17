@@ -20,6 +20,8 @@
 #ifndef QUERY_H_
 #define QUERY_H_
 
+#include "Executable.h"
+
 namespace Hedera
 {
 class AccountId;
@@ -39,63 +41,13 @@ namespace Hedera
 /**
  * Base class for all queries that can be submitted to Hedera.
  *
- * @param <O> The output type of the query.
- * @param <T> The type of the query itself. Used to enable chaining.
+ * @tparam SdkRequestType  The SDK request type.
+ * @tparam SdkResponseType The SDK response type.
  */
-template<typename O, typename T>
-class Query
+template<typename SdkRequestType, typename SdkResponseType>
+class Query : public Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>
 {
 public:
-  /**
-   * Called in makeRequest() just before the query is built. The intent
-   * is for the derived class to assign their data variant to the query.
-   *
-   * @param query  The query object to fill out.
-   * @param header The header for the query.
-   */
-  virtual void onMakeRequest(proto::Query* query,
-                             proto::QueryHeader* header) const = 0;
-
-  /**
-   * Function to get a query's response header. Derived classes should access
-   * their response header and return.
-   *
-   * @param response The associated response to this query.
-   * @return         The response header for the derived class' query.
-   */
-  virtual proto::ResponseHeader mapResponseHeader(
-    proto::Response* response) const = 0;
-
-  /**
-   * Called after receiving the query response from Hedera. The derived class
-   * should map into its output type.
-   *
-   * @param response  The received response from Hedera.
-   * @param accountId The account ID that made the request.
-   * @param query     The original query.
-   * @return          The class representing the response, containing the
-   *                  response data.
-   */
-  virtual O mapResponse(const proto::Response& response,
-                        const AccountId& accountId,
-                        const proto::Query& query) const = 0;
-
-  /**
-   * The derived class should access its request header and return.
-   *
-   * @param query  The query of which to extract the header.
-   * @return       The query header.
-   */
-  virtual proto::QueryHeader mapRequestHeader(
-    const proto::Query& query) const = 0;
-
-  /**
-   * Validate the checksums.
-   *
-   * @param client The client with which to validate the checksums
-   */
-  virtual void validateChecksums(const Client& client) const = 0;
-
   /**
    * Does this query require a payment? Nearly all queries require payment,
    * so default to returning true. Queries that don't require payment can
@@ -106,7 +58,25 @@ public:
   inline virtual bool isPaymentRequired() const { return true; }
 
 protected:
-  Query() {}
+  /**
+   * Default destructor.
+   */
+  virtual ~Query() = default;
+
+  /**
+   * Derived from Executable. Construct a query protobuf object from this query.
+   *
+   * @return The query protobuf object that contains this query information.
+   */
+  virtual proto::Query makeRequest() const = 0;
+
+  /**
+   * Derived from Executable. Create a response object from a protobuf response object.
+   *
+   * @param response The protobuf response object.
+   * @return The response object with the response data.
+   */
+  virtual SdkResponseType mapResponse(const proto::Response& response) const = 0;
 };
 
 } // namespace Hedera

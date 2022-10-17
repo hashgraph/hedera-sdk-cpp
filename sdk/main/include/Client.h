@@ -47,11 +47,9 @@ public:
   static Client forTestnet();
 
   /**
-   * Set the account that will, by default, be paying for transactions and
-   * queries built with this client. The operator account ID is used to generate
-   * the default transaction ID for all transactions executed with this client.
-   * The operator private key is used to sign all transactions executed by this
-   * client.
+   * Set the account that will, by default, be paying for transactions and queries built with this client. The operator
+   * account ID is used to generate the default transaction ID for all transactions executed with this client. The
+   * operator private key is used to sign all transactions executed by this client.
    *
    * @param accountId  The account ID of the operator.
    * @param privateKey The private key of the operator.
@@ -62,9 +60,8 @@ public:
   /**
    * Set the maximum fee to be paid for transactions executed by this client.
    *
-   * Because transaction fees are always maximums, this will simply add a call
-   * to setMaxTransactionFee() on every new transaction. The actual fee assessed
-   * for a given transaction may be less than this value, but never greater.
+   * Because transaction fees are always maximums, this will simply add a call to setMaxTransactionFee() on every new
+   * transaction. The actual fee assessed for a given transaction may be less than this value, but never greater.
    *
    * @param defaultMaxTransactionFee The Hbar to be set.
    * @return Reference to this Client object.
@@ -72,9 +69,8 @@ public:
   Client& setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee);
 
   /**
-   * Initiates an orderly shutdown of all channels (to the Hedera network) in
-   * which preexisting transactions or queries continue but more would be
-   * immediately cancelled.
+   * Initiates an orderly shutdown of all channels (to the Hedera network) in which preexisting transactions or queries
+   * continue but more would be immediately cancelled.
    *
    * After this method returns, this client can be re-used. Channels will be
    * re-established as needed.
@@ -82,41 +78,36 @@ public:
   void close();
 
   /**
-   * Get the ID of the operator. Useful when the client was constructed from
-   * file.
+   * Get the network of this client.
+   *
+   * @return The network of this client.
+   */
+  inline Network getNetwork() const { return mNetwork; }
+
+  /**
+   * Get the ID of the operator. Useful when the client was constructed from file.
    *
    * @return The account ID of this client's operator, if valid.
    */
-  inline InitType<AccountId> getOperatorAccountId() const
-  {
-    return mOperator.mAccountId;
-  }
+  inline InitType<AccountId> getOperatorAccountId() const { return mOperator.mAccountId; }
 
   /**
-   * Get the key of the operator. Useful when the client was
-   * constructed from file.
+   * Get the key of the operator. Useful when the client was constructed from file.
    *
    * @return The public key of this client's operator, if valid.
    */
-  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const
-  {
-    return mOperator.mPublicKey;
-  }
+  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const { return mOperator.mPublicKey; }
 
   /**
    * The default maximum fee used for transactions.
    *
    * @return The max transaction fee.
    */
-  inline InitType<Hbar> getDefaultMaxTransactionFee() const
-  {
-    return mDefaultMaxTransactionFee;
-  }
+  inline InitType<Hbar> getDefaultMaxTransactionFee() const { return mDefaultMaxTransactionFee; }
 
 private:
   /**
-   * Information about the account that will pay for transactions and queries
-   * made with this client.
+   * Information about the account that will pay for transactions and queries made with this client.
    */
   struct Operator
   {
