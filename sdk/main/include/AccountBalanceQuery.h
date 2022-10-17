@@ -48,6 +48,11 @@ class AccountBalanceQuery : public Query<AccountBalanceQuery, AccountBalance>
 {
 public:
   /**
+   * Default constructor.
+   */
+  AccountBalanceQuery() = default;
+
+  /**
    * Default destructor.
    */
   ~AccountBalanceQuery() = default;

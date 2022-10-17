@@ -64,7 +64,7 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const std::vector<AccountId>& nodeAccountIds)
 {
   mNodeAccountIds = nodeAccountIds;
-  return static_cast<SdkRequestType>(*this);
+  return static_cast<SdkRequestType&>(*this);
 }
 
 } // namespace Hedera
