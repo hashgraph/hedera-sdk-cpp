@@ -31,6 +31,8 @@
 
 #include <grpcpp/impl/codegen/status.h>
 
+#include <utility>
+
 namespace Hedera
 {
 //-----
