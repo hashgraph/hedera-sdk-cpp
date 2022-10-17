@@ -143,12 +143,12 @@ private:
   /**
    * The default valid transaction duration.
    */
-  const static std::chrono::duration<double> DEFAULT_VALID_TRANSACTION_DURATION = std::chrono::minutes(2);
+  const static std::chrono::duration<double> DEFAULT_VALID_TRANSACTION_DURATION;
 
   /**
    * The default maximum transaction fee.
    */
-  const static Hbar DEFAULT_MAX_TRANSACTION_FEE = Hbar::from(2LL);
+  const static Hbar DEFAULT_MAX_TRANSACTION_FEE;
 
   /**
    * The protobuf transaction body for this transaction.

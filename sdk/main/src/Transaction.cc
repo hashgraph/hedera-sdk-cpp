@@ -23,6 +23,15 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
+const std::chrono::duration<double> Transaction<SdkRequestType>::DEFAULT_VALID_TRANSACTION_DURATION =
+  std::chrono::minutes(2);
+
+//-----
+template<typename SdkRequestType>
+const Hbar Transaction<SdkRequestType>::DEFAULT_MAX_TRANSACTION_FEE = Hbar(2LL);
+
+//-----
+template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
 {
   mTransactionValidDuration = duration;
