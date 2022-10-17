@@ -3,7 +3,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/AccountAllowanceDeleteTransaction.cc
         src/AccountBalance.cc
         src/AccountBalanceQuery.cc
-        src/AccountCreateTransaction.cc
+        #src/AccountCreateTransaction.cc
         #    src/AccountDeleteTransaction.cc
         src/AccountId.cc
         #    src/AccountInfo.cc

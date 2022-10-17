@@ -39,6 +39,13 @@ std::pair<proto::Response, grpc::Status> Node::submitRequest(const proto::Query&
 }
 
 //-----
+std::pair<proto::TransactionResponse, grpc::Status> Node::submitRequest(const proto::Transaction& request,
+                                                                        const std::chrono::duration<double>& timeout)
+{
+  return mChannel.submitRequest(request, timeout);
+}
+
+//-----
 void Node::shutdown()
 {
   mChannel.shutdown();

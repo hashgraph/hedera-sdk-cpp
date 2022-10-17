@@ -20,81 +20,72 @@
 #ifndef TRANSACTION_H_
 #define TRANSACTION_H_
 
+#include "Executable.h"
 #include "Hbar.h"
 
-#include <proto/transaction_body.pb.h>
-
 #include <chrono>
+#include <memory>
 #include <unordered_map>
 
 namespace Hedera
 {
-class AccountId;
-class Client;
-class TransactionId;
+class TransactionResponse;
 }
 
 namespace proto
 {
-class SchedulableTransactionBody;
+class Transaction;
+class TransactionBody;
+class TransactionResponse;
 }
 
 namespace Hedera
 {
 /**
- * Base class for all transactions that may be built and submitted to Hedera.
+ * Base class for all transactions that can be submitted to Hedera.
  *
- * @param <T> The type of the transaction. Used to enable chaining.
+ * @tparam SdkRequestType  The SDK request type.
  */
-template<typename T>
+template<typename SdkRequestType>
 class Transaction
+  : public Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>
 {
-public:
+protected:
+  /**
+   * Default destructor
+   */
   virtual ~Transaction() = default;
 
-protected:
-  Transaction() = default;
-  Transaction(const Transaction&) = default;
-  Transaction& operator=(const Transaction&) = default;
-  Transaction(const Transaction&&) = delete;
-  Transaction& operator=(const Transaction&&) = delete;
-
-  Transaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  {
-    (void)transactions;
-  }
-
-  Transaction(const proto::TransactionBody& transaction) { (void)transaction; }
-
   /**
-   * Validate the checksums.
+   * Derived from Executable. Construct a transaction protobuf object from this transaction.
    *
-   * @param client The client with which to validate the checksums
+   * @return The transaction protobuf object that contains this transaction information.
    */
-  virtual void validateChecksums(const Client& client) const = 0;
+  virtual proto::Transaction makeRequest() const = 0;
 
   /**
-   * Called in freezeWith(Client) just before the transaction body is built. The
-   * intent is for the derived class to assign their data variant to the
-   * transaction body.
+   * Derived from Executable. Create a response object from a protobuf response object.
+   *
+   * @param response The protobuf response object.
+   * @return The response object with the response data.
    */
-  virtual void onFreeze(proto::TransactionBody* body) const = 0;
+  virtual TransactionResponse mapResponse(const proto::Response& response) const = 0;
+
+private:
+  /**
+   * The protobuf transaction body for this transaction.
+   */
+  std::shared_ptr<proto::TransactionBody> mSourceTransactionBody;
 
   /**
-   * Called in schedule() when converting transaction into a scheduled version.
+   * The default maximum transaction fee.
    */
-  virtual void onScheduled(proto::SchedulableTransactionBody* body) const = 0;
-
-  void requireNotFrozen() {}
-
-  proto::TransactionBody mSourceTransactionBody;
-
   Hbar mDefaultMaxTransactionFee;
 
-  std::chrono::seconds mDefaultAutoRenewPeriod;
+  /**
+   * The default auto renew period.
+   */
+  std::chrono::duration<double> mDefaultAutoRenewPeriod;
 };
 
 } // namespace Hedera

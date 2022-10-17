@@ -31,9 +31,7 @@ class Client;
 namespace proto
 {
 class Query;
-class QueryHeader;
 class Response;
-class ResponseHeader;
 }
 
 namespace Hedera
@@ -78,6 +76,11 @@ protected:
    */
   virtual SdkResponseType mapResponse(const proto::Response& response) const = 0;
 };
+
+/**
+ * Explicit template instantiation
+ */
+template class Query<AccountBalanceQuery, AccountBalance>;
 
 } // namespace Hedera
 

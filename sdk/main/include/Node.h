@@ -35,6 +35,8 @@ namespace proto
 {
 class Query;
 class Response;
+class Transaction;
+class TransactionResponse;
 }
 
 namespace Hedera
@@ -53,12 +55,22 @@ public:
   /**
    * Submit a query request to this node.
    *
-   * @param  request      The request to send.
-   * @param  timeout      The timeout duration.
+   * @param query   The query to send.
+   * @param timeout The timeout duration.
    * @return The protobuf response object and the gRPC status.
    */
   std::pair<proto::Response, grpc::Status> submitRequest(const proto::Query& request,
                                                          const std::chrono::duration<double>& timeout);
+
+  /**
+   * Submit a transaction request to this node.
+   *
+   * @param transaction The transaction to send.
+   * @param timeout     The timeout duration.
+   * @return The protobuf transaction response object and the gRPC status.
+   */
+  std::pair<proto::TransactionResponse, grpc::Status> submitRequest(const proto::Transaction& request,
+                                                                    const std::chrono::duration<double>& timeout);
 
   /**
    * Shutdown connections with the node.
