@@ -19,10 +19,15 @@
  */
 #include "Executable.h"
 
+#include "AccountBalance.h"
+#include "AccountBalanceQuery.h"
 #include "Client.h"
 #include "Node.h"
 
 #include <proto/query.pb.h>
+#include <proto/response.pb.h>
+#include <proto/transaction.pb.h>
+#include <proto/transaction_response.pb.h>
 
 #include <grpcpp/impl/codegen/status.h>
 
