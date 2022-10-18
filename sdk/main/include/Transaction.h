@@ -161,11 +161,6 @@ protected:
   TransactionId mTransactionId;
 };
 
-/**
- * Explicit template instantiation
- */
-template class Transaction<AccountCreateTransaction>;
-
 } // namespace Hedera
 
 #endif // TRANSACTION_H_

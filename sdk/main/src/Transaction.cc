@@ -19,6 +19,8 @@
  */
 #include "Transaction.h"
 
+#include "AccountCreateTransaction.h"
+
 namespace Hedera
 {
 //-----
@@ -52,5 +54,10 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
   mTransactionId = id;
   return static_cast<SdkRequestType&>(*this);
 }
+
+/**
+ * Explicit template instantiation
+ */
+template class Transaction<AccountCreateTransaction>;
 
 } // namespace Hedera
