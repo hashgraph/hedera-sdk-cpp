@@ -1,7 +1,6 @@
 #ifndef ED25519_KEYPAIR_H_
 #define ED25519_KEYPAIR_H_
 
-#include <memory>
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 
@@ -17,6 +16,8 @@ public:
   ~ED25519Keypair();
 
   [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const override;
+  [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
+
 private:
   EVP_PKEY* keypair;
 
