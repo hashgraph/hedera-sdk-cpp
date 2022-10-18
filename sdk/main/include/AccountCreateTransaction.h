@@ -226,14 +226,6 @@ protected:
    */
   proto::Transaction makeRequest() const override;
 
-  /**
-   * Derived from Transaction. Create a transaction response object from a protobuf response object.
-   *
-   * @param response The protobuf response object.
-   * @return The response object with the response data.
-   */
-  TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
-
 private:
   /**
    * Build a CryptoCreateTransactionBody protobuf message based on the this class data.

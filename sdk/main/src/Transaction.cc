@@ -19,6 +19,9 @@
  */
 #include "Transaction.h"
 
+#include "AccountCreateTransaction.h"
+#include "TransactionResponse.h"
+
 namespace Hedera
 {
 //-----
@@ -52,5 +55,17 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
   mTransactionId = id;
   return static_cast<SdkRequestType&>(*this);
 }
+
+//-----
+template<typename SdkRequestType>
+TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
+{
+  return TransactionResponse::fromProtobuf(response);
+}
+
+/**
+ * Explicit template instantiation
+ */
+template class Transaction<AccountCreateTransaction>;
 
 } // namespace Hedera

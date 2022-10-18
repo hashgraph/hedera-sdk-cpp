@@ -45,18 +45,13 @@ namespace Hedera
 /**
  * Base class for all transactions that can be submitted to Hedera.
  *
- * @tparam SdkRequestType  The SDK request type.
+ * @tparam SdkRequestType The SDK request type.
  */
 template<typename SdkRequestType>
 class Transaction
   : public Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>
 {
 public:
-  /**
-   * Default destructor
-   */
-  virtual ~Transaction() = default;
-
   /**
    * Set the valid transaction duration.
    *
@@ -126,6 +121,11 @@ public:
 
 protected:
   /**
+   * Default destructor
+   */
+  virtual ~Transaction() = default;
+
+  /**
    * Derived from Executable. Construct a transaction protobuf object from this transaction.
    *
    * @return The transaction protobuf object that contains this transaction information.
@@ -133,12 +133,12 @@ protected:
   virtual proto::Transaction makeRequest() const = 0;
 
   /**
-   * Derived from Transaction. Create a transaction response object from a protobuf transaction response object.
+   * Derived from Executable. Create a transaction response object from a protobuf transaction response object.
    *
    * @param response The protobuf transaction response object.
    * @return The transaction response object with the response data.
    */
-  virtual TransactionResponse mapResponse(const proto::TransactionResponse& response) const = 0;
+  TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
 
   /**
    * The valid transaction duration. Defaults to two minutes.
@@ -160,11 +160,6 @@ protected:
    */
   TransactionId mTransactionId;
 };
-
-/**
- * Explicit template instantiation
- */
-template class Transaction<AccountCreateTransaction>;
 
 } // namespace Hedera
 
