@@ -33,6 +33,12 @@ std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::T
 }
 
 //-----
+std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::TimestampSeconds& timestamp)
+{
+  return std::chrono::sys_time<std::chrono::seconds>(std::chrono::seconds(timestamp.seconds()));
+}
+
+//-----
 std::shared_ptr<proto::Timestamp> toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time)
 {
   proto::Timestamp timestamp;
