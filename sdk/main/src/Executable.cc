@@ -69,4 +69,9 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   return static_cast<SdkRequestType&>(*this);
 }
 
+/**
+ * Explicit template instantiation
+ */
+template class Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>;
+
 } // namespace Hedera

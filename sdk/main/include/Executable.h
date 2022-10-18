@@ -117,11 +117,6 @@ private:
   const int mMaxNumOfAttempts = 10;
 };
 
-/**
- * Explicit template instantiation
- */
-template class Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>;
-
 } // namespace Hedera
 
 #endif // EXECUTABLE_H
