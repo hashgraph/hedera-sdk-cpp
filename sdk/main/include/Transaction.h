@@ -30,6 +30,7 @@
 
 namespace Hedera
 {
+class AccountCreateTransaction;
 class TransactionResponse;
 }
 
@@ -93,7 +94,7 @@ public:
    *
    * @return The valid transaction duration.
    */
-  inline std::chrono::duration<double> getValidTransactionDuration() const { mTransactionValidDuration; }
+  inline std::chrono::duration<double> getValidTransactionDuration() const { return mTransactionValidDuration; }
 
   /**
    * Extract the max transaction fee.
@@ -159,6 +160,11 @@ protected:
    */
   TransactionId mTransactionId;
 };
+
+/**
+ * Explicit template instantiation
+ */
+template class Transaction<AccountCreateTransaction>;
 
 } // namespace Hedera
 

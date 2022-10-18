@@ -29,13 +29,17 @@ namespace Hedera
 {
 class AccountBalance;
 class AccountBalanceQuery;
+class AccountCreateTransaction;
 class Client;
+class TransactionResponse;
 }
 
 namespace proto
 {
 class Query;
 class Response;
+class Transaction;
+class TransactionResponse;
 }
 
 namespace Hedera
@@ -121,6 +125,10 @@ private:
  * Explicit template instantiation
  */
 template class Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>;
+template class Executable<AccountCreateTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 
 } // namespace Hedera
 

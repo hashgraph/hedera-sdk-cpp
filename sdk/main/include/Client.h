@@ -25,8 +25,6 @@
 #include "Network.h"
 #include "PublicKey.h"
 
-#include "helper/InitType.h"
-
 #include <functional>
 
 namespace Hedera
@@ -89,7 +87,7 @@ public:
    *
    * @return The account ID of this client's operator, if valid.
    */
-  inline InitType<AccountId> getOperatorAccountId() const { return mOperator.mAccountId; }
+  inline std::optional<AccountId> getOperatorAccountId() const { return mOperator.mAccountId; }
 
   /**
    * Get the key of the operator. Useful when the client was constructed from file.
@@ -103,7 +101,7 @@ public:
    *
    * @return The max transaction fee.
    */
-  inline InitType<Hbar> getDefaultMaxTransactionFee() const { return mDefaultMaxTransactionFee; }
+  inline std::optional<Hbar> getDefaultMaxTransactionFee() const { return mDefaultMaxTransactionFee; }
 
 private:
   /**
@@ -114,7 +112,7 @@ private:
     /**
      * The account ID of the account.
      */
-    InitType<AccountId> mAccountId;
+    std::optional<AccountId> mAccountId;
 
     /**
      * The public key of the account.
@@ -135,7 +133,7 @@ private:
   /**
    * The default max transaction fee for transactions processed by this client.
    */
-  InitType<Hbar> mDefaultMaxTransactionFee;
+  std::optional<Hbar> mDefaultMaxTransactionFee;
 };
 
 } // namespace Hedera

@@ -20,17 +20,12 @@
 #ifndef CONTRACT_ID_H_
 #define CONTRACT_ID_H_
 
-#include "helper/InitType.h"
-
 #include <proto/basic_types.pb.h>
 
 #include <string>
 
 namespace Hedera
 {
-template<typename T>
-class InitType;
-
 class Client;
 }
 
@@ -44,10 +39,7 @@ class ContractId
 public:
   ContractId() {}
 
-  static ContractId fromProtobuf(const proto::ContractID& id)
-  {
-    return ContractId();
-  }
+  static ContractId fromProtobuf(const proto::ContractID& id) { return ContractId(); }
 
   proto::ContractID* toProtobuf() const { return new proto::ContractID; }
 
@@ -58,8 +50,8 @@ public:
   int64_t mRealm;
   int64_t mShard;
 
-  InitType<int64_t> mContractNum;
-  InitType<std::string> mEvmAddress;
+  std::optional<int64_t> mContractNum;
+  std::optional<std::string> mEvmAddress;
 };
 
 } // namespace Hedera
