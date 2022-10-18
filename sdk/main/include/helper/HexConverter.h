@@ -17,14 +17,19 @@
 * limitations under the License.
 *
 */
+#ifndef HEDERA_SDK_CPP_HEXCONVERTER_H
+#define HEDERA_SDK_CPP_HEXCONVERTER_H
 
-#ifndef HEDERA_SDK_CPP_KEYPAIR_H
-#define HEDERA_SDK_CPP_KEYPAIR_H
+#include <string>
 
-namespace Hedera {
-class Keypair {
-  [[nodiscard]] virtual std::shared_ptr<PublicKey> getPublicKey() const = 0;
+namespace Hedera
+{
+class HexConverter
+{
+public:
+  static std::string bytesToHex(const unsigned char *data, int len);
 };
+
 }
 
-#endif // HEDERA_SDK_CPP_KEYPAIR_H
+#endif // HEDERA_SDK_CPP_HEXCONVERTER_H

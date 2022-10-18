@@ -12,7 +12,8 @@ namespace Hedera
 class ED25519PublicKey : public PublicKey
 {
 public:
-  explicit ED25519PublicKey(unsigned char* encodedPublicKey);
+  explicit ED25519PublicKey(unsigned char* encodedPublicKey, size_t keyLength);
+
   ~ED25519PublicKey();
 
   [[nodiscard]] proto::Key* toProtobuf() const override;

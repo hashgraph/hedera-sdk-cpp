@@ -16,8 +16,11 @@ public:
   ED25519Keypair();
   ~ED25519Keypair();
 
+  [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const override;
 private:
   EVP_PKEY* keypair;
+
+  std::shared_ptr<ED25519PublicKey> publicKey;
 };
 }
 
