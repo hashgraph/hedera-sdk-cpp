@@ -9,13 +9,15 @@ set(TestSources
         ED25519KeypairTest.cpp
         )
 
-add_executable(${PROJECT_NAME}-tests ${TestSources})
+set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
 
-target_link_libraries(${PROJECT_NAME}-tests
+add_executable(${TEST_PROJECT_NAME} ${TestSources})
+
+target_link_libraries(${TEST_PROJECT_NAME}
         PRIVATE
         gtest_main
         ${PROJECT_NAME})
 
 add_test(
-        NAME ${PROJECT_NAME}-tests
-        COMMAND ${PROJECT_NAME}-tests)
+        NAME ${TEST_PROJECT_NAME}
+        COMMAND ${TEST_PROJECT_NAME})

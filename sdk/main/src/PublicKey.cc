@@ -39,7 +39,7 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
         unsigned char keyBytes[20]; // TODO define a key length variable somewhere, 20 isn't correct
         std::copy(keyString.begin(), keyString.end(), keyBytes);
 
-        return std::make_shared<ED25519PublicKey>(ED25519PublicKey(keyBytes));
+        return std::make_shared<ED25519PublicKey>(ED25519PublicKey(keyBytes, 20));
       }
       default:
       {
@@ -55,7 +55,7 @@ std::shared_ptr<PublicKey> PublicKey::fromAliasBytes(const std::string& bytes)
   {
     // TODO this implementation is meaningless, only acts as a stub
     unsigned char keyBytes[20];
-    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(keyBytes));
+    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(keyBytes, 20));
   }
 }
 }
