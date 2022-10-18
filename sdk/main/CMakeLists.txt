@@ -35,9 +35,10 @@ add_library(${PROJECT_NAME} STATIC
         src/Node.cc
         src/NodeAddress.cc
         src/PublicKey.cc
+        src/TransactionId.cc
 
         src/helper/DurationConverter.cc
-        src/helper/InstantConverter.cc
+        src/helper/TimestampConverter.cc
         src/helper/HexConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)

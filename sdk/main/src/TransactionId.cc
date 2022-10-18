@@ -17,25 +17,30 @@
  * limitations under the License.
  *
  */
-#include "helper/InstantConverter.h"
+#include "TransactionId.h"
+
+#include "helper/TimestampConverter.h"
+
+#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
-namespace InstantConverter
-{
 //-----
-std::chrono::nanoseconds
-fromProtobuf(const proto::Timestamp& timestamp)
+TransactionId TransactionId::fromProtobuf(const proto::TransactionID& proto)
 {
-  return std::chrono::nanoseconds();
+  TransactionId id;
+
+  if (proto.has_transactionvalidstart())
+  {
+    id.mValidTransactionTime = TimestampConverter::fromProtobuf(proto.transactionvalidstart());
+  }
+
+  if (proto.has_accountid())
+  {
+    id.mAccountId = AccountId::fromProtobuf(proto.accountid());
+  }
+
+  return id;
 }
 
-//-----
-proto::Timestamp*
-toProtobuf(const std::chrono::nanoseconds& nano)
-{
-  return new proto::Timestamp();
-}
-
-} // namespace InstantConverter
 } // namespace Hedera
