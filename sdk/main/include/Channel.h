@@ -61,21 +61,6 @@ public:
   ~Channel();
 
   /**
-   * Copy constructor.
-   *
-   * @param other The Channel to copy.
-   */
-  Channel(const Channel& other);
-
-  /**
-   * Copy assignment operator.
-   *
-   * @param other The Channel to copy.
-   * @return Reference to this Channel with the copied data.
-   */
-  Channel& operator=(const Channel& other);
-
-  /**
    * Initialize this channel to communicate with a node URL.
    *
    * @param url The URL and port of the gRPC service with which this channel
@@ -96,7 +81,7 @@ public:
   /**
    * Submit a transaction request on this channel.
    *
-   * @param transcation The transaction to send.
+   * @param transaction The transaction to send.
    * @param timeout     The timeout duration.
    * @return The protobuf response object and the gRPC status.
    */

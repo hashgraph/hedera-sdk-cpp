@@ -51,7 +51,7 @@ public:
    * @param accountIds The account IDs of the requested nodes.
    * @return List of nodes with the requested account IDs.
    */
-  std::vector<Node> getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const;
+  std::vector<std::shared_ptr<Node>> getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const;
 
   /**
    * Close this network.
@@ -70,7 +70,7 @@ private:
   /**
    * List of nodes with which this network is communicating.
    */
-  std::vector<Node> mNodes;
+  std::vector<std::shared_ptr<Node>> mNodes;
 };
 
 } // namespace Hedera

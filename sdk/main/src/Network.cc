@@ -68,19 +68,19 @@ Network Network::forTestnet()
 }
 
 //-----
-std::vector<Node> Network::getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const
+std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const
 {
   if (accountIds.empty())
   {
     return mNodes;
   }
 
-  std::vector<Node> nodesWithCorrectAccountIds;
+  std::vector<std::shared_ptr<Node>> nodesWithCorrectAccountIds;
   for (const auto& node : mNodes)
   {
     for (const auto& id : accountIds)
     {
-      if (node.getAccountId() == id)
+      if (node->getAccountId() == id)
       {
         nodesWithCorrectAccountIds.push_back(node);
       }
@@ -95,7 +95,7 @@ void Network::setNetwork(const std::unordered_map<std::string, AccountId, String
 {
   for (const auto& [url, accountId] : network)
   {
-    mNodes.emplace_back(url, accountId);
+    mNodes.emplace_back(std::make_shared<Node>(url, accountId));
   }
 }
 
@@ -104,7 +104,7 @@ void Network::close()
 {
   for (auto& node : mNodes)
   {
-    node.shutdown();
+    node->shutdown();
   }
 }
 

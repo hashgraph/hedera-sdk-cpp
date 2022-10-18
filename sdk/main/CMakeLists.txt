@@ -38,12 +38,14 @@ add_library(${PROJECT_NAME} STATIC
         src/Transaction.cc
 
         src/helper/DurationConverter.cc
-        src/helper/InstantConverter.cc)
+        src/helper/InstantConverter.cc
+        src/helper/HexConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} hapi)
+target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)

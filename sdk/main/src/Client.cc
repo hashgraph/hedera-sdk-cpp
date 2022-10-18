@@ -27,13 +27,12 @@ namespace Hedera
 Client Client::forTestnet()
 {
   Client client;
-  client.mNetwork = Network::forTestnet();
+  client.mNetwork = std::make_shared<Network>(Network::forTestnet());
   return client;
 }
 
 //-----
-Client& Client::setOperator(const AccountId& accountId,
-                            const PrivateKey& privateKey)
+Client& Client::setOperator(const AccountId& accountId, const PrivateKey& privateKey)
 {
   mOperator.mAccountId = accountId;
   mOperator.mPublicKey = privateKey.getPublicKey();
@@ -42,8 +41,7 @@ Client& Client::setOperator(const AccountId& accountId,
 }
 
 //-----
-Client& Client::setDefaultMaxTransactionFee(
-  const Hbar& defaultMaxTransactionFee)
+Client& Client::setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee)
 {
   if (defaultMaxTransactionFee.toTinybars() < 0)
   {
@@ -56,7 +54,7 @@ Client& Client::setDefaultMaxTransactionFee(
 
 void Client::close()
 {
-  mNetwork.close();
+  mNetwork->close();
 }
 
 } // namespace Hedera
