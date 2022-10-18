@@ -48,7 +48,7 @@ public:
    *
    * @param amount The amount of Hbar
    */
-  constexpr explicit Hbar(const int64_t& amount)
+  explicit Hbar(const int64_t& amount)
     : Hbar(amount, HbarUnit::HBAR)
   {
   }
@@ -59,7 +59,7 @@ public:
    * @param amount The amount
    * @param unit   The unit for amount
    */
-  constexpr explicit Hbar(const int64_t& amount, const HbarUnit& unit)
+  explicit Hbar(const int64_t& amount, const HbarUnit& unit)
     : mValueInTinybar(amount * unit.getTinybars())
   {
   }
