@@ -70,8 +70,8 @@ public:
    * @param timeout     The timeout duration.
    * @return The protobuf transaction response object and the gRPC status.
    */
-  // std::pair<proto::TransactionResponse, grpc::Status> submitRequest(const proto::Transaction& request,
-  //                                                                   const std::chrono::duration<double>& timeout);
+  std::pair<proto::TransactionResponse, grpc::Status> submitRequest(const proto::Transaction& request,
+                                                                    const std::chrono::duration<double>& timeout);
 
   /**
    * Shutdown connections with the node.
