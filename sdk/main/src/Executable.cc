@@ -21,8 +21,10 @@
 
 #include "AccountBalance.h"
 #include "AccountBalanceQuery.h"
+#include "AccountCreateTransaction.h"
 #include "Client.h"
 #include "Node.h"
+#include "TransactionResponse.h"
 
 #include <proto/query.pb.h>
 #include <proto/response.pb.h>
@@ -68,5 +70,14 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   mNodeAccountIds = nodeAccountIds;
   return static_cast<SdkRequestType&>(*this);
 }
+
+/**
+ * Explicit template instantiation
+ */
+template class Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>;
+template class Executable<AccountCreateTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 
 } // namespace Hedera
