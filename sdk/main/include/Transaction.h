@@ -20,82 +20,151 @@
 #ifndef TRANSACTION_H_
 #define TRANSACTION_H_
 
+#include "Executable.h"
 #include "Hbar.h"
-
-#include <proto/transaction_body.pb.h>
+#include "TransactionId.h"
 
 #include <chrono>
-#include <unordered_map>
+#include <memory>
+#include <string>
 
 namespace Hedera
 {
-class AccountId;
-class Client;
-class TransactionId;
+class AccountCreateTransaction;
+class TransactionResponse;
 }
 
 namespace proto
 {
-class SchedulableTransactionBody;
+class Transaction;
+class TransactionResponse;
 }
 
 namespace Hedera
 {
 /**
- * Base class for all transactions that may be built and submitted to Hedera.
+ * Base class for all transactions that can be submitted to Hedera.
  *
- * @param <T> The type of the transaction. Used to enable chaining.
+ * @tparam SdkRequestType  The SDK request type.
  */
-template<typename T>
+template<typename SdkRequestType>
 class Transaction
+  : public Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>
 {
 public:
+  /**
+   * Default destructor
+   */
   virtual ~Transaction() = default;
 
-protected:
-  Transaction() = default;
-  Transaction(const Transaction&) = default;
-  Transaction& operator=(const Transaction&) = default;
-  Transaction(const Transaction&&) = delete;
-  Transaction& operator=(const Transaction&&) = delete;
-
-  Transaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  {
-    (void)transactions;
-  }
-
-  Transaction(const proto::TransactionBody& transaction) { (void)transaction; }
-
   /**
-   * Validate the checksums.
+   * Set the valid transaction duration.
    *
-   * @param client The client with which to validate the checksums
+   * @param duration The duration to set.
+   * @return Reference to this derived Transaction object.
    */
-  virtual void validateChecksums(const Client& client) const = 0;
+  SdkRequestType& setValidTransactionDuration(const std::chrono::duration<double>& duration);
 
   /**
-   * Called in freezeWith(Client) just before the transaction body is built. The
-   * intent is for the derived class to assign their data variant to the
-   * transaction body.
+   * Set the max transaction fee.
+   *
+   * @param fee The max transaction fee to set.
+   * @return Reference to this derived Transaction object.
    */
-  virtual void onFreeze(proto::TransactionBody* body) const = 0;
+  SdkRequestType& setMaxTransactionFee(const Hbar& fee);
 
   /**
-   * Called in schedule() when converting transaction into a scheduled version.
+   * Set the transaction memo.
+   *
+   * @param memo The transaction memo to set.
+   * @return Reference to this derived Transaction object.
    */
-  virtual void onScheduled(proto::SchedulableTransactionBody* body) const = 0;
+  SdkRequestType& setTransactionMemo(const std::string& memo);
 
-  void requireNotFrozen() {}
+  /**
+   * Set the transaction ID.
+   *
+   * @param id The transaction ID to set.
+   * @return Reference to this derived Transaction object.
+   */
+  SdkRequestType& setTransactionId(const TransactionId& id);
 
-  proto::TransactionBody mSourceTransactionBody;
+  /**
+   * Extract the valid transaction duration.
+   *
+   * @return The valid transaction duration.
+   */
+  inline std::chrono::duration<double> getValidTransactionDuration() const { return mTransactionValidDuration; }
 
-  Hbar mDefaultMaxTransactionFee;
+  /**
+   * Extract the max transaction fee.
+   *
+   * @return The max transaction fee.
+   */
+  inline Hbar getMaxTransactionFee() const { return mMaxTransactionFee; }
 
-  std::chrono::seconds mDefaultAutoRenewPeriod;
+  /**
+   * Extract the default max transaction fee.
+   *
+   * @return The default max transaction fee.
+   */
+  inline Hbar getDefaultMaxTransactionFee() const { return Hbar(2LL); }
+
+  /**
+   * Extract the transaction memo.
+   *
+   * @return The transaction memo.
+   */
+  inline std::string getTransactionMemo() const { return mTransactionMemo; }
+
+  /**
+   * Extract the transaction ID.
+   *
+   * @return The transaction ID.
+   */
+  inline TransactionId getTransactionId() const { return mTransactionId; }
+
+protected:
+  /**
+   * Derived from Executable. Construct a transaction protobuf object from this transaction.
+   *
+   * @return The transaction protobuf object that contains this transaction information.
+   */
+  virtual proto::Transaction makeRequest() const = 0;
+
+  /**
+   * Derived from Transaction. Create a transaction response object from a protobuf transaction response object.
+   *
+   * @param response The protobuf transaction response object.
+   * @return The transaction response object with the response data.
+   */
+  virtual TransactionResponse mapResponse(const proto::TransactionResponse& response) const = 0;
+
+  /**
+   * The valid transaction duration. Defaults to two minutes.
+   */
+  std::chrono::duration<double> mTransactionValidDuration = std::chrono::minutes(2);
+
+  /**
+   * The maximum transaction fee.
+   */
+  Hbar mMaxTransactionFee = Hbar(2LL);
+
+  /**
+   * The transaction memo.
+   */
+  std::string mTransactionMemo;
+
+  /**
+   * The transaction ID.
+   */
+  TransactionId mTransactionId;
 };
+
+/**
+ * Explicit template instantiation
+ */
+template class Transaction<AccountCreateTransaction>;
 
 } // namespace Hedera
 

@@ -21,6 +21,7 @@
 
 #include <proto/crypto_service.grpc.pb.h>
 
+#include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
@@ -35,7 +36,7 @@ struct Channel::ChannelImpl
 
 //-----
 Channel::Channel()
-  : mImpl(new ChannelImpl)
+  : mImpl(std::make_unique<ChannelImpl>())
 {
 }
 
@@ -70,6 +71,76 @@ void Channel::initChannel(const std::string& url)
 
   mImpl->mUrl = url;
   mImpl->mCryptoStub = proto::CryptoService::NewStub(grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
+}
+
+//-----
+std::pair<proto::Response, grpc::Status> Channel::submitRequest(const proto::Query& query,
+                                                                const std::chrono::duration<double>& timeout)
+{
+  grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() +
+                       std::chrono::duration_cast<std::chrono::milliseconds>(timeout));
+
+  proto::Response response;
+  switch (query.query_case())
+  {
+    case proto::Query::QueryCase::kCryptogetAccountBalance:
+      return { response, mImpl->mCryptoStub->cryptoGetBalance(&context, query, &response) };
+    case proto::Query::QueryCase::kCryptoGetAccountRecords:
+      return { response, mImpl->mCryptoStub->getAccountRecords(&context, query, &response) };
+    case proto::Query::QueryCase::kCryptoGetInfo:
+      return { response, mImpl->mCryptoStub->getAccountInfo(&context, query, &response) };
+    case proto::Query::QueryCase::kCryptoGetLiveHash:
+      return { response, mImpl->mCryptoStub->getLiveHash(&context, query, &response) };
+    case proto::Query::QueryCase::kCryptoGetProxyStakers:
+      return { response, mImpl->mCryptoStub->getStakersByAccountID(&context, query, &response) };
+    default:
+      return { response, grpc::Status::CANCELLED };
+  }
+}
+
+//-----
+std::pair<proto::TransactionResponse, grpc::Status> Channel::submitRequest(const proto::Transaction& transaction,
+                                                                           const std::chrono::duration<double>& timeout)
+{
+  grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() +
+                       std::chrono::duration_cast<std::chrono::milliseconds>(timeout));
+
+  proto::TransactionResponse response;
+  grpc::Status status;
+  switch (transaction.body().data_case())
+  {
+    case proto::TransactionBody::DataCase::kCryptoAddLiveHash:
+      status = mImpl->mCryptoStub->addLiveHash(&context, transaction, &response);
+      break;
+    case proto::TransactionBody::DataCase::kCryptoApproveAllowance:
+      status = mImpl->mCryptoStub->approveAllowances(&context, transaction, &response);
+      break;
+    case proto::TransactionBody::DataCase::kCryptoDeleteAllowance:
+      status = mImpl->mCryptoStub->deleteAllowances(&context, transaction, &response);
+      break;
+    case proto::TransactionBody::DataCase::kCryptoCreateAccount:
+      status = mImpl->mCryptoStub->createAccount(&context, transaction, &response);
+      break;
+    case proto::TransactionBody::DataCase::kCryptoDelete:
+      status = mImpl->mCryptoStub->cryptoDelete(&context, transaction, &response);
+      break;
+    case proto::TransactionBody::DataCase::kCryptoDeleteLiveHash:
+      status = mImpl->mCryptoStub->deleteLiveHash(&context, transaction, &response);
+      break;
+    case proto::TransactionBody::DataCase::kCryptoTransfer:
+      status = mImpl->mCryptoStub->cryptoTransfer(&context, transaction, &response);
+      break;
+    case proto::TransactionBody::DataCase::kCryptoUpdateAccount:
+      status = mImpl->mCryptoStub->updateAccount(&context, transaction, &response);
+      break;
+    default:
+      status = grpc::Status::CANCELLED;
+      break;
+  }
+
+  return { response, status };
 }
 
 //-----

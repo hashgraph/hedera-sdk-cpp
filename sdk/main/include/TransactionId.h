@@ -17,27 +17,14 @@
  * limitations under the License.
  *
  */
-#include "helper/DurationConverter.h"
-
-#include <proto/duration.pb.h>
+#ifndef TRANSACTION_ID_H_
+#define TRANSACTION_ID_H_
 
 namespace Hedera
 {
-namespace DurationConverter
+class TransactionId
 {
-//----
-std::chrono::seconds fromProtobuf(const proto::Duration& duration)
-{
-  return std::chrono::seconds(duration.seconds());
-}
-
-//-----
-std::shared_ptr<proto::Duration> toProtobuf(const std::chrono::seconds& duration)
-{
-  std::shared_ptr<proto::Duration> proto = std::make_shared<proto::Duration>();
-  proto->set_seconds(duration.count());
-  return proto;
-}
-
-} // namespace DurationConverter
+};
 } // namespace Hedera
+
+#endif // TRANSACTION_ID_H_

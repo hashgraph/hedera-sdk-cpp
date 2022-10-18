@@ -19,6 +19,8 @@
  */
 #include "Node.h"
 
+#include <proto/crypto_service.grpc.pb.h>
+
 namespace Hedera
 {
 //-----
@@ -28,6 +30,20 @@ Node::Node(const std::string& url, const Hedera::AccountId& accountId)
   , mChannel(url)
 {
 }
+
+//-----
+std::pair<proto::Response, grpc::Status> Node::submitRequest(const proto::Query& request,
+                                                             const std::chrono::duration<double>& timeout)
+{
+  return mChannel.submitRequest(request, timeout);
+}
+
+//-----
+// std::pair<proto::TransactionResponse, grpc::Status> Node::submitRequest(const proto::Transaction& request,
+//                                                                        const std::chrono::duration<double>& timeout)
+//{
+//  return mChannel.submitRequest(request, timeout);
+//}
 
 //-----
 void Node::shutdown()

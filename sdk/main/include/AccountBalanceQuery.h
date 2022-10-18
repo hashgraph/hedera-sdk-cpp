@@ -24,14 +24,12 @@
 #include "ContractId.h"
 #include "Query.h"
 
-#include "helper/InitType.h"
+#include <optional>
 
 namespace proto
 {
 class Query;
-class QueryHeader;
 class Response;
-class ResponseHeader;
 }
 
 namespace Hedera
@@ -43,92 +41,28 @@ class Client;
 namespace Hedera
 {
 /**
- * Get the balance of a Hedera crypto-currency account. This returns only the
- * balance, so it is a smaller and faster reply than AccountInfoQuery.
+ * Get the balance of a Hedera crypto-currency account. This returns only the balance, so it is a smaller and faster
+ * reply than AccountInfoQuery.
  *
  * This query is free.
  */
-class AccountBalanceQuery : public Query<AccountBalance, AccountBalanceQuery>
+class AccountBalanceQuery : public Query<AccountBalanceQuery, AccountBalance>
 {
 public:
   /**
-   * Constructor.
+   * Default destructor.
    */
-  AccountBalanceQuery();
+  ~AccountBalanceQuery() = default;
 
   /**
-   * Construct with an account ID.
-   *
-   * @param accountId  The account ID with which to initialize.
-   */
-  AccountBalanceQuery(const AccountId& accountId);
-
-  /**
-   * Construct with a contract ID.
-   *
-   * @param contractId The contract ID with which to initialize.
-   */
-  AccountBalanceQuery(const ContractId& contractId);
-
-  /**
-   * Derived from Query. Fills query with this class's data and attaches the
-   * header.
-   *
-   * @param query  The query object to fill out.
-   * @param header The header for the query.
-   */
-  virtual void onMakeRequest(proto::Query* query,
-                             proto::QueryHeader* header) const override;
-
-  /**
-   * Derived from Query. Get the account balance header from the response.
-   *
-   * @param response The associated response to this query.
-   * @return         The response header for the derived class's query.
-   */
-  virtual proto::ResponseHeader mapResponseHeader(
-    proto::Response* response) const override;
-
-  /**
-   * Derived from Query. Extract the account balance data from the response
-   * object.
-   *
-   * @param response  The received response from Hedera.
-   * @param accountId The account ID that made the request.
-   * @param query     The original query.
-   * @return          The account balance data.
-   */
-  virtual AccountBalance mapResponse(const proto::Response& response,
-                                     const AccountId& accountId,
-                                     const proto::Query& query) const override;
-
-  /**
-   * Derived from Query. Grab the account balance query header.
-   *
-   * @param query  The query of which to extract the header.
-   * @return       The account balance query header.
-   */
-  virtual proto::QueryHeader mapRequestHeader(
-    const proto::Query& query) const override;
-
-  /**
-   * Derived from Query. Validate the checksums of the account ID or contract
-   * ID.
-   *
-   * @param client The client with which to validate the checksums.
-   */
-  virtual void validateChecksums(const Client& client) const override;
-
-  /**
-   * Derived from Query. Determine if payment is required for this query.
+   * Derived from Query. Determine if payment is required for this AccountBalanceQuery.
    *
    * @return \c FALSE to indicate this query is free.
    */
-  virtual inline bool isPaymentRequired() const override { return false; }
+  inline bool isPaymentRequired() const override { return false; }
 
   /**
-   * The account ID for which the balance is being requested. This is mutually
-   * exclusive with setContractId().
+   * The account ID for which the balance is being requested. This is mutually exclusive with setContractId().
    *
    * @param accountId The account ID to set.
    * @return Reference to this AccountBalanceQuery object.
@@ -136,9 +70,7 @@ public:
   AccountBalanceQuery& setAccountId(const AccountId& accountId);
 
   /**
-   * The contract ID for which the balance is being requested.
-   *
-   * This is mutually exclusive with setAccountId();
+   * The contract ID for which the balance is being requested. This is mutually exclusive with setAccountId().
    *
    * @param contractId The ContractId to set.
    * @return Reference to this AccountBalanceQuery object.
@@ -146,29 +78,45 @@ public:
   AccountBalanceQuery& setContractId(const ContractId& contractId);
 
   /**
-   * Return the account ID of the account for which this query is meant.
+   * Extract the account ID of the account for which this query is meant.
    *
    * @return The account ID of the query.
    */
-  inline InitType<AccountId> getAccountId() { return mAccountId; }
+  inline std::optional<AccountId> getAccountId() { return mAccountId; }
 
   /**
-   * Extract the contract id with which this request is associated.
+   * Extract the contract ID of the contract for which this query is meant.
    *
-   * @return The contract id with which this request is associated.
+   * @return The contract ID of the contract for which this query is meant.
    */
-  inline InitType<ContractId> getContractId() { return mContractId; }
+  inline std::optional<ContractId> getContractId() { return mContractId; }
+
+protected:
+  /**
+   * Derived from Query. Construct a query protobuf object from this AccountBalanceQuery.
+   *
+   * @return The query protobuf object that contains this AccountBalanceQuery information.
+   */
+  proto::Query makeRequest() const override;
+
+  /**
+   * Derived from Query. Create an AccountBalance object from a protobuf response object.
+   *
+   * @param response The protobuf response object.
+   * @return The response object with the AccountBalance data.
+   */
+  AccountBalance mapResponse(const proto::Response& response) const override;
 
 private:
   /**
    * The account ID of the account for which this query is meant.
    */
-  InitType<AccountId> mAccountId;
+  std::optional<AccountId> mAccountId;
 
   /**
    * The contract ID with which this request is associated.
    */
-  InitType<ContractId> mContractId;
+  std::optional<ContractId> mContractId;
 };
 
 } // namespace Hedera

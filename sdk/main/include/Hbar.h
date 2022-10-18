@@ -48,7 +48,7 @@ public:
    *
    * @param amount The amount of Hbar
    */
-  explicit Hbar(const int64_t& amount)
+  constexpr explicit Hbar(const int64_t& amount)
     : Hbar(amount, HbarUnit::HBAR)
   {
   }
@@ -59,7 +59,7 @@ public:
    * @param amount The amount
    * @param unit   The unit for amount
    */
-  explicit Hbar(const int64_t& amount, const HbarUnit& unit)
+  constexpr explicit Hbar(const int64_t& amount, const HbarUnit& unit)
     : mValueInTinybar(amount * unit.getTinybars())
   {
   }
@@ -100,10 +100,7 @@ public:
    * @param amount The amount of Hbar
    * @return       An Hbar object with the specified amount
    */
-  static inline Hbar from(const int64_t& amount)
-  {
-    return Hbar(amount, HbarUnit::HBAR);
-  }
+  static inline Hbar from(const int64_t& amount) { return Hbar(amount, HbarUnit::HBAR); }
 
   /**
    * Returns an Hbar representing the value in the given units.
@@ -112,10 +109,7 @@ public:
    * @param unit   The unit to convert from to Hbar
    * @return       An Hbar object with the specified amount and unit
    */
-  static inline Hbar from(const int64_t& amount, const HbarUnit& unit)
-  {
-    return Hbar(amount, unit);
-  }
+  static inline Hbar from(const int64_t& amount, const HbarUnit& unit) { return Hbar(amount, unit); }
 
   /**
    * Returns an Hbar whose value is equal to the specified double
@@ -123,10 +117,7 @@ public:
    * @param amount The double representing the amount of Hbar
    * @return       An Hbar object with the specified amount
    */
-  static inline Hbar from(const double& amount)
-  {
-    return Hbar(amount, HbarUnit::HBAR);
-  }
+  static inline Hbar from(const double& amount) { return Hbar(amount, HbarUnit::HBAR); }
 
   /**
    * Returns an Hbar representing the value in the given units.
@@ -135,10 +126,7 @@ public:
    * @param unit   The unit to convert from to Hbar
    * @return       An Hbar object with the specified amount and unit
    */
-  static inline Hbar from(const double& amount, const HbarUnit& unit)
-  {
-    return Hbar(amount, unit);
-  }
+  static inline Hbar from(const double& amount, const HbarUnit& unit) { return Hbar(amount, unit); }
 
   /**
    * Returns an Hbar converted from the specified number of tinybars.
@@ -146,10 +134,7 @@ public:
    * @param tinybars The long representing the amount of tinybar
    * @return         An Hbar object with the specified amount and unit
    */
-  static inline Hbar fromTinybars(const int64_t& tinybars)
-  {
-    return Hbar(tinybars, HbarUnit::TINYBAR);
-  }
+  static inline Hbar fromTinybars(const int64_t& tinybars) { return Hbar(tinybars, HbarUnit::TINYBAR); }
 
   /**
    * Convert this hbar value to Tinybars.
@@ -195,12 +180,10 @@ public:
   {
     if (mValueInTinybar < 10000LL && mValueInTinybar > -10000LL)
     {
-      return std::to_string(mValueInTinybar) + ' ' +
-             HbarUnit::TINYBAR.getSymbol();
+      return std::to_string(mValueInTinybar) + ' ' + HbarUnit::TINYBAR.getSymbol();
     }
 
-    return std::to_string(to(HbarUnit::HBAR)) + ' ' +
-           HbarUnit::HBAR.getSymbol();
+    return std::to_string(to(HbarUnit::HBAR)) + ' ' + HbarUnit::HBAR.getSymbol();
   }
 
   /**
@@ -209,15 +192,9 @@ public:
    * @param unit The desired unit
    * @return     The string representation
    */
-  inline std::string toString(const HbarUnit& unit)
-  {
-    return std::to_string(to(unit)) + ' ' + unit.getSymbol();
-  }
+  inline std::string toString(const HbarUnit& unit) { return std::to_string(to(unit)) + ' ' + unit.getSymbol(); }
 
-  inline bool operator==(const Hbar& hbar)
-  {
-    return this->mValueInTinybar == hbar.mValueInTinybar;
-  }
+  inline bool operator==(const Hbar& hbar) { return this->mValueInTinybar == hbar.mValueInTinybar; }
 
 private:
   /**
