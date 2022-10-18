@@ -48,16 +48,6 @@ class AccountBalanceQuery : public Query<AccountBalanceQuery, AccountBalance>
 {
 public:
   /**
-   * Default constructor.
-   */
-  AccountBalanceQuery() = default;
-
-  /**
-   * Default destructor.
-   */
-  ~AccountBalanceQuery() = default;
-
-  /**
    * Derived from Query. Determine if payment is required for this AccountBalanceQuery.
    *
    * @return \c FALSE to indicate this query is free.
@@ -85,14 +75,14 @@ public:
    *
    * @return The account ID of the query.
    */
-  inline std::shared_ptr<AccountId> getAccountId() { return mAccountId; }
+  inline std::optional<AccountId> getAccountId() { return mAccountId; }
 
   /**
    * Extract the contract ID of the contract for which this query is meant.
    *
    * @return The contract ID of the contract for which this query is meant.
    */
-  inline std::shared_ptr<ContractId> getContractId() { return mContractId; }
+  inline std::optional<ContractId> getContractId() { return mContractId; }
 
 protected:
   /**
@@ -114,12 +104,12 @@ private:
   /**
    * The account ID of the account for which this query is meant.
    */
-  std::shared_ptr<AccountId> mAccountId;
+  std::optional<AccountId> mAccountId;
 
   /**
    * The contract ID with which this request is associated.
    */
-  std::shared_ptr<ContractId> mContractId;
+  std::optional<ContractId> mContractId;
 };
 
 } // namespace Hedera

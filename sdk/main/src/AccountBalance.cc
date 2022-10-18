@@ -24,28 +24,18 @@
 namespace Hedera
 {
 //-----
-AccountBalance::AccountBalance()
-  : mBalance(0LL)
+AccountBalance AccountBalance::fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto)
 {
-}
+  AccountBalance balance;
 
-//-----
-AccountBalance::AccountBalance(const Hbar& balance)
-{
-  if (balance.toTinybars() < 0)
+  if (proto.has_accountid())
   {
-    // TODO: throw
+    balance.mAccountId = AccountId::fromProtobuf(proto.accountid());
   }
 
-  mBalance = balance;
-}
+  balance.mBalance = Hbar::fromTinybars(proto.balance());
 
-//-----
-AccountBalance
-AccountBalance::fromProtobuf(
-  const proto::CryptoGetAccountBalanceResponse& protobuf)
-{
-  return AccountBalance(Hbar::fromTinybars(protobuf.balance()));
+  return balance;
 }
 
 } // namespace Hedera
