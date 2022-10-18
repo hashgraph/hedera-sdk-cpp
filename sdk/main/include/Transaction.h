@@ -30,13 +30,13 @@
 
 namespace Hedera
 {
+class AccountCreateTransaction;
 class TransactionResponse;
 }
 
 namespace proto
 {
 class Transaction;
-class TransactionBody;
 class TransactionResponse;
 }
 
@@ -45,33 +45,13 @@ namespace Hedera
 /**
  * Base class for all transactions that can be submitted to Hedera.
  *
- * @tparam SdkRequestType  The SDK request type.
+ * @tparam SdkRequestType The SDK request type.
  */
 template<typename SdkRequestType>
 class Transaction
   : public Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>
 {
-protected:
-  /**
-   * Default destructor
-   */
-  virtual ~Transaction() = default;
-
-  /**
-   * Derived from Executable. Construct a transaction protobuf object from this transaction.
-   *
-   * @return The transaction protobuf object that contains this transaction information.
-   */
-  virtual proto::Transaction makeRequest() const = 0;
-
-  /**
-   * Derived from Executable. Create a response object from a protobuf response object.
-   *
-   * @param response The protobuf response object.
-   * @return The response object with the response data.
-   */
-  virtual TransactionResponse mapResponse(const proto::Response& response) const = 0;
-
+public:
   /**
    * Set the valid transaction duration.
    *
@@ -109,7 +89,7 @@ protected:
    *
    * @return The valid transaction duration.
    */
-  inline std::chrono::duration<double> getValidTransactionDuration() const { mTransactionValidDuration; }
+  inline std::chrono::duration<double> getValidTransactionDuration() const { return mTransactionValidDuration; }
 
   /**
    * Extract the max transaction fee.
@@ -123,7 +103,7 @@ protected:
    *
    * @return The default max transaction fee.
    */
-  inline Hbar getDefaultMaxTransactionFee() const { return DEFAULT_MAX_TRANSACTION_FEE; }
+  inline Hbar getDefaultMaxTransactionFee() const { return Hbar(2LL); }
 
   /**
    * Extract the transaction memo.
@@ -139,31 +119,36 @@ protected:
    */
   inline TransactionId getTransactionId() const { return mTransactionId; }
 
-private:
+protected:
   /**
-   * The default valid transaction duration.
+   * Default destructor
    */
-  const static std::chrono::duration<double> DEFAULT_VALID_TRANSACTION_DURATION;
+  virtual ~Transaction() = default;
 
   /**
-   * The default maximum transaction fee.
+   * Derived from Executable. Construct a transaction protobuf object from this transaction.
+   *
+   * @return The transaction protobuf object that contains this transaction information.
    */
-  const static Hbar DEFAULT_MAX_TRANSACTION_FEE;
+  virtual proto::Transaction makeRequest() const = 0;
 
   /**
-   * The protobuf transaction body for this transaction.
+   * Derived from Executable. Create a transaction response object from a protobuf transaction response object.
+   *
+   * @param response The protobuf transaction response object.
+   * @return The transaction response object with the response data.
    */
-  std::shared_ptr<proto::TransactionBody> mSourceTransactionBody;
+  TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
 
   /**
    * The valid transaction duration. Defaults to two minutes.
    */
-  std::chrono::duration<double> mTransactionValidDuration = DEFAULT_VALID_TRANSACTION_DURATION;
+  std::chrono::duration<double> mTransactionValidDuration = std::chrono::minutes(2);
 
   /**
    * The maximum transaction fee.
    */
-  Hbar mMaxTransactionFee = DEFAULT_MAX_TRANSACTION_FEE;
+  Hbar mMaxTransactionFee = Hbar(2LL);
 
   /**
    * The transaction memo.

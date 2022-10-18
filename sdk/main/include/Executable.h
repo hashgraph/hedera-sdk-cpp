@@ -29,13 +29,17 @@ namespace Hedera
 {
 class AccountBalance;
 class AccountBalanceQuery;
+class AccountCreateTransaction;
 class Client;
+class TransactionResponse;
 }
 
 namespace proto
 {
 class Query;
 class Response;
+class Transaction;
+class TransactionResponse;
 }
 
 namespace Hedera
@@ -116,11 +120,6 @@ private:
    */
   const int mMaxNumOfAttempts = 10;
 };
-
-/**
- * Explicit template instantiation
- */
-template class Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>;
 
 } // namespace Hedera
 

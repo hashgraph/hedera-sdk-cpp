@@ -17,27 +17,19 @@
  * limitations under the License.
  *
  */
-#include "helper/DurationConverter.h"
+#include "TransactionResponse.h"
 
-#include <proto/duration.pb.h>
+#include <proto/transaction_response.pb.h>
 
 namespace Hedera
 {
-namespace DurationConverter
-{
-//----
-std::chrono::seconds fromProtobuf(const proto::Duration& duration)
-{
-  return std::chrono::seconds(duration.seconds());
-}
-
 //-----
-std::shared_ptr<proto::Duration> toProtobuf(const std::chrono::seconds& duration)
+TransactionResponse TransactionResponse::fromProtobuf(const proto::TransactionResponse& proto)
 {
-  std::shared_ptr<proto::Duration> proto = std::make_shared<proto::Duration>();
-  proto->set_seconds(duration.count());
-  return proto;
+  TransactionResponse response;
+  response.mCost = proto.cost();
+  response.mValidateStatus = proto.nodetransactionprecheckcode() == proto::OK;
+  return response;
 }
 
-} // namespace DurationConverter
 } // namespace Hedera
