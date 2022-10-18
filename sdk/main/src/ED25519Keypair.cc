@@ -1,5 +1,6 @@
 #include "ED25519Keypair.h"
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace Hedera
@@ -44,7 +45,7 @@ std::shared_ptr<PublicKey> ED25519Keypair::getPublicKey() const
   return publicKey;
 }
 
-std::vector<unsigned char> ED25519Keypair::sign(std::vector<unsigned char> bytesToSign) const
+std::vector<unsigned char> ED25519Keypair::sign(const std::vector<unsigned char>& bytesToSign) const
 {
   size_t signatureLength;
   EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();

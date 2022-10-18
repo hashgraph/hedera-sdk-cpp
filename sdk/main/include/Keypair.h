@@ -24,7 +24,7 @@
 namespace Hedera {
 class Keypair {
   [[nodiscard]] virtual std::shared_ptr<PublicKey> getPublicKey() const = 0;
-  [[nodiscard]] virtual std::vector<unsigned char> sign(std::vector<unsigned char> bytesToSign) const = 0;
+  [[nodiscard]] virtual std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const = 0;
 };
 }
 

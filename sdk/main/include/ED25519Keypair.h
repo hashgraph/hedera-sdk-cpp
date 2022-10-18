@@ -17,7 +17,8 @@ public:
   ~ED25519Keypair();
 
   [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const override;
-  [[nodiscard]] std::vector<unsigned char> sign(std::vector<unsigned char> bytesToSign) const override;
+  [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
+
 private:
   EVP_PKEY* keypair;
 
