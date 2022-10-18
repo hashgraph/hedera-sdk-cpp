@@ -49,10 +49,10 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::duration<double>& duration)
 {
-  std::vector<Node> nodesToTry = client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds);
-  for (Node& node : nodesToTry)
+  std::vector<std::shared_ptr<Node>> nodesToTry = client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds);
+  for (std::shared_ptr<Node> node : nodesToTry)
   {
-    std::pair<ProtoResponseType, grpc::Status> response = node.submitRequest(makeRequest(), duration);
+    std::pair<ProtoResponseType, grpc::Status> response = node->submitRequest(makeRequest(), duration);
     if (response.second.ok())
     {
       return mapResponse(response.first);
