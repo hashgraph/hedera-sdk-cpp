@@ -20,8 +20,22 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+#include <chrono>
 #include <memory>
 #include <string>
+
+namespace grpc
+{
+class Status;
+}
+
+namespace proto
+{
+class Query;
+class Response;
+class Transaction;
+class TransactionResponse;
+}
 
 namespace Hedera
 {
@@ -47,27 +61,32 @@ public:
   ~Channel();
 
   /**
-   * Copy constructor.
-   *
-   * @param other The Channel to copy.
-   */
-  Channel(const Channel& other);
-
-  /**
-   * Copy assignment operator.
-   *
-   * @param other The Channel to copy.
-   * @return Reference to this Channel with the copied data.
-   */
-  Channel& operator=(const Channel& other);
-
-  /**
    * Initialize this channel to communicate with a node URL.
    *
    * @param url The URL and port of the gRPC service with which this channel
    *            should communicate.
    */
   void initChannel(const std::string& url);
+
+  /**
+   * Submit a query request on this channel.
+   *
+   * @param query   The query to send.
+   * @param timeout The timeout duration.
+   * @return The protobuf response object and the gRPC status.
+   */
+  std::pair<proto::Response, grpc::Status> submitRequest(const proto::Query& request,
+                                                         const std::chrono::duration<double>& timeout);
+
+  /**
+   * Submit a transaction request on this channel.
+   *
+   * @param transaction The transaction to send.
+   * @param timeout     The timeout duration.
+   * @return The protobuf response object and the gRPC status.
+   */
+  std::pair<proto::TransactionResponse, grpc::Status> submitRequest(const proto::Transaction& request,
+                                                                    const std::chrono::duration<double>& timeout);
 
   /**
    * Shutdown the channel.
