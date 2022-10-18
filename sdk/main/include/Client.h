@@ -80,9 +80,9 @@ public:
   /**
    * Get the network of this client.
    *
-   * @return The network of this client.
+   * @return Pointer to the network of this client.
    */
-  inline Network getNetwork() const { return mNetwork; }
+  inline std::shared_ptr<Network> getNetwork() const { return mNetwork; }
 
   /**
    * Get the ID of the operator. Useful when the client was constructed from file.
@@ -125,7 +125,7 @@ private:
   /**
    * The network object encompassing the network setup this client is using.
    */
-  Network mNetwork;
+  std::shared_ptr<Network> mNetwork;
 
   /**
    * The operator for this client.

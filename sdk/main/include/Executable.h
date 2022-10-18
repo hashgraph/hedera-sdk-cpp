@@ -45,7 +45,7 @@ namespace Hedera
  * Hedera network.
  *
  * @tparam SdkRequestType    The SDK request type.
- * @tparam ProtoRequestType  The protobuf request messate type.
+ * @tparam ProtoRequestType  The protobuf request message type.
  * @tparam ProtoResponseType The protobuf response message type.
  * @tparam SdkResponseType   The SDK response type.
  */

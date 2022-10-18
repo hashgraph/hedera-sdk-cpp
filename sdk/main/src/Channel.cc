@@ -51,20 +51,6 @@ Channel::Channel(const std::string& url)
 Channel::~Channel() = default;
 
 //-----
-Channel::Channel(const Channel& other)
-  : Channel()
-{
-  initChannel(other.mImpl->mUrl);
-}
-
-//-----
-Channel& Channel::operator=(const Hedera::Channel& other)
-{
-  initChannel(other.mImpl->mUrl);
-  return *this;
-}
-
-//-----
 void Channel::initChannel(const std::string& url)
 {
   shutdownChannel();
