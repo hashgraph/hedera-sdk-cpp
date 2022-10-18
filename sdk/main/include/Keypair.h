@@ -21,6 +21,9 @@
 #ifndef HEDERA_SDK_CPP_KEYPAIR_H
 #define HEDERA_SDK_CPP_KEYPAIR_H
 
+#include <vector>
+#include <memory>
+
 namespace Hedera {
 class Keypair {
   [[nodiscard]] virtual std::shared_ptr<PublicKey> getPublicKey() const = 0;

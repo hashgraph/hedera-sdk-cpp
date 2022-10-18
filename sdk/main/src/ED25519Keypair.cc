@@ -1,7 +1,5 @@
 #include "ED25519Keypair.h"
 #include <iostream>
-#include <memory>
-#include <vector>
 
 namespace Hedera
 {

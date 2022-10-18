@@ -1,7 +1,6 @@
 #ifndef ED25519_KEYPAIR_H_
 #define ED25519_KEYPAIR_H_
 
-#include <memory>
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 
