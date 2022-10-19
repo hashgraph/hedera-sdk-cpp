@@ -48,5 +48,5 @@ std::shared_ptr<proto::Timestamp> toProtobuf(const std::chrono::sys_time<std::ch
   return std::make_shared<proto::Timestamp>(timestamp);
 }
 
-} // namespace InstantConverter
+} // namespace TimestampConverter
 } // namespace Hedera
