@@ -26,6 +26,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ED25519PublicKey.cc
         #    src/EthereumTransaction.cc
         src/EvmAddress.cc
+        src/ExchangeRate.cc
         src/Executable.cc
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
@@ -35,6 +36,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Node.cc
         src/NodeAddress.cc
         src/PublicKey.cc
+        src/Status.cc
         src/Transaction.cc
         src/TransactionId.cc
         src/TransactionResponse.cc
