@@ -57,7 +57,7 @@ std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::T
  */
 std::shared_ptr<proto::Timestamp> toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>> time);
 
-} // namespace InstantConverter
+} // namespace TimestampConverter
 } // namespace Hedera
 
 #endif // HELPER_TIMESTAMP_CONVERTER_H_
