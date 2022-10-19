@@ -21,6 +21,7 @@
 
 #include "AccountCreateTransaction.h"
 #include "TransactionResponse.h"
+#include "TransferTransaction.h"
 
 namespace Hedera
 {
@@ -64,8 +65,9 @@ TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::Transa
 }
 
 /**
- * Explicit template instantiations.
+ * Explicit template instantiation
  */
 template class Transaction<AccountCreateTransaction>;
+template class Transaction<TransferTransaction>;
 
 } // namespace Hedera

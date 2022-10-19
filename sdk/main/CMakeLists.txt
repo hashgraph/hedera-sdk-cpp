@@ -44,6 +44,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TransactionRecord.cc
         src/TransactionRecordQuery.cc
         src/TransactionResponse.cc
+        src/TransferTransaction.cc
 
         src/helper/DurationConverter.cc
         src/helper/HexConverter.cc

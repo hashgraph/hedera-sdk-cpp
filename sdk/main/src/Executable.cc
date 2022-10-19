@@ -29,6 +29,7 @@
 #include "TransactionRecord.h"
 #include "TransactionRecordQuery.h"
 #include "TransactionResponse.h"
+#include "TransferTransaction.h"
 
 #include <proto/query.pb.h>
 #include <proto/response.pb.h>
@@ -87,5 +88,6 @@ template class Executable<AccountCreateTransaction,
                           TransactionResponse>;
 template class Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>;
 template class Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>;
+template class Executable<TransferTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 
 } // namespace Hedera
