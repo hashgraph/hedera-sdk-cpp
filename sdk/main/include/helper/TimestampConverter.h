@@ -17,31 +17,38 @@
  * limitations under the License.
  *
  */
-#ifndef HELPER_INSTANT_CONVERTER_H_
-#define HELPER_INSTANT_CONVERTER_H_
-
-#include <proto/timestamp.pb.h>
+#ifndef HELPER_TIMESTAMP_CONVERTER_H_
+#define HELPER_TIMESTAMP_CONVERTER_H_
 
 #include <chrono>
+#include <memory>
+
+namespace proto
+{
+class Timestamp;
+}
 
 namespace Hedera
 {
-namespace InstantConverter
+namespace TimestampConverter
 {
 /**
- * Create a nanoseconds object from a timestamp protobuf.
+ * Create a system time object from a Timestamp protobuf.
  *
- * @param timestamp The timestamp protobuf.
- * @return          The nanoseconds from epoch represented by the input
- *                  timestamp.
+ * @param timestamp The Timestamp protobuf.
+ * @return The system time represented by the input Timestamp protobuf.
  */
-std::chrono::nanoseconds
-fromProtobuf(const proto::Timestamp& timestamp);
+std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::Timestamp& timestamp);
 
-proto::Timestamp*
-toProtobuf(const std::chrono::nanoseconds& nano);
+/**
+ * Create a Timestamp protobuf from a system time.
+ *
+ * @param time The system time.
+ * @return The Timestamp protobuf represented by the input system time.
+ */
+std::shared_ptr<proto::Timestamp> toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>> time);
 
 } // namespace InstantConverter
 } // namespace Hedera
 
-#endif // HELPER_INSTANT_CONVERTER_H_
+#endif // HELPER_TIMESTAMP_CONVERTER_H_

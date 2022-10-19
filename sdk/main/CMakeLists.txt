@@ -36,10 +36,11 @@ add_library(${PROJECT_NAME} STATIC
         src/NodeAddress.cc
         src/PublicKey.cc
         src/Transaction.cc
+        src/TransactionId.cc
         src/TransactionResponse.cc
 
         src/helper/DurationConverter.cc
-        src/helper/InstantConverter.cc
+        src/helper/TimestampConverter.cc
         src/helper/HexConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)

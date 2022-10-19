@@ -19,7 +19,7 @@
  */
 #include "FileCreateTransaction.h"
 
-#include "helper/InstantConverter.h"
+#include "helper/TimestampConverter.h"
 
 namespace Hedera
 {
