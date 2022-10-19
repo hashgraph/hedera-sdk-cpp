@@ -79,4 +79,5 @@ template class Executable<AccountCreateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+
 } // namespace Hedera
