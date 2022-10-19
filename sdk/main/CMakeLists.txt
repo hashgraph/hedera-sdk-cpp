@@ -36,6 +36,7 @@ add_library(${PROJECT_NAME} STATIC
         src/NodeAddress.cc
         src/PublicKey.cc
         src/Transaction.cc
+        src/TransactionResponse.cc
 
         src/helper/DurationConverter.cc
         src/helper/InstantConverter.cc
