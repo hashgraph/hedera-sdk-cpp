@@ -30,7 +30,7 @@
 namespace Hedera
 {
 class PrivateKey;
-} // namespace Hedera
+}
 
 namespace Hedera
 {

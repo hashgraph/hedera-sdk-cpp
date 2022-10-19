@@ -29,6 +29,7 @@ namespace Hedera
 {
 class Client;
 class TransactionReceipt;
+class TransactionRecord;
 }
 
 namespace proto
@@ -70,6 +71,23 @@ public:
    * @return The receipt for this transaction.
    */
   TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+
+  /**
+   * Get the record for this transaction.
+   *
+   * @param client The client with which this query will be executed.
+   * @return The record for this transaction.
+   */
+  TransactionRecord getRecord(const Client& client) const;
+
+  /**
+   * Get the record for this transaction with a specified timeout.
+   *
+   * @param client  The client with which this query will be executed.
+   * @param timeout The timeout for this query.
+   * @return The record for this transaction.
+   */
+  TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
 
   /**
    * Set the transaction ID to which this TransactionResponse is responding.

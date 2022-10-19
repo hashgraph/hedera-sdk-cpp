@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -20,6 +20,15 @@
 #ifndef TRANSACTION_RECORD_H_
 #define TRANSACTION_RECORD_H_
 
+#include "AccountId.h"
+#include "Hbar.h"
+#include "TransactionId.h"
+#include "TransactionReceipt.h"
+
+#include <optional>
+#include <string>
+#include <utility>
+
 namespace proto
 {
 class TransactionRecord;
@@ -27,13 +36,114 @@ class TransactionRecord;
 
 namespace Hedera
 {
+/**
+ * The complete record for a transaction on Hedera that has reached consensus.
+ *
+ * This is not-free to request and is available for 1 hour after a transaction reaches consensus.
+ *
+ * A TransactionReceipt can be thought of as a light-weight record which is free to ask for if you just need what it
+ * contains. A receipt however lasts for only 180 seconds.
+ */
 class TransactionRecord
 {
 public:
-  static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto)
+  /**
+   * Construct a TransactionRecord from a protobuf TransactionRecord.
+   *
+   * @param proto The protobuf TransactionRecord.
+   * @return A TransactionRecord containing the protobuf TransactionRecord data.
+   */
+  static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
+
+  /**
+   * Extract the transaction receipt.
+   *
+   * @return The transaction receipt.
+   */
+  inline std::optional<TransactionReceipt> getReceipt() const { return mReceipt; }
+
+  /**
+   * Extract the transaction hash.
+   *
+   * @return The transaction hash.
+   */
+  inline std::string getTransactionHash() const { return mTransactionHash; }
+
+  /**
+   * Extract the consensus timestamp.
+   *
+   * @return The consensus timestamp.
+   */
+  inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getConsensusTimestamp() const
   {
-    return TransactionRecord();
+    return mConsensusTimestamp;
   }
+
+  /**
+   * Extract the transaction ID.
+   *
+   * @return The transaction ID.
+   */
+  inline std::optional<TransactionId> getTransactionId() const { return mTransactionID; }
+
+  /**
+   * Extract the transaction memo.
+   *
+   * @return The transaction memo.
+   */
+  inline std::string getTransactionMemo() const { return mMemo; }
+
+  /**
+   * Extract the transaction fee.
+   *
+   * @return The transaction fee.
+   */
+  inline uint64_t getTransactionFee() const { return mTransactionFee; }
+
+  /**
+   * Extract the transfer list.
+   *
+   * @return The transfer list.
+   */
+  inline std::optional<std::vector<std::pair<AccountId, Hbar>>> getTransferList() const { return mTransferList; }
+
+private:
+  /**
+   * The status (reach consensus, or failed, or is unknown) and the ID of any new account/file/instance created.
+   */
+  std::optional<TransactionReceipt> mReceipt;
+
+  /**
+   * The hash of the Transaction that executed (not the hash of any Transaction that failed for having a duplicate
+   * TransactionID).
+   */
+  std::string mTransactionHash;
+
+  /**
+   * The consensus timestamp (or null if didn't reach consensus yet).
+   */
+  std::optional<std::chrono::sys_time<std::chrono::duration<double>>> mConsensusTimestamp;
+
+  /**
+   * The ID of the transaction this record represents.
+   */
+  std::optional<TransactionId> mTransactionID;
+
+  /**
+   * The memo that was submitted as part of the transaction (max 100 bytes).
+   */
+  std::string mMemo;
+
+  /**
+   * The actual transaction fee charged, not the original transactionFee value from TransactionBody.
+   */
+  uint64_t mTransactionFee;
+
+  /**
+   * All hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by
+   * a smart contract it calls, or by the creation of threshold records that it triggers.
+   */
+  std::optional<std::vector<std::pair<AccountId, Hbar>>> mTransferList;
 };
 
 } // namespace Hedera

@@ -82,6 +82,8 @@ std::pair<proto::Response, grpc::Status> Channel::submitRequest(const proto::Que
       return { response, mImpl->mCryptoStub->getStakersByAccountID(&context, query, &response) };
     case proto::Query::QueryCase::kTransactionGetReceipt:
       return { response, mImpl->mCryptoStub->getTransactionReceipts(&context, query, &response) };
+    case proto::Query::QueryCase::kTransactionGetRecord:
+      return { response, mImpl->mCryptoStub->getTxRecordByTxID(&context, query, &response) };
     default:
       return { response, grpc::Status::CANCELLED };
   }
