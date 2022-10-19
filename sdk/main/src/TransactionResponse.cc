@@ -17,25 +17,19 @@
  * limitations under the License.
  *
  */
-#include "AccountBalance.h"
+#include "TransactionResponse.h"
 
-#include <proto/crypto_get_account_balance.pb.h>
+#include <proto/transaction_response.pb.h>
 
 namespace Hedera
 {
 //-----
-AccountBalance AccountBalance::fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto)
+TransactionResponse TransactionResponse::fromProtobuf(const proto::TransactionResponse& proto)
 {
-  AccountBalance balance;
-
-  if (proto.has_accountid())
-  {
-    balance.mAccountId = AccountId::fromProtobuf(proto.accountid());
-  }
-
-  balance.mBalance = Hbar::fromTinybars(proto.balance());
-
-  return balance;
+  TransactionResponse response;
+  response.mCost = proto.cost();
+  response.mValidateStatus = proto.nodetransactionprecheckcode() == proto::OK;
+  return response;
 }
 
 } // namespace Hedera
