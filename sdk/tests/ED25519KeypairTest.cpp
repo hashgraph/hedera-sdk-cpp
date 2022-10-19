@@ -20,6 +20,7 @@
 
 #include <gtest/gtest.h>
 #include <memory>
+#include <vector>
 
 #include "ED25519Keypair.h"
 

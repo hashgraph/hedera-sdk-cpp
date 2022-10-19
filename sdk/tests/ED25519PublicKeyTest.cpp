@@ -20,6 +20,7 @@
 
 #include <gtest/gtest.h>
 #include <memory>
+#include <vector>
 
 #include "ED25519Keypair.h"
 #include "ED25519PublicKey.h"
@@ -88,6 +89,5 @@ TEST(tests, verifySignatureOfEmptyMessage) {
   std::vector<unsigned char> bytesToSign = {};
   std::vector<unsigned char> signature = keypair->sign(bytesToSign);
 
-  EXPECT_TRUE(
-      publicKey->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(publicKey->verifySignature(signature, bytesToSign));
 }
