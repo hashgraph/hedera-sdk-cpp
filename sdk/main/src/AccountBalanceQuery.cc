@@ -57,7 +57,7 @@ proto::Query AccountBalanceQuery::makeRequest() const
 
   if (mContractId)
   {
-    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf());
+    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf().get());
   }
 
   return query;
