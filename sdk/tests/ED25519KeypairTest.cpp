@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "ED25519Keypair.h"
+#include "ED25519PublicKey.h"
 
 TEST(tests, getPublicKey) {
   std::unique_ptr<Hedera::ED25519Keypair> keypair =
@@ -37,7 +38,6 @@ TEST(tests, sign) {
       std::make_unique<Hedera::ED25519Keypair>();
 
   std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
-
   std::vector<unsigned char> signature = keypair->sign(bytesToSign);
 
   EXPECT_EQ(signature.size(), 64);
