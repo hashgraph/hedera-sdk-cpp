@@ -30,6 +30,7 @@
 
 namespace Hedera
 {
+class AccountCreateTransaction;
 class TransactionResponse;
 }
 

@@ -23,6 +23,7 @@
 #include "AccountId.h"
 
 #include <chrono>
+#include <memory>
 #include <optional>
 
 namespace proto
@@ -37,8 +38,18 @@ class TransactionId
 public:
   /**
    * Retrieve the transaction ID from a TransactionID protobuf object.
+   *
+   * @param proto The protobuf TransactionID.
+   * @return A TransactionId object containing the data of the input protobuf TransactionID.
    */
   static TransactionId fromProtobuf(const proto::TransactionID& proto);
+
+  /**
+   * Put this TransactionId data into a protobuf TransactionID.
+   *
+   * @return A protobuf TransactionID containing the data of this TransactionId.
+   */
+  std::shared_ptr<proto::TransactionID> toProtobuf() const;
 
 private:
   /**

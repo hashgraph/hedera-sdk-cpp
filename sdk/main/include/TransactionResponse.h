@@ -20,7 +20,16 @@
 #ifndef TRANSACTION_RESPONSE_H_
 #define TRANSACTION_RESPONSE_H_
 
+#include "TransactionId.h"
+
+#include <chrono>
 #include <cstdint>
+
+namespace Hedera
+{
+class Client;
+class TransactionReceipt;
+}
 
 namespace proto
 {
@@ -46,6 +55,31 @@ public:
   static TransactionResponse fromProtobuf(const proto::TransactionResponse& proto);
 
   /**
+   * Get the receipt for this transaction.
+   *
+   * @param client The client with which this query will be executed.
+   * @return The receipt for this transaction.
+   */
+  TransactionReceipt getReceipt(const Client& client) const;
+
+  /**
+   * Get the receipt for this transaction with a specified timeout.
+   *
+   * @param client  The client with which this query will be executed.
+   * @param timeout The timeout for this query.
+   * @return The receipt for this transaction.
+   */
+  TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+
+  /**
+   * Set the transaction ID to which this TransactionResponse is responding.
+   *
+   * @param transactionId The transaction ID to set.
+   * @return Reference to this Transaction object.
+   */
+  TransactionResponse& setTransactionId(const TransactionId& transactionId);
+
+  /**
    * Extract the price of the transaction.
    *
    * @return The price of the transaction.
@@ -59,9 +93,16 @@ public:
    */
   inline bool getValidateStatus() const { return mValidateStatus; }
 
+  /**
+   * Extract the transaction ID of the transaction.
+   *
+   * @return The transaction ID of the transaction.
+   */
+  inline TransactionId getTransactionId() const { return mTransactionId; }
+
 private:
   /**
-   * The price of the transaction
+   * The price of the transaction.
    */
   uint64_t mCost;
 
@@ -69,6 +110,11 @@ private:
    * The response of the transaction. \c TRUE if the precheck was a success, otherwise \c FALSE.
    */
   bool mValidateStatus;
+
+  /**
+   * The transaction ID of the transaction.
+   */
+  TransactionId mTransactionId;
 };
 
 } // namespace Hedera

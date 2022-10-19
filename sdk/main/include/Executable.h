@@ -54,7 +54,7 @@ public:
   SdkResponseType execute(const Client& client);
 
   /**
-   * Execute this executable with an input timeout.
+   * Execute this executable with a specified timeout.
    *
    * @param client  The client with which this will be executed.
    * @param timeout The timeout for this execution.
