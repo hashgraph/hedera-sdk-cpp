@@ -19,11 +19,11 @@
  */
 
 #include <gtest/gtest.h>
-#include <memory>
-#include <vector>
-
-#include "ED25519Keypair.h"
-#include "ED25519PublicKey.h"
+//#include <memory>
+//#include <vector>
+//
+//#include "ED25519Keypair.h"
+//#include "ED25519PublicKey.h"
 
 //TEST(tests, toString) {
 //  std::unique_ptr<Hedera::ED25519Keypair> keypair =
