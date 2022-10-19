@@ -55,7 +55,7 @@ std::shared_ptr<proto::TransactionID> TransactionId::toProtobuf() const
 
   if (mAccountId.has_value())
   {
-    proto->set_allocated_accountid(mAccountId->toProtobuf());
+    proto->set_allocated_accountid(mAccountId->toProtobuf().get());
   }
 
   return proto;
