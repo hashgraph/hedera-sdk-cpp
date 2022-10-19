@@ -1,2 +1,7 @@
+install(DIRECTORY include/ TYPE INCLUDE FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${HAPI_INCLUDE_DIR}/ TYPE INCLUDE)
+install(DIRECTORY ${HAPI_LIB_DIR}/ TYPE LIB)
+install(DIRECTORY ${Protobuf_INCLUDE_DIRS} DESTINATION ${CMAKE_INSTALL_PREFIX})
+
 add_subdirectory(main)
 add_subdirectory(tests)
