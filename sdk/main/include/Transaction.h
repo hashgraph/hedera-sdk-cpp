@@ -30,7 +30,6 @@
 
 namespace Hedera
 {
-class AccountCreateTransaction;
 class TransactionResponse;
 }
 
@@ -124,13 +123,6 @@ protected:
    * Default destructor
    */
   virtual ~Transaction() = default;
-
-  /**
-   * Derived from Executable. Construct a transaction protobuf object from this transaction.
-   *
-   * @return The transaction protobuf object that contains this transaction information.
-   */
-  virtual proto::Transaction makeRequest() const = 0;
 
   /**
    * Derived from Executable. Create a transaction response object from a protobuf transaction response object.

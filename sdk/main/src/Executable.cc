@@ -72,7 +72,7 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 }
 
 /**
- * Explicit template instantiation
+ * Explicit template instantiations.
  */
 template class Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>;
 template class Executable<AccountCreateTransaction,
