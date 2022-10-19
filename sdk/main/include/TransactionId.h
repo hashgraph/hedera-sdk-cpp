@@ -20,11 +20,41 @@
 #ifndef TRANSACTION_ID_H_
 #define TRANSACTION_ID_H_
 
+#include "AccountId.h"
+
+#include <chrono>
+#include <optional>
+
+namespace proto
+{
+class TransactionID;
+}
+
 namespace Hedera
 {
 class TransactionId
 {
+public:
+  /**
+   * Retrieve the transaction ID from a TransactionID protobuf object.
+   */
+  static TransactionId fromProtobuf(const proto::TransactionID& proto);
+
+private:
+  /**
+   * The time the transaction is considered "valid".
+   *
+   * When a transaction is submitted there is additionally a validDuration (defaults to 120s) and together they define a
+   * time window in which a transaction may be processed.
+   */
+  std::optional<std::chrono::sys_time<std::chrono::duration<double>>> mValidTransactionTime;
+
+  /**
+   * The account ID of the account that is paying for this transaction.
+   */
+  std::optional<AccountId> mAccountId;
 };
+
 } // namespace Hedera
 
 #endif // TRANSACTION_ID_H_

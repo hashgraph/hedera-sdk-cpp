@@ -22,13 +22,11 @@
 
 #include "AccountId.h"
 
+#include <optional>
 #include <string>
 
 namespace Hedera
 {
-template<typename T>
-class InitType;
-
 class Client;
 }
 
@@ -36,47 +34,39 @@ namespace Hedera
 {
 namespace EntityIdHelper
 {
-AccountId
-fromString(const std::string& id)
+AccountId fromString(const std::string& id)
 {
   return AccountId();
 }
 
-AccountId
-fromSolidityAddress(const std::string& address)
+AccountId fromSolidityAddress(const std::string& address)
 {
   return AccountId();
 }
 
-std::string
-toSolidityAddress(const int64_t& shard,
-                  const int64_t& realm,
-                  const int64_t& num)
+std::string toSolidityAddress(const int64_t& shard, const int64_t& realm, const int64_t& num)
 {
   return std::string();
 }
 
-void
-validate(const int64_t& shard,
-         const int64_t& realm,
-         const int64_t& num,
-         const Client& client,
-         const InitType<std::string>& checksum)
+void validate(const int64_t& shard,
+              const int64_t& realm,
+              const int64_t& num,
+              const Client& client,
+              const std::optional<std::string>& checksum)
 {
 }
 
-std::string
-toString(const int64_t& shard, const int64_t& realm, const int64_t& num)
+std::string toString(const int64_t& shard, const int64_t& realm, const int64_t& num)
 {
   return std::string();
 }
 
-std::string
-toStringWithChecksum(const int64_t& shard,
-                     const int64_t& realm,
-                     const int64_t& num,
-                     const Client& client,
-                     const InitType<std::string>& checksum)
+std::string toStringWithChecksum(const int64_t& shard,
+                                 const int64_t& realm,
+                                 const int64_t& num,
+                                 const Client& client,
+                                 const std::optional<std::string>& checksum)
 {
   return std::string();
 }

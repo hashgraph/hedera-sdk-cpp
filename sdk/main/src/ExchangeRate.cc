@@ -17,31 +17,22 @@
  * limitations under the License.
  *
  */
-#ifndef HELPER_INSTANT_CONVERTER_H_
-#define HELPER_INSTANT_CONVERTER_H_
+#include "ExchangeRate.h"
 
-#include <proto/timestamp.pb.h>
+#include "helper/TimestampConverter.h"
 
-#include <chrono>
+#include <proto/exchange_rate.pb.h>
 
 namespace Hedera
 {
-namespace InstantConverter
+//-----
+ExchangeRate ExchangeRate::fromProtobuf(const proto::ExchangeRate& proto)
 {
-/**
- * Create a nanoseconds object from a timestamp protobuf.
- *
- * @param timestamp The timestamp protobuf.
- * @return          The nanoseconds from epoch represented by the input
- *                  timestamp.
- */
-std::chrono::nanoseconds
-fromProtobuf(const proto::Timestamp& timestamp);
+  ExchangeRate exchangeRate;
+  exchangeRate.mHbars = proto.hbarequiv();
+  exchangeRate.mCents = proto.centequiv();
+  exchangeRate.mExpirationTime = TimestampConverter::fromProtobuf(proto.expirationtime());
+  return exchangeRate;
+}
 
-proto::Timestamp*
-toProtobuf(const std::chrono::nanoseconds& nano);
-
-} // namespace InstantConverter
 } // namespace Hedera
-
-#endif // HELPER_INSTANT_CONVERTER_H_
