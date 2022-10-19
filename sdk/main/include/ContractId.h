@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -20,18 +20,12 @@
 #ifndef CONTRACT_ID_H_
 #define CONTRACT_ID_H_
 
-#include "helper/InitType.h"
+#include <memory>
+#include <optional>
 
-#include <proto/basic_types.pb.h>
-
-#include <string>
-
-namespace Hedera
+namespace proto
 {
-template<typename T>
-class InitType;
-
-class Client;
+class ContractID;
 }
 
 namespace Hedera
@@ -42,24 +36,102 @@ namespace Hedera
 class ContractId
 {
 public:
-  ContractId() {}
+  /**
+   * Default constructor.
+   */
+  ContractId() = default;
 
-  static ContractId fromProtobuf(const proto::ContractID& id)
-  {
-    return ContractId();
-  }
+  /**
+   * Construct with a contract number.
+   *
+   * @param num The contract number to set.
+   */
+  explicit ContractId(const uint64_t& num);
 
-  proto::ContractID* toProtobuf() const { return new proto::ContractID; }
+  /**
+   * Construct with with a shard, realm, and contract number.
+   *
+   * @param shard The shard number to set.
+   * @param realm The realm number to set.
+   * @param num   The contract number to set.
+   */
+  explicit ContractId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
-  inline std::string toString() const { return std::string(); }
+  /**
+   * Retrieve the contract ID from a protobuf ContractID.
+   *
+   * @param proto The ContractID protobuf object.
+   * @return An ContractId object with the protobuf ContractID data.
+   */
+  static ContractId fromProtobuf(const proto::ContractID& id);
 
-  inline void validateChecksum(const Client& client) const {}
+  /**
+   * Convert this ContractId to its corresponding protobuf ContractID.
+   *
+   * @return Pointer to the created protobuf ContractID.
+   */
+  std::shared_ptr<proto::ContractID> toProtobuf() const;
 
-  int64_t mRealm;
-  int64_t mShard;
+  /**
+   * Set the shard number.
+   *
+   * @param num The shard number to set.
+   * @return Reference to this ContractId object.
+   */
+  ContractId& setShardNum(const uint64_t& num);
 
-  InitType<int64_t> mContractNum;
-  InitType<std::string> mEvmAddress;
+  /**
+   * Set the realm number.
+   *
+   * @param num The realm number to set.
+   * @return Reference to this ContractId object.
+   */
+  ContractId& setRealmNum(const uint64_t& num);
+
+  /**
+   * Set the contract number.
+   *
+   * @param num The contract number to set.
+   * @return Reference to this ContractId object.
+   */
+  ContractId& setContractNum(const uint64_t& num);
+
+  /**
+   * Extract the shard number.
+   *
+   * @return The shard number.
+   */
+  inline uint64_t getShardNum() const { return mShardNum; }
+
+  /**
+   * Extract the realm number.
+   *
+   * @return The realm number.
+   */
+  inline uint64_t getRealmNum() const { return mRealmNum; }
+
+  /**
+   * Extract the contract number.
+   *
+   * @return The contract number.
+   */
+  inline std::optional<uint64_t> getContractNum() const { return mContractNum; }
+
+private:
+  /**
+   * The shard number.
+   */
+  uint64_t mShardNum;
+
+  /**
+   * The realm number.
+   */
+  uint64_t mRealmNum;
+
+  /**
+   * The contract number.
+   */
+  std::optional<uint64_t> mContractNum;
 };
 
 } // namespace Hedera
