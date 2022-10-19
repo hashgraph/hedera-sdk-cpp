@@ -52,7 +52,7 @@ proto::Query AccountBalanceQuery::makeRequest() const
 
   if (mAccountId)
   {
-    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf());
+    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf().get());
   }
 
   if (mContractId)
