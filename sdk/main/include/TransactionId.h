@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -37,17 +37,17 @@ class TransactionId
 {
 public:
   /**
-   * Retrieve the transaction ID from a TransactionID protobuf object.
+   * Construct a TransactionId from a protobuf TransactionID.
    *
-   * @param proto The protobuf TransactionID.
-   * @return A TransactionId object containing the data of the input protobuf TransactionID.
+   * @param proto The TransactionID protobuf object.
+   * @return A TransactionId object with the protobuf TransactionID data.
    */
   static TransactionId fromProtobuf(const proto::TransactionID& proto);
 
   /**
-   * Put this TransactionId data into a protobuf TransactionID.
+   * Convert this TransactionId to its corresponding protobuf TransactionID.
    *
-   * @return A protobuf TransactionID containing the data of this TransactionId.
+   * @return Pointer to the created protobuf TransactionID.
    */
   std::shared_ptr<proto::TransactionID> toProtobuf() const;
 

@@ -41,6 +41,8 @@ add_library(${PROJECT_NAME} STATIC
         src/Transaction.cc
         src/TransactionId.cc
         src/TransactionReceiptQuery.cc
+        src/TransactionRecord.cc
+        src/TransactionRecordQuery.cc
         src/TransactionResponse.cc
         src/TransferTransaction.cc
 
