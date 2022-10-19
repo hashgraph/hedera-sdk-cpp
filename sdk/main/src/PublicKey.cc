@@ -36,10 +36,10 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
       case proto::Key::KeyCase::kEd25519:
       {
         std::string keyString = key.ed25519();
-        unsigned char keyBytes[20]; // TODO define a key length variable somewhere, 20 isn't correct
-        std::copy(keyString.begin(), keyString.end(), keyBytes);
+        std::vector<unsigned char> rawKeyBytes(keyString.size());
+        std::copy(keyString.begin(), keyString.end(), &rawKeyBytes.front());
 
-        return std::make_shared<ED25519PublicKey>(ED25519PublicKey(keyBytes, 20));
+        return std::make_shared<ED25519PublicKey>(ED25519PublicKey(rawKeyBytes));
       }
       default:
       {
@@ -54,8 +54,8 @@ std::shared_ptr<PublicKey> PublicKey::fromAliasBytes(const std::string& bytes)
 {
   {
     // TODO this implementation is meaningless, only acts as a stub
-    unsigned char keyBytes[20];
-    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(keyBytes, 20));
+    std::vector<unsigned char> rawKeyBytes(32);
+    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(rawKeyBytes));
   }
 }
 }
