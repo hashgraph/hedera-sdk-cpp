@@ -32,18 +32,18 @@ Node::Node(const std::string& url, const Hedera::AccountId& accountId)
 }
 
 //-----
-std::pair<proto::Response, grpc::Status> Node::submitRequest(const proto::Query& request,
+std::pair<proto::Response, grpc::Status> Node::submitRequest(const proto::Query& query,
                                                              const std::chrono::duration<double>& timeout)
 {
-  return mChannel.submitRequest(request, timeout);
+  return mChannel.submitRequest(query, timeout);
 }
 
 //-----
-// std::pair<proto::TransactionResponse, grpc::Status> Node::submitRequest(const proto::Transaction& request,
-//                                                                        const std::chrono::duration<double>& timeout)
-//{
-//  return mChannel.submitRequest(request, timeout);
-//}
+std::pair<proto::TransactionResponse, grpc::Status> Node::submitRequest(const proto::Transaction& transaction,
+                                                                        const std::chrono::duration<double>& timeout)
+{
+  return mChannel.submitRequest(transaction, timeout);
+}
 
 //-----
 void Node::shutdown()

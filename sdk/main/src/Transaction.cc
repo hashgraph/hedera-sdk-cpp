@@ -19,17 +19,12 @@
  */
 #include "Transaction.h"
 
+#include "AccountCreateTransaction.h"
+#include "TransactionResponse.h"
+#include "TransferTransaction.h"
+
 namespace Hedera
 {
-//-----
-template<typename SdkRequestType>
-const std::chrono::duration<double> Transaction<SdkRequestType>::DEFAULT_VALID_TRANSACTION_DURATION =
-  std::chrono::minutes(2);
-
-//-----
-template<typename SdkRequestType>
-const Hbar Transaction<SdkRequestType>::DEFAULT_MAX_TRANSACTION_FEE = Hbar(2LL);
-
 //-----
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
@@ -61,5 +56,18 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
   mTransactionId = id;
   return static_cast<SdkRequestType&>(*this);
 }
+
+//-----
+template<typename SdkRequestType>
+TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
+{
+  return TransactionResponse::fromProtobuf(response);
+}
+
+/**
+ * Explicit template instantiation
+ */
+template class Transaction<AccountCreateTransaction>;
+template class Transaction<TransferTransaction>;
 
 } // namespace Hedera

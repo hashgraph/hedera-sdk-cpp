@@ -20,9 +20,13 @@
 #ifndef HELPER_DURATION_CONVERTER_H_
 #define HELPER_DURATION_CONVERTER_H_
 
-#include <proto/duration.pb.h>
-
 #include <chrono>
+#include <memory>
+
+namespace proto
+{
+class Duration;
+}
 
 namespace Hedera
 {
@@ -32,13 +36,17 @@ namespace DurationConverter
  * Create a duration object from a protobuf.
  *
  * @param duration The duration protobuf.
- * @return         The days represented by the input duration.
+ * @return The duration represented by the input duration.
  */
-std::chrono::seconds
-fromProtobuf(const proto::Duration& duration);
+std::chrono::seconds fromProtobuf(const proto::Duration& duration);
 
-proto::Duration*
-toProtobuf(const std::chrono::seconds& secs);
+/**
+ * Create a duration protobuf object from a duration object.
+ *
+ * @param duration The duration object.
+ * @return The duration protobuf object.
+ */
+std::shared_ptr<proto::Duration> toProtobuf(const std::chrono::seconds& duration);
 
 } // namespace DurationConverter
 } // namespace Hedera
