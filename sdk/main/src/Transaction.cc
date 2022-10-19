@@ -56,7 +56,6 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
   return static_cast<SdkRequestType&>(*this);
 }
 
-//-----
 template<typename SdkRequestType>
 TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
 {
@@ -64,7 +63,7 @@ TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::Transa
 }
 
 /**
- * Explicit template instantiation
+ * Explicit template instantiations.
  */
 template class Transaction<AccountCreateTransaction>;
 
