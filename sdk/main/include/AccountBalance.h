@@ -20,7 +20,10 @@
 #ifndef ACCOUNT_BALANCE_H_
 #define ACCOUNT_BALANCE_H_
 
+#include "AccountId.h"
 #include "Hbar.h"
+
+#include <optional>
 
 namespace proto
 {
@@ -30,44 +33,43 @@ class CryptoGetAccountBalanceResponse;
 namespace Hedera
 {
 /**
- * This class represents the account balance object
+ * This class represents the account balance object.
  */
 class AccountBalance
 {
 public:
   /**
-   * Default constructor. Defaults to a balance of 0.
-   */
-  AccountBalance();
-
-  /**
-   * Construct with a balance.
+   * Convert a CryptoGetAccountBalance protobuf object to an AccountBalance object.
    *
-   * @param balance The balance with which to initialize.
+   * @param proto The CryptoGetAccountBalance protobuf object.
+   * @return The converted AccountBalance object.
    */
-  AccountBalance(const Hbar& balance);
+  static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
 
   /**
-   * Convert the protobuf object to an AccountBalance object.
-   *
-   * @param proto The protobuf response object.
-   * @return      The converted account balance object.
-   */
-  static AccountBalance fromProtobuf(
-    const proto::CryptoGetAccountBalanceResponse& protobuf);
-
-  /**
-   * Get the account balance.
+   * Extract the account balance.
    *
    * @return The account balance.
    */
   inline Hbar getBalance() const { return mBalance; }
+
+  /**
+   * Extract the account ID.
+   *
+   * @return The account ID.
+   */
+  inline std::optional<AccountId> getAccountId() const { return mAccountId; }
 
 private:
   /**
    * The account balance.
    */
   Hbar mBalance;
+
+  /**
+   * The account ID of the account.
+   */
+  std::optional<AccountId> mAccountId;
 };
 
 } // namespace Hedera
