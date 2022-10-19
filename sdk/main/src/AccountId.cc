@@ -68,7 +68,7 @@ AccountId::AccountId(const int64_t& shard,
                      const int64_t& realm,
                      const int64_t& num,
                      const std::shared_ptr<PublicKey> alias,
-                     const InitType<std::string>& checksum)
+                     const std::optional<std::string>& checksum)
   : mShard(shard)
   , mRealm(realm)
   , mAccountNum(num)
@@ -104,7 +104,7 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& id)
                    id.realmnum(),
                    id.accountnum(),
                    id.has_alias() ? PublicKey::fromAliasBytes(id.alias()) : nullptr,
-                   InitType<std::string>());
+                   std::optional<std::string>());
 }
 
 //-----

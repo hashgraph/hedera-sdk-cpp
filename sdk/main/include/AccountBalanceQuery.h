@@ -24,6 +24,8 @@
 #include "ContractId.h"
 #include "Query.h"
 
+#include <optional>
+
 namespace proto
 {
 class Query;
@@ -47,11 +49,6 @@ namespace Hedera
 class AccountBalanceQuery : public Query<AccountBalanceQuery, AccountBalance>
 {
 public:
-  /**
-   * Default constructor.
-   */
-  AccountBalanceQuery() = default;
-
   /**
    * Default destructor.
    */
@@ -85,25 +82,25 @@ public:
    *
    * @return The account ID of the query.
    */
-  inline std::shared_ptr<AccountId> getAccountId() { return mAccountId; }
+  inline std::optional<AccountId> getAccountId() { return mAccountId; }
 
   /**
    * Extract the contract ID of the contract for which this query is meant.
    *
    * @return The contract ID of the contract for which this query is meant.
    */
-  inline std::shared_ptr<ContractId> getContractId() { return mContractId; }
+  inline std::optional<ContractId> getContractId() { return mContractId; }
 
 protected:
   /**
-   * Derived from Query. Construct a query protobuf object from this AccountBalanceQuery.
+   * Derived from Executable. Construct a query protobuf object from this AccountBalanceQuery.
    *
    * @return The query protobuf object that contains this AccountBalanceQuery information.
    */
   proto::Query makeRequest() const override;
 
   /**
-   * Derived from Query. Create an AccountBalance object from a protobuf response object.
+   * Derived from Executable. Create an AccountBalance object from a protobuf response object.
    *
    * @param response The protobuf response object.
    * @return The response object with the AccountBalance data.
@@ -114,12 +111,12 @@ private:
   /**
    * The account ID of the account for which this query is meant.
    */
-  std::shared_ptr<AccountId> mAccountId;
+  std::optional<AccountId> mAccountId;
 
   /**
    * The contract ID with which this request is associated.
    */
-  std::shared_ptr<ContractId> mContractId;
+  std::optional<ContractId> mContractId;
 };
 
 } // namespace Hedera

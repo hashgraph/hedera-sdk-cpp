@@ -19,118 +19,33 @@
  */
 #include "AccountCreateTransaction.h"
 
+#include "PublicKey.h"
+#include "TransactionResponse.h"
+
 #include "helper/DurationConverter.h"
 
 #include <proto/crypto_create.pb.h>
-#include <proto/schedulable_transaction_body.pb.h>
-
-#include "PublicKey.h"
+#include <proto/response.pb.h>
+#include <proto/transaction.pb.h>
 
 namespace Hedera
 {
 //-----
 AccountCreateTransaction::AccountCreateTransaction()
-  : Transaction()
-  , mKey()
-  , mAccountMemo()
-  , mInitialBalance()
-  , mReceiverSignatureRequired(false)
-  , mAutoRenewPeriod(90)
-  , mMaxAutomaticTokenAssociations(0)
-  , mStakedAccountId()
-  , mStakedNodeId()
-  , mDeclineStakingReward(false)
-  , mAlias()
 {
-  mDefaultMaxTransactionFee = Hbar::from(5LL);
+  mMaxTransactionFee = Hbar::from(5LL);
 }
 
 //-----
-AccountCreateTransaction::AccountCreateTransaction(
-  const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  : Transaction(transactions)
+AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
 {
-  initFromTransactionBody();
-}
-
-//-----
-AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody& transaction)
-  : Transaction(transaction)
-{
-  initFromTransactionBody();
-}
-
-//-----
-void AccountCreateTransaction::validateChecksums(const Client& client) const
-{
-  if (mStakedAccountId.isValid())
-  {
-    mStakedAccountId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void AccountCreateTransaction::onFreeze(proto::TransactionBody* body) const
-{
-  body->set_allocated_cryptocreateaccount(build());
-}
-
-//-----
-void AccountCreateTransaction::onScheduled(proto::SchedulableTransactionBody* body) const
-{
-  body->set_allocated_cryptocreateaccount(build());
-}
-
-//-----
-proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
-{
-  proto::CryptoCreateTransactionBody* body = new proto::CryptoCreateTransactionBody;
-
-  if (mKey != nullptr)
-  {
-    body->set_allocated_key(mKey->toProtobuf());
-  }
-
-  body->set_memo(mAccountMemo);
-  body->set_initialbalance(mInitialBalance.toTinybars());
-  body->set_receiversigrequired(mReceiverSignatureRequired);
-  body->set_allocated_autorenewperiod(DurationConverter::toProtobuf(mAutoRenewPeriod));
-  body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
-
-  if (mStakedAccountId.isValid())
-  {
-    body->set_allocated_staked_account_id(mStakedAccountId.getValue().toProtobuf());
-  }
-
-  if (mStakedNodeId.isValid())
-  {
-    body->set_staked_node_id(mStakedNodeId.getValue());
-  }
-
-  body->set_decline_reward(mDeclineStakingReward);
-
-  if (mAlias != nullptr)
-  {
-    body->set_allocated_alias(new std::string(mAlias->toString()));
-  }
-
-  return body;
-}
-
-//-----
-AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey> key)
-{
-  requireNotFrozen();
-
-  this->mKey = key;
+  mKey = key;
   return *this;
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setInitialBalance(const Hbar& initialBalance)
 {
-  requireNotFrozen();
-
   mInitialBalance = initialBalance;
   return *this;
 }
@@ -138,114 +53,122 @@ AccountCreateTransaction& AccountCreateTransaction::setInitialBalance(const Hbar
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setReceiverSignatureRequired(bool receiveSignatureRequired)
 {
-  requireNotFrozen();
-
   mReceiverSignatureRequired = receiveSignatureRequired;
   return *this;
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod)
+AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
+  const std::chrono::duration<double>& autoRenewPeriod)
 {
-  requireNotFrozen();
-
   mAutoRenewPeriod = autoRenewPeriod;
-  return *this;
-}
-
-//-----
-AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
-{
-  requireNotFrozen();
-
-  mMaxAutomaticTokenAssociations = associations;
   return *this;
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(const std::string& memo)
 {
-  requireNotFrozen();
-
   mAccountMemo = memo;
+  return *this;
+}
+
+//-----
+AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
+{
+  mMaxAutomaticTokenAssociations = associations;
   return *this;
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 {
-  requireNotFrozen();
-
-  mStakedAccountId.setValue(stakedAccountId);
+  mStakedAccountId = stakedAccountId;
   mStakedNodeId.reset();
-
   return *this;
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
 {
-  requireNotFrozen();
-
-  mStakedNodeId.setValue(stakedNodeId);
+  mStakedNodeId = stakedNodeId;
   mStakedAccountId.reset();
-
   return *this;
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setDeclineStakingReward(bool declineStakingReward)
 {
-  requireNotFrozen();
-
   mDeclineStakingReward = declineStakingReward;
   return *this;
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_ptr<PublicKey> alias)
+AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_ptr<PublicKey>& alias)
 {
-  requireNotFrozen();
-
-  this->mAlias = alias;
+  mAlias = alias;
   return *this;
 }
 
 //-----
-void AccountCreateTransaction::initFromTransactionBody()
+proto::Transaction AccountCreateTransaction::makeRequest() const
 {
-  if (mSourceTransactionBody.has_cryptocreateaccount())
+  proto::Transaction transaction;
+  proto::TransactionBody transactionBody;
+  transactionBody.set_allocated_cryptocreateaccount(build().get());
+
+  // TODO: sign here?
+
+  return transaction;
+}
+
+//-----
+TransactionResponse AccountCreateTransaction::mapResponse(const proto::TransactionResponse& response) const
+{
+  TransactionResponse transactionResponse;
+  // TODO: fill out transaction response;
+  return transactionResponse;
+}
+
+//-----
+std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::build() const
+{
+  std::shared_ptr<proto::CryptoCreateTransactionBody> body = std::make_shared<proto::CryptoCreateTransactionBody>();
+
+  if (mKey != nullptr)
   {
-    const proto::CryptoCreateTransactionBody& body = mSourceTransactionBody.cryptocreateaccount();
-
-    if (body.has_key())
-    {
-      mKey = PublicKey::fromProtobuf(body.key());
-    }
-
-    if (body.has_autorenewperiod())
-    {
-      mAutoRenewPeriod = DurationConverter::fromProtobuf(body.autorenewperiod());
-    }
-
-    mInitialBalance = Hbar::fromTinybars(body.initialbalance());
-    mAccountMemo = body.memo();
-    mReceiverSignatureRequired = body.receiversigrequired();
-    mMaxAutomaticTokenAssociations = body.max_automatic_token_associations();
-    mDeclineStakingReward = body.decline_reward();
-
-    if (body.has_staked_account_id())
-    {
-      mStakedAccountId.setValue(AccountId::fromProtobuf(body.staked_account_id()));
-    }
-
-    if (body.has_staked_node_id())
-    {
-      mStakedNodeId.setValue(body.staked_node_id());
-    }
-
-    mAlias = PublicKey::fromAliasBytes(body.alias());
+    body->set_allocated_key(mKey->toProtobuf());
   }
+
+  body->set_initialbalance(mInitialBalance.toTinybars());
+  body->set_receiversigrequired(mReceiverSignatureRequired);
+
+  if (body->has_autorenewperiod())
+  {
+    body->set_allocated_autorenewperiod(
+      DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod.value())).get());
+  }
+
+  body->set_memo(mAccountMemo);
+  body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
+
+  if (mStakedAccountId.has_value())
+  {
+    body->set_allocated_staked_account_id(mStakedAccountId.value().toProtobuf());
+  }
+
+  if (mStakedNodeId.has_value())
+  {
+    body->set_staked_node_id(mStakedNodeId.value());
+  }
+
+  body->set_decline_reward(mDeclineStakingReward);
+
+  if (mAlias)
+  {
+    body->set_allocated_alias(new std::string(mAlias->toString()));
+  }
+
+  return body;
 }
 
 } // namespace Hedera
