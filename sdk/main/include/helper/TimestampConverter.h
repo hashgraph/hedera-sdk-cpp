@@ -26,6 +26,7 @@
 namespace proto
 {
 class Timestamp;
+class TimestampSeconds;
 }
 
 namespace Hedera
@@ -39,6 +40,14 @@ namespace TimestampConverter
  * @return The system time represented by the input Timestamp protobuf.
  */
 std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::Timestamp& timestamp);
+
+/**
+ * Create a system time object from a TimestampSeconds protobuf.
+ *
+ * @param timestamp The TimestampSeconds protobuf.
+ * @return The system time represented by the input TimestampSeconds protobuf.
+ */
+std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::TimestampSeconds& timestamp);
 
 /**
  * Create a Timestamp protobuf from a system time.
