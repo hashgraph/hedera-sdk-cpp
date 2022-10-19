@@ -36,11 +36,13 @@ add_library(${PROJECT_NAME} STATIC
         src/NodeAddress.cc
         src/PublicKey.cc
         src/Transaction.cc
+        src/TransactionId.cc
+        src/TransactionReceiptQuery.cc
         src/TransactionResponse.cc
 
         src/helper/DurationConverter.cc
-        src/helper/InstantConverter.cc
-        src/helper/HexConverter.cc)
+        src/helper/HexConverter.cc
+        src/helper/TimestampConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
