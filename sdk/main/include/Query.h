@@ -24,6 +24,8 @@
 
 namespace Hedera
 {
+class AccountBalance;
+class AccountBalanceQuery;
 class AccountId;
 class Client;
 }

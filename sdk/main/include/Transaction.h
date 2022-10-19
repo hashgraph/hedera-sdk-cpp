@@ -126,21 +126,6 @@ public:
 
 protected:
   /**
-   * Derived from Executable. Construct a transaction protobuf object from this transaction.
-   *
-   * @return The transaction protobuf object that contains this transaction information.
-   */
-  virtual proto::Transaction makeRequest() const = 0;
-
-  /**
-   * Derived from Transaction. Create a transaction response object from a protobuf transaction response object.
-   *
-   * @param response The protobuf transaction response object.
-   * @return The transaction response object with the response data.
-   */
-  virtual TransactionResponse mapResponse(const proto::TransactionResponse& response) const = 0;
-
-  /**
    * The valid transaction duration. Defaults to two minutes.
    */
   std::chrono::duration<double> mTransactionValidDuration = std::chrono::minutes(2);
