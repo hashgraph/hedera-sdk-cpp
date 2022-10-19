@@ -20,8 +20,9 @@
 #ifndef PUBLIC_KEY_H_
 #define PUBLIC_KEY_H_
 
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace proto
 {
@@ -39,6 +40,7 @@ public:
   PublicKey& operator=(const PublicKey&& other) = delete;
 
   [[nodiscard]] virtual proto::Key* toProtobuf() const = 0;
+  [[nodiscard]] virtual bool verifySignature(const std::vector<unsigned char>& signatureBytes, const std::vector<unsigned char>& signedBytes) const = 0;
 
   static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& key);
   static std::shared_ptr<PublicKey> fromAliasBytes(const std::string& bytes);
