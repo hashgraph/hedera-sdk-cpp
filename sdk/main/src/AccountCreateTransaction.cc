@@ -122,14 +122,6 @@ proto::Transaction AccountCreateTransaction::makeRequest() const
 }
 
 //-----
-TransactionResponse AccountCreateTransaction::mapResponse(const proto::TransactionResponse& response) const
-{
-  TransactionResponse transactionResponse;
-  // TODO: fill out transaction response;
-  return transactionResponse;
-}
-
-//-----
 std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::build() const
 {
   std::shared_ptr<proto::CryptoCreateTransactionBody> body = std::make_shared<proto::CryptoCreateTransactionBody>();

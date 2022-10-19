@@ -20,11 +20,57 @@
 #ifndef TRANSACTION_RESPONSE_H_
 #define TRANSACTION_RESPONSE_H_
 
+#include <cstdint>
+
+namespace proto
+{
+class TransactionResponse;
+}
+
 namespace Hedera
 {
+/**
+ * When the client sends the node a transaction of any kind, the node replies with this, which simply says that the
+ * transaction passed the precheck (so the node will submit it to the network) or it failed (so it won't). To learn the
+ * consensus result, the client should later obtain a receipt (free), or can buy a more detailed record (not free).
+ */
 class TransactionResponse
 {
+public:
+  /**
+   * Create a TransactionResponse object from a transaction response protobuf object.
+   *
+   * @param proto The protobuf transaction response object.
+   * @return A TransactionResponse object containing the data of the input protobuf transaction response.
+   */
+  static TransactionResponse fromProtobuf(const proto::TransactionResponse& proto);
+
+  /**
+   * Extract the price of the transaction.
+   *
+   * @return The price of the transaction.
+   */
+  inline uint64_t getCost() const { return mCost; }
+
+  /**
+   * Determine if the transaction pre-checks were a success.
+   *
+   * @return \c TRUE if the transaction pre-checks were a success, otherwise \c FALSE.
+   */
+  inline bool getValidateStatus() const { return mValidateStatus; }
+
+private:
+  /**
+   * The price of the transaction
+   */
+  uint64_t mCost;
+
+  /**
+   * The response of the transaction. \c TRUE if the precheck was a success, otherwise \c FALSE.
+   */
+  bool mValidateStatus;
 };
+
 } // namespace Hedera
 
 #endif // TRANSACTION_RESPONSE_H_
