@@ -19,6 +19,10 @@
  */
 #include "TransactionResponse.h"
 
+#include "Client.h"
+#include "TransactionReceipt.h"
+#include "TransactionReceiptQuery.h"
+
 #include <proto/transaction_response.pb.h>
 
 namespace Hedera
@@ -30,6 +34,26 @@ TransactionResponse TransactionResponse::fromProtobuf(const proto::TransactionRe
   response.mCost = proto.cost();
   response.mValidateStatus = proto.nodetransactionprecheckcode() == proto::OK;
   return response;
+}
+
+//-----
+TransactionReceipt TransactionResponse::getReceipt(const Client& client) const
+{
+  return getReceipt(client, client.getRequestTimeout());
+}
+
+//-----
+TransactionReceipt TransactionResponse::getReceipt(const Client& client,
+                                                   const std::chrono::duration<double>& timeout) const
+{
+  return TransactionReceiptQuery().setTransactionId(mTransactionId).execute(client, timeout);
+}
+
+//-----
+TransactionResponse& TransactionResponse::setTransactionId(const Hedera::TransactionId& transactionId)
+{
+  mTransactionId = transactionId;
+  return *this;
 }
 
 } // namespace Hedera

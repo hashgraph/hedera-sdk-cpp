@@ -43,4 +43,22 @@ TransactionId TransactionId::fromProtobuf(const proto::TransactionID& proto)
   return id;
 }
 
+//-----
+std::shared_ptr<proto::TransactionID> TransactionId::toProtobuf() const
+{
+  std::shared_ptr<proto::TransactionID> proto = std::make_shared<proto::TransactionID>();
+
+  if (mValidTransactionTime.has_value())
+  {
+    proto->set_allocated_transactionvalidstart(TimestampConverter::toProtobuf(mValidTransactionTime.value()).get());
+  }
+
+  if (mAccountId.has_value())
+  {
+    proto->set_allocated_accountid(mAccountId->toProtobuf().get());
+  }
+
+  return proto;
+}
+
 } // namespace Hedera

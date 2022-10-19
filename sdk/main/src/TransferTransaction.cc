@@ -63,7 +63,7 @@ std::shared_ptr<proto::CryptoTransferTransactionBody> TransferTransaction::build
 
     if (transfer.getAccountId().has_value())
     {
-      amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf());
+      amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf().get());
     }
 
     amount->set_amount(transfer.getAmount().toTinybars());
