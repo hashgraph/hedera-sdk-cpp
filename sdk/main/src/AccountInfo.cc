@@ -23,7 +23,7 @@
 #include "LiveHash.h"
 
 #include "helper/DurationConverter.h"
-#include "helper/InstantConverter.h"
+#include "helper/TimestampConverter.h"
 
 #include <proto/crypto_get_info.pb.h>
 

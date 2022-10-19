@@ -30,7 +30,7 @@ namespace Hedera
 //-----
 AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountId)
 {
-  mAccountId = std::make_shared<AccountId>(accountId);
+  mAccountId = accountId;
   mContractId.reset();
 
   return *this;
@@ -39,7 +39,7 @@ AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountI
 //-----
 AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contractId)
 {
-  mContractId = std::make_shared<ContractId>(contractId);
+  mContractId = contractId;
   mAccountId.reset();
 
   return *this;

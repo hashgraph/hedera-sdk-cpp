@@ -20,7 +20,7 @@
 #include "AccountUpdateTransaction.h"
 
 #include "helper/DurationConverter.h"
-#include "helper/InstantConverter.h"
+#include "helper/TimestampConverter.h"
 
 namespace Hedera
 {

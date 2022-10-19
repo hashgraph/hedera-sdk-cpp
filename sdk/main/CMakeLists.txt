@@ -3,7 +3,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/AccountAllowanceDeleteTransaction.cc
         src/AccountBalance.cc
         src/AccountBalanceQuery.cc
-        #src/AccountCreateTransaction.cc
+        src/AccountCreateTransaction.cc
         #    src/AccountDeleteTransaction.cc
         src/AccountId.cc
         #    src/AccountInfo.cc
@@ -27,6 +27,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ED25519PublicKey.cc
         #    src/EthereumTransaction.cc
         src/EvmAddress.cc
+        src/ExchangeRate.cc
         src/Executable.cc
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
@@ -36,10 +37,13 @@ add_library(${PROJECT_NAME} STATIC
         src/Node.cc
         src/NodeAddress.cc
         src/PublicKey.cc
+        src/Status.cc
         src/Transaction.cc
+        src/TransactionId.cc
+        src/TransactionResponse.cc
 
         src/helper/DurationConverter.cc
-        src/helper/InstantConverter.cc
+        src/helper/TimestampConverter.cc
         src/helper/HexConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
