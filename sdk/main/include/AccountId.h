@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -20,21 +20,14 @@
 #ifndef ACCOUNT_ID_H_
 #define ACCOUNT_ID_H_
 
-#include "EvmAddress.h"
 #include "PublicKey.h"
 
+#include <memory>
 #include <optional>
-#include <regex>
-#include <string>
 
 namespace proto
 {
 class AccountID;
-}
-
-namespace Hedera
-{
-class Client;
 }
 
 namespace Hedera
@@ -46,156 +39,109 @@ class AccountId
 {
 public:
   /**
-   * Constructor
+   * Default constructor.
    */
-  AccountId();
+  AccountId() = default;
 
   /**
-   * Construct with the account number part of the account ID.
+   * Construct with an account number.
    *
-   * @param num The account number with which to construct this account ID.
+   * @param num The account number to set.
    */
-  explicit AccountId(const int64_t& num);
+  explicit AccountId(const uint64_t& num);
 
   /**
-   * Construct with all parts of the account ID.
+   * Construct with with a shard, realm, and account number.
    *
    * @param shard The shard number to set.
    * @param realm The realm number to set.
    * @param num   The account number to set.
    */
-  explicit AccountId(const int64_t& shard, const int64_t& realm, const int64_t& num);
+  explicit AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
   /**
-   * Construct with all parts of the account ID and the checksum.
+   * Default comparator operator.
    *
-   * @param shard    The shard number to set.
-   * @param realm    The realm number to set.
-   * @param num      The account number to set.
-   * @param checksum The checksum of the account ID.
+   * @param other The other AccountId to compare
+   * @return \c TRUE if the input AccountId is the same as this one, otherwise \c FALSE
    */
-  explicit AccountId(const int64_t& shard,
-                     const int64_t& realm,
-                     const int64_t& num,
-                     const std::optional<std::string>& checksum);
+  bool operator==(const AccountId& other) const = default;
 
   /**
-   * Construct with all parts of the account ID, the checksum, and the aliases.
+   * Retrieve the account ID from a protobuf AccountID.
    *
-   * @param shard        The shard number to set.
-   * @param realm        The realm number to set.
-   * @param num          The account number to set.
-   * @param alias        The account alias, which may be a native key or an EVM address
-   * @param checksum     The checksum of the account ID.
+   * @param proto The AccountID protobuf object.
+   * @return An AccountId object with the protobuf AccountID data.
    */
-  explicit AccountId(const int64_t& shard,
-                     const int64_t& realm,
-                     const int64_t& num,
-                     const std::shared_ptr<PublicKey> alias,
-                     const std::optional<std::string>& checksum);
+  static AccountId fromProtobuf(const proto::AccountID& proto);
 
   /**
-   * Determine if this account ID is equal to another.
+   * Convert this AccountId to its corresponding protobuf AccountID.
    *
-   * @param other The account ID with which to compare
-   * @return \c TRUE if the input account ID equals this one, otherwise \c FALSE
+   * @return Pointer to the created protobuf AccountID.
    */
-  bool operator==(const AccountId& other) const;
+  std::shared_ptr<proto::AccountID> toProtobuf() const;
 
   /**
-   * Retrieve the account ID from a string.
+   * Set the shard number.
    *
-   * @param id A string representing a valid account ID.
-   * @return   The account ID object.
+   * @param num The shard number to set.
+   * @return Reference to this AccountId object.
    */
-  static AccountId fromString(const std::string& id);
+  AccountId& setShardNum(const uint64_t& num);
 
   /**
-   * Retrieve the account ID from a solidity address.
+   * Set the realm number.
    *
-   * @param address A string representing the solidity address.
-   * @return        The account ID object.
+   * @param num The realm number to set.
+   * @return Reference to this AccountId object.
    */
-  static AccountId fromSolidityAddress(const std::string& address);
+  AccountId& setRealmNum(const uint64_t& num);
 
   /**
-   * Retrieve the account ID from a protobuf.
+   * Set the account number.
    *
-   * @param id The account ID protobuf object.
-   * @return   The account ID object.
+   * @param num The account number to set.
+   * @return Reference to this AccountId object.
    */
-  static AccountId fromProtobuf(const proto::AccountID& id);
+  AccountId& setAccountNum(const uint64_t& num);
 
   /**
-   * Extract the solidity address.
+   * Extract the shard number.
    *
-   * @return The solidity address as a string.
+   * @return The shard number.
    */
-  std::string toSolidityAddress() const;
+  inline uint64_t getShardNum() const { return mShardNum; }
 
   /**
-   * Convert this account ID to its corresponding protobuf object.
+   * Extract the realm number.
    *
-   * @return A dynamically-allocated account ID protobuf object filled-in with
-   *         this account ID's data. It's the responsibility of the user to
-   *         delete this object when done with it.
+   * @return The realm number.
    */
-  proto::AccountID* toProtobuf() const;
+  inline uint64_t getRealmNum() const { return mRealmNum; }
 
   /**
-   * Verify that the client has a valid checksum.
+   * Extract the account number.
    *
-   * @param client The client to verify
+   * @return The account number.
    */
-  void validateChecksum(const Client& client) const;
+  inline std::optional<uint64_t> getAccountNum() const { return mAccountNum; }
 
-  /**
-   * Extract a string represenation of this account ID.
-   *
-   * @return A string representation of this account ID.
-   */
-  std::string toString() const;
-
-  /**
-   * Extract a string representation of this account ID with the checksum.
-   *
-   * @param client The client with which the checksum is generated.
-   * @return       The account ID with checksum.
-   */
-  std::string toStringWithChecksum(const Client& client) const;
-
-  /**
-   * Extract the checksum of this account ID.
-   *
-   * @return This account ID's checksum and its validity.
-   */
-  inline std::optional<std::string> getChecksum() const { return mChecksum; }
-
+private:
   /**
    * The shard number.
    */
-  int64_t mShard;
+  uint64_t mShardNum;
 
   /**
    * The realm number.
    */
-  int64_t mRealm;
+  uint64_t mRealmNum;
 
   /**
-   * The id number.
+   * The account ID number.
    */
-  int64_t mAccountNum;
-
-  /**
-   * The alias, which may be a native key or an EVM address
-   */
-  std::shared_ptr<PublicKey> mAlias;
-
-private:
-  /**
-   * This account ID's checksum.
-   */
-  std::optional<std::string> mChecksum;
+  std::optional<uint64_t> mAccountNum;
 };
 
 } // namespace Hedera

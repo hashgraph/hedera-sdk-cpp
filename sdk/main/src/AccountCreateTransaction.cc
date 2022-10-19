@@ -145,7 +145,7 @@ std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::bu
 
   if (mStakedAccountId.has_value())
   {
-    body->set_allocated_staked_account_id(mStakedAccountId.value().toProtobuf());
+    body->set_allocated_staked_account_id(mStakedAccountId.value().toProtobuf().get());
   }
 
   if (mStakedNodeId.has_value())
