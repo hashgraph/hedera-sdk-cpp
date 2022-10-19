@@ -27,15 +27,7 @@
 
 namespace Hedera
 {
-class AccountBalance;
-class AccountBalanceQuery;
 class Client;
-}
-
-namespace proto
-{
-class Query;
-class Response;
 }
 
 namespace Hedera
