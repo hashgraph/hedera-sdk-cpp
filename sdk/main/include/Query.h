@@ -64,21 +64,6 @@ protected:
    * Default destructor.
    */
   virtual ~Query() = default;
-
-  /**
-   * Derived from Executable. Construct a query protobuf object from this query.
-   *
-   * @return The query protobuf object that contains this query information.
-   */
-  virtual proto::Query makeRequest() const = 0;
-
-  /**
-   * Derived from Executable. Create a response object from a protobuf response object.
-   *
-   * @param response The protobuf response object.
-   * @return The response object with the response data.
-   */
-  virtual SdkResponseType mapResponse(const proto::Response& response) const = 0;
 };
 
 /**

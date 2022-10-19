@@ -93,14 +93,14 @@ public:
 
 protected:
   /**
-   * Derived from Query. Construct a query protobuf object from this AccountBalanceQuery.
+   * Derived from Executable. Construct a query protobuf object from this AccountBalanceQuery.
    *
    * @return The query protobuf object that contains this AccountBalanceQuery information.
    */
   proto::Query makeRequest() const override;
 
   /**
-   * Derived from Query. Create an AccountBalance object from a protobuf response object.
+   * Derived from Executable. Create an AccountBalance object from a protobuf response object.
    *
    * @param response The protobuf response object.
    * @return The response object with the AccountBalance data.
