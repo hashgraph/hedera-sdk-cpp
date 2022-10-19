@@ -64,7 +64,7 @@ TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::Transa
 }
 
 /**
- * Explicit template instantiation
+ * Explicit template instantiations.
  */
 template class Transaction<AccountCreateTransaction>;
 
