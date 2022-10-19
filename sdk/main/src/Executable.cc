@@ -24,6 +24,8 @@
 #include "AccountCreateTransaction.h"
 #include "Client.h"
 #include "Node.h"
+#include "TransactionReceipt.h"
+#include "TransactionReceiptQuery.h"
 #include "TransactionResponse.h"
 
 #include <proto/query.pb.h>
@@ -42,7 +44,7 @@ template<typename SdkRequestType, typename ProtoRequestType, typename ProtoRespo
 SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
   const Client& client)
 {
-  return execute(client, std::chrono::minutes(2L));
+  return execute(client, client.getRequestTimeout());
 }
 
 //-----
@@ -51,8 +53,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::duration<double>& duration)
 {
-  std::vector<std::shared_ptr<Node>> nodesToTry = client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds);
-  for (std::shared_ptr<Node> node : nodesToTry)
+  for (std::shared_ptr<Node> node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
   {
     std::pair<ProtoResponseType, grpc::Status> response = node->submitRequest(makeRequest(), duration);
     if (response.second.ok())
@@ -60,6 +61,9 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
       return mapResponse(response.first);
     }
   }
+
+  // TODO: throw?
+  return SdkResponseType();
 }
 
 //-----
@@ -79,5 +83,6 @@ template class Executable<AccountCreateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+template class Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>;
 
 } // namespace Hedera

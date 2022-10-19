@@ -56,10 +56,11 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
   return static_cast<SdkRequestType&>(*this);
 }
 
+//-----
 template<typename SdkRequestType>
 TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
 {
-  return TransactionResponse::fromProtobuf(response);
+  return TransactionResponse::fromProtobuf(response).setTransactionId(mTransactionId);
 }
 
 /**

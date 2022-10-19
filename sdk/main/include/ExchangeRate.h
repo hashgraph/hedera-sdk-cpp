@@ -21,6 +21,7 @@
 #define EXCHANGE_RATE_H_
 
 #include <chrono>
+#include <optional>
 
 namespace proto
 {
@@ -55,7 +56,10 @@ public:
    *
    * @return The expiration time of this exchange rate.
    */
-  inline std::chrono::sys_time<std::chrono::duration<double>> getExpirationTime() const { return mExpirationTime; }
+  inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getExpirationTime() const
+  {
+    return mExpirationTime;
+  }
 
 private:
   /**
@@ -71,7 +75,7 @@ private:
   /**
    * Expiration time of this exchange rate.
    */
-  std::chrono::sys_time<std::chrono::duration<double>> mExpirationTime;
+  std::optional<std::chrono::sys_time<std::chrono::duration<double>>> mExpirationTime;
 };
 
 } // namespace Hedera
