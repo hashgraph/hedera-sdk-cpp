@@ -56,7 +56,7 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
 }
 
 /**
- * Explicit template instantiation
+ * Explicit template instantiations.
  */
 template class Transaction<AccountCreateTransaction>;
 
