@@ -60,6 +60,14 @@ public:
   explicit AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
   /**
+   * Default comparator operator.
+   *
+   * @param other The other AccountId to compare
+   * @return \c TRUE if the input AccountId is the same as this one, otherwise \c FALSE
+   */
+  bool operator==(const AccountId& other) const = default;
+
+  /**
    * Retrieve the account ID from a protobuf AccountID.
    *
    * @param proto The AccountID protobuf object.
