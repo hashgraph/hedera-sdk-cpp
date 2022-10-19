@@ -103,6 +103,13 @@ public:
    */
   inline std::optional<Hbar> getDefaultMaxTransactionFee() const { return mDefaultMaxTransactionFee; }
 
+  /**
+   * Extract the request timeout.
+   *
+   * @return The request timeout.
+   */
+  inline std::chrono::duration<double> getRequestTimeout() const { return mRequestTimeout; }
+
 private:
   /**
    * Information about the account that will pay for transactions and queries made with this client.
@@ -134,6 +141,11 @@ private:
    * The default max transaction fee for transactions processed by this client.
    */
   std::optional<Hbar> mDefaultMaxTransactionFee;
+
+  /**
+   * The request timeout. Defaults to 2 minutes.
+   */
+  std::chrono::duration<double> mRequestTimeout = std::chrono::minutes(2);
 };
 
 } // namespace Hedera

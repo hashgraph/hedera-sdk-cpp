@@ -28,6 +28,8 @@ class AccountBalance;
 class AccountBalanceQuery;
 class AccountId;
 class Client;
+class TransactionReceipt;
+class TransactionReceiptQuery;
 }
 
 namespace proto
@@ -68,6 +70,7 @@ protected:
  * Explicit template instantiation
  */
 template class Query<AccountBalanceQuery, AccountBalance>;
+template class Query<TransactionReceiptQuery, TransactionReceipt>;
 
 } // namespace Hedera
 
