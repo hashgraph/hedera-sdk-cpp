@@ -23,8 +23,7 @@
 #include "EvmAddress.h"
 #include "PublicKey.h"
 
-#include "helper/InitType.h"
-
+#include <optional>
 #include <regex>
 #include <string>
 
@@ -35,9 +34,6 @@ class AccountID;
 
 namespace Hedera
 {
-template<typename T>
-class InitType;
-
 class Client;
 }
 
@@ -81,7 +77,7 @@ public:
   explicit AccountId(const int64_t& shard,
                      const int64_t& realm,
                      const int64_t& num,
-                     const InitType<std::string>& checksum);
+                     const std::optional<std::string>& checksum);
 
   /**
    * Construct with all parts of the account ID, the checksum, and the aliases.
@@ -96,7 +92,7 @@ public:
                      const int64_t& realm,
                      const int64_t& num,
                      const std::shared_ptr<PublicKey> alias,
-                     const InitType<std::string>& checksum);
+                     const std::optional<std::string>& checksum);
 
   /**
    * Determine if this account ID is equal to another.
@@ -173,7 +169,7 @@ public:
    *
    * @return This account ID's checksum and its validity.
    */
-  inline InitType<std::string> getChecksum() const { return mChecksum; }
+  inline std::optional<std::string> getChecksum() const { return mChecksum; }
 
   /**
    * The shard number.
@@ -199,7 +195,7 @@ private:
   /**
    * This account ID's checksum.
    */
-  InitType<std::string> mChecksum;
+  std::optional<std::string> mChecksum;
 };
 
 } // namespace Hedera
