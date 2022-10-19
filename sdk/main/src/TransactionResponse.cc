@@ -22,6 +22,8 @@
 #include "Client.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
+#include "TransactionRecord.h"
+#include "TransactionRecordQuery.h"
 
 #include <proto/transaction_response.pb.h>
 
@@ -47,6 +49,19 @@ TransactionReceipt TransactionResponse::getReceipt(const Client& client,
                                                    const std::chrono::duration<double>& timeout) const
 {
   return TransactionReceiptQuery().setTransactionId(mTransactionId).execute(client, timeout);
+}
+
+//-----
+TransactionRecord TransactionResponse::getRecord(const Client& client) const
+{
+  return getRecord(client, client.getRequestTimeout());
+}
+
+//-----
+TransactionRecord TransactionResponse::getRecord(const Client& client,
+                                                 const std::chrono::duration<double>& timeout) const
+{
+  return TransactionRecordQuery().setTransactionId(mTransactionId).execute(client, timeout);
 }
 
 //-----
