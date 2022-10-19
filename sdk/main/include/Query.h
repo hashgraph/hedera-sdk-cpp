@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -30,6 +30,8 @@ class AccountId;
 class Client;
 class TransactionReceipt;
 class TransactionReceiptQuery;
+class TransactionRecord;
+class TransactionRecordQuery;
 }
 
 namespace proto
@@ -86,6 +88,7 @@ protected:
  */
 template class Query<AccountBalanceQuery, AccountBalance>;
 template class Query<TransactionReceiptQuery, TransactionReceipt>;
+template class Query<TransactionRecordQuery, TransactionRecord>;
 
 } // namespace Hedera
 
