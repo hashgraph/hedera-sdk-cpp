@@ -23,14 +23,10 @@
 #include "AccountId.h"
 #include "Hbar.h"
 #include "Network.h"
+#include "PrivateKey.h"
 #include "PublicKey.h"
 
 #include <functional>
-
-namespace Hedera
-{
-class PrivateKey;
-}
 
 namespace Hedera
 {
@@ -53,7 +49,7 @@ public:
    * @param privateKey The private key of the operator.
    * @return Reference to this Client object.
    */
-  Client& setOperator(const AccountId& accountId, const PrivateKey& privateKey);
+  Client& setOperator(const AccountId& accountId, const std::shared_ptr<PrivateKey>& privateKey);
 
   /**
    * Set the maximum fee to be paid for transactions executed by this client.
@@ -90,11 +86,18 @@ public:
   inline std::optional<AccountId> getOperatorAccountId() const { return mOperator.mAccountId; }
 
   /**
-   * Get the key of the operator. Useful when the client was constructed from file.
+   * Get the public key of the operator. Useful when the client was constructed from file.
    *
    * @return The public key of this client's operator, if valid.
    */
-  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const { return mOperator.mPublicKey; }
+  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const { return mOperator.mPrivateKey->getPublicKey(); }
+
+  /**
+   * Get the private key of the operator. Useful when the client was constructed from file.
+   *
+   * @return The private key of this client's operator, if valid.
+   */
+  inline std::shared_ptr<PrivateKey> getOperatorPrivateKey() const { return mOperator.mPrivateKey; }
 
   /**
    * The default maximum fee used for transactions.
@@ -122,9 +125,9 @@ private:
     std::optional<AccountId> mAccountId;
 
     /**
-     * The public key of the account.
+     * The private key of the account.
      */
-    std::shared_ptr<PublicKey> mPublicKey;
+    std::shared_ptr<PrivateKey> mPrivateKey;
   };
 
   /**

@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -19,6 +19,7 @@
  */
 #include "AccountCreateTransaction.h"
 
+#include "Client.h"
 #include "PublicKey.h"
 #include "TransactionResponse.h"
 
@@ -33,13 +34,13 @@ namespace Hedera
 //-----
 AccountCreateTransaction::AccountCreateTransaction()
 {
-  mMaxTransactionFee = Hbar::from(5LL);
+  setMaxTransactionFee(Hbar::from(5LL));
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
 {
-  mKey = key;
+  mPublicKey = key;
   return *this;
 }
 
@@ -66,7 +67,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(const std::string& memo)
+AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_view memo)
 {
   mAccountMemo = memo;
   return *this;
@@ -110,25 +111,22 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 }
 
 //-----
-proto::Transaction AccountCreateTransaction::makeRequest() const
+proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) const
 {
-  proto::Transaction transaction;
   proto::TransactionBody transactionBody;
   transactionBody.set_allocated_cryptocreateaccount(build().get());
 
-  // TODO: sign here?
-
-  return transaction;
+  return signTransaction(transactionBody, client);
 }
 
 //-----
 std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::build() const
 {
-  std::shared_ptr<proto::CryptoCreateTransactionBody> body = std::make_shared<proto::CryptoCreateTransactionBody>();
+  auto body = std::make_shared<proto::CryptoCreateTransactionBody>();
 
-  if (mKey != nullptr)
+  if (mPublicKey)
   {
-    body->set_allocated_key(mKey->toProtobuf());
+    body->set_allocated_key(mPublicKey->toProtobuf());
   }
 
   body->set_initialbalance(mInitialBalance.toTinybars());

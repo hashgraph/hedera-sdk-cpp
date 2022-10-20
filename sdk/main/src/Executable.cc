@@ -58,7 +58,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 {
   for (std::shared_ptr<Node> node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
   {
-    std::pair<ProtoResponseType, grpc::Status> response = node->submitRequest(makeRequest(), duration);
+    std::pair<ProtoResponseType, grpc::Status> response = node->submitRequest(makeRequest(client), duration);
     if (response.second.ok())
     {
       return mapResponse(response.first);

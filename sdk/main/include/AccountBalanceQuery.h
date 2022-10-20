@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -52,7 +52,7 @@ public:
   /**
    * Default destructor.
    */
-  ~AccountBalanceQuery() = default;
+  ~AccountBalanceQuery() override = default;
 
   /**
    * Derived from Query. Determine if payment is required for this AccountBalanceQuery.
@@ -97,7 +97,7 @@ protected:
    *
    * @return The query protobuf object that contains this AccountBalanceQuery information.
    */
-  proto::Query makeRequest() const override;
+  proto::Query makeRequest(const Client&) const override;
 
   /**
    * Derived from Executable. Create an AccountBalance object from a protobuf response object.

@@ -69,7 +69,7 @@ protected:
    *
    * @return The query protobuf object that contains this TransactionRecordQuery information.
    */
-  proto::Query makeRequest() const override;
+  proto::Query makeRequest(const Client&) const override;
 
   /**
    * Derived from Query. Create an TransactionRecord object from a protobuf response object.

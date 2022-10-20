@@ -23,7 +23,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/ContractInfo.cc
         #    src/ContractInfoQuery.cc
         #    src/ContractUpdateTransaction.cc
-        src/ED25519Keypair.cc
+        src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
         #    src/EthereumTransaction.cc
         src/EvmAddress.cc
@@ -40,6 +40,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Status.cc
         src/Transaction.cc
         src/TransactionId.cc
+        src/TransactionReceipt.cc
         src/TransactionReceiptQuery.cc
         src/TransactionRecord.cc
         src/TransactionRecordQuery.cc
