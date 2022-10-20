@@ -51,6 +51,23 @@ public:
    */
   std::shared_ptr<proto::TransactionID> toProtobuf() const;
 
+  /**
+   * Extract the valid transaction time.
+   *
+   * @return The valid transaction time.
+   */
+  inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getValidTransactionTime() const
+  {
+    return mValidTransactionTime;
+  }
+
+  /**
+   * Extract the account ID.
+   *
+   * @return The account ID.
+   */
+  inline std::optional<AccountId> getAccountId() const { return mAccountId; }
+
 private:
   /**
    * The time the transaction is considered "valid".

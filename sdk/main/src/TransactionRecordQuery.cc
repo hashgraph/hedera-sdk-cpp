@@ -19,6 +19,7 @@
  */
 #include "TransactionRecordQuery.h"
 
+#include "Client.h"
 #include "TransactionRecord.h"
 
 #include <proto/query.pb.h>
@@ -35,7 +36,7 @@ TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const Transacti
 }
 
 //-----
-proto::Query TransactionRecordQuery::makeRequest() const
+proto::Query TransactionRecordQuery::makeRequest(const Client&) const
 {
   proto::Query query;
   proto::TransactionGetRecordQuery* getTransactionRecordQuery = query.mutable_transactiongetrecord();
