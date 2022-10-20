@@ -78,7 +78,8 @@ void TransferTransaction::addHbarTransfer(const Transfer& transfer)
   {
     if (hbarTransfer.getAccountId() == transfer.getAccountId() && hbarTransfer.getApproval() == transfer.getApproval())
     {
-      hbarTransfer.setAmount(Hbar::from(hbarTransfer.getAmount().toTinybars() + transfer.getAmount().toTinybars()));
+      hbarTransfer.setAmount(
+        Hbar(hbarTransfer.getAmount().toTinybars() + transfer.getAmount().toTinybars(), HbarUnit::TINYBAR()));
       return;
     }
   }

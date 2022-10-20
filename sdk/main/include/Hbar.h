@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -29,35 +29,32 @@ namespace Hedera
 /**
  * Represents a quantity of hbar.
  *
- * Implemented as a wrapper class to force handling of units. Direct interfacing
- * with Hedera accepts amounts in tinybars however the nominal unit is hbar.
+ * Implemented as a wrapper class to force handling of units. Direct interfacing with Hedera accepts amounts in tinybars
+ * however the nominal unit is hbar.
  */
 class Hbar
 {
 public:
   /**
-   * Constructs a new Hbar with a value of 0.
+   * Default constructor.
    */
-  Hbar()
-    : mValueInTinybar(0)
-  {
-  }
+  Hbar() = default;
 
   /**
    * Constructs a new Hbar of the specified value.
    *
-   * @param amount The amount of Hbar
+   * @param amount The amount of Hbar.
    */
   explicit Hbar(const int64_t& amount)
-    : Hbar(amount, HbarUnit::HBAR)
+    : Hbar(amount, HbarUnit::HBAR())
   {
   }
 
   /**
    * Constructs a new Hbar of the specified value in the specified unit.
    *
-   * @param amount The amount
-   * @param unit   The unit for amount
+   * @param amount The amount.
+   * @param unit   The unit for amount.
    */
   explicit Hbar(const int64_t& amount, const HbarUnit& unit)
     : mValueInTinybar(amount * unit.getTinybars())
@@ -65,142 +62,24 @@ public:
   }
 
   /**
-   * Constructs a new Hbar of the specified, possibly fractional value.
+   * Convert this Hbar value to tinybars.
    *
-   * The equivalent amount in tinybar must be an integer and fit in a long
-   * (64-bit signed integer).
-   *
-   * E.g. 1.23456789 is a valid amount of hbar but 0.123456789 is not.
-   *
-   * @param amount The amount of Hbar
-   */
-  explicit Hbar(const double& amount)
-    : Hbar(amount, HbarUnit::HBAR)
-  {
-  }
-
-  /**
-   * Constructs a new Hbar of the specified value in the specified unit.
-   *
-   * @param amount The amount
-   * @param unit   The unit for amount
-   */
-  explicit Hbar(const double& amount, const HbarUnit& unit)
-  {
-    const double value = amount * unit.getTinybars();
-    if (floor(value) != value)
-    {
-      // TODO: resolve
-    }
-  }
-
-  /**
-   * Returns an Hbar whose value is equal to the specified long.
-   *
-   * @param amount The amount of Hbar
-   * @return       An Hbar object with the specified amount
-   */
-  static inline Hbar from(const int64_t& amount) { return Hbar(amount, HbarUnit::HBAR); }
-
-  /**
-   * Returns an Hbar representing the value in the given units.
-   *
-   * @param amount The long long representing the amount of set units
-   * @param unit   The unit to convert from to Hbar
-   * @return       An Hbar object with the specified amount and unit
-   */
-  static inline Hbar from(const int64_t& amount, const HbarUnit& unit) { return Hbar(amount, unit); }
-
-  /**
-   * Returns an Hbar whose value is equal to the specified double
-   *
-   * @param amount The double representing the amount of Hbar
-   * @return       An Hbar object with the specified amount
-   */
-  static inline Hbar from(const double& amount) { return Hbar(amount, HbarUnit::HBAR); }
-
-  /**
-   * Returns an Hbar representing the value in the given units.
-   *
-   * @param amount The double representing the amount of set units
-   * @param unit   The unit to convert from to Hbar
-   * @return       An Hbar object with the specified amount and unit
-   */
-  static inline Hbar from(const double& amount, const HbarUnit& unit) { return Hbar(amount, unit); }
-
-  /**
-   * Returns an Hbar converted from the specified number of tinybars.
-   *
-   * @param tinybars The long representing the amount of tinybar
-   * @return         An Hbar object with the specified amount and unit
-   */
-  static inline Hbar fromTinybars(const int64_t& tinybars) { return Hbar(tinybars, HbarUnit::TINYBAR); }
-
-  /**
-   * Convert this hbar value to Tinybars.
-   *
-   * @return The amount this Hbar object contains in tinybars
+   * @return The amount this Hbar object represents in tinybars.
    */
   inline int64_t toTinybars() const { return mValueInTinybar; }
 
   /**
-   * Convert this hbar value to a different unit.
+   * Returns an Hbar whose value is negative this Hbar.
    *
-   * @param unit The unit to convert to from Hbar
-   * @return     The amount this Hbar object contains in the specified unit
+   * @return An Hbar object representing the negated value of this Hbar.
    */
-  double to(const HbarUnit& unit) const
-  {
-    (void)unit;
-    // TODO: finish this
-    return 0.0;
-  }
-
-  /**
-   * Returns the number of Hbars.
-   *
-   * @return The amount this Hbar object contains in Hbars
-   */
-  inline double getValue() const { return to(HbarUnit::HBAR); }
-
-  /**
-   * Returns an Hbar whose value is negative this
-   *
-   * @return An Hbar object representating the negated value of this Hbar
-   */
-  inline Hbar negated() const { return Hbar::fromTinybars(-mValueInTinybar); }
-
-  /**
-   * Convert this Hbar object to string representation
-   *
-   * @return A string that contains the amount of Hbar (or tinybar if small
-   * enough) and symbol
-   */
-  inline std::string toString() const
-  {
-    if (mValueInTinybar < 10000LL && mValueInTinybar > -10000LL)
-    {
-      return std::to_string(mValueInTinybar) + ' ' + HbarUnit::TINYBAR.getSymbol();
-    }
-
-    return std::to_string(to(HbarUnit::HBAR)) + ' ' + HbarUnit::HBAR.getSymbol();
-  }
-
-  /**
-   * Convert this Hbar to string representation in specified units
-   *
-   * @param unit The desired unit
-   * @return     The string representation
-   */
-  inline std::string toString(const HbarUnit& unit) { return std::to_string(to(unit)) + ' ' + unit.getSymbol(); }
-
-  inline bool operator==(const Hbar& hbar) { return this->mValueInTinybar == hbar.mValueInTinybar; }
+  inline Hbar negated() const { return Hbar(-mValueInTinybar, HbarUnit::TINYBAR()); }
 
 private:
   /**
-   * The value of this Hbar object in tinybars
+   * The value of this Hbar object in tinybars.
    */
-  int64_t mValueInTinybar;
+  int64_t mValueInTinybar = 0;
 };
 
 } // namespace Hedera

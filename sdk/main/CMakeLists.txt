@@ -32,7 +32,6 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
         #    src/FileCreateTransaction.cc
-        src/HbarUnit.cc
         src/Network.cc
         src/Node.cc
         src/NodeAddress.cc

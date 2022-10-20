@@ -34,7 +34,7 @@ namespace Hedera
 //-----
 AccountCreateTransaction::AccountCreateTransaction()
 {
-  setMaxTransactionFee(Hbar::from(5LL));
+  setMaxTransactionFee(Hbar(5LL));
 }
 
 //-----
