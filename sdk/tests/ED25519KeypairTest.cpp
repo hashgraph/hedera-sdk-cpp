@@ -19,19 +19,19 @@
  */
 
 #include <gtest/gtest.h>
-//#include <memory>
+#include <memory>
 //#include <vector>
-//
-//#include "ED25519Keypair.h"
+
+#include "ED25519Keypair.h"
 #include "ED25519PublicKey.h"
-//
-//TEST(tests, getPublicKey) {
-//  std::unique_ptr<Hedera::ED25519Keypair> keypair =
-//      std::make_unique<Hedera::ED25519Keypair>();
-//
-//  std::shared_ptr<Hedera::PublicKey> publicKey = keypair->getPublicKey();
-//  EXPECT_NE(publicKey, nullptr);
-//}
+
+TEST(tests, getPublicKey) {
+  std::unique_ptr<Hedera::ED25519Keypair> keypair =
+      std::make_unique<Hedera::ED25519Keypair>();
+
+  std::shared_ptr<Hedera::PublicKey> publicKey = keypair->getPublicKey();
+  EXPECT_NE(publicKey, nullptr);
+}
 //
 //TEST(tests, sign) {
 //  std::unique_ptr<Hedera::ED25519Keypair> keypair =
