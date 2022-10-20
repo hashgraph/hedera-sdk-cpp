@@ -49,7 +49,7 @@ public:
    * @param privateKey The private key of the operator.
    * @return Reference to this Client object.
    */
-  Client& setOperator(const AccountId& accountId, const PrivateKey& privateKey);
+  Client& setOperator(const AccountId& accountId, const std::shared_ptr<PrivateKey>& privateKey);
 
   /**
    * Set the maximum fee to be paid for transactions executed by this client.
