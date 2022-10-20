@@ -85,18 +85,18 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
       mTransactionId.getAccountId().has_value() && mTransactionId.getAccountId() == client.getOperatorAccountId())
   {
     // Generate a signature from the TransactionBody
-    auto transactionBodySerialized = std::make_shared<std::string>(transaction.SerializeAsString());
+    std::string* transactionBodySerialized = new std::string(transaction.SerializeAsString());
     const std::vector<unsigned char> signature = client.getOperatorPublicKey()->getPrivateKey()->sign(
       { transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
-    auto signatureMap = std::make_shared<proto::SignatureMap>();
+    proto::SignatureMap* signatureMap = new proto::SignatureMap();
     signatureMap->add_sigpair()->set_allocated_ed25519(new std::string{ signature.cbegin(), signature.cend() });
 
     // Create a protobuf SignedTransaction from the TransactionBody and SignatureMap
     proto::SignedTransaction signedTransaction;
-    signedTransaction.set_allocated_bodybytes(transactionBodySerialized.get());
-    signedTransaction.set_allocated_sigmap(signatureMap.get());
+    signedTransaction.set_allocated_bodybytes(transactionBodySerialized);
+    signedTransaction.set_allocated_sigmap(signatureMap);
 
     // Serialize the protobuf SignedTransaction to a protobuf Transaction
     proto::Transaction transactionToReturn;

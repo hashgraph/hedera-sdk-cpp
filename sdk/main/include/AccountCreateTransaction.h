@@ -152,7 +152,7 @@ public:
    *
    * @return The key for this account.
    */
-  inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
+  inline std::shared_ptr<PublicKey> getKey() const { return mPublicKey; }
 
   /**
    * Extract the initial balance to transfer into the account.
@@ -239,7 +239,7 @@ private:
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is true, then it must also
    * sign any transfer into the account. Defaults to uninitialized.
    */
-  std::shared_ptr<PublicKey> mKey;
+  std::shared_ptr<PublicKey> mPublicKey;
 
   /**
    * The initial amount to transfer into this account. Defaults to 0 Hbar.

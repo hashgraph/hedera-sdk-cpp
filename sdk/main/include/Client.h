@@ -23,14 +23,10 @@
 #include "AccountId.h"
 #include "Hbar.h"
 #include "Network.h"
+#include "PrivateKey.h"
 #include "PublicKey.h"
 
 #include <functional>
-
-namespace Hedera
-{
-class PrivateKey;
-}
 
 namespace Hedera
 {
@@ -94,7 +90,7 @@ public:
    *
    * @return The public key of this client's operator, if valid.
    */
-  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const { return mOperator.mPublicKey; }
+  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const { return mOperator.mPrivateKey->getPublicKey(); }
 
   /**
    * The default maximum fee used for transactions.
@@ -124,7 +120,7 @@ private:
     /**
      * The public key of the account.
      */
-    std::shared_ptr<PublicKey> mPublicKey;
+    std::shared_ptr<PrivateKey> mPrivateKey;
   };
 
   /**

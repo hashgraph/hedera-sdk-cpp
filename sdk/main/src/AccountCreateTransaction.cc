@@ -40,7 +40,7 @@ AccountCreateTransaction::AccountCreateTransaction()
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
 {
-  mKey = key;
+  mPublicKey = key;
   return *this;
 }
 
@@ -124,9 +124,9 @@ std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::bu
 {
   auto body = std::make_shared<proto::CryptoCreateTransactionBody>();
 
-  if (mKey != nullptr)
+  if (mPublicKey)
   {
-    body->set_allocated_key(mKey->toProtobuf());
+    body->set_allocated_key(mPublicKey->toProtobuf());
   }
 
   body->set_initialbalance(mInitialBalance.toTinybars());
