@@ -19,6 +19,7 @@
  */
 #include "TransferTransaction.h"
 
+#include "Client.h"
 #include "TransactionResponse.h"
 
 #include <proto/crypto_transfer.pb.h>
@@ -41,15 +42,12 @@ TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const Accoun
 }
 
 //-----
-proto::Transaction TransferTransaction::makeRequest() const
+proto::Transaction TransferTransaction::makeRequest(const Client& client) const
 {
-  proto::Transaction transaction;
-  proto::TransactionBody* body = transaction.mutable_body();
-  body->set_allocated_cryptotransfer(build().get());
+  proto::TransactionBody body;
+  body.set_allocated_cryptotransfer(build().get());
 
-  // TODO: sign here?
-
-  return transaction;
+  return signTransaction(body, client);
 }
 
 //-----

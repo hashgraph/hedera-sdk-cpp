@@ -6,7 +6,8 @@ FetchContent_Declare(googletest
 FetchContent_MakeAvailable(googletest)
 
 set(TestSources
-        ED25519KeypairTest.cpp
+        ED25519PrivateKeyTest.cpp
+        ED25519PublicKeyTest.cpp
         )
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)

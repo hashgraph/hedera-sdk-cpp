@@ -19,6 +19,7 @@
  */
 #include "AccountCreateTransaction.h"
 
+#include "Client.h"
 #include "PublicKey.h"
 #include "TransactionResponse.h"
 
@@ -33,13 +34,13 @@ namespace Hedera
 //-----
 AccountCreateTransaction::AccountCreateTransaction()
 {
-  mMaxTransactionFee = Hbar(5LL);
+  setMaxTransactionFee(Hbar(5LL));
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
 {
-  mKey = key;
+  mPublicKey = key;
   return *this;
 }
 
@@ -110,15 +111,12 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 }
 
 //-----
-proto::Transaction AccountCreateTransaction::makeRequest() const
+proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) const
 {
-  proto::Transaction transaction;
   proto::TransactionBody transactionBody;
   transactionBody.set_allocated_cryptocreateaccount(build().get());
 
-  // TODO: sign here?
-
-  return transaction;
+  return signTransaction(transactionBody, client);
 }
 
 //-----
@@ -126,9 +124,9 @@ std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::bu
 {
   auto body = std::make_shared<proto::CryptoCreateTransactionBody>();
 
-  if (mKey != nullptr)
+  if (mPublicKey)
   {
-    body->set_allocated_key(mKey->toProtobuf());
+    body->set_allocated_key(mPublicKey->toProtobuf());
   }
 
   body->set_initialbalance(mInitialBalance.toTinybars());

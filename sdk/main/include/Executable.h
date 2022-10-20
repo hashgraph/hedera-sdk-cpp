@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -83,11 +83,12 @@ protected:
   virtual ~Executable() = default;
 
   /**
-   * Construct this request and place it in a protobuf object.
+   * Construct a ProtoRequestType from this request.
    *
-   * @return The protobuf object that contains this request.
+   * @param client The Client submitting this request.
+   * @return A ProtoRequestType that contains this request's data.
    */
-  virtual ProtoRequestType makeRequest() const = 0;
+  virtual ProtoRequestType makeRequest([[maybe_unused]] const Client& client) const = 0;
 
   /**
    * Construct the response from a protobuf response object.
