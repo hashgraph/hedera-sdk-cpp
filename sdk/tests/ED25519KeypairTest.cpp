@@ -22,23 +22,23 @@
 #include <memory>
 #include <vector>
 
-#include "ED25519Keypair.h"
+#include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
 
 TEST(tests, getPublicKey) {
-  std::unique_ptr<Hedera::ED25519Keypair> keypair =
-      std::make_unique<Hedera::ED25519Keypair>();
+  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
+      std::make_unique<Hedera::ED25519PrivateKey>();
 
-  std::shared_ptr<Hedera::PublicKey> publicKey = keypair->getPublicKey();
+  std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
   EXPECT_NE(publicKey, nullptr);
 }
 
 TEST(tests, sign) {
-  std::unique_ptr<Hedera::ED25519Keypair> keypair =
-      std::make_unique<Hedera::ED25519Keypair>();
+  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
+      std::make_unique<Hedera::ED25519PrivateKey>();
 
   std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
-  std::vector<unsigned char> signature = keypair->sign(bytesToSign);
+  std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
 
   EXPECT_EQ(signature.size(), 64);
 }
