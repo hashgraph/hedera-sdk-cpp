@@ -22,8 +22,6 @@ public:
   [[nodiscard]] bool verifySignature(const std::vector<unsigned char>& signatureBytes,
                                      const std::vector<unsigned char>& signedBytes) const override;
 
-  [[nodiscard]] std::shared_ptr<PrivateKey> getPrivateKey() const override;
-
 private:
   EVP_PKEY* publicKey;
 };

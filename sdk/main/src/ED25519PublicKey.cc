@@ -20,7 +20,6 @@
 
 #include "ED25519PublicKey.h"
 
-#include "PrivateKey.h"
 #include "helper/HexConverter.h"
 #include "openssl/x509.h"
 
@@ -86,13 +85,6 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
   EVP_MD_CTX_free(messageDigestContext);
 
   return verificationResult == 1;
-}
-
-//-----
-std::shared_ptr<PrivateKey> ED25519PublicKey::getPrivateKey() const
-{
-  // TODO: implement stub
-  return std::make_shared<PrivateKey>();
 }
 
 } // namespace Hedera

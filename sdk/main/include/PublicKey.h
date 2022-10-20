@@ -49,8 +49,6 @@ public:
   static std::shared_ptr<PublicKey> fromAliasBytes(const std::string&);
 
   [[nodiscard]] virtual std::string toString() const = 0;
-
-  [[nodiscard]] virtual std::shared_ptr<PrivateKey> getPrivateKey() const = 0;
 };
 
 } // namespace Hedera

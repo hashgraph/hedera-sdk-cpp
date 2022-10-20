@@ -220,7 +220,7 @@ public:
 
 protected:
   /**
-   * Derived from Executable. Construct a protobuf Transaction protobuf from this AccountCreateTransaction.
+   * Derived from Executable. Construct a protobuf Transaction from this AccountCreateTransaction.
    *
    * @param client The Client submitting this transaction.
    * @return A protobuf Transaction that contains this AccountCreateTransaction's data and is signed by the client.

@@ -76,7 +76,7 @@ public:
 
 protected:
   /**
-   * Derived from Executable. Construct a protobuf Transaction protobuf from this TransferTransaction.
+   * Derived from Executable. Construct a protobuf Transaction from this TransferTransaction.
    *
    * @param client The Client submitting this transaction.
    * @return A protobuf Transaction that contains this TransferTransaction's data and is signed by the client.
