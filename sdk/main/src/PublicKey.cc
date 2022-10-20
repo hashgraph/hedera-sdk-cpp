@@ -24,8 +24,6 @@
 
 #include <proto/basic_types.pb.h>
 
-#include <algorithm>
-
 namespace Hedera
 {
 std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
