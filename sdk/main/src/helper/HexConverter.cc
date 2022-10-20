@@ -24,16 +24,16 @@
 
 namespace Hedera
 {
-std::string HexConverter::bytesToHex(const unsigned char* data, int len)
+std::string HexConverter::bytesToHex(const std::vector<unsigned char>& bytes)
 {
-  std::stringstream ss;
-  ss << std::hex;
+  return { bytes.cbegin(), bytes.cend() };
+}
 
-  for (int i(0); i < len; ++i)
-  {
-    ss << std::setw(2) << std::setfill('0') << (int)data[i];
-  }
+std::vector<unsigned char> HexConverter::hexToBytes(const std::string& inputString)
+{
+  std::vector<unsigned char> output(inputString.size());
+  std::copy(inputString.begin(), inputString.end(), &output.front());
 
-  return ss.str();
+  return output;
 }
 }
