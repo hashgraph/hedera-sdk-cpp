@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -20,6 +20,7 @@
 
 #include "ED25519PublicKey.h"
 
+#include "PrivateKey.h"
 #include "helper/HexConverter.h"
 #include "openssl/x509.h"
 
@@ -86,4 +87,12 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
 
   return verificationResult == 1;
 }
+
+//-----
+std::shared_ptr<PrivateKey> ED25519PublicKey::getPrivateKey() const
+{
+  // TODO: implement stub
+  return std::make_shared<PrivateKey>();
 }
+
+} // namespace Hedera

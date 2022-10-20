@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -37,6 +37,7 @@ class TransactionResponse;
 namespace proto
 {
 class Transaction;
+class TransactionBody;
 class TransactionResponse;
 }
 
@@ -133,6 +134,16 @@ protected:
    */
   TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
 
+  /**
+   * Sign a protobuf TransactionBody with a Client and put the signed bytes into a protobuf Transaction.
+   *
+   * @param transaction The TransactionBody to sign.
+   * @param client      The Client being used to sign the transaction.
+   * @return A protobuf Transaction containing the TransactionBody signed by the Client.
+   */
+  proto::Transaction signTransaction(const proto::TransactionBody& transaction, const Client& client) const;
+
+private:
   /**
    * The valid transaction duration. Defaults to two minutes.
    */
