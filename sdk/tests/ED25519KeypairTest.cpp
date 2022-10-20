@@ -23,7 +23,7 @@
 //#include <vector>
 //
 //#include "ED25519Keypair.h"
-//#include "ED25519PublicKey.h"
+#include "ED25519PublicKey.h"
 //
 //TEST(tests, getPublicKey) {
 //  std::unique_ptr<Hedera::ED25519Keypair> keypair =
