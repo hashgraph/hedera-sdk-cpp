@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -33,7 +33,7 @@ namespace Hedera
 //-----
 AccountCreateTransaction::AccountCreateTransaction()
 {
-  mMaxTransactionFee = Hbar::from(5LL);
+  mMaxTransactionFee = Hbar(5LL);
 }
 
 //-----
@@ -66,7 +66,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(const std::string& memo)
+AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_view memo)
 {
   mAccountMemo = memo;
   return *this;
@@ -124,7 +124,7 @@ proto::Transaction AccountCreateTransaction::makeRequest() const
 //-----
 std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::build() const
 {
-  std::shared_ptr<proto::CryptoCreateTransactionBody> body = std::make_shared<proto::CryptoCreateTransactionBody>();
+  auto body = std::make_shared<proto::CryptoCreateTransactionBody>();
 
   if (mKey != nullptr)
   {

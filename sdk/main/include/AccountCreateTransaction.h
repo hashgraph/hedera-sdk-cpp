@@ -95,7 +95,7 @@ public:
    * @param memo The memo to set.
    * @return Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setAccountMemo(const std::string& memo);
+  AccountCreateTransaction& setAccountMemo(std::string_view memo);
 
   /**
    * Set the maximum automatic token associations.

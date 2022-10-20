@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -26,7 +26,7 @@
 namespace Hedera
 {
 /**
- * Common units of hbar; for the most part they follow SI prefix conventions.
+ * Common units of Hbar; for the most part they follow SI prefix conventions.
  */
 class HbarUnit
 {
@@ -36,86 +36,75 @@ public:
    *
    * It is equivalent to 1/100,000,000 hbar.
    */
-  static const HbarUnit TINYBAR;
+  static constexpr HbarUnit TINYBAR() { return HbarUnit("tℏ", 1ULL); }
 
   /**
    * Equivalent to 100 tinybar or 1/1,000,000 hbar.
    */
-  static const HbarUnit MICROBAR;
+  static constexpr HbarUnit MICROBAR() { return HbarUnit("μℏ", 100ULL); }
 
   /**
    * Equivalent to 100,000 tinybar or 1/1,000 hbar.
    */
-  static const HbarUnit MILLIBAR;
+  static constexpr HbarUnit MILLIBAR() { return HbarUnit("mℏ", 100000ULL); }
 
   /**
    * The base unit of hbar, equivalent to 100 million tinybar.
    */
-  static const HbarUnit HBAR;
+  static constexpr HbarUnit HBAR() { return HbarUnit("ℏ", 100000000ULL); }
 
   /**
    * Equivalent to 1 thousand hbar or 100 billion tinybar.
    */
-  static const HbarUnit KILOBAR;
+  static constexpr HbarUnit KILOBAR() { return HbarUnit("kℏ", 100000000000ULL); }
 
   /**
    * Equivalent to 1 million hbar or 100 trillion tinybar.
    */
-  static const HbarUnit MEGABAR;
+  static constexpr HbarUnit MEGABAR() { return HbarUnit("Mℏ", 100000000000000ULL); }
 
   /**
    * Equivalent to 1 billion hbar or 100 quadillion tinybar.
    *
-   * The maximum hbar amount supported by Hedera in any context is ~92 gigabar
-   * (2^63 tinybar); use this unit sparingly.
+   * The maximum hbar amount supported by Hedera in any context is ~92 gigabar (2^63 tinybar); use this unit sparingly.
    */
-  static const HbarUnit GIGABAR;
+  static constexpr HbarUnit GIGABAR() { return HbarUnit("Gℏ", 100000000000000000ULL); }
 
   /**
-   * Get the preferred symbol of the current unit.
-   * E.g. HbarUnit::TINYBAR.getSymbol() returns "tℏ".
+   * Get the symbol of the current unit.
    *
-   * @return The symbol of this unit
+   * @return The symbol of this unit.
    */
   inline std::string getSymbol() const { return mSymbol; }
 
   /**
-   * Get the value of this unit, in tinybars
+   * Get the value of this unit, in tinybars.
    *
-   * @return The unit value, in tinybars
+   * @return The unit value, in tinybars.
    */
-  inline int64_t getTinybars() const { return mTinybars; }
-
-  /**
-   * Get the name of this unit.
-   * E.g. TINYBAR.toString() returns "tinybar".
-   *
-   * @return The name of this unit
-   */
-  inline std::string toString() const { return nameMap.at(this); }
+  inline uint64_t getTinybars() const { return mTinybars; }
 
 private:
   /**
-   * Constructor
-   * @param sym  The symbol of the unit
-   * @param val  The value of the unit, in tinybars
+   * Construct with a symbol and a value.
+   * @param sym The symbol of the unit
+   * @param val The value of the unit, in tinybars
    */
-  HbarUnit(const std::string& sym, const int64_t& val);
-
-  /**
-   * Keep a map of the unit names
-   */
-  static const std::map<const HbarUnit*, std::string> nameMap;
+  constexpr HbarUnit(const char* sym, const uint64_t& val)
+    : mSymbol(sym)
+    , mTinybars(val)
+  {
+  }
 
   /**
    * The associated symbol of this unit
    */
-  std::string mSymbol;
+  const char* mSymbol;
 
   /**
    * The value of this unit, in tinybars
    */
-  int64_t mTinybars;
+  const uint64_t mTinybars;
 };
 
 } // namespace Hedera
