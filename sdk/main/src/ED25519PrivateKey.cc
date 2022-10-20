@@ -18,14 +18,14 @@
  *
  */
 
-#include "ED25519Keypair.h"
+#include "ED25519PrivateKey.h"
 #include "helper/HexConverter.h"
 #include "openssl/x509.h"
 #include <iostream>
 
 namespace Hedera
 {
-ED25519Keypair::ED25519Keypair()
+ED25519PrivateKey::ED25519PrivateKey()
 {
   this->keypair = nullptr;
 
@@ -59,17 +59,17 @@ ED25519Keypair::ED25519Keypair()
   this->publicKey = std::make_shared<ED25519PublicKey>(rawPublicKey);
 }
 
-ED25519Keypair::~ED25519Keypair()
+ED25519PrivateKey::~ED25519PrivateKey()
 {
   EVP_PKEY_free(this->keypair);
 }
 
-std::shared_ptr<PublicKey> ED25519Keypair::getPublicKey() const
+std::shared_ptr<PublicKey> ED25519PrivateKey::getPublicKey() const
 {
   return publicKey;
 }
 
-std::vector<unsigned char> ED25519Keypair::sign(const std::vector<unsigned char>& bytesToSign) const
+std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
   EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
 

@@ -20,14 +20,16 @@
 #ifndef PRIVATE_KEY_H_
 #define PRIVATE_KEY_H_
 
-#include "PublicKey.h"
+#include <memory>
+#include <vector>
 
 namespace Hedera
 {
 class PrivateKey
 {
 public:
-  std::shared_ptr<PublicKey> getPublicKey() const { return std::shared_ptr<PublicKey>(); }
+  [[nodiscard]] virtual std::shared_ptr<PublicKey> getPublicKey() const = 0;
+  [[nodiscard]] virtual std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const = 0;
 };
 
 } // namespace Hedera
