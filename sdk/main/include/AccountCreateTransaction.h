@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -95,7 +95,7 @@ public:
    * @param memo The memo to set.
    * @return Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setAccountMemo(const std::string& memo);
+  AccountCreateTransaction& setAccountMemo(std::string_view memo);
 
   /**
    * Set the maximum automatic token associations.
@@ -152,7 +152,7 @@ public:
    *
    * @return The key for this account.
    */
-  inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
+  inline std::shared_ptr<PublicKey> getKey() const { return mPublicKey; }
 
   /**
    * Extract the initial balance to transfer into the account.
@@ -220,11 +220,12 @@ public:
 
 protected:
   /**
-   * Derived from Transaction. Construct a transaction protobuf object from this transaction.
+   * Derived from Executable. Construct a protobuf Transaction from this AccountCreateTransaction.
    *
-   * @return The transaction protobuf object that contains this transaction information.
+   * @param client The Client submitting this transaction.
+   * @return A protobuf Transaction that contains this AccountCreateTransaction's data and is signed by the client.
    */
-  proto::Transaction makeRequest() const override;
+  proto::Transaction makeRequest(const Client& client) const override;
 
 private:
   /**
@@ -238,7 +239,7 @@ private:
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is true, then it must also
    * sign any transfer into the account. Defaults to uninitialized.
    */
-  std::shared_ptr<PublicKey> mKey;
+  std::shared_ptr<PublicKey> mPublicKey;
 
   /**
    * The initial amount to transfer into this account. Defaults to 0 Hbar.

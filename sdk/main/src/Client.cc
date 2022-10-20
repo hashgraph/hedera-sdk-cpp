@@ -35,7 +35,7 @@ Client Client::forTestnet()
 Client& Client::setOperator(const AccountId& accountId, const PrivateKey& privateKey)
 {
   mOperator.mAccountId = accountId;
-  mOperator.mPublicKey = privateKey.getPublicKey();
+  mOperator.mPrivateKey = std::make_shared<PrivateKey>(privateKey);
 
   return *this;
 }

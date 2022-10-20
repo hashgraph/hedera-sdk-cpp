@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -76,11 +76,12 @@ public:
 
 protected:
   /**
-   * Derived from Transaction. Construct a protobuf Transaction from this TransferTransaction.
+   * Derived from Executable. Construct a protobuf Transaction from this TransferTransaction.
    *
-   * @return The protobuf Transaction that contains this TransferTransaction information.
+   * @param client The Client submitting this transaction.
+   * @return A protobuf Transaction that contains this TransferTransaction's data and is signed by the client.
    */
-  proto::Transaction makeRequest() const override;
+  proto::Transaction makeRequest(const Client& client) const override;
 
 private:
   /**

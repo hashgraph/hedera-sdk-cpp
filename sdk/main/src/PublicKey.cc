@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -26,36 +26,31 @@
 
 namespace Hedera
 {
-PublicKey::PublicKey() = default;
-
 std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
 {
+  switch (key.key_case())
   {
-    switch (key.key_case())
+    case proto::Key::KeyCase::kEd25519:
     {
-      case proto::Key::KeyCase::kEd25519:
-      {
-        std::string keyString = key.ed25519();
-        std::vector<unsigned char> rawKeyBytes(keyString.size());
-        std::copy(keyString.begin(), keyString.end(), &rawKeyBytes.front());
+      std::string keyString = key.ed25519();
+      std::vector<unsigned char> rawKeyBytes(keyString.size());
+      std::copy(keyString.begin(), keyString.end(), &rawKeyBytes.front());
 
-        return std::make_shared<ED25519PublicKey>(ED25519PublicKey(rawKeyBytes));
-      }
-      default:
-      {
-        // TODO throw
-        break;
-      }
+      return std::make_shared<ED25519PublicKey>(ED25519PublicKey(rawKeyBytes));
+    }
+    default:
+    {
+      // TODO throw
+      return std::shared_ptr<PublicKey>();
     }
   }
 }
 
-std::shared_ptr<PublicKey> PublicKey::fromAliasBytes(const std::string& bytes)
+std::shared_ptr<PublicKey> PublicKey::fromAliasBytes(const std::string&)
 {
-  {
-    // TODO this implementation is meaningless, only acts as a stub
-    std::vector<unsigned char> rawKeyBytes(32);
-    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(rawKeyBytes));
-  }
+  // TODO this implementation is meaningless, only acts as a stub
+  std::vector<unsigned char> rawKeyBytes(32);
+  return std::make_shared<ED25519PublicKey>(ED25519PublicKey(rawKeyBytes));
 }
-}
+
+} // namespace Hedera

@@ -14,7 +14,7 @@ class ED25519PublicKey : public PublicKey
 public:
   explicit ED25519PublicKey(const std::vector<unsigned char>& rawPublicKey);
 
-  ~ED25519PublicKey();
+  ~ED25519PublicKey() override;
 
   [[nodiscard]] proto::Key* toProtobuf() const override;
   [[nodiscard]] std::string toString() const override;
