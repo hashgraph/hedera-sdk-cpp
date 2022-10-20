@@ -42,13 +42,13 @@ TEST(tests, sign) {
 
   EXPECT_EQ(signature.size(), 64);
 }
-//
-// TEST(tests, signEmptyBytes) {
-//  std::unique_ptr<Hedera::ED25519Keypair> keypair =
-//      std::make_unique<Hedera::ED25519Keypair>();
-//
-//  std::vector<unsigned char> signature = keypair->sign(std::vector<unsigned
-//  char>());
-//
-//  EXPECT_EQ(signature.size(), 64);
-//}
+
+TEST(tests, signEmptyBytes) {
+  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
+      std::make_unique<Hedera::ED25519PrivateKey>();
+
+  std::vector<unsigned char> signature =
+      privateKey->sign(std::vector<unsigned char>());
+
+  EXPECT_EQ(signature.size(), 64);
+}
