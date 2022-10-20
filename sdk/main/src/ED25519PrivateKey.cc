@@ -23,6 +23,8 @@
 #include "openssl/x509.h"
 #include <iostream>
 
+#include "helper/HexConverter.h"
+
 namespace Hedera
 {
 ED25519PrivateKey::ED25519PrivateKey()
@@ -48,15 +50,17 @@ ED25519PrivateKey::ED25519PrivateKey()
 
   EVP_PKEY_CTX_free(keyAlgorithmContext);
 
-  size_t publicKeyLength = 32;
-  std::vector<unsigned char> rawPublicKey(publicKeyLength);
+  this->publicKey = createPublicKey();
+}
 
-  if (EVP_PKEY_get_raw_public_key(this->keypair, &rawPublicKey.front(), &publicKeyLength) <= 0)
-  {
-    std::cout << "GET RAW PUBLIC KEY ERROR" << std::endl;
-  }
+ED25519PrivateKey::ED25519PrivateKey(const std::string& privateKeyString)
+{
+  std::vector<unsigned char> privateKeyBytes(privateKeyString.size());
+  std::copy(privateKeyString.begin(), privateKeyString.end(), &privateKeyBytes.front());
 
-  this->publicKey = std::make_shared<ED25519PublicKey>(rawPublicKey);
+  this->keypair =
+    EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, nullptr, &privateKeyBytes.front(), privateKeyBytes.size());
+  this->publicKey = createPublicKey();
 }
 
 ED25519PrivateKey::~ED25519PrivateKey()
@@ -101,5 +105,31 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
   EVP_MD_CTX_free(messageDigestContext);
 
   return signature;
+}
+
+std::string ED25519PrivateKey::toString() const
+{
+  size_t privateKeyLength = 32;
+  std::vector<unsigned char> privateKeyBytes(privateKeyLength);
+
+  if (EVP_PKEY_get_raw_private_key(this->keypair, &privateKeyBytes.front(), &privateKeyLength) <= 0)
+  {
+    std::cout << "GET RAW PRIVATE KEY ERROR: " << privateKeyLength << std::endl;
+  }
+
+  return HexConverter::bytesToHex(privateKeyBytes);
+}
+
+std::shared_ptr<ED25519PublicKey> ED25519PrivateKey::createPublicKey()
+{
+  size_t publicKeyLength = 32;
+  std::vector<unsigned char> rawPublicKey(publicKeyLength);
+
+  if (EVP_PKEY_get_raw_public_key(this->keypair, &rawPublicKey.front(), &publicKeyLength) <= 0)
+  {
+    std::cout << "GET RAW PUBLIC KEY ERROR" << std::endl;
+  }
+
+  return std::make_shared<ED25519PublicKey>(rawPublicKey);
 }
 }

@@ -46,17 +46,18 @@ proto::Key* ED25519PublicKey::toProtobuf() const
 
 std::string ED25519PublicKey::toString() const
 {
-  unsigned char* derBytes; // TODO do we need to delete this manually?
   int bytesLength;
 
-  bytesLength = i2d_PUBKEY(this->publicKey, &derBytes);
+  bytesLength = i2d_PUBKEY(this->publicKey, nullptr);
 
-  if (bytesLength <= 0)
+  std::vector<unsigned char> publicKeyBytes(bytesLength);
+  unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
+
+  if (i2d_PUBKEY(this->publicKey, &rawPublicKeyBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;
-  }
+    std::cout << "I2D error" << std::endl;  }
 
-  return HexConverter::bytesToHex(derBytes, bytesLength);
+  return HexConverter::bytesToHex(publicKeyBytes);
 }
 
 bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,

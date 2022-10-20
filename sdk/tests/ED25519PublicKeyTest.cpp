@@ -25,7 +25,7 @@
 #include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
 
-TEST(tests, toString) {
+TEST(tests, ED25519PublicKey_toString) {
   std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
       std::make_unique<Hedera::ED25519PrivateKey>();
   std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
@@ -34,7 +34,7 @@ TEST(tests, toString) {
   EXPECT_EQ(derEncoding.size(), 88);
 }
 
-TEST(tests, verifyValidSignature) {
+TEST(tests, ED25519PublicKey_verifyValidSignature) {
   std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
       std::make_unique<Hedera::ED25519PrivateKey>();
   std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
@@ -45,7 +45,7 @@ TEST(tests, verifyValidSignature) {
   EXPECT_TRUE(publicKey->verifySignature(signature, bytesToSign));
 }
 
-TEST(tests, verifyInvalidSignature) {
+TEST(tests, ED25519PublicKey_verifyInvalidSignature) {
   std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
       std::make_unique<Hedera::ED25519PrivateKey>();
   std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
@@ -69,7 +69,7 @@ TEST(tests, verifyEmptySignature) {
       publicKey->verifySignature(std::vector<unsigned char>(), bytesToSign));
 }
 
-TEST(tests, verifyEmptyMessage) {
+TEST(tests, ED25519PublicKey_verifyEmptyMessage) {
   std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
       std::make_unique<Hedera::ED25519PrivateKey>();
   std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
@@ -81,7 +81,7 @@ TEST(tests, verifyEmptyMessage) {
       publicKey->verifySignature(signature, std::vector<unsigned char>()));
 }
 
-TEST(tests, verifySignatureOfEmptyMessage) {
+TEST(tests, ED25519PublicKey_verifySignatureOfEmptyMessage) {
   std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
       std::make_unique<Hedera::ED25519PrivateKey>();
   std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();

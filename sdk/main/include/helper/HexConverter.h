@@ -21,13 +21,15 @@
 #define HEDERA_SDK_CPP_HEXCONVERTER_H
 
 #include <string>
+#include <vector>
 
 namespace Hedera
 {
 class HexConverter
 {
 public:
-  static std::string bytesToHex(const unsigned char *data, int len);
+  static std::string bytesToHex(const std::vector<unsigned char>& bytes);
+  static std::vector<unsigned char> hexToBytes(const std::string& inputString);
 };
 
 }

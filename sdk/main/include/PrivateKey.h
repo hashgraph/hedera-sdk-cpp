@@ -21,7 +21,10 @@
 #define PRIVATE_KEY_H_
 
 #include <memory>
+#include <string>
 #include <vector>
+
+#include "PublicKey.h"
 
 namespace Hedera
 {
@@ -30,6 +33,7 @@ class PrivateKey
 public:
   [[nodiscard]] virtual std::shared_ptr<PublicKey> getPublicKey() const = 0;
   [[nodiscard]] virtual std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const = 0;
+  [[nodiscard]] virtual std::string toString() const = 0;
 };
 
 } // namespace Hedera

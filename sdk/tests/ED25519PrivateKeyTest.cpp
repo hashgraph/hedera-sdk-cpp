@@ -25,15 +25,31 @@
 #include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
 
-TEST(tests, getPublicKey) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
+TEST(tests, ED25519PrivateKey_getPublicKey) {
+  std::unique_ptr<Hedera::ED25519PrivateKey> generatedPrivateKey =
       std::make_unique<Hedera::ED25519PrivateKey>();
 
-  std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
-  EXPECT_NE(publicKey, nullptr);
+  // serialize and then load private key back in, to make sure nothing is
+  // changed
+  std::string privateKeyString = generatedPrivateKey->toString();
+  std::unique_ptr<Hedera::ED25519PrivateKey> loadedPrivateKey =
+      std::make_unique<Hedera::ED25519PrivateKey>(privateKeyString);
+
+  // get the public keys from the private keys
+  std::shared_ptr<Hedera::PublicKey> publicFromGenerated =
+      generatedPrivateKey->getPublicKey();
+  std::shared_ptr<Hedera::PublicKey> publicFromLoaded =
+      loadedPrivateKey->getPublicKey();
+
+  EXPECT_NE(publicFromGenerated, nullptr);
+  EXPECT_NE(publicFromLoaded, nullptr);
+
+  // make sure returned public keys are the same for generated or loaded private
+  // keys
+  EXPECT_EQ(publicFromGenerated->toString(), publicFromLoaded->toString());
 }
 
-TEST(tests, sign) {
+TEST(tests, ED25519PrivateKey_sign) {
   std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
       std::make_unique<Hedera::ED25519PrivateKey>();
 
@@ -43,7 +59,7 @@ TEST(tests, sign) {
   EXPECT_EQ(signature.size(), 64);
 }
 
-TEST(tests, signEmptyBytes) {
+TEST(tests, ED25519PrivateKey_signEmptyBytes) {
   std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
       std::make_unique<Hedera::ED25519PrivateKey>();
 
@@ -51,4 +67,20 @@ TEST(tests, signEmptyBytes) {
       privateKey->sign(std::vector<unsigned char>());
 
   EXPECT_EQ(signature.size(), 64);
+}
+
+TEST(tests, ED25519PrivateKey_toString) {
+  std::unique_ptr<Hedera::ED25519PrivateKey> generatedPrivateKey =
+      std::make_unique<Hedera::ED25519PrivateKey>();
+
+  std::string generatedPrivateKeyString = generatedPrivateKey->toString();
+
+  std::unique_ptr<Hedera::ED25519PrivateKey> loadedPrivateKey =
+      std::make_unique<Hedera::ED25519PrivateKey>(generatedPrivateKeyString);
+
+  std::string loadedPrivateKeyString = loadedPrivateKey->toString();
+
+  EXPECT_EQ(generatedPrivateKeyString.size(), 32);
+  EXPECT_EQ(loadedPrivateKeyString.size(), 32);
+  EXPECT_EQ(generatedPrivateKey->toString(), loadedPrivateKey->toString());
 }
