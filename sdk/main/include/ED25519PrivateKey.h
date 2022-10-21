@@ -12,10 +12,14 @@ namespace Hedera
 class ED25519PrivateKey : public PrivateKey
 {
 public:
-  ED25519PrivateKey();
-  explicit ED25519PrivateKey(const std::string& privateKeyString);
+  explicit ED25519PrivateKey(EVP_PKEY* keypair);
+
+  static std::shared_ptr<ED25519PrivateKey> generatePrivateKey();
+  static std::shared_ptr<ED25519PrivateKey> fromDEREncoding(const std::string& derEncodedKey);
 
   ~ED25519PrivateKey();
+
+  ED25519PrivateKey(const ED25519PrivateKey&) = delete;
 
   [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const override;
   [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
@@ -25,8 +29,6 @@ private:
   EVP_PKEY* keypair;
 
   std::shared_ptr<ED25519PublicKey> publicKey;
-
-  std::shared_ptr<ED25519PublicKey> createPublicKey();
 };
 }
 

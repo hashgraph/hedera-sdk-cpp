@@ -28,10 +28,9 @@
 
 namespace Hedera
 {
-ED25519PublicKey::ED25519PublicKey(const std::vector<unsigned char>& rawPublicKey)
-  : PublicKey()
+ED25519PublicKey::ED25519PublicKey(EVP_PKEY* publicKey)
 {
-  this->publicKey = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, nullptr, &rawPublicKey.front(), rawPublicKey.size());
+  this->publicKey = publicKey;
 }
 
 ED25519PublicKey::~ED25519PublicKey()
@@ -46,16 +45,15 @@ proto::Key* ED25519PublicKey::toProtobuf() const
 
 std::string ED25519PublicKey::toString() const
 {
-  int bytesLength;
-
-  bytesLength = i2d_PUBKEY(this->publicKey, nullptr);
+  int bytesLength = i2d_PUBKEY(this->publicKey, nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
   unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
 
   if (i2d_PUBKEY(this->publicKey, &rawPublicKeyBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;  }
+    std::cout << "I2D error" << std::endl;
+  }
 
   return HexConverter::bytesToHex(publicKeyBytes);
 }
@@ -86,6 +84,18 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
   EVP_MD_CTX_free(messageDigestContext);
 
   return verificationResult == 1;
+}
+
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromDEREncoding(const std::string& derEncodedKey)
+{
+  return fromDEREncoding(HexConverter::hexToBytes(derEncodedKey));
+}
+
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromDEREncoding(const std::vector<unsigned char>& derEncodedKey)
+{
+  const unsigned char* rawKeyBytes = &derEncodedKey.front();
+
+  return std::make_shared<ED25519PublicKey>(d2i_PUBKEY(nullptr, &rawKeyBytes, (long)derEncodedKey.size()));
 }
 
 } // namespace Hedera

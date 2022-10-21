@@ -12,9 +12,13 @@ namespace Hedera
 class ED25519PublicKey : public PublicKey
 {
 public:
-  explicit ED25519PublicKey(const std::vector<unsigned char>& rawPublicKey);
-
+  explicit ED25519PublicKey(EVP_PKEY* publicKey);
   ~ED25519PublicKey() override;
+
+  ED25519PublicKey(const ED25519PublicKey&) = delete;
+
+  static std::shared_ptr<ED25519PublicKey> fromDEREncoding(const std::string& derEncodedKey);
+  static std::shared_ptr<ED25519PublicKey> fromDEREncoding(const std::vector<unsigned char>& derEncodedKey);
 
   [[nodiscard]] proto::Key* toProtobuf() const override;
   [[nodiscard]] std::string toString() const override;
