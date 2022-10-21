@@ -25,21 +25,27 @@
 #include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
 
-TEST(tests, ED25519PrivateKey_getPublicKey) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> generatedPrivateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
+class ED25519PrivateKeyTest : public ::testing::Test {
+protected:
+  std::shared_ptr<Hedera::ED25519PrivateKey> privateKeyGenerated;
+  std::shared_ptr<Hedera::ED25519PrivateKey> privateKeyLoaded;
 
-  // serialize and then load private key back in, to make sure nothing is
-  // changed
-  std::string privateKeyString = generatedPrivateKey->toString();
-  std::unique_ptr<Hedera::ED25519PrivateKey> loadedPrivateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>(privateKeyString);
+  void SetUp() override {
+    // generate a private key
+    privateKeyGenerated = Hedera::ED25519PrivateKey::generatePrivateKey();
 
+    // serialize and then load private key back in
+    privateKeyLoaded =
+        Hedera::ED25519PrivateKey::fromString(privateKeyGenerated->toString());
+  }
+};
+
+TEST_F(ED25519PrivateKeyTest, GetPublicKey) {
   // get the public keys from the private keys
   std::shared_ptr<Hedera::PublicKey> publicFromGenerated =
-      generatedPrivateKey->getPublicKey();
+      privateKeyGenerated->getPublicKey();
   std::shared_ptr<Hedera::PublicKey> publicFromLoaded =
-      loadedPrivateKey->getPublicKey();
+      privateKeyLoaded->getPublicKey();
 
   EXPECT_NE(publicFromGenerated, nullptr);
   EXPECT_NE(publicFromLoaded, nullptr);
@@ -49,38 +55,36 @@ TEST(tests, ED25519PrivateKey_getPublicKey) {
   EXPECT_EQ(publicFromGenerated->toString(), publicFromLoaded->toString());
 }
 
-TEST(tests, ED25519PrivateKey_sign) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
-
+TEST_F(ED25519PrivateKeyTest, Sign) {
   std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
-  std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromGenerated =
+      privateKeyGenerated->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromLoaded =
+      privateKeyLoaded->sign(bytesToSign);
 
-  EXPECT_EQ(signature.size(), 64);
+  EXPECT_EQ(signatureFromGenerated.size(), 64);
+  EXPECT_EQ(signatureFromLoaded.size(), 64);
+  EXPECT_EQ(signatureFromGenerated, signatureFromLoaded);
 }
 
-TEST(tests, ED25519PrivateKey_signEmptyBytes) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
+TEST_F(ED25519PrivateKeyTest, SignEmptyBytes) {
+  std::vector<unsigned char> bytesToSign = std::vector<unsigned char>();
 
-  std::vector<unsigned char> signature =
-      privateKey->sign(std::vector<unsigned char>());
+  std::vector<unsigned char> signatureFromGenerated =
+      privateKeyGenerated->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromLoaded =
+      privateKeyLoaded->sign(bytesToSign);
 
-  EXPECT_EQ(signature.size(), 64);
+  EXPECT_EQ(signatureFromGenerated.size(), 64);
+  EXPECT_EQ(signatureFromLoaded.size(), 64);
+  EXPECT_EQ(signatureFromGenerated, signatureFromLoaded);
 }
 
-TEST(tests, ED25519PrivateKey_toString) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> generatedPrivateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
+TEST_F(ED25519PrivateKeyTest, ToString) {
+  std::string stringFromGenerated = privateKeyGenerated->toString();
+  std::string stringFromLoaded = privateKeyLoaded->toString();
 
-  std::string generatedPrivateKeyString = generatedPrivateKey->toString();
-
-  std::unique_ptr<Hedera::ED25519PrivateKey> loadedPrivateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>(generatedPrivateKeyString);
-
-  std::string loadedPrivateKeyString = loadedPrivateKey->toString();
-
-  EXPECT_EQ(generatedPrivateKeyString.size(), 32);
-  EXPECT_EQ(loadedPrivateKeyString.size(), 32);
-  EXPECT_EQ(generatedPrivateKey->toString(), loadedPrivateKey->toString());
+  EXPECT_EQ(stringFromGenerated.size(), 48);
+  EXPECT_EQ(stringFromLoaded.size(), 48);
+  EXPECT_EQ(stringFromGenerated, stringFromLoaded);
 }

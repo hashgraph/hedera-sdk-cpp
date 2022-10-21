@@ -22,72 +22,85 @@
 #include <memory>
 #include <vector>
 
+#include "helper/HexConverter.h"
+
 #include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
 
-TEST(tests, ED25519PublicKey_toString) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
-  std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
+class ED25519PublicKeyTest : public ::testing::Test {
+protected:
+  std::shared_ptr<Hedera::ED25519PrivateKey> privateKey;
+  std::shared_ptr<Hedera::PublicKey> publicKeyFromPrivate;
+  std::shared_ptr<Hedera::ED25519PublicKey> publicKeyLoaded;
 
-  std::string derEncoding = publicKey->toString();
-  EXPECT_EQ(derEncoding.size(), 88);
+  void SetUp() override {
+    // generate a private key
+    privateKey = Hedera::ED25519PrivateKey::generatePrivateKey();
+
+    publicKeyFromPrivate = privateKey->getPublicKey();
+    publicKeyLoaded =
+        Hedera::ED25519PublicKey::fromString(publicKeyFromPrivate->toString());
+  }
+};
+
+TEST_F(ED25519PublicKeyTest, ToString) {
+  std::string derEncodingFromPrivate = publicKeyFromPrivate->toString();
+  std::string derEncodingFromLoaded = publicKeyLoaded->toString();
+
+  EXPECT_EQ(derEncodingFromPrivate.size(), 44);
+  EXPECT_EQ(derEncodingFromLoaded.size(), 44);
+  EXPECT_EQ(derEncodingFromPrivate, derEncodingFromLoaded);
 }
 
-TEST(tests, ED25519PublicKey_verifyValidSignature) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
-  std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
-
+TEST_F(ED25519PublicKeyTest, VerifyValidSignature) {
   std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
   std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
 
-  EXPECT_TRUE(publicKey->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(publicKeyFromPrivate->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(publicKeyLoaded->verifySignature(signature, bytesToSign));
 }
 
-TEST(tests, ED25519PublicKey_verifyInvalidSignature) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
-  std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
-
-  std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
+TEST_F(ED25519PublicKeyTest, VerifyValidSignatureOfEmptyMessage) {
+  std::vector<unsigned char> bytesToSign = std::vector<unsigned char>();
   std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
 
-  std::vector<unsigned char> differentBytes = {0x1, 0x2, 0x3, 0x4};
-
-  EXPECT_FALSE(publicKey->verifySignature(signature, differentBytes));
+  EXPECT_TRUE(publicKeyFromPrivate->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(publicKeyLoaded->verifySignature(signature, bytesToSign));
 }
 
-TEST(tests, verifyEmptySignature) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
-  std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
+TEST_F(ED25519PublicKeyTest, VerifySignatureAgainstModifiedBytes) {
+  std::vector<unsigned char> signature = privateKey->sign({0x1, 0x2, 0x3});
 
-  std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
+  std::vector<unsigned char> modifiedBytes = {0x1, 0x2, 0x3, 0x4};
 
   EXPECT_FALSE(
-      publicKey->verifySignature(std::vector<unsigned char>(), bytesToSign));
+      publicKeyFromPrivate->verifySignature(signature, modifiedBytes));
+  EXPECT_FALSE(publicKeyLoaded->verifySignature(signature, modifiedBytes));
 }
 
-TEST(tests, ED25519PublicKey_verifyEmptyMessage) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
-  std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
-
+TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature) {
   std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
-  std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
+  std::vector<unsigned char> arbitrarySignature = {0x1, 0x2, 0x3, 0x4};
 
   EXPECT_FALSE(
-      publicKey->verifySignature(signature, std::vector<unsigned char>()));
+      publicKeyFromPrivate->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_FALSE(publicKeyLoaded->verifySignature(arbitrarySignature, bytesToSign));
 }
 
-TEST(tests, ED25519PublicKey_verifySignatureOfEmptyMessage) {
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey =
-      std::make_unique<Hedera::ED25519PrivateKey>();
-  std::shared_ptr<Hedera::PublicKey> publicKey = privateKey->getPublicKey();
+TEST_F(ED25519PublicKeyTest, VerifyEmptySignature) {
+  std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
+  std::vector<unsigned char> emptySignature = std::vector<unsigned char>();
 
-  std::vector<unsigned char> bytesToSign = {};
-  std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
+  EXPECT_FALSE(
+      publicKeyFromPrivate->verifySignature(emptySignature, bytesToSign));
+  EXPECT_FALSE(publicKeyLoaded->verifySignature(emptySignature, bytesToSign));
+}
 
-  EXPECT_TRUE(publicKey->verifySignature(signature, bytesToSign));
+TEST_F(ED25519PublicKeyTest, VerifyEmptyMessage) {
+  std::vector<unsigned char> signature = privateKey->sign({0x1, 0x2, 0x3});
+  std::vector<unsigned char> emptyMessage = std::vector<unsigned char>();
+
+  EXPECT_FALSE(
+      publicKeyFromPrivate->verifySignature(signature, emptyMessage));
+  EXPECT_FALSE(publicKeyLoaded->verifySignature(signature, emptyMessage));
 }

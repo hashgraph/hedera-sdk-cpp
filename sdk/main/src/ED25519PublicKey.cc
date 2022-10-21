@@ -28,10 +28,14 @@
 
 namespace Hedera
 {
-ED25519PublicKey::ED25519PublicKey(const std::vector<unsigned char>& rawPublicKey)
-  : PublicKey()
+ED25519PublicKey::ED25519PublicKey(const ED25519PublicKey& other)
 {
-  this->publicKey = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, nullptr, &rawPublicKey.front(), rawPublicKey.size());
+  this->publicKey = bytesToPKEY(other.toBytes());
+}
+
+ED25519PublicKey::ED25519PublicKey(EVP_PKEY* publicKey)
+{
+  this->publicKey = publicKey;
 }
 
 ED25519PublicKey::~ED25519PublicKey()
@@ -46,18 +50,32 @@ proto::Key* ED25519PublicKey::toProtobuf() const
 
 std::string ED25519PublicKey::toString() const
 {
-  int bytesLength;
+  return HexConverter::bytesToHex(toBytes());
+}
 
-  bytesLength = i2d_PUBKEY(this->publicKey, nullptr);
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string& keyString)
+{
+  return fromBytes(HexConverter::hexToBytes(keyString));
+}
+
+std::vector<unsigned char> ED25519PublicKey::toBytes() const
+{
+  int bytesLength = i2d_PUBKEY(this->publicKey, nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
   unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
 
   if (i2d_PUBKEY(this->publicKey, &rawPublicKeyBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;  }
+    std::cout << "I2D error" << std::endl;
+  }
 
-  return HexConverter::bytesToHex(publicKeyBytes);
+  return publicKeyBytes;
+}
+
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
+{
+  return std::make_shared<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(keyBytes)));
 }
 
 bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
@@ -86,6 +104,13 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
   EVP_MD_CTX_free(messageDigestContext);
 
   return verificationResult == 1;
+}
+
+EVP_PKEY* ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+{
+  const unsigned char* rawKeyBytes = &keyBytes.front();
+
+  return d2i_PUBKEY(nullptr, &rawKeyBytes, (long)keyBytes.size());
 }
 
 } // namespace Hedera

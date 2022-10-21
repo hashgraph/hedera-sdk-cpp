@@ -27,40 +27,35 @@
 
 namespace Hedera
 {
-ED25519PrivateKey::ED25519PrivateKey()
+
+ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
 {
-  this->keypair = nullptr;
+  // the underlying keypair must be copied. serialize and then deserialize to accomplish this
+  this->keypair = bytesToPKEY(other.toBytes());
 
-  EVP_PKEY_CTX* keyAlgorithmContext = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr);
-
-  if (!keyAlgorithmContext)
-  {
-    std::cout << "CONTEXT INVALID" << std::endl;
-  }
-
-  if (EVP_PKEY_keygen_init(keyAlgorithmContext) <= 0)
-  {
-    std::cout << "INIT ERROR" << std::endl;
-  }
-
-  if (EVP_PKEY_generate(keyAlgorithmContext, &this->keypair) <= 0)
-  {
-    std::cout << "GENERATE ERROR" << std::endl;
-  }
-
-  EVP_PKEY_CTX_free(keyAlgorithmContext);
-
-  this->publicKey = createPublicKey();
+  // public key can be directly copied, since it's a shared pointer
+  this->publicKey = other.publicKey;
 }
 
-ED25519PrivateKey::ED25519PrivateKey(const std::string& privateKeyString)
+ED25519PrivateKey::ED25519PrivateKey(EVP_PKEY* keypair)
 {
-  std::vector<unsigned char> privateKeyBytes(privateKeyString.size());
-  std::copy(privateKeyString.begin(), privateKeyString.end(), &privateKeyBytes.front());
+  this->keypair = keypair;
+  this->publicKey = ED25519PublicKey::fromBytes(getPublicKeyBytes());
+}
 
-  this->keypair =
-    EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, nullptr, &privateKeyBytes.front(), privateKeyBytes.size());
-  this->publicKey = createPublicKey();
+std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
+{
+  int bytesLength = i2d_PUBKEY(this->keypair, nullptr);
+
+  std::vector<unsigned char> publicKeyBytes(bytesLength);
+  unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
+
+  if (i2d_PUBKEY(this->keypair, &rawPublicKeyBytes) <= 0)
+  {
+    std::cout << "I2D error" << std::endl;
+  }
+
+  return publicKeyBytes;
 }
 
 ED25519PrivateKey::~ED25519PrivateKey()
@@ -109,27 +104,58 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
 
 std::string ED25519PrivateKey::toString() const
 {
-  size_t privateKeyLength = 32;
-  std::vector<unsigned char> privateKeyBytes(privateKeyLength);
-
-  if (EVP_PKEY_get_raw_private_key(this->keypair, &privateKeyBytes.front(), &privateKeyLength) <= 0)
-  {
-    std::cout << "GET RAW PRIVATE KEY ERROR: " << privateKeyLength << std::endl;
-  }
-
-  return HexConverter::bytesToHex(privateKeyBytes);
+  return HexConverter::bytesToHex(toBytes());
 }
 
-std::shared_ptr<ED25519PublicKey> ED25519PrivateKey::createPublicKey()
+std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
 {
-  size_t publicKeyLength = 32;
-  std::vector<unsigned char> rawPublicKey(publicKeyLength);
+  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBytes(keyString))));
+}
 
-  if (EVP_PKEY_get_raw_public_key(this->keypair, &rawPublicKey.front(), &publicKeyLength) <= 0)
+std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
+{
+  EVP_PKEY* keypair = EVP_PKEY_new();
+  EVP_PKEY_CTX* keyAlgorithmContext = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr);
+
+  if (!keyAlgorithmContext)
   {
-    std::cout << "GET RAW PUBLIC KEY ERROR" << std::endl;
+    std::cout << "CONTEXT INVALID" << std::endl;
   }
 
-  return std::make_shared<ED25519PublicKey>(rawPublicKey);
+  if (EVP_PKEY_keygen_init(keyAlgorithmContext) <= 0)
+  {
+    std::cout << "INIT ERROR" << std::endl;
+  }
+
+  if (EVP_PKEY_generate(keyAlgorithmContext, &keypair) <= 0)
+  {
+    std::cout << "GENERATE ERROR" << std::endl;
+  }
+
+  EVP_PKEY_CTX_free(keyAlgorithmContext);
+
+  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(keypair));
+}
+
+std::vector<unsigned char> ED25519PrivateKey::toBytes() const
+{
+  int bytesLength = i2d_PrivateKey(this->keypair, nullptr);
+
+  std::vector<unsigned char> outputBytes(bytesLength);
+  unsigned char* rawBytes = &outputBytes.front();
+
+  if (i2d_PrivateKey(this->keypair, &rawBytes) <= 0)
+  {
+    std::cout << "I2D error" << std::endl;
+  }
+
+  return outputBytes;
+}
+
+EVP_PKEY* ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+{
+  const unsigned char* rawKeyBytes = &keyBytes.front();
+
+  return d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, (long)keyBytes.size());
 }
 }
