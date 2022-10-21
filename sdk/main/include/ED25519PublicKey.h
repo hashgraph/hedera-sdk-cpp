@@ -12,6 +12,7 @@ namespace Hedera
 class ED25519PublicKey : public PublicKey
 {
 public:
+  ED25519PublicKey() = delete;
   ED25519PublicKey(const ED25519PublicKey& other);
   ~ED25519PublicKey() override;
 

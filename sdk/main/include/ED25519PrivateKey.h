@@ -12,8 +12,8 @@ namespace Hedera
 class ED25519PrivateKey : public PrivateKey
 {
 public:
+  ED25519PrivateKey() = delete;
   ED25519PrivateKey(const ED25519PrivateKey& other);
-
   ~ED25519PrivateKey();
 
   static std::shared_ptr<ED25519PrivateKey> generatePrivateKey();
