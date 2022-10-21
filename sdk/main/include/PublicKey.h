@@ -36,18 +36,45 @@ class PrivateKey;
 
 namespace Hedera
 {
+/**
+ * A generic class representing a public key
+ */
 class PublicKey
 {
 public:
+  /**
+   * Default destructor
+   */
   virtual ~PublicKey() = default;
 
+  /**
+   * Convert the public key to a protobuf key
+   * @return the protobuf key
+   */
   [[nodiscard]] virtual proto::Key* toProtobuf() const = 0;
+
+  /**
+   * Verify that a signature was made by the private key which corresponds to this public key
+   * @param signatureBytes
+   * the byte vector representing the signature
+   * @param signedBytes
+   * the bytes which were purportedly signed to create the signature
+   * @return true if the signature is valid, otherwise false
+   */
   [[nodiscard]] virtual bool verifySignature(const std::vector<unsigned char>& signatureBytes,
                                              const std::vector<unsigned char>& signedBytes) const = 0;
 
+  /**
+   * Create a new public key from a protobuf key
+   * @param key the protobuf key
+   * @return the new public key
+   */
   static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& key);
-  static std::shared_ptr<PublicKey> fromAliasBytes(const std::string&);
 
+  /**
+   * Get the string representation of this key, in DER format
+   * @return the DER string
+   */
   [[nodiscard]] virtual std::string toString() const = 0;
 };
 
