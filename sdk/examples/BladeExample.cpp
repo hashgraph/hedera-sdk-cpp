@@ -30,14 +30,14 @@ using namespace Hedera;
 int main(int argc, char** argv)
 {
   Client client = Client::forTestnet();
-  client.setOperator(AccountId(argv[0]), std::make_shared<ED25519PrivateKey>(ED25519PrivateKey::fromString(argv[1])));
+  //client.setOperator(AccountId(argv[0]), std::make_shared<ED25519PrivateKey>(ED25519PrivateKey::fromString(argv[1])));
 
-  ED25519PublicKey publicKey;
-  ED25519PrivateKey privateKey;
+  //ED25519PublicKey publicKey;
+  //ED25519PrivateKey privateKey;
 
-  AccountCreateTransaction trans;
-  AccountBalanceQuery query;
-  TransferTransaction transf;
+  //AccountCreateTransaction trans;
+  //AccountBalanceQuery query;
+  //TransferTransaction transf;
 
   return 0;
 }

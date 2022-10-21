@@ -51,13 +51,21 @@ public:
   explicit AccountId(const uint64_t& num);
 
   /**
-   * Construct with with a shard, realm, and account number.
+   * Construct with a shard, realm, and account number.
    *
    * @param shard The shard number to set.
    * @param realm The realm number to set.
    * @param num   The account number to set.
    */
   explicit AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
+
+  /**
+   * Construct from a string of the form "<shard>.<realm>.<num>". An input string not of this form with create the
+   * invalid AccountId of 0.0.0.
+   *
+   * @param str The string from which to construct.
+   */
+   explicit AccountId(const std::string& str);
 
   /**
    * Default comparator operator.

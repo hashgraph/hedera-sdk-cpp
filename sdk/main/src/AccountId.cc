@@ -44,6 +44,30 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
 }
 
 //-----
+AccountId::AccountId(const std::string& str)
+{
+  try
+  {
+    const size_t firstDot = str.find_first_of('.');
+    const size_t secondDot = str.find_last_of('.');
+
+    const std::string shardStr = str.substr(0, firstDot);
+    const std::string realmStr = str.substr(firstDot + 1, secondDot - firstDot - 1);
+    const std::string accountStr = str.substr(secondDot + 1, str.size() - secondDot - 1);
+
+    mShardNum = std::stoll(shardStr);
+    mRealmNum = std::stoll(realmStr);
+    mAccountNum = std::stoll(accountStr);
+  }
+  catch (const std::exception& e)
+  {
+    mShardNum = 0ULL;
+    mRealmNum = 0ULL;
+    mAccountNum = 0ULL;
+  }
+}
+
+//-----
 AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
 {
   AccountId accountId;
