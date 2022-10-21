@@ -38,8 +38,8 @@ protected:
     privateKey = Hedera::ED25519PrivateKey::generatePrivateKey();
 
     publicKeyFromPrivate = privateKey->getPublicKey();
-    publicKeyLoaded = Hedera::ED25519PublicKey::fromDEREncoding(
-        publicKeyFromPrivate->toString());
+    publicKeyLoaded =
+        Hedera::ED25519PublicKey::fromString(publicKeyFromPrivate->toString());
   }
 };
 

@@ -35,8 +35,8 @@ protected:
     privateKeyGenerated = Hedera::ED25519PrivateKey::generatePrivateKey();
 
     // serialize and then load private key back in
-    privateKeyLoaded = Hedera::ED25519PrivateKey::fromDEREncoding(
-        privateKeyGenerated->toString());
+    privateKeyLoaded =
+        Hedera::ED25519PrivateKey::fromString(privateKeyGenerated->toString());
   }
 };
 

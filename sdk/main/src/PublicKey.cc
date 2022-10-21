@@ -34,7 +34,7 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
     {
       std::string keyString = key.ed25519();
 
-      return ED25519PublicKey::fromDEREncoding(keyString);
+      return ED25519PublicKey::fromString(keyString);
     }
     default:
     {
@@ -46,7 +46,7 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
 
 std::shared_ptr<PublicKey> PublicKey::fromAliasBytes(const std::string& aliasString)
 {
-  return ED25519PublicKey::fromDEREncoding(aliasString);
+  return ED25519PublicKey::fromString(aliasString);
 }
 
 } // namespace Hedera
