@@ -44,9 +44,4 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
   }
 }
 
-std::shared_ptr<PublicKey> PublicKey::fromAliasBytes(const std::string& aliasString)
-{
-  return ED25519PublicKey::fromString(aliasString);
-}
-
 } // namespace Hedera

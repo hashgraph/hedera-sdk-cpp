@@ -28,11 +28,29 @@
 
 namespace Hedera
 {
+/**
+ * A generic private key. Contains the public key in addition to the private key
+ */
 class PrivateKey
 {
 public:
+  /**
+   * Get the public key that corresponds to this private key
+   * @return the public key
+   */
   [[nodiscard]] virtual std::shared_ptr<PublicKey> getPublicKey() const = 0;
+
+  /**
+   * Sign an arbitrary byte message. Message is hashed before signing
+   * @param bytesToSign the bytes to sign
+   * @return the signature
+   */
   [[nodiscard]] virtual std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const = 0;
+
+  /**
+   * Gets the string representation of the private key, in DER format
+   * @return the string representation of the private key
+   */
   [[nodiscard]] virtual std::string toString() const = 0;
 };
 
