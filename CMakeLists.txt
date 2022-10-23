@@ -12,8 +12,8 @@ include(FetchContent)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
-set(HAPI_LIBRARY_HASH "783876b3a61f38827acd798cda441e18e48fc09eeb5f00561c9fac5e2223f112" CACHE STRING "Use the configured hash to verify the Hedera API protobuf library release")
-set(HAPI_LIBRARY_URL "https://github.com/hashgraph/hedera-protobufs-cpp/releases/download/v0.30.0/hapi-library-af52e908.tar.gz" CACHE STRING "Use the configured URL to download the Hedera API protobuf library package")
+set(HAPI_LIBRARY_HASH "959526156e2ac9fc07b6592997cf03f71bba83b3226824cebb5725e67af5bbb4" CACHE STRING "Use the configured hash to verify the Hedera API protobuf library release")
+set(HAPI_LIBRARY_URL "https://github.com/hashgraph/hedera-protobufs-cpp/releases/download/v0.30.0/hapi-library-716ff263.tar.gz" CACHE STRING "Use the configured URL to download the Hedera API protobuf library package")
 
 # Fetch the HAPI Library
 FetchContent_Declare(
@@ -47,12 +47,51 @@ if (NOT EXISTS ${HAPI_LINK_TARGET})
     endif()
 endif()
 
-message(WARNING "HAPI_INCLUDE_DIR=${HAPI_INCLUDE_DIR}")
-message(WARNING "HAPI_LIB_DIR=${HAPI_LIB_DIR}")
-message(WARNING "HAPI_LINK_TARGET=${HAPI_LINK_TARGET}")
+set(PROTOBUF_LINK_TARGET ${HAPI_LIB_DIR}/libprotobuf.a)
+
+if (NOT EXISTS ${PROTOBUF_LINK_TARGET})
+    set (PROTOBUF_LINK_TARGET ${HAPI_LIB_DIR}/protobuf.lib)
+
+    if (NOT EXISTS ${PROTOBUF_LINK_TARGET})
+        message(FATAL_ERROR "Failed to locate the PROTOBUF_LINK_TARGET at `${HAPI_LIB_DIR}/(libprotobuf.a|protobuf.lib)`")
+    endif()
+endif()
+
+set(GRPC_LINK_TARGET ${HAPI_LIB_DIR}/libgrpc.a)
+
+if (NOT EXISTS ${GRPC_LINK_TARGET})
+    set (GRPC_LINK_TARGET ${HAPI_LIB_DIR}/grpc.lib)
+
+    if (NOT EXISTS ${GRPC_LINK_TARGET})
+        message(FATAL_ERROR "Failed to locate the GRPC_LINK_TARGET at `${HAPI_LIB_DIR}/(libgrpc.a|grpc.lib)`")
+    endif()
+endif()
+
+set(GRPC_CPP_LINK_TARGET ${HAPI_LIB_DIR}/libgrpc++.a)
+
+if (NOT EXISTS ${GRPC_CPP_LINK_TARGET})
+    set (GRPC_CPP_LINK_TARGET ${HAPI_LIB_DIR}/grpc++.lib)
+
+    if (NOT EXISTS ${GRPC_CPP_LINK_TARGET})
+        message(FATAL_ERROR "Failed to locate the GRPC_CPP_LINK_TARGET at `${HAPI_LIB_DIR}/(libgrpc++.a|grpc++.lib)`")
+    endif()
+endif()
+
+#message(WARNING "HAPI_INCLUDE_DIR=${HAPI_INCLUDE_DIR}")
+#message(WARNING "HAPI_LIB_DIR=${HAPI_LIB_DIR}")
+#message(WARNING "HAPI_LINK_TARGET=${HAPI_LINK_TARGET}")
 
 add_library(hapi STATIC IMPORTED)
 set_target_properties(hapi PROPERTIES IMPORTED_LOCATION ${HAPI_LINK_TARGET})
+
+add_library(protobuf::protobuf STATIC IMPORTED)
+set_target_properties(protobuf::protobuf PROPERTIES IMPORTED_LOCATION ${PROTOBUF_LINK_TARGET})
+
+add_library(gRPC::grpc STATIC IMPORTED)
+set_target_properties(gRPC::grpc PROPERTIES IMPORTED_LOCATION ${GRPC_LINK_TARGET})
+
+add_library(gRPC::grpc++ STATIC IMPORTED)
+set_target_properties(gRPC::grpc++ PROPERTIES IMPORTED_LOCATION ${GRPC_CPP_LINK_TARGET})
 
 enable_testing()
 
