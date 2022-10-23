@@ -9,7 +9,7 @@ message(WARNING "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 
 include(FetchContent)
 
-find_package(OpenSSL REQUIRED)
+#find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
 set(HAPI_LIBRARY_HASH "959526156e2ac9fc07b6592997cf03f71bba83b3226824cebb5725e67af5bbb4" CACHE STRING "Use the configured hash to verify the Hedera API protobuf library release")
@@ -77,6 +77,26 @@ if (NOT EXISTS ${GRPC_CPP_LINK_TARGET})
     endif()
 endif()
 
+set(OPENSSL_CRYPTO_LINK_TARGET ${HAPI_LIB_DIR}/libcrypto.a)
+
+if (NOT EXISTS ${OPENSSL_CRYPTO_LINK_TARGET})
+    set (OPENSSL_CRYPTO_LINK_TARGET ${HAPI_LIB_DIR}/libcrypto.lib)
+
+    if (NOT EXISTS ${OPENSSL_CRYPTO_LINK_TARGET})
+        message(FATAL_ERROR "Failed to locate the OPENSSL_CRYPTO_LINK_TARGET at `${HAPI_LIB_DIR}/(libcrypto.a|libcrypto.lib)`")
+    endif()
+endif()
+
+set(OPENSSL_SSL_LINK_TARGET ${HAPI_LIB_DIR}/libssl.a)
+
+if (NOT EXISTS ${OPENSSL_SSL_LINK_TARGET})
+    set (OPENSSL_SSL_LINK_TARGET ${HAPI_LIB_DIR}/libssl.lib)
+
+    if (NOT EXISTS ${OPENSSL_SSL_LINK_TARGET})
+        message(FATAL_ERROR "Failed to locate the OPENSSL_SSL_LINK_TARGET at `${HAPI_LIB_DIR}/(libssl.a|libssl.lib)`")
+    endif()
+endif()
+
 #message(WARNING "HAPI_INCLUDE_DIR=${HAPI_INCLUDE_DIR}")
 #message(WARNING "HAPI_LIB_DIR=${HAPI_LIB_DIR}")
 #message(WARNING "HAPI_LINK_TARGET=${HAPI_LINK_TARGET}")
@@ -92,6 +112,11 @@ set_target_properties(gRPC::grpc PROPERTIES IMPORTED_LOCATION ${GRPC_LINK_TARGET
 
 add_library(gRPC::grpc++ STATIC IMPORTED)
 set_target_properties(gRPC::grpc++ PROPERTIES IMPORTED_LOCATION ${GRPC_CPP_LINK_TARGET})
+
+add_library(OpenSSL::Crypto STATIC IMPORTED)
+add_library(OpenSSL::SSL STATIC IMPORTED)
+set_target_properties(OpenSSL::Crypto PROPERTIES IMPORTED_LOCATION ${OPENSSL_CRYPTO_LINK_TARGET})
+set_target_properties(OpenSSL::SSL PROPERTIES IMPORTED_LOCATION ${OPENSSL_SSL_LINK_TARGET})
 
 enable_testing()
 
