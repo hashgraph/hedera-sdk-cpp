@@ -50,10 +50,10 @@ endif()
 set(PROTOBUF_LINK_TARGET ${HAPI_LIB_DIR}/libprotobuf.a)
 
 if (NOT EXISTS ${PROTOBUF_LINK_TARGET})
-    set (PROTOBUF_LINK_TARGET ${HAPI_LIB_DIR}/protobuf.lib)
+    set (PROTOBUF_LINK_TARGET ${HAPI_LIB_DIR}/libprotobuf.lib)
 
     if (NOT EXISTS ${PROTOBUF_LINK_TARGET})
-        message(FATAL_ERROR "Failed to locate the PROTOBUF_LINK_TARGET at `${HAPI_LIB_DIR}/(libprotobuf.a|protobuf.lib)`")
+        message(FATAL_ERROR "Failed to locate the PROTOBUF_LINK_TARGET at `${HAPI_LIB_DIR}/(libprotobuf.a|libprotobuf.lib)`")
     endif()
 endif()
 
