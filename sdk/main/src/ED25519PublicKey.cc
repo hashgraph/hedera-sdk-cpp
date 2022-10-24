@@ -46,7 +46,6 @@ ED25519PublicKey::~ED25519PublicKey()
 
 proto::Key* ED25519PublicKey::toProtobuf() const
 {
-  // TODO: are we sure this memory is being managed by protobufs?
   auto* keyProtobuf = new proto::Key();
   auto* stringPointer = new std::string(toString());
 
