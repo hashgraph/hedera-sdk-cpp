@@ -97,4 +97,10 @@ std::shared_ptr<proto::AccountID> AccountId::toProtobuf() const
   return proto;
 }
 
+//-----
+std::string AccountId::toString() const
+{
+  return std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.' + std::to_string(mAccountNum.value());
+}
+
 } // namespace Hedera

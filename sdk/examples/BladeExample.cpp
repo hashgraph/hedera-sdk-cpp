@@ -17,27 +17,74 @@
  * limitations under the License.
  *
  */
-
+#include "AccountBalance.h"
 #include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
-#include "ED25519PublicKey.h"
+#include "PublicKey.h"
+#include "TransactionReceipt.h"
+#include "TransactionRecord.h"
+#include "TransactionResponse.h"
 #include "TransferTransaction.h"
+
+#include <iostream>
 
 using namespace Hedera;
 
 int main(int argc, char** argv)
 {
   Client client = Client::forTestnet();
-  //client.setOperator(AccountId(argv[0]), std::make_shared<ED25519PrivateKey>(ED25519PrivateKey::fromString(argv[1])));
+  client.setOperator(AccountId(argv[0]), ED25519PrivateKey::fromString(argv[1]));
 
-  //ED25519PublicKey publicKey;
-  //ED25519PrivateKey privateKey;
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
 
-  //AccountCreateTransaction trans;
-  //AccountBalanceQuery query;
-  //TransferTransaction transf;
+  // Create a new account with an initial balance of 1 Hbar
+  TransactionResponse txResp =
+    AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(1ULL)).execute(client);
+
+  // Get the account ID of the newly created account
+  const AccountId newAccountId = txResp.getReceipt(client).getAccountId().value();
+
+  std::cout << "Created new account with ID " << newAccountId.toString() << std::endl;
+
+  // Query the account totals
+  Hbar operatorAccountTotal =
+    AccountBalanceQuery().setAccountId(client.getOperatorAccountId().value()).execute(client).getBalance();
+  Hbar newAccountTotal = AccountBalanceQuery().setAccountId(newAccountId).execute(client).getBalance();
+
+  std::cout << "New account balance: " << newAccountTotal.toTinybars() << HbarUnit::TINYBAR().getSymbol() << std::endl;
+  std::cout << "Operator account balance: " << operatorAccountTotal.toTinybars() << HbarUnit::TINYBAR().getSymbol()
+            << std::endl;
+
+  // Create a transaction to transfer 1 Hbar
+  const Hbar amountToTransfer(1ULL);
+  txResp = TransferTransaction()
+             .addUnapprovedHbarTransfer(client.getOperatorAccountId().value(), amountToTransfer.negated())
+             .addUnapprovedHbarTransfer(newAccountId, amountToTransfer)
+             .execute(client);
+
+  // Print off the transfers
+  if (const TransactionRecord txRecord = txResp.getRecord(client); txRecord.getTransferList().has_value())
+  {
+    std::cout << "Transaction record shows:" << std::endl;
+    const auto transferList = txRecord.getTransferList().value();
+    for (const auto& [accountId, amount] : transferList)
+    {
+      std::cout << " - Account " << accountId.toString() << " transferred " << amount.toTinybars()
+                << HbarUnit::TINYBAR().getSymbol() << std::endl;
+    }
+  }
+
+  // Get the new account totals
+  operatorAccountTotal =
+    AccountBalanceQuery().setAccountId(client.getOperatorAccountId().value()).execute(client).getBalance();
+  newAccountTotal = AccountBalanceQuery().setAccountId(newAccountId).execute(client).getBalance();
+
+  std::cout << "New account balance: " << newAccountTotal.toTinybars() << HbarUnit::TINYBAR().getSymbol() << std::endl;
+  std::cout << "Operator account balance: " << operatorAccountTotal.toTinybars() << HbarUnit::TINYBAR().getSymbol()
+            << std::endl;
 
   return 0;
 }

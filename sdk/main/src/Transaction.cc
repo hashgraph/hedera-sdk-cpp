@@ -21,7 +21,6 @@
 
 #include "AccountCreateTransaction.h"
 #include "Client.h"
-#include "PrivateKey.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
@@ -87,7 +86,7 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
     // Generate a signature from the TransactionBody
     auto transactionBodySerialized = new std::string(transaction.SerializeAsString());
     const std::vector<unsigned char> signature =
-      client.getOperatorPrivateKey()->sign({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
+      client.getOperator().mSigner({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
     auto signatureMap = new proto::SignatureMap();

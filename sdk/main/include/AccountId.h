@@ -60,12 +60,12 @@ public:
   explicit AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
   /**
-   * Construct from a string of the form "<shard>.<realm>.<num>". An input string not of this form with create the
-   * invalid AccountId of 0.0.0.
+   * Construct from a string of the form "<shard>.<realm>.<num>". A malformed input string will create the invalid
+   * AccountId of 0.0.0.
    *
    * @param str The string from which to construct.
    */
-   explicit AccountId(const std::string& str);
+  explicit AccountId(const std::string& str);
 
   /**
    * Default comparator operator.
@@ -89,6 +89,13 @@ public:
    * @return Pointer to the created protobuf AccountID.
    */
   std::shared_ptr<proto::AccountID> toProtobuf() const;
+
+  /**
+   * Put this AccountId in a string with the form "<shard>.<realm>.<num>".
+   *
+   * @return String representation of this AccountId.
+   */
+  std::string toString() const;
 
   /**
    * Set the shard number.
