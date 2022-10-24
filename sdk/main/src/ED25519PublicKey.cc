@@ -22,6 +22,7 @@
 
 #include "helper/HexConverter.h"
 #include "openssl/x509.h"
+#include "proto/basic_types.pb.h"
 
 #include <iostream>
 #include <openssl/err.h>
@@ -45,7 +46,13 @@ ED25519PublicKey::~ED25519PublicKey()
 
 proto::Key* ED25519PublicKey::toProtobuf() const
 {
-  return nullptr;
+  // TODO: are we sure this memory is being managed by protobufs?
+  auto* keyProtobuf = new proto::Key();
+  auto* stringPointer = new std::string(toString());
+
+  keyProtobuf->set_allocated_ed25519(stringPointer);
+
+  return keyProtobuf;
 }
 
 std::string ED25519PublicKey::toString() const
