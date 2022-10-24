@@ -23,7 +23,6 @@
 #include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "PublicKey.h"
-#include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"

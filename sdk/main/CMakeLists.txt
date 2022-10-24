@@ -28,6 +28,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/EthereumTransaction.cc
         src/EvmAddress.cc
         src/ExchangeRate.cc
+        src/ExchangeRateSet.cc
         src/Executable.cc
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
@@ -44,6 +45,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TransactionRecord.cc
         src/TransactionRecordQuery.cc
         src/TransactionResponse.cc
+        src/Transfer.cc
         src/TransferTransaction.cc
 
         src/helper/DurationConverter.cc
@@ -54,8 +56,16 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} hapi)
-target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto)
+target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto OpenSSL::SSL)
 target_link_libraries(${PROJECT_NAME} gRPC::grpc gRPC::grpc++ protobuf::protobuf)
+target_link_libraries(${PROJECT_NAME} abseil::base
+        abseil::flags
+        abseil::hash
+        abseil::status
+        abseil::strings
+        abseil::synchronization
+        abseil::time)
+target_link_libraries(${PROJECT_NAME} c-ares re2 upb zlib)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
