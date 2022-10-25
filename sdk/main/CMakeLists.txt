@@ -61,8 +61,33 @@ if (APPLE)
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto OpenSSL::SSL)
-target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpc gRPC::grpc++ gRPC::gpr gRPC::address_sorting protobuf::protobuf)
+
+#target_link_libraries(${PROJECT_NAME} PRIVATE ${RESOLV_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        OpenSSL::Crypto
+        OpenSSL::SSL)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        gRPC::address_sorting
+        gRPC::gpr
+        gRPC::grpc
+        gRPC::grpc_plugin_support
+        gRPC::grpc_unsecure
+        protobuf::protobuf)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        gRPC::grpc++
+        gRPC::grpc++_alts
+        gRPC::grpc++_error_details
+        gRPC::grpc++_reflection
+        gRPC::grpc++_unsecure)
+
+if (TARGET gRPC::grpcpp_channelz)
+    target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpcpp_channelz)
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
         absl::bad_any_cast_impl
         absl::bad_optional_access
@@ -129,6 +154,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         absl::throw_delegate
         absl::time
         absl::time_zone)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
         upb::upb
         upb::descriptor_upb_proto
@@ -139,7 +165,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         upb::reflection
         upb::textformat
         upb::utf8_range)
-target_link_libraries(${PROJECT_NAME} PRIVATE c-ares::cares re2::re2 zlib::zlib)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        c-ares::cares
+        re2::re2
+        zlib::zlib)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 

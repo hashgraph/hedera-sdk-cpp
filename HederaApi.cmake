@@ -44,6 +44,28 @@ function(create_req_link_target prefix name nixlib winlib)
     set(${variableName} ${linkTarget} PARENT_SCOPE)
 endfunction()
 
+function(create_opt_link_target prefix name nixlib winlib)
+    string(TOUPPER "${prefix}" prefixUpper)
+    string(TOUPPER "${name}" nameUpper)
+    if (prefix STREQUAL "")
+        set(variableName "${nameUpper}_LINK_TARGET")
+    else()
+        set(variableName "${prefixUpper}_${nameUpper}_LINK_TARGET")
+    endif()
+
+    set(linkTarget "${HAPI_LIB_DIR}/${nixlib}")
+    if (NOT EXISTS ${linkTarget})
+        set(linkTarget "${HAPI_LIB_DIR}/${winlib}")
+
+        if(NOT EXISTS ${linkTarget})
+            set(linkTarget "")
+            message(WARNING "Failed to locate the ${variableName} at `${HAPI_LIB_DIR}/(${nixlib}|${winlib})`")
+        endif()
+    endif()
+
+    set(${variableName} ${linkTarget} PARENT_SCOPE)
+endfunction()
+
 function(create_external_package prefix)
     math(EXPR lastIndex "${ARGC}-1")
     string(TOUPPER "${prefix}" prefixUpper)
@@ -59,8 +81,8 @@ function(create_external_package prefix)
             set(LINKTARGET${index} "${prefixUpper}_${nameUpper}_LINK_TARGET")
         endif()
 
-        message("LIBNAME${index}=${LIBNAME${index}}")
-        message("LINKTARGET${index}=${LINKTARGET${index}}")
+#        message("LIBNAME${index}=${LIBNAME${index}}")
+#        message("LINKTARGET${index}=${LINKTARGET${index}}")
 
         add_library(${LIBNAME${index}} STATIC IMPORTED)
     endforeach()
@@ -94,17 +116,47 @@ create_req_link_target(upb mini_table libupb_mini_table.a upb_mini_table.lib)
 create_req_link_target(upb reflection libupb_reflection.a upb_reflection.lib)
 create_req_link_target(upb textformat libupb_textformat.a upb_textformat.lib)
 create_req_link_target(upb utf8_range libupb_utf8_range.a upb_utf8_range.lib)
-create_external_package(upb upb descriptor_upb_proto collections extension_registry fastdecode json mini_table reflection textformat utf8_range)
+create_external_package(upb
+        upb
+        collections
+        descriptor_upb_proto
+        extension_registry
+        fastdecode
+        json
+        mini_table
+        reflection
+        textformat
+        utf8_range)
 
 create_req_link_target(OpenSSL Crypto libcrypto.a libcrypto.lib)
 create_req_link_target(OpenSSL SSL libssl.a libssl.lib)
 create_external_package(OpenSSL Crypto SSL)
 
-create_req_link_target(gRPC grpc libgrpc.a grpc.lib)
-create_req_link_target(gRPC gpr libgpr.a gpr.lib)
 create_req_link_target(gRPC address_sorting libaddress_sorting.a address_sorting.lib)
+create_req_link_target(gRPC gpr libgpr.a gpr.lib)
+create_req_link_target(gRPC grpc libgrpc.a grpc.lib)
+create_req_link_target(gRPC grpc_plugin_support libgrpc_plugin_support.a grpc_plugin_support.lib)
+create_req_link_target(gRPC grpc_unsecure libgrpc_unsecure.a grpc_unsecure.lib)
+create_opt_link_target(gRPC grpcpp_channelz libgrpcpp_channelz.a grpcpp_channelz.lib)
 create_req_link_target(gRPC grpc++ libgrpc++.a grpc++.lib)
-create_external_package(gRPC grpc gpr address_sorting grpc++)
+create_req_link_target(gRPC grpc++_alts libgrpc++_alts.a grpc++_alts.lib)
+create_req_link_target(gRPC grpc++_error_details libgrpc++_error_details.a grpc++_error_details.lib)
+create_req_link_target(gRPC grpc++_reflection libgrpc++_reflection.a grpc++_reflection.lib)
+create_req_link_target(gRPC grpc++_unsecure libgrpc++_unsecure.a grpc++_unsecure.lib)
+
+create_external_package(gRPC
+        address_sorting
+        gpr
+        grpc
+        grpc_plugin_support
+        grpc_unsecure
+        grpcpp_channelz
+        grpc++
+        grpc++_alts
+        grpc++_error_details
+        grpc++_reflection
+        grpc++_unsecure)
+
 
 create_req_link_target(protobuf protobuf libprotobuf.a libprotobuf.lib)
 create_external_package(protobuf protobuf)

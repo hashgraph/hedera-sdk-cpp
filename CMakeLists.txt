@@ -24,6 +24,13 @@ endif()
 
 include(HederaApi.cmake)
 
+if (NOT DEFINED RESOLV_LIBRARY)
+    find_library(RESOLV_LIBRARY resolv)
+endif()
+
+add_library(sys::resolv STATIC IMPORTED)
+set_target_properties(sys::resolv PROPERTIES IMPORTED_LOCATION ${RESOLV_LIBRARY})
+
 #
 # Set the HAPI_LINK_TARGET
 #
