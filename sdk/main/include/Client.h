@@ -44,7 +44,7 @@ private:
     std::optional<AccountId> mAccountId;
 
     /**
-     * The private key of the account.
+     * The public key of the account.
      */
     std::shared_ptr<PublicKey> mPublicKey;
 

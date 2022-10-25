@@ -21,9 +21,7 @@
 
 #include <proto/timestamp.pb.h>
 
-namespace Hedera
-{
-namespace TimestampConverter
+namespace Hedera::TimestampConverter
 {
 //-----
 std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::Timestamp& timestamp)
@@ -48,5 +46,4 @@ std::unique_ptr<proto::Timestamp> toProtobuf(const std::chrono::sys_time<std::ch
   return std::make_unique<proto::Timestamp>(timestamp);
 }
 
-} // namespace TimestampConverter
-} // namespace Hedera
+} // namespace Hedera::TimestampConverter

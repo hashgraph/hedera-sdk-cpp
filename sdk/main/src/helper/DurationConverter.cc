@@ -21,9 +21,7 @@
 
 #include <proto/duration.pb.h>
 
-namespace Hedera
-{
-namespace DurationConverter
+namespace Hedera::DurationConverter
 {
 //----
 std::chrono::seconds fromProtobuf(const proto::Duration& duration)
@@ -39,5 +37,4 @@ std::shared_ptr<proto::Duration> toProtobuf(const std::chrono::seconds& duration
   return proto;
 }
 
-} // namespace DurationConverter
-} // namespace Hedera
+} // namespace Hedera::DurationConverter
