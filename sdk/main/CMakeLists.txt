@@ -55,18 +55,91 @@ add_library(${PROJECT_NAME} STATIC
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} hapi)
-target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto OpenSSL::SSL)
-target_link_libraries(${PROJECT_NAME} gRPC::grpc gRPC::grpc++ protobuf::protobuf)
-target_link_libraries(${PROJECT_NAME} abseil::base
-        abseil::flags
-        abseil::hash
-        abseil::status
-        abseil::strings
-        abseil::synchronization
-        abseil::time)
-target_link_libraries(${PROJECT_NAME} c-ares re2 upb zlib)
+if (APPLE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CF_NETWORK})
+endif()
 
+target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto OpenSSL::SSL)
+target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpc gRPC::grpc++ gRPC::gpr gRPC::address_sorting protobuf::protobuf)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        absl::bad_any_cast_impl
+        absl::bad_optional_access
+        absl::bad_variant_access
+        absl::base
+        absl::city
+        absl::civil_time
+        absl::cord
+        absl::cord_internal
+        absl::cordz_functions
+        absl::cordz_handle
+        absl::cordz_info
+        absl::cordz_sample_token
+        absl::debugging_internal
+        absl::demangle_internal
+        absl::examine_stack
+        absl::exponential_biased
+        absl::failure_signal_handler
+        absl::flags
+        absl::flags_commandlineflag
+        absl::flags_commandlineflag_internal
+        absl::flags_config
+        absl::flags_internal
+        absl::flags_marshalling
+        absl::flags_parse
+        absl::flags_private_handle_accessor
+        absl::flags_program_name
+        absl::flags_reflection
+        absl::flags_usage
+        absl::flags_usage_internal
+        absl::graphcycles_internal
+        absl::hash
+        absl::hashtablez_sampler
+        absl::int128
+        absl::leak_check
+        absl::log_severity
+        absl::low_level_hash
+        absl::malloc_internal
+        absl::periodic_sampler
+        absl::random_distributions
+        absl::random_internal_distribution_test_util
+        absl::random_internal_platform
+        absl::random_internal_pool_urbg
+        absl::random_internal_randen
+        absl::random_internal_randen_hwaes
+        absl::random_internal_randen_hwaes_impl
+        absl::random_internal_randen_slow
+        absl::random_internal_seed_material
+        absl::random_seed_gen_exception
+        absl::random_seed_sequences
+        absl::raw_hash_set
+        absl::raw_logging_internal
+        absl::scoped_set_env
+        absl::spinlock_wait
+        absl::stacktrace
+        absl::status
+        absl::statusor
+        absl::str_format_internal
+        absl::strerror
+        absl::strings
+        absl::strings_internal
+        absl::symbolize
+        absl::synchronization
+        absl::throw_delegate
+        absl::time
+        absl::time_zone)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        upb::upb
+        upb::descriptor_upb_proto
+        upb::extension_registry
+        upb::fastdecode
+        upb::json
+        upb::mini_table
+        upb::reflection
+        upb::textformat
+        upb::utf8_range)
+target_link_libraries(${PROJECT_NAME} PRIVATE c-ares::cares re2::re2 zlib::zlib)
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 
