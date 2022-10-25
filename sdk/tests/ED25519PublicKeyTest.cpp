@@ -20,6 +20,7 @@
 
 #include <gtest/gtest.h>
 #include <memory>
+#include <proto/basic_types.pb.h>
 #include <vector>
 
 #include "helper/HexConverter.h"
@@ -31,25 +32,33 @@ class ED25519PublicKeyTest : public ::testing::Test {
 protected:
   std::shared_ptr<Hedera::ED25519PrivateKey> privateKey;
   std::shared_ptr<Hedera::PublicKey> publicKeyFromPrivate;
-  std::shared_ptr<Hedera::ED25519PublicKey> publicKeyLoaded;
+  std::shared_ptr<Hedera::ED25519PublicKey> publicKeyFromString;
+  std::shared_ptr<Hedera::PublicKey> publicKeyFromProtobuf;
 
   void SetUp() override {
     // generate a private key
     privateKey = Hedera::ED25519PrivateKey::generatePrivateKey();
 
     publicKeyFromPrivate = privateKey->getPublicKey();
-    publicKeyLoaded =
+    publicKeyFromString =
         Hedera::ED25519PublicKey::fromString(publicKeyFromPrivate->toString());
+
+    const auto *protobufFromPrivate = publicKeyFromPrivate->toProtobuf();
+    publicKeyFromProtobuf = Hedera::PublicKey::fromProtobuf(*protobufFromPrivate);
   }
 };
 
 TEST_F(ED25519PublicKeyTest, ToString) {
   std::string derEncodingFromPrivate = publicKeyFromPrivate->toString();
-  std::string derEncodingFromLoaded = publicKeyLoaded->toString();
+  std::string derEncodingFromLoaded = publicKeyFromString->toString();
+  std::string derEncodingFromProtobuf = publicKeyFromProtobuf->toString();
 
   EXPECT_EQ(derEncodingFromPrivate.size(), 44);
   EXPECT_EQ(derEncodingFromLoaded.size(), 44);
+  EXPECT_EQ(derEncodingFromProtobuf.size(), 44);
+
   EXPECT_EQ(derEncodingFromPrivate, derEncodingFromLoaded);
+  EXPECT_EQ(derEncodingFromPrivate, derEncodingFromProtobuf);
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyValidSignature) {
@@ -57,7 +66,8 @@ TEST_F(ED25519PublicKeyTest, VerifyValidSignature) {
   std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
 
   EXPECT_TRUE(publicKeyFromPrivate->verifySignature(signature, bytesToSign));
-  EXPECT_TRUE(publicKeyLoaded->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(publicKeyFromString->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(publicKeyFromProtobuf->verifySignature(signature, bytesToSign));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyValidSignatureOfEmptyMessage) {
@@ -65,7 +75,8 @@ TEST_F(ED25519PublicKeyTest, VerifyValidSignatureOfEmptyMessage) {
   std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
 
   EXPECT_TRUE(publicKeyFromPrivate->verifySignature(signature, bytesToSign));
-  EXPECT_TRUE(publicKeyLoaded->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(publicKeyFromString->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(publicKeyFromProtobuf->verifySignature(signature, bytesToSign));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifySignatureAgainstModifiedBytes) {
@@ -73,9 +84,9 @@ TEST_F(ED25519PublicKeyTest, VerifySignatureAgainstModifiedBytes) {
 
   std::vector<unsigned char> modifiedBytes = {0x1, 0x2, 0x3, 0x4};
 
-  EXPECT_FALSE(
-      publicKeyFromPrivate->verifySignature(signature, modifiedBytes));
-  EXPECT_FALSE(publicKeyLoaded->verifySignature(signature, modifiedBytes));
+  EXPECT_FALSE(publicKeyFromPrivate->verifySignature(signature, modifiedBytes));
+  EXPECT_FALSE(publicKeyFromString->verifySignature(signature, modifiedBytes));
+  EXPECT_FALSE(publicKeyFromProtobuf->verifySignature(signature, modifiedBytes));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature) {
@@ -84,7 +95,10 @@ TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature) {
 
   EXPECT_FALSE(
       publicKeyFromPrivate->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_FALSE(publicKeyLoaded->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_FALSE(
+      publicKeyFromString->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_FALSE(
+      publicKeyFromProtobuf->verifySignature(arbitrarySignature, bytesToSign));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyEmptySignature) {
@@ -93,14 +107,17 @@ TEST_F(ED25519PublicKeyTest, VerifyEmptySignature) {
 
   EXPECT_FALSE(
       publicKeyFromPrivate->verifySignature(emptySignature, bytesToSign));
-  EXPECT_FALSE(publicKeyLoaded->verifySignature(emptySignature, bytesToSign));
+  EXPECT_FALSE(
+      publicKeyFromString->verifySignature(emptySignature, bytesToSign));
+  EXPECT_FALSE(
+      publicKeyFromProtobuf->verifySignature(emptySignature, bytesToSign));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyEmptyMessage) {
   std::vector<unsigned char> signature = privateKey->sign({0x1, 0x2, 0x3});
   std::vector<unsigned char> emptyMessage = std::vector<unsigned char>();
 
-  EXPECT_FALSE(
-      publicKeyFromPrivate->verifySignature(signature, emptyMessage));
-  EXPECT_FALSE(publicKeyLoaded->verifySignature(signature, emptyMessage));
+  EXPECT_FALSE(publicKeyFromPrivate->verifySignature(signature, emptyMessage));
+  EXPECT_FALSE(publicKeyFromString->verifySignature(signature, emptyMessage));
+  EXPECT_FALSE(publicKeyFromProtobuf->verifySignature(signature, emptyMessage));
 }

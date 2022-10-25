@@ -32,14 +32,12 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
   {
     case proto::Key::KeyCase::kEd25519:
     {
-      std::string keyString = key.ed25519();
-
-      return ED25519PublicKey::fromString(keyString);
+      return ED25519PublicKey::fromString(key.ed25519());
     }
     default:
     {
       // TODO throw
-      return std::shared_ptr<PublicKey>();
+      return {};
     }
   }
 }
