@@ -24,6 +24,7 @@
 #include "ExchangeRateSet.h"
 #include "Status.h"
 
+#include <memory>
 #include <optional>
 
 namespace proto

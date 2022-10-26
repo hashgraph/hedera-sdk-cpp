@@ -25,6 +25,7 @@
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
 
+#include <memory>
 #include <optional>
 #include <string>
 #include <utility>

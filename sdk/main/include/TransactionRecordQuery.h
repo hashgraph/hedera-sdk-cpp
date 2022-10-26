@@ -23,6 +23,7 @@
 #include "Query.h"
 #include "TransactionId.h"
 
+#include <memory>
 #include <optional>
 
 namespace Hedera
