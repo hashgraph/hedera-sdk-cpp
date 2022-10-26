@@ -24,19 +24,19 @@
 namespace Hedera
 {
 //-----
-TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionReceipt& proto)
+std::unique_ptr<TransactionReceipt> TransactionReceipt::fromProtobuf(const proto::TransactionReceipt& proto)
 {
-  TransactionReceipt receipt;
-  receipt.mStatus = STATUS_MAP.at(proto.status());
+  std::unique_ptr<TransactionReceipt> receipt;
+  receipt->mStatus = STATUS_MAP.at(proto.status());
 
   if (proto.has_accountid())
   {
-    receipt.mAccountId = AccountId::fromProtobuf(proto.accountid());
+    receipt->mAccountId = AccountId::fromProtobuf(proto.accountid());
   }
 
   if (proto.has_exchangerate())
   {
-    receipt.mExchangeRates = ExchangeRateSet::fromProtobuf(proto.exchangerate());
+    receipt->mExchangeRates = ExchangeRateSet::fromProtobuf(proto.exchangerate());
   }
 
   return receipt;

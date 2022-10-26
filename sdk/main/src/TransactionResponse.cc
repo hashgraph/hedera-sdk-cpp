@@ -29,37 +29,41 @@
 
 namespace Hedera
 {
-//-----
-TransactionResponse TransactionResponse::fromProtobuf(const proto::TransactionResponse& proto)
+TransactionResponse::TransactionResponse(uint64_t cost, bool validateStatus)
 {
-  TransactionResponse response;
-  response.mCost = proto.cost();
-  response.mValidateStatus = proto.nodetransactionprecheckcode() == proto::OK;
-  return response;
+  mCost = cost;
+  mValidateStatus = validateStatus;
 }
 
 //-----
-TransactionReceipt TransactionResponse::getReceipt(const Client& client) const
+std::unique_ptr<TransactionResponse> TransactionResponse::fromProtobuf(const proto::TransactionResponse& proto)
+{
+  return std::make_unique<TransactionResponse>(
+    TransactionResponse(proto.cost(), proto.nodetransactionprecheckcode() == proto::OK));
+}
+
+//-----
+std::unique_ptr<TransactionReceipt> TransactionResponse::getReceipt(const Client& client) const
 {
   return getReceipt(client, client.getRequestTimeout());
 }
 
 //-----
-TransactionReceipt TransactionResponse::getReceipt(const Client& client,
-                                                   const std::chrono::duration<double>& timeout) const
+std::unique_ptr<TransactionReceipt> TransactionResponse::getReceipt(const Client& client,
+                                                                    const std::chrono::duration<double>& timeout) const
 {
   return TransactionReceiptQuery().setTransactionId(mTransactionId).execute(client, timeout);
 }
 
 //-----
-TransactionRecord TransactionResponse::getRecord(const Client& client) const
+std::unique_ptr<TransactionRecord> TransactionResponse::getRecord(const Client& client) const
 {
   return getRecord(client, client.getRequestTimeout());
 }
 
 //-----
-TransactionRecord TransactionResponse::getRecord(const Client& client,
-                                                 const std::chrono::duration<double>& timeout) const
+std::unique_ptr<TransactionRecord> TransactionResponse::getRecord(const Client& client,
+                                                                  const std::chrono::duration<double>& timeout) const
 {
   return TransactionRecordQuery().setTransactionId(mTransactionId).execute(client, timeout);
 }

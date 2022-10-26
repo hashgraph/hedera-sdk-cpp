@@ -24,16 +24,16 @@
 namespace Hedera
 {
 //-----
-AccountBalance AccountBalance::fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto)
+std::unique_ptr<AccountBalance> AccountBalance::fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto)
 {
-  AccountBalance balance;
+  std::unique_ptr<AccountBalance> balance;
 
   if (proto.has_accountid())
   {
-    balance.mAccountId = AccountId::fromProtobuf(proto.accountid());
+    balance->mAccountId = AccountId::fromProtobuf(proto.accountid());
   }
 
-  balance.mBalance = Hbar(proto.balance(), HbarUnit::TINYBAR());
+  balance->mBalance = Hbar(proto.balance(), HbarUnit::TINYBAR());
 
   return balance;
 }

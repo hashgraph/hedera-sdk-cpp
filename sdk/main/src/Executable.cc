@@ -44,15 +44,16 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
-SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
-  const Client& client)
+std::unique_ptr<SdkResponseType>
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(const Client& client)
 {
   return execute(client, client.getRequestTimeout());
 }
 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
-SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
+std::unique_ptr<SdkResponseType>
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
   const Client& client,
   const std::chrono::duration<double>& duration)
 {
@@ -61,12 +62,12 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     std::pair<ProtoResponseType, grpc::Status> response = node->submitRequest(makeRequest(client), duration);
     if (response.second.ok())
     {
-      return mapResponse(response.first);
+      return interpretProtobufResponse(response.first);
     }
   }
 
   // TODO: throw?
-  return SdkResponseType();
+  return nullptr;
 }
 
 //-----

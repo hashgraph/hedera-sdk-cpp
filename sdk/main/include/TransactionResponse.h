@@ -24,6 +24,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <memory>
 
 namespace Hedera
 {
@@ -53,7 +54,7 @@ public:
    * @param proto The protobuf transaction response object.
    * @return A TransactionResponse object containing the data of the input protobuf transaction response.
    */
-  static TransactionResponse fromProtobuf(const proto::TransactionResponse& proto);
+  static std::unique_ptr<TransactionResponse> fromProtobuf(const proto::TransactionResponse& proto);
 
   /**
    * Get the receipt for this transaction.
@@ -61,7 +62,7 @@ public:
    * @param client The client with which this query will be executed.
    * @return The receipt for this transaction.
    */
-  TransactionReceipt getReceipt(const Client& client) const;
+  [[nodiscard]] std::unique_ptr<TransactionReceipt> getReceipt(const Client& client) const;
 
   /**
    * Get the receipt for this transaction with a specified timeout.
@@ -70,7 +71,8 @@ public:
    * @param timeout The timeout for this query.
    * @return The receipt for this transaction.
    */
-  TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+  [[nodiscard]] std::unique_ptr<TransactionReceipt> getReceipt(const Client& client,
+                                                               const std::chrono::duration<double>& timeout) const;
 
   /**
    * Get the record for this transaction.
@@ -78,7 +80,7 @@ public:
    * @param client The client with which this query will be executed.
    * @return The record for this transaction.
    */
-  TransactionRecord getRecord(const Client& client) const;
+  [[nodiscard]] std::unique_ptr<TransactionRecord> getRecord(const Client& client) const;
 
   /**
    * Get the record for this transaction with a specified timeout.
@@ -87,7 +89,8 @@ public:
    * @param timeout The timeout for this query.
    * @return The record for this transaction.
    */
-  TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
+  [[nodiscard]] std::unique_ptr<TransactionRecord> getRecord(const Client& client,
+                                                             const std::chrono::duration<double>& timeout) const;
 
   /**
    * Set the transaction ID to which this TransactionResponse is responding.
@@ -102,23 +105,28 @@ public:
    *
    * @return The price of the transaction.
    */
-  inline uint64_t getCost() const { return mCost; }
+  [[nodiscard]] inline uint64_t getCost() const { return mCost; }
 
   /**
    * Determine if the transaction pre-checks were a success.
    *
    * @return \c TRUE if the transaction pre-checks were a success, otherwise \c FALSE.
    */
-  inline bool getValidateStatus() const { return mValidateStatus; }
+  [[nodiscard]] inline bool getValidateStatus() const { return mValidateStatus; }
 
   /**
    * Extract the transaction ID of the transaction.
    *
    * @return The transaction ID of the transaction.
    */
-  inline TransactionId getTransactionId() const { return mTransactionId; }
+  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
 
 private:
+  /**
+   * Private constructor
+   */
+  TransactionResponse(uint64_t cost, bool validateStatus);
+
   /**
    * The price of the transaction.
    */

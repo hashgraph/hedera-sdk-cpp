@@ -64,7 +64,7 @@ proto::Query AccountBalanceQuery::makeRequest(const Client&) const
 }
 
 //-----
-AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response) const
+std::unique_ptr<AccountBalance> AccountBalanceQuery::interpretProtobufResponse(const proto::Response& response) const
 {
   return AccountBalance::fromProtobuf(response.cryptogetaccountbalance());
 }

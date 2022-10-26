@@ -69,9 +69,13 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
 
 //-----
 template<typename SdkRequestType>
-TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
+std::unique_ptr<TransactionResponse> Transaction<SdkRequestType>::interpretProtobufResponse(
+  const proto::TransactionResponse& response) const
 {
-  return TransactionResponse::fromProtobuf(response).setTransactionId(mTransactionId);
+  std::unique_ptr<TransactionResponse> transactionResponse = TransactionResponse::fromProtobuf(response);
+  transactionResponse->setTransactionId(mTransactionId);
+
+  return transactionResponse;
 }
 
 //-----

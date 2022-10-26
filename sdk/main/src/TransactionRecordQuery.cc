@@ -50,7 +50,7 @@ proto::Query TransactionRecordQuery::makeRequest(const Client&) const
 }
 
 //-----
-TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& response) const
+std::unique_ptr<TransactionRecord> TransactionRecordQuery::interpretProtobufResponse(const proto::Response& response) const
 {
   return TransactionRecord::fromProtobuf(response.transactiongetrecord().transactionrecord());
 }

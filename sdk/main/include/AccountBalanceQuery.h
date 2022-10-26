@@ -24,6 +24,7 @@
 #include "ContractId.h"
 #include "Query.h"
 
+#include <memory>
 #include <optional>
 
 namespace proto
@@ -105,7 +106,8 @@ protected:
    * @param response The protobuf response object.
    * @return The response object with the AccountBalance data.
    */
-  AccountBalance mapResponse(const proto::Response& response) const override;
+  [[nodiscard]] std::unique_ptr<AccountBalance> interpretProtobufResponse(
+    const proto::Response& response) const override;
 
 private:
   /**

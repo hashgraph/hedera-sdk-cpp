@@ -23,6 +23,8 @@
 #include "Query.h"
 #include "TransactionId.h"
 
+#include <memory>
+
 namespace Hedera
 {
 class TransactionReceipt;
@@ -80,7 +82,8 @@ protected:
    * @param response The protobuf response object.
    * @return The response object with the response data.
    */
-  TransactionReceipt mapResponse(const proto::Response& response) const override;
+  [[nodiscard]] std::unique_ptr<TransactionReceipt> interpretProtobufResponse(
+    const proto::Response& response) const override;
 
 private:
   /**

@@ -28,35 +28,35 @@
 namespace Hedera
 {
 //-----
-TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord& proto)
+std::unique_ptr<TransactionRecord> TransactionRecord::fromProtobuf(const proto::TransactionRecord& proto)
 {
-  TransactionRecord transactionRecord;
+  std::unique_ptr<TransactionRecord> transactionRecord;
 
   if (proto.has_receipt())
   {
-    transactionRecord.mReceipt = TransactionReceipt::fromProtobuf(proto.receipt());
+    transactionRecord->mReceipt = TransactionReceipt::fromProtobuf(proto.receipt());
   }
 
-  transactionRecord.mTransactionHash = proto.transactionhash();
+  transactionRecord->mTransactionHash = proto.transactionhash();
 
   if (proto.has_consensustimestamp())
   {
-    transactionRecord.mConsensusTimestamp = TimestampConverter::fromProtobuf(proto.consensustimestamp());
+    transactionRecord->mConsensusTimestamp = TimestampConverter::fromProtobuf(proto.consensustimestamp());
   }
 
   if (proto.has_transactionid())
   {
-    transactionRecord.mTransactionID = TransactionId::fromProtobuf(proto.transactionid());
+    transactionRecord->mTransactionID = TransactionId::fromProtobuf(proto.transactionid());
   }
 
-  transactionRecord.mMemo = proto.memo();
-  transactionRecord.mTransactionFee = proto.transactionfee();
+  transactionRecord->mMemo = proto.memo();
+  transactionRecord->mTransactionFee = proto.transactionfee();
 
   if (proto.has_transferlist())
   {
     for (int i = 0; i < proto.transferlist().accountamounts_size(); ++i)
     {
-      transactionRecord.mTransferList->emplace_back(
+      transactionRecord->mTransferList->emplace_back(
         AccountId::fromProtobuf(proto.transferlist().accountamounts(i).accountid()),
         Hbar(proto.transferlist().accountamounts(i).amount(), HbarUnit::TINYBAR()));
     }

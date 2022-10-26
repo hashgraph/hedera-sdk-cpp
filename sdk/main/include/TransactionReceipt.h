@@ -46,7 +46,7 @@ public:
    * @param proto The protobuf TransactionReceipt.
    * @return A TransactionReceipt with the protobuf TransactionReceipt data.
    */
-  static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto);
+  static std::unique_ptr<TransactionReceipt> fromProtobuf(const proto::TransactionReceipt& proto);
 
   /**
    * Extract the transaction status.

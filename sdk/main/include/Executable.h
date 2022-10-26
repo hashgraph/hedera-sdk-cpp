@@ -24,6 +24,7 @@
 
 #include <chrono>
 #include <vector>
+#include <memory>
 
 namespace Hedera
 {
@@ -51,7 +52,7 @@ public:
    * @param client The client with which this will be executed.
    * @return The result of execution.
    */
-  SdkResponseType execute(const Client& client);
+  std::unique_ptr<SdkResponseType> execute(const Client& client);
 
   /**
    * Execute this executable with a specified timeout.
@@ -60,7 +61,7 @@ public:
    * @param timeout The timeout for this execution.
    * @return The result of execution.
    */
-  SdkResponseType execute(const Client& client, const std::chrono::duration<double>& duration);
+  std::unique_ptr<SdkResponseType> execute(const Client& client, const std::chrono::duration<double>& duration);
 
   /**
    * Set the account IDs of the nodes to which this transaction will be submitted.
@@ -96,7 +97,7 @@ protected:
    * @param response The protobuf response object.
    * @return The response object with the response data.
    */
-  virtual SdkResponseType mapResponse(const ProtoResponseType& response) const = 0;
+  virtual std::unique_ptr<SdkResponseType> interpretProtobufResponse(const ProtoResponseType& response) const = 0;
 
 private:
   /**

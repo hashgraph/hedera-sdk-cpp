@@ -43,7 +43,8 @@ proto::Query TransactionReceiptQuery::makeRequest(const Client&) const
 }
 
 //-----
-TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& response) const
+std::unique_ptr<TransactionReceipt> TransactionReceiptQuery::interpretProtobufResponse(
+  const proto::Response& response) const
 {
   return TransactionReceipt::fromProtobuf(response.transactiongetreceipt().receipt());
 }

@@ -53,14 +53,14 @@ public:
    * @param proto The protobuf TransactionRecord.
    * @return A TransactionRecord containing the protobuf TransactionRecord data.
    */
-  static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
+  static std::unique_ptr<TransactionRecord> fromProtobuf(const proto::TransactionRecord& proto);
 
   /**
    * Extract the transaction receipt.
    *
    * @return The transaction receipt.
    */
-  inline std::optional<TransactionReceipt> getReceipt() const { return mReceipt; }
+  inline TransactionReceipt& getReceipt() const { return *mReceipt; }
 
   /**
    * Extract the transaction hash.
@@ -111,7 +111,7 @@ private:
   /**
    * The status (reach consensus, or failed, or is unknown) and the ID of any new account/file/instance created.
    */
-  std::optional<TransactionReceipt> mReceipt;
+  std::unique_ptr<TransactionReceipt> mReceipt;
 
   /**
    * The hash of the Transaction that executed (not the hash of any Transaction that failed for having a duplicate

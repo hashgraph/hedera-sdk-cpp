@@ -77,7 +77,8 @@ protected:
    * @param response The protobuf response object.
    * @return The response object with the TransactionRecord data.
    */
-  TransactionRecord mapResponse(const proto::Response& response) const override;
+  [[nodiscard]] std::unique_ptr<TransactionRecord> interpretProtobufResponse(
+    const proto::Response& response) const override;
 
 private:
   /**

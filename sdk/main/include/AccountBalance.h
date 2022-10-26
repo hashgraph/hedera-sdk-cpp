@@ -23,6 +23,7 @@
 #include "AccountId.h"
 #include "Hbar.h"
 
+#include <memory>
 #include <optional>
 
 namespace proto
@@ -44,7 +45,7 @@ public:
    * @param proto The CryptoGetAccountBalance protobuf object.
    * @return The converted AccountBalance object.
    */
-  static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
+  static std::unique_ptr<AccountBalance> fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
 
   /**
    * Extract the account balance.

@@ -132,7 +132,8 @@ protected:
    * @param response The protobuf transaction response object.
    * @return The transaction response object with the response data.
    */
-  TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
+  [[nodiscard]] std::unique_ptr<TransactionResponse> interpretProtobufResponse(
+    const proto::TransactionResponse& response) const override;
 
   /**
    * Sign a protobuf TransactionBody with a Client and put the signed bytes into a protobuf Transaction.
