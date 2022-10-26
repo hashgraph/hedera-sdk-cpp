@@ -29,6 +29,48 @@ protected:
   int64_t amount = 6ULL;
 };
 
+TEST_F(HbarTest, TinybarUnit)
+{
+  EXPECT_EQ(HbarUnit::TINYBAR().getTinybars(), 1ULL);
+  EXPECT_EQ(HbarUnit::TINYBAR().getSymbol(), "tℏ");
+}
+
+TEST_F(HbarTest, MicrobarUnit)
+{
+  EXPECT_EQ(HbarUnit::MICROBAR().getTinybars(), 100ULL);
+  EXPECT_EQ(HbarUnit::MICROBAR().getSymbol(), "μℏ");
+}
+
+TEST_F(HbarTest, MillibarUnit)
+{
+  EXPECT_EQ(HbarUnit::MILLIBAR().getTinybars(), 100000ULL);
+  EXPECT_EQ(HbarUnit::MILLIBAR().getSymbol(), "mℏ");
+}
+
+TEST_F(HbarTest, HbarUnit)
+{
+  EXPECT_EQ(HbarUnit::HBAR().getTinybars(), 100000000ULL);
+  EXPECT_EQ(HbarUnit::HBAR().getSymbol(), "ℏ");
+}
+
+TEST_F(HbarTest, KilobarUnit)
+{
+  EXPECT_EQ(HbarUnit::KILOBAR().getTinybars(), 100000000000ULL);
+  EXPECT_EQ(HbarUnit::KILOBAR().getSymbol(), "kℏ");
+}
+
+TEST_F(HbarTest, MegabarUnit)
+{
+  EXPECT_EQ(HbarUnit::MEGABAR().getTinybars(), 100000000000000ULL);
+  EXPECT_EQ(HbarUnit::MEGABAR().getSymbol(), "Mℏ");
+}
+
+TEST_F(HbarTest, GigabarUnit)
+{
+  EXPECT_EQ(HbarUnit::GIGABAR().getTinybars(), 100000000000000000ULL);
+  EXPECT_EQ(HbarUnit::GIGABAR().getSymbol(), "Gℏ");
+}
+
 TEST_F(HbarTest, DefaultConstructor)
 {
   Hbar hbar;
