@@ -6,6 +6,7 @@ FetchContent_Declare(googletest
 FetchContent_MakeAvailable(googletest)
 
 set(TestSources
+        AccountIdTest.cc
         ED25519PrivateKeyTest.cpp
         ED25519PublicKeyTest.cpp
         )

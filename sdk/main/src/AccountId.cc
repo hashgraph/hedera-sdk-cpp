@@ -19,8 +19,6 @@
  */
 #include "AccountId.h"
 
-#include "EntityIdHelper.h"
-
 #include "PublicKey.h"
 
 #include <proto/basic_types.pb.h>
@@ -36,6 +34,13 @@ AccountId::AccountId(const uint64_t& num)
 }
 
 //-----
+AccountId::AccountId(const uint64_t& shard, const uint64_t& realm)
+  : mShardNum(shard)
+  , mRealmNum(realm)
+{
+}
+
+//-----
 AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num)
   : mShardNum(shard)
   , mRealmNum(realm)
@@ -46,9 +51,7 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
 //-----
 AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
 {
-  AccountId accountId;
-  accountId.mShardNum = static_cast<uint64_t>(proto.shardnum());
-  accountId.mRealmNum = static_cast<uint64_t>(proto.realmnum());
+  AccountId accountId = AccountId(static_cast<uint64_t>(proto.shardnum()), static_cast<uint64_t>(proto.realmnum()));
 
   if (proto.has_accountnum())
   {
@@ -71,6 +74,27 @@ std::shared_ptr<proto::AccountID> AccountId::toProtobuf() const
   }
 
   return proto;
+}
+
+AccountId& AccountId::setShardNum(const uint64_t& num)
+{
+  mShardNum = num;
+
+  return *this;
+}
+
+AccountId& AccountId::setRealmNum(const uint64_t& num)
+{
+  mRealmNum = num;
+
+  return *this;
+}
+
+AccountId& AccountId::setAccountNum(const uint64_t& num)
+{
+  mAccountNum = num;
+
+  return *this;
 }
 
 } // namespace Hedera

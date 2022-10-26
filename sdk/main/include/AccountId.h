@@ -39,16 +39,19 @@ class AccountId
 {
 public:
   /**
-   * Default constructor.
-   */
-  AccountId() = default;
-
-  /**
    * Construct with an account number.
    *
    * @param num The account number to set.
    */
   explicit AccountId(const uint64_t& num);
+
+  /**
+   * Construct with with a shard and realm
+   *
+   * @param shard The shard number to set.
+   * @param realm The realm number to set.
+   */
+  explicit AccountId(const uint64_t& shard, const uint64_t& realm);
 
   /**
    * Construct with with a shard, realm, and account number.
@@ -80,7 +83,7 @@ public:
    *
    * @return Pointer to the created protobuf AccountID.
    */
-  std::shared_ptr<proto::AccountID> toProtobuf() const;
+  [[nodiscard]] std::shared_ptr<proto::AccountID> toProtobuf() const;
 
   /**
    * Set the shard number.
@@ -111,21 +114,21 @@ public:
    *
    * @return The shard number.
    */
-  inline uint64_t getShardNum() const { return mShardNum; }
+  [[nodiscard]] inline uint64_t getShardNum() const { return mShardNum; }
 
   /**
    * Extract the realm number.
    *
    * @return The realm number.
    */
-  inline uint64_t getRealmNum() const { return mRealmNum; }
+  [[nodiscard]] inline uint64_t getRealmNum() const { return mRealmNum; }
 
   /**
    * Extract the account number.
    *
    * @return The account number.
    */
-  inline std::optional<uint64_t> getAccountNum() const { return mAccountNum; }
+  [[nodiscard]] inline std::optional<uint64_t> getAccountNum() const { return mAccountNum; }
 
 private:
   /**
