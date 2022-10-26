@@ -106,27 +106,27 @@ create_external_package(zlib zlib)
 create_req_link_target(re2 re2 libre2.a re2.lib)
 create_external_package(re2 re2)
 
-create_req_link_target(upb upb libupb.a upb.lib)
-create_req_link_target(upb descriptor_upb_proto libdescriptor_upb_proto.a descriptor_upb_proto.lib)
-create_req_link_target(upb collections libupb_collections.a upb_collections.lib)
-create_req_link_target(upb extension_registry libupb_extension_registry.a upb_extension_registry.lib)
-create_req_link_target(upb fastdecode libupb_fastdecode.a upb_fastdecode.lib)
-create_req_link_target(upb json libupb_json.a upb_json.lib)
-create_req_link_target(upb mini_table libupb_mini_table.a upb_mini_table.lib)
-create_req_link_target(upb reflection libupb_reflection.a upb_reflection.lib)
-create_req_link_target(upb textformat libupb_textformat.a upb_textformat.lib)
-create_req_link_target(upb utf8_range libupb_utf8_range.a upb_utf8_range.lib)
-create_external_package(upb
-        upb
-        collections
-        descriptor_upb_proto
-        extension_registry
-        fastdecode
-        json
-        mini_table
-        reflection
-        textformat
-        utf8_range)
+#create_req_link_target(upb upb libupb.a upb.lib)
+#create_req_link_target(upb descriptor_upb_proto libdescriptor_upb_proto.a descriptor_upb_proto.lib)
+#create_req_link_target(upb collections libupb_collections.a upb_collections.lib)
+#create_req_link_target(upb extension_registry libupb_extension_registry.a upb_extension_registry.lib)
+#create_req_link_target(upb fastdecode libupb_fastdecode.a upb_fastdecode.lib)
+#create_req_link_target(upb json libupb_json.a upb_json.lib)
+#create_req_link_target(upb mini_table libupb_mini_table.a upb_mini_table.lib)
+#create_req_link_target(upb reflection libupb_reflection.a upb_reflection.lib)
+#create_req_link_target(upb textformat libupb_textformat.a upb_textformat.lib)
+#create_req_link_target(upb utf8_range libupb_utf8_range.a upb_utf8_range.lib)
+#create_external_package(upb
+#        upb
+#        collections
+#        descriptor_upb_proto
+#        extension_registry
+#        fastdecode
+#        json
+#        mini_table
+#        reflection
+#        textformat
+#        utf8_range)
 
 create_req_link_target(OpenSSL Crypto libcrypto.a libcrypto.lib)
 create_req_link_target(OpenSSL SSL libssl.a libssl.lib)

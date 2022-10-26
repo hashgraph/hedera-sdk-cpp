@@ -50,7 +50,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
-          "value": "x64-linux-release"
+          "value": "x64-linux"
         }
       }
     },
@@ -60,7 +60,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
-          "value": "x64-osx-release"
+          "value": "x64-osx"
         }
       }
     },
