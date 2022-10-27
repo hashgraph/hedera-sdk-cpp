@@ -25,27 +25,29 @@
 #include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
 
-class ED25519PrivateKeyTest : public ::testing::Test {
+using namespace Hedera;
+
+class ED25519PrivateKeyTest : public ::testing::Test
+{
 protected:
   std::shared_ptr<Hedera::ED25519PrivateKey> privateKeyGenerated;
   std::shared_ptr<Hedera::ED25519PrivateKey> privateKeyLoaded;
 
-  void SetUp() override {
+  void SetUp() override
+  {
     // generate a private key
     privateKeyGenerated = Hedera::ED25519PrivateKey::generatePrivateKey();
 
     // serialize and then load private key back in
-    privateKeyLoaded =
-        Hedera::ED25519PrivateKey::fromString(privateKeyGenerated->toString());
+    privateKeyLoaded = Hedera::ED25519PrivateKey::fromString(privateKeyGenerated->toString());
   }
 };
 
-TEST_F(ED25519PrivateKeyTest, GetPublicKey) {
+TEST_F(ED25519PrivateKeyTest, GetPublicKey)
+{
   // get the public keys from the private keys
-  std::shared_ptr<Hedera::PublicKey> publicFromGenerated =
-      privateKeyGenerated->getPublicKey();
-  std::shared_ptr<Hedera::PublicKey> publicFromLoaded =
-      privateKeyLoaded->getPublicKey();
+  std::shared_ptr<Hedera::PublicKey> publicFromGenerated = privateKeyGenerated->getPublicKey();
+  std::shared_ptr<Hedera::PublicKey> publicFromLoaded = privateKeyLoaded->getPublicKey();
 
   EXPECT_NE(publicFromGenerated, nullptr);
   EXPECT_NE(publicFromLoaded, nullptr);
@@ -55,36 +57,45 @@ TEST_F(ED25519PrivateKeyTest, GetPublicKey) {
   EXPECT_EQ(publicFromGenerated->toString(), publicFromLoaded->toString());
 }
 
-TEST_F(ED25519PrivateKeyTest, Sign) {
-  std::vector<unsigned char> bytesToSign = {0x1, 0x2, 0x3};
-  std::vector<unsigned char> signatureFromGenerated =
-      privateKeyGenerated->sign(bytesToSign);
-  std::vector<unsigned char> signatureFromLoaded =
-      privateKeyLoaded->sign(bytesToSign);
+TEST_F(ED25519PrivateKeyTest, Sign)
+{
+  std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  std::vector<unsigned char> signatureFromGenerated = privateKeyGenerated->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromLoaded = privateKeyLoaded->sign(bytesToSign);
 
   EXPECT_EQ(signatureFromGenerated.size(), 64);
   EXPECT_EQ(signatureFromLoaded.size(), 64);
   EXPECT_EQ(signatureFromGenerated, signatureFromLoaded);
 }
 
-TEST_F(ED25519PrivateKeyTest, SignEmptyBytes) {
+TEST_F(ED25519PrivateKeyTest, SignEmptyBytes)
+{
   std::vector<unsigned char> bytesToSign = std::vector<unsigned char>();
 
-  std::vector<unsigned char> signatureFromGenerated =
-      privateKeyGenerated->sign(bytesToSign);
-  std::vector<unsigned char> signatureFromLoaded =
-      privateKeyLoaded->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromGenerated = privateKeyGenerated->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromLoaded = privateKeyLoaded->sign(bytesToSign);
 
   EXPECT_EQ(signatureFromGenerated.size(), 64);
   EXPECT_EQ(signatureFromLoaded.size(), 64);
   EXPECT_EQ(signatureFromGenerated, signatureFromLoaded);
 }
 
-TEST_F(ED25519PrivateKeyTest, ToString) {
+TEST_F(ED25519PrivateKeyTest, ToString)
+{
   std::string stringFromGenerated = privateKeyGenerated->toString();
   std::string stringFromLoaded = privateKeyLoaded->toString();
 
-  EXPECT_EQ(stringFromGenerated.size(), 48);
-  EXPECT_EQ(stringFromLoaded.size(), 48);
+  EXPECT_EQ(stringFromGenerated.size(), 96);
+  EXPECT_EQ(stringFromLoaded.size(), 96);
   EXPECT_EQ(stringFromGenerated, stringFromLoaded);
+}
+
+TEST_F(ED25519PrivateKeyTest, FromString)
+{
+  std::string privateKeyString =
+    "302E020100300506032B65700422042068FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
+  std::shared_ptr<ED25519PrivateKey> privateKeyFromString = ED25519PrivateKey::fromString(privateKeyString);
+
+  EXPECT_NE(privateKeyFromString, nullptr);
+  EXPECT_EQ(privateKeyString, privateKeyFromString->toString());
 }

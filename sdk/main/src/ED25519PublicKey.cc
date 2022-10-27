@@ -56,12 +56,12 @@ proto::Key* ED25519PublicKey::toProtobuf() const
 
 std::string ED25519PublicKey::toString() const
 {
-  return HexConverter::bytesToHex(toBytes());
+  return HexConverter::base64ToHex(toBytes());
 }
 
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string& keyString)
 {
-  return fromBytes(HexConverter::hexToBytes(keyString));
+  return fromBytes(HexConverter::hexToBase64(keyString));
 }
 
 std::vector<unsigned char> ED25519PublicKey::toBytes() const
@@ -73,7 +73,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 
   if (i2d_PUBKEY(this->publicKey, &rawPublicKeyBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;
+    std::cout << "ED25519PublicKey to bytes I2D error" << std::endl;
   }
 
   return publicKeyBytes;

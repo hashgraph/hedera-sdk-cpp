@@ -52,7 +52,7 @@ std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
 
   if (i2d_PUBKEY(this->keypair, &rawPublicKeyBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;
+    std::cout << "getPublicKeyBytes I2D error" << std::endl;
   }
 
   return publicKeyBytes;
@@ -104,12 +104,12 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
 
 std::string ED25519PrivateKey::toString() const
 {
-  return HexConverter::bytesToHex(toBytes());
+  return HexConverter::base64ToHex(toBytes());
 }
 
 std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
 {
-  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBytes(keyString))));
+  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(keyString))));
 }
 
 std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
@@ -146,7 +146,7 @@ std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 
   if (i2d_PrivateKey(this->keypair, &rawBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;
+    std::cout << "ED25519PrivateKey toBytes I2D error" << std::endl;
   }
 
   return outputBytes;
