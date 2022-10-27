@@ -53,9 +53,9 @@ TEST_F(ED25519PublicKeyTest, ToString) {
   std::string derEncodingFromLoaded = publicKeyFromString->toString();
   std::string derEncodingFromProtobuf = publicKeyFromProtobuf->toString();
 
-  EXPECT_EQ(derEncodingFromPrivate.size(), 44);
-  EXPECT_EQ(derEncodingFromLoaded.size(), 44);
-  EXPECT_EQ(derEncodingFromProtobuf.size(), 44);
+  EXPECT_EQ(derEncodingFromPrivate.size(), 88);
+  EXPECT_EQ(derEncodingFromLoaded.size(), 88);
+  EXPECT_EQ(derEncodingFromProtobuf.size(), 88);
 
   EXPECT_EQ(derEncodingFromPrivate, derEncodingFromLoaded);
   EXPECT_EQ(derEncodingFromPrivate, derEncodingFromProtobuf);
