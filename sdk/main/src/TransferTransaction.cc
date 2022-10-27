@@ -45,15 +45,15 @@ TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const Accoun
 proto::Transaction TransferTransaction::makeRequest(const Client& client) const
 {
   proto::TransactionBody body;
-  body.set_allocated_cryptotransfer(build().get());
+  body.set_allocated_cryptotransfer(build());
 
   return signTransaction(body, client);
 }
 
 //-----
-std::shared_ptr<proto::CryptoTransferTransactionBody> TransferTransaction::build() const
+proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 {
-  auto body = std::make_shared<proto::CryptoTransferTransactionBody>();
+  auto body = new proto::CryptoTransferTransactionBody;
 
   for (const Transfer& transfer : mHbarTransfers)
   {

@@ -114,15 +114,15 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) const
 {
   proto::TransactionBody transactionBody;
-  transactionBody.set_allocated_cryptocreateaccount(build().get());
+  transactionBody.set_allocated_cryptocreateaccount(build());
 
   return signTransaction(transactionBody, client);
 }
 
 //-----
-std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::build() const
+proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 {
-  auto body = std::make_shared<proto::CryptoCreateTransactionBody>();
+  auto body = new proto::CryptoCreateTransactionBody;
 
   if (mPublicKey)
   {

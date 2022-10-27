@@ -89,7 +89,7 @@ private:
    *
    * @return Pointer to a protobuf CryptoCreateTransactionBody.
    */
-  std::shared_ptr<proto::CryptoTransferTransactionBody> build() const;
+  proto::CryptoTransferTransactionBody* build() const;
 
   /**
    * Add an Hbar transfer to the Hbar transfers list.

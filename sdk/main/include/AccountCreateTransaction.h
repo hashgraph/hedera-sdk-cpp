@@ -233,7 +233,7 @@ private:
    *
    * @return A CryptoCreateTransactionBody protobuf message.
    */
-  std::shared_ptr<proto::CryptoCreateTransactionBody> build() const;
+  proto::CryptoCreateTransactionBody* build() const;
 
   /**
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is true, then it must also
