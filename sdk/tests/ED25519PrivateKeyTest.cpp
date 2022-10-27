@@ -92,10 +92,16 @@ TEST_F(ED25519PrivateKeyTest, ToString)
 
 TEST_F(ED25519PrivateKeyTest, FromString)
 {
-  std::string privateKeyString =
+  // these are 2 versions of the same private key. the first conforms to the full RFC 8410 standard, the second is just
+  // the private key
+  std::string privateKeyStringExtended =
     "302E020100300506032B65700422042068FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
-  std::shared_ptr<ED25519PrivateKey> privateKeyFromString = ED25519PrivateKey::fromString(privateKeyString);
+  std::string privateKeyStringShort = "68FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
 
-  EXPECT_NE(privateKeyFromString, nullptr);
-  EXPECT_EQ(privateKeyString, privateKeyFromString->toString());
+  std::shared_ptr<ED25519PrivateKey> privateKeyFromExtended = ED25519PrivateKey::fromString(privateKeyStringExtended);
+  std::shared_ptr<ED25519PrivateKey> privateKeyFromShort = ED25519PrivateKey::fromString(privateKeyStringShort);
+
+  EXPECT_NE(privateKeyFromExtended, nullptr);
+  EXPECT_NE(privateKeyFromShort, nullptr);
+  EXPECT_EQ(privateKeyFromExtended->toString(), privateKeyFromShort->toString());
 }

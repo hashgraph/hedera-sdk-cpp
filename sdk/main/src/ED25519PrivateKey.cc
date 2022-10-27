@@ -109,7 +109,14 @@ std::string ED25519PrivateKey::toString() const
 
 std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
 {
-  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(keyString))));
+  std::string fullKeyString = keyString;
+
+  // key size of 64 means RFC 8410 prefix is missing. add it before making calls to OpenSSL
+  if (keyString.size() == 64) {
+    fullKeyString = "302E020100300506032B657004220420" + keyString;
+  }
+
+  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(fullKeyString))));
 }
 
 std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()

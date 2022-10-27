@@ -28,6 +28,8 @@
 #include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
 
+using namespace Hedera;
+
 class ED25519PublicKeyTest : public ::testing::Test {
 protected:
   std::shared_ptr<Hedera::ED25519PrivateKey> privateKey;
@@ -120,4 +122,20 @@ TEST_F(ED25519PublicKeyTest, VerifyEmptyMessage) {
   EXPECT_FALSE(publicKeyFromPrivate->verifySignature(signature, emptyMessage));
   EXPECT_FALSE(publicKeyFromString->verifySignature(signature, emptyMessage));
   EXPECT_FALSE(publicKeyFromProtobuf->verifySignature(signature, emptyMessage));
+}
+
+TEST_F(ED25519PublicKeyTest, FromString)
+{
+  // these are 2 versions of the same public key. the first conforms to the full RFC 8410 standard, the second is just
+  // the public key
+  std::string publicKeyStringExtended =
+    "302A300506032B6570032100F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";
+  std::string publicKeyStringShort = "F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";
+
+  std::shared_ptr<ED25519PublicKey> publicKeyFromExtended = ED25519PublicKey::fromString(publicKeyStringExtended);
+  std::shared_ptr<ED25519PublicKey> publicKeyFromShort = ED25519PublicKey::fromString(publicKeyStringShort);
+
+  EXPECT_NE(publicKeyFromExtended, nullptr);
+  EXPECT_NE(publicKeyFromShort, nullptr);
+  EXPECT_EQ(publicKeyFromExtended->toString(), publicKeyFromShort->toString());
 }
