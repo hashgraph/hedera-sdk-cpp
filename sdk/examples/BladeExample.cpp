@@ -34,7 +34,7 @@ using namespace Hedera;
 int main(int argc, char** argv)
 {
   Client client = Client::forTestnet();
-  client.setOperator(AccountId(argv[0]), ED25519PrivateKey::fromString(argv[1]));
+  client.setOperator(AccountId(argv[1]), ED25519PrivateKey::fromString(argv[2]));
 
   const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();

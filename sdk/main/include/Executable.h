@@ -50,6 +50,7 @@ public:
    *
    * @param client The client with which this will be executed.
    * @return The result of execution.
+   * @throws std::runtime_error if unable to communicate with client network.
    */
   SdkResponseType execute(const Client& client);
 
@@ -59,6 +60,7 @@ public:
    * @param client  The client with which this will be executed.
    * @param timeout The timeout for this execution.
    * @return The result of execution.
+   * @throws std::runtime_error if unable to communicate with client network.
    */
   SdkResponseType execute(const Client& client, const std::chrono::duration<double>& duration);
 

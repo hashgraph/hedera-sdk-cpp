@@ -155,7 +155,6 @@ std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 EVP_PKEY* ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   const unsigned char* rawKeyBytes = &keyBytes.front();
-
   return d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, (long)keyBytes.size());
 }
 }

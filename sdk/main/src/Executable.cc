@@ -38,6 +38,7 @@
 
 #include <grpcpp/impl/codegen/status.h>
 
+#include <stdexcept>
 #include <utility>
 
 namespace Hedera
@@ -65,8 +66,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     }
   }
 
-  // TODO: throw?
-  return SdkResponseType();
+  throw std::runtime_error("Unable to communicate with any node");
 }
 
 //-----

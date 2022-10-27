@@ -80,8 +80,7 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
 {
   // Make sure the operator key and account ID are valid, and make sure the account ID for this transaction matches
   // the operator's account ID.
-  if (client.getOperatorPublicKey() && client.getOperatorAccountId().has_value() &&
-      mTransactionId.getAccountId().has_value() && mTransactionId.getAccountId() == client.getOperatorAccountId())
+  if (client.getOperatorPublicKey() && client.getOperatorAccountId().has_value())
   {
     // Generate a signature from the TransactionBody
     auto transactionBodySerialized = new std::string(transaction.SerializeAsString());
@@ -104,8 +103,7 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
     return transactionToReturn;
   }
 
-  // TODO: throw?
-  return proto::Transaction();
+  throw std::invalid_argument("Invalid client used to sign transaction");
 }
 
 /**

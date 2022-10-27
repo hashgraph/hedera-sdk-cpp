@@ -60,10 +60,10 @@ public:
   explicit AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
   /**
-   * Construct from a string of the form "<shard>.<realm>.<num>". A malformed input string will create the invalid
-   * AccountId of 0.0.0.
+   * Construct from a string of the form "<shard>.<realm>.<num>".
    *
    * @param str The string from which to construct.
+   * @throws std::invalid_argument if input string is malformed.
    */
   explicit AccountId(const std::string& str);
 

@@ -21,6 +21,8 @@
 
 #include "PrivateKey.h"
 
+#include <stdexcept>
+
 namespace Hedera
 {
 //-----
@@ -46,7 +48,7 @@ Client& Client::setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee
 {
   if (defaultMaxTransactionFee.toTinybars() < 0)
   {
-    // TODO: throw
+    throw std::invalid_argument("Transaction fee cannot be negative");
   }
 
   mDefaultMaxTransactionFee = defaultMaxTransactionFee;

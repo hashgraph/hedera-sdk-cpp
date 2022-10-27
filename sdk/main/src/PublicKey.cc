@@ -24,6 +24,8 @@
 
 #include <proto/basic_types.pb.h>
 
+#include <stdexcept>
+
 namespace Hedera
 {
 std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
@@ -36,8 +38,7 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
     }
     default:
     {
-      // TODO throw
-      return {};
+      return std::shared_ptr<PublicKey>();
     }
   }
 }

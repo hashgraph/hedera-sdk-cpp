@@ -81,6 +81,7 @@ public:
    *
    * @param defaultMaxTransactionFee The Hbar to be set.
    * @return Reference to this Client object.
+   * @throw std::invalid_argument If the transaction fee is negative.
    */
   Client& setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee);
 
