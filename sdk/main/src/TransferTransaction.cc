@@ -51,6 +51,13 @@ proto::Transaction TransferTransaction::makeRequest(const Client& client) const
 }
 
 //-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+TransferTransaction::getGrpcMethod(const Node& node) const
+{
+  return node.getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoTransfer);
+}
+
+//-----
 proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 {
   auto body = new proto::CryptoTransferTransactionBody;

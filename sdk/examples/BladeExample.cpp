@@ -43,6 +43,10 @@ int main(int argc, char** argv)
   TransactionResponse txResp =
     AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(1ULL)).execute(client);
 
+  std::cout << "Executed AccountCreateTransaction" << std::endl;
+  std::cout << " - Cost=" << txResp.getCost() << std::endl;
+  std::cout << " - Successful=" << txResp.getValidateStatus() << std::endl;
+
   // Get the account ID of the newly created account
   const AccountId newAccountId = txResp.getReceipt(client).getAccountId().value();
 

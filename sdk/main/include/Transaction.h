@@ -25,12 +25,14 @@
 #include "TransactionId.h"
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <string>
 
 namespace Hedera
 {
 class AccountCreateTransaction;
+class Channel;
 class TransactionResponse;
 }
 
@@ -39,6 +41,12 @@ namespace proto
 class Transaction;
 class TransactionBody;
 class TransactionResponse;
+}
+
+namespace grpc
+{
+class ClientContext;
+class Status;
 }
 
 namespace Hedera

@@ -29,6 +29,20 @@
 namespace Hedera
 {
 //-----
+TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const Hedera::TransactionId& transactionId)
+{
+  mTransactionId = transactionId;
+  return *this;
+}
+
+//-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
+TransactionReceiptQuery::getGrpcMethod(const Node& node) const
+{
+  return node.getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetReceipt);
+}
+
+//-----
 proto::Query TransactionReceiptQuery::makeRequest(const Client&) const
 {
   proto::Query query;
@@ -46,13 +60,6 @@ proto::Query TransactionReceiptQuery::makeRequest(const Client&) const
 TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& response) const
 {
   return TransactionReceipt::fromProtobuf(response.transactiongetreceipt().receipt());
-}
-
-//-----
-TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const Hedera::TransactionId& transactionId)
-{
-  mTransactionId = transactionId;
-  return *this;
 }
 
 } // namespace Hedera

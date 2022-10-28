@@ -68,6 +68,15 @@ public:
 
 protected:
   /**
+   * Derived from Executable. Get the gRPC method to call to retrieve a transaction receipt.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this TransactionReceiptQuery.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
+    const Node& node) const override;
+
+  /**
    * Derived from Query. Construct a query protobuf object from this TransactionReceiptQuery.
    *
    * @return The query protobuf object that contains this TransactionReceiptQuery information.

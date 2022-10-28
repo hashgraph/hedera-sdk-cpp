@@ -83,6 +83,15 @@ protected:
    */
   proto::Transaction makeRequest(const Client& client) const override;
 
+  /**
+   * Derived from Executable. Get the gRPC method to call to transfer between accounts.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this TransferTransaction.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  getGrpcMethod(const Node& node) const override;
+
 private:
   /**
    * Build this TransferTransaction into a protobuf CryptoCreateTransactionBody.

@@ -36,6 +36,7 @@
 #include <proto/transaction.pb.h>
 #include <proto/transaction_response.pb.h>
 
+#include <grpcpp/client_context.h>
 #include <grpcpp/impl/codegen/status.h>
 
 #include <stdexcept>
@@ -57,12 +58,32 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::duration<double>& duration)
 {
+  // Create the request
+  const ProtoRequestType request = makeRequest(client);
+
+  // Create the context from the timeout duration
+  grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() +
+                       std::chrono::duration_cast<std::chrono::milliseconds>(duration));
+
+  // The response object to fill
+  ProtoResponseType response;
+
   for (std::shared_ptr<Node> node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
   {
-    std::pair<ProtoResponseType, grpc::Status> response = node->submitRequest(makeRequest(client), duration);
-    if (response.second.ok())
+    std::cout << "getting grpc method" << std::endl;
+    auto grpcFunc = getGrpcMethod(*node.get());
+    std::cout << "got grpc method" << std::endl;
+
+    // Call the gRPC method
+    std::cout << "calling grpc method" << std::endl;
+    grpc::Status status = grpcFunc(&context, request, &response);
+    std::cout << "calling grpc method done, status=" << status.error_code() << std::endl;
+
+    if (status.error_code() == 0)
     {
-      return mapResponse(response.first);
+      std::cout << "status is ok" << std::endl;
+      return mapResponse(response);
     }
   }
 

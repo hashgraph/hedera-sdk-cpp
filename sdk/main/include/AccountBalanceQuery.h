@@ -26,16 +26,23 @@
 
 #include <optional>
 
+namespace Hedera
+{
+class AccountBalance;
+class Client;
+class Node;
+}
+
 namespace proto
 {
 class Query;
 class Response;
 }
 
-namespace Hedera
+namespace grpc
 {
-class AccountBalance;
-class Client;
+class ClientContext;
+class Status;
 }
 
 namespace Hedera
@@ -92,6 +99,15 @@ public:
   inline std::optional<ContractId> getContractId() { return mContractId; }
 
 protected:
+  /**
+   * Derived from Executable. Get the gRPC method to call to retrieve an account balance.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this AccountBalanceQuery.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
+    const Node& node) const override;
+
   /**
    * Derived from Executable. Construct a query protobuf object from this AccountBalanceQuery.
    *

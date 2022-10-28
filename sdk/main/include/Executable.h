@@ -28,6 +28,13 @@
 namespace Hedera
 {
 class Client;
+class Node;
+}
+
+namespace grpc
+{
+class ClientContext;
+class Status;
 }
 
 namespace Hedera
@@ -99,6 +106,15 @@ protected:
    * @return The response object with the response data.
    */
   virtual SdkResponseType mapResponse(const ProtoResponseType& response) const = 0;
+
+  /**
+   * Get the gRPC method to call for this Executable.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this request.
+   */
+  virtual std::function<grpc::Status(grpc::ClientContext*, const ProtoRequestType&, ProtoResponseType*)> getGrpcMethod(
+    const Node& node) const = 0;
 
 private:
   /**

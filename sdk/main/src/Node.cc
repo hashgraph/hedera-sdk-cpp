@@ -24,7 +24,7 @@
 namespace Hedera
 {
 //-----
-Node::Node(const std::string& url, const Hedera::AccountId& accountId)
+Node::Node(const std::string& url, const AccountId& accountId)
   : mAccountId(accountId)
   , mAddress(NodeAddress::fromString(url))
   , mChannel(url)
@@ -32,17 +32,17 @@ Node::Node(const std::string& url, const Hedera::AccountId& accountId)
 }
 
 //-----
-std::pair<proto::Response, grpc::Status> Node::submitRequest(const proto::Query& query,
-                                                             const std::chrono::duration<double>& timeout)
+std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+Node::getGrpcTransactionMethod(int transactionBodyDataCase) const
 {
-  return mChannel.submitRequest(query, timeout);
+  return mChannel.getGrpcTransactionMethod(transactionBodyDataCase);
 }
 
 //-----
-std::pair<proto::TransactionResponse, grpc::Status> Node::submitRequest(const proto::Transaction& transaction,
-                                                                        const std::chrono::duration<double>& timeout)
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> Node::getGrpcQueryMethod(
+  int queryBodyDataCase) const
 {
-  return mChannel.submitRequest(transaction, timeout);
+  return mChannel.getGrpcQueryMethod(queryBodyDataCase);
 }
 
 //-----

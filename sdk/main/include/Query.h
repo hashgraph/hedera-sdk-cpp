@@ -22,6 +22,8 @@
 
 #include "Executable.h"
 
+#include <functional>
+
 namespace Hedera
 {
 class AccountBalance;
@@ -38,6 +40,12 @@ namespace proto
 {
 class Query;
 class Response;
+}
+
+namespace grpc
+{
+class ClientContext;
+class Status;
 }
 
 namespace Hedera

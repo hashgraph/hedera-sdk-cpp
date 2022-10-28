@@ -36,6 +36,13 @@ TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const Transacti
 }
 
 //-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
+TransactionRecordQuery::getGrpcMethod(const Node& node) const
+{
+  return node.getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetRecord);
+}
+
+//-----
 proto::Query TransactionRecordQuery::makeRequest(const Client&) const
 {
   proto::Query query;

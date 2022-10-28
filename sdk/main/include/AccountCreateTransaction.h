@@ -30,6 +30,7 @@
 
 namespace Hedera
 {
+class Channel;
 class TransactionResponse;
 }
 
@@ -52,6 +53,11 @@ public:
    * Constructor.
    */
   AccountCreateTransaction();
+
+  /**
+   * Default destructor.
+   */
+  ~AccountCreateTransaction() override = default;
 
   /**
    * Set the key for this account. The key that must sign each transfer out of the account. If
@@ -226,6 +232,15 @@ protected:
    * @return A protobuf Transaction that contains this AccountCreateTransaction's data and is signed by the client.
    */
   proto::Transaction makeRequest(const Client& client) const override;
+
+  /**
+   * Derived from Executable. Get the gRPC method to call to create a new crypto account.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this AccountCreateTransaction.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  getGrpcMethod(const Node& node) const override;
 
 private:
   /**

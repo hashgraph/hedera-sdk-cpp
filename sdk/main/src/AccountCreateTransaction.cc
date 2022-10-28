@@ -19,6 +19,7 @@
  */
 #include "AccountCreateTransaction.h"
 
+#include "Channel.h"
 #include "Client.h"
 #include "PublicKey.h"
 #include "TransactionResponse.h"
@@ -26,6 +27,7 @@
 #include "helper/DurationConverter.h"
 
 #include <proto/crypto_create.pb.h>
+#include <proto/crypto_service.grpc.pb.h>
 #include <proto/response.pb.h>
 #include <proto/transaction.pb.h>
 
@@ -117,6 +119,13 @@ proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) c
   transactionBody.set_allocated_cryptocreateaccount(build());
 
   return signTransaction(transactionBody, client);
+}
+
+//-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+AccountCreateTransaction::getGrpcMethod(const Node& node) const
+{
+  return node.getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoCreateAccount);
 }
 
 //-----

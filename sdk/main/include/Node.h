@@ -29,6 +29,7 @@
 
 namespace grpc
 {
+class ClientContext;
 class Status;
 }
 
@@ -54,26 +55,6 @@ public:
   explicit Node(const std::string& url, const AccountId& accountId);
 
   /**
-   * Submit a query request to this node.
-   *
-   * @param query   The query to send.
-   * @param timeout The timeout duration.
-   * @return The protobuf response object and the gRPC status.
-   */
-  std::pair<proto::Response, grpc::Status> submitRequest(const proto::Query& query,
-                                                         const std::chrono::duration<double>& timeout);
-
-  /**
-   * Submit a transaction request to this node.
-   *
-   * @param transaction The transaction to send.
-   * @param timeout     The timeout duration.
-   * @return The protobuf transaction response object and the gRPC status.
-   */
-  std::pair<proto::TransactionResponse, grpc::Status> submitRequest(const proto::Transaction& transaction,
-                                                                    const std::chrono::duration<double>& timeout);
-
-  /**
    * Shutdown connections with the node.
    */
   void shutdown();
@@ -84,6 +65,24 @@ public:
    * @return The account ID.
    */
   inline AccountId getAccountId() const { return mAccountId; }
+
+  /**
+   * Get a gRPC transaction method for an associated protobuf Transaction data case from this Node's channel.
+   *
+   * @param transactionBodyDataCase The case describing the function to get.
+   * @return The function described by the case, bound to this channel's proper stub.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  getGrpcTransactionMethod(int transactionBodyDataCase) const;
+
+  /**
+   * Get a gRPC query method for an associated protobuf Query data case from this Node's channel.
+   *
+   * @param queryBodyDataCase The case describing the function to get.
+   * @return The function described by the case, bound to this channel's proper stub.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcQueryMethod(
+    int queryBodyDataCase) const;
 
 private:
   /**

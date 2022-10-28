@@ -20,6 +20,7 @@
 #include "AccountBalanceQuery.h"
 
 #include "AccountBalance.h"
+#include "Node.h"
 
 #include <proto/crypto_get_account_balance.pb.h>
 #include <proto/query.pb.h>
@@ -44,6 +45,14 @@ AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contra
 
   return *this;
 }
+
+//-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
+AccountBalanceQuery::getGrpcMethod(const Node& node) const
+{
+  return node.getGrpcQueryMethod(proto::Query::QueryCase::kCryptogetAccountBalance);
+}
+
 //-----
 proto::Query AccountBalanceQuery::makeRequest(const Client&) const
 {
