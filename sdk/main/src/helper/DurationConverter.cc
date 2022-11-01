@@ -33,7 +33,7 @@ std::chrono::seconds fromProtobuf(const proto::Duration& duration)
 proto::Duration* toProtobuf(const std::chrono::duration<double>& duration)
 {
   auto proto = new proto::Duration;
-  proto->set_seconds(duration.count());
+  proto->set_seconds(std::chrono::duration_cast<std::chrono::seconds>(duration).count());
   return proto;
 }
 

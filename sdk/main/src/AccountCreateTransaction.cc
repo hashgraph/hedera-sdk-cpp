@@ -141,17 +141,8 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   body->set_initialbalance(mInitialBalance.toTinybars());
   body->set_receiversigrequired(mReceiverSignatureRequired);
-
-  if (body->has_autorenewperiod())
-  {
-    body->set_allocated_autorenewperiod(
-      DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod.value())));
-  }
-
-  body->mutable_shardid()->set_shardnum(0);
-  body->mutable_realmid()->set_shardnum(0);
-  body->mutable_realmid()->set_realmnum(0);
-
+  body->set_allocated_autorenewperiod(
+    DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod)));
   body->set_memo(mAccountMemo);
   body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
 

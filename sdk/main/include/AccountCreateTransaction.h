@@ -271,7 +271,7 @@ private:
    * extends as long as possible. If the balance is zero when it expires, then the account is deleted. Defaults to 3
    * months.
    */
-  std::optional<std::chrono::duration<double>> mAutoRenewPeriod = std::chrono::months(3);
+  std::chrono::duration<double> mAutoRenewPeriod = std::chrono::months(3);
 
   /**
    * A memo for this account. Defaults to empty.
