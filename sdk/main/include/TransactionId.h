@@ -37,6 +37,14 @@ class TransactionId
 {
 public:
   /**
+   * Generate a transaction ID for a transaction.
+   *
+   * @param accountId The ID of the account that will be charged for this transaction.
+   * @return A new TransactionId.
+   */
+  static TransactionId generate(const AccountId& accountId);
+
+  /**
    * Construct a TransactionId from a protobuf TransactionID.
    *
    * @param proto The TransactionID protobuf object.
@@ -49,7 +57,7 @@ public:
    *
    * @return Pointer to the created protobuf TransactionID.
    */
-  std::shared_ptr<proto::TransactionID> toProtobuf() const;
+  proto::TransactionID* toProtobuf() const;
 
   /**
    * Extract the valid transaction time.

@@ -240,7 +240,7 @@ protected:
    * @return The gRPC method to call to execute this AccountCreateTransaction.
    */
   std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-  getGrpcMethod(const Node& node) const override;
+  getGrpcMethod(const std::shared_ptr<Node>& node) const override;
 
 private:
   /**

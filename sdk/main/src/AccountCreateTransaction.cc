@@ -115,7 +115,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 //-----
 proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) const
 {
-  proto::TransactionBody transactionBody;
+  proto::TransactionBody transactionBody = generateTransactionBody();
   transactionBody.set_allocated_cryptocreateaccount(build());
 
   return signTransaction(transactionBody, client);
@@ -123,9 +123,10 @@ proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) c
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-AccountCreateTransaction::getGrpcMethod(const Node& node) const
+AccountCreateTransaction::getGrpcMethod(const std::shared_ptr<Node>& node) const
 {
-  return node.getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoCreateAccount);
+  std::cout << __FUNCTION__ << std::endl;
+  return node->getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoCreateAccount);
 }
 
 //-----
@@ -144,15 +145,19 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
   if (body->has_autorenewperiod())
   {
     body->set_allocated_autorenewperiod(
-      DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod.value())).get());
+      DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod.value())));
   }
+
+  body->mutable_shardid()->set_shardnum(0);
+  body->mutable_realmid()->set_shardnum(0);
+  body->mutable_realmid()->set_realmnum(0);
 
   body->set_memo(mAccountMemo);
   body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
 
   if (mStakedAccountId.has_value())
   {
-    body->set_allocated_staked_account_id(mStakedAccountId.value().toProtobuf().get());
+    body->set_allocated_staked_account_id(mStakedAccountId.value().toProtobuf());
   }
 
   if (mStakedNodeId.has_value())

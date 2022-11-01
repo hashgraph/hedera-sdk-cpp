@@ -66,6 +66,11 @@ public:
    */
   inline AccountId getAccountId() const { return mAccountId; }
 
+  /*template<typename ProtoRequestType, typename ProtoResponseType>
+  std::pair<ProtoResponseType, grpc::Status> submitRequest(int funcCase,
+                                                           grpc::ClientContext* context,
+                                                           const ProtoRequestType& request);*/
+
   /**
    * Get a gRPC transaction method for an associated protobuf Transaction data case from this Node's channel.
    *

@@ -26,6 +26,7 @@
 #include <grpcpp/security/credentials.h>
 
 #include <stdexcept>
+#include <unistd.h>
 
 namespace Hedera
 {
@@ -33,6 +34,7 @@ namespace Hedera
 struct Channel::ChannelImpl
 {
   std::string mUrl;
+  std::shared_ptr<grpc::Channel> mChannel;
   std::shared_ptr<proto::CryptoService::Stub> mCryptoStub;
 };
 
@@ -58,14 +60,19 @@ void Channel::initChannel(const std::string& url)
   shutdownChannel();
 
   mImpl->mUrl = url;
-  mImpl->mCryptoStub =
-    std::move(proto::CryptoService::NewStub(grpc::CreateChannel(url, grpc::InsecureChannelCredentials())));
+  mImpl->mChannel = grpc::CreateChannel(url, grpc::InsecureChannelCredentials());
+  while (mImpl->mChannel->GetState(true) != grpc_connectivity_state::GRPC_CHANNEL_READY)
+  {
+    usleep(1000000);
+  }
+  mImpl->mCryptoStub = std::move(proto::CryptoService::NewStub(mImpl->mChannel));
 }
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
 Channel::getGrpcTransactionMethod(int transactionBodyDataCase) const
 {
+  std::cout << __FUNCTION__ << "(): transactionBodyDataCase=" << transactionBodyDataCase << std::endl;
   switch (transactionBodyDataCase)
   {
     case proto::TransactionBody::DataCase::kCryptoAddLiveHash:

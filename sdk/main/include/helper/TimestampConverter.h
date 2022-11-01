@@ -53,7 +53,7 @@ std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::T
  * @param time The system time.
  * @return The Timestamp protobuf represented by the input system time.
  */
-std::unique_ptr<proto::Timestamp> toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time);
+proto::Timestamp* toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time);
 
 } // namespace Hedera::TimestampConverter
 

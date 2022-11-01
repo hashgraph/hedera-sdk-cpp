@@ -35,6 +35,7 @@ Node::Node(const std::string& url, const AccountId& accountId)
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
 Node::getGrpcTransactionMethod(int transactionBodyDataCase) const
 {
+  std::cout << __FUNCTION__ << std::endl;
   return mChannel.getGrpcTransactionMethod(transactionBodyDataCase);
 }
 
@@ -50,5 +51,20 @@ void Node::shutdown()
 {
   mChannel.shutdown();
 }
+
+//-----
+/*template<typename ProtoRequestType, typename ProtoResponseType>
+std::pair<ProtoResponseType, grpc::Status> submitRequest(int funcCase,
+                                                         grpc::ClientContext* context,
+                                                         const ProtoRequestType& request)
+{
+}
+
+template std::pair<proto::Response, grpc::Status> Node::submitRequest(int funcCase,
+                                                                      grpc::ClientContext* context,
+                                                                      const proto::Query& request);
+template std::pair<proto::TransactionResponse, grpc::Status> Node::submitRequest(int funcCase,
+                                                                                 grpc::ClientContext* context,
+                                                                                 const proto::Transaction& request);*/
 
 } // namespace Hedera

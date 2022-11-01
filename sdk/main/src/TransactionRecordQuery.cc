@@ -37,9 +37,9 @@ TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const Transacti
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
-TransactionRecordQuery::getGrpcMethod(const Node& node) const
+TransactionRecordQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
 {
-  return node.getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetRecord);
+  return node->getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetRecord);
 }
 
 //-----
@@ -50,7 +50,7 @@ proto::Query TransactionRecordQuery::makeRequest(const Client&) const
 
   if (mTransactionId.has_value())
   {
-    getTransactionRecordQuery->set_allocated_transactionid(mTransactionId.value().toProtobuf().get());
+    getTransactionRecordQuery->set_allocated_transactionid(mTransactionId.value().toProtobuf());
   }
 
   return query;

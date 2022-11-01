@@ -114,7 +114,22 @@ protected:
    * @return The gRPC method to call to execute this request.
    */
   virtual std::function<grpc::Status(grpc::ClientContext*, const ProtoRequestType&, ProtoResponseType*)> getGrpcMethod(
-    const Node& node) const = 0;
+    const std::shared_ptr<Node>& node) const = 0;
+
+  /**
+   * Perform any needed actions for this Executable when it is being executed.
+   *
+   * @param client The Client executing this Executable.
+   */
+  virtual void onExecute([[maybe_unused]] const Client& client) = 0;
+
+  /**
+   * Perform any needed actions for this Executable when it is being submitted.
+   *
+   * @param client The Client submitting this Executable.
+   * @param node   The Node to which this Executable is being submitted.
+   */
+  virtual void onSubmit([[maybe_unused]] const Client& client, [[maybe_unused]] const std::shared_ptr<Node>& node) = 0;
 
 private:
   /**

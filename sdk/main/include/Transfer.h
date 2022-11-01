@@ -48,7 +48,7 @@ public:
    *
    * @return Pointer to a protobuf AccountAmount with this Transfer's data.
    */
-  std::shared_ptr<proto::AccountAmount> toProtobuf() const;
+  proto::AccountAmount* toProtobuf() const;
 
   /**
    * Set the account ID.

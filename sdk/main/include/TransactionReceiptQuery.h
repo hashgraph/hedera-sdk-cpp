@@ -74,7 +74,7 @@ protected:
    * @return The gRPC method to call to execute this TransactionReceiptQuery.
    */
   std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
-    const Node& node) const override;
+    const std::shared_ptr<Node>& node) const override;
 
   /**
    * Derived from Query. Construct a query protobuf object from this TransactionReceiptQuery.

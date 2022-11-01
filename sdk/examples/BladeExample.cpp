@@ -48,7 +48,7 @@ int main(int argc, char** argv)
   std::cout << " - Successful=" << txResp.getValidateStatus() << std::endl;
 
   // Get the account ID of the newly created account
-  const AccountId newAccountId = txResp.getReceipt(client).getAccountId().value();
+  /*const AccountId newAccountId = txResp.getReceipt(client).getAccountId().value();
 
   std::cout << "Created new account with ID " << newAccountId.toString() << std::endl;
 
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 
   std::cout << "New account balance: " << newAccountTotal.toTinybars() << HbarUnit::TINYBAR().getSymbol() << std::endl;
   std::cout << "Operator account balance: " << operatorAccountTotal.toTinybars() << HbarUnit::TINYBAR().getSymbol()
-            << std::endl;
+            << std::endl;*/
 
   return 0;
 }

@@ -88,7 +88,7 @@ public:
    *
    * @return Pointer to the created protobuf AccountID.
    */
-  std::shared_ptr<proto::AccountID> toProtobuf() const;
+  proto::AccountID* toProtobuf() const;
 
   /**
    * Put this AccountId in a string with the form "<shard>.<realm>.<num>".

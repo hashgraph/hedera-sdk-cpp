@@ -143,6 +143,21 @@ protected:
   TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
 
   /**
+   * Derived from Executable. Perform any operations needed when this transaction is being executed.
+   *
+   * @param client The Client executing this transaction.
+   */
+  void onExecute(const Client& client) override;
+
+  /**
+   * Derived from Executable. Perform any operations needed when this transaction is being submitted.
+   *
+   * @param client The Client submitting this Executable.
+   * @param node   The Node to which this Executable is being submitted.
+   */
+  void onSubmit(const Client& client, const std::shared_ptr<Node>& node) override;
+
+  /**
    * Sign a protobuf TransactionBody with a Client and put the signed bytes into a protobuf Transaction.
    *
    * @param transaction The TransactionBody to sign.
@@ -151,11 +166,23 @@ protected:
    */
   proto::Transaction signTransaction(const proto::TransactionBody& transaction, const Client& client) const;
 
+  /**
+   * Generate a protobuf TransactionBody with this transaction's data.
+   *
+   * @return A protobuf TransactionBody with this transaction's data.
+   */
+  proto::TransactionBody generateTransactionBody() const;
+
 private:
   /**
    * The valid transaction duration. Defaults to two minutes.
    */
   std::chrono::duration<double> mTransactionValidDuration = std::chrono::minutes(2);
+
+  /**
+   * The account ID of the node sending this transaction.
+   */
+  AccountId mNodeAccountId;
 
   /**
    * The maximum transaction fee.

@@ -25,6 +25,8 @@
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
+#include "helper/DurationConverter.h"
+
 #include <proto/basic_types.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>
@@ -70,7 +72,21 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
 template<typename SdkRequestType>
 TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
 {
-  return TransactionResponse::fromProtobuf(response).setTransactionId(mTransactionId);
+  return TransactionResponse::fromProtobuf(response);
+}
+
+//-----
+template<typename SdkRequestType>
+void Transaction<SdkRequestType>::onExecute(const Client& client)
+{
+  mTransactionId = TransactionId::generate(client.getOperatorAccountId().value());
+}
+
+//-----
+template<typename SdkRequestType>
+void Transaction<SdkRequestType>::onSubmit(const Client& client, const std::shared_ptr<Node>& node)
+{
+  mNodeAccountId = node->getAccountId();
 }
 
 //-----
@@ -104,6 +120,19 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
   }
 
   throw std::invalid_argument("Invalid client used to sign transaction");
+}
+
+//-----
+template<typename SdkRequestType>
+proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody() const
+{
+  proto::TransactionBody body;
+  body.set_allocated_transactionid(mTransactionId.toProtobuf());
+  body.set_transactionfee(static_cast<uint64_t>(mMaxTransactionFee.toTinybars()));
+  body.set_allocated_memo(new std::string(mTransactionMemo));
+  body.set_allocated_transactionvalidduration(DurationConverter::toProtobuf(mTransactionValidDuration));
+  body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf());
+  return body;
 }
 
 /**

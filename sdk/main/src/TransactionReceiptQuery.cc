@@ -37,9 +37,9 @@ TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const Hedera:
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
-TransactionReceiptQuery::getGrpcMethod(const Node& node) const
+TransactionReceiptQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
 {
-  return node.getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetReceipt);
+  return node->getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetReceipt);
 }
 
 //-----
@@ -50,7 +50,7 @@ proto::Query TransactionReceiptQuery::makeRequest(const Client&) const
 
   if (mTransactionId.has_value())
   {
-    getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf().get());
+    getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf());
   }
 
   return query;

@@ -58,8 +58,8 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::duration<double>& duration)
 {
-  // Create the request
-  const ProtoRequestType request = makeRequest(client);
+  // Perform any operations needed when executing.
+  onExecute(client);
 
   // Create the context from the timeout duration
   grpc::ClientContext context;
@@ -69,11 +69,16 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   // The response object to fill
   ProtoResponseType response;
 
-  for (std::shared_ptr<Node> node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
+  for (const auto& node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
   {
+    onSubmit(client, node);
+
     std::cout << "getting grpc method" << std::endl;
-    auto grpcFunc = getGrpcMethod(*node.get());
+    auto grpcFunc = getGrpcMethod(node);
     std::cout << "got grpc method" << std::endl;
+
+    // Create the request
+    const ProtoRequestType request = makeRequest(client);
 
     // Call the gRPC method
     std::cout << "calling grpc method" << std::endl;

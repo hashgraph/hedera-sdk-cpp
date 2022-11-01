@@ -48,9 +48,9 @@ AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contra
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
-AccountBalanceQuery::getGrpcMethod(const Node& node) const
+AccountBalanceQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
 {
-  return node.getGrpcQueryMethod(proto::Query::QueryCase::kCryptogetAccountBalance);
+  return node->getGrpcQueryMethod(proto::Query::QueryCase::kCryptogetAccountBalance);
 }
 
 //-----
@@ -61,12 +61,12 @@ proto::Query AccountBalanceQuery::makeRequest(const Client&) const
 
   if (mAccountId)
   {
-    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf().get());
+    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf());
   }
 
   if (mContractId)
   {
-    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf().get());
+    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf());
   }
 
   return query;

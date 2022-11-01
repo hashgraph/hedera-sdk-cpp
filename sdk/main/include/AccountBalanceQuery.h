@@ -106,7 +106,7 @@ protected:
    * @return The gRPC method to call to execute this AccountBalanceQuery.
    */
   std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
-    const Node& node) const override;
+    const std::shared_ptr<Node>& node) const override;
 
   /**
    * Derived from Executable. Construct a query protobuf object from this AccountBalanceQuery.

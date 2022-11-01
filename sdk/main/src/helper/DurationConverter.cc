@@ -30,9 +30,9 @@ std::chrono::seconds fromProtobuf(const proto::Duration& duration)
 }
 
 //-----
-std::shared_ptr<proto::Duration> toProtobuf(const std::chrono::seconds& duration)
+proto::Duration* toProtobuf(const std::chrono::duration<double>& duration)
 {
-  std::shared_ptr<proto::Duration> proto = std::make_shared<proto::Duration>();
+  auto proto = new proto::Duration;
   proto->set_seconds(duration.count());
   return proto;
 }

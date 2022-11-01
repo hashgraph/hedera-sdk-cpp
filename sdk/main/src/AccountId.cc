@@ -80,9 +80,9 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
 }
 
 //-----
-std::shared_ptr<proto::AccountID> AccountId::toProtobuf() const
+proto::AccountID* AccountId::toProtobuf() const
 {
-  auto proto = std::make_shared<proto::AccountID>();
+  auto proto = new proto::AccountID;
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
 

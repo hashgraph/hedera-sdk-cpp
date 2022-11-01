@@ -74,6 +74,21 @@ protected:
    * Default destructor.
    */
   virtual ~Query() = default;
+
+  /**
+   * Derived from Executable. Perform any operations needed when this query is being executed.
+   *
+   * @param client The Client executing this query.
+   */
+  void onExecute([[maybe_unused]] const Client& client) override {}
+
+  /**
+   * Perform any needed actions for this Executable when it is being submitted.
+   *
+   * @param client The Client submitting this Executable.
+   * @param node   The Node to which this Executable is being submitted.
+   */
+  void onSubmit([[maybe_unused]] const Client& client, [[maybe_unused]] const std::shared_ptr<Node>& node) override {}
 };
 
 /**
