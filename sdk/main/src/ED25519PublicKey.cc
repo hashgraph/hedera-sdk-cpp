@@ -47,7 +47,12 @@ ED25519PublicKey::~ED25519PublicKey()
 proto::Key* ED25519PublicKey::toProtobuf() const
 {
   auto* keyProtobuf = new proto::Key();
-  auto* stringPointer = new std::string(toString());
+
+  // raw bytes, which include the ed25519 DER encoding prefix
+  std::vector<unsigned char> rawBytes = toBytes();
+
+  // discard the 12 prefix bytes, leaving behind only the 32 pubkey bytes
+  auto* stringPointer = new std::string({ rawBytes.cbegin() + 12, rawBytes.cend() });
 
   keyProtobuf->set_allocated_ed25519(stringPointer);
 
