@@ -33,10 +33,12 @@ using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  Client client = Client::forTestnet();
-  client.setOperator(AccountId(argv[1]), ED25519PrivateKey::fromString(argv[2]));
+  std::unique_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(argv[2]);
 
-  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  Client client = Client::forTestnet();
+  client.setOperator(AccountId(argv[1]), operatorPrivateKey);
+
+  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
 
   // Create a new account with an initial balance of 1 Hbar

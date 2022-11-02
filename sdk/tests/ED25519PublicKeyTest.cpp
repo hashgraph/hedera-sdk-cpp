@@ -32,7 +32,7 @@ using namespace Hedera;
 
 class ED25519PublicKeyTest : public ::testing::Test {
 protected:
-  std::shared_ptr<Hedera::ED25519PrivateKey> privateKey;
+  std::unique_ptr<Hedera::ED25519PrivateKey> privateKey;
   std::shared_ptr<Hedera::PublicKey> publicKeyFromPrivate;
   std::shared_ptr<Hedera::ED25519PublicKey> publicKeyFromString;
   std::shared_ptr<Hedera::PublicKey> publicKeyFromProtobuf;

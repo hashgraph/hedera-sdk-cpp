@@ -35,14 +35,14 @@ public:
    * Generates a new random private key
    * @return the newly generated private key
    */
-  static std::shared_ptr<ED25519PrivateKey> generatePrivateKey();
+  static std::unique_ptr<ED25519PrivateKey> generatePrivateKey();
 
   /**
    * Creates a new private key object from the DER string representation
    * @param keyString the string representation of a private key
    * @return the new private key
    */
-  static std::shared_ptr<ED25519PrivateKey> fromString(const std::string& keyString);
+  static std::unique_ptr<ED25519PrivateKey> fromString(const std::string& keyString);
 
   /**
    * Get the public key that corresponds to this private key

@@ -107,7 +107,7 @@ std::string ED25519PrivateKey::toString() const
   return HexConverter::base64ToHex(toBytes());
 }
 
-std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
 {
   std::string fullKeyString = keyString;
 
@@ -116,10 +116,10 @@ std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::stri
     fullKeyString = "302E020100300506032B657004220420" + keyString;
   }
 
-  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(fullKeyString))));
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(fullKeyString))));
 }
 
-std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 {
   EVP_PKEY* keypair = EVP_PKEY_new();
   EVP_PKEY_CTX* keyAlgorithmContext = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr);
@@ -141,7 +141,7 @@ std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 
   EVP_PKEY_CTX_free(keyAlgorithmContext);
 
-  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(keypair));
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(keypair));
 }
 
 std::vector<unsigned char> ED25519PrivateKey::toBytes() const

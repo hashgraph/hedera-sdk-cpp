@@ -30,8 +30,8 @@ using namespace Hedera;
 class ED25519PrivateKeyTest : public ::testing::Test
 {
 protected:
-  std::shared_ptr<Hedera::ED25519PrivateKey> privateKeyGenerated;
-  std::shared_ptr<Hedera::ED25519PrivateKey> privateKeyLoaded;
+  std::unique_ptr<Hedera::ED25519PrivateKey> privateKeyGenerated;
+  std::unique_ptr<Hedera::ED25519PrivateKey> privateKeyLoaded;
 
   void SetUp() override
   {
@@ -98,8 +98,8 @@ TEST_F(ED25519PrivateKeyTest, FromString)
     "302E020100300506032B65700422042068FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
   std::string privateKeyStringShort = "68FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
 
-  std::shared_ptr<ED25519PrivateKey> privateKeyFromExtended = ED25519PrivateKey::fromString(privateKeyStringExtended);
-  std::shared_ptr<ED25519PrivateKey> privateKeyFromShort = ED25519PrivateKey::fromString(privateKeyStringShort);
+  std::unique_ptr<ED25519PrivateKey> privateKeyFromExtended = ED25519PrivateKey::fromString(privateKeyStringExtended);
+  std::unique_ptr<ED25519PrivateKey> privateKeyFromShort = ED25519PrivateKey::fromString(privateKeyStringShort);
 
   EXPECT_NE(privateKeyFromExtended, nullptr);
   EXPECT_NE(privateKeyFromShort, nullptr);
