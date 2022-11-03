@@ -17,15 +17,12 @@
  * limitations under the License.
  *
  */
-#include "AccountBalance.h"
-#include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "PublicKey.h"
-#include "TransactionRecord.h"
+#include "TransactionReceipt.h"
 #include "TransactionResponse.h"
-#include "TransferTransaction.h"
 
 #include <iostream>
 
