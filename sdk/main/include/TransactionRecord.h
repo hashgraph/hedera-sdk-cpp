@@ -105,7 +105,7 @@ public:
    *
    * @return The transfer list.
    */
-  inline std::optional<std::vector<std::pair<AccountId, Hbar>>> getTransferList() const { return mTransferList; }
+  inline std::vector<std::pair<AccountId, Hbar>> getTransferList() const { return mTransferList; }
 
 private:
   /**
@@ -143,7 +143,7 @@ private:
    * All hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by
    * a smart contract it calls, or by the creation of threshold records that it triggers.
    */
-  std::optional<std::vector<std::pair<AccountId, Hbar>>> mTransferList;
+  std::vector<std::pair<AccountId, Hbar>> mTransferList;
 };
 
 } // namespace Hedera

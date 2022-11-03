@@ -56,7 +56,7 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   {
     for (int i = 0; i < proto.transferlist().accountamounts_size(); ++i)
     {
-      transactionRecord.mTransferList->emplace_back(
+      transactionRecord.mTransferList.emplace_back(
         AccountId::fromProtobuf(proto.transferlist().accountamounts(i).accountid()),
         Hbar(proto.transferlist().accountamounts(i).amount(), HbarUnit::TINYBAR()));
     }

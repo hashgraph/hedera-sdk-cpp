@@ -77,15 +77,19 @@ int main(int argc, char** argv)
              .addUnapprovedHbarTransfer(newAccountId, amountToTransfer)
              .execute(client);
 
+  std::cout << "Transferred " << amountToTransfer.toTinybars() << HbarUnit::TINYBAR().getSymbol()
+            << " from the operator account " << client.getOperatorAccountId().value().toString()
+            << " to the new account " << newAccountId.toString() << std::endl;
+
   // Get the transaction record
   TransactionRecord txRecord;
-  while (!txRecord.getTransactionId().has_value())
+  while (txRecord.getTransferList().empty())
   {
     txRecord = txResp.getRecord(client);
   }
 
   std::cout << "Transaction record shows:" << std::endl;
-  const auto transferList = txRecord.getTransferList().value();
+  const auto transferList = txRecord.getTransferList();
   for (const auto& [accountId, amount] : transferList)
   {
     std::cout << " - Account " << accountId.toString() << " transferred " << amount.toTinybars()

@@ -54,15 +54,14 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client, const std
   proto::QueryHeader* header = getTransactionRecordQuery->mutable_header();
   header->set_responsetype(proto::ResponseType::ANSWER_ONLY);
 
-  std::cout << "node account id=" << node->getAccountId().toString() << std::endl;
-  header->set_allocated_payment(
-    new proto::Transaction(TransferTransaction()
+  TransferTransaction tx = TransferTransaction()
                              .setTransactionId(TransactionId::generate(client.getOperatorAccountId().value()))
                              .setNodeAccountIds({ node->getAccountId() })
                              .setMaxTransactionFee(Hbar(1ULL))
                              .addUnapprovedHbarTransfer(client.getOperatorAccountId().value(), Hbar(-1ULL))
-                             .addUnapprovedHbarTransfer(node->getAccountId(), Hbar(1ULL))
-                             .makeRequest(client, node)));
+                             .addUnapprovedHbarTransfer(node->getAccountId(), Hbar(1ULL));
+  tx.onSelectNode(node);
+  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
 
   if (mTransactionId.has_value())
   {
@@ -75,7 +74,6 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client, const std
 //-----
 TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& response) const
 {
-  std::cout << "response code " << response.transactiongetrecord().header().nodetransactionprecheckcode() << std::endl;
   return TransactionRecord::fromProtobuf(response.transactiongetrecord().transactionrecord());
 }
 

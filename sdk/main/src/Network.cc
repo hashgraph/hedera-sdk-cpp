@@ -27,8 +27,8 @@ namespace
 {
 //-----
 const std::unordered_map<std::string, AccountId, StringHash, std::equal_to<>> TESTNET_NODES = {
-  {"0.testnet.hedera.com:50211", AccountId(3LL)},
- /*{ "34.94.106.61:50211",         AccountId(3LL)},
+  {"0.testnet.hedera.com:50211",  AccountId(3LL)},
+  { "34.94.106.61:50211",         AccountId(3LL)},
   { "50.18.132.211:50211",        AccountId(3LL)},
   { "138.91.142.219:50211",       AccountId(3LL)},
   { "1.testnet.hedera.com:50211", AccountId(4LL)},
@@ -54,7 +54,7 @@ const std::unordered_map<std::string, AccountId, StringHash, std::equal_to<>> TE
   { "6.testnet.hedera.com:50211", AccountId(9LL)},
   { "34.133.197.230:50211",       AccountId(9LL)},
   { "52.14.252.207:50211",        AccountId(9LL)},
-  { "52.165.17.231:50211",        AccountId(9LL)},*/
+  { "52.165.17.231:50211",        AccountId(9LL)},
 };
 
 } // namespace
