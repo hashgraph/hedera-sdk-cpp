@@ -34,7 +34,6 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileContentsQuery.cc
         #    src/FileCreateTransaction.cc
         src/IPv4Address.cc
-        src/IPv4AddressPart.cc
         src/Network.cc
         src/Node.cc
         src/NodeAddress.cc

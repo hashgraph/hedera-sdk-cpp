@@ -20,6 +20,8 @@ message(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/addressbook/testnet.pb
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/addressbook/mainnet.pb
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
 
 target_link_libraries(${TEST_PROJECT_NAME}
         PRIVATE

@@ -22,24 +22,38 @@
 
 #include "proto/basic_types.pb.h"
 
+#include <iomanip>
+#include <sstream>
+
 namespace Hedera
 {
 
 Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint)
 {
-  int port = (int) (serviceEndpoint.port() & 0x00000000ffffffffL);
+  return
+  {
+    IPv4Address::fromString(serviceEndpoint.ipaddressv4()), (int)(serviceEndpoint.port() & 0x00000000ffffffffL)
+  };
+}
 
-  if (port == 0 || port == 50111) {
+Endpoint::Endpoint(IPv4Address address, int port)
+{
+  if (port == 0 || port == 50111)
+  {
     port = 50211;
   }
 
-//  serviceEndpoint.ipaddressv4()
-  return Endpoint(IPv4Address::fromString(serviceEndpoint.ipaddressv4()), port);
+  mAddress = address;
+  mPort = port;
 }
 
-Endpoint::Endpoint(IPv4Address address, int port) {
-  this->address = address;
-  this->port = port;
+std::string Endpoint::toString() const
+{
+  std::stringstream outputStream;
+
+  outputStream << mAddress.toString() << ":" << mPort;
+
+  return outputStream.str();
 }
 
 } // Hedera

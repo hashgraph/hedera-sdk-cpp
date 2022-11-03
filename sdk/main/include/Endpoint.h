@@ -33,13 +33,14 @@ namespace Hedera
 class Endpoint
 {
 public:
+  Endpoint(IPv4Address address, int port);
   static Endpoint fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint);
 
-private:
-  Endpoint(IPv4Address address, int port);
+  [[nodiscard]] std::string toString() const;
 
-  IPv4Address address;
-  int port;
+private:
+  IPv4Address mAddress{};
+  int mPort;
 };
 
 } // Hedera

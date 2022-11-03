@@ -33,4 +33,8 @@ TEST_F(NodeAddressBookTest, readAddressBookResource)
 {
   NodeAddressBook addressBook = NodeAddressBook::fromFile("testnet.pb");
   std::cout << "Address book size: " << addressBook.getAddressMap().size() << std::endl;
+
+  for (const auto& elem : addressBook.getAddressMap()) {
+    std::cout << elem.second.toString() << std::endl;
+  }
 }

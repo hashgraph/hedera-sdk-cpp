@@ -21,7 +21,6 @@
 #ifndef HEDERA_SDK_CPP_IPV4ADDRESS_H
 #define HEDERA_SDK_CPP_IPV4ADDRESS_H
 
-#include "IPv4AddressPart.h"
 #include <string>
 
 namespace Hedera
@@ -30,18 +29,18 @@ namespace Hedera
 class IPv4Address
 {
 public:
+  IPv4Address() = default;
+  IPv4Address(unsigned int octet1, unsigned int octet2, unsigned int octet3, unsigned int octet4);
+
   static IPv4Address fromString(const std::string& inputString);
 
-private:
-  /**
-   * The first 16 bits of the IPV4 address
-   */
-  IPv4AddressPart network;
+  [[nodiscard]] std::string toString() const;
 
-  /**
-   * The last 16 bits of the IPV4 address
-   */
-  IPv4AddressPart host;
+private:
+  unsigned int mOctet1;
+  unsigned int mOctet2;
+  unsigned int mOctet3;
+  unsigned int mOctet4;
 };
 
 } // Hedera

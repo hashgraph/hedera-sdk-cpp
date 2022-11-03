@@ -42,13 +42,15 @@ public:
 
   static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
+  [[nodiscard]] std::string toString() const;
+
 private:
   NodeAddress();
 
   /**
    * The address of the node.
    */
-  std::string mAddress;
+  std::string mIPAddress;
 
   /**
    * The port on which the node is listening.
@@ -58,6 +60,12 @@ private:
   std::vector<Endpoint> mEndpoints;
 
   std::string mRSAPublicKey;
+
+  int64_t mNodeId;
+
+  std::string mCertificateHash;
+
+  std::string mDescription;
 };
 } // namespace Hedera
 

@@ -21,9 +21,13 @@
 
 #include "proto/basic_types.pb.h"
 
+#include <iomanip>
+#include <sstream>
+
 namespace Hedera
 {
-NodeAddress::NodeAddress() {
+NodeAddress::NodeAddress()
+{
   mEndpoints = {};
 }
 
@@ -34,11 +38,9 @@ NodeAddress NodeAddress::fromString(std::string_view address)
 
   // TODO: add string checks
   size_t colonIndex = address.find(':');
-  nodeAddress.mAddress = address.substr(0, address.size() - colonIndex + 1);
+  nodeAddress.mIPAddress = address.substr(0, address.size() - colonIndex + 1);
   nodeAddress.mPort =
-    atoi(static_cast<std::string>(
-           address.substr(colonIndex + 1,
-                          address.size() - nodeAddress.mAddress.size() - 1))
+    atoi(static_cast<std::string>(address.substr(colonIndex + 1, address.size() - nodeAddress.mIPAddress.size() - 1))
            .c_str());
 
   return nodeAddress;
@@ -48,15 +50,42 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 {
   NodeAddress outputNodeAddress = NodeAddress();
 
-  for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i) {
+  for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
+  {
     outputNodeAddress.mEndpoints.push_back(Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
   }
 
-  outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
+  if (protoNodeAddress.ipaddress().length() != 0)
+  {
+    outputNodeAddress.mEndpoints.emplace_back(IPv4Address::fromString(protoNodeAddress.ipaddress()),
+                                              protoNodeAddress.portno());
+  }
 
-  // TODO add the rest of the fields here
+  outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
+  outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
+  outputNodeAddress.mCertificateHash = protoNodeAddress.nodecerthash();
+  outputNodeAddress.mDescription = protoNodeAddress.description();
 
   return outputNodeAddress;
+}
+
+std::string NodeAddress::toString() const
+{
+  std::stringstream outputStream;
+
+  outputStream << std::setw(20) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
+  outputStream << std::setw(20) << std::right << "IP Address: " << std::left << mIPAddress << std::endl;
+  outputStream << std::setw(20) << std::right << "Description: " << std::left << mDescription << std::endl;
+  outputStream << std::setw(20) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
+  outputStream << std::setw(20) << std::right << "Certificate Hash: " << std::left << mCertificateHash << std::endl;
+  outputStream << std::setw(20) << std::right << "Endpoints: " << std::endl;
+
+  for (auto endpoint : mEndpoints)
+  {
+    outputStream << endpoint.toString() << std::endl;
+  }
+
+  return outputStream.str();
 }
 
 } // namespace Hedera
