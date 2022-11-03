@@ -8,11 +8,18 @@ FetchContent_MakeAvailable(googletest)
 set(TestSources
         ED25519PrivateKeyTest.cpp
         ED25519PublicKeyTest.cpp
+        NodeAddressBookTest.cc
         )
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
 
 add_executable(${TEST_PROJECT_NAME} ${TestSources})
+
+message(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR})
+message(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/addressbook/testnet.pb
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
 
 target_link_libraries(${TEST_PROJECT_NAME}
         PRIVATE

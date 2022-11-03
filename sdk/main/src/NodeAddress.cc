@@ -19,8 +19,14 @@
  */
 #include "NodeAddress.h"
 
+#include "proto/basic_types.pb.h"
+
 namespace Hedera
 {
+NodeAddress::NodeAddress() {
+  mEndpoints = {};
+}
+
 //-----
 NodeAddress NodeAddress::fromString(std::string_view address)
 {
@@ -36,6 +42,21 @@ NodeAddress NodeAddress::fromString(std::string_view address)
            .c_str());
 
   return nodeAddress;
+}
+
+NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
+{
+  NodeAddress outputNodeAddress = NodeAddress();
+
+  for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i) {
+    outputNodeAddress.mEndpoints.push_back(Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
+  }
+
+  outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
+
+  // TODO add the rest of the fields here
+
+  return outputNodeAddress;
 }
 
 } // namespace Hedera

@@ -83,6 +83,13 @@ public:
   std::shared_ptr<proto::AccountID> toProtobuf() const;
 
   /**
+   * Put this AccountId in a string with the form "<shard>.<realm>.<num>".
+   *
+   * @return String representation of this AccountId.
+   */
+  std::string toString() const;
+
+  /**
    * Set the shard number.
    *
    * @param num The shard number to set.
@@ -141,9 +148,18 @@ private:
   /**
    * The account ID number.
    */
-  std::optional<uint64_t> mAccountNum;
+  uint64_t mAccountNum;
 };
 
 } // namespace Hedera
+
+namespace std
+{
+template<>
+struct hash<Hedera::AccountId>
+{
+  std::size_t operator()(const Hedera::AccountId& id) const { return hash<std::string>()(id.toString()); }
+};
+}
 
 #endif // ACCOUNT_ID_H_

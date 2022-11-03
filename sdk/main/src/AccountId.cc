@@ -49,11 +49,7 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
   AccountId accountId;
   accountId.mShardNum = static_cast<uint64_t>(proto.shardnum());
   accountId.mRealmNum = static_cast<uint64_t>(proto.realmnum());
-
-  if (proto.has_accountnum())
-  {
-    accountId.mAccountNum = static_cast<uint64_t>(proto.accountnum());
-  }
+  accountId.mAccountNum = static_cast<uint64_t>(proto.accountnum());
 
   return accountId;
 }
@@ -64,13 +60,15 @@ std::shared_ptr<proto::AccountID> AccountId::toProtobuf() const
   auto proto = std::make_shared<proto::AccountID>();
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
-
-  if (mAccountNum.has_value())
-  {
-    proto->set_accountnum(static_cast<int64_t>(mAccountNum.value()));
-  }
+  proto->set_accountnum(static_cast<int64_t>(mAccountNum));
 
   return proto;
+}
+
+//-----
+std::string AccountId::toString() const
+{
+  return std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.' + std::to_string(mAccountNum);
 }
 
 } // namespace Hedera

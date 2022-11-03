@@ -21,6 +21,14 @@
 #define NODE_ADDRESS_H_
 
 #include <string>
+#include <vector>
+
+#include "Endpoint.h"
+
+namespace proto
+{
+class NodeAddress;
+}
 
 namespace Hedera
 {
@@ -32,7 +40,11 @@ public:
    */
   static NodeAddress fromString(std::string_view address);
 
+  static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
+
 private:
+  NodeAddress();
+
   /**
    * The address of the node.
    */
@@ -42,6 +54,10 @@ private:
    * The port on which the node is listening.
    */
   uint32_t mPort;
+
+  std::vector<Endpoint> mEndpoints;
+
+  std::string mRSAPublicKey;
 };
 } // namespace Hedera
 
