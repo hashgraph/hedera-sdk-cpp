@@ -113,7 +113,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 }
 
 //-----
-proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) const
+proto::Transaction AccountCreateTransaction::makeRequest(const Client& client, const std::shared_ptr<Node>&) const
 {
   proto::TransactionBody transactionBody = generateTransactionBody();
   transactionBody.set_allocated_cryptocreateaccount(build());
@@ -125,7 +125,6 @@ proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) c
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
 AccountCreateTransaction::getGrpcMethod(const std::shared_ptr<Node>& node) const
 {
-  std::cout << __FUNCTION__ << std::endl;
   return node->getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoCreateAccount);
 }
 

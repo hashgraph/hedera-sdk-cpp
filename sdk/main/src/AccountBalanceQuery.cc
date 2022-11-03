@@ -24,6 +24,7 @@
 
 #include <proto/crypto_get_account_balance.pb.h>
 #include <proto/query.pb.h>
+#include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
 
 namespace Hedera
@@ -54,10 +55,14 @@ AccountBalanceQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
 }
 
 //-----
-proto::Query AccountBalanceQuery::makeRequest(const Client&) const
+proto::Query AccountBalanceQuery::makeRequest(const Client&, const std::shared_ptr<Node>&) const
 {
   proto::Query query;
   proto::CryptoGetAccountBalanceQuery* getAccountBalanceQuery = query.mutable_cryptogetaccountbalance();
+
+  proto::QueryHeader* header = getAccountBalanceQuery->mutable_header();
+  header->set_responsetype(proto::ANSWER_ONLY);
+  // This is a free query, so no payment required
 
   if (mAccountId)
   {

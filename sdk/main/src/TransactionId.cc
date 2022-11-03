@@ -26,7 +26,7 @@
 namespace Hedera
 {
 //-----
-TransactionId TransactionId::generate(const Hedera::AccountId& accountId)
+TransactionId TransactionId::generate(const AccountId& accountId)
 {
   TransactionId transactionId;
   transactionId.mAccountId = accountId;

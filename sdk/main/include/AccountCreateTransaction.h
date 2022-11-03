@@ -231,7 +231,7 @@ protected:
    * @param client The Client submitting this transaction.
    * @return A protobuf Transaction that contains this AccountCreateTransaction's data and is signed by the client.
    */
-  proto::Transaction makeRequest(const Client& client) const override;
+  proto::Transaction makeRequest(const Client& client, const std::shared_ptr<Node>&) const override;
 
   /**
    * Derived from Executable. Get the gRPC method to call to create a new crypto account.

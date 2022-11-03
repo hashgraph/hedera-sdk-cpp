@@ -74,11 +74,13 @@ protected:
     const std::shared_ptr<Node>& node) const override;
 
   /**
-   * Derived from Query. Construct a query protobuf object from this TransactionRecordQuery.
+   * Derived from Executable. Construct a query protobuf object from this TransactionRecordQuery.
    *
+   * @param client The Client submitting this TransactionRecordQuery.
+   * @param node   The Node to which this TransactionRecordQuery is being submitted.
    * @return The query protobuf object that contains this TransactionRecordQuery information.
    */
-  proto::Query makeRequest(const Client&) const override;
+  proto::Query makeRequest(const Client& client, const std::shared_ptr<Node>& node) const override;
 
   /**
    * Derived from Query. Create an TransactionRecord object from a protobuf response object.

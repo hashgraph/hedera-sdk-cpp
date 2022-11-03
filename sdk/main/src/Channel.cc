@@ -61,10 +61,6 @@ void Channel::initChannel(const std::string& url)
 
   mImpl->mUrl = url;
   mImpl->mChannel = grpc::CreateChannel(url, grpc::InsecureChannelCredentials());
-  while (mImpl->mChannel->GetState(true) != grpc_connectivity_state::GRPC_CHANNEL_READY)
-  {
-    usleep(1000000);
-  }
   mImpl->mCryptoStub = std::move(proto::CryptoService::NewStub(mImpl->mChannel));
 }
 
@@ -72,7 +68,6 @@ void Channel::initChannel(const std::string& url)
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
 Channel::getGrpcTransactionMethod(int transactionBodyDataCase) const
 {
-  std::cout << __FUNCTION__ << "(): transactionBodyDataCase=" << transactionBodyDataCase << std::endl;
   switch (transactionBodyDataCase)
   {
     case proto::TransactionBody::DataCase::kCryptoAddLiveHash:

@@ -95,9 +95,11 @@ protected:
    * Construct a ProtoRequestType from this request.
    *
    * @param client The Client submitting this request.
+   * @param node   The Node on which this request is being submitted.
    * @return A ProtoRequestType that contains this request's data.
    */
-  virtual ProtoRequestType makeRequest([[maybe_unused]] const Client& client) const = 0;
+  virtual ProtoRequestType makeRequest([[maybe_unused]] const Client& client,
+                                       [[maybe_unused]] const std::shared_ptr<Node>& node) const = 0;
 
   /**
    * Construct the response from a protobuf response object.
@@ -124,12 +126,11 @@ protected:
   virtual void onExecute([[maybe_unused]] const Client& client) = 0;
 
   /**
-   * Perform any needed actions for this Executable when it is being submitted.
+   * Perform any needed actions for this Executable when a Node has been selected to which to send this Executable.
    *
-   * @param client The Client submitting this Executable.
-   * @param node   The Node to which this Executable is being submitted.
+   * @param node The Node to which this Executable is being sent.
    */
-  virtual void onSubmit([[maybe_unused]] const Client& client, [[maybe_unused]] const std::shared_ptr<Node>& node) = 0;
+  virtual void onSelectNode([[maybe_unused]] const std::shared_ptr<Node>& node) = 0;
 
 private:
   /**

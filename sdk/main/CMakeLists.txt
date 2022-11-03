@@ -58,7 +58,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CF_NETWORK})
-endif()
+endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
 
@@ -86,7 +86,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 if (TARGET gRPC::grpcpp_channelz)
     target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpcpp_channelz)
-endif()
+endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         absl::bad_any_cast_impl

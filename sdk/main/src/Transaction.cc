@@ -72,7 +72,7 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
 template<typename SdkRequestType>
 TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
 {
-  return TransactionResponse::fromProtobuf(response);
+  return TransactionResponse::fromProtobuf(response).setTransactionId(mTransactionId);
 }
 
 //-----
@@ -84,7 +84,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
 
 //-----
 template<typename SdkRequestType>
-void Transaction<SdkRequestType>::onSubmit(const Client& client, const std::shared_ptr<Node>& node)
+void Transaction<SdkRequestType>::onSelectNode(const std::shared_ptr<Node>& node)
 {
   mNodeAccountId = node->getAccountId();
 }
@@ -105,7 +105,7 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
     auto signatureMap = new proto::SignatureMap();
-    signatureMap->add_sigpair()->set_allocated_ed25519(new std::string{ signature.cbegin(), signature.cend() });
+    signatureMap->add_sigpair()->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
 
     // Create a protobuf SignedTransaction from the TransactionBody and SignatureMap
     proto::SignedTransaction signedTransaction;

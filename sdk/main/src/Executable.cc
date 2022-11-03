@@ -71,23 +71,19 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
   for (const auto& node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
   {
-    onSubmit(client, node);
+    // Do node specific tasks
+    onSelectNode(node);
 
-    std::cout << "getting grpc method" << std::endl;
     auto grpcFunc = getGrpcMethod(node);
-    std::cout << "got grpc method" << std::endl;
 
     // Create the request
-    const ProtoRequestType request = makeRequest(client);
+    const ProtoRequestType request = makeRequest(client, node);
 
     // Call the gRPC method
-    std::cout << "calling grpc method" << std::endl;
     grpc::Status status = grpcFunc(&context, request, &response);
-    std::cout << "calling grpc method done, status=" << status.error_code() << std::endl;
 
     if (status.error_code() == 0)
     {
-      std::cout << "status is ok" << std::endl;
       return mapResponse(response);
     }
   }

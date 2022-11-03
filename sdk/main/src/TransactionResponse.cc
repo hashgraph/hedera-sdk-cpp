@@ -35,7 +35,6 @@ TransactionResponse TransactionResponse::fromProtobuf(const proto::TransactionRe
   TransactionResponse response;
   response.mCost = proto.cost();
   response.mValidateStatus = proto.nodetransactionprecheckcode() == proto::OK;
-  std::cout << proto.nodetransactionprecheckcode() << std::endl;
   return response;
 }
 

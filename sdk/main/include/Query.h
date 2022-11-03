@@ -59,16 +59,6 @@ namespace Hedera
 template<typename SdkRequestType, typename SdkResponseType>
 class Query : public Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>
 {
-public:
-  /**
-   * Does this query require a payment? Nearly all queries require payment,
-   * so default to returning true. Queries that don't require payment can
-   * overwrite this to return false.
-   *
-   * @return \c TRUE if this query requires a payment, otherwise \c FALSE.
-   */
-  inline virtual bool isPaymentRequired() const { return true; }
-
 protected:
   /**
    * Default destructor.
@@ -76,19 +66,17 @@ protected:
   virtual ~Query() = default;
 
   /**
-   * Derived from Executable. Perform any operations needed when this query is being executed.
-   *
-   * @param client The Client executing this query.
+   * Derived from Executable. Perform any operations needed when this Query is being executed.
    */
-  void onExecute([[maybe_unused]] const Client& client) override {}
+  void onExecute(const Client&) override {}
 
   /**
-   * Perform any needed actions for this Executable when it is being submitted.
+   * Derived from Executable. Perform any needed actions for this Query when a Node has been selected to which to
+   * send this Query.
    *
-   * @param client The Client submitting this Executable.
-   * @param node   The Node to which this Executable is being submitted.
+   * @param node The Node to which this Query is being sent.
    */
-  void onSubmit([[maybe_unused]] const Client& client, [[maybe_unused]] const std::shared_ptr<Node>& node) override {}
+  void onSelectNode(const std::shared_ptr<Node>&) override {}
 };
 
 /**

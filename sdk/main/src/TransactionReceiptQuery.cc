@@ -43,10 +43,14 @@ TransactionReceiptQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
 }
 
 //-----
-proto::Query TransactionReceiptQuery::makeRequest(const Client&) const
+proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shared_ptr<Node>&) const
 {
   proto::Query query;
   proto::TransactionGetReceiptQuery* getTransactionReceiptQuery = query.mutable_transactiongetreceipt();
+
+  proto::QueryHeader* header = getTransactionReceiptQuery->mutable_header();
+  header->set_responsetype(proto::ANSWER_ONLY);
+  // This is a free query, so no payment required
 
   if (mTransactionId.has_value())
   {

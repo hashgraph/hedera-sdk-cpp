@@ -35,7 +35,6 @@ Node::Node(const std::string& url, const AccountId& accountId)
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
 Node::getGrpcTransactionMethod(int transactionBodyDataCase) const
 {
-  std::cout << __FUNCTION__ << std::endl;
   return mChannel.getGrpcTransactionMethod(transactionBodyDataCase);
 }
 

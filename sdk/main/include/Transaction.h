@@ -150,12 +150,12 @@ protected:
   void onExecute(const Client& client) override;
 
   /**
-   * Derived from Executable. Perform any operations needed when this transaction is being submitted.
+   * Derived from Executable. Perform any needed actions for this Transaction when a Node has been selected to which to
+   * send this Transaction.
    *
-   * @param client The Client submitting this Executable.
-   * @param node   The Node to which this Executable is being submitted.
+   * @param node The Node to which this Executable is being sent.
    */
-  void onSubmit(const Client& client, const std::shared_ptr<Node>& node) override;
+  void onSelectNode(const std::shared_ptr<Node>& node) override;
 
   /**
    * Sign a protobuf TransactionBody with a Client and put the signed bytes into a protobuf Transaction.

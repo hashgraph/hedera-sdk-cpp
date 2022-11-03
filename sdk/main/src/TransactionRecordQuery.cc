@@ -21,10 +21,13 @@
 
 #include "Client.h"
 #include "TransactionRecord.h"
+#include "TransferTransaction.h"
 
 #include <proto/query.pb.h>
 #include <proto/response.pb.h>
 #include <proto/transaction_get_record.pb.h>
+
+#include <vector>
 
 namespace Hedera
 {
@@ -43,10 +46,23 @@ TransactionRecordQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
 }
 
 //-----
-proto::Query TransactionRecordQuery::makeRequest(const Client&) const
+proto::Query TransactionRecordQuery::makeRequest(const Client& client, const std::shared_ptr<Node>& node) const
 {
   proto::Query query;
   proto::TransactionGetRecordQuery* getTransactionRecordQuery = query.mutable_transactiongetrecord();
+
+  proto::QueryHeader* header = getTransactionRecordQuery->mutable_header();
+  header->set_responsetype(proto::ResponseType::ANSWER_ONLY);
+
+  std::cout << "node account id=" << node->getAccountId().toString() << std::endl;
+  header->set_allocated_payment(
+    new proto::Transaction(TransferTransaction()
+                             .setTransactionId(TransactionId::generate(client.getOperatorAccountId().value()))
+                             .setNodeAccountIds({ node->getAccountId() })
+                             .setMaxTransactionFee(Hbar(1ULL))
+                             .addUnapprovedHbarTransfer(client.getOperatorAccountId().value(), Hbar(-1ULL))
+                             .addUnapprovedHbarTransfer(node->getAccountId(), Hbar(1ULL))
+                             .makeRequest(client, node)));
 
   if (mTransactionId.has_value())
   {
@@ -59,6 +75,7 @@ proto::Query TransactionRecordQuery::makeRequest(const Client&) const
 //-----
 TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& response) const
 {
+  std::cout << "response code " << response.transactiongetrecord().header().nodetransactionprecheckcode() << std::endl;
   return TransactionRecord::fromProtobuf(response.transactiongetrecord().transactionrecord());
 }
 
