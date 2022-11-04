@@ -21,6 +21,8 @@
 
 #include "PrivateKey.h"
 
+#include <stdexcept>
+
 namespace Hedera
 {
 //-----
@@ -32,10 +34,11 @@ Client Client::forTestnet()
 }
 
 //-----
-Client& Client::setOperator(const AccountId& accountId, const std::shared_ptr<PrivateKey>& privateKey)
+Client& Client::setOperator(const AccountId& accountId, const std::unique_ptr<PrivateKey>& privateKey)
 {
   mOperator.mAccountId = accountId;
-  mOperator.mPrivateKey = privateKey;
+  mOperator.mPublicKey = privateKey->getPublicKey();
+  mOperator.mSigner = std::bind_front(&PrivateKey::sign, privateKey.get());
 
   return *this;
 }
@@ -45,7 +48,7 @@ Client& Client::setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee
 {
   if (defaultMaxTransactionFee.toTinybars() < 0)
   {
-    // TODO: throw
+    throw std::invalid_argument("Transaction fee cannot be negative");
   }
 
   mDefaultMaxTransactionFee = defaultMaxTransactionFee;

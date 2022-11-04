@@ -28,9 +28,7 @@ namespace proto
 class Duration;
 }
 
-namespace Hedera
-{
-namespace DurationConverter
+namespace Hedera::DurationConverter
 {
 /**
  * Create a duration object from a protobuf.
@@ -46,9 +44,8 @@ std::chrono::seconds fromProtobuf(const proto::Duration& duration);
  * @param duration The duration object.
  * @return The duration protobuf object.
  */
-std::shared_ptr<proto::Duration> toProtobuf(const std::chrono::seconds& duration);
+proto::Duration* toProtobuf(const std::chrono::duration<double>& duration);
 
-} // namespace DurationConverter
-} // namespace Hedera
+} // namespace Hedera::DurationConverter
 
 #endif // HELPER_DURATION_CONVERTER_H_

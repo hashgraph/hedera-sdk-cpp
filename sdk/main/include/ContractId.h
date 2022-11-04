@@ -70,7 +70,7 @@ public:
    *
    * @return Pointer to the created protobuf ContractID.
    */
-  std::shared_ptr<proto::ContractID> toProtobuf() const;
+  proto::ContractID* toProtobuf() const;
 
   /**
    * Set the shard number.

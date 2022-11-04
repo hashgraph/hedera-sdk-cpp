@@ -19,6 +19,7 @@
  */
 #include "AccountCreateTransaction.h"
 
+#include "Channel.h"
 #include "Client.h"
 #include "PublicKey.h"
 #include "TransactionResponse.h"
@@ -26,6 +27,7 @@
 #include "helper/DurationConverter.h"
 
 #include <proto/crypto_create.pb.h>
+#include <proto/crypto_service.grpc.pb.h>
 #include <proto/response.pb.h>
 #include <proto/transaction.pb.h>
 
@@ -111,18 +113,25 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 }
 
 //-----
-proto::Transaction AccountCreateTransaction::makeRequest(const Client& client) const
+proto::Transaction AccountCreateTransaction::makeRequest(const Client& client, const std::shared_ptr<Node>&) const
 {
-  proto::TransactionBody transactionBody;
-  transactionBody.set_allocated_cryptocreateaccount(build().get());
+  proto::TransactionBody transactionBody = generateTransactionBody();
+  transactionBody.set_allocated_cryptocreateaccount(build());
 
   return signTransaction(transactionBody, client);
 }
 
 //-----
-std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::build() const
+std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+AccountCreateTransaction::getGrpcMethod(const std::shared_ptr<Node>& node) const
 {
-  auto body = std::make_shared<proto::CryptoCreateTransactionBody>();
+  return node->getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoCreateAccount);
+}
+
+//-----
+proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
+{
+  auto body = new proto::CryptoCreateTransactionBody;
 
   if (mPublicKey)
   {
@@ -131,19 +140,14 @@ std::shared_ptr<proto::CryptoCreateTransactionBody> AccountCreateTransaction::bu
 
   body->set_initialbalance(mInitialBalance.toTinybars());
   body->set_receiversigrequired(mReceiverSignatureRequired);
-
-  if (body->has_autorenewperiod())
-  {
-    body->set_allocated_autorenewperiod(
-      DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod.value())).get());
-  }
-
+  body->set_allocated_autorenewperiod(
+    DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod)));
   body->set_memo(mAccountMemo);
   body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
 
   if (mStakedAccountId.has_value())
   {
-    body->set_allocated_staked_account_id(mStakedAccountId.value().toProtobuf().get());
+    body->set_allocated_staked_account_id(mStakedAccountId.value().toProtobuf());
   }
 
   if (mStakedNodeId.has_value())

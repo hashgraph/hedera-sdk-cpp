@@ -65,11 +65,22 @@ public:
 
 protected:
   /**
-   * Derived from Query. Construct a query protobuf object from this TransactionRecordQuery.
+   * Derived from Executable. Get the gRPC method to call to retrieve a transaction record.
    *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this TransactionRecordQuery.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
+    const std::shared_ptr<Node>& node) const override;
+
+  /**
+   * Derived from Executable. Construct a query protobuf object from this TransactionRecordQuery.
+   *
+   * @param client The Client submitting this TransactionRecordQuery.
+   * @param node   The Node to which this TransactionRecordQuery is being submitted.
    * @return The query protobuf object that contains this TransactionRecordQuery information.
    */
-  proto::Query makeRequest(const Client&) const override;
+  proto::Query makeRequest(const Client& client, const std::shared_ptr<Node>& node) const override;
 
   /**
    * Derived from Query. Create an TransactionRecord object from a protobuf response object.

@@ -30,6 +30,7 @@
 
 namespace Hedera
 {
+class Channel;
 class TransactionResponse;
 }
 
@@ -52,6 +53,11 @@ public:
    * Constructor.
    */
   AccountCreateTransaction();
+
+  /**
+   * Default destructor.
+   */
+  ~AccountCreateTransaction() override = default;
 
   /**
    * Set the key for this account. The key that must sign each transfer out of the account. If
@@ -225,7 +231,16 @@ protected:
    * @param client The Client submitting this transaction.
    * @return A protobuf Transaction that contains this AccountCreateTransaction's data and is signed by the client.
    */
-  proto::Transaction makeRequest(const Client& client) const override;
+  proto::Transaction makeRequest(const Client& client, const std::shared_ptr<Node>&) const override;
+
+  /**
+   * Derived from Executable. Get the gRPC method to call to create a new crypto account.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this AccountCreateTransaction.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  getGrpcMethod(const std::shared_ptr<Node>& node) const override;
 
 private:
   /**
@@ -233,7 +248,7 @@ private:
    *
    * @return A CryptoCreateTransactionBody protobuf message.
    */
-  std::shared_ptr<proto::CryptoCreateTransactionBody> build() const;
+  proto::CryptoCreateTransactionBody* build() const;
 
   /**
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is true, then it must also
@@ -256,7 +271,7 @@ private:
    * extends as long as possible. If the balance is zero when it expires, then the account is deleted. Defaults to 3
    * months.
    */
-  std::optional<std::chrono::duration<double>> mAutoRenewPeriod = std::chrono::months(3);
+  std::chrono::duration<double> mAutoRenewPeriod = std::chrono::months(3);
 
   /**
    * A memo for this account. Defaults to empty.

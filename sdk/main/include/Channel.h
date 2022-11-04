@@ -26,11 +26,13 @@
 
 namespace grpc
 {
+class ClientContext;
 class Status;
 }
 
 namespace proto
 {
+class CryptoService;
 class Query;
 class Response;
 class Transaction;
@@ -69,24 +71,22 @@ public:
   void initChannel(const std::string& url);
 
   /**
-   * Submit a query request on this channel.
+   * Get a gRPC transaction method for an associated protobuf Transaction data case.
    *
-   * @param query   The query to send.
-   * @param timeout The timeout duration.
-   * @return The protobuf response object and the gRPC status.
+   * @param transactionBodyDataCase The case describing the function to get.
+   * @return The function described by the case, bound to this channel's proper stub.
    */
-  std::pair<proto::Response, grpc::Status> submitRequest(const proto::Query& request,
-                                                         const std::chrono::duration<double>& timeout);
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  getGrpcTransactionMethod(int transactionBodyDataCase) const;
 
   /**
-   * Submit a transaction request on this channel.
+   * Get a gRPC query method for an associated protobuf Query data case.
    *
-   * @param transaction The transaction to send.
-   * @param timeout     The timeout duration.
-   * @return The protobuf response object and the gRPC status.
+   * @param queryBodyDataCase The case describing the function to get.
+   * @return The function described by the case, bound to this channel's proper stub.
    */
-  std::pair<proto::TransactionResponse, grpc::Status> submitRequest(const proto::Transaction& request,
-                                                                    const std::chrono::duration<double>& timeout);
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcQueryMethod(
+    int queryBodyDataCase) const;
 
   /**
    * Shutdown the channel.

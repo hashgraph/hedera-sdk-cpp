@@ -21,10 +21,11 @@
 
 #include "AccountCreateTransaction.h"
 #include "Client.h"
-#include "PrivateKey.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+
+#include "helper/DurationConverter.h"
 
 #include <proto/basic_types.pb.h>
 #include <proto/transaction.pb.h>
@@ -76,22 +77,35 @@ TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::Transa
 
 //-----
 template<typename SdkRequestType>
+void Transaction<SdkRequestType>::onExecute(const Client& client)
+{
+  mTransactionId = TransactionId::generate(client.getOperatorAccountId().value());
+}
+
+//-----
+template<typename SdkRequestType>
+void Transaction<SdkRequestType>::onSelectNode(const std::shared_ptr<Node>& node)
+{
+  mNodeAccountId = node->getAccountId();
+}
+
+//-----
+template<typename SdkRequestType>
 proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::TransactionBody& transaction,
                                                                 const Client& client) const
 {
   // Make sure the operator key and account ID are valid, and make sure the account ID for this transaction matches
   // the operator's account ID.
-  if (client.getOperatorPublicKey() && client.getOperatorAccountId().has_value() &&
-      mTransactionId.getAccountId().has_value() && mTransactionId.getAccountId() == client.getOperatorAccountId())
+  if (client.getOperatorPublicKey() && client.getOperatorAccountId().has_value())
   {
     // Generate a signature from the TransactionBody
     auto transactionBodySerialized = new std::string(transaction.SerializeAsString());
     const std::vector<unsigned char> signature =
-      client.getOperatorPrivateKey()->sign({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
+      client.getOperator().mSigner({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
     auto signatureMap = new proto::SignatureMap();
-    signatureMap->add_sigpair()->set_allocated_ed25519(new std::string{ signature.cbegin(), signature.cend() });
+    signatureMap->add_sigpair()->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
 
     // Create a protobuf SignedTransaction from the TransactionBody and SignatureMap
     proto::SignedTransaction signedTransaction;
@@ -105,8 +119,20 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
     return transactionToReturn;
   }
 
-  // TODO: throw?
-  return proto::Transaction();
+  throw std::invalid_argument("Invalid client used to sign transaction");
+}
+
+//-----
+template<typename SdkRequestType>
+proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody() const
+{
+  proto::TransactionBody body;
+  body.set_allocated_transactionid(mTransactionId.toProtobuf());
+  body.set_transactionfee(static_cast<uint64_t>(mMaxTransactionFee.toTinybars()));
+  body.set_allocated_memo(new std::string(mTransactionMemo));
+  body.set_allocated_transactionvalidduration(DurationConverter::toProtobuf(mTransactionValidDuration));
+  body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf());
+  return body;
 }
 
 /**

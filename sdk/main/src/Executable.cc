@@ -36,8 +36,10 @@
 #include <proto/transaction.pb.h>
 #include <proto/transaction_response.pb.h>
 
+#include <grpcpp/client_context.h>
 #include <grpcpp/impl/codegen/status.h>
 
+#include <stdexcept>
 #include <utility>
 
 namespace Hedera
@@ -56,17 +58,37 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::duration<double>& duration)
 {
-  for (std::shared_ptr<Node> node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
+  // Perform any operations needed when executing.
+  onExecute(client);
+
+  // Create the context from the timeout duration
+  grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() +
+                       std::chrono::duration_cast<std::chrono::milliseconds>(duration));
+
+  // The response object to fill
+  ProtoResponseType response;
+
+  for (const auto& node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
   {
-    std::pair<ProtoResponseType, grpc::Status> response = node->submitRequest(makeRequest(client), duration);
-    if (response.second.ok())
+    // Do node specific tasks
+    onSelectNode(node);
+
+    auto grpcFunc = getGrpcMethod(node);
+
+    // Create the request
+    const ProtoRequestType request = makeRequest(client, node);
+
+    // Call the gRPC method
+    grpc::Status status = grpcFunc(&context, request, &response);
+
+    if (status.error_code() == 0)
     {
-      return mapResponse(response.first);
+      return mapResponse(response);
     }
   }
 
-  // TODO: throw?
-  return SdkResponseType();
+  throw std::runtime_error("Unable to communicate with any node");
 }
 
 //-----

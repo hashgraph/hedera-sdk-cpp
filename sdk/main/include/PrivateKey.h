@@ -52,6 +52,11 @@ public:
    * @return the string representation of the private key
    */
   [[nodiscard]] virtual std::string toString() const = 0;
+
+  /**
+   * Default destructor
+   */
+  virtual ~PrivateKey() = default;
 };
 
 } // namespace Hedera

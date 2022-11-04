@@ -29,14 +29,32 @@
 namespace Hedera
 {
 //-----
-proto::Query TransactionReceiptQuery::makeRequest(const Client&) const
+TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const Hedera::TransactionId& transactionId)
+{
+  mTransactionId = transactionId;
+  return *this;
+}
+
+//-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
+TransactionReceiptQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
+{
+  return node->getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetReceipt);
+}
+
+//-----
+proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shared_ptr<Node>&) const
 {
   proto::Query query;
   proto::TransactionGetReceiptQuery* getTransactionReceiptQuery = query.mutable_transactiongetreceipt();
 
+  proto::QueryHeader* header = getTransactionReceiptQuery->mutable_header();
+  header->set_responsetype(proto::ANSWER_ONLY);
+  // This is a free query, so no payment required
+
   if (mTransactionId.has_value())
   {
-    getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf().get());
+    getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf());
   }
 
   return query;
@@ -46,13 +64,6 @@ proto::Query TransactionReceiptQuery::makeRequest(const Client&) const
 TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& response) const
 {
   return TransactionReceipt::fromProtobuf(response.transactiongetreceipt().receipt());
-}
-
-//-----
-TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const Hedera::TransactionId& transactionId)
-{
-  mTransactionId = transactionId;
-  return *this;
 }
 
 } // namespace Hedera

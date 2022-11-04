@@ -6,8 +6,9 @@ FetchContent_Declare(googletest
 FetchContent_MakeAvailable(googletest)
 
 set(TestSources
-        ED25519PrivateKeyTest.cpp
-        ED25519PublicKeyTest.cpp
+        ED25519PrivateKeyTest.cc
+        ED25519PublicKeyTest.cc
+        HbarTest.cc
         NodeAddressBookTest.cc
         )
 

@@ -28,6 +28,13 @@
 namespace Hedera
 {
 class Client;
+class Node;
+}
+
+namespace grpc
+{
+class ClientContext;
+class Status;
 }
 
 namespace Hedera
@@ -50,6 +57,7 @@ public:
    *
    * @param client The client with which this will be executed.
    * @return The result of execution.
+   * @throws std::runtime_error if unable to communicate with client network.
    */
   SdkResponseType execute(const Client& client);
 
@@ -59,6 +67,7 @@ public:
    * @param client  The client with which this will be executed.
    * @param timeout The timeout for this execution.
    * @return The result of execution.
+   * @throws std::runtime_error if unable to communicate with client network.
    */
   SdkResponseType execute(const Client& client, const std::chrono::duration<double>& duration);
 
@@ -86,9 +95,11 @@ protected:
    * Construct a ProtoRequestType from this request.
    *
    * @param client The Client submitting this request.
+   * @param node   The Node on which this request is being submitted.
    * @return A ProtoRequestType that contains this request's data.
    */
-  virtual ProtoRequestType makeRequest([[maybe_unused]] const Client& client) const = 0;
+  virtual ProtoRequestType makeRequest([[maybe_unused]] const Client& client,
+                                       [[maybe_unused]] const std::shared_ptr<Node>& node) const = 0;
 
   /**
    * Construct the response from a protobuf response object.
@@ -97,6 +108,29 @@ protected:
    * @return The response object with the response data.
    */
   virtual SdkResponseType mapResponse(const ProtoResponseType& response) const = 0;
+
+  /**
+   * Get the gRPC method to call for this Executable.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this request.
+   */
+  virtual std::function<grpc::Status(grpc::ClientContext*, const ProtoRequestType&, ProtoResponseType*)> getGrpcMethod(
+    const std::shared_ptr<Node>& node) const = 0;
+
+  /**
+   * Perform any needed actions for this Executable when it is being executed.
+   *
+   * @param client The Client executing this Executable.
+   */
+  virtual void onExecute([[maybe_unused]] const Client& client) = 0;
+
+  /**
+   * Perform any needed actions for this Executable when a Node has been selected to which to send this Executable.
+   *
+   * @param node The Node to which this Executable is being sent.
+   */
+  virtual void onSelectNode([[maybe_unused]] const std::shared_ptr<Node>& node) = 0;
 
 private:
   /**

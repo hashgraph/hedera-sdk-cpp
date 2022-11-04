@@ -60,6 +60,7 @@ public:
    *
    * @param client The client with which this query will be executed.
    * @return The receipt for this transaction.
+   * @throws std::runtime_error if unable to communicate with client network.
    */
   TransactionReceipt getReceipt(const Client& client) const;
 
@@ -69,6 +70,7 @@ public:
    * @param client  The client with which this query will be executed.
    * @param timeout The timeout for this query.
    * @return The receipt for this transaction.
+   * @throws std::runtime_error if unable to communicate with client network.
    */
   TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
 
@@ -77,6 +79,7 @@ public:
    *
    * @param client The client with which this query will be executed.
    * @return The record for this transaction.
+   * @throws std::runtime_error if unable to communicate with client network.
    */
   TransactionRecord getRecord(const Client& client) const;
 
@@ -86,6 +89,7 @@ public:
    * @param client  The client with which this query will be executed.
    * @param timeout The timeout for this query.
    * @return The record for this transaction.
+   * @throws std::runtime_error if unable to communicate with client network.
    */
   TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
 

@@ -25,13 +25,17 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
+#include <stdexcept>
+#include <unistd.h>
+
 namespace Hedera
 {
 //-----
 struct Channel::ChannelImpl
 {
   std::string mUrl;
-  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub;
+  std::shared_ptr<grpc::Channel> mChannel;
+  std::shared_ptr<proto::CryptoService::Stub> mCryptoStub;
 };
 
 //-----
@@ -56,81 +60,62 @@ void Channel::initChannel(const std::string& url)
   shutdownChannel();
 
   mImpl->mUrl = url;
-  mImpl->mCryptoStub = proto::CryptoService::NewStub(grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
+  mImpl->mChannel = grpc::CreateChannel(url, grpc::InsecureChannelCredentials());
+  mImpl->mCryptoStub = std::move(proto::CryptoService::NewStub(mImpl->mChannel));
 }
 
 //-----
-std::pair<proto::Response, grpc::Status> Channel::submitRequest(const proto::Query& query,
-                                                                const std::chrono::duration<double>& timeout)
+std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+Channel::getGrpcTransactionMethod(int transactionBodyDataCase) const
 {
-  grpc::ClientContext context;
-  context.set_deadline(std::chrono::system_clock::now() +
-                       std::chrono::duration_cast<std::chrono::milliseconds>(timeout));
-
-  proto::Response response;
-  switch (query.query_case())
-  {
-    case proto::Query::QueryCase::kCryptogetAccountBalance:
-      return { response, mImpl->mCryptoStub->cryptoGetBalance(&context, query, &response) };
-    case proto::Query::QueryCase::kCryptoGetAccountRecords:
-      return { response, mImpl->mCryptoStub->getAccountRecords(&context, query, &response) };
-    case proto::Query::QueryCase::kCryptoGetInfo:
-      return { response, mImpl->mCryptoStub->getAccountInfo(&context, query, &response) };
-    case proto::Query::QueryCase::kCryptoGetLiveHash:
-      return { response, mImpl->mCryptoStub->getLiveHash(&context, query, &response) };
-    case proto::Query::QueryCase::kCryptoGetProxyStakers:
-      return { response, mImpl->mCryptoStub->getStakersByAccountID(&context, query, &response) };
-    case proto::Query::QueryCase::kTransactionGetReceipt:
-      return { response, mImpl->mCryptoStub->getTransactionReceipts(&context, query, &response) };
-    case proto::Query::QueryCase::kTransactionGetRecord:
-      return { response, mImpl->mCryptoStub->getTxRecordByTxID(&context, query, &response) };
-    default:
-      return { response, grpc::Status::CANCELLED };
-  }
-}
-
-//-----
-std::pair<proto::TransactionResponse, grpc::Status> Channel::submitRequest(const proto::Transaction& transaction,
-                                                                           const std::chrono::duration<double>& timeout)
-{
-  grpc::ClientContext context;
-  context.set_deadline(std::chrono::system_clock::now() +
-                       std::chrono::duration_cast<std::chrono::milliseconds>(timeout));
-
-  proto::TransactionResponse response;
-  grpc::Status status;
-  switch (transaction.body().data_case())
+  switch (transactionBodyDataCase)
   {
     case proto::TransactionBody::DataCase::kCryptoAddLiveHash:
-      status = mImpl->mCryptoStub->addLiveHash(&context, transaction, &response);
-      break;
+      return std::bind_front(&proto::CryptoService::Stub::addLiveHash, mImpl->mCryptoStub);
     case proto::TransactionBody::DataCase::kCryptoApproveAllowance:
-      status = mImpl->mCryptoStub->approveAllowances(&context, transaction, &response);
-      break;
+      return std::bind_front(&proto::CryptoService::Stub::approveAllowances, mImpl->mCryptoStub);
     case proto::TransactionBody::DataCase::kCryptoDeleteAllowance:
-      status = mImpl->mCryptoStub->deleteAllowances(&context, transaction, &response);
-      break;
+      return std::bind_front(&proto::CryptoService::Stub::deleteAllowances, mImpl->mCryptoStub);
     case proto::TransactionBody::DataCase::kCryptoCreateAccount:
-      status = mImpl->mCryptoStub->createAccount(&context, transaction, &response);
-      break;
+      return std::bind_front(&proto::CryptoService::Stub::createAccount, mImpl->mCryptoStub);
     case proto::TransactionBody::DataCase::kCryptoDelete:
-      status = mImpl->mCryptoStub->cryptoDelete(&context, transaction, &response);
-      break;
+      return std::bind_front(&proto::CryptoService::Stub::cryptoDelete, mImpl->mCryptoStub);
     case proto::TransactionBody::DataCase::kCryptoDeleteLiveHash:
-      status = mImpl->mCryptoStub->deleteLiveHash(&context, transaction, &response);
-      break;
+      return std::bind_front(&proto::CryptoService::Stub::deleteLiveHash, mImpl->mCryptoStub);
     case proto::TransactionBody::DataCase::kCryptoTransfer:
-      status = mImpl->mCryptoStub->cryptoTransfer(&context, transaction, &response);
-      break;
+      return std::bind_front(&proto::CryptoService::Stub::cryptoTransfer, mImpl->mCryptoStub);
     case proto::TransactionBody::DataCase::kCryptoUpdateAccount:
-      status = mImpl->mCryptoStub->updateAccount(&context, transaction, &response);
-      break;
+      return std::bind_front(&proto::CryptoService::Stub::updateAccount, mImpl->mCryptoStub);
     default:
-      status = grpc::Status::CANCELLED;
-      break;
+      // This should never happen
+      throw std::invalid_argument("Unrecognized gRPC transaction method case");
   }
+}
 
-  return { response, status };
+//-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> Channel::getGrpcQueryMethod(
+  int queryBodyDataCase) const
+{
+  switch (queryBodyDataCase)
+  {
+    case proto::Query::QueryCase::kCryptogetAccountBalance:
+      return std::bind_front(&proto::CryptoService::Stub::cryptoGetBalance, mImpl->mCryptoStub);
+    case proto::Query::QueryCase::kCryptoGetAccountRecords:
+      return std::bind_front(&proto::CryptoService::Stub::getAccountRecords, mImpl->mCryptoStub);
+    case proto::Query::QueryCase::kCryptoGetInfo:
+      return std::bind_front(&proto::CryptoService::Stub::getAccountInfo, mImpl->mCryptoStub);
+    case proto::Query::QueryCase::kCryptoGetLiveHash:
+      return std::bind_front(&proto::CryptoService::Stub::getLiveHash, mImpl->mCryptoStub);
+    case proto::Query::QueryCase::kCryptoGetProxyStakers:
+      return std::bind_front(&proto::CryptoService::Stub::getStakersByAccountID, mImpl->mCryptoStub);
+    case proto::Query::QueryCase::kTransactionGetReceipt:
+      return std::bind_front(&proto::CryptoService::Stub::getTransactionReceipts, mImpl->mCryptoStub);
+    case proto::Query::QueryCase::kTransactionGetRecord:
+      return std::bind_front(&proto::CryptoService::Stub::getTxRecordByTxID, mImpl->mCryptoStub);
+    default:
+      // This should never happen
+      throw std::invalid_argument("Unrecognized gRPC query method case");
+  }
 }
 
 //-----

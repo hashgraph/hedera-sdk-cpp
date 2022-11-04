@@ -55,9 +55,9 @@ ContractId ContractId::fromProtobuf(const proto::ContractID& proto)
 }
 
 //-----
-std::shared_ptr<proto::ContractID> ContractId::toProtobuf() const
+proto::ContractID* ContractId::toProtobuf() const
 {
-  auto proto = std::make_shared<proto::ContractID>();
+  auto proto = new proto::ContractID;
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
 
