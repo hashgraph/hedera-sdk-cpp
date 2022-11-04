@@ -54,11 +54,7 @@ int main(int argc, char** argv)
     AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(1000ULL, HbarUnit::TINYBAR())).execute(client);
 
   // Get the receipt when it becomes available
-  TransactionReceipt txReceipt;
-  while (!txReceipt.getAccountId().has_value())
-  {
-    txReceipt = txResp.getReceipt(client);
-  }
+  TransactionReceipt txReceipt = txResp.getReceipt(client);
 
   const AccountId newAccountId = txReceipt.getAccountId().value();
   std::cout << "Created new account with ID " << newAccountId.toString() << std::endl;

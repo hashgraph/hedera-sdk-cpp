@@ -48,7 +48,15 @@ TransactionReceipt TransactionResponse::getReceipt(const Client& client) const
 TransactionReceipt TransactionResponse::getReceipt(const Client& client,
                                                    const std::chrono::duration<double>& timeout) const
 {
-  return TransactionReceiptQuery().setTransactionId(mTransactionId).execute(client, timeout);
+  // TODO: implement proper networking so this doesn't have to loop
+  TransactionReceipt txReceipt;
+  TransactionReceiptQuery query = TransactionReceiptQuery().setTransactionId(mTransactionId);
+  while (txReceipt.getStatus() == Status::UNKNOWN)
+  {
+    txReceipt = query.execute(client, timeout);
+  }
+
+  return txReceipt;
 }
 
 //-----
@@ -61,7 +69,15 @@ TransactionRecord TransactionResponse::getRecord(const Client& client) const
 TransactionRecord TransactionResponse::getRecord(const Client& client,
                                                  const std::chrono::duration<double>& timeout) const
 {
-  return TransactionRecordQuery().setTransactionId(mTransactionId).execute(client, timeout);
+  // TODO: implement proper networking so this doesn't have to loop
+  TransactionRecord txRecord;
+  TransactionRecordQuery query = TransactionRecordQuery().setTransactionId(mTransactionId);
+  while (!txRecord.getReceipt().has_value())
+  {
+    txRecord = query.execute(client, timeout);
+  }
+
+  return txRecord;
 }
 
 //-----
