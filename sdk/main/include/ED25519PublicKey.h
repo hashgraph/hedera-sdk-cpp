@@ -7,6 +7,8 @@
 
 #include "PublicKey.h"
 
+#include "helper/HexConverter.h"
+
 namespace Hedera
 {
 /**
@@ -69,6 +71,9 @@ public:
                                      const std::vector<unsigned char>& signedBytes) const override;
 
 private:
+  inline static const std::string DER_PREFIX_HEX = "302A300506032B6570032100";
+  inline static const std::vector<unsigned char> DER_PREFIX_BYTES = HexConverter::hexToBase64(DER_PREFIX_HEX);
+
   /**
    * The underlying OpenSSL representation of the key
    */

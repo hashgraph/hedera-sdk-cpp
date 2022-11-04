@@ -34,7 +34,7 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
   {
     case proto::Key::KeyCase::kEd25519:
     {
-      return ED25519PublicKey::fromString(key.ed25519());
+      return ED25519PublicKey::fromBytes({key.ed25519().cbegin(), key.ed25519().cend()});
     }
     default:
     {
