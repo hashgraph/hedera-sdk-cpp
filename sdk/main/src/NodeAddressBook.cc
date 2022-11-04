@@ -31,9 +31,6 @@ NodeAddressBook NodeAddressBook::fromFile(const std::string& fileName)
 
   std::vector<char> buffer((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
 
-  std::cout << "Good: " << infile.good() << std::endl;
-  std::cout << "Buffer size: " << buffer.size() << std::endl;
-
   return NodeAddressBook::fromBytes(buffer);
 }
 

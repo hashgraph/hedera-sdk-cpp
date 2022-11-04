@@ -73,16 +73,41 @@ std::string NodeAddress::toString() const
 {
   std::stringstream outputStream;
 
-  outputStream << std::setw(20) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
-  outputStream << std::setw(20) << std::right << "IP Address: " << std::left << mIPAddress << std::endl;
-  outputStream << std::setw(20) << std::right << "Description: " << std::left << mDescription << std::endl;
-  outputStream << std::setw(20) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
-  outputStream << std::setw(20) << std::right << "Certificate Hash: " << std::left << mCertificateHash << std::endl;
-  outputStream << std::setw(20) << std::right << "Endpoints: " << std::endl;
+  int columnWidth = 20;
+  outputStream << std::setw(columnWidth) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left << mCertificateHash
+               << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
 
-  for (auto endpoint : mEndpoints)
+  unsigned int endpointCount = mEndpoints.size();
+
+  if (!endpointCount)
   {
-    outputStream << endpoint.toString() << std::endl;
+    outputStream << "<None>";
+  }
+  else
+  {
+    int counter = 0;
+    for (auto endpoint : mEndpoints)
+    {
+      if (counter == 0)
+      {
+        outputStream << endpoint.toString();
+      }
+      else
+      {
+        outputStream << std::setw(columnWidth) << "" << endpoint.toString();
+      }
+
+      ++counter;
+
+      if (counter != endpointCount)
+      {
+        outputStream << std::endl;
+      }
+    }
   }
 
   return outputStream.str();
