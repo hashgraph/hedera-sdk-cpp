@@ -21,9 +21,7 @@
 
 #include <proto/timestamp.pb.h>
 
-namespace Hedera
-{
-namespace TimestampConverter
+namespace Hedera::TimestampConverter
 {
 //-----
 std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::Timestamp& timestamp)
@@ -39,14 +37,13 @@ std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::T
 }
 
 //-----
-std::shared_ptr<proto::Timestamp> toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time)
+proto::Timestamp* toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time)
 {
-  proto::Timestamp timestamp;
+  auto timestamp = new proto::Timestamp;
   std::chrono::nanoseconds nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch());
-  timestamp.set_seconds(nanos.count() / 1000000000);
-  timestamp.set_nanos(nanos.count() % 1000000000);
-  return std::make_shared<proto::Timestamp>(timestamp);
+  timestamp->set_seconds(nanos.count() / 1000000000);
+  timestamp->set_nanos(nanos.count() % 1000000000);
+  return timestamp;
 }
 
-} // namespace TimestampConverter
-} // namespace Hedera
+} // namespace Hedera::TimestampConverter

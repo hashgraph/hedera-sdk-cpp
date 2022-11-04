@@ -47,7 +47,12 @@ ED25519PublicKey::~ED25519PublicKey()
 proto::Key* ED25519PublicKey::toProtobuf() const
 {
   auto* keyProtobuf = new proto::Key();
-  auto* stringPointer = new std::string(toString());
+
+  // raw bytes, which include the ed25519 DER encoding prefix
+  std::vector<unsigned char> rawBytes = toBytes();
+
+  // discard the 12 prefix bytes, leaving behind only the 32 pubkey bytes
+  auto* stringPointer = new std::string({ rawBytes.cbegin() + 12, rawBytes.cend() });
 
   keyProtobuf->set_allocated_ed25519(stringPointer);
 
@@ -56,12 +61,19 @@ proto::Key* ED25519PublicKey::toProtobuf() const
 
 std::string ED25519PublicKey::toString() const
 {
-  return HexConverter::bytesToHex(toBytes());
+  return HexConverter::base64ToHex(toBytes());
 }
 
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string& keyString)
 {
-  return fromBytes(HexConverter::hexToBytes(keyString));
+  std::string fullKeyString = keyString;
+
+  // key size of 64 means RFC 8410 prefix is missing. add it before making calls to OpenSSL
+  if (keyString.size() == 64) {
+    fullKeyString = "302A300506032B6570032100" + keyString;
+  }
+
+  return fromBytes(HexConverter::hexToBase64(fullKeyString));
 }
 
 std::vector<unsigned char> ED25519PublicKey::toBytes() const
@@ -73,7 +85,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 
   if (i2d_PUBKEY(this->publicKey, &rawPublicKeyBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;
+    std::cout << "ED25519PublicKey to bytes I2D error" << std::endl;
   }
 
   return publicKeyBytes;

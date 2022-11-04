@@ -25,12 +25,14 @@
 #include "TransactionId.h"
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <string>
 
 namespace Hedera
 {
 class AccountCreateTransaction;
+class Channel;
 class TransactionResponse;
 }
 
@@ -39,6 +41,12 @@ namespace proto
 class Transaction;
 class TransactionBody;
 class TransactionResponse;
+}
+
+namespace grpc
+{
+class ClientContext;
+class Status;
 }
 
 namespace Hedera
@@ -135,6 +143,21 @@ protected:
   TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
 
   /**
+   * Derived from Executable. Perform any operations needed when this transaction is being executed.
+   *
+   * @param client The Client executing this transaction.
+   */
+  void onExecute(const Client& client) override;
+
+  /**
+   * Derived from Executable. Perform any needed actions for this Transaction when a Node has been selected to which to
+   * send this Transaction.
+   *
+   * @param node The Node to which this Executable is being sent.
+   */
+  void onSelectNode(const std::shared_ptr<Node>& node) override;
+
+  /**
    * Sign a protobuf TransactionBody with a Client and put the signed bytes into a protobuf Transaction.
    *
    * @param transaction The TransactionBody to sign.
@@ -143,11 +166,23 @@ protected:
    */
   proto::Transaction signTransaction(const proto::TransactionBody& transaction, const Client& client) const;
 
+  /**
+   * Generate a protobuf TransactionBody with this transaction's data.
+   *
+   * @return A protobuf TransactionBody with this transaction's data.
+   */
+  proto::TransactionBody generateTransactionBody() const;
+
 private:
   /**
    * The valid transaction duration. Defaults to two minutes.
    */
   std::chrono::duration<double> mTransactionValidDuration = std::chrono::minutes(2);
+
+  /**
+   * The account ID of the node sending this transaction.
+   */
+  AccountId mNodeAccountId;
 
   /**
    * The maximum transaction fee.

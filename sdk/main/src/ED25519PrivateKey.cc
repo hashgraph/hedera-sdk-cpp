@@ -52,7 +52,7 @@ std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
 
   if (i2d_PUBKEY(this->keypair, &rawPublicKeyBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;
+    std::cout << "getPublicKeyBytes I2D error" << std::endl;
   }
 
   return publicKeyBytes;
@@ -104,15 +104,22 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
 
 std::string ED25519PrivateKey::toString() const
 {
-  return HexConverter::bytesToHex(toBytes());
+  return HexConverter::base64ToHex(toBytes());
 }
 
-std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
 {
-  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBytes(keyString))));
+  std::string fullKeyString = keyString;
+
+  // key size of 64 means RFC 8410 prefix is missing. add it before making calls to OpenSSL
+  if (keyString.size() == 64) {
+    fullKeyString = "302E020100300506032B657004220420" + keyString;
+  }
+
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(fullKeyString))));
 }
 
-std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 {
   EVP_PKEY* keypair = EVP_PKEY_new();
   EVP_PKEY_CTX* keyAlgorithmContext = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr);
@@ -134,7 +141,7 @@ std::shared_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 
   EVP_PKEY_CTX_free(keyAlgorithmContext);
 
-  return std::make_shared<ED25519PrivateKey>(ED25519PrivateKey(keypair));
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(keypair));
 }
 
 std::vector<unsigned char> ED25519PrivateKey::toBytes() const
@@ -146,7 +153,7 @@ std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 
   if (i2d_PrivateKey(this->keypair, &rawBytes) <= 0)
   {
-    std::cout << "I2D error" << std::endl;
+    std::cout << "ED25519PrivateKey toBytes I2D error" << std::endl;
   }
 
   return outputBytes;
@@ -155,7 +162,6 @@ std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 EVP_PKEY* ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   const unsigned char* rawKeyBytes = &keyBytes.front();
-
   return d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, (long)keyBytes.size());
 }
 }

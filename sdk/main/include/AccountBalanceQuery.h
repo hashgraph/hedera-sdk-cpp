@@ -26,16 +26,23 @@
 
 #include <optional>
 
+namespace Hedera
+{
+class AccountBalance;
+class Client;
+class Node;
+}
+
 namespace proto
 {
 class Query;
 class Response;
 }
 
-namespace Hedera
+namespace grpc
 {
-class AccountBalance;
-class Client;
+class ClientContext;
+class Status;
 }
 
 namespace Hedera
@@ -53,13 +60,6 @@ public:
    * Default destructor.
    */
   ~AccountBalanceQuery() override = default;
-
-  /**
-   * Derived from Query. Determine if payment is required for this AccountBalanceQuery.
-   *
-   * @return \c FALSE to indicate this query is free.
-   */
-  inline bool isPaymentRequired() const override { return false; }
 
   /**
    * The account ID for which the balance is being requested. This is mutually exclusive with setContractId().
@@ -93,11 +93,20 @@ public:
 
 protected:
   /**
+   * Derived from Executable. Get the gRPC method to call to retrieve an account balance.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this AccountBalanceQuery.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
+    const std::shared_ptr<Node>& node) const override;
+
+  /**
    * Derived from Executable. Construct a query protobuf object from this AccountBalanceQuery.
    *
    * @return The query protobuf object that contains this AccountBalanceQuery information.
    */
-  proto::Query makeRequest(const Client&) const override;
+  proto::Query makeRequest(const Client&, const std::shared_ptr<Node>&) const override;
 
   /**
    * Derived from Executable. Create an AccountBalance object from a protobuf response object.

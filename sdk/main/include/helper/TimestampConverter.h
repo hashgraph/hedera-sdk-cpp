@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -29,9 +29,7 @@ class Timestamp;
 class TimestampSeconds;
 }
 
-namespace Hedera
-{
-namespace TimestampConverter
+namespace Hedera::TimestampConverter
 {
 /**
  * Create a system time object from a Timestamp protobuf.
@@ -55,9 +53,8 @@ std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::T
  * @param time The system time.
  * @return The Timestamp protobuf represented by the input system time.
  */
-std::shared_ptr<proto::Timestamp> toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>> time);
+proto::Timestamp* toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time);
 
-} // namespace TimestampConverter
-} // namespace Hedera
+} // namespace Hedera::TimestampConverter
 
 #endif // HELPER_TIMESTAMP_CONVERTER_H_

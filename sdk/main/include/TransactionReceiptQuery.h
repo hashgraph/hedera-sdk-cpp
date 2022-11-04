@@ -45,13 +45,6 @@ public:
   ~TransactionReceiptQuery() override = default;
 
   /**
-   * Derived from Query. Determine if payment is required for this TransactionReceiptQuery.
-   *
-   * @return \c FALSE to indicate this query is free.
-   */
-  inline bool isPaymentRequired() const override { return false; }
-
-  /**
    * The transaction ID for which the receipt is being requested.
    *
    * @param transactionId The TransactionId to set.
@@ -68,14 +61,23 @@ public:
 
 protected:
   /**
-   * Derived from Query. Construct a query protobuf object from this TransactionReceiptQuery.
+   * Derived from Executable. Get the gRPC method to call to retrieve a transaction receipt.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this TransactionReceiptQuery.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
+    const std::shared_ptr<Node>& node) const override;
+
+  /**
+   * Derived from Executable. Construct a query protobuf object from this TransactionReceiptQuery.
    *
    * @return The query protobuf object that contains this TransactionReceiptQuery information.
    */
-  proto::Query makeRequest(const Client&) const override;
+  proto::Query makeRequest(const Client&, const std::shared_ptr<Node>&) const override;
 
   /**
-   * Derived from Query. Create a response object from a protobuf response object.
+   * Derived from Executable. Create a response object from a protobuf response object.
    *
    * @param response The protobuf response object.
    * @return The response object with the response data.

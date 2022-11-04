@@ -29,6 +29,7 @@
 
 namespace Hedera
 {
+class TransactionRecordQuery;
 class TransactionResponse;
 }
 
@@ -76,20 +77,30 @@ public:
 
 protected:
   /**
-   * Derived from Executable. Construct a protobuf Transaction from this TransferTransaction.
+   * Derived from Executable. Construct a Transaction protobuf from this TransferTransaction.
    *
-   * @param client The Client submitting this transaction.
-   * @return A protobuf Transaction that contains this TransferTransaction's data and is signed by the client.
+   * @param client The Client submitting this TransferTransaction.
+   * @return A Transaction protobuf that contains this TransferTransaction's data.
    */
-  proto::Transaction makeRequest(const Client& client) const override;
+  proto::Transaction makeRequest(const Client& client, const std::shared_ptr<Node>&) const override;
+
+  /**
+   * Derived from Executable. Get the gRPC method to call to transfer between accounts.
+   *
+   * @param node The Node from which to retrieve the function.
+   * @return The gRPC method to call to execute this TransferTransaction.
+   */
+  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  getGrpcMethod(const std::shared_ptr<Node>& node) const override;
 
 private:
+  friend class TransactionRecordQuery;
   /**
    * Build this TransferTransaction into a protobuf CryptoCreateTransactionBody.
    *
    * @return Pointer to a protobuf CryptoCreateTransactionBody.
    */
-  std::shared_ptr<proto::CryptoTransferTransactionBody> build() const;
+  proto::CryptoTransferTransactionBody* build() const;
 
   /**
    * Add an Hbar transfer to the Hbar transfers list.

@@ -42,18 +42,25 @@ TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const Accoun
 }
 
 //-----
-proto::Transaction TransferTransaction::makeRequest(const Client& client) const
+proto::Transaction TransferTransaction::makeRequest(const Client& client, const std::shared_ptr<Node>&) const
 {
-  proto::TransactionBody body;
-  body.set_allocated_cryptotransfer(build().get());
+  proto::TransactionBody body = generateTransactionBody();
+  body.set_allocated_cryptotransfer(build());
 
   return signTransaction(body, client);
 }
 
 //-----
-std::shared_ptr<proto::CryptoTransferTransactionBody> TransferTransaction::build() const
+std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+TransferTransaction::getGrpcMethod(const std::shared_ptr<Node>& node) const
 {
-  auto body = std::make_shared<proto::CryptoTransferTransactionBody>();
+  return node->getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoTransfer);
+}
+
+//-----
+proto::CryptoTransferTransactionBody* TransferTransaction::build() const
+{
+  auto body = new proto::CryptoTransferTransactionBody;
 
   for (const Transfer& transfer : mHbarTransfers)
   {
@@ -61,7 +68,7 @@ std::shared_ptr<proto::CryptoTransferTransactionBody> TransferTransaction::build
 
     if (transfer.getAccountId().has_value())
     {
-      amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf().get());
+      amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf());
     }
 
     amount->set_amount(transfer.getAmount().toTinybars());

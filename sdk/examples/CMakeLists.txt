@@ -1,5 +1,5 @@
-set(EXAMPLE_NAME ${PROJECT_NAME}-blade-example)
+set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
 
-add_executable(${EXAMPLE_NAME} BladeExample.cpp)
+add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
 
-target_link_libraries(${EXAMPLE_NAME} PRIVATE gtest_main ${PROJECT_NAME})
+target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})

@@ -32,6 +32,28 @@ namespace Hedera
 {
 class Client
 {
+private:
+  /**
+   * Information about the account that will pay for transactions and queries made with this client.
+   */
+  struct Operator
+  {
+    /**
+     * The account ID of the account.
+     */
+    std::optional<AccountId> mAccountId;
+
+    /**
+     * The public key of the account.
+     */
+    std::shared_ptr<PublicKey> mPublicKey;
+
+    /**
+     * The private key signing function.
+     */
+    std::function<const std::vector<unsigned char>(const std::vector<unsigned char>&)> mSigner;
+  };
+
 public:
   /**
    * Construct a Hedera client pre-configured for Testnet access.
@@ -49,7 +71,7 @@ public:
    * @param privateKey The private key of the operator.
    * @return Reference to this Client object.
    */
-  Client& setOperator(const AccountId& accountId, const std::shared_ptr<PrivateKey>& privateKey);
+  Client& setOperator(const AccountId& accountId, const std::unique_ptr<PrivateKey>& privateKey);
 
   /**
    * Set the maximum fee to be paid for transactions executed by this client.
@@ -59,6 +81,7 @@ public:
    *
    * @param defaultMaxTransactionFee The Hbar to be set.
    * @return Reference to this Client object.
+   * @throw std::invalid_argument If the transaction fee is negative.
    */
   Client& setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee);
 
@@ -79,6 +102,13 @@ public:
   inline std::shared_ptr<Network> getNetwork() const { return mNetwork; }
 
   /**
+   * Extract the operator of this client.
+   *
+   * @return The operator of this client.
+   */
+  Operator getOperator() const { return mOperator; }
+
+  /**
    * Get the ID of the operator. Useful when the client was constructed from file.
    *
    * @return The account ID of this client's operator, if valid.
@@ -90,14 +120,7 @@ public:
    *
    * @return The public key of this client's operator, if valid.
    */
-  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const { return mOperator.mPrivateKey->getPublicKey(); }
-
-  /**
-   * Get the private key of the operator. Useful when the client was constructed from file.
-   *
-   * @return The private key of this client's operator, if valid.
-   */
-  inline std::shared_ptr<PrivateKey> getOperatorPrivateKey() const { return mOperator.mPrivateKey; }
+  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const { return mOperator.mPublicKey; }
 
   /**
    * The default maximum fee used for transactions.
@@ -114,22 +137,6 @@ public:
   inline std::chrono::duration<double> getRequestTimeout() const { return mRequestTimeout; }
 
 private:
-  /**
-   * Information about the account that will pay for transactions and queries made with this client.
-   */
-  struct Operator
-  {
-    /**
-     * The account ID of the account.
-     */
-    std::optional<AccountId> mAccountId;
-
-    /**
-     * The private key of the account.
-     */
-    std::shared_ptr<PrivateKey> mPrivateKey;
-  };
-
   /**
    * The network object encompassing the network setup this client is using.
    */

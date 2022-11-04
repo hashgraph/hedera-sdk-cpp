@@ -20,9 +20,11 @@
 #include "AccountBalanceQuery.h"
 
 #include "AccountBalance.h"
+#include "Node.h"
 
 #include <proto/crypto_get_account_balance.pb.h>
 #include <proto/query.pb.h>
+#include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
 
 namespace Hedera
@@ -44,20 +46,32 @@ AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contra
 
   return *this;
 }
+
 //-----
-proto::Query AccountBalanceQuery::makeRequest(const Client&) const
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
+AccountBalanceQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
+{
+  return node->getGrpcQueryMethod(proto::Query::QueryCase::kCryptogetAccountBalance);
+}
+
+//-----
+proto::Query AccountBalanceQuery::makeRequest(const Client&, const std::shared_ptr<Node>&) const
 {
   proto::Query query;
   proto::CryptoGetAccountBalanceQuery* getAccountBalanceQuery = query.mutable_cryptogetaccountbalance();
 
+  proto::QueryHeader* header = getAccountBalanceQuery->mutable_header();
+  header->set_responsetype(proto::ANSWER_ONLY);
+  // This is a free query, so no payment required
+
   if (mAccountId)
   {
-    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf().get());
+    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf());
   }
 
   if (mContractId)
   {
-    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf().get());
+    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf());
   }
 
   return query;
