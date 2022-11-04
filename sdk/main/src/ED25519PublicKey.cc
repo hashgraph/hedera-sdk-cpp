@@ -69,8 +69,9 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string
   std::string fullKeyString = keyString;
 
   // key size of 64 means RFC 8410 prefix is missing. add it before making calls to OpenSSL
-  if (keyString.size() == 64) {
-    fullKeyString = "302A300506032B6570032100" + keyString;
+  if (keyString.size() == 64)
+  {
+    fullKeyString = DER_PREFIX_HEX + keyString;
   }
 
   return fromBytes(HexConverter::hexToBase64(fullKeyString));
@@ -93,7 +94,20 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
-  return std::make_shared<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(keyBytes)));
+  std::vector<unsigned char> fullKeyBytes;
+
+  // If there are only 32 key bytes, we need to add the DER prefex, so that OpenSSL can correctly decode
+  if (keyBytes.size() == 32)
+  {
+    fullKeyBytes = DER_PREFIX_BYTES;
+    fullKeyBytes.insert(fullKeyBytes.end(), keyBytes.begin(), keyBytes.end());
+  }
+  else
+  {
+    fullKeyBytes = keyBytes;
+  }
+
+  return std::make_shared<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(fullKeyBytes)));
 }
 
 bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
