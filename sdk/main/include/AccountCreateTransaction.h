@@ -44,7 +44,31 @@ class TransactionResponse;
 namespace Hedera
 {
 /**
- * Create a new Hedera account.
+ * The transaction used to create a new account. After the account is created, the AccountID for it is in the receipt.
+ * It can also be retrieved with a GetByKey query. Threshold values can be defined, and records are generated and stored
+ * for 25 hours for any transfer that exceeds the thresholds. This account is charged for each record generated, so the
+ * thresholds are useful for limiting record generation to happen only for large transactions.
+ *
+ * The mPublicKey field is the key used to sign transactions for this account. If the account has
+ * mReceiverSignatureRequired set to true, then all cryptocurrency transfers must be signed by this account's key, both
+ * for transfers in and out. If it is false, then only transfers out have to be signed by it. When the account is
+ * created, the payer account is charged enough Hbars so that the new account will not expire for the next
+ * mAutoRenewPeriod seconds. When it reaches the expiration time, the new account will then be automatically charged to
+ * renew for another mAutoRenewPeriod seconds. If it does not have enough Hbars to renew for that long, then the
+ * remaining Hbars are used to extend its expiration as long as possible. If it is has a zero balance when it expires,
+ * then it is deleted. This transaction must be signed by the payer account. If mReceiverSigRequired is false, then the
+ * transaction does not have to be signed by the keys in the keys field. If it is true, then it must be signed by them,
+ * in addition to the keys of the payer account. If the mAutoRenewPeriod field is set, the key of the referenced
+ * account must sign.
+ *
+ * An account must be created in a particular realm. If the realmID is left null, then a new realm will be created with
+ * the given admin key. If a new realm has a null adminKey, then anyone can create/modify/delete entities in that realm.
+ * But if an admin key is given, then any transaction to create/modify/delete an entity in that realm must be signed by
+ * that key, though anyone can still call functions on smart contract instances that exist in that realm. A realm ceases
+ * to exist when everything within it has expired and no longer exists.
+ *
+ * The current API ignores shardID, realmID, and newRealmAdminKey, and creates everything in shard 0 and realm 0, with a
+ * null key. Future versions of the API will support multiple realms and multiple shards.
  */
 class AccountCreateTransaction : public Transaction<AccountCreateTransaction>
 {
@@ -60,87 +84,88 @@ public:
   ~AccountCreateTransaction() override = default;
 
   /**
-   * Set the key for this account. The key that must sign each transfer out of the account. If
+   * Set the public key for the new account. The key that must sign each transfer out of the account. If
    * mReceiverSignatureRequired is true, then it must also sign any transfer into the account.
    *
-   * @param key The public key for this account.
+   * @param publicKey The desired public key for the new account.
    * @return Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setKey(const std::shared_ptr<PublicKey>& key);
+  AccountCreateTransaction& setKey(const std::shared_ptr<PublicKey>& publicKey);
 
   /**
-   * Set the initial amount to transfer into this account.
+   * Set the initial amount to transfer into the new account from the paying account.
    *
-   * @param initialBalance The initial balance to transfer.
+   * @param initialBalance The desired balance to transfer into the new account.
    * @return Reference to this AccountCreateTransaction object.
    */
   AccountCreateTransaction& setInitialBalance(const Hbar& initialBalance);
 
   /**
-   * Set to true to require this account to sign any transfer of Hbars into this account. All transfers of Hbars from
-   * this account must always be signed. This property only affects transfers to this account.
+   * Set to true to require the new account to sign any transfer of Hbars into itself. All transfers of Hbars from the
+   * account must always be signed. This property only affects transfers to the account.
    *
-   * @param receiveSignatureRequired \c TRUE to require a signature when receiving Hbars, otherwise \c FALSE.
+   * @param receiveSignatureRequired \c TRUE to require the new account to sign any Hbar transfer transactions that
+   *                                 involve transferring Hbars into itself, otherwise \c FALSE.
    * @return Reference to this AccountCreateTransaction object.
    */
   AccountCreateTransaction& setReceiverSignatureRequired(bool receiveSignatureRequired);
 
   /**
-   * Set the auto renew period for this account. A Hedera account is charged to extend its expiration date every renew
-   * period. If it doesn't have enough balance, it extends as long as possible. If the balance is zero when it expires,
-   * then the account is deleted.
+   * Set the auto renew period for the new account. A Hedera account is charged to extend its expiration date every
+   * renew period. If it doesn't have enough balance, it extends as long as possible. If the balance is zero when it
+   * expires, then the account is deleted.
    *
-   * @param autoRenewPeriod The auto renew period to set.
+   * @param autoRenewPeriod The desired auto renew period for the new account.
    * @return Reference to this AccountCreateTransaction object.
    */
   AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
 
   /**
-   * Assign a memo to the account.
+   * Assign a memo to the new account.
    *
-   * @param memo The memo to set.
+   * @param memo The desired memo for the new account.
    * @return Reference to this AccountCreateTransaction object.
    */
   AccountCreateTransaction& setAccountMemo(std::string_view memo);
 
   /**
-   * Set the maximum automatic token associations.
+   * Set the maximum automatic token associations the new account can have.
    *
-   * @param associations The maximum amount of associations to set.
+   * @param associations The desired maximum amount of associations for the new account.
    * @return Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setMaxAutomaticTokenAssociations(int32_t associations);
+  AccountCreateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
 
   /**
-   * Set the account to which this account will stake. This will reset the value of the staked node ID if it is set.
+   * Set the account to which the new account will stake. This is mutually exclusive with mStakedNodeId, and will
+   * reset the value of the mStakedNodeId if it is set.
    *
-   * @param stakedAccountId The ID of the account to which this account will stake.
+   * @param stakedAccountId The ID of the desired account to which the new account will stake.
    * @return Reference to this AccountCreateTransaction object.
    */
   AccountCreateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
   /**
-   * Set the node to which this account will stake. This will reset the value of the staked account ID if it is set.
+   * Set the node to which the new account will stake. This is mutually exclusive with mStakedAccountId, and will
+   * reset the value of the mStakedAccountId if it is set.
    *
-   * @param stakedNodeId The ID of the node to which this account will stake.
+   * @param stakedNodeId The ID of the desired node to which the new account will stake.
    * @return Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setStakedNodeId(const int64_t& stakedNodeId);
+  AccountCreateTransaction& setStakedNodeId(const uint64_t& stakedNodeId);
 
   /**
-   * Set this account's staking reward reception policy.
+   * Set the account's staking reward reception policy.
    *
-   * @param declineStakingReward \c TRUE if this account should decline receiving staking rewards, otherwise \c FALSE.
+   * @param declineReward \c TRUE if the new account should decline receiving staking rewards, otherwise \c FALSE.
    * @return Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setDeclineStakingReward(bool declineStakingReward);
+  AccountCreateTransaction& setDeclineStakingReward(bool declineReward);
 
   /**
-   * The key to be used as this account's alias. Currently, only primitive keys and EVM addresses are supported.
-   * ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported.
-   *
-   * An EVM address may be either the encoded form of the shard.realm.num, or the keccak-256 hash of a ECDSA_SECP256K1
-   * primitive key.
+   * Set the key to be used as the new account's alias. Currently, only primitive keys and EVM addresses are supported.
+   * ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported. An EVM address may be either the
+   * encoded form of the <shard>.<realm>.<num>, or the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
    *
    * A given alias can map to at most one account on the network at a time. This uniqueness will be
    * enforced relative to aliases currently on the network at alias assignment.
@@ -148,81 +173,89 @@ public:
    * If a transaction creates an account using an alias, any further crypto transfers to that alias will simply be
    * deposited in that account, without creating anything, and with no creation fee being charged.
    *
-   * @param alias The key to be used as the account's alias.
+   * @param alias The desired key to be used as the account's alias.
    * @return Reference to this AccountCreateTransaction object.
    */
   AccountCreateTransaction& setAlias(const std::shared_ptr<PublicKey>& alias);
 
   /**
-   * Extract the key for this account.
+   * Extract the desired public key for the new account.
    *
-   * @return The key for this account.
+   * @return The desired public key for the new account.
    */
-  inline std::shared_ptr<PublicKey> getKey() const { return mPublicKey; }
+  [[nodiscard]] inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
 
   /**
-   * Extract the initial balance to transfer into the account.
+   * Extract the desired initial balance to transfer into the new account from the paying account.
    *
-   * @return The initial balance to transfer into new account.
+   * @return The desired initial balance to transfer into the new account from the paying account.
    */
-  inline Hbar getInitialBalance() const { return mInitialBalance; }
+  [[nodiscard]] inline Hbar getInitialBalance() const { return mInitialBalance; }
 
   /**
-   * Determine if the receiver is required to sign.
+   * Extract the desired Hbar transfer receiver signature policy for the new account.
    *
-   * @return \c TRUE if the receiver is required to sign, otherwise \c FALSE.
+   * @return \c TRUE if the new account will be required to sign all incoming Hbar transfers, otherwise \c FALSE.
    */
-  inline bool getReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
+  [[nodiscard]] inline bool getReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
 
   /**
-   * Extract the duration for the auto renew period.
+   * Extract the desired auto renew period for the new account.
    *
-   * @return The duration for the auto renew period.
+   * @return The desired auto renew period for the new account.
    */
-  inline std::optional<std::chrono::duration<double>> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getAutoRenewPeriod() const
+  {
+    return mAutoRenewPeriod;
+  }
 
   /**
-   * Extract the account memo.
+   * Extract the desired memo for the new account.
    *
-   * @return The account memo.
+   * @return The desired memo for the new account.
    */
-  inline std::string getAccountMemo() const { return mAccountMemo; }
+  [[nodiscard]] inline std::string getAccountMemo() const { return mAccountMemo; }
 
   /**
-   * Extract the maximum automatic token associations.
+   * Extract the desired maximum automatic token associations for the new account.
    *
-   * @return The maximum automatic token associations.
+   * @return The desired maximum automatic token associations for the new account.
    */
-  inline int32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
+  [[nodiscard]] inline uint32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
-   * Extract the ID of the account to which this account will stake.
+   * Extract the ID of the desired account to which the new account will stake.
    *
-   * @return ID of the account to which this account will stake.
+   * @return The ID of the desired account to which the new account will stake.
    */
-  inline std::optional<AccountId> getStakedAccountId() const { return mStakedAccountId; }
+  [[nodiscard]] inline std::unique_ptr<AccountId> getStakedAccountId() const
+  {
+    return mStakedAccountId ? std::make_unique<AccountId>(*mStakedAccountId) : std::unique_ptr<AccountId>();
+  }
 
   /**
-   * Extract the ID of the node to which this account will stake.
+   * Extract the ID of the desired node to which the new account will stake.
    *
-   * @return ID of the node to which this account will stake.
+   * @return The ID of the desired node to which the new account will stake.
    */
-  inline std::optional<int64_t> getStakedNodeId() const { return mStakedNodeId; }
+  [[nodiscard]] inline std::unique_ptr<uint64_t> getStakedNodeId() const
+  {
+    return mStakedNodeId ? std::make_unique<uint64_t>(*mStakedNodeId) : std::unique_ptr<uint64_t>();
+  }
 
   /**
-   * Extract if this account declines receiving staking rewards.
+   * Extract the desired staking rewards reception policy for the new account.
    *
-   * @return \c TRUE if this account declines receiving a staking reward,
-   *         otherwise \c FALSE
+   * @return \c TRUE if the new account will decline from receiving staking rewards, otherwise \c FALSE
    */
-  inline bool getDeclineStakingReward() const { return mDeclineStakingReward; }
+  [[nodiscard]] inline bool getDeclineStakingReward() const { return mDeclineStakingReward; }
 
   /**
-   * Extract the key to be used as this account's alias.
+   * Extract the desired key to be used as the new account's alias.
    *
-   * @return The key to be used as this account's alias.
+   * @return The desired key to be used as the new account's alias.
    */
-  inline std::shared_ptr<PublicKey> getAlias() { return mAlias; }
+  [[nodiscard]] inline std::shared_ptr<PublicKey> getAlias() const { return mAlias; }
 
 protected:
   /**
@@ -231,7 +264,7 @@ protected:
    * @param client The Client submitting this transaction.
    * @return A protobuf Transaction that contains this AccountCreateTransaction's data and is signed by the client.
    */
-  proto::Transaction makeRequest(const Client& client, const std::shared_ptr<Node>&) const override;
+  [[nodiscard]] proto::Transaction makeRequest(const Client& client, const std::shared_ptr<Node>&) const override;
 
   /**
    * Derived from Executable. Get the gRPC method to call to create a new crypto account.
@@ -239,7 +272,8 @@ protected:
    * @param node The Node from which to retrieve the function.
    * @return The gRPC method to call to execute this AccountCreateTransaction.
    */
-  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  [[nodiscard]] std::function<
+    grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
   getGrpcMethod(const std::shared_ptr<Node>& node) const override;
 
 private:
@@ -248,21 +282,22 @@ private:
    *
    * @return A CryptoCreateTransactionBody protobuf message.
    */
-  proto::CryptoCreateTransactionBody* build() const;
+  [[nodiscard]] proto::CryptoCreateTransactionBody* build() const;
 
   /**
-   * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is true, then it must also
-   * sign any transfer into the account. Defaults to uninitialized.
+   * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
+   * also sign any transfer into the account. Defaults to uninitialized.
    */
-  std::shared_ptr<PublicKey> mPublicKey;
+  std::shared_ptr<PublicKey> mKey;
 
   /**
-   * The initial amount to transfer into this account. Defaults to 0 Hbar.
+   * The initial amount to transfer into the new account. Defaults to 0 Hbar.
    */
   Hbar mInitialBalance = Hbar(0LL);
 
   /**
-   * \c TRUE if a signature is required for transfers into this account, otherwise \c FALSE. Defaults to \c FALSE.
+   * If \c TRUE, the new account's key must sign any transaction being deposited into it (in addition to all
+   * withdrawals). Defaults to \c FALSE.
    */
   bool mReceiverSignatureRequired = false;
 
@@ -274,32 +309,45 @@ private:
   std::chrono::duration<double> mAutoRenewPeriod = std::chrono::months(3);
 
   /**
-   * A memo for this account. Defaults to empty.
+   * The memo to be associated with the account (UTF-8 encoding max 100 bytes). Defaults to empty.
    */
   std::string mAccountMemo;
 
   /**
-   * The maximum number of token associations for this account. Defaults to 0.
+   * The maximum number of tokens with which the new account can be implicitly associated. Defaults to 0 and up to a
+   * maximum value of 1000 (attempting to set a value >1000 will just set the value to 1000).
    */
-  int32_t mMaxAutomaticTokenAssociations = 0;
+  uint32_t mMaxAutomaticTokenAssociations = 0U;
 
   /**
-   * The account to which this account is staked. Mutually exclusive with mStakedNodeId. Defaults to uninitialized.
+   * The ID of the account to which the new account will be staked. Mutually exclusive with mStakedNodeId. Defaults to
+   * uninitialized.
    */
-  std::optional<AccountId> mStakedAccountId;
+  std::unique_ptr<AccountId> mStakedAccountId;
 
   /**
-   * The node to which this account is staked. Mutually exclusive with mStakedAccountId. Defaults to uninitialized.
+   * The ID of the node to which the new account will be staked. Mutually exclusive with mStakedAccountId. Defaults to
+   * uninitialized.
    */
-  std::optional<int64_t> mStakedNodeId;
+  std::unique_ptr<uint64_t> mStakedNodeId;
 
   /**
-   * \c TRUE if the account should decline staking rewards, otherwise \c FALSE. Defaults to \c FALSE.
+   * If \c TRUE, the new account will decline receiving staking rewards. Defaults to \c FALSE.
    */
   bool mDeclineStakingReward = false;
 
   /**
-   * The native key, or 20-byte EVM address, to be used as this account's alias. Defaults to uninitialized.
+   * The public key to be used as the new account's alias. The bytes will be 1 of 2 options. It will be the
+   * serialization of a protobuf Key message for an ED25519/ECDSA_SECP256K1 primitive key type. If the account is
+   * ECDSA_SECP256K1 based it may also be the public address, calculated as the last 20 bytes of the keccak-256 hash of
+   * the ECDSA_SECP256K1 primitive key. Currently only primitive key bytes are supported as the key for an account with
+   * an alias. ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported.
+   *
+   * A given alias can map to at most one account on the network at a time. This uniqueness will be enforced relative to
+   * aliases currently on the network at alias assignment.
+   *
+   * If a transaction creates an account using an alias, any further crypto transfers to that alias will
+   * simply be deposited in that account, without creating anything, and with no creation fee being charged.
    */
   std::shared_ptr<PublicKey> mAlias;
 };
