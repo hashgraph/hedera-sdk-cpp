@@ -24,9 +24,12 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+#include <thread>
 
 #include <stdexcept>
 #include <unistd.h>
+
+#include "HederaCertificateVerifier.h"
 
 namespace Hedera
 {
@@ -60,8 +63,26 @@ void Channel::initChannel(const std::string& url)
   shutdownChannel();
 
   mImpl->mUrl = url;
-  mImpl->mChannel = grpc::CreateChannel(url, grpc::InsecureChannelCredentials());
-  mImpl->mCryptoStub = std::move(proto::CryptoService::NewStub(mImpl->mChannel));
+
+  std::cout << "Url: " << url << std::endl;
+
+  std::shared_ptr<grpc::experimental::CertificateVerifier> verifier =
+    grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>();
+
+  grpc::experimental::TlsChannelCredentialsOptions credentialsOptions =
+    grpc::experimental::TlsChannelCredentialsOptions();
+  credentialsOptions.set_verify_server_certs(false);
+  credentialsOptions.set_check_call_host(false);
+  credentialsOptions.set_certificate_verifier(verifier);
+
+  std::shared_ptr<grpc::ChannelCredentials> channelCredentials = grpc::experimental::TlsCredentials(credentialsOptions);
+
+  mImpl->mChannel = grpc::CreateChannel(url, channelCredentials);
+  mImpl->mChannel->WaitForConnected(std::chrono::system_clock::now() + std::chrono::seconds(1));
+
+  mImpl->mCryptoStub = proto::CryptoService::NewStub(mImpl->mChannel);
+
+  std::cout << "Channel state: " << mImpl->mChannel->GetState(false) << std::endl;
 }
 
 //-----

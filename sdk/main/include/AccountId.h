@@ -98,13 +98,6 @@ public:
   std::string toString() const;
 
   /**
-   * Put this AccountId in a string with the form "<shard>.<realm>.<num>".
-   *
-   * @return String representation of this AccountId.
-   */
-  std::string toString() const;
-
-  /**
    * Set the shard number.
    *
    * @param num The shard number to set.

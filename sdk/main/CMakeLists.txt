@@ -34,6 +34,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
         #    src/FileCreateTransaction.cc
+        src/HederaCertificateVerifier.cc
         src/IPv4Address.cc
         src/Network.cc
         src/Node.cc
