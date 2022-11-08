@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -26,10 +26,14 @@
 #include "PrivateKey.h"
 #include "PublicKey.h"
 
-#include <functional>
+#include <memory>
+#include <stdexcept>
 
 namespace Hedera
 {
+/**
+ * Managed client for use on the Hedera Hashgraph network.
+ */
 class Client
 {
 private:
@@ -41,24 +45,19 @@ private:
     /**
      * The account ID of the account.
      */
-    std::optional<AccountId> mAccountId;
+    AccountId mAccountId;
 
     /**
-     * The public key of the account.
+     * The private key of the account.
      */
-    std::shared_ptr<PublicKey> mPublicKey;
-
-    /**
-     * The private key signing function.
-     */
-    std::function<const std::vector<unsigned char>(const std::vector<unsigned char>&)> mSigner;
+    std::unique_ptr<PrivateKey> mPrivateKey;
   };
 
 public:
   /**
-   * Construct a Hedera client pre-configured for Testnet access.
+   * Construct a Hedera client pre-configured for Hedera testnet access.
    *
-   * @return Client object that can communicate with Testnet.
+   * @return Client object that can communicate with the Hedera testnet.
    */
   static Client forTestnet();
 
@@ -68,10 +67,12 @@ public:
    * operator private key is used to sign all transactions executed by this client.
    *
    * @param accountId  The account ID of the operator.
-   * @param privateKey The private key of the operator.
+   * @param privateKey Pointer to the private key of the operator. This transfers ownership of the pointed-to PrivateKey
+   *                   to this Client.
    * @return Reference to this Client object.
    */
-  Client& setOperator(const AccountId& accountId, const std::unique_ptr<PrivateKey>& privateKey);
+  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>& privateKey);
+  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>&& privateKey);
 
   /**
    * Set the maximum fee to be paid for transactions executed by this client.
@@ -81,7 +82,7 @@ public:
    *
    * @param defaultMaxTransactionFee The Hbar to be set.
    * @return Reference to this Client object.
-   * @throw std::invalid_argument If the transaction fee is negative.
+   * @throws std::invalid_argument If the transaction fee is negative.
    */
   Client& setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee);
 
@@ -89,8 +90,7 @@ public:
    * Initiates an orderly shutdown of all channels (to the Hedera network) in which preexisting transactions or queries
    * continue but more would be immediately cancelled.
    *
-   * After this method returns, this client can be re-used. Channels will be
-   * re-established as needed.
+   * After this method returns, this client can be re-used. Channels will be re-established as needed.
    */
   void close();
 
@@ -99,58 +99,79 @@ public:
    *
    * @return Pointer to the network of this client.
    */
-  inline std::shared_ptr<Network> getNetwork() const { return mNetwork; }
+  [[nodiscard]] inline std::shared_ptr<Network> getNetwork() const { return mNetwork; }
 
   /**
    * Extract the operator of this client.
    *
-   * @return The operator of this client.
+   * @return Pointer to the operator of this client. Nullptr if the operator has not been set yet.
    */
-  Operator getOperator() const { return mOperator; }
+  [[nodiscard]] inline std::shared_ptr<Operator> getOperator() const { return mOperator; }
 
   /**
-   * Get the ID of the operator. Useful when the client was constructed from file.
+   * Get the account ID of the operator.
    *
-   * @return The account ID of this client's operator, if valid.
+   * @return The account ID of this client's operator.
+   * @throws std::runtime_error If the operator has not yet been set.
    */
-  inline std::optional<AccountId> getOperatorAccountId() const { return mOperator.mAccountId; }
+  [[nodiscard]] inline AccountId getOperatorAccountId() const
+  {
+    if (!mOperator)
+    {
+      throw std::runtime_error("Operator has not yet been set");
+    }
+
+    return mOperator->mAccountId;
+  }
 
   /**
-   * Get the public key of the operator. Useful when the client was constructed from file.
+   * Get the public key of the operator.
    *
    * @return The public key of this client's operator, if valid.
+   * @throws std::runtime_error If the operator has not yet been set.
    */
-  inline std::shared_ptr<PublicKey> getOperatorPublicKey() const { return mOperator.mPublicKey; }
+  [[nodiscard]] inline std::shared_ptr<PublicKey> getOperatorPublicKey() const
+  {
+    if (!mOperator)
+    {
+      throw std::runtime_error("Operator has not yet been set");
+    }
+
+    return mOperator->mPrivateKey->getPublicKey();
+  }
 
   /**
    * The default maximum fee used for transactions.
    *
-   * @return The max transaction fee.
+   * @return Pointer to the max transaction fee. Nullptr if the default max transaction fee has not been set.
    */
-  inline std::optional<Hbar> getDefaultMaxTransactionFee() const { return mDefaultMaxTransactionFee; }
+  [[nodiscard]] inline std::unique_ptr<Hbar> getDefaultMaxTransactionFee() const
+  {
+    return mDefaultMaxTransactionFee ? std::make_unique<Hbar>(*mDefaultMaxTransactionFee) : std::unique_ptr<Hbar>();
+  }
 
   /**
    * Extract the request timeout.
    *
    * @return The request timeout.
    */
-  inline std::chrono::duration<double> getRequestTimeout() const { return mRequestTimeout; }
+  [[nodiscard]] inline std::chrono::duration<double> getRequestTimeout() const { return mRequestTimeout; }
 
 private:
   /**
-   * The network object encompassing the network setup this client is using.
+   * The network object encompassing the network setup this client is using. Defaults to uninitialized.
    */
   std::shared_ptr<Network> mNetwork;
 
   /**
-   * The operator for this client.
+   * The operator for this client. Defaults to uninitialized.
    */
-  Operator mOperator;
+  std::shared_ptr<Operator> mOperator;
 
   /**
-   * The default max transaction fee for transactions processed by this client.
+   * The default max transaction fee for transactions processed by this client. Defaults to uninitialized.
    */
-  std::optional<Hbar> mDefaultMaxTransactionFee;
+  std::unique_ptr<Hbar> mDefaultMaxTransactionFee;
 
   /**
    * The request timeout. Defaults to 2 minutes.

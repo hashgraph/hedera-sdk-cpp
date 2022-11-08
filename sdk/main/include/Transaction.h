@@ -112,7 +112,7 @@ public:
    *
    * @return The default max transaction fee.
    */
-  inline Hbar getDefaultMaxTransactionFee() const { return Hbar(2LL); }
+  inline Hbar getDefaultMaxTransactionFee() const { return mDefaultMaxTransactionFee; }
 
   /**
    * Extract the transaction memo.
@@ -169,11 +169,29 @@ protected:
   /**
    * Generate a protobuf TransactionBody with this transaction's data.
    *
+   * @param client The Client that is generating this transaction.
    * @return A protobuf TransactionBody with this transaction's data.
    */
-  proto::TransactionBody generateTransactionBody() const;
+  proto::TransactionBody generateTransactionBody(const Client& client) const;
 
 private:
+  /**
+   * Helper function used to get the proper transaction fee to pack into a protobuf TransactionBody. The order of
+   * priority for transaction fees goes:
+   *  1. Manually-set transaction fee for this transaction.
+   *  2. Client-set default max transaction fee.
+   *  3. Default transaction fee for this transaction.
+   *
+   * @param client The Client submitting this transaction.
+   * @return The proper transaction fee to set for the protobuf TransactionBody.
+   */
+  Hbar getTransactionFee(const Client& client) const;
+
+  /**
+   * The default maximum transaction fee.
+   */
+  const Hbar mDefaultMaxTransactionFee = Hbar(2LL);
+
   /**
    * The valid transaction duration. Defaults to two minutes.
    */
@@ -187,7 +205,7 @@ private:
   /**
    * The maximum transaction fee.
    */
-  Hbar mMaxTransactionFee = Hbar(2LL);
+  Hbar mMaxTransactionFee = mDefaultMaxTransactionFee;
 
   /**
    * The transaction memo.

@@ -44,7 +44,7 @@ TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const Accoun
 //-----
 proto::Transaction TransferTransaction::makeRequest(const Client& client, const std::shared_ptr<Node>&) const
 {
-  proto::TransactionBody body = generateTransactionBody();
+  proto::TransactionBody body = generateTransactionBody(client);
   body.set_allocated_cryptotransfer(build());
 
   return signTransaction(body, client);

@@ -79,7 +79,7 @@ TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::Transa
 template<typename SdkRequestType>
 void Transaction<SdkRequestType>::onExecute(const Client& client)
 {
-  mTransactionId = TransactionId::generate(client.getOperatorAccountId().value());
+  mTransactionId = TransactionId::generate(client.getOperatorAccountId());
 }
 
 //-----
@@ -94,14 +94,13 @@ template<typename SdkRequestType>
 proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::TransactionBody& transaction,
                                                                 const Client& client) const
 {
-  // Make sure the operator key and account ID are valid, and make sure the account ID for this transaction matches
-  // the operator's account ID.
-  if (client.getOperatorPublicKey() && client.getOperatorAccountId().has_value())
+  // Make sure the operator has been set, and therefore has an account ID and key.
+  if (client.getOperator())
   {
     // Generate a signature from the TransactionBody
     auto transactionBodySerialized = new std::string(transaction.SerializeAsString());
-    const std::vector<unsigned char> signature =
-      client.getOperator().mSigner({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
+    const std::vector<unsigned char> signature = client.getOperator()->mPrivateKey->sign(
+      { transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
     auto signatureMap = new proto::SignatureMap();
@@ -124,15 +123,35 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
 
 //-----
 template<typename SdkRequestType>
-proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody() const
+proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(const Client& client) const
 {
   proto::TransactionBody body;
   body.set_allocated_transactionid(mTransactionId.toProtobuf());
-  body.set_transactionfee(static_cast<uint64_t>(mMaxTransactionFee.toTinybars()));
+  body.set_transactionfee(static_cast<uint64_t>(getTransactionFee(client).toTinybars()));
   body.set_allocated_memo(new std::string(mTransactionMemo));
   body.set_allocated_transactionvalidduration(DurationConverter::toProtobuf(mTransactionValidDuration));
   body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf());
   return body;
+}
+
+//-----
+template<typename SdkRequestType>
+Hbar Transaction<SdkRequestType>::getTransactionFee(const Client& client) const
+{
+  if (mMaxTransactionFee != mDefaultMaxTransactionFee)
+  {
+    return mMaxTransactionFee;
+  }
+
+  else if (client.getDefaultMaxTransactionFee())
+  {
+    return *client.getDefaultMaxTransactionFee();
+  }
+
+  else
+  {
+    return mDefaultMaxTransactionFee;
+  }
 }
 
 /**
