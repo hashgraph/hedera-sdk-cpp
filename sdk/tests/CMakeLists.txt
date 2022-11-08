@@ -8,6 +8,7 @@ FetchContent_MakeAvailable(googletest)
 set(TestSources
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        ExchangeRateTest.cc
         HbarTest.cc
         )
 

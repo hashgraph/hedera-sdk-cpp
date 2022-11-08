@@ -40,7 +40,7 @@ public:
   /**
    * Create an ExchangeRateSet from a protobuf ExchangeRateSet.
    *
-   * @param exchangeRateSet The protobuf ExchangeRateSet.
+   * @param proto The protobuf ExchangeRateSet.
    * @return An ExchangeRateSet with the protobuf ExchangeRateSet data.
    */
   static ExchangeRateSet fromProtobuf(const proto::ExchangeRateSet& proto);
@@ -50,14 +50,14 @@ public:
    *
    * @return The current exchange rate.
    */
-  inline std::optional<ExchangeRate> getCurrentExchangeRate() const { return mCurrentRate; }
+  [[nodiscard]] inline std::optional<ExchangeRate> getCurrentExchangeRate() const { return mCurrentRate; }
 
   /**
    * Extract the next exchange rate.
    *
    * @return The next exchange rate.
    */
-  inline std::optional<ExchangeRate> getNextExchangeRate() const { return mNextRate; }
+  [[nodiscard]] inline std::optional<ExchangeRate> getNextExchangeRate() const { return mNextRate; }
 
 private:
   /**
