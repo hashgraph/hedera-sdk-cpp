@@ -95,7 +95,7 @@ void Network::setNetwork(const std::unordered_map<std::string, AccountId, String
 {
   for (const auto& [url, accountId] : network)
   {
-    mNodes.emplace_back(std::make_shared<Node>(url, accountId));
+    mNodes.push_back(std::make_shared<Node>(url, accountId));
   }
 }
 
