@@ -32,7 +32,8 @@ class ExchangeRateSet;
 namespace Hedera
 {
 /**
- * Two sets of exchange rates.
+ * Two sets of exchange rates, one being the current exchange rate and its expiration, and the other being the exchange
+ * rate to be used after the current expires.
  */
 class ExchangeRateSet
 {
