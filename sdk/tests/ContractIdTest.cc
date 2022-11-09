@@ -27,10 +27,14 @@ using namespace Hedera;
 class ContractIdTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const uint64_t& getTestNum() const { return mTestNum; }
+  [[nodiscard]] inline const uint64_t& getTestShardNum() const { return mShardNum; }
+  [[nodiscard]] inline const uint64_t& getTestRealmNum() const { return mRealmNum; }
+  [[nodiscard]] inline const uint64_t& getTestContractNum() const { return mContractNum; }
 
 private:
-  const uint64_t mTestNum = 10;
+  const uint64_t mShardNum = 8;
+  const uint64_t mRealmNum = 9;
+  const uint64_t mContractNum = 10;
 };
 
 TEST_F(ContractIdTest, DefaultConstructContractId)
@@ -43,48 +47,48 @@ TEST_F(ContractIdTest, DefaultConstructContractId)
 
 TEST_F(ContractIdTest, ConstructWithContractNum)
 {
-  ContractId contractId(getTestNum());
+  ContractId contractId(getTestContractNum());
   EXPECT_EQ(contractId.getShardNum(), 0ULL);
   EXPECT_EQ(contractId.getRealmNum(), 0ULL);
-  EXPECT_EQ(contractId.getContractNum(), getTestNum());
+  EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
 }
 
 TEST_F(ContractIdTest, ConstructWithShardRealmContractNum)
 {
-  ContractId contractId(getTestNum(), getTestNum(), getTestNum());
-  EXPECT_EQ(contractId.getShardNum(), getTestNum());
-  EXPECT_EQ(contractId.getRealmNum(), getTestNum());
-  EXPECT_EQ(contractId.getContractNum(), getTestNum());
+  ContractId contractId(getTestShardNum(), getTestRealmNum(), getTestContractNum());
+  EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
+  EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
+  EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
 }
 
 TEST_F(ContractIdTest, SetShardRealmContractNum)
 {
   ContractId contractId;
-  contractId.setShardNum(getTestNum());
-  contractId.setRealmNum(getTestNum());
-  contractId.setContractNum(getTestNum());
+  contractId.setShardNum(getTestShardNum());
+  contractId.setRealmNum(getTestRealmNum());
+  contractId.setContractNum(getTestContractNum());
 
-  EXPECT_EQ(contractId.getShardNum(), getTestNum());
-  EXPECT_EQ(contractId.getRealmNum(), getTestNum());
-  EXPECT_EQ(contractId.getContractNum(), getTestNum());
+  EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
+  EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
+  EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
 }
 
 TEST_F(ContractIdTest, ProtobufContractId)
 {
   ContractId contractId;
-  contractId.setShardNum(getTestNum());
-  contractId.setRealmNum(getTestNum());
-  contractId.setContractNum(getTestNum());
+  contractId.setShardNum(getTestShardNum());
+  contractId.setRealmNum(getTestRealmNum());
+  contractId.setContractNum(getTestContractNum());
 
   auto protoContractId = std::unique_ptr<proto::ContractID>(contractId.toProtobuf());
-  EXPECT_EQ(protoContractId->shardnum(), getTestNum());
-  EXPECT_EQ(protoContractId->realmnum(), getTestNum());
-  EXPECT_EQ(protoContractId->contractnum(), getTestNum());
+  EXPECT_EQ(protoContractId->shardnum(), getTestShardNum());
+  EXPECT_EQ(protoContractId->realmnum(), getTestRealmNum());
+  EXPECT_EQ(protoContractId->contractnum(), getTestContractNum());
 
   const uint64_t adjustment = 3ULL;
-  const uint64_t newShard = getTestNum() + adjustment;
-  const uint64_t newRealm = getTestNum() - adjustment;
-  const uint64_t newContract = getTestNum() * adjustment;
+  const uint64_t newShard = getTestShardNum() + adjustment;
+  const uint64_t newRealm = getTestRealmNum() - adjustment;
+  const uint64_t newContract = getTestContractNum() * adjustment;
 
   protoContractId->set_shardnum(static_cast<int64_t>(newShard));
   protoContractId->set_realmnum(static_cast<int64_t>(newRealm));
