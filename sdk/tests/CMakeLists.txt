@@ -12,6 +12,7 @@ set(TestSources
         ContractIdTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        ExchangeRateTest.cc
         HbarTest.cc
         )
 
