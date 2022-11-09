@@ -58,6 +58,14 @@ public:
   explicit ContractId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
   /**
+   * Default comparator operator.
+   *
+   * @param other The other ContractId to compare.
+   * @return \c TRUE if the input ContractId is the same as this one, otherwise \c FALSE
+   */
+  bool operator==(const ContractId& other) const = default;
+
+  /**
    * Retrieve the contract ID from a protobuf ContractID.
    *
    * @param proto The ContractID protobuf object.
