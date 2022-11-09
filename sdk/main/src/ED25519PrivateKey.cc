@@ -112,7 +112,8 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::stri
   std::string fullKeyString = keyString;
 
   // key size of 64 means RFC 8410 prefix is missing. add it before making calls to OpenSSL
-  if (keyString.size() == 64) {
+  if (keyString.size() == 64)
+  {
     fullKeyString = "302E020100300506032B657004220420" + keyString;
   }
 

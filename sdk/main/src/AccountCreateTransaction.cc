@@ -115,7 +115,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 //-----
 proto::Transaction AccountCreateTransaction::makeRequest(const Client& client, const std::shared_ptr<Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody();
+  proto::TransactionBody transactionBody = generateTransactionBody(client);
   transactionBody.set_allocated_cryptocreateaccount(build());
 
   return signTransaction(transactionBody, client);
