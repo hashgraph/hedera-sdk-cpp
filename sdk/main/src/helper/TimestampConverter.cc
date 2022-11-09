@@ -39,11 +39,11 @@ std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::T
 //-----
 proto::Timestamp* toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time)
 {
-  auto timestamp = new proto::Timestamp;
-  std::chrono::nanoseconds nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch());
+  auto timestamp = std::make_unique<proto::Timestamp>();
+  const std::chrono::nanoseconds nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch());
   timestamp->set_seconds(nanos.count() / 1000000000);
   timestamp->set_nanos(nanos.count() % 1000000000);
-  return timestamp;
+  return timestamp.release();
 }
 
 } // namespace Hedera::TimestampConverter

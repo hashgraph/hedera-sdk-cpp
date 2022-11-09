@@ -9,6 +9,7 @@ set(TestSources
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
         HbarTest.cc
+        TransactionIdTest.cc
         )
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
