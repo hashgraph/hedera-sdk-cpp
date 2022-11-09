@@ -9,6 +9,7 @@ set(TestSources
         AccountBalanceQueryTest.cc
         AccountCreateTransactionTest.cc
         ClientTest.cc
+        ContractIdTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
         HbarTest.cc

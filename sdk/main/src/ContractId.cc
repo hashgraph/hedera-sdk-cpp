@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -25,9 +25,7 @@ namespace Hedera
 {
 //-----
 ContractId::ContractId(const uint64_t& num)
-  : mShardNum(0)
-  , mRealmNum(0)
-  , mContractNum(num)
+  : mContractNum(num)
 {
 }
 
@@ -57,16 +55,33 @@ ContractId ContractId::fromProtobuf(const proto::ContractID& proto)
 //-----
 proto::ContractID* ContractId::toProtobuf() const
 {
-  auto proto = new proto::ContractID;
+  auto proto = std::make_unique<proto::ContractID>();
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
+  proto->set_contractnum(static_cast<int64_t>(mContractNum));
 
-  if (mContractNum.has_value())
-  {
-    proto->set_contractnum(static_cast<int64_t>(mContractNum.value()));
-  }
+  return proto.release();
+}
 
-  return proto;
+//-----
+ContractId& ContractId::setShardNum(const uint64_t& num)
+{
+  mShardNum = num;
+  return *this;
+}
+
+//-----
+ContractId& ContractId::setRealmNum(const uint64_t& num)
+{
+  mRealmNum = num;
+  return *this;
+}
+
+//-----
+ContractId& ContractId::setContractNum(const uint64_t& num)
+{
+  mContractNum = num;
+  return *this;
 }
 
 } // namespace Hedera
