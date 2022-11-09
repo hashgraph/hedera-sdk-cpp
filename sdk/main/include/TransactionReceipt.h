@@ -74,7 +74,7 @@ private:
    * The consensus status of the transaction; is UNKNOWN if consensus has not been reached, or if the associated
    * transaction did not have a valid payer signature
    */
-  Status mStatus;
+  Status mStatus = UNKNOWN;
 
   /**
    * In the receipt of a CryptoCreate, the ID of the newly created account.

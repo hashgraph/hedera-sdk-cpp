@@ -27,14 +27,7 @@ namespace Hedera
 AccountBalance AccountBalance::fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto)
 {
   AccountBalance balance;
-
-  if (proto.has_accountid())
-  {
-    balance.mAccountId = AccountId::fromProtobuf(proto.accountid());
-  }
-
   balance.mBalance = Hbar(proto.balance(), HbarUnit::TINYBAR());
-
   return balance;
 }
 
