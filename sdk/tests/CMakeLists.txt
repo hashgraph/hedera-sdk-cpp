@@ -6,6 +6,7 @@ FetchContent_Declare(googletest
 FetchContent_MakeAvailable(googletest)
 
 set(TestSources
+        AccountBalanceQueryTest.cc
         AccountCreateTransactionTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
