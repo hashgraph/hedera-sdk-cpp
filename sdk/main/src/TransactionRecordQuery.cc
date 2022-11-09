@@ -55,10 +55,10 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client, const std
   header->set_responsetype(proto::ResponseType::ANSWER_ONLY);
 
   TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(client.getOperatorAccountId().value()))
+                             .setTransactionId(TransactionId::generate(client.getOperatorAccountId()))
                              .setNodeAccountIds({ node->getAccountId() })
                              .setMaxTransactionFee(Hbar(1ULL))
-                             .addUnapprovedHbarTransfer(client.getOperatorAccountId().value(), Hbar(-1ULL))
+                             .addUnapprovedHbarTransfer(client.getOperatorAccountId(), Hbar(-1ULL))
                              .addUnapprovedHbarTransfer(node->getAccountId(), Hbar(1ULL));
   tx.onSelectNode(node);
   header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));

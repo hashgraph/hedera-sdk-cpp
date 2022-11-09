@@ -62,6 +62,14 @@ public:
   }
 
   /**
+   * Default comparator operator.
+   *
+   * @param other The other Hbar against which to compare value.
+   * @return \c TRUE if this Hbar has the same value as other, otherwise \c FALSE
+   */
+  bool operator==(const Hbar& other) const = default;
+
+  /**
    * Convert this Hbar value to tinybars.
    *
    * @return The amount this Hbar object represents in tinybars.

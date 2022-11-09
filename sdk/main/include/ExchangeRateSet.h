@@ -32,7 +32,8 @@ class ExchangeRateSet;
 namespace Hedera
 {
 /**
- * Two sets of exchange rates.
+ * Two sets of exchange rates, one being the current exchange rate and its expiration, and the other being the exchange
+ * rate to be used after the current expires.
  */
 class ExchangeRateSet
 {
@@ -40,7 +41,7 @@ public:
   /**
    * Create an ExchangeRateSet from a protobuf ExchangeRateSet.
    *
-   * @param exchangeRateSet The protobuf ExchangeRateSet.
+   * @param proto The protobuf ExchangeRateSet.
    * @return An ExchangeRateSet with the protobuf ExchangeRateSet data.
    */
   static ExchangeRateSet fromProtobuf(const proto::ExchangeRateSet& proto);
@@ -50,14 +51,14 @@ public:
    *
    * @return The current exchange rate.
    */
-  inline std::optional<ExchangeRate> getCurrentExchangeRate() const { return mCurrentRate; }
+  [[nodiscard]] inline std::optional<ExchangeRate> getCurrentExchangeRate() const { return mCurrentRate; }
 
   /**
    * Extract the next exchange rate.
    *
    * @return The next exchange rate.
    */
-  inline std::optional<ExchangeRate> getNextExchangeRate() const { return mNextRate; }
+  [[nodiscard]] inline std::optional<ExchangeRate> getNextExchangeRate() const { return mNextRate; }
 
 private:
   /**

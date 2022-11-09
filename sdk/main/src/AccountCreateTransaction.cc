@@ -42,7 +42,7 @@ AccountCreateTransaction::AccountCreateTransaction()
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
 {
-  mPublicKey = key;
+  mKey = key;
   return *this;
 }
 
@@ -76,32 +76,32 @@ AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_v
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
+AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
 {
-  mMaxAutomaticTokenAssociations = associations;
+  mMaxAutomaticTokenAssociations = associations > 1000U ? 1000U : associations;
   return *this;
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 {
-  mStakedAccountId = stakedAccountId;
+  mStakedAccountId = std::make_unique<AccountId>(stakedAccountId);
   mStakedNodeId.reset();
   return *this;
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setStakedNodeId(const int64_t& stakedNodeId)
+AccountCreateTransaction& AccountCreateTransaction::setStakedNodeId(const uint64_t& stakedNodeId)
 {
-  mStakedNodeId = stakedNodeId;
+  mStakedNodeId = std::make_unique<uint64_t>(stakedNodeId);
   mStakedAccountId.reset();
   return *this;
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setDeclineStakingReward(bool declineStakingReward)
+AccountCreateTransaction& AccountCreateTransaction::setDeclineStakingReward(bool declineReward)
 {
-  mDeclineStakingReward = declineStakingReward;
+  mDeclineStakingReward = declineReward;
   return *this;
 }
 
@@ -115,7 +115,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 //-----
 proto::Transaction AccountCreateTransaction::makeRequest(const Client& client, const std::shared_ptr<Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody();
+  proto::TransactionBody transactionBody = generateTransactionBody(client);
   transactionBody.set_allocated_cryptocreateaccount(build());
 
   return signTransaction(transactionBody, client);
@@ -131,11 +131,11 @@ AccountCreateTransaction::getGrpcMethod(const std::shared_ptr<Node>& node) const
 //-----
 proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 {
-  auto body = new proto::CryptoCreateTransactionBody;
+  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
 
-  if (mPublicKey)
+  if (mKey)
   {
-    body->set_allocated_key(mPublicKey->toProtobuf());
+    body->set_allocated_key(mKey->toProtobuf());
   }
 
   body->set_initialbalance(mInitialBalance.toTinybars());
@@ -143,16 +143,16 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
   body->set_allocated_autorenewperiod(
     DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod)));
   body->set_memo(mAccountMemo);
-  body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
+  body->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
 
-  if (mStakedAccountId.has_value())
+  if (mStakedAccountId)
   {
-    body->set_allocated_staked_account_id(mStakedAccountId.value().toProtobuf());
+    body->set_allocated_staked_account_id(mStakedAccountId->toProtobuf());
   }
 
-  if (mStakedNodeId.has_value())
+  if (mStakedNodeId)
   {
-    body->set_staked_node_id(mStakedNodeId.value());
+    body->set_staked_node_id(static_cast<int64_t>(*mStakedNodeId));
   }
 
   body->set_decline_reward(mDeclineStakingReward);
@@ -162,7 +162,7 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
     body->set_allocated_alias(new std::string(mAlias->toString()));
   }
 
-  return body;
+  return body.release();
 }
 
 } // namespace Hedera

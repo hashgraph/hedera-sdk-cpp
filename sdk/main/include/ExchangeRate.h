@@ -49,7 +49,10 @@ public:
    *
    * @return The amount an Hbar is currently worth
    */
-  inline double getCurrentExchangeRate() const { return static_cast<double>(mCents) / static_cast<double>(mHbars); }
+  [[nodiscard]] inline double getCurrentExchangeRate() const
+  {
+    return static_cast<double>(mCents) / static_cast<double>(mHbars);
+  }
 
   /**
    * Extract the expiration time of this exchange rate.
@@ -65,12 +68,12 @@ private:
   /**
    * Denotes Hbar equivalent to cents.
    */
-  int32_t mHbars;
+  int32_t mHbars = 0;
 
   /**
    * Denotes cents equivalent to Hbar.
    */
-  int32_t mCents;
+  int32_t mCents = 0;
 
   /**
    * Expiration time of this exchange rate.
