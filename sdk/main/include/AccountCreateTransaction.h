@@ -56,10 +56,8 @@ namespace Hedera
  * mAutoRenewPeriod seconds. When it reaches the expiration time, the new account will then be automatically charged to
  * renew for another mAutoRenewPeriod seconds. If it does not have enough Hbars to renew for that long, then the
  * remaining Hbars are used to extend its expiration as long as possible. If it is has a zero balance when it expires,
- * then it is deleted. This transaction must be signed by the payer account. If mReceiverSigRequired is false, then the
- * transaction does not have to be signed by the keys in the keys field. If it is true, then it must be signed by them,
- * in addition to the keys of the payer account. If the mAutoRenewPeriod field is set, the key of the referenced
- * account must sign.
+ * then it is deleted. This transaction must be signed by the payer account. If the mAutoRenewPeriod field is set, the
+ * key of the referenced account must sign.
  *
  * An account must be created in a particular realm. If the realmID is left null, then a new realm will be created with
  * the given admin key. If a new realm has a null adminKey, then anyone can create/modify/delete entities in that realm.
