@@ -20,10 +20,7 @@
 #ifndef ACCOUNT_BALANCE_H_
 #define ACCOUNT_BALANCE_H_
 
-#include "AccountId.h"
 #include "Hbar.h"
-
-#include <optional>
 
 namespace proto
 {
@@ -33,7 +30,7 @@ class CryptoGetAccountBalanceResponse;
 namespace Hedera
 {
 /**
- * This class represents the account balance object.
+ * Response when the client sends a node an AccountBalanceQuery.
  */
 class AccountBalance
 {
@@ -53,23 +50,11 @@ public:
    */
   inline Hbar getBalance() const { return mBalance; }
 
-  /**
-   * Extract the account ID.
-   *
-   * @return The account ID.
-   */
-  inline std::optional<AccountId> getAccountId() const { return mAccountId; }
-
 private:
   /**
    * The account balance.
    */
   Hbar mBalance;
-
-  /**
-   * The account ID of the account.
-   */
-  std::optional<AccountId> mAccountId;
 };
 
 } // namespace Hedera

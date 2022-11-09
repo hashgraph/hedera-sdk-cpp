@@ -24,7 +24,7 @@
 #include "ContractId.h"
 #include "Query.h"
 
-#include <optional>
+#include <memory>
 
 namespace Hedera
 {
@@ -82,14 +82,20 @@ public:
    *
    * @return The account ID of the query.
    */
-  inline std::optional<AccountId> getAccountId() { return mAccountId; }
+  inline std::unique_ptr<AccountId> getAccountId()
+  {
+    return mAccountId ? std::make_unique<AccountId>(*mAccountId) : std::unique_ptr<AccountId>();
+  }
 
   /**
    * Extract the contract ID of the contract for which this query is meant.
    *
    * @return The contract ID of the contract for which this query is meant.
    */
-  inline std::optional<ContractId> getContractId() { return mContractId; }
+  inline std::unique_ptr<ContractId> getContractId()
+  {
+    return mContractId ? std::make_unique<ContractId>(*mContractId) : std::unique_ptr<ContractId>();
+  }
 
 protected:
   /**
@@ -120,12 +126,12 @@ private:
   /**
    * The account ID of the account for which this query is meant.
    */
-  std::optional<AccountId> mAccountId;
+  std::unique_ptr<AccountId> mAccountId;
 
   /**
    * The contract ID with which this request is associated.
    */
-  std::optional<ContractId> mContractId;
+  std::unique_ptr<ContractId> mContractId;
 };
 
 } // namespace Hedera

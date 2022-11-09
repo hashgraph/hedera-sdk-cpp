@@ -32,7 +32,7 @@ namespace Hedera
 //-----
 AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountId)
 {
-  mAccountId = accountId;
+  mAccountId = std::make_unique<AccountId>(accountId);
   mContractId.reset();
 
   return *this;
@@ -41,7 +41,7 @@ AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountI
 //-----
 AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contractId)
 {
-  mContractId = contractId;
+  mContractId = std::make_unique<ContractId>(contractId);
   mAccountId.reset();
 
   return *this;
