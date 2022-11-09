@@ -42,7 +42,7 @@ public:
    * @param accountId The ID of the account that will be charged for this transaction.
    * @return A new TransactionId.
    */
-  static TransactionId generate(const AccountId& accountId);
+  static TransactionId generate(const std::shared_ptr<AccountId>& accountId);
 
   /**
    * Construct a TransactionId from a protobuf TransactionID.
@@ -74,7 +74,7 @@ public:
    *
    * @return The account ID.
    */
-  inline std::optional<AccountId> getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline std::shared_ptr<AccountId> getAccountId() const { return mAccountId; }
 
 private:
   /**
@@ -88,7 +88,7 @@ private:
   /**
    * The account ID of the account that is paying for this transaction.
    */
-  std::optional<AccountId> mAccountId;
+  std::shared_ptr<AccountId> mAccountId;
 };
 
 } // namespace Hedera

@@ -24,19 +24,17 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include <thread>
 
 #include <stdexcept>
-#include <unistd.h>
 
 #include "HederaCertificateVerifier.h"
+#include "NodeAddress.h"
 
 namespace Hedera
 {
 //-----
 struct Channel::ChannelImpl
 {
-  std::string mUrl;
   std::shared_ptr<grpc::Channel> mChannel;
   std::shared_ptr<proto::CryptoService::Stub> mCryptoStub;
 };
@@ -48,41 +46,45 @@ Channel::Channel()
 }
 
 //-----
-Channel::Channel(const std::string& url)
-  : Channel()
-{
-  initChannel(url);
-}
-
-//-----
 Channel::~Channel() = default;
 
 //-----
-void Channel::initChannel(const std::string& url)
+bool Channel::initializeChannel(const std::string& url, bool requireTLS)
 {
-  shutdownChannel();
+  shutdown();
 
-  mImpl->mUrl = url;
+  std::shared_ptr<grpc::ChannelCredentials> channelCredentials;
 
-  std::cout << "Url: " << url << std::endl;
+  if (requireTLS)
+  {
+    std::shared_ptr<grpc::experimental::CertificateVerifier> verifier =
+      grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>();
 
-  std::shared_ptr<grpc::experimental::CertificateVerifier> verifier =
-    grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>();
+    grpc::experimental::TlsChannelCredentialsOptions credentialsOptions =
+      grpc::experimental::TlsChannelCredentialsOptions();
 
-  grpc::experimental::TlsChannelCredentialsOptions credentialsOptions =
-    grpc::experimental::TlsChannelCredentialsOptions();
-  credentialsOptions.set_verify_server_certs(false);
-  credentialsOptions.set_check_call_host(false);
-  credentialsOptions.set_certificate_verifier(verifier);
+    // don't do normal cert verification. we are doing custom verification using the node's cert chain hash
+    credentialsOptions.set_verify_server_certs(false);
+    credentialsOptions.set_certificate_verifier(verifier);
 
-  std::shared_ptr<grpc::ChannelCredentials> channelCredentials = grpc::experimental::TlsCredentials(credentialsOptions);
+    channelCredentials = grpc::experimental::TlsCredentials(credentialsOptions);
+  }
+  else
+  {
+    channelCredentials = grpc::InsecureChannelCredentials();
+  }
 
   mImpl->mChannel = grpc::CreateChannel(url, channelCredentials);
-  mImpl->mChannel->WaitForConnected(std::chrono::system_clock::now() + std::chrono::seconds(1));
 
-  mImpl->mCryptoStub = proto::CryptoService::NewStub(mImpl->mChannel);
+  if (mImpl->mChannel->WaitForConnected(std::chrono::system_clock::now() + std::chrono::seconds(1)))
+  {
+    mImpl->mCryptoStub = proto::CryptoService::NewStub(mImpl->mChannel);
+    mInitialized = true;
 
-  std::cout << "Channel state: " << mImpl->mChannel->GetState(false) << std::endl;
+    return true;
+  }
+
+  return false;
 }
 
 //-----
@@ -142,16 +144,17 @@ std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Res
 //-----
 void Channel::shutdown()
 {
-  shutdownChannel();
-}
-
-//-----
-void Channel::shutdownChannel()
-{
   if (mImpl->mCryptoStub)
   {
     mImpl->mCryptoStub.reset();
   }
+
+  mInitialized = false;
+}
+
+bool Channel::getInitialized() const
+{
+  return mInitialized;
 }
 
 } // namespace Hedera

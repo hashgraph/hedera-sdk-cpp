@@ -38,6 +38,8 @@ public:
 
   [[nodiscard]] std::string toString() const;
 
+  [[nodiscard]] int getPort() const;
+
 private:
   IPv4Address mAddress{};
   int mPort;

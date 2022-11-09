@@ -56,4 +56,9 @@ std::string Endpoint::toString() const
   return outputStream.str();
 }
 
+int Endpoint::getPort() const
+{
+  return mPort;
+}
+
 } // Hedera

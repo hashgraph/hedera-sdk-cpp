@@ -25,6 +25,7 @@
 #include "NodeAddress.h"
 
 #include <unordered_map>
+#include <memory>
 
 namespace proto
 {
@@ -42,10 +43,10 @@ public:
   static NodeAddressBook fromBytes(const std::vector<char>& bytes);
   static NodeAddressBook fromProtobuf(const proto::NodeAddressBook& addressBook);
 
-  [[nodiscard]] const std::unordered_map<AccountId, NodeAddress>& getAddressMap() const;
+  [[nodiscard]] const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& getAddressMap() const;
 private:
 
-  std::unordered_map<AccountId, NodeAddress> addressMap;
+  std::unordered_map<AccountId, std::shared_ptr<NodeAddress>> addressMap;
 };
 
 } // Hedera

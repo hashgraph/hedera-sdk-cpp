@@ -130,7 +130,7 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
   body.set_transactionfee(static_cast<uint64_t>(getMaxTransactionFee(client).toTinybars()));
   body.set_allocated_memo(new std::string(mTransactionMemo));
   body.set_allocated_transactionvalidduration(DurationConverter::toProtobuf(mTransactionValidDuration));
-  body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf());
+  body.set_allocated_nodeaccountid(mNodeAccountId->toProtobuf());
   return body;
 }
 

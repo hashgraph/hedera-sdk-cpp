@@ -20,6 +20,7 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+#include "NodeAddress.h"
 #include <chrono>
 #include <memory>
 #include <string>
@@ -50,14 +51,6 @@ public:
   Channel();
 
   /**
-   * Construct this channel to communicate with a node URL.
-   *
-   * @param url The URL and port of the gRPC service with which this channel
-   *            should communicate.
-   */
-  explicit Channel(const std::string& url);
-
-  /**
    * Default destructor.
    */
   ~Channel();
@@ -67,8 +60,17 @@ public:
    *
    * @param url The URL and port of the gRPC service with which this channel
    *            should communicate.
+   * @param requireTLS initializes the channel with TLS if true, otherwise initializes an unsecured channel
+   *
+   * @return true if channel was successfully initialized, otherwise false
    */
-  void initChannel(const std::string& url);
+  bool initializeChannel(const std::string& url, bool requireTLS);
+
+  /**
+   * Gets whether this channel is in an initialized state
+   * @return true if the channel is initialized, otherwise false
+   */
+  [[nodiscard]] bool getInitialized() const;
 
   /**
    * Get a gRPC transaction method for an associated protobuf Transaction data case.
@@ -95,15 +97,12 @@ public:
 
 private:
   /**
-   * Helper function to close/shutdown/delete channels.
-   */
-  void shutdownChannel();
-
-  /**
    * Implementation object used to hide implementation details and gRPC headers.
    */
   struct ChannelImpl;
   std::unique_ptr<ChannelImpl> mImpl;
+
+  bool mInitialized = false;
 };
 
 } // namespace Hedera

@@ -31,10 +31,10 @@ protected:
 
 TEST_F(NodeAddressBookTest, readAddressBookResource)
 {
-  NodeAddressBook addressBook = NodeAddressBook::fromFile("mainnet.pb");
+  NodeAddressBook addressBook = NodeAddressBook::fromFile("testnet.pb");
   std::cout << std::setw(20) << "Address book size: " << addressBook.getAddressMap().size() << std::endl << std::endl;
 
   for (const auto& elem : addressBook.getAddressMap()) {
-    std::cout << elem.second.toString() << std::endl << std::endl;
+    std::cout << elem.second->toString() << std::endl << std::endl;
   }
 }

@@ -24,6 +24,7 @@
 
 #include <chrono>
 #include <vector>
+#include <memory>
 
 namespace Hedera
 {
@@ -77,13 +78,13 @@ public:
    * @param nodeAccountIds The list of node account IDs to be set.
    * @return Reference to this Executable derived class.
    */
-  SdkRequestType& setNodeAccountIds(const std::vector<AccountId>& nodeAccountIds);
+  SdkRequestType& setNodeAccountIds(const std::vector<std::shared_ptr<AccountId>>& nodeAccountIds);
 
   /**
    * Get the list of account IDs for nodes with which execution will be attempted.
    * @return The list of account IDs.
    */
-  inline std::vector<AccountId> getNodeAccountIds() const { return mNodeAccountIds; }
+  inline std::vector<std::shared_ptr<AccountId>> getNodeAccountIds() const { return mNodeAccountIds; }
 
 protected:
   /**
@@ -136,7 +137,7 @@ private:
   /**
    * The list of account IDs of nodes on which to attempt execution.
    */
-  std::vector<AccountId> mNodeAccountIds;
+  std::vector<std::shared_ptr<AccountId>> mNodeAccountIds;
 
   /**
    * The maximum number of attempts to send a request.

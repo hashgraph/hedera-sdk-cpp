@@ -51,13 +51,13 @@ NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& addr
     const proto::NodeAddress& nodeAddress = addressBook.nodeaddress(i);
 
     outputAddressBook.addressMap.insert(
-      { AccountId::fromProtobuf(nodeAddress.nodeaccountid()), NodeAddress::fromProtobuf(nodeAddress) });
+      { AccountId::fromProtobuf(nodeAddress.nodeaccountid()), std::make_shared<NodeAddress>(NodeAddress::fromProtobuf(nodeAddress)) });
   }
 
   return outputAddressBook;
 }
 
-const std::unordered_map<AccountId, NodeAddress>& NodeAddressBook::getAddressMap() const
+const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& NodeAddressBook::getAddressMap() const
 {
   return addressMap;
 }

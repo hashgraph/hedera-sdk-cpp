@@ -37,17 +37,65 @@ IPv4Address::IPv4Address(unsigned int octet1, unsigned int octet2, unsigned int 
 
 IPv4Address IPv4Address::fromString(const std::string& inputString)
 {
-  std::vector<unsigned int> byteVector = {inputString.cbegin(), inputString.cend()};
-
-  if (inputString.size() != 4)
+  // input string is in byte format, where each byte represents a single IP address octet
+  if (inputString.size() == 4)
   {
-    // TODO throw?
+    std::vector<unsigned int> byteVector = { inputString.cbegin(), inputString.cend() };
+
+    unsigned int mask = 0x000000FF;
+
+    IPv4Address outputAddress = {
+      byteVector.at(0) & mask, byteVector.at(1) & mask, byteVector.at(2) & mask, byteVector.at(3) & mask
+    };
+
+    return outputAddress;
+  }
+
+  // if input string isn't bytes, it must be made up of number characters, with 4 octets separated by the '.' character
+  if (std::count(inputString.begin(), inputString.end(), '.') != 3)
+  {
+    // todo THROW
     return { 0, 0, 0, 0 };
   }
 
-  unsigned int mask = 0x000000FF;
+  std::vector<unsigned int> byteVector;
 
-  return { byteVector[0] & mask, byteVector[1] & mask, byteVector[2] & mask, byteVector[3] & mask };
+  int previousDelimiter = -1;
+  int nextDelimiter = (int)inputString.find('.');
+
+  for (int i = 0; i < 4; ++i)
+  {
+    std::string byteString = inputString.substr(previousDelimiter + 1, nextDelimiter - previousDelimiter - 1);
+
+    if (!byteString.length())
+    {
+      // todo THROW
+      return { 0, 0, 0, 0 };
+    }
+
+    for (char character : byteString)
+    {
+      if (!std::isdigit(character))
+      {
+        // todo THROW
+        return { 0, 0, 0, 0 };
+      }
+    }
+
+    unsigned int byteInt = std::stoi(byteString);
+    if (byteInt > 255)
+    {
+      // todo THROW
+      return { 0, 0, 0, 0 };
+    }
+
+    byteVector.push_back(byteInt);
+
+    previousDelimiter = nextDelimiter;
+    nextDelimiter = (int)inputString.find('.', previousDelimiter + 1);
+  }
+
+  return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
 }
 
 std::string IPv4Address::toString() const

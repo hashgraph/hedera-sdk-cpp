@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "Endpoint.h"
+#include "AccountId.h"
 
 namespace proto
 {
@@ -35,28 +36,22 @@ namespace Hedera
 class NodeAddress
 {
 public:
-  /**
-   * Get a node address from a string.
-   */
-  static NodeAddress fromString(std::string_view address);
+  inline static int PORT_MIRROR_PLAIN = 5600;
+  inline static int PORT_MIRROR_TLS = 443;
+  inline static int PORT_NODE_PLAIN = 50211;
+  inline static int PORT_NODE_TLS = 50212;
+
+  NodeAddress();
+
+  [[nodiscard]] std::shared_ptr<AccountId> getAccountId() const;
+
+  [[nodiscard]] const std::vector<Endpoint>& getEndpoints() const;
 
   static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
   [[nodiscard]] std::string toString() const;
 
 private:
-  NodeAddress();
-
-  /**
-   * The address of the node.
-   */
-  std::string mIPAddress;
-
-  /**
-   * The port on which the node is listening.
-   */
-  uint32_t mPort;
-
   std::vector<Endpoint> mEndpoints;
 
   std::string mRSAPublicKey;
@@ -66,6 +61,8 @@ private:
   std::string mCertificateHash;
 
   std::string mDescription;
+
+  std::shared_ptr<AccountId> mAccountId;
 };
 } // namespace Hedera
 

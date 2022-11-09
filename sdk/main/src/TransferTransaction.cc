@@ -29,13 +29,13 @@
 namespace Hedera
 {
 //-----
-TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
+TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId, const Hbar& amount)
 {
   addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(true));
   return *this;
 }
 //-----
-TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
+TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(std::shared_ptr<AccountId> accountId, const Hbar& amount)
 {
   addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(false));
   return *this;
@@ -66,7 +66,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
   {
     proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
 
-    if (transfer.getAccountId().has_value())
+    if (transfer.getAccountId())
     {
       amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf());
     }

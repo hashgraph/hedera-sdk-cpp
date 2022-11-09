@@ -23,7 +23,9 @@
 #include "AccountId.h"
 #include "Channel.h"
 #include "NodeAddress.h"
+#include "TLSBehavior.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -49,10 +51,9 @@ public:
   /**
    * Construct this node with the URL and the account ID.
    *
-   * @param url       The URL of the node.
-   * @param accountId The account ID of the node.
+   * @param address The address of the node
    */
-  explicit Node(const std::string& url, const AccountId& accountId);
+  explicit Node(const std::shared_ptr<NodeAddress>& address);
 
   /**
    * Shutdown connections with the node.
@@ -64,12 +65,14 @@ public:
    *
    * @return The account ID.
    */
-  inline AccountId getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline std::shared_ptr<AccountId> getAccountId() const { return mAddress->getAccountId(); }
 
   /*template<typename ProtoRequestType, typename ProtoResponseType>
   std::pair<ProtoResponseType, grpc::Status> submitRequest(int funcCase,
                                                            grpc::ClientContext* context,
                                                            const ProtoRequestType& request);*/
+
+  void setTLSBehavior(TLSBehavior desiredBehavior);
 
   /**
    * Get a gRPC transaction method for an associated protobuf Transaction data case from this Node's channel.
@@ -78,7 +81,7 @@ public:
    * @return The function described by the case, bound to this channel's proper stub.
    */
   std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-  getGrpcTransactionMethod(int transactionBodyDataCase) const;
+  getGrpcTransactionMethod(int transactionBodyDataCase);
 
   /**
    * Get a gRPC query method for an associated protobuf Query data case from this Node's channel.
@@ -87,23 +90,24 @@ public:
    * @return The function described by the case, bound to this channel's proper stub.
    */
   std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcQueryMethod(
-    int queryBodyDataCase) const;
+    int queryBodyDataCase);
 
 private:
   /**
-   * The account ID associated with this node.
-   */
-  AccountId mAccountId;
-
-  /**
    * The address of this node.
    */
-  NodeAddress mAddress;
+  std::shared_ptr<NodeAddress> mAddress;
 
   /**
    * The channels this node is using to communicate.
    */
   Channel mChannel;
+
+  TLSBehavior mTLSBehavior = TLSBehavior::REQUIRE;
+
+  bool checkChannelInitialized();
+
+  bool tryInitializeChannel();
 };
 
 } // namespace Hedera

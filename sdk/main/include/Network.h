@@ -22,6 +22,7 @@
 
 #include "Node.h"
 
+#include "NodeAddressBook.h"
 #include "helper/StringHash.h"
 
 #include <string>
@@ -51,7 +52,8 @@ public:
    * @param accountIds The account IDs of the requested nodes.
    * @return List of nodes with the requested account IDs.
    */
-  std::vector<std::shared_ptr<Node>> getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const;
+  [[nodiscard]] std::vector<std::shared_ptr<Node>> getNodesWithAccountIds(
+    const std::vector<std::shared_ptr<AccountId>>& accountIds) const;
 
   /**
    * Close this network.
@@ -62,10 +64,9 @@ private:
   /**
    * Set the network configuration for this network.
    *
-   * @param network The URLs and the account IDs of the associated nodes with
-   *                which this network will be communicating.
+   * @param nodeAddressBook The address book the network will be communicating with
    */
-  void setNetwork(const std::unordered_map<std::string, AccountId, StringHash, std::equal_to<>>& network);
+  void setNetwork(const NodeAddressBook& nodeAddressBook);
 
   /**
    * List of nodes with which this network is communicating.
