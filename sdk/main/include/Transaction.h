@@ -176,16 +176,16 @@ protected:
 
 private:
   /**
-   * Helper function used to get the proper transaction fee to pack into a protobuf TransactionBody. The order of
-   * priority for transaction fees goes:
-   *  1. Manually-set transaction fee for this transaction.
+   * Helper function used to get the proper maximum transaction fee to pack into a protobuf TransactionBody. The order
+   * of priority for maximum transaction fees goes:
+   *  1. Manually-set maximum transaction fee for this transaction.
    *  2. Client-set default max transaction fee.
-   *  3. Default transaction fee for this transaction.
+   *  3. Default maximum transaction fee.
    *
    * @param client The Client submitting this transaction.
-   * @return The proper transaction fee to set for the protobuf TransactionBody.
+   * @return The proper maximum transaction fee to set for the protobuf TransactionBody.
    */
-  Hbar getTransactionFee(const Client& client) const;
+  [[nodiscard]] Hbar getMaxTransactionFee(const Client& client) const;
 
   /**
    * The default maximum transaction fee.

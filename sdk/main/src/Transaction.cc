@@ -127,7 +127,7 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
 {
   proto::TransactionBody body;
   body.set_allocated_transactionid(mTransactionId.toProtobuf());
-  body.set_transactionfee(static_cast<uint64_t>(getTransactionFee(client).toTinybars()));
+  body.set_transactionfee(static_cast<uint64_t>(getMaxTransactionFee(client).toTinybars()));
   body.set_allocated_memo(new std::string(mTransactionMemo));
   body.set_allocated_transactionvalidduration(DurationConverter::toProtobuf(mTransactionValidDuration));
   body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf());
@@ -136,16 +136,16 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
 
 //-----
 template<typename SdkRequestType>
-Hbar Transaction<SdkRequestType>::getTransactionFee(const Client& client) const
+Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client& client) const
 {
   if (mMaxTransactionFee != mDefaultMaxTransactionFee)
   {
     return mMaxTransactionFee;
   }
 
-  else if (client.getDefaultMaxTransactionFee())
+  else if (const std::shared_ptr<Hbar> defaultMaxTxFee = client.getDefaultMaxTransactionFee())
   {
-    return *client.getDefaultMaxTransactionFee();
+    return *defaultMaxTxFee;
   }
 
   else

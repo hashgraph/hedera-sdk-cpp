@@ -36,7 +36,7 @@ Client& Client::setOperator(const AccountId& accountId, std::unique_ptr<PrivateK
 {
   mOperator = std::make_shared<Operator>();
   mOperator->mAccountId = accountId;
-  mOperator->mPrivateKey = std::move(privateKey);
+  mOperator->mPrivateKey = std::unique_ptr<PrivateKey>(privateKey.release());
 
   return *this;
 }
@@ -66,6 +66,28 @@ Client& Client::setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee
 void Client::close()
 {
   mNetwork->close();
+}
+
+//-----
+[[nodiscard]] AccountId Client::getOperatorAccountId() const
+{
+  if (!mOperator)
+  {
+    throw std::runtime_error("Operator has not yet been set");
+  }
+
+  return mOperator->mAccountId;
+}
+
+//-----
+[[nodiscard]] std::shared_ptr<PublicKey> Client::getOperatorPublicKey() const
+{
+  if (!mOperator)
+  {
+    throw std::runtime_error("Operator has not yet been set");
+  }
+
+  return mOperator->mPrivateKey->getPublicKey();
 }
 
 } // namespace Hedera

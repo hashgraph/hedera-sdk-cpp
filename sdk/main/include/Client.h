@@ -114,15 +114,7 @@ public:
    * @return The account ID of this client's operator.
    * @throws std::runtime_error If the operator has not yet been set.
    */
-  [[nodiscard]] inline AccountId getOperatorAccountId() const
-  {
-    if (!mOperator)
-    {
-      throw std::runtime_error("Operator has not yet been set");
-    }
-
-    return mOperator->mAccountId;
-  }
+  [[nodiscard]] AccountId getOperatorAccountId() const;
 
   /**
    * Get the public key of the operator.
@@ -130,15 +122,7 @@ public:
    * @return The public key of this client's operator, if valid.
    * @throws std::runtime_error If the operator has not yet been set.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getOperatorPublicKey() const
-  {
-    if (!mOperator)
-    {
-      throw std::runtime_error("Operator has not yet been set");
-    }
-
-    return mOperator->mPrivateKey->getPublicKey();
-  }
+  [[nodiscard]] std::shared_ptr<PublicKey> getOperatorPublicKey() const;
 
   /**
    * The default maximum fee used for transactions.
@@ -147,7 +131,7 @@ public:
    */
   [[nodiscard]] inline std::unique_ptr<Hbar> getDefaultMaxTransactionFee() const
   {
-    return mDefaultMaxTransactionFee ? std::make_unique<Hbar>(*mDefaultMaxTransactionFee) : std::unique_ptr<Hbar>();
+    return mDefaultMaxTransactionFee ? std::make_unique<Hbar>(*mDefaultMaxTransactionFee) : nullptr;
   }
 
   /**
