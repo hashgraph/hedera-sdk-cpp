@@ -51,19 +51,4 @@ void Node::shutdown()
   mChannel.shutdown();
 }
 
-//-----
-/*template<typename ProtoRequestType, typename ProtoResponseType>
-std::pair<ProtoResponseType, grpc::Status> submitRequest(int funcCase,
-                                                         grpc::ClientContext* context,
-                                                         const ProtoRequestType& request)
-{
-}
-
-template std::pair<proto::Response, grpc::Status> Node::submitRequest(int funcCase,
-                                                                      grpc::ClientContext* context,
-                                                                      const proto::Query& request);
-template std::pair<proto::TransactionResponse, grpc::Status> Node::submitRequest(int funcCase,
-                                                                                 grpc::ClientContext* context,
-                                                                                 const proto::Transaction& request);*/
-
 } // namespace Hedera

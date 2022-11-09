@@ -69,7 +69,7 @@ public:
    * Retrieve the contract ID from a protobuf ContractID.
    *
    * @param proto The ContractID protobuf object.
-   * @return An ContractId object with the protobuf ContractID data.
+   * @return A ContractId object with the protobuf ContractID data.
    */
   static ContractId fromProtobuf(const proto::ContractID& id);
 
@@ -78,7 +78,7 @@ public:
    *
    * @return Pointer to the created protobuf ContractID.
    */
-  proto::ContractID* toProtobuf() const;
+  [[nodiscard]] proto::ContractID* toProtobuf() const;
 
   /**
    * Set the shard number.
@@ -109,37 +109,37 @@ public:
    *
    * @return The shard number.
    */
-  inline uint64_t getShardNum() const { return mShardNum; }
+  [[nodiscard]] inline uint64_t getShardNum() const { return mShardNum; }
 
   /**
    * Extract the realm number.
    *
    * @return The realm number.
    */
-  inline uint64_t getRealmNum() const { return mRealmNum; }
+  [[nodiscard]] inline uint64_t getRealmNum() const { return mRealmNum; }
 
   /**
    * Extract the contract number.
    *
    * @return The contract number.
    */
-  inline std::optional<uint64_t> getContractNum() const { return mContractNum; }
+  [[nodiscard]] inline uint64_t getContractNum() const { return mContractNum; }
 
 private:
   /**
-   * The shard number.
+   * The shard number. Defaults to 0.
    */
-  uint64_t mShardNum;
+  uint64_t mShardNum = 0ULL;
 
   /**
-   * The realm number.
+   * The realm number. Defaults to 0.
    */
-  uint64_t mRealmNum;
+  uint64_t mRealmNum = 0ULL;
 
   /**
-   * The contract number.
+   * The contract number. Defaults to 0.
    */
-  std::optional<uint64_t> mContractNum;
+  uint64_t mContractNum = 0ULL;
 };
 
 } // namespace Hedera
