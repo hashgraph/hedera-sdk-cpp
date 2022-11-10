@@ -48,7 +48,7 @@ public:
    *
    * @return Pointer to a protobuf AccountAmount with this Transfer's data.
    */
-  proto::AccountAmount* toProtobuf() const;
+  [[nodiscard]] proto::AccountAmount* toProtobuf() const;
 
   /**
    * Set the account ID.
@@ -79,37 +79,37 @@ public:
    *
    * @return The account ID.
    */
-  inline std::optional<AccountId> getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
 
   /**
    * Extract the transfer amount.
    *
    * @return The transfer amount.
    */
-  inline Hbar getAmount() const { return mAmount; }
+  [[nodiscard]] inline Hbar getAmount() const { return mAmount; }
 
   /**
    * Determine if this transfer is approved or not.
    *
    * @return \c TRUE if this transfer is approved, otherwise \c FALSE
    */
-  inline bool getApproval() const { return mIsApproved; }
+  [[nodiscard]] inline bool getApproval() const { return mIsApproved; }
 
 private:
   /**
    * The account ID associated with this transfer.
    */
-  std::optional<AccountId> mAccountId;
+  AccountId mAccountId;
 
   /**
-   * The amount of Hbar transferred.
+   * The amount of Hbar transferred. Defaults to 0.
    */
   Hbar mAmount;
 
   /**
-   * Is this transfer approved or not?
+   * Is this transfer approved or not? Defaults to \c FALSE.
    */
-  bool mIsApproved;
+  bool mIsApproved = false;
 };
 
 } // namespace Hedera

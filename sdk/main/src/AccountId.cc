@@ -100,4 +100,25 @@ std::string AccountId::toString() const
   return std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.' + std::to_string(mAccountNum.value());
 }
 
+//-----
+AccountId& AccountId::setShardNum(const uint64_t& num)
+{
+  mShardNum = num;
+  return *this;
+}
+
+//-----
+AccountId& AccountId::setRealmNum(const uint64_t& num)
+{
+  mRealmNum = num;
+  return *this;
+}
+
+//-----
+AccountId& AccountId::setAccountNum(const uint64_t& num)
+{
+  mAccountNum = num;
+  return *this;
+}
+
 } // namespace Hedera

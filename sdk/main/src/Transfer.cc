@@ -43,12 +43,7 @@ Transfer Transfer::fromProtobuf(const proto::AccountAmount& proto)
 proto::AccountAmount* Transfer::toProtobuf() const
 {
   auto proto = new proto::AccountAmount;
-
-  if (mAccountId.has_value())
-  {
-    proto->set_allocated_accountid(mAccountId.value().toProtobuf());
-  }
-
+  proto->set_allocated_accountid(mAccountId.toProtobuf());
   proto->set_amount(mAmount.toTinybars());
   proto->set_is_approval(mIsApproved);
 

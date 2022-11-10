@@ -65,12 +65,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
   for (const Transfer& transfer : mHbarTransfers)
   {
     proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
-
-    if (transfer.getAccountId().has_value())
-    {
-      amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf());
-    }
-
+    amount->set_allocated_accountid(transfer.getAccountId().toProtobuf());
     amount->set_amount(transfer.getAmount().toTinybars());
     amount->set_is_approval(transfer.getApproval());
   }
