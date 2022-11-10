@@ -54,6 +54,7 @@ add_library(${PROJECT_NAME} STATIC
 
         src/helper/DurationConverter.cc
         src/helper/HexConverter.cc
+        src/helper/OpenSSLHasher.cc
         src/helper/TimestampConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)

@@ -65,6 +65,13 @@ public:
   [[nodiscard]] const std::vector<Endpoint>& getEndpoints() const;
 
   /**
+   * Gets the SHA-384 hash of the node certificate chain
+   *
+   * @return the certificate chain hash
+   */
+  [[nodiscard]] std::string getCertificateHash() const;
+
+  /**
    * Creates a new node address object from a protobuf
    *
    * @param protoNodeAddress the protobuf address

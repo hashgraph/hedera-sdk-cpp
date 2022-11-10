@@ -30,6 +30,7 @@ class HexConverter
 public:
   static std::string base64ToHex(const std::vector<unsigned char>& bytes);
   static std::vector<unsigned char> hexToBase64(const std::string& inputString);
+  static std::string bytesToHex(const std::vector<unsigned char>& bytes);
 };
 
 }

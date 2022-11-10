@@ -61,10 +61,11 @@ public:
    * @param url The URL and port of the gRPC service with which this channel
    *            should communicate.
    * @param requireTLS initializes the channel with TLS if true, otherwise initializes an unsecured channel
+   * @param nodeCertHash the sha-384 hash of the node certificate chain. only relevant if requireTLS is true
    *
    * @return true if channel was successfully initialized, otherwise false
    */
-  bool initializeChannel(const std::string& url, bool requireTLS);
+  bool initializeChannel(const std::string& url, bool requireTLS, const std::string& nodeCertHash = "");
 
   /**
    * Gets whether this channel is in an initialized state

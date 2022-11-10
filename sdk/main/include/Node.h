@@ -111,7 +111,7 @@ private:
   /**
    * The TLS behavior of the node
    */
-  TLSBehavior mTLSBehavior = TLSBehavior::DISABLE;
+  TLSBehavior mTLSBehavior = TLSBehavior::REQUIRE;
 
   /**
    * Checks if the channel is initialized. If it isn't, try to initialize it

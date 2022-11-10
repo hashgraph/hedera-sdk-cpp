@@ -28,6 +28,20 @@
  */
 class HederaCertificateVerifier : public grpc::experimental::ExternalCertificateVerifier
 {
+public:
+  /**
+   * Constructor
+   *
+   * @param certificateHash the claimed hash of the node certificate chain
+   */
+  explicit HederaCertificateVerifier(const std::string& certificateHash);
+
+private:
+  /**
+   * The hash of the certificate chain for the node, from the address book
+   */
+  std::string mExpectedHash;
+
   /**
    * The verification logic that will be performed after the TLS handshake
    * completes

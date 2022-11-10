@@ -77,7 +77,7 @@ bool Node::tryInitializeChannel()
                          case TLSBehavior::REQUIRE:
                            return (endpoint.getPort() == NodeAddress::PORT_NODE_TLS ||
                                    endpoint.getPort() == NodeAddress::PORT_MIRROR_TLS) &&
-                                  mChannel.initializeChannel(endpoint.toString(), true);
+                                  mChannel.initializeChannel(endpoint.toString(), true, mAddress->getCertificateHash());
 
                          case TLSBehavior::DISABLE:
                            return (endpoint.getPort() == NodeAddress::PORT_NODE_PLAIN ||

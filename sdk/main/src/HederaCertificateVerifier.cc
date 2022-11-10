@@ -19,11 +19,34 @@
  */
 
 #include "HederaCertificateVerifier.h"
+#include "helper/HexConverter.h"
+#include "helper/OpenSSLHasher.h"
+
+HederaCertificateVerifier::HederaCertificateVerifier(const std::string& certificateHash)
+{
+  mExpectedHash = certificateHash;
+}
 
 bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
                                        std::function<void(grpc::Status)> callback,
                                        grpc::Status* sync_status)
 {
+  auto grpcCertificateChain = request->peer_cert_full_chain();
+  std::string certificateChain = { grpcCertificateChain.cbegin(), grpcCertificateChain.cend() };
+
+  std::vector<unsigned char> hashBytes = Hedera::OpenSSLHasher::computeSHA384(certificateChain);
+
+  if (mExpectedHash != Hedera::HexConverter::bytesToHex(hashBytes))
+  {
+    *sync_status = grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                                "Hash of node certificate chain doesn't match hash contained in address book");
+
+    return true;
+  }
+
+  *sync_status = grpc::Status(grpc::StatusCode::OK, "Certificate chain hash matches expected");
+
+  // always true, since this is called synchronously
   return true;
 }
 

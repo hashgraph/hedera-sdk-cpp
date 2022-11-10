@@ -30,16 +30,21 @@ namespace Hedera
 
 Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint)
 {
-  return
-  {
-    IPv4Address::fromString(serviceEndpoint.ipaddressv4()), (int)(serviceEndpoint.port() & 0x00000000ffffffffL)
-  };
+  return { IPv4Address::fromString(serviceEndpoint.ipaddressv4()),
+           (int)(serviceEndpoint.port() & 0x00000000ffffffffL) };
 }
 
 Endpoint::Endpoint(IPv4Address address, int port)
 {
   mAddress = address;
   mPort = port;
+
+  // TODO: here we change the port to the TLS port, since the existing serialization of the testnet address book doesn't
+  // include TLS endpoints. Once we have an up to date serialization, remove this
+  if (mPort == 50211)
+  {
+    mPort = 50212;
+  }
 }
 
 std::string Endpoint::toString() const

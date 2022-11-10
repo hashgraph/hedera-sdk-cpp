@@ -117,4 +117,9 @@ const std::vector<Endpoint>& NodeAddress::getEndpoints() const
   return mEndpoints;
 }
 
+std::string NodeAddress::getCertificateHash() const
+{
+  return mCertificateHash;
+}
+
 } // namespace Hedera
