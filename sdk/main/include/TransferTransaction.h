@@ -66,7 +66,7 @@ public:
    * @param amount    The amount to transfer.
    * @return Reference to this TransferTransaction object.
    */
-  TransferTransaction& addUnapprovedHbarTransfer(std::shared_ptr<AccountId> accountId, const Hbar& amount);
+  TransferTransaction& addUnapprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId, const Hbar& amount);
 
   /**
    * Extract the list of Hbar transfers.

@@ -35,7 +35,7 @@ TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const std::sha
   return *this;
 }
 //-----
-TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(std::shared_ptr<AccountId> accountId, const Hbar& amount)
+TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId, const Hbar& amount)
 {
   addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(false));
   return *this;
