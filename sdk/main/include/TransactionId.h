@@ -53,6 +53,14 @@ public:
   static TransactionId fromProtobuf(const proto::TransactionID& proto);
 
   /**
+   * Default comparator operator.
+   *
+   * @param other The other TransactionId against which to compare.
+   * @return \c TRUE if these TransactionIds are the same, otherwise \c FALSE.
+   */
+  bool operator==(const TransactionId& other) const = default;
+
+  /**
    * Convert this TransactionId to its corresponding protobuf TransactionID.
    *
    * @return Pointer to the created protobuf TransactionID.

@@ -72,7 +72,7 @@ TransactionRecord TransactionResponse::getRecord(const Client& client,
   // TODO: implement proper networking so this doesn't have to loop
   TransactionRecord txRecord;
   TransactionRecordQuery query = TransactionRecordQuery().setTransactionId(mTransactionId);
-  while (!txRecord.getReceipt().has_value())
+  while (txRecord.getReceipt().getStatus() == Status::UNKNOWN)
   {
     txRecord = query.execute(client, timeout);
   }

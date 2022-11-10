@@ -37,12 +37,9 @@ class TransactionRecord;
 namespace Hedera
 {
 /**
- * The complete record for a transaction on Hedera that has reached consensus.
- *
- * This is not-free to request and is available for 1 hour after a transaction reaches consensus.
- *
- * A TransactionReceipt can be thought of as a light-weight record which is free to ask for if you just need what it
- * contains. A receipt however lasts for only 180 seconds.
+ * The complete record for a transaction on Hedera that has reached consensus. This is not-free to request and is
+ * available for 1 hour after a transaction reaches consensus. A TransactionReceipt can be thought of as a light-weight
+ * record which is free to ask for if you just need what it contains. A receipt however lasts for only 180 seconds.
  */
 class TransactionRecord
 {
@@ -60,21 +57,21 @@ public:
    *
    * @return The transaction receipt.
    */
-  inline std::optional<TransactionReceipt> getReceipt() const { return mReceipt; }
+  [[nodiscard]] inline TransactionReceipt getReceipt() const { return mReceipt; }
 
   /**
    * Extract the transaction hash.
    *
    * @return The transaction hash.
    */
-  inline std::string getTransactionHash() const { return mTransactionHash; }
+  [[nodiscard]] inline std::string getTransactionHash() const { return mTransactionHash; }
 
   /**
    * Extract the consensus timestamp.
    *
    * @return The consensus timestamp.
    */
-  inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getConsensusTimestamp() const
+  [[nodiscard]] inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getConsensusTimestamp() const
   {
     return mConsensusTimestamp;
   }
@@ -84,34 +81,34 @@ public:
    *
    * @return The transaction ID.
    */
-  inline std::optional<TransactionId> getTransactionId() const { return mTransactionID; }
+  [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionID; }
 
   /**
    * Extract the transaction memo.
    *
    * @return The transaction memo.
    */
-  inline std::string getTransactionMemo() const { return mMemo; }
+  [[nodiscard]] inline std::string getTransactionMemo() const { return mMemo; }
 
   /**
    * Extract the transaction fee.
    *
    * @return The transaction fee.
    */
-  inline uint64_t getTransactionFee() const { return mTransactionFee; }
+  [[nodiscard]] inline uint64_t getTransactionFee() const { return mTransactionFee; }
 
   /**
    * Extract the transfer list.
    *
    * @return The transfer list.
    */
-  inline std::vector<std::pair<AccountId, Hbar>> getTransferList() const { return mTransferList; }
+  [[nodiscard]] inline std::vector<std::pair<AccountId, Hbar>> getTransferList() const { return mTransferList; }
 
 private:
   /**
    * The status (reach consensus, or failed, or is unknown) and the ID of any new account/file/instance created.
    */
-  std::optional<TransactionReceipt> mReceipt;
+  TransactionReceipt mReceipt;
 
   /**
    * The hash of the Transaction that executed (not the hash of any Transaction that failed for having a duplicate
@@ -127,7 +124,7 @@ private:
   /**
    * The ID of the transaction this record represents.
    */
-  std::optional<TransactionId> mTransactionID;
+  TransactionId mTransactionID;
 
   /**
    * The memo that was submitted as part of the transaction (max 100 bytes).
@@ -140,7 +137,7 @@ private:
   uint64_t mTransactionFee;
 
   /**
-   * All hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by
+   * All Hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by
    * a smart contract it calls, or by the creation of threshold records that it triggers.
    */
   std::vector<std::pair<AccountId, Hbar>> mTransferList;
