@@ -29,6 +29,7 @@ namespace grpc
 {
 class ClientContext;
 class Status;
+class ChannelCredentials;
 }
 
 namespace proto
@@ -56,16 +57,23 @@ public:
   ~Channel();
 
   /**
-   * Initialize this channel to communicate with a node URL.
+   * Initialize this channel to communicate with a node URL, with TLS enabled
    *
-   * @param url The URL and port of the gRPC service with which this channel
-   *            should communicate.
-   * @param requireTLS initializes the channel with TLS if true, otherwise initializes an unsecured channel
-   * @param nodeCertHash the sha-384 hash of the node certificate chain. only relevant if requireTLS is true
+   * @param url The URL and port of the gRPC service with which this channel should communicate.
+   * @param nodeCertHash The sha-384 hash of the node certificate chain
    *
    * @return true if channel was successfully initialized, otherwise false
    */
-  bool initializeChannel(const std::string& url, bool requireTLS, const std::string& nodeCertHash = "");
+  bool initializeEncryptedChannel(const std::string& url, const std::string& nodeCertHash);
+
+  /**
+   * Initialize this channel to communicate with a node URL, with TLS disabled
+   *
+   * @param url The URL and port of the gRPC service with which this channel should communicate.
+   *
+   * @return True if channel was successfully initialized, otherwise false
+   */
+  bool initializeUnencryptedChannel(const std::string& url);
 
   /**
    * Gets whether this channel is in an initialized state
@@ -98,6 +106,16 @@ public:
   void shutdown();
 
 private:
+  /**
+   * Initialize a channel from url and channel credentials. Works for both TLS and non TLS channels
+   *
+   * @param url The URL and port of the gRPC service with which this channel should communicate.
+   * @param credentials The credentials to initialize the channel with
+   *
+   * @return True if the initialization was successful, otherwise false
+   */
+  bool initializeChannel(const std::string& url, const std::shared_ptr<grpc::ChannelCredentials>& credentials);
+
   /**
    * Implementation object used to hide implementation details and gRPC headers.
    */

@@ -56,12 +56,7 @@ void Node::shutdown()
 
 bool Node::checkChannelInitialized()
 {
-  if (mChannel.getInitialized() || tryInitializeChannel())
-  {
-    return true;
-  }
-
-  return false;
+  return mChannel.getInitialized() || tryInitializeChannel();
 }
 
 bool Node::tryInitializeChannel()
@@ -77,12 +72,14 @@ bool Node::tryInitializeChannel()
                          case TLSBehavior::REQUIRE:
                            return (endpoint.getPort() == NodeAddress::PORT_NODE_TLS ||
                                    endpoint.getPort() == NodeAddress::PORT_MIRROR_TLS) &&
-                                  mChannel.initializeChannel(endpoint.toString(), true, mAddress->getCertificateHash());
+                                  !mAddress->getCertificateHash().empty() &&
+                                  mChannel.initializeEncryptedChannel(endpoint.toString(),
+                                                                      mAddress->getCertificateHash());
 
                          case TLSBehavior::DISABLE:
                            return (endpoint.getPort() == NodeAddress::PORT_NODE_PLAIN ||
                                    endpoint.getPort() == NodeAddress::PORT_MIRROR_PLAIN) &&
-                                  mChannel.initializeChannel(endpoint.toString(), false);
+                                  mChannel.initializeUnencryptedChannel(endpoint.toString());
                          default:
                            return false;
                        }
@@ -91,7 +88,8 @@ bool Node::tryInitializeChannel()
 
 void Node::setTLSBehavior(TLSBehavior desiredBehavior)
 {
-  if (desiredBehavior == mTLSBehavior) {
+  if (desiredBehavior == mTLSBehavior)
+  {
     return;
   }
 
