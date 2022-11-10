@@ -84,7 +84,6 @@ bool Node::tryInitializeChannel()
                                    endpoint.getPort() == NodeAddress::PORT_MIRROR_PLAIN) &&
                                   mChannel.initializeChannel(endpoint.toString(), false);
                          default:
-                           // TODO throw
                            return false;
                        }
                      });

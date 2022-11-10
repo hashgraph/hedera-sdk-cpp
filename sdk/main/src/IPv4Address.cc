@@ -50,8 +50,7 @@ IPv4Address IPv4Address::fromString(const std::string& inputString)
   // if input string isn't bytes, it must be made up of number characters, with 4 octets separated by the '.' character
   if (std::count(inputString.begin(), inputString.end(), '.') != 3)
   {
-    // todo THROW
-    return { 0, 0, 0, 0 };
+    throw std::invalid_argument("Input IPv4Address is malformed");
   }
 
   std::vector<unsigned char> byteVector;
@@ -65,24 +64,21 @@ IPv4Address IPv4Address::fromString(const std::string& inputString)
 
     if (!byteString.length())
     {
-      // todo THROW
-      return { 0, 0, 0, 0 };
+      throw std::invalid_argument("Input IPv4Address has empty octet");
     }
 
     for (char character : byteString)
     {
       if (!std::isdigit(character))
       {
-        // todo THROW
-        return { 0, 0, 0, 0 };
+        throw std::invalid_argument("Input IPv4Address has octet that isn't a number");
       }
     }
 
     unsigned int byteInt = std::stoi(byteString);
     if (byteInt > 255)
     {
-      // todo THROW
-      return { 0, 0, 0, 0 };
+      throw std::invalid_argument("Input IPv4Address octet is > 255");
     }
 
     byteVector.push_back(byteInt);
