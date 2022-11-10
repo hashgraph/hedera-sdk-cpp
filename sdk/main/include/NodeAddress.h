@@ -40,10 +40,10 @@ namespace Hedera
 class NodeAddress
 {
 public:
-  inline static int PORT_MIRROR_PLAIN = 5600;
-  inline static int PORT_MIRROR_TLS = 443;
-  inline static int PORT_NODE_PLAIN = 50211;
-  inline static int PORT_NODE_TLS = 50212;
+  inline static const int PORT_MIRROR_PLAIN = 5600;
+  inline static const int PORT_MIRROR_TLS = 443;
+  inline static const int PORT_NODE_PLAIN = 50211;
+  inline static const int PORT_NODE_TLS = 50212;
 
   /**
    * Constructor
