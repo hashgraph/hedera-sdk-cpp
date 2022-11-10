@@ -40,7 +40,7 @@ public:
   /**
    * Constructor which initializes address octets
    */
-  IPv4Address(unsigned int octet1, unsigned int octet2, unsigned int octet3, unsigned int octet4);
+  IPv4Address(unsigned char octet1, unsigned char octet2, unsigned char octet3, unsigned char octet4);
 
   /**
    * Creates a new IP address from a string. Supports ascii or byte representation
@@ -62,22 +62,22 @@ private:
   /**
    * The first octet of the address
    */
-  unsigned int mOctet1;
+  unsigned char mOctet1;
 
   /**
    * The second octet of the address
    */
-  unsigned int mOctet2;
+  unsigned char mOctet2;
 
   /**
    * The third octet of the address
    */
-  unsigned int mOctet3;
+  unsigned char mOctet3;
 
   /**
    * The fourth octet of the address
    */
-  unsigned int mOctet4;
+  unsigned char mOctet4;
 };
 
 } // Hedera

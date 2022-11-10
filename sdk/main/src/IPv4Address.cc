@@ -27,7 +27,7 @@
 namespace Hedera
 {
 
-IPv4Address::IPv4Address(unsigned int octet1, unsigned int octet2, unsigned int octet3, unsigned int octet4)
+IPv4Address::IPv4Address(unsigned char octet1, unsigned char octet2, unsigned char octet3, unsigned char octet4)
 {
   mOctet1 = octet1;
   mOctet2 = octet2;
@@ -40,13 +40,9 @@ IPv4Address IPv4Address::fromString(const std::string& inputString)
   // input string is in byte format, where each byte represents a single IP address octet
   if (inputString.size() == 4)
   {
-    std::vector<unsigned int> byteVector = { inputString.cbegin(), inputString.cend() };
+    std::vector<unsigned char> byteVector = { inputString.cbegin(), inputString.cend() };
 
-    unsigned int mask = 0x000000FF;
-
-    IPv4Address outputAddress = {
-      byteVector.at(0) & mask, byteVector.at(1) & mask, byteVector.at(2) & mask, byteVector.at(3) & mask
-    };
+    IPv4Address outputAddress = { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
 
     return outputAddress;
   }
@@ -58,7 +54,7 @@ IPv4Address IPv4Address::fromString(const std::string& inputString)
     return { 0, 0, 0, 0 };
   }
 
-  std::vector<unsigned int> byteVector;
+  std::vector<unsigned char> byteVector;
 
   int previousDelimiter = -1;
   int nextDelimiter = (int)inputString.find('.');
@@ -102,7 +98,8 @@ std::string IPv4Address::toString() const
 {
   std::stringstream outputStream;
 
-  outputStream << mOctet1 << "." << mOctet2 << "." << mOctet3 << "." << mOctet4;
+  outputStream << (unsigned int)mOctet1 << "." << (unsigned int)mOctet2 << "." << (unsigned int)mOctet3 << "."
+               << (unsigned int)mOctet4;
 
   return outputStream.str();
 }
