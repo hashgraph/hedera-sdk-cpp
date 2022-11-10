@@ -45,8 +45,7 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorId(argv[1]);
-  const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(argv[2]);
-  client.setOperator(operatorId, operatorKey);
+  client.setOperator(operatorId, ED25519PrivateKey::fromString(argv[2]));
 
   const AccountId recipientId("0.0.3");
   const Hbar amount(10000ULL, HbarUnit::TINYBAR());
