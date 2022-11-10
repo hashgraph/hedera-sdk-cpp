@@ -23,12 +23,35 @@
 
 #include <grpcpp/security/credentials.h>
 
+/**
+ * Custom TLS verifier which checks if node TLS cert chain matches the expected hash
+ */
 class HederaCertificateVerifier : public grpc::experimental::ExternalCertificateVerifier
 {
+  /**
+   * The verification logic that will be performed after the TLS handshake
+   * completes
+   *
+   * @param request the verification information associated with this request
+   * @param callback only used for asynchronous verification (therefore unused in this case, since verification is
+   * currently synchronous)
+   * @param sync_status This should only be used if your check is done synchronously. Modifies this value to indicate
+   * the success or the failure of the check.
+   * @return true if your check is done synchronously, otherwise return false. always true in this case
+   */
   bool Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
               std::function<void(grpc::Status)> callback,
               grpc::Status* sync_status) override;
 
+  /**
+   * Cancels a verification request previously started via Verify().
+   * Used when the connection attempt times out or is cancelled while an async
+   * verification request is pending. The implementation should abort whatever
+   * async operation it is waiting for and quickly invoke the callback that was
+   * passed to Verify() with a status indicating the cancellation.
+   *
+   * @param request the verification information associated with this request
+   */
   void Cancel(grpc::experimental::TlsCustomVerificationCheckRequest* request) override;
 };
 

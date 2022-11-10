@@ -32,10 +32,6 @@ Network Network::forTestnet()
   Network network;
   network.setNetwork(NodeAddressBook::fromFile("testnet.pb"));
 
-  // disable by default for now, since current serialized testnet doesn't include TLS endpoints
-  // TODO: remove this once we pull a new version of the address book that includes TLS endpoints
-  network.setTLSBehavior(TLSBehavior::DISABLE);
-
   return network;
 }
 

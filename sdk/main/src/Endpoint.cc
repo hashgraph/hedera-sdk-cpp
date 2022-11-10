@@ -38,11 +38,6 @@ Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint)
 
 Endpoint::Endpoint(IPv4Address address, int port)
 {
-  if (port == 0 || port == 50111)
-  {
-    port = 50211;
-  }
-
   mAddress = address;
   mPort = port;
 }

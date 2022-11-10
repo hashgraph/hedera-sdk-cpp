@@ -166,6 +166,9 @@ namespace std
 template<>
 struct hash<Hedera::AccountId>
 {
+  /**
+   * Operator override to enable use of AccountId as map key
+   */
   std::size_t operator()(const Hedera::AccountId& id) const { return hash<std::string>()(id.toString()); }
 };
 }

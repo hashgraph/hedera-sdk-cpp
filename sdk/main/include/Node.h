@@ -72,6 +72,11 @@ public:
                                                            grpc::ClientContext* context,
                                                            const ProtoRequestType& request);*/
 
+  /**
+   * Sets the TLS behavior of the node
+   *
+   * @param desiredBehavior the desired behavior
+   */
   void setTLSBehavior(TLSBehavior desiredBehavior);
 
   /**
@@ -103,10 +108,24 @@ private:
    */
   Channel mChannel;
 
-  TLSBehavior mTLSBehavior = TLSBehavior::REQUIRE;
+  /**
+   * The TLS behavior of the node
+   */
+  TLSBehavior mTLSBehavior = TLSBehavior::DISABLE;
 
+  /**
+   * Checks if the channel is initialized. If it isn't, try to initialize it
+   *
+   * @return true if the channel is already initialized, or if it is successfully initialized in the course of this
+   * call. false if channel could not be initialized
+   */
   bool checkChannelInitialized();
 
+  /**
+   * Tries to initialize the channel
+   *
+   * @return true if initialization is successful, otherwise false
+   */
   bool tryInitializeChannel();
 };
 

@@ -24,9 +24,18 @@
 namespace Hedera
 {
 
+/**
+ * Enum representing different modes of network operation
+ */
 enum TLSBehavior
 {
+  /**
+   * Communicate only in the clear
+   */
   DISABLE,
+  /**
+   * Require TLS connection
+   */
   REQUIRE
 };
 

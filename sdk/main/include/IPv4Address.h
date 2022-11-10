@@ -26,20 +26,57 @@
 namespace Hedera
 {
 
+/**
+ * An IPv4 address (without port)
+ */
 class IPv4Address
 {
 public:
+  /**
+   * Default constructor
+   */
   IPv4Address() = default;
+
+  /**
+   * Constructor which initializes address octets
+   */
   IPv4Address(unsigned int octet1, unsigned int octet2, unsigned int octet3, unsigned int octet4);
 
+  /**
+   * Creates a new IP address from a string. Supports ascii or byte representation
+   *
+   * @param inputString string representing an IP address
+   *
+   * @return the new IP address. Currently returns address of 0.0.0.0 if there is an error in creation
+   */
   static IPv4Address fromString(const std::string& inputString);
 
+  /**
+   * Converts address to form octet1.octet2.octet3.octet4
+   *
+   * @return string representing the address
+   */
   [[nodiscard]] std::string toString() const;
 
 private:
+  /**
+   * The first octet of the address
+   */
   unsigned int mOctet1;
+
+  /**
+   * The second octet of the address
+   */
   unsigned int mOctet2;
+
+  /**
+   * The third octet of the address
+   */
   unsigned int mOctet3;
+
+  /**
+   * The fourth octet of the address
+   */
   unsigned int mOctet4;
 };
 

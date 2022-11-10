@@ -48,9 +48,11 @@ public:
   static Network forTestnet();
 
   /**
-   * Get a list of nodes on this network that are associated with the input account IDs.
+   * Get a list of nodes on this network that are associated with the input account IDs. If no account IDs are
+   * specified, returns all nodes
    *
    * @param accountIds The account IDs of the requested nodes.
+   *
    * @return List of nodes with the requested account IDs.
    */
   [[nodiscard]] std::vector<std::shared_ptr<Node>> getNodesWithAccountIds(
@@ -61,6 +63,11 @@ public:
    */
   void close();
 
+  /**
+   * Sets the TLS behavior of all nodes
+   *
+   * @param desiredBehavior the desired behavior
+   */
   void setTLSBehavior(TLSBehavior desiredBehavior);
 
 private:

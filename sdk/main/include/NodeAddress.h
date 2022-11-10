@@ -23,8 +23,8 @@
 #include <string>
 #include <vector>
 
-#include "Endpoint.h"
 #include "AccountId.h"
+#include "Endpoint.h"
 
 namespace proto
 {
@@ -33,6 +33,10 @@ class NodeAddress;
 
 namespace Hedera
 {
+
+/**
+ * Class containing all information related the the address(es) of a node
+ */
 class NodeAddress
 {
 public:
@@ -41,27 +45,70 @@ public:
   inline static int PORT_NODE_PLAIN = 50211;
   inline static int PORT_NODE_TLS = 50212;
 
+  /**
+   * Constructor
+   */
   NodeAddress();
 
+  /**
+   * Gets the account ID associated with the node
+   *
+   * @return the account ID associated with the node
+   */
   [[nodiscard]] std::shared_ptr<AccountId> getAccountId() const;
 
+  /**
+   * Gets a vector of endpoints associated with the node
+   *
+   * @return the node endpoints
+   */
   [[nodiscard]] const std::vector<Endpoint>& getEndpoints() const;
 
+  /**
+   * Creates a new node address object from a protobuf
+   *
+   * @param protoNodeAddress the protobuf address
+   *
+   * @return the new node address object
+   */
   static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
+  /**
+   * Gets the string representation of the address, for debugging purposes
+   *
+   * @return a string representing the address
+   */
   [[nodiscard]] std::string toString() const;
 
 private:
+  /**
+   * The endpoints associated with the node
+   */
   std::vector<Endpoint> mEndpoints;
 
+  /**
+   * The node's public key
+   */
   std::string mRSAPublicKey;
 
+  /**
+   * The ID of the node
+   */
   int64_t mNodeId;
 
+  /**
+   * The SHA-384 hash of the node's certificate chain
+   */
   std::string mCertificateHash;
 
+  /**
+   * A string description of the node
+   */
   std::string mDescription;
 
+  /**
+   * The account ID associated with the node
+   */
   std::shared_ptr<AccountId> mAccountId;
 };
 } // namespace Hedera

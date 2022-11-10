@@ -68,6 +68,7 @@ public:
 
   /**
    * Gets whether this channel is in an initialized state
+   *
    * @return true if the channel is initialized, otherwise false
    */
   [[nodiscard]] bool getInitialized() const;
@@ -102,6 +103,9 @@ private:
   struct ChannelImpl;
   std::unique_ptr<ChannelImpl> mImpl;
 
+  /**
+   * True if the channel is initialized, otherwise false
+   */
   bool mInitialized = false;
 };
 
