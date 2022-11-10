@@ -63,10 +63,7 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client, const std
   tx.onSelectNode(node);
   header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
 
-  if (mTransactionId.has_value())
-  {
-    getTransactionRecordQuery->set_allocated_transactionid(mTransactionId.value().toProtobuf());
-  }
+  getTransactionRecordQuery->set_allocated_transactionid(mTransactionId.toProtobuf());
 
   return query;
 }
