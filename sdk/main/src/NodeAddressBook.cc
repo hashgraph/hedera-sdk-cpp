@@ -26,7 +26,6 @@ namespace Hedera
 {
 NodeAddressBook NodeAddressBook::fromFile(const std::string& fileName)
 {
-  std::cout << fileName << std::endl;
   std::ifstream infile(fileName, std::ios_base::binary);
 
   std::vector<char> buffer((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());

@@ -21,6 +21,8 @@
 
 #include "AccountId.h"
 
+#include <iostream>
+
 namespace Hedera
 {
 
@@ -30,11 +32,16 @@ Network Network::forTestnet()
   Network network;
   network.setNetwork(NodeAddressBook::fromFile("testnet.pb"));
 
+  // disable by default for now, since current serialized testnet doesn't include TLS endpoints
+  // TODO: remove this once we pull a new version of the address book that includes TLS endpoints
+  network.setTLSBehavior(TLSBehavior::DISABLE);
+
   return network;
 }
 
 //-----
-std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(const std::vector<std::shared_ptr<AccountId>>& accountIds) const
+std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(
+  const std::vector<std::shared_ptr<AccountId>>& accountIds) const
 {
   if (accountIds.empty())
   {
@@ -68,9 +75,17 @@ void Network::setNetwork(const NodeAddressBook& nodeAddressBook)
 //-----
 void Network::close()
 {
-  for (auto& node : mNodes)
+  for (const auto& node : mNodes)
   {
     node->shutdown();
+  }
+}
+
+void Network::setTLSBehavior(TLSBehavior desiredBehavior)
+{
+  for (const auto& node : mNodes)
+  {
+    node->setTLSBehavior(desiredBehavior);
   }
 }
 

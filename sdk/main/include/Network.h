@@ -23,6 +23,7 @@
 #include "Node.h"
 
 #include "NodeAddressBook.h"
+#include "TLSBehavior.h"
 #include "helper/StringHash.h"
 
 #include <string>
@@ -59,6 +60,8 @@ public:
    * Close this network.
    */
   void close();
+
+  void setTLSBehavior(TLSBehavior desiredBehavior);
 
 private:
   /**
