@@ -19,23 +19,107 @@
  */
 #include "NodeAddress.h"
 
+#include "proto/basic_types.pb.h"
+
+#include <iomanip>
+#include <sstream>
+#include <memory>
+
 namespace Hedera
 {
-//-----
-NodeAddress NodeAddress::fromString(std::string_view address)
+NodeAddress::NodeAddress()
 {
-  NodeAddress nodeAddress;
+  mEndpoints = {};
+  mAccountId = {};
+  mRSAPublicKey = "";
+  mNodeId = -1;
+  mCertificateHash = "";
+  mDescription = "";
+}
 
-  // TODO: add string checks
-  size_t colonIndex = address.find(':');
-  nodeAddress.mAddress = address.substr(0, address.size() - colonIndex + 1);
-  nodeAddress.mPort =
-    atoi(static_cast<std::string>(
-           address.substr(colonIndex + 1,
-                          address.size() - nodeAddress.mAddress.size() - 1))
-           .c_str());
+NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
+{
+  NodeAddress outputNodeAddress = NodeAddress();
 
-  return nodeAddress;
+  for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
+  {
+    outputNodeAddress.mEndpoints.push_back(Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
+  }
+
+  if (protoNodeAddress.ipaddress().length() != 0)
+  {
+    outputNodeAddress.mEndpoints.emplace_back(IPv4Address::fromString(protoNodeAddress.ipaddress()),
+                                              protoNodeAddress.portno());
+  }
+
+  outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
+  outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
+  outputNodeAddress.mCertificateHash = protoNodeAddress.nodecerthash();
+  outputNodeAddress.mDescription = protoNodeAddress.description();
+  outputNodeAddress.mAccountId = std::make_shared<AccountId>(AccountId::fromProtobuf(protoNodeAddress.nodeaccountid()));
+
+  return outputNodeAddress;
+}
+
+std::string NodeAddress::toString() const
+{
+  std::stringstream outputStream;
+
+  int columnWidth = 20;
+  outputStream << std::setw(columnWidth) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mAccountId->toString()
+               << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left << mCertificateHash
+               << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
+
+  unsigned int endpointCount = mEndpoints.size();
+
+  if (!endpointCount)
+  {
+    outputStream << "<None>";
+  }
+  else
+  {
+    int counter = 0;
+    for (auto endpoint : mEndpoints)
+    {
+      if (counter == 0)
+      {
+        outputStream << endpoint.toString();
+      }
+      else
+      {
+        outputStream << std::setw(columnWidth) << "" << endpoint.toString();
+      }
+
+      ++counter;
+
+      if (counter != endpointCount)
+      {
+        outputStream << std::endl;
+      }
+    }
+  }
+
+  return outputStream.str();
+}
+
+std::shared_ptr<AccountId> NodeAddress::getAccountId() const
+{
+  return mAccountId;
+}
+
+const std::vector<Endpoint>& NodeAddress::getEndpoints() const
+{
+  return mEndpoints;
+}
+
+std::string NodeAddress::getCertificateHash() const
+{
+  return mCertificateHash;
 }
 
 } // namespace Hedera

@@ -24,23 +24,26 @@
 namespace Hedera
 {
 //-----
-Node::Node(const std::string& url, const AccountId& accountId)
-  : mAccountId(accountId)
-  , mAddress(NodeAddress::fromString(url))
-  , mChannel(url)
+Node::Node(const std::shared_ptr<NodeAddress>& address)
 {
+  mAddress = address;
 }
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-Node::getGrpcTransactionMethod(int transactionBodyDataCase) const
+Node::getGrpcTransactionMethod(int transactionBodyDataCase)
 {
+  if (!checkChannelInitialized())
+  {
+    return nullptr;
+  }
+
   return mChannel.getGrpcTransactionMethod(transactionBodyDataCase);
 }
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> Node::getGrpcQueryMethod(
-  int queryBodyDataCase) const
+  int queryBodyDataCase)
 {
   return mChannel.getGrpcQueryMethod(queryBodyDataCase);
 }
@@ -48,6 +51,49 @@ std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Res
 //-----
 void Node::shutdown()
 {
+  mChannel.shutdown();
+}
+
+bool Node::checkChannelInitialized()
+{
+  return mChannel.getInitialized() || tryInitializeChannel();
+}
+
+bool Node::tryInitializeChannel()
+{
+  const std::vector<Endpoint> endpoints = mAddress->getEndpoints();
+
+  return std::any_of(endpoints.begin(),
+                     endpoints.end(),
+                     [this](const Endpoint& endpoint)
+                     {
+                       switch (mTLSBehavior)
+                       {
+                         case TLSBehavior::REQUIRE:
+                           return (endpoint.getPort() == NodeAddress::PORT_NODE_TLS ||
+                                   endpoint.getPort() == NodeAddress::PORT_MIRROR_TLS) &&
+                                  !mAddress->getCertificateHash().empty() &&
+                                  mChannel.initializeEncryptedChannel(endpoint.toString(),
+                                                                      mAddress->getCertificateHash());
+
+                         case TLSBehavior::DISABLE:
+                           return (endpoint.getPort() == NodeAddress::PORT_NODE_PLAIN ||
+                                   endpoint.getPort() == NodeAddress::PORT_MIRROR_PLAIN) &&
+                                  mChannel.initializeUnencryptedChannel(endpoint.toString());
+                         default:
+                           return false;
+                       }
+                     });
+}
+
+void Node::setTLSBehavior(TLSBehavior desiredBehavior)
+{
+  if (desiredBehavior == mTLSBehavior)
+  {
+    return;
+  }
+
+  mTLSBehavior = desiredBehavior;
   mChannel.shutdown();
 }
 
