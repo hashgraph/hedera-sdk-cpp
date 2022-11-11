@@ -116,7 +116,7 @@ public:
    * @param autoRenewPeriod The desired auto renew period for the new account.
    * @return Reference to this AccountCreateTransaction object.
    */
-  AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
+  AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<int64_t>& autoRenewPeriod);
 
   /**
    * Assign a memo to the new account.
@@ -202,7 +202,7 @@ public:
    *
    * @return The desired auto renew period for the new account.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getAutoRenewPeriod() const
+  [[nodiscard]] inline std::optional<std::chrono::duration<int64_t>> getAutoRenewPeriod() const
   {
     return mAutoRenewPeriod;
   }
@@ -304,7 +304,7 @@ private:
    * extends as long as possible. If the balance is zero when it expires, then the account is deleted. Defaults to 3
    * months.
    */
-  std::chrono::duration<double> mAutoRenewPeriod = std::chrono::months(3);
+  std::chrono::duration<int64_t> mAutoRenewPeriod = std::chrono::months(3);
 
   /**
    * The memo to be associated with the account (UTF-8 encoding max 100 bytes). Defaults to empty.

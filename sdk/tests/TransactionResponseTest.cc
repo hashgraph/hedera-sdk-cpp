@@ -47,7 +47,7 @@ TEST_F(TransactionResponseTest, ProtobufTransactionResponse)
 
 TEST_F(TransactionResponseTest, TransactionId)
 {
-  const TransactionId transactionId = TransactionId::generate(AccountId(10ULL));
+  const TransactionId transactionId = TransactionId::generate(std::make_shared<AccountId>(10ULL));
   TransactionResponse txResponse;
   txResponse.setTransactionId(transactionId);
   EXPECT_EQ(txResponse.getTransactionId(), transactionId);

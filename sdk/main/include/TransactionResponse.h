@@ -72,7 +72,8 @@ public:
    * @return The receipt for this transaction.
    * @throws std::runtime_error if unable to communicate with client network.
    */
-  [[nodiscard]] TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+  [[nodiscard]] TransactionReceipt getReceipt(const Client& client,
+                                              const std::chrono::duration<int64_t>& timeout) const;
 
   /**
    * Get the record for this transaction.
@@ -91,7 +92,7 @@ public:
    * @return The record for this transaction.
    * @throws std::runtime_error if unable to communicate with client network.
    */
-  [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
+  [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<int64_t>& timeout) const;
 
   /**
    * Set the transaction ID to which this TransactionResponse is responding.
