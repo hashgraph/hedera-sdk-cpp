@@ -32,10 +32,10 @@ using namespace Hedera;
 class TransactionIdTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mAccountId; }
 
 private:
-  const AccountId mAccountId = AccountId(0ULL, 0ULL, 10ULL);
+  const std::shared_ptr<AccountId> mAccountId = std::make_shared<AccountId>(AccountId(0ULL, 0ULL, 10ULL));
 };
 
 TEST_F(TransactionIdTest, GenerateTransactionId)
@@ -55,20 +55,19 @@ TEST_F(TransactionIdTest, ProtobufTransactionId)
   const std::chrono::sys_time<std::chrono::duration<double>> now = std::chrono::system_clock::now();
 
   proto::TransactionID protoTransactionId;
-  protoTransactionId.set_allocated_accountid(getTestAccountId().toProtobuf());
+  protoTransactionId.set_allocated_accountid(getTestAccountId()->toProtobuf());
   protoTransactionId.set_allocated_transactionvalidstart(TimestampConverter::toProtobuf(now));
 
   const TransactionId transactionId = TransactionId::fromProtobuf(protoTransactionId);
-  EXPECT_EQ(transactionId.getAccountId(), getTestAccountId());
+  EXPECT_EQ(*transactionId.getAccountId(), *getTestAccountId());
   EXPECT_EQ(transactionId.getValidTransactionTime(), now);
 
-  const std::unique_ptr<proto::TransactionID> protoTransactionIdPtr =
-    std::unique_ptr<proto::TransactionID>(transactionId.toProtobuf());
-  const std::unique_ptr<proto::Timestamp> protoTimestampPtr =
-    std::unique_ptr<proto::Timestamp>(TimestampConverter::toProtobuf(now));
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), getTestAccountId().getShardNum());
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), getTestAccountId().getRealmNum());
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), getTestAccountId().getAccountNum());
+  const auto protoTransactionIdPtr = std::unique_ptr<proto::TransactionID>(transactionId.toProtobuf());
+  const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(TimestampConverter::toProtobuf(now));
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), getTestAccountId()->getShardNum());
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), getTestAccountId()->getRealmNum());
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()),
+            getTestAccountId()->getAccountNum());
   EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
   EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().nanos(), protoTimestampPtr->nanos());
 }
