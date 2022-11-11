@@ -30,7 +30,7 @@ Transfer Transfer::fromProtobuf(const proto::AccountAmount& proto)
 
   if (proto.has_accountid())
   {
-    transfer.mAccountId = AccountId::fromProtobuf(proto.accountid());
+    transfer.mAccountId = std::make_shared<AccountId>(AccountId::fromProtobuf(proto.accountid()));
   }
 
   transfer.mAmount = Hbar(proto.amount(), HbarUnit::TINYBAR());
@@ -44,9 +44,9 @@ proto::AccountAmount* Transfer::toProtobuf() const
 {
   auto proto = new proto::AccountAmount;
 
-  if (mAccountId.has_value())
+  if (mAccountId)
   {
-    proto->set_allocated_accountid(mAccountId.value().toProtobuf());
+    proto->set_allocated_accountid(mAccountId->toProtobuf());
   }
 
   proto->set_amount(mAmount.toTinybars());
@@ -56,7 +56,7 @@ proto::AccountAmount* Transfer::toProtobuf() const
 }
 
 //-----
-Transfer& Transfer::setAccountId(const Hedera::AccountId& accountId)
+Transfer& Transfer::setAccountId(const std::shared_ptr<AccountId>& accountId)
 {
   mAccountId = accountId;
   return *this;

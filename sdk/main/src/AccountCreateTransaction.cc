@@ -61,8 +61,7 @@ AccountCreateTransaction& AccountCreateTransaction::setReceiverSignatureRequired
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
-  const std::chrono::duration<double>& autoRenewPeriod)
+AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(const std::chrono::duration<int64_t>& autoRenewPeriod)
 {
   mAutoRenewPeriod = autoRenewPeriod;
   return *this;

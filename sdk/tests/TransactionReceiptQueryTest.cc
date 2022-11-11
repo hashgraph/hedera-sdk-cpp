@@ -27,10 +27,10 @@ using namespace Hedera;
 class TransactionReceiptQueryTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
+  [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mTestAccountId; }
 
 private:
-  const AccountId mTestAccountId = AccountId(0ULL, 0ULL, 10ULL);
+  const std::shared_ptr<AccountId> mTestAccountId = std::make_shared<AccountId>(0ULL, 0ULL, 10ULL);
 };
 
 TEST_F(TransactionReceiptQueryTest, SetTransactionId)

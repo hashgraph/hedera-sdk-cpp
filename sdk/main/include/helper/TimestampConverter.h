@@ -37,7 +37,7 @@ namespace Hedera::TimestampConverter
  * @param timestamp The Timestamp protobuf.
  * @return The system time represented by the input Timestamp protobuf.
  */
-std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::Timestamp& timestamp);
+std::chrono::system_clock::time_point fromProtobuf(const proto::Timestamp& timestamp);
 
 /**
  * Create a system time object from a TimestampSeconds protobuf.
@@ -45,7 +45,7 @@ std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::T
  * @param timestamp The TimestampSeconds protobuf.
  * @return The system time represented by the input TimestampSeconds protobuf.
  */
-std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::TimestampSeconds& timestamp);
+std::chrono::system_clock::time_point fromProtobuf(const proto::TimestampSeconds& timestamp);
 
 /**
  * Create a Timestamp protobuf from a system time.
@@ -53,7 +53,7 @@ std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::T
  * @param time The system time.
  * @return The Timestamp protobuf represented by the input system time.
  */
-proto::Timestamp* toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time);
+proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point & time);
 
 } // namespace Hedera::TimestampConverter
 

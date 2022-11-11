@@ -80,7 +80,7 @@ TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequired)
 TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriod)
 {
   AccountCreateTransaction transaction;
-  const std::chrono::duration<double> duration = std::chrono::days(10);
+  const auto duration = std::chrono::days(10);
   transaction.setAutoRenewPeriod(duration);
 
   EXPECT_EQ(transaction.getAutoRenewPeriod(), duration);

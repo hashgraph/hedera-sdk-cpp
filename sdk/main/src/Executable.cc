@@ -56,7 +56,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
   const Client& client,
-  const std::chrono::duration<double>& duration)
+  const std::chrono::duration<int64_t>& duration)
 {
   // Perform any operations needed when executing.
   onExecute(client);
@@ -94,7 +94,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setNodeAccountIds(
-  const std::vector<AccountId>& nodeAccountIds)
+  const std::vector<std::shared_ptr<AccountId>>& nodeAccountIds)
 {
   mNodeAccountIds = nodeAccountIds;
   return static_cast<SdkRequestType&>(*this);

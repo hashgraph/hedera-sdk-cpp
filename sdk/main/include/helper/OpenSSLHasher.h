@@ -17,24 +17,25 @@
  * limitations under the License.
  *
  */
-#include "helper/DurationConverter.h"
 
-#include <proto/duration.pb.h>
+#ifndef HEDERA_SDK_CPP_OPENSSLHASHER_H
+#define HEDERA_SDK_CPP_OPENSSLHASHER_H
 
-namespace Hedera::DurationConverter
+#include <vector>
+#include <string>
+
+namespace Hedera
 {
-//----
-std::chrono::seconds fromProtobuf(const proto::Duration& duration)
-{
-  return std::chrono::seconds(duration.seconds());
-}
 
-//-----
-proto::Duration* toProtobuf(const std::chrono::duration<int64_t>& duration)
+/**
+ * Utility class wrapper around openssl hashing functions
+ */
+class OpenSSLHasher
 {
-  auto proto = new proto::Duration;
-  proto->set_seconds(std::chrono::duration_cast<std::chrono::seconds>(duration).count());
-  return proto;
-}
+public:
+  static std::vector<unsigned char> computeSHA384(const std::string& data);
+};
 
-} // namespace Hedera::DurationConverter
+} // Hedera
+
+#endif // HEDERA_SDK_CPP_OPENSSLHASHER_H

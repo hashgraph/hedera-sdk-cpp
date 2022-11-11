@@ -25,6 +25,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/ContractUpdateTransaction.cc
         src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
+        src/Endpoint.cc
         #    src/EthereumTransaction.cc
         src/EvmAddress.cc
         src/ExchangeRate.cc
@@ -33,9 +34,12 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
         #    src/FileCreateTransaction.cc
+        src/HederaCertificateVerifier.cc
+        src/IPv4Address.cc
         src/Network.cc
         src/Node.cc
         src/NodeAddress.cc
+        src/NodeAddressBook.cc
         src/PublicKey.cc
         src/Status.cc
         src/Transaction.cc
@@ -50,6 +54,7 @@ add_library(${PROJECT_NAME} STATIC
 
         src/helper/DurationConverter.cc
         src/helper/HexConverter.cc
+        src/helper/OpenSSLHasher.cc
         src/helper/TimestampConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
