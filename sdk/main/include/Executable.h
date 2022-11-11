@@ -23,8 +23,8 @@
 #include "AccountId.h"
 
 #include <chrono>
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace Hedera
 {
@@ -70,7 +70,7 @@ public:
    * @return The result of execution.
    * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
    */
-  SdkResponseType execute(const Client& client, const std::chrono::duration<double>& duration);
+  SdkResponseType execute(const Client& client, const std::chrono::duration<int64_t>& duration);
 
   /**
    * Set the account IDs of the nodes to which this transaction will be submitted.

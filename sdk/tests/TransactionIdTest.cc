@@ -40,7 +40,7 @@ private:
 
 TEST_F(TransactionIdTest, GenerateTransactionId)
 {
-  const std::chrono::sys_time<std::chrono::duration<double>> now = std::chrono::system_clock::now();
+  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
   const TransactionId transactionId = TransactionId::generate(getTestAccountId());
 
   EXPECT_EQ(transactionId.getAccountId(), getTestAccountId());
@@ -52,7 +52,7 @@ TEST_F(TransactionIdTest, GenerateTransactionId)
 
 TEST_F(TransactionIdTest, ProtobufTransactionId)
 {
-  const std::chrono::sys_time<std::chrono::duration<double>> now = std::chrono::system_clock::now();
+  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
   proto::TransactionID protoTransactionId;
   protoTransactionId.set_allocated_accountid(getTestAccountId()->toProtobuf());

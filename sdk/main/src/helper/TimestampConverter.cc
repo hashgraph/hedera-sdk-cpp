@@ -24,20 +24,21 @@
 namespace Hedera::TimestampConverter
 {
 //-----
-std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::Timestamp& timestamp)
+std::chrono::system_clock::time_point fromProtobuf(const proto::Timestamp& timestamp)
 {
-  return std::chrono::sys_time<std::chrono::nanoseconds>(
-    std::chrono::nanoseconds((timestamp.seconds() * 1000000000) + timestamp.nanos()));
+  // Convert the nanoseconds to a point in time using the precision of the system's clock
+  return std::chrono::system_clock::time_point(std::chrono::duration_cast<std::chrono::system_clock::duration>(
+    std::chrono::nanoseconds(timestamp.seconds() * 1000000000 + timestamp.nanos())));
 }
 
 //-----
-std::chrono::sys_time<std::chrono::duration<double>> fromProtobuf(const proto::TimestampSeconds& timestamp)
+std::chrono::system_clock::time_point fromProtobuf(const proto::TimestampSeconds& timestamp)
 {
-  return std::chrono::sys_time<std::chrono::seconds>(std::chrono::seconds(timestamp.seconds()));
+  return std::chrono::system_clock::time_point(std::chrono::seconds(timestamp.seconds()));
 }
 
 //-----
-proto::Timestamp* toProtobuf(const std::chrono::sys_time<std::chrono::duration<double>>& time)
+proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time)
 {
   auto timestamp = std::make_unique<proto::Timestamp>();
   const std::chrono::nanoseconds nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch());

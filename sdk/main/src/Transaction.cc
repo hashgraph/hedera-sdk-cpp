@@ -38,7 +38,7 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
+SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<int64_t>& duration)
 {
   mTransactionValidDuration = duration;
   return static_cast<SdkRequestType&>(*this);
@@ -46,7 +46,7 @@ SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const s
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::setMaxTransactionFee(const Hedera::Hbar& fee)
+SdkRequestType& Transaction<SdkRequestType>::setMaxTransactionFee(const Hbar& fee)
 {
   mMaxTransactionFee = fee;
   return static_cast<SdkRequestType&>(*this);

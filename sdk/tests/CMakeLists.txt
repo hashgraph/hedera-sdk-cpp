@@ -15,6 +15,7 @@ set(TestSources
         ExchangeRateTest.cc
         HbarTest.cc
         TransactionIdTest.cc
+        TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
         )
 

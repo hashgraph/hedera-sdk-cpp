@@ -139,7 +139,7 @@ public:
    *
    * @return The request timeout.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getRequestTimeout() const { return mRequestTimeout; }
+  [[nodiscard]] inline std::chrono::duration<int64_t> getRequestTimeout() const { return mRequestTimeout; }
 
 private:
   /**
@@ -160,7 +160,7 @@ private:
   /**
    * The request timeout. Defaults to 2 minutes.
    */
-  std::chrono::duration<double> mRequestTimeout = std::chrono::minutes(2);
+  std::chrono::duration<int64_t> mRequestTimeout = std::chrono::minutes(2);
 };
 
 } // namespace Hedera

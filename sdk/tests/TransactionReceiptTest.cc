@@ -68,9 +68,11 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   EXPECT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate().has_value());
   EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getCurrentExchangeRate(), value / value);
   EXPECT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime()->time_since_epoch().count(), secs);
+  EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime(),
+            std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
   EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate().has_value());
   EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getCurrentExchangeRate(), value / value);
   EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime()->time_since_epoch().count(), secs);
+  EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime(),
+            std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
 }

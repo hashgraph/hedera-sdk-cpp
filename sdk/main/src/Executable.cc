@@ -56,7 +56,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
   const Client& client,
-  const std::chrono::duration<double>& duration)
+  const std::chrono::duration<int64_t>& duration)
 {
   // Perform any operations needed when executing.
   onExecute(client);

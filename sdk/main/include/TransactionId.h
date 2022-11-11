@@ -59,6 +59,14 @@ public:
   static TransactionId fromProtobuf(const proto::TransactionID& proto);
 
   /**
+   * Default comparator operator.
+   *
+   * @param other The other TransactionId against which to compare.
+   * @return \c TRUE if these TransactionIds are the same, otherwise \c FALSE.
+   */
+  bool operator==(const TransactionId& other) const = default;
+
+  /**
    * Convert this TransactionId to its corresponding protobuf TransactionID.
    *
    * @return Pointer to the created protobuf TransactionID.
@@ -70,7 +78,7 @@ public:
    *
    * @return The valid transaction time.
    */
-  [[nodiscard]] inline std::chrono::sys_time<std::chrono::duration<double>> getValidTransactionTime() const
+  [[nodiscard]] inline std::chrono::system_clock::time_point getValidTransactionTime() const
   {
     return mValidTransactionTime;
   }
@@ -89,7 +97,7 @@ private:
    * When a transaction is submitted there is additionally a validDuration (defaults to 120s) and together they define a
    * time window in which a transaction may be processed.
    */
-  std::chrono::sys_time<std::chrono::duration<double>> mValidTransactionTime;
+  std::chrono::system_clock::time_point mValidTransactionTime;
 
   /**
    * The account ID of the account that is paying for this transaction.
