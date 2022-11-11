@@ -45,8 +45,7 @@ TransactionReceipt TransactionResponse::getReceipt(const Client& client) const
 }
 
 //-----
-TransactionReceipt TransactionResponse::getReceipt(const Client& client,
-                                                   const std::chrono::duration<double>& timeout) const
+TransactionReceipt TransactionResponse::getReceipt(const Client& client, const std::chrono::duration<int64_t>& timeout) const
 {
   // TODO: implement proper networking so this doesn't have to loop
   TransactionReceipt txReceipt;
@@ -66,8 +65,7 @@ TransactionRecord TransactionResponse::getRecord(const Client& client) const
 }
 
 //-----
-TransactionRecord TransactionResponse::getRecord(const Client& client,
-                                                 const std::chrono::duration<double>& timeout) const
+TransactionRecord TransactionResponse::getRecord(const Client& client, const std::chrono::duration<int64_t>& timeout) const
 {
   // TODO: implement proper networking so this doesn't have to loop
   TransactionRecord txRecord;

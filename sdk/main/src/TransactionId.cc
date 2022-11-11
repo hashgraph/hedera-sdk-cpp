@@ -26,7 +26,7 @@
 namespace Hedera
 {
 //-----
-TransactionId TransactionId::generate(const AccountId& accountId)
+TransactionId TransactionId::generate(const std::shared_ptr<AccountId>& accountId)
 {
   TransactionId transactionId;
   transactionId.mAccountId = accountId;
@@ -46,7 +46,7 @@ TransactionId TransactionId::fromProtobuf(const proto::TransactionID& proto)
 
   if (proto.has_accountid())
   {
-    id.mAccountId = AccountId::fromProtobuf(proto.accountid());
+    id.mAccountId = std::make_shared<AccountId>(AccountId::fromProtobuf(proto.accountid()));
   }
 
   return id;
@@ -56,16 +56,8 @@ TransactionId TransactionId::fromProtobuf(const proto::TransactionID& proto)
 proto::TransactionID* TransactionId::toProtobuf() const
 {
   auto proto = new proto::TransactionID;
-
-  if (mValidTransactionTime.has_value())
-  {
-    proto->set_allocated_transactionvalidstart(TimestampConverter::toProtobuf(mValidTransactionTime.value()));
-  }
-
-  if (mAccountId.has_value())
-  {
-    proto->set_allocated_accountid(mAccountId.value().toProtobuf());
-  }
+  proto->set_allocated_transactionvalidstart(TimestampConverter::toProtobuf(mValidTransactionTime));
+  proto->set_allocated_accountid(mAccountId->toProtobuf());
 
   return proto;
 }

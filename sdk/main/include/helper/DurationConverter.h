@@ -44,7 +44,7 @@ std::chrono::seconds fromProtobuf(const proto::Duration& duration);
  * @param duration The duration object.
  * @return The duration protobuf object.
  */
-proto::Duration* toProtobuf(const std::chrono::duration<double>& duration);
+proto::Duration* toProtobuf(const std::chrono::duration<int64_t>& duration);
 
 } // namespace Hedera::DurationConverter
 

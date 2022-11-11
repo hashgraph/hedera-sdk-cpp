@@ -35,16 +35,16 @@ class TransactionRecordTest : public ::testing::Test
 
 TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
 {
-  const AccountId accountIdTo = AccountId(0ULL, 0ULL, 3ULL);
-  const AccountId accountIdFrom = AccountId(0ULL, 0ULL, 4ULL);
+  const auto accountIdTo = std::make_shared<AccountId>(0ULL, 0ULL, 3ULL);
+  const auto accountIdFrom = std::make_shared<AccountId>(0ULL, 0ULL, 4ULL);
   const int64_t transferAmount = 10LL;
   const std::string txHash = "txHash";
-  const std::chrono::sys_time<std::chrono::duration<double>> now = std::chrono::system_clock::now();
+  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
   const std::string txMemo = "txMemo";
   const uint64_t txFee = 10ULL;
 
   proto::TransactionRecord protoTransactionRecord;
-  protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf());
+  protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom->toProtobuf());
   protoTransactionRecord.set_allocated_transactionhash(new std::string(txHash));
   protoTransactionRecord.set_allocated_consensustimestamp(TimestampConverter::toProtobuf(now));
   protoTransactionRecord.set_allocated_transactionid(TransactionId::generate(accountIdFrom).toProtobuf());
@@ -52,27 +52,27 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   protoTransactionRecord.set_transactionfee(txFee);
 
   proto::AccountAmount* aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
-  aa->set_allocated_accountid(accountIdFrom.toProtobuf());
+  aa->set_allocated_accountid(accountIdFrom->toProtobuf());
   aa->set_amount(-transferAmount);
 
   aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
-  aa->set_allocated_accountid(accountIdTo.toProtobuf());
+  aa->set_allocated_accountid(accountIdTo->toProtobuf());
   aa->set_amount(transferAmount);
 
   TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
   EXPECT_TRUE(txRecord.getReceipt().getAccountId().has_value());
-  EXPECT_EQ(txRecord.getReceipt().getAccountId().value(), accountIdFrom);
+  EXPECT_EQ(txRecord.getReceipt().getAccountId().value(), *accountIdFrom);
   EXPECT_EQ(txRecord.getTransactionHash(), txHash);
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
   EXPECT_EQ(txRecord.getConsensusTimestamp().value().time_since_epoch().count(), now.time_since_epoch().count());
   EXPECT_TRUE(txRecord.getTransactionId().has_value());
-  EXPECT_EQ(txRecord.getTransactionId().value().getAccountId(), accountIdFrom);
+  EXPECT_EQ(*txRecord.getTransactionId().value().getAccountId(), *accountIdFrom);
   EXPECT_GE(txRecord.getTransactionId().value().getValidTransactionTime(), now);
   EXPECT_EQ(txRecord.getTransactionMemo(), txMemo);
   EXPECT_EQ(txRecord.getTransactionFee(), txFee);
   EXPECT_FALSE(txRecord.getTransferList().empty());
-  EXPECT_EQ(txRecord.getTransferList().at(0).first, accountIdFrom);
+  EXPECT_EQ(txRecord.getTransferList().at(0).first, *accountIdFrom);
   EXPECT_EQ(txRecord.getTransferList().at(0).second.toTinybars(), -transferAmount);
-  EXPECT_EQ(txRecord.getTransferList().at(1).first, accountIdTo);
+  EXPECT_EQ(txRecord.getTransferList().at(1).first, *accountIdTo);
   EXPECT_EQ(txRecord.getTransferList().at(1).second.toTinybars(), transferAmount);
 }

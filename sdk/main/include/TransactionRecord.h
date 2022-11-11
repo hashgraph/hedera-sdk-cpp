@@ -71,7 +71,7 @@ public:
    *
    * @return The consensus timestamp.
    */
-  [[nodiscard]] inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getConsensusTimestamp() const
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getConsensusTimestamp() const
   {
     return mConsensusTimestamp;
   }
@@ -119,7 +119,7 @@ private:
   /**
    * The consensus timestamp (or null if didn't reach consensus yet).
    */
-  std::optional<std::chrono::sys_time<std::chrono::duration<double>>> mConsensusTimestamp;
+  std::optional<std::chrono::system_clock::time_point> mConsensusTimestamp;
 
   /**
    * The ID of the transaction this record represents.

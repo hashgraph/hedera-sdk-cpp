@@ -14,12 +14,23 @@ set(TestSources
         ED25519PublicKeyTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
+        TransactionIdTest.cc
+        TransactionReceiptQueryTest.cc
+        TransactionReceiptTest.cc
         TransactionRecordTest.cc
         )
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
 
 add_executable(${TEST_PROJECT_NAME} ${TestSources})
+
+message(CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR})
+message(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
+file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
 
 target_link_libraries(${TEST_PROJECT_NAME}
         PRIVATE

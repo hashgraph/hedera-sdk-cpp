@@ -22,6 +22,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 namespace Hedera
 {
@@ -60,5 +61,18 @@ std::vector<unsigned char> HexConverter::hexToBase64(const std::string& inputStr
   }
 
   return outputBytes;
+}
+
+std::string HexConverter::bytesToHex(const std::vector<unsigned char>& bytes)
+{
+  std::stringstream stream;
+  stream << std::hex;
+
+  for (unsigned char byte : bytes)
+  {
+    stream << std::setw(2) << std::setfill('0') << (int)byte;
+  }
+
+  return stream.str();
 }
 }
