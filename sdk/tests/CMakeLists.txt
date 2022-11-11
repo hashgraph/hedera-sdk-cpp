@@ -17,6 +17,7 @@ set(TestSources
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
+        TransactionRecordQueryTest.cc
         TransactionRecordTest.cc
         )
 
