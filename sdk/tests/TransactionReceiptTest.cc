@@ -20,6 +20,8 @@
 #include "TransactionReceipt.h"
 #include "Status.h"
 
+#include "helper/TimestampConverter.h"
+
 #include <gtest/gtest.h>
 #include <proto/transaction_receipt.pb.h>
 
@@ -48,8 +50,27 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   protoTxReceipt.set_status(proto::ResponseCodeEnum::SUCCESS);
   protoTxReceipt.set_allocated_accountid(getTestAccountId().toProtobuf());
 
+  const int32_t value = 6;
+  const int32_t secs = 100;
+
+  proto::ExchangeRateSet* protoExRateSet = protoTxReceipt.mutable_exchangerate();
+  protoExRateSet->mutable_currentrate()->set_hbarequiv(value);
+  protoExRateSet->mutable_currentrate()->set_centequiv(value);
+  protoExRateSet->mutable_currentrate()->mutable_expirationtime()->set_seconds(secs);
+  protoExRateSet->mutable_nextrate()->set_hbarequiv(value);
+  protoExRateSet->mutable_nextrate()->set_centequiv(value);
+  protoExRateSet->mutable_nextrate()->mutable_expirationtime()->set_seconds(secs);
+
   TransactionReceipt txRx = TransactionReceipt::fromProtobuf(protoTxReceipt);
   EXPECT_EQ(txRx.getStatus(), Status::SUCCESS);
   EXPECT_EQ(txRx.getAccountId(), getTestAccountId());
-  EXPECT_FALSE(txRx.getExchangeRates());
+  EXPECT_TRUE(txRx.getExchangeRates().has_value());
+  EXPECT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate().has_value());
+  EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getCurrentExchangeRate(), value / value);
+  EXPECT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime().has_value());
+  EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime()->time_since_epoch().count(), secs);
+  EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate().has_value());
+  EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getCurrentExchangeRate(), value / value);
+  EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime().has_value());
+  EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime()->time_since_epoch().count(), secs);
 }
