@@ -17,14 +17,14 @@
  * limitations under the License.
  *
  */
-#include "TransactionRecordQuery.h"
+#include "TransactionReceiptQuery.h"
 #include "TransactionId.h"
 
 #include <gtest/gtest.h>
 
 using namespace Hedera;
 
-class TransactionRecordQueryTest : public ::testing::Test
+class TransactionReceiptQueryTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mTestAccountId; }
@@ -33,9 +33,9 @@ private:
   const std::shared_ptr<AccountId> mTestAccountId = std::make_shared<AccountId>(0ULL, 0ULL, 10ULL);
 };
 
-TEST_F(TransactionRecordQueryTest, SetTransactionId)
+TEST_F(TransactionReceiptQueryTest, SetTransactionId)
 {
-  TransactionRecordQuery query;
+  TransactionReceiptQuery query;
   const TransactionId transactionId = TransactionId::generate(getTestAccountId());
   query.setTransactionId(TransactionId::generate(getTestAccountId()));
   EXPECT_EQ(query.getTransactionId(), transactionId);

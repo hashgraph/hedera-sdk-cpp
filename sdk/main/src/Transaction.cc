@@ -38,7 +38,7 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
+SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<int64_t>& duration)
 {
   mTransactionValidDuration = duration;
   return static_cast<SdkRequestType&>(*this);
@@ -46,7 +46,7 @@ SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const s
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::setMaxTransactionFee(const Hedera::Hbar& fee)
+SdkRequestType& Transaction<SdkRequestType>::setMaxTransactionFee(const Hbar& fee)
 {
   mMaxTransactionFee = fee;
   return static_cast<SdkRequestType&>(*this);
@@ -130,7 +130,7 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
   body.set_transactionfee(static_cast<uint64_t>(getMaxTransactionFee(client).toTinybars()));
   body.set_allocated_memo(new std::string(mTransactionMemo));
   body.set_allocated_transactionvalidduration(DurationConverter::toProtobuf(mTransactionValidDuration));
-  body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf());
+  body.set_allocated_nodeaccountid(mNodeAccountId->toProtobuf());
   return body;
 }
 

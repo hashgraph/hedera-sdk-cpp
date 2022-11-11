@@ -41,7 +41,7 @@ TEST_F(ClientTest, ConstructClient)
 TEST_F(ClientTest, SetOperator)
 {
   Client client;
-  const auto accountId = AccountId("0.0.10");
+  const auto accountId = std::make_shared<AccountId>(AccountId("0.0.10"));
   std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const std::string publicKeyStr = privateKey->getPublicKey()->toString();
   client.setOperator(accountId, privateKey);

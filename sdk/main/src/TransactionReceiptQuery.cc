@@ -50,12 +50,9 @@ proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shar
 
   proto::QueryHeader* header = getTransactionReceiptQuery->mutable_header();
   header->set_responsetype(proto::ANSWER_ONLY);
-  // This is a free query, so no payment required
 
-  if (mTransactionId.has_value())
-  {
-    getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf());
-  }
+  // This is a free query, so no payment required
+  getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId.toProtobuf());
 
   return query;
 }
