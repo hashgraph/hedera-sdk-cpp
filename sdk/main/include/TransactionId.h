@@ -24,7 +24,6 @@
 
 #include <chrono>
 #include <memory>
-#include <optional>
 
 namespace proto
 {
@@ -33,6 +32,13 @@ class TransactionID;
 
 namespace Hedera
 {
+/**
+ * The client-generated ID for a transaction.
+ *
+ * This is used for retrieving receipts and records for a transaction, for appending to a file right after creating it,
+ * for instantiating a smart contract with bytecode in a file just created, and internally by the network for detecting
+ * when duplicate transactions are submitted.
+ */
 class TransactionId
 {
 public:
@@ -57,14 +63,14 @@ public:
    *
    * @return Pointer to the created protobuf TransactionID.
    */
-  proto::TransactionID* toProtobuf() const;
+  [[nodiscard]] proto::TransactionID* toProtobuf() const;
 
   /**
    * Extract the valid transaction time.
    *
    * @return The valid transaction time.
    */
-  inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getValidTransactionTime() const
+  [[nodiscard]] inline std::chrono::sys_time<std::chrono::duration<double>> getValidTransactionTime() const
   {
     return mValidTransactionTime;
   }
@@ -78,12 +84,12 @@ public:
 
 private:
   /**
-   * The time the transaction is considered "valid".
+   * The time at which the transaction is no longer considered "valid".
    *
    * When a transaction is submitted there is additionally a validDuration (defaults to 120s) and together they define a
    * time window in which a transaction may be processed.
    */
-  std::optional<std::chrono::sys_time<std::chrono::duration<double>>> mValidTransactionTime;
+  std::chrono::sys_time<std::chrono::duration<double>> mValidTransactionTime;
 
   /**
    * The account ID of the account that is paying for this transaction.

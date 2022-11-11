@@ -14,6 +14,7 @@ set(TestSources
         ED25519PublicKeyTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
+        TransactionIdTest.cc
         TransactionReceiptTest.cc
         )
 
