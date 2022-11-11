@@ -23,6 +23,7 @@
 #include "AccountId.h"
 
 #include <chrono>
+#include <memory>
 #include <vector>
 
 namespace Hedera
@@ -69,7 +70,7 @@ public:
    * @return The result of execution.
    * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
    */
-  SdkResponseType execute(const Client& client, const std::chrono::duration<double>& duration);
+  SdkResponseType execute(const Client& client, const std::chrono::duration<int64_t>& duration);
 
   /**
    * Set the account IDs of the nodes to which this transaction will be submitted.
@@ -77,13 +78,13 @@ public:
    * @param nodeAccountIds The list of node account IDs to be set.
    * @return Reference to this Executable derived class.
    */
-  SdkRequestType& setNodeAccountIds(const std::vector<AccountId>& nodeAccountIds);
+  SdkRequestType& setNodeAccountIds(const std::vector<std::shared_ptr<AccountId>>& nodeAccountIds);
 
   /**
    * Get the list of account IDs for nodes with which execution will be attempted.
    * @return The list of account IDs.
    */
-  inline std::vector<AccountId> getNodeAccountIds() const { return mNodeAccountIds; }
+  inline std::vector<std::shared_ptr<AccountId>> getNodeAccountIds() const { return mNodeAccountIds; }
 
 protected:
   /**
@@ -136,7 +137,7 @@ private:
   /**
    * The list of account IDs of nodes on which to attempt execution.
    */
-  std::vector<AccountId> mNodeAccountIds;
+  std::vector<std::shared_ptr<AccountId>> mNodeAccountIds;
 
   /**
    * The maximum number of attempts to send a request.

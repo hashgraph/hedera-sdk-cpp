@@ -67,7 +67,7 @@ public:
    * @param duration The duration to set.
    * @return Reference to this derived Transaction object.
    */
-  SdkRequestType& setValidTransactionDuration(const std::chrono::duration<double>& duration);
+  SdkRequestType& setValidTransactionDuration(const std::chrono::duration<int64_t>& duration);
 
   /**
    * Set the max transaction fee.
@@ -98,7 +98,7 @@ public:
    *
    * @return The valid transaction duration.
    */
-  inline std::chrono::duration<double> getValidTransactionDuration() const { return mTransactionValidDuration; }
+  inline std::chrono::duration<int64_t> getValidTransactionDuration() const { return mTransactionValidDuration; }
 
   /**
    * Extract the max transaction fee.
@@ -195,12 +195,12 @@ private:
   /**
    * The valid transaction duration. Defaults to two minutes.
    */
-  std::chrono::duration<double> mTransactionValidDuration = std::chrono::minutes(2);
+  std::chrono::duration<int64_t> mTransactionValidDuration = std::chrono::minutes(2);
 
   /**
    * The account ID of the node sending this transaction.
    */
-  AccountId mNodeAccountId;
+  std::shared_ptr<AccountId> mNodeAccountId;
 
   /**
    * The maximum transaction fee.

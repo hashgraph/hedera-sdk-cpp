@@ -62,7 +62,7 @@ public:
    * @return The receipt for this transaction.
    * @throws std::runtime_error if unable to communicate with client network.
    */
-  TransactionReceipt getReceipt(const Client& client) const;
+  [[nodiscard]] TransactionReceipt getReceipt(const Client& client) const;
 
   /**
    * Get the receipt for this transaction with a specified timeout.
@@ -72,7 +72,8 @@ public:
    * @return The receipt for this transaction.
    * @throws std::runtime_error if unable to communicate with client network.
    */
-  TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+  [[nodiscard]] TransactionReceipt getReceipt(const Client& client,
+                                              const std::chrono::duration<int64_t>& timeout) const;
 
   /**
    * Get the record for this transaction.
@@ -81,7 +82,7 @@ public:
    * @return The record for this transaction.
    * @throws std::runtime_error if unable to communicate with client network.
    */
-  TransactionRecord getRecord(const Client& client) const;
+  [[nodiscard]] TransactionRecord getRecord(const Client& client) const;
 
   /**
    * Get the record for this transaction with a specified timeout.
@@ -91,7 +92,7 @@ public:
    * @return The record for this transaction.
    * @throws std::runtime_error if unable to communicate with client network.
    */
-  TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
+  [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<int64_t>& timeout) const;
 
   /**
    * Set the transaction ID to which this TransactionResponse is responding.
@@ -106,32 +107,32 @@ public:
    *
    * @return The price of the transaction.
    */
-  inline uint64_t getCost() const { return mCost; }
+  [[nodiscard]] inline uint64_t getCost() const { return mCost; }
 
   /**
    * Determine if the transaction pre-checks were a success.
    *
    * @return \c TRUE if the transaction pre-checks were a success, otherwise \c FALSE.
    */
-  inline bool getValidateStatus() const { return mValidateStatus; }
+  [[nodiscard]] inline bool getValidateStatus() const { return mValidateStatus; }
 
   /**
    * Extract the transaction ID of the transaction.
    *
    * @return The transaction ID of the transaction.
    */
-  inline TransactionId getTransactionId() const { return mTransactionId; }
+  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
 
 private:
   /**
-   * The price of the transaction.
+   * The price of the transaction. Defaults to 0.
    */
-  uint64_t mCost;
+  uint64_t mCost = 0;
 
   /**
-   * The response of the transaction. \c TRUE if the precheck was a success, otherwise \c FALSE.
+   * The response of the transaction. \c TRUE if the precheck was a success, otherwise \c FALSE. Defaults to \c FALSE.
    */
-  bool mValidateStatus;
+  bool mValidateStatus = false;
 
   /**
    * The transaction ID of the transaction.

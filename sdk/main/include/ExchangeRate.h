@@ -59,7 +59,7 @@ public:
    *
    * @return The expiration time of this exchange rate.
    */
-  inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getExpirationTime() const
+  inline std::optional<std::chrono::system_clock::time_point> getExpirationTime() const
   {
     return mExpirationTime;
   }
@@ -78,7 +78,7 @@ private:
   /**
    * Expiration time of this exchange rate.
    */
-  std::optional<std::chrono::sys_time<std::chrono::duration<double>>> mExpirationTime;
+  std::optional<std::chrono::system_clock::time_point> mExpirationTime;
 };
 
 } // namespace Hedera

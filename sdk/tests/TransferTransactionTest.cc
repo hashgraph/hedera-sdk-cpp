@@ -28,11 +28,11 @@ using namespace Hedera;
 class TransferTransactionTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const Hbar& getTestAmount() const { return mAmount; }
 
 private:
-  const AccountId mAccountId = AccountId(10ULL);
+  const std::shared_ptr<AccountId> mAccountId = std::make_shared<AccountId>(10ULL);
   const Hbar mAmount = Hbar(10ULL);
 };
 
