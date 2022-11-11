@@ -15,6 +15,7 @@ set(TestSources
         ExchangeRateTest.cc
         HbarTest.cc
         TransactionIdTest.cc
+        TransactionReceiptTest.cc
         )
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
