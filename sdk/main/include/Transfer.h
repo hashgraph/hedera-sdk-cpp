@@ -104,7 +104,7 @@ private:
   /**
    * The amount of Hbar transferred. Defaults to 0.
    */
-  Hbar mAmount;
+  Hbar mAmount = Hbar(0ULL);
 
   /**
    * Is this transfer approved or not? Defaults to \c FALSE.
