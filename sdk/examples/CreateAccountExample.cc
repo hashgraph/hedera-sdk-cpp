@@ -39,8 +39,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  std::unique_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(argv[2]);
-  client.setOperator(AccountId(argv[1]), operatorPrivateKey);
+  client.setOperator(std::make_shared<AccountId>(argv[1]), ED25519PrivateKey::fromString(argv[2]));
 
   // Generate a ED25519 private, public key pair
   const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();

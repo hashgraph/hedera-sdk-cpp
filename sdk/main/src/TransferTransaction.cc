@@ -29,13 +29,15 @@
 namespace Hedera
 {
 //-----
-TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
+TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId,
+                                                                  const Hbar& amount)
 {
   addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(true));
   return *this;
 }
 //-----
-TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
+TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId,
+                                                                    const Hbar& amount)
 {
   addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(false));
   return *this;
@@ -60,17 +62,17 @@ TransferTransaction::getGrpcMethod(const std::shared_ptr<Node>& node) const
 //-----
 proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 {
-  auto body = new proto::CryptoTransferTransactionBody;
+  auto body = std::make_unique<proto::CryptoTransferTransactionBody>();
 
   for (const Transfer& transfer : mHbarTransfers)
   {
     proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
-    amount->set_allocated_accountid(transfer.getAccountId().toProtobuf());
+    amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf());
     amount->set_amount(transfer.getAmount().toTinybars());
     amount->set_is_approval(transfer.getApproval());
   }
 
-  return body;
+  return body.release();
 }
 
 //----

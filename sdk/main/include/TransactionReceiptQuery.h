@@ -57,7 +57,7 @@ public:
    *
    * @return The transaction ID of the query.
    */
-  inline std::optional<TransactionId> getTransactionId() { return mTransactionId; }
+  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
 
 protected:
   /**
@@ -74,7 +74,7 @@ protected:
    *
    * @return The query protobuf object that contains this TransactionReceiptQuery information.
    */
-  proto::Query makeRequest(const Client&, const std::shared_ptr<Node>&) const override;
+  [[nodiscard]] proto::Query makeRequest(const Client&, const std::shared_ptr<Node>&) const override;
 
   /**
    * Derived from Executable. Create a response object from a protobuf response object.
@@ -82,13 +82,13 @@ protected:
    * @param response The protobuf response object.
    * @return The response object with the response data.
    */
-  TransactionReceipt mapResponse(const proto::Response& response) const override;
+  [[nodiscard]] TransactionReceipt mapResponse(const proto::Response& response) const override;
 
 private:
   /**
    * The ID of the transaction for which the receipt is requested.
    */
-  std::optional<TransactionId> mTransactionId;
+  TransactionId mTransactionId;
 };
 
 } // namespace Hedera

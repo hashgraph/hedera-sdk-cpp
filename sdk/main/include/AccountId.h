@@ -156,9 +156,21 @@ private:
   /**
    * The account ID number.
    */
-  std::optional<uint64_t> mAccountNum;
+  uint64_t mAccountNum;
 };
 
 } // namespace Hedera
+
+namespace std
+{
+template<>
+struct hash<Hedera::AccountId>
+{
+  /**
+   * Operator override to enable use of AccountId as map key
+   */
+  std::size_t operator()(const Hedera::AccountId& id) const { return hash<std::string>()(id.toString()); }
+};
+}
 
 #endif // ACCOUNT_ID_H_

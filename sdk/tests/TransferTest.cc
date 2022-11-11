@@ -32,20 +32,20 @@ class TransferTest : public ::testing::Test
 
 TEST_F(TransferTest, ProtoTransferTest)
 {
-  AccountId accountId(10ULL);
+  auto accountId = std::make_shared<AccountId>(10ULL);
   int64_t amount = 10LL;
 
   proto::AccountAmount protoAccountAmount;
-  protoAccountAmount.set_allocated_accountid(accountId.toProtobuf());
+  protoAccountAmount.set_allocated_accountid(accountId->toProtobuf());
   protoAccountAmount.set_amount(amount);
   protoAccountAmount.set_is_approval(true);
 
   Transfer transfer = Transfer::fromProtobuf(protoAccountAmount);
-  EXPECT_EQ(transfer.getAccountId(), accountId);
+  EXPECT_EQ(*transfer.getAccountId(), *accountId);
   EXPECT_EQ(transfer.getAmount().toTinybars(), amount);
   EXPECT_TRUE(transfer.getApproval());
 
-  accountId.setAccountNum(15ULL);
+  accountId->setAccountNum(15ULL);
   amount = 15LL;
 
   transfer.setAccountId(accountId);
@@ -53,7 +53,7 @@ TEST_F(TransferTest, ProtoTransferTest)
   transfer.setApproved(false);
 
   const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(transfer.toProtobuf());
-  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), accountId.getAccountNum());
+  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), accountId->getAccountNum());
   EXPECT_EQ(protoAccountAmountPtr->amount(), amount);
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }

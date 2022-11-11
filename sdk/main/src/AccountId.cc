@@ -70,11 +70,7 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
   AccountId accountId;
   accountId.mShardNum = static_cast<uint64_t>(proto.shardnum());
   accountId.mRealmNum = static_cast<uint64_t>(proto.realmnum());
-
-  if (proto.has_accountnum())
-  {
-    accountId.mAccountNum = static_cast<uint64_t>(proto.accountnum());
-  }
+  accountId.mAccountNum = static_cast<uint64_t>(proto.accountnum());
 
   return accountId;
 }
@@ -85,11 +81,7 @@ proto::AccountID* AccountId::toProtobuf() const
   auto proto = new proto::AccountID;
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
-
-  if (mAccountNum.has_value())
-  {
-    proto->set_accountnum(static_cast<int64_t>(mAccountNum.value()));
-  }
+  proto->set_accountnum(static_cast<int64_t>(mAccountNum));
 
   return proto;
 }
@@ -97,7 +89,7 @@ proto::AccountID* AccountId::toProtobuf() const
 //-----
 std::string AccountId::toString() const
 {
-  return std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.' + std::to_string(mAccountNum.value());
+  return std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.' + std::to_string(mAccountNum);
 }
 
 //-----

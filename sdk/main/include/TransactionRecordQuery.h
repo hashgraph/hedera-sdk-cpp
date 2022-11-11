@@ -61,7 +61,7 @@ public:
    *
    * @return The transaction ID of the query.
    */
-  inline std::optional<TransactionId> getTransactionId() { return mTransactionId; }
+  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
 
 protected:
   /**
@@ -80,7 +80,7 @@ protected:
    * @param node   The Node to which this TransactionRecordQuery is being submitted.
    * @return The query protobuf object that contains this TransactionRecordQuery information.
    */
-  proto::Query makeRequest(const Client& client, const std::shared_ptr<Node>& node) const override;
+  [[nodiscard]] proto::Query makeRequest(const Client& client, const std::shared_ptr<Node>& node) const override;
 
   /**
    * Derived from Query. Create an TransactionRecord object from a protobuf response object.
@@ -88,13 +88,13 @@ protected:
    * @param response The protobuf response object.
    * @return The response object with the TransactionRecord data.
    */
-  TransactionRecord mapResponse(const proto::Response& response) const override;
+  [[nodiscard]] TransactionRecord mapResponse(const proto::Response& response) const override;
 
 private:
   /**
    * The ID of the transaction for which the record is requested.
    */
-  std::optional<TransactionId> mTransactionId;
+  TransactionId mTransactionId;
 };
 
 } // namespace Hedera

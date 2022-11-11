@@ -56,7 +56,7 @@ public:
    * @param accountId The account ID to set.
    * @return Reference to this Transfer object.
    */
-  Transfer& setAccountId(const AccountId& accountId);
+  Transfer& setAccountId(const std::shared_ptr<AccountId>& accountId);
 
   /**
    * Set the transfer amount.
@@ -79,7 +79,7 @@ public:
    *
    * @return The account ID.
    */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline std::shared_ptr<AccountId> getAccountId() const { return mAccountId; }
 
   /**
    * Extract the transfer amount.
@@ -99,7 +99,7 @@ private:
   /**
    * The account ID associated with this transfer.
    */
-  AccountId mAccountId;
+  std::shared_ptr<AccountId> mAccountId;
 
   /**
    * The amount of Hbar transferred. Defaults to 0.

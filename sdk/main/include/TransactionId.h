@@ -24,7 +24,6 @@
 
 #include <chrono>
 #include <memory>
-#include <optional>
 
 namespace proto
 {
@@ -33,6 +32,13 @@ class TransactionID;
 
 namespace Hedera
 {
+/**
+ * The client-generated ID for a transaction.
+ *
+ * This is used for retrieving receipts and records for a transaction, for appending to a file right after creating it,
+ * for instantiating a smart contract with bytecode in a file just created, and internally by the network for detecting
+ * when duplicate transactions are submitted.
+ */
 class TransactionId
 {
 public:
@@ -42,7 +48,7 @@ public:
    * @param accountId The ID of the account that will be charged for this transaction.
    * @return A new TransactionId.
    */
-  static TransactionId generate(const AccountId& accountId);
+  static TransactionId generate(const std::shared_ptr<AccountId>& accountId);
 
   /**
    * Construct a TransactionId from a protobuf TransactionID.
@@ -53,18 +59,26 @@ public:
   static TransactionId fromProtobuf(const proto::TransactionID& proto);
 
   /**
+   * Default comparator operator.
+   *
+   * @param other The other TransactionId against which to compare.
+   * @return \c TRUE if these TransactionIds are the same, otherwise \c FALSE.
+   */
+  bool operator==(const TransactionId& other) const = default;
+
+  /**
    * Convert this TransactionId to its corresponding protobuf TransactionID.
    *
    * @return Pointer to the created protobuf TransactionID.
    */
-  proto::TransactionID* toProtobuf() const;
+  [[nodiscard]] proto::TransactionID* toProtobuf() const;
 
   /**
    * Extract the valid transaction time.
    *
    * @return The valid transaction time.
    */
-  inline std::optional<std::chrono::sys_time<std::chrono::duration<double>>> getValidTransactionTime() const
+  [[nodiscard]] inline std::chrono::system_clock::time_point getValidTransactionTime() const
   {
     return mValidTransactionTime;
   }
@@ -74,21 +88,21 @@ public:
    *
    * @return The account ID.
    */
-  inline std::optional<AccountId> getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline std::shared_ptr<AccountId> getAccountId() const { return mAccountId; }
 
 private:
   /**
-   * The time the transaction is considered "valid".
+   * The time at which the transaction is no longer considered "valid".
    *
    * When a transaction is submitted there is additionally a validDuration (defaults to 120s) and together they define a
    * time window in which a transaction may be processed.
    */
-  std::optional<std::chrono::sys_time<std::chrono::duration<double>>> mValidTransactionTime;
+  std::chrono::system_clock::time_point mValidTransactionTime;
 
   /**
    * The account ID of the account that is paying for this transaction.
    */
-  std::optional<AccountId> mAccountId;
+  std::shared_ptr<AccountId> mAccountId;
 };
 
 } // namespace Hedera

@@ -20,6 +20,7 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
+#include "NodeAddress.h"
 #include <chrono>
 #include <memory>
 #include <string>
@@ -28,6 +29,7 @@ namespace grpc
 {
 class ClientContext;
 class Status;
+class ChannelCredentials;
 }
 
 namespace proto
@@ -50,25 +52,35 @@ public:
   Channel();
 
   /**
-   * Construct this channel to communicate with a node URL.
-   *
-   * @param url The URL and port of the gRPC service with which this channel
-   *            should communicate.
-   */
-  explicit Channel(const std::string& url);
-
-  /**
    * Default destructor.
    */
   ~Channel();
 
   /**
-   * Initialize this channel to communicate with a node URL.
+   * Initialize this channel to communicate with a node URL, with TLS enabled
    *
-   * @param url The URL and port of the gRPC service with which this channel
-   *            should communicate.
+   * @param url The URL and port of the gRPC service with which this channel should communicate.
+   * @param nodeCertHash The sha-384 hash of the node certificate chain
+   *
+   * @return true if channel was successfully initialized, otherwise false
    */
-  void initChannel(const std::string& url);
+  bool initializeEncryptedChannel(const std::string& url, const std::string& nodeCertHash);
+
+  /**
+   * Initialize this channel to communicate with a node URL, with TLS disabled
+   *
+   * @param url The URL and port of the gRPC service with which this channel should communicate.
+   *
+   * @return True if channel was successfully initialized, otherwise false
+   */
+  bool initializeUnencryptedChannel(const std::string& url);
+
+  /**
+   * Gets whether this channel is in an initialized state
+   *
+   * @return true if the channel is initialized, otherwise false
+   */
+  [[nodiscard]] bool getInitialized() const;
 
   /**
    * Get a gRPC transaction method for an associated protobuf Transaction data case.
@@ -95,15 +107,25 @@ public:
 
 private:
   /**
-   * Helper function to close/shutdown/delete channels.
+   * Initialize a channel from url and channel credentials. Works for both TLS and non TLS channels
+   *
+   * @param url The URL and port of the gRPC service with which this channel should communicate.
+   * @param credentials The credentials to initialize the channel with
+   *
+   * @return True if the initialization was successful, otherwise false
    */
-  void shutdownChannel();
+  bool initializeChannel(const std::string& url, const std::shared_ptr<grpc::ChannelCredentials>& credentials);
 
   /**
    * Implementation object used to hide implementation details and gRPC headers.
    */
   struct ChannelImpl;
   std::unique_ptr<ChannelImpl> mImpl;
+
+  /**
+   * True if the channel is initialized, otherwise false
+   */
+  bool mInitialized = false;
 };
 
 } // namespace Hedera
