@@ -14,7 +14,7 @@ set(TestSources
         ED25519PublicKeyTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
-        NodeAddressBookTest.cc
+        TransactionIdTest.cc
         )
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)

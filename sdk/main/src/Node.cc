@@ -45,6 +45,11 @@ Node::getGrpcTransactionMethod(int transactionBodyDataCase)
 std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> Node::getGrpcQueryMethod(
   int queryBodyDataCase)
 {
+  if (!checkChannelInitialized())
+  {
+    return nullptr;
+  }
+
   return mChannel.getGrpcQueryMethod(queryBodyDataCase);
 }
 
