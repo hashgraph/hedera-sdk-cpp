@@ -73,7 +73,7 @@ public:
    *
    * @return The list of Hbar transfers.
    */
-  inline std::vector<Transfer> getHbarTransfers() const { return mHbarTransfers; }
+  [[nodiscard]] inline std::vector<Transfer> getHbarTransfers() const { return mHbarTransfers; }
 
 protected:
   /**
@@ -82,7 +82,7 @@ protected:
    * @param client The Client submitting this TransferTransaction.
    * @return A Transaction protobuf that contains this TransferTransaction's data.
    */
-  proto::Transaction makeRequest(const Client& client, const std::shared_ptr<Node>&) const override;
+  [[nodiscard]] proto::Transaction makeRequest(const Client& client, const std::shared_ptr<Node>&) const override;
 
   /**
    * Derived from Executable. Get the gRPC method to call to transfer between accounts.
@@ -90,17 +90,22 @@ protected:
    * @param node The Node from which to retrieve the function.
    * @return The gRPC method to call to execute this TransferTransaction.
    */
-  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  [[nodiscard]] std::function<
+    grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
   getGrpcMethod(const std::shared_ptr<Node>& node) const override;
 
 private:
+  /**
+   * Allow queries that are not free to create TransferTransactions.
+   */
   friend class TransactionRecordQuery;
+
   /**
    * Build this TransferTransaction into a protobuf CryptoCreateTransactionBody.
    *
    * @return Pointer to a protobuf CryptoCreateTransactionBody.
    */
-  proto::CryptoTransferTransactionBody* build() const;
+  [[nodiscard]] proto::CryptoTransferTransactionBody* build() const;
 
   /**
    * Add an Hbar transfer to the Hbar transfers list.

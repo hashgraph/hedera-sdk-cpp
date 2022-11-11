@@ -20,6 +20,7 @@ set(TestSources
         TransactionRecordQueryTest.cc
         TransactionRecordTest.cc
         TransactionResponseTest.cc
+        TransferTransactionTest.cc
         )
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
