@@ -20,6 +20,7 @@ set(TestSources
         TransactionRecordQueryTest.cc
         TransactionRecordTest.cc
         TransactionResponseTest.cc
+        TransferTest.cc
         TransferTransactionTest.cc
         )
 
