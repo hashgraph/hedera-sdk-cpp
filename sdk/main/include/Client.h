@@ -45,7 +45,7 @@ private:
     /**
      * The account ID of the account.
      */
-    AccountId mAccountId;
+    std::shared_ptr<AccountId> mAccountId;
 
     /**
      * The private key of the account.
@@ -71,8 +71,8 @@ public:
    *                   to this Client.
    * @return Reference to this Client object.
    */
-  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>& privateKey);
-  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>&& privateKey);
+  Client& setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>& privateKey);
+  Client& setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>&& privateKey);
 
   /**
    * Set the maximum fee to be paid for transactions executed by this client.
@@ -114,7 +114,7 @@ public:
    * @return The account ID of this client's operator.
    * @throws std::runtime_error If the operator has not yet been set.
    */
-  [[nodiscard]] AccountId getOperatorAccountId() const;
+  [[nodiscard]] std::shared_ptr<AccountId> getOperatorAccountId() const;
 
   /**
    * Get the public key of the operator.

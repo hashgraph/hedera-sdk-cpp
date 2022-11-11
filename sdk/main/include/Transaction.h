@@ -200,7 +200,7 @@ private:
   /**
    * The account ID of the node sending this transaction.
    */
-  AccountId mNodeAccountId;
+  std::shared_ptr<AccountId> mNodeAccountId;
 
   /**
    * The maximum transaction fee.

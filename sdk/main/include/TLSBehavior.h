@@ -17,22 +17,28 @@
 * limitations under the License.
 *
 */
-#ifndef HEDERA_SDK_CPP_HEXCONVERTER_H
-#define HEDERA_SDK_CPP_HEXCONVERTER_H
 
-#include <string>
-#include <vector>
+#ifndef HEDERA_SDK_CPP_TLSBEHAVIOR_H
+#define HEDERA_SDK_CPP_TLSBEHAVIOR_H
 
 namespace Hedera
 {
-class HexConverter
+
+/**
+ * Enum representing different modes of network operation
+ */
+enum TLSBehavior
 {
-public:
-  static std::string base64ToHex(const std::vector<unsigned char>& bytes);
-  static std::vector<unsigned char> hexToBase64(const std::string& inputString);
-  static std::string bytesToHex(const std::vector<unsigned char>& bytes);
+  /**
+   * Communicate only in the clear
+   */
+  DISABLE,
+  /**
+   * Require TLS connection
+   */
+  REQUIRE
 };
 
-}
+} // Hedera
 
-#endif // HEDERA_SDK_CPP_HEXCONVERTER_H
+#endif // HEDERA_SDK_CPP_TLSBEHAVIOR_H
