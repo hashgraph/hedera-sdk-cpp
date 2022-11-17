@@ -17,12 +17,10 @@
  * limitations under the License.
  *
  */
-#ifndef QUERY_H_
-#define QUERY_H_
+#ifndef HEDERA_SDK_CPP_QUERY_H_
+#define HEDERA_SDK_CPP_QUERY_H_
 
 #include "Executable.h"
-
-#include <functional>
 
 namespace Hedera
 {
@@ -103,4 +101,4 @@ template class Query<TransactionRecordQuery, TransactionRecord>;
 
 } // namespace Hedera
 
-#endif // QUERY_H_
+#endif // HEDERA_SDK_CPP_QUERY_H_

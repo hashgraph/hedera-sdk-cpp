@@ -24,8 +24,6 @@
 #include "ContractId.h"
 #include "Query.h"
 
-#include <functional>
-#include <memory>
 #include <optional>
 
 namespace Hedera

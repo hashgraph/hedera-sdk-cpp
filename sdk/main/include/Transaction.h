@@ -26,7 +26,6 @@
 #include "TransactionId.h"
 
 #include <chrono>
-#include <functional>
 #include <memory>
 #include <string>
 

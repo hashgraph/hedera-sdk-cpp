@@ -17,12 +17,13 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_EXECUTABLE_H
-#define HEDERA_SDK_CPP_EXECUTABLE_H
+#ifndef HEDERA_SDK_CPP_EXECUTABLE_H_
+#define HEDERA_SDK_CPP_EXECUTABLE_H_
 
 #include "AccountId.h"
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -158,4 +159,4 @@ private:
 
 } // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_EXECUTABLE_H
+#endif // HEDERA_SDK_CPP_EXECUTABLE_H_

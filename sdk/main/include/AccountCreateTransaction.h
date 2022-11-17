@@ -26,7 +26,6 @@
 #include "Transaction.h"
 
 #include <chrono>
-#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
