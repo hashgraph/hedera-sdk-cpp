@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,13 +17,13 @@
  * limitations under the License.
  *
  */
-#ifndef NODE_H_
-#define NODE_H_
+#ifndef HEDERA_SDK_CPP_IMPL_NODE_H_
+#define HEDERA_SDK_CPP_IMPL_NODE_H_
 
 #include "AccountId.h"
-#include "Channel.h"
 #include "NodeAddress.h"
 #include "TLSBehavior.h"
+#include "impl/Channel.h"
 
 #include <memory>
 #include <string>
@@ -43,7 +43,7 @@ class Transaction;
 class TransactionResponse;
 }
 
-namespace Hedera
+namespace Hedera::internal
 {
 class Node
 {
@@ -66,11 +66,6 @@ public:
    * @return The account ID.
    */
   [[nodiscard]] inline std::shared_ptr<AccountId> getAccountId() const { return mAddress->getAccountId(); }
-
-  /*template<typename ProtoRequestType, typename ProtoResponseType>
-  std::pair<ProtoResponseType, grpc::Status> submitRequest(int funcCase,
-                                                           grpc::ClientContext* context,
-                                                           const ProtoRequestType& request);*/
 
   /**
    * Sets the TLS behavior of the node
@@ -129,6 +124,6 @@ private:
   bool tryInitializeChannel();
 };
 
-} // namespace Hedera
+} // namespace Hedera::internal
 
-#endif // NODE_H_
+#endif // HEDERA_SDK_CPP_IMPL_NODE_H_

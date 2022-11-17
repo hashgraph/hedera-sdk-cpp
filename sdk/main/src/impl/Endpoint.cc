@@ -17,17 +17,14 @@
  * limitations under the License.
  *
  */
-
-#include "Endpoint.h"
-
-#include "proto/basic_types.pb.h"
+#include "impl/Endpoint.h"
 
 #include <iomanip>
+#include <proto/basic_types.pb.h>
 #include <sstream>
 
-namespace Hedera
+namespace Hedera::internal
 {
-
 Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint)
 {
   return { IPv4Address::fromString(serviceEndpoint.ipaddressv4()),
@@ -61,4 +58,4 @@ int Endpoint::getPort() const
   return mPort;
 }
 
-} // Hedera
+} // namespace Hedera::internal

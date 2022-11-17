@@ -17,16 +17,16 @@
  * limitations under the License.
  *
  */
-#include "helper/HexConverter.h"
-#include "openssl/crypto.h"
+#include "impl/HexConverter.h"
 
 #include <iomanip>
 #include <iostream>
+#include <openssl/crypto.h>
 #include <sstream>
 
-namespace Hedera
+namespace Hedera::internal::HexConverter
 {
-std::string HexConverter::base64ToHex(const std::vector<unsigned char>& bytes)
+std::string base64ToHex(const std::vector<unsigned char>& bytes)
 {
   size_t stringLength;
 
@@ -45,7 +45,7 @@ std::string HexConverter::base64ToHex(const std::vector<unsigned char>& bytes)
   return { charString };
 }
 
-std::vector<unsigned char> HexConverter::hexToBase64(const std::string& inputString)
+std::vector<unsigned char> hexToBase64(const std::string& inputString)
 {
   size_t bufferLength;
   if (OPENSSL_hexstr2buf_ex(nullptr, 0, &bufferLength, inputString.c_str(), '\0') <= 0)
@@ -63,7 +63,7 @@ std::vector<unsigned char> HexConverter::hexToBase64(const std::string& inputStr
   return outputBytes;
 }
 
-std::string HexConverter::bytesToHex(const std::vector<unsigned char>& bytes)
+std::string bytesToHex(const std::vector<unsigned char>& bytes)
 {
   std::stringstream stream;
   stream << std::hex;
@@ -75,4 +75,5 @@ std::string HexConverter::bytesToHex(const std::vector<unsigned char>& bytes)
 
   return stream.str();
 }
-}
+
+} // namespace Hedera::internal::HexConverter

@@ -17,13 +17,11 @@
  * limitations under the License.
  *
  */
-#include "Network.h"
+#include "impl/Network.h"
 
 #include "AccountId.h"
 
-#include <iostream>
-
-namespace Hedera
+namespace Hedera::internal
 {
 
 //-----
@@ -85,4 +83,4 @@ void Network::setTLSBehavior(TLSBehavior desiredBehavior)
   }
 }
 
-} // namespace Hedera
+} // namespace Hedera::internal

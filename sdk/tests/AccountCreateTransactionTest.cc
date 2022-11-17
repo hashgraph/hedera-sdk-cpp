@@ -48,8 +48,8 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransaction)
   EXPECT_EQ(transaction.getAutoRenewPeriod(), std::chrono::months(3));
   EXPECT_EQ(transaction.getTransactionMemo(), std::string());
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 0U);
-  EXPECT_EQ(transaction.getStakedAccountId(), nullptr);
-  EXPECT_EQ(transaction.getStakedNodeId(), nullptr);
+  EXPECT_FALSE(transaction.getStakedAccountId());
+  EXPECT_FALSE(transaction.getStakedNodeId());
   EXPECT_FALSE(transaction.getDeclineStakingReward());
   EXPECT_EQ(transaction.getAlias(), nullptr);
 }
@@ -101,9 +101,8 @@ TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
   transaction.setMaxAutomaticTokenAssociations(5);
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 5);
 
-  // Cap at 1000
-  transaction.setMaxAutomaticTokenAssociations(2000U);
-  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 1000U);
+  // Throw if over 1000
+  EXPECT_ANY_THROW(transaction.setMaxAutomaticTokenAssociations(2000U));
 }
 
 TEST_F(AccountCreateTransactionTest, SetStakedAccountId)
@@ -140,8 +139,10 @@ TEST_F(AccountCreateTransactionTest, ResetMutuallyExclusiveIds)
   transaction.setStakedAccountId(getTestAccountId());
   transaction.setStakedNodeId(getTestNodeId());
 
-  EXPECT_EQ(transaction.getStakedAccountId(), nullptr);
+  EXPECT_FALSE(transaction.getStakedAccountId());
+  EXPECT_TRUE(transaction.getStakedNodeId());
 
   transaction.setStakedAccountId(getTestAccountId());
-  EXPECT_EQ(transaction.getStakedNodeId(), nullptr);
+  EXPECT_TRUE(transaction.getStakedAccountId());
+  EXPECT_FALSE(transaction.getStakedNodeId());
 }

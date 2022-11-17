@@ -32,35 +32,33 @@ class ClientTest : public ::testing::Test
 
 TEST_F(ClientTest, ConstructClient)
 {
-  Client client;
-  EXPECT_EQ(client.getOperator(), nullptr);
+  Client client = Client::forTestnet();
+  EXPECT_EQ(client.getOperatorAccountId(), nullptr);
+  EXPECT_EQ(client.getOperatorPublicKey(), nullptr);
   EXPECT_EQ(client.getDefaultMaxTransactionFee(), nullptr);
   EXPECT_EQ(client.getRequestTimeout(), std::chrono::minutes(2));
 }
 
 TEST_F(ClientTest, SetOperator)
 {
-  Client client;
-  const auto accountId = std::make_shared<AccountId>(AccountId("0.0.10"));
+  Client client = Client::forTestnet();
+  const auto accountId = std::make_shared<AccountId>(10ULL);
   std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const std::string publicKeyStr = privateKey->getPublicKey()->toString();
   client.setOperator(accountId, privateKey);
 
-  EXPECT_NE(client.getOperator(), nullptr);
-  EXPECT_EQ(client.getOperatorAccountId(), accountId);
+  EXPECT_EQ(*client.getOperatorAccountId(), *accountId);
   EXPECT_EQ(client.getOperatorPublicKey()->toString(), publicKeyStr);
 
   client.setOperator(accountId, ED25519PrivateKey::generatePrivateKey());
 
-  EXPECT_NE(client.getOperator(), nullptr);
-  EXPECT_EQ(client.getOperatorAccountId(), accountId);
   // No way to grab the string value of the rvalue, just make it's not empty
   EXPECT_NE(client.getOperatorPublicKey()->toString(), std::string());
 }
 
 TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 {
-  Client client;
+  Client client = Client::forTestnet();
   const auto fee = Hbar(1ULL);
   client.setDefaultMaxTransactionFee(fee);
   EXPECT_EQ(*client.getDefaultMaxTransactionFee(), fee);

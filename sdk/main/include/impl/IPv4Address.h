@@ -17,15 +17,13 @@
  * limitations under the License.
  *
  */
-
-#ifndef HEDERA_SDK_CPP_IPV4ADDRESS_H
-#define HEDERA_SDK_CPP_IPV4ADDRESS_H
+#ifndef HEDERA_SDK_CPP_IMPL_IPV4_ADDRESS_H_
+#define HEDERA_SDK_CPP_IMPL_IPV4_ADDRESS_H_
 
 #include <string>
 
-namespace Hedera
+namespace Hedera::internal
 {
-
 /**
  * An IPv4 address (without port)
  */
@@ -80,6 +78,6 @@ private:
   unsigned char mOctet4;
 };
 
-} // Hedera
+} // namespace Hedera::internal
 
-#endif // HEDERA_SDK_CPP_IPV4ADDRESS_H
+#endif // HEDERA_SDK_CPP_IMPL_IPV4_ADDRESS_H_

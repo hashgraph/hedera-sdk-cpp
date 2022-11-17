@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef HEDERA_SDK_CPP_ENDPOINT_H
-#define HEDERA_SDK_CPP_ENDPOINT_H
+#ifndef HEDERA_SDK_CPP_IMPL_ENDPOINT_H
+#define HEDERA_SDK_CPP_IMPL_ENDPOINT_H
 
 #include "IPv4Address.h"
 
@@ -28,9 +28,8 @@ namespace proto
 class ServiceEndpoint;
 }
 
-namespace Hedera
+namespace Hedera::internal
 {
-
 /**
  * A network endpoint, which contains an IPv4 address and a port
  */
@@ -80,6 +79,6 @@ private:
   int mPort;
 };
 
-} // Hedera
+} // namespace Hedera::internal
 
-#endif // HEDERA_SDK_CPP_ENDPOINT_H
+#endif // HEDERA_SDK_CPP_IMPL_ENDPOINT_H

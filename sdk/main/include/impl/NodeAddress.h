@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,23 +17,22 @@
  * limitations under the License.
  *
  */
-#ifndef NODE_ADDRESS_H_
-#define NODE_ADDRESS_H_
+#ifndef HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_H_
+#define HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_H_
+
+#include "AccountId.h"
+#include "impl/Endpoint.h"
 
 #include <string>
 #include <vector>
-
-#include "AccountId.h"
-#include "Endpoint.h"
 
 namespace proto
 {
 class NodeAddress;
 }
 
-namespace Hedera
+namespace Hedera::internal
 {
-
 /**
  * Class containing all information related the the address(es) of a node
  */
@@ -118,6 +117,7 @@ private:
    */
   std::shared_ptr<AccountId> mAccountId;
 };
-} // namespace Hedera
 
-#endif // NODE_ADDRESS_H_
+} // namespace Hedera::internal
+
+#endif // HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_H_

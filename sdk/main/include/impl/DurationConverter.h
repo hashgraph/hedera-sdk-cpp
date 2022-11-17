@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HELPER_DURATION_CONVERTER_H_
-#define HELPER_DURATION_CONVERTER_H_
+#ifndef HEDERA_SDK_CPP_IMPL_DURATION_CONVERTER_H_
+#define HEDERA_SDK_CPP_IMPL_DURATION_CONVERTER_H_
 
 #include <chrono>
 #include <memory>
@@ -28,7 +28,7 @@ namespace proto
 class Duration;
 }
 
-namespace Hedera::DurationConverter
+namespace Hedera::internal::DurationConverter
 {
 /**
  * Create a duration object from a protobuf.
@@ -46,6 +46,6 @@ std::chrono::seconds fromProtobuf(const proto::Duration& duration);
  */
 proto::Duration* toProtobuf(const std::chrono::duration<int64_t>& duration);
 
-} // namespace Hedera::DurationConverter
+} // namespace Hedera::internal::DurationConverter
 
-#endif // HELPER_DURATION_CONVERTER_H_
+#endif // HEDERA_SDK_CPP_IMPL_DURATION_CONVERTER_H_

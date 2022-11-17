@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,11 +17,11 @@
  * limitations under the License.
  *
  */
-#include "helper/DurationConverter.h"
+#include "impl/DurationConverter.h"
 
 #include <proto/duration.pb.h>
 
-namespace Hedera::DurationConverter
+namespace Hedera::internal::DurationConverter
 {
 //----
 std::chrono::seconds fromProtobuf(const proto::Duration& duration)
@@ -32,9 +32,9 @@ std::chrono::seconds fromProtobuf(const proto::Duration& duration)
 //-----
 proto::Duration* toProtobuf(const std::chrono::duration<int64_t>& duration)
 {
-  auto proto = new proto::Duration;
+  auto proto = std::make_unique<proto::Duration>();
   proto->set_seconds(std::chrono::duration_cast<std::chrono::seconds>(duration).count());
-  return proto;
+  return proto.release();
 }
 
-} // namespace Hedera::DurationConverter
+} // namespace Hedera::internal::DurationConverter

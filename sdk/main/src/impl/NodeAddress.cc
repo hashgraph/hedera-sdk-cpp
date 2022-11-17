@@ -17,15 +17,14 @@
  * limitations under the License.
  *
  */
-#include "NodeAddress.h"
-
-#include "proto/basic_types.pb.h"
+#include "impl/NodeAddress.h"
 
 #include <iomanip>
-#include <sstream>
 #include <memory>
+#include <proto/basic_types.pb.h>
+#include <sstream>
 
-namespace Hedera
+namespace Hedera::internal
 {
 NodeAddress::NodeAddress()
 {
@@ -43,12 +42,12 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 
   for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
   {
-    outputNodeAddress.mEndpoints.push_back(Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
+    outputNodeAddress.mEndpoints.push_back(internal::Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
   }
 
   if (protoNodeAddress.ipaddress().length() != 0)
   {
-    outputNodeAddress.mEndpoints.emplace_back(IPv4Address::fromString(protoNodeAddress.ipaddress()),
+    outputNodeAddress.mEndpoints.emplace_back(internal::IPv4Address::fromString(protoNodeAddress.ipaddress()),
                                               protoNodeAddress.portno());
   }
 
@@ -122,4 +121,4 @@ std::string NodeAddress::getCertificateHash() const
   return mCertificateHash;
 }
 
-} // namespace Hedera
+} // namespace Hedera::internal

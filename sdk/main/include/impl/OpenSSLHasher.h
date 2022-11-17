@@ -17,26 +17,16 @@
  * limitations under the License.
  *
  */
-#include "ExchangeRate.h"
-#include "impl/TimestampConverter.h"
 
-#include <proto/exchange_rate.pb.h>
+#ifndef HEDERA_SDK_CPP_IMPL_OPENSSL_HASHER_H_
+#define HEDERA_SDK_CPP_IMPL_OPENSSL_HASHER_H_
 
-namespace Hedera
+#include <string>
+#include <vector>
+
+namespace Hedera::internal::OpenSSLHasher
 {
-//-----
-ExchangeRate ExchangeRate::fromProtobuf(const proto::ExchangeRate& proto)
-{
-  ExchangeRate exchangeRate;
-  exchangeRate.mHbars = proto.hbarequiv();
-  exchangeRate.mCents = proto.centequiv();
+std::vector<unsigned char> computeSHA384(const std::string& data);
+} // Hedera::internal::OpenSSLHasher
 
-  if (proto.has_expirationtime())
-  {
-    exchangeRate.mExpirationTime = internal::TimestampConverter::fromProtobuf(proto.expirationtime());
-  }
-  
-  return exchangeRate;
-}
-
-} // namespace Hedera
+#endif // HEDERA_SDK_CPP_IMPL_OPENSSL_HASHER_H_

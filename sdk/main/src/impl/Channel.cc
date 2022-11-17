@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,20 +17,16 @@
  * limitations under the License.
  *
  */
-#include "Channel.h"
-
-#include <proto/crypto_service.grpc.pb.h>
+#include "impl/Channel.h"
+#include "impl/HederaCertificateVerifier.h"
 
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-
+#include <proto/crypto_service.grpc.pb.h>
 #include <stdexcept>
 
-#include "HederaCertificateVerifier.h"
-#include "NodeAddress.h"
-
-namespace Hedera
+namespace Hedera::internal
 {
 //-----
 struct Channel::ChannelImpl
@@ -54,8 +50,7 @@ bool Channel::initializeEncryptedChannel(const std::string& url, const std::stri
   std::shared_ptr<grpc::experimental::CertificateVerifier> verifier =
     grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>(nodeCertHash);
 
-  grpc::experimental::TlsChannelCredentialsOptions credentialsOptions =
-    grpc::experimental::TlsChannelCredentialsOptions();
+  auto credentialsOptions = grpc::experimental::TlsChannelCredentialsOptions();
 
   // don't do normal cert verification. we are doing custom verification using the node's cert chain hash
   credentialsOptions.set_verify_server_certs(false);
@@ -157,4 +152,4 @@ bool Channel::initializeChannel(const std::string& url, const std::shared_ptr<gr
   return false;
 }
 
-} // namespace Hedera
+} // namespace Hedera::internal

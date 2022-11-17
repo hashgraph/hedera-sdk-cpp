@@ -17,11 +17,11 @@
  * limitations under the License.
  *
  */
-#include "Node.h"
+#include "impl/Node.h"
 
 #include <proto/crypto_service.grpc.pb.h>
 
-namespace Hedera
+namespace Hedera::internal
 {
 //-----
 Node::Node(const std::shared_ptr<NodeAddress>& address)
@@ -102,4 +102,4 @@ void Node::setTLSBehavior(TLSBehavior desiredBehavior)
   mChannel.shutdown();
 }
 
-} // namespace Hedera
+} // namespace Hedera::internal

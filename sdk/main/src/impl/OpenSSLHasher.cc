@@ -17,14 +17,13 @@
  * limitations under the License.
  *
  */
+#include "impl/OpenSSLHasher.h"
 
-#include "openssl/sha.h"
+#include <openssl/sha.h>
 
-#include "helper/OpenSSLHasher.h"
-
-namespace Hedera
+namespace Hedera::internal::OpenSSLHasher
 {
-std::vector<unsigned char> OpenSSLHasher::computeSHA384(const std::string& data)
+std::vector<unsigned char> computeSHA384(const std::string& data)
 {
   std::vector<unsigned char> outputBytes = std::vector<unsigned char>(48);
 
@@ -33,4 +32,5 @@ std::vector<unsigned char> OpenSSLHasher::computeSHA384(const std::string& data)
 
   return outputBytes;
 }
-} // Hedera
+
+} // Hedera::internal::OpenSSLHasher

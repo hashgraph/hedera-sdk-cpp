@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,17 +17,16 @@
  * limitations under the License.
  *
  */
-#ifndef NETWORK_H_
-#define NETWORK_H_
+#ifndef HEDERA_SDK_CPP_IMPL_NETWORK_H_
+#define HEDERA_SDK_CPP_IMPL_NETWORK_H_
 
+#include "AccountId.h"
 #include "Node.h"
-
 #include "NodeAddressBook.h"
 #include "TLSBehavior.h"
-#include "helper/StringHash.h"
 
+#include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace Hedera
@@ -35,7 +34,7 @@ namespace Hedera
 class AccountId;
 }
 
-namespace Hedera
+namespace Hedera::internal
 {
 class Network
 {
@@ -48,7 +47,7 @@ public:
   static Network forTestnet();
 
   /**
-   * Get a list of nodes on this network that are associated with the input account IDs. If no account IDs are
+   * Get a list of nodes on this Client's network that are associated with the input account IDs. If no account IDs are
    * specified, returns all nodes
    *
    * @param accountIds The account IDs of the requested nodes.
@@ -84,6 +83,6 @@ private:
   std::vector<std::shared_ptr<Node>> mNodes;
 };
 
-} // namespace Hedera
+} // namespace Hedera::internal
 
-#endif // NETWORK_H_
+#endif // HEDERA_SDK_CPP_IMPL_NETWORK_H_

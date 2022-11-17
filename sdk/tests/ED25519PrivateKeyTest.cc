@@ -30,24 +30,24 @@ using namespace Hedera;
 class ED25519PrivateKeyTest : public ::testing::Test
 {
 protected:
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKeyGenerated;
-  std::unique_ptr<Hedera::ED25519PrivateKey> privateKeyLoaded;
+  std::unique_ptr<ED25519PrivateKey> privateKeyGenerated;
+  std::unique_ptr<ED25519PrivateKey> privateKeyLoaded;
 
   void SetUp() override
   {
     // generate a private key
-    privateKeyGenerated = Hedera::ED25519PrivateKey::generatePrivateKey();
+    privateKeyGenerated = ED25519PrivateKey::generatePrivateKey();
 
     // serialize and then load private key back in
-    privateKeyLoaded = Hedera::ED25519PrivateKey::fromString(privateKeyGenerated->toString());
+    privateKeyLoaded = ED25519PrivateKey::fromString(privateKeyGenerated->toString());
   }
 };
 
 TEST_F(ED25519PrivateKeyTest, GetPublicKey)
 {
   // get the public keys from the private keys
-  std::shared_ptr<Hedera::PublicKey> publicFromGenerated = privateKeyGenerated->getPublicKey();
-  std::shared_ptr<Hedera::PublicKey> publicFromLoaded = privateKeyLoaded->getPublicKey();
+  std::shared_ptr<PublicKey> publicFromGenerated = privateKeyGenerated->getPublicKey();
+  std::shared_ptr<PublicKey> publicFromLoaded = privateKeyLoaded->getPublicKey();
 
   EXPECT_NE(publicFromGenerated, nullptr);
   EXPECT_NE(publicFromLoaded, nullptr);

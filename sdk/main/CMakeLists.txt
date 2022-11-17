@@ -11,7 +11,6 @@ add_library(${PROJECT_NAME} STATIC
         #    src/AccountRecordsQuery.cc
         #    src/AccountStakersQuery.cc
         #    src/AccountUpdateTransaction.cc
-        src/Channel.cc
         src/Client.cc
         src/ContractId.cc
         #    src/ContractByteCodeQuery.cc
@@ -25,21 +24,14 @@ add_library(${PROJECT_NAME} STATIC
         #    src/ContractUpdateTransaction.cc
         src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
-        src/Endpoint.cc
         #    src/EthereumTransaction.cc
-        src/EvmAddress.cc
+        #    src/EvmAddress.cc
         src/ExchangeRate.cc
         src/ExchangeRateSet.cc
         src/Executable.cc
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
         #    src/FileCreateTransaction.cc
-        src/HederaCertificateVerifier.cc
-        src/IPv4Address.cc
-        src/Network.cc
-        src/Node.cc
-        src/NodeAddress.cc
-        src/NodeAddressBook.cc
         src/PublicKey.cc
         src/Status.cc
         src/Transaction.cc
@@ -52,10 +44,18 @@ add_library(${PROJECT_NAME} STATIC
         src/Transfer.cc
         src/TransferTransaction.cc
 
-        src/helper/DurationConverter.cc
-        src/helper/HexConverter.cc
-        src/helper/OpenSSLHasher.cc
-        src/helper/TimestampConverter.cc)
+        src/impl/Channel.cc
+        src/impl/Endpoint.cc
+        src/impl/DurationConverter.cc
+        src/impl/HederaCertificateVerifier.cc
+        src/impl/HexConverter.cc
+        src/impl/IPv4Address.cc
+        src/impl/Network.cc
+        src/impl/Node.cc
+        src/impl/NodeAddress.cc
+        src/impl/NodeAddressBook.cc
+        src/impl/OpenSSLHasher.cc
+        src/impl/TimestampConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})

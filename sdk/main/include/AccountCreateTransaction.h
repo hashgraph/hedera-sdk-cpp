@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_CREATE_TRANSACTION_H_
-#define ACCOUNT_CREATE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_ACCOUNT_CREATE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_ACCOUNT_CREATE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "Hbar.h"
@@ -26,10 +26,18 @@
 #include "Transaction.h"
 
 #include <chrono>
+#include <functional>
+#include <memory>
 #include <optional>
+#include <string>
+#include <string_view>
 
 namespace Hedera
 {
+namespace internal
+{
+class Node;
+}
 class Channel;
 class TransactionResponse;
 }
@@ -71,22 +79,22 @@ namespace Hedera
 class AccountCreateTransaction : public Transaction<AccountCreateTransaction>
 {
 public:
-  /**
-   * Constructor.
-   */
   AccountCreateTransaction();
+  ~AccountCreateTransaction() override = default;
 
   /**
-   * Default destructor.
+   * Derived from Executable. Create a clone of this AccountCreateTransaction.
+   *
+   * @return A pointer to the created clone.
    */
-  ~AccountCreateTransaction() override = default;
+  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
 
   /**
    * Set the public key for the new account. The key that must sign each transfer out of the account. If
    * mReceiverSignatureRequired is true, then it must also sign any transfer into the account.
    *
    * @param publicKey The desired public key for the new account.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object with the newly-set public key.
    */
   AccountCreateTransaction& setKey(const std::shared_ptr<PublicKey>& publicKey);
 
@@ -94,17 +102,16 @@ public:
    * Set the initial amount to transfer into the new account from the paying account.
    *
    * @param initialBalance The desired balance to transfer into the new account.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object with the newly-set initial balance.
    */
   AccountCreateTransaction& setInitialBalance(const Hbar& initialBalance);
 
   /**
-   * Set to true to require the new account to sign any transfer of Hbars into itself. All transfers of Hbars from the
-   * account must always be signed. This property only affects transfers to the account.
+   * Set the new account's transfer receiver signature policy.
    *
    * @param receiveSignatureRequired \c TRUE to require the new account to sign any Hbar transfer transactions that
    *                                 involve transferring Hbars into itself, otherwise \c FALSE.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object with the newly-set receiver signature policy.
    */
   AccountCreateTransaction& setReceiverSignatureRequired(bool receiveSignatureRequired);
 
@@ -114,49 +121,52 @@ public:
    * expires, then the account is deleted.
    *
    * @param autoRenewPeriod The desired auto renew period for the new account.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object with the newly-set auto renew period.
    */
   AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<int64_t>& autoRenewPeriod);
 
   /**
-   * Assign a memo to the new account.
+   * Set a memo for the new account.
    *
    * @param memo The desired memo for the new account.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object with the newly-set memo.
+   * @throws std::invalid_argument If the memo is more than 100 characters.
    */
   AccountCreateTransaction& setAccountMemo(std::string_view memo);
 
   /**
    * Set the maximum automatic token associations the new account can have.
    *
-   * @param associations The desired maximum amount of associations for the new account.
-   * @return Reference to this AccountCreateTransaction object.
+   * @param associations The desired maximum amount of token associations for the new account.
+   * @return A reference to this AccountCreateTransaction object with the newly-set maximum automatic token
+   *         associations.
+   * @throws std::invalid_argument If the desired maximum number of associations is over 1000.
    */
   AccountCreateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
 
   /**
-   * Set the account to which the new account will stake. This is mutually exclusive with mStakedNodeId, and will
+   * Set the account to which the new account should stake. This is mutually exclusive with mStakedNodeId, and will
    * reset the value of the mStakedNodeId if it is set.
    *
    * @param stakedAccountId The ID of the desired account to which the new account will stake.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object with the newly-set staked account ID.
    */
   AccountCreateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
   /**
-   * Set the node to which the new account will stake. This is mutually exclusive with mStakedAccountId, and will
+   * Set the node to which the new account should stake. This is mutually exclusive with mStakedAccountId, and will
    * reset the value of the mStakedAccountId if it is set.
    *
    * @param stakedNodeId The ID of the desired node to which the new account will stake.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object with the newly-set staked node ID.
    */
   AccountCreateTransaction& setStakedNodeId(const uint64_t& stakedNodeId);
 
   /**
-   * Set the account's staking reward reception policy.
+   * Set the staking reward reception policy for the new account.
    *
    * @param declineReward \c TRUE if the new account should decline receiving staking rewards, otherwise \c FALSE.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object, with the newly-set staking rewards reception policy.
    */
   AccountCreateTransaction& setDeclineStakingReward(bool declineReward);
 
@@ -172,84 +182,77 @@ public:
    * deposited in that account, without creating anything, and with no creation fee being charged.
    *
    * @param alias The desired key to be used as the account's alias.
-   * @return Reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object.
    */
   AccountCreateTransaction& setAlias(const std::shared_ptr<PublicKey>& alias);
 
   /**
-   * Extract the desired public key for the new account.
+   * Get the desired public key for the new account.
    *
-   * @return The desired public key for the new account.
+   * @return The desired public key for the new account. Nullptr if the key has not yet been set.
    */
   [[nodiscard]] inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
 
   /**
-   * Extract the desired initial balance to transfer into the new account from the paying account.
+   * Get the desired initial balance to transfer into the new account from the paying account.
    *
    * @return The desired initial balance to transfer into the new account from the paying account.
    */
   [[nodiscard]] inline Hbar getInitialBalance() const { return mInitialBalance; }
 
   /**
-   * Extract the desired Hbar transfer receiver signature policy for the new account.
+   * Get the desired Hbar transfer receiver signature policy for the new account.
    *
    * @return \c TRUE if the new account will be required to sign all incoming Hbar transfers, otherwise \c FALSE.
    */
   [[nodiscard]] inline bool getReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
 
   /**
-   * Extract the desired auto renew period for the new account.
+   * Get the desired auto renew period for the new account.
    *
    * @return The desired auto renew period for the new account.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<int64_t>> getAutoRenewPeriod() const
-  {
-    return mAutoRenewPeriod;
-  }
+  [[nodiscard]] inline std::chrono::duration<int64_t> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
-   * Extract the desired memo for the new account.
+   * Get the desired memo for the new account.
    *
    * @return The desired memo for the new account.
    */
   [[nodiscard]] inline std::string getAccountMemo() const { return mAccountMemo; }
 
   /**
-   * Extract the desired maximum automatic token associations for the new account.
+   * Get the desired maximum automatic token associations for the new account.
    *
    * @return The desired maximum automatic token associations for the new account.
    */
   [[nodiscard]] inline uint32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
-   * Extract the ID of the desired account to which the new account will stake.
+   * Get the ID of the desired account to which the new account should stake.
    *
-   * @return The ID of the desired account to which the new account will stake.
+   * @return The ID of the desired account to which the new account will stake. Returns uninitialized if a value has not
+   * yet been set, or if a staked node ID has been set most recently.
    */
-  [[nodiscard]] inline std::unique_ptr<AccountId> getStakedAccountId() const
-  {
-    return mStakedAccountId ? std::make_unique<AccountId>(*mStakedAccountId) : std::unique_ptr<AccountId>();
-  }
+  [[nodiscard]] inline std::optional<AccountId> getStakedAccountId() const { return mStakedAccountId; }
 
   /**
-   * Extract the ID of the desired node to which the new account will stake.
+   * Get the ID of the desired node to which the new account should stake.
    *
-   * @return The ID of the desired node to which the new account will stake.
+   * @return The ID of the desired node to which the new account will stake. Returns uninitialized if a value has not
+   * yet been set, or if a staked account ID has been set most recently.
    */
-  [[nodiscard]] inline std::unique_ptr<uint64_t> getStakedNodeId() const
-  {
-    return mStakedNodeId ? std::make_unique<uint64_t>(*mStakedNodeId) : std::unique_ptr<uint64_t>();
-  }
+  [[nodiscard]] inline std::optional<uint64_t> getStakedNodeId() const { return mStakedNodeId; }
 
   /**
-   * Extract the desired staking rewards reception policy for the new account.
+   * Get the desired staking rewards reception policy for the new account.
    *
    * @return \c TRUE if the new account will decline from receiving staking rewards, otherwise \c FALSE
    */
   [[nodiscard]] inline bool getDeclineStakingReward() const { return mDeclineStakingReward; }
 
   /**
-   * Extract the desired key to be used as the new account's alias.
+   * Get the desired key to be used as the new account's alias.
    *
    * @return The desired key to be used as the new account's alias.
    */
@@ -257,34 +260,38 @@ public:
 
 protected:
   /**
-   * Derived from Executable. Construct a protobuf Transaction from this AccountCreateTransaction.
+   * Derived from Executable. Construct a Transaction protobuf object from this AccountCreateTransaction object.
    *
-   * @param client The Client submitting this transaction.
-   * @return A protobuf Transaction that contains this AccountCreateTransaction's data and is signed by the client.
+   * @param client The Client trying to construct this AccountCreateTransaction.
+   * @param node   The Node on which this AccountCreateTransaction will be sent.
+   * @return A Transaction protobuf object filled with this AccountCreateTransaction object's data.
    */
-  [[nodiscard]] proto::Transaction makeRequest(const Client& client, const std::shared_ptr<Node>&) const override;
+  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
+                                               const std::shared_ptr<internal::Node>&) const override;
 
   /**
-   * Derived from Executable. Get the gRPC method to call to create a new crypto account.
+   * Derived from Executable. Get the gRPC method to call to send this AccountCreateTransaction.
    *
-   * @param node The Node from which to retrieve the function.
+   * @param node The Node to which this AccountCreateTransaction is being sent and from which to retrieve the gRPC
+   *             method.
    * @return The gRPC method to call to execute this AccountCreateTransaction.
    */
   [[nodiscard]] std::function<
     grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-  getGrpcMethod(const std::shared_ptr<Node>& node) const override;
+  getGrpcMethod(const std::shared_ptr<internal::Node>& node) const override;
 
 private:
   /**
-   * Build a CryptoCreateTransactionBody protobuf message based on the this class data.
+   * Build a CryptoCreateTransactionBody protobuf object from this AccountCreateTransaction object.
    *
-   * @return A CryptoCreateTransactionBody protobuf message.
+   * @return A pointer to a CryptoCreateTransactionBody protobuf object filled with this AccountCreateTransaction
+   *         object's data.
    */
   [[nodiscard]] proto::CryptoCreateTransactionBody* build() const;
 
   /**
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
-   * also sign any transfer into the account. Defaults to uninitialized.
+   * also sign any transfer into the account. Defaults to nullptr (uninitialized).
    */
   std::shared_ptr<PublicKey> mKey;
 
@@ -313,7 +320,7 @@ private:
 
   /**
    * The maximum number of tokens with which the new account can be implicitly associated. Defaults to 0 and up to a
-   * maximum value of 1000 (attempting to set a value >1000 will just set the value to 1000).
+   * maximum value of 1000.
    */
   uint32_t mMaxAutomaticTokenAssociations = 0U;
 
@@ -321,13 +328,13 @@ private:
    * The ID of the account to which the new account will be staked. Mutually exclusive with mStakedNodeId. Defaults to
    * uninitialized.
    */
-  std::unique_ptr<AccountId> mStakedAccountId;
+  std::optional<AccountId> mStakedAccountId;
 
   /**
    * The ID of the node to which the new account will be staked. Mutually exclusive with mStakedAccountId. Defaults to
    * uninitialized.
    */
-  std::unique_ptr<uint64_t> mStakedNodeId;
+  std::optional<uint64_t> mStakedNodeId;
 
   /**
    * If \c TRUE, the new account will decline receiving staking rewards. Defaults to \c FALSE.
@@ -352,4 +359,4 @@ private:
 
 } // namespace Hedera
 
-#endif // ACCOUNT_CREATE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_ACCOUNT_CREATE_TRANSACTION_H_

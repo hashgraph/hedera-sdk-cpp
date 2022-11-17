@@ -31,15 +31,15 @@ protected:
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
 
 private:
-  const AccountId mTestAccountId = AccountId(0ULL, 0ULL, 3ULL);
-  const ContractId mTestContractId = ContractId(0ULL, 0ULL, 3ULL);
+  const AccountId mTestAccountId = AccountId(3ULL);
+  const ContractId mTestContractId = ContractId(3ULL);
 };
 
 TEST_F(AccountBalanceQueryTest, ConstructAccountBalanceQuery)
 {
   AccountBalanceQuery query;
-  EXPECT_EQ(query.getAccountId(), nullptr);
-  EXPECT_EQ(query.getContractId(), nullptr);
+  EXPECT_FALSE(query.getAccountId());
+  EXPECT_FALSE(query.getContractId());
 }
 
 TEST_F(AccountBalanceQueryTest, SetAccountId)
@@ -64,9 +64,9 @@ TEST_F(AccountBalanceQueryTest, ResetMutuallyExclusiveIds)
   query.setAccountId(getTestAccountId());
   query.setContractId(getTestContractId());
 
-  EXPECT_EQ(query.getAccountId(), nullptr);
+  EXPECT_FALSE(query.getAccountId());
 
   query.setAccountId(getTestAccountId());
 
-  EXPECT_EQ(query.getContractId(), nullptr);
+  EXPECT_FALSE(query.getContractId());
 }

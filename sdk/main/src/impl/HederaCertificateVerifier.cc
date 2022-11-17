@@ -17,11 +17,12 @@
  * limitations under the License.
  *
  */
+#include "impl/HederaCertificateVerifier.h"
+#include "impl/HexConverter.h"
+#include "impl/OpenSSLHasher.h"
 
-#include "HederaCertificateVerifier.h"
-#include "helper/HexConverter.h"
-#include "helper/OpenSSLHasher.h"
-
+namespace Hedera::internal
+{
 HederaCertificateVerifier::HederaCertificateVerifier(const std::string& certificateHash)
 {
   mExpectedHash = certificateHash;
@@ -34,9 +35,9 @@ bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerification
   auto grpcCertificateChain = request->peer_cert_full_chain();
   std::string certificateChain = { grpcCertificateChain.cbegin(), grpcCertificateChain.cend() };
 
-  std::vector<unsigned char> hashBytes = Hedera::OpenSSLHasher::computeSHA384(certificateChain);
+  std::vector<unsigned char> hashBytes = OpenSSLHasher::computeSHA384(certificateChain);
 
-  if (mExpectedHash != Hedera::HexConverter::bytesToHex(hashBytes))
+  if (mExpectedHash != HexConverter::bytesToHex(hashBytes))
   {
     *sync_status = grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
                                 "Hash of node certificate chain doesn't match hash contained in address book");
@@ -50,4 +51,4 @@ bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerification
   return true;
 }
 
-void HederaCertificateVerifier::Cancel(grpc::experimental::TlsCustomVerificationCheckRequest* request) {}
+} // namespace Hedera::internal

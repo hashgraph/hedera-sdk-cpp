@@ -18,11 +18,11 @@
  *
  */
 
-#ifndef HEDERA_SDK_CPP_NODEADDRESSBOOK_H
-#define HEDERA_SDK_CPP_NODEADDRESSBOOK_H
+#ifndef HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_BOOK_H_
+#define HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_BOOK_H_
 
 #include "AccountId.h"
-#include "NodeAddress.h"
+#include "impl/NodeAddress.h"
 
 #include <memory>
 #include <unordered_map>
@@ -33,9 +33,8 @@ class NodeAddressBook;
 class NodeAddress;
 }
 
-namespace Hedera
+namespace Hedera::internal
 {
-
 /**
  * An address book containing all known nodes on the network
  */
@@ -74,15 +73,15 @@ public:
    *
    * @return a map representing the nodes in the address book
    */
-  [[nodiscard]] const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& getAddressMap() const;
+  [[nodiscard]] const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& getAddressMap() const;
 
 private:
   /**
    * A map from node account ID to node address
    */
-  std::unordered_map<AccountId, std::shared_ptr<NodeAddress>> addressMap;
+  std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>> addressMap;
 };
 
-} // Hedera
+} // namespace Hedera::internal
 
-#endif // HEDERA_SDK_CPP_NODEADDRESSBOOK_H
+#endif // HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_BOOK_H_

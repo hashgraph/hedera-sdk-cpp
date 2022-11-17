@@ -17,96 +17,86 @@
  * limitations under the License.
  *
  */
-
 #include "ED25519PrivateKey.h"
-#include "helper/HexConverter.h"
-#include "openssl/x509.h"
-#include <iostream>
+#include "impl/HexConverter.h"
 
-#include "helper/HexConverter.h"
+#include <openssl/evp.h>
+#include <openssl/x509.h>
 
 namespace Hedera
 {
-
-ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
-{
-  // the underlying keypair must be copied. serialize and then deserialize to accomplish this
-  this->keypair = bytesToPKEY(other.toBytes());
-
-  // public key can be directly copied, since it's a shared pointer
-  this->publicKey = other.publicKey;
-}
-
-ED25519PrivateKey::ED25519PrivateKey(EVP_PKEY* keypair)
-{
-  this->keypair = keypair;
-  this->publicKey = ED25519PublicKey::fromBytes(getPublicKeyBytes());
-}
-
-std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
-{
-  int bytesLength = i2d_PUBKEY(this->keypair, nullptr);
-
-  std::vector<unsigned char> publicKeyBytes(bytesLength);
-  unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
-
-  if (i2d_PUBKEY(this->keypair, &rawPublicKeyBytes) <= 0)
-  {
-    std::cout << "getPublicKeyBytes I2D error" << std::endl;
-  }
-
-  return publicKeyBytes;
-}
-
+//-----
 ED25519PrivateKey::~ED25519PrivateKey()
 {
-  EVP_PKEY_free(this->keypair);
+  EVP_PKEY_free(mKeypair);
 }
 
-std::shared_ptr<PublicKey> ED25519PrivateKey::getPublicKey() const
+//-----
+ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
+  : PrivateKey()
+  , mKeypair(bytesToPKEY(other.toBytes()))
+  , mPublicKey(other.mPublicKey)
 {
-  return publicKey;
 }
 
-std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
+//-----
+ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 {
-  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
-
-  if (!messageDigestContext)
-  {
-    std::cout << "Digest context construction failed" << std::endl;
-  }
-
-  if (EVP_DigestSignInit(messageDigestContext, nullptr, nullptr, nullptr, this->keypair) <= 0)
-  {
-    std::cout << "Digest sign init failed" << std::endl;
-  }
-
-  size_t signatureLength;
-  /* Calculate the required size for the signature */
-  if (EVP_DigestSign(messageDigestContext, nullptr, &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
-  {
-    std::cout << "Failed to calculate signature length" << std::endl;
-  }
-
-  std::vector<unsigned char> signature = std::vector<unsigned char>(signatureLength);
-
-  if (EVP_DigestSign(
-        messageDigestContext, &signature.front(), &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
-  {
-    std::cout << "Signing failed" << std::endl;
-  }
-
-  EVP_MD_CTX_free(messageDigestContext);
-
-  return signature;
+  mKeypair = bytesToPKEY(other.toBytes());
+  mPublicKey = other.mPublicKey;
+  return *this;
 }
 
-std::string ED25519PrivateKey::toString() const
+//-----
+ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
+  : PrivateKey()
+  , mKeypair(other.mKeypair)
+  , mPublicKey(other.mPublicKey)
 {
-  return HexConverter::base64ToHex(toBytes());
+  other.mKeypair = nullptr;
 }
 
+//-----
+ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexcept
+{
+  mKeypair = other.mKeypair;
+  mPublicKey = other.mPublicKey;
+  other.mKeypair = nullptr;
+  return *this;
+}
+
+//-----
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
+{
+  EVP_PKEY* keypair = EVP_PKEY_new();
+  EVP_PKEY_CTX* keyAlgorithmContext = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr);
+
+  if (!keyAlgorithmContext)
+  {
+    EVP_PKEY_free(keypair);
+    throw std::runtime_error("Key algorithm context invalid");
+  }
+
+  if (EVP_PKEY_keygen_init(keyAlgorithmContext) <= 0)
+  {
+    EVP_PKEY_free(keypair);
+    EVP_PKEY_CTX_free(keyAlgorithmContext);
+    throw std::runtime_error("Keygen initialization error");
+  }
+
+  if (EVP_PKEY_generate(keyAlgorithmContext, &keypair) <= 0)
+  {
+    EVP_PKEY_free(keypair);
+    EVP_PKEY_CTX_free(keyAlgorithmContext);
+    throw std::runtime_error("Keypair generation error");
+  }
+
+  EVP_PKEY_CTX_free(keyAlgorithmContext);
+
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(keypair));
+}
+
+//-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
 {
   std::string fullKeyString = keyString;
@@ -117,52 +107,109 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::stri
     fullKeyString = "302E020100300506032B657004220420" + keyString;
   }
 
-  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(fullKeyString))));
+  return std::make_unique<ED25519PrivateKey>(
+    ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBase64(fullKeyString))));
 }
 
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
+//-----
+std::unique_ptr<PrivateKey> ED25519PrivateKey::clone() const
 {
-  EVP_PKEY* keypair = EVP_PKEY_new();
-  EVP_PKEY_CTX* keyAlgorithmContext = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr);
-
-  if (!keyAlgorithmContext)
-  {
-    std::cout << "CONTEXT INVALID" << std::endl;
-  }
-
-  if (EVP_PKEY_keygen_init(keyAlgorithmContext) <= 0)
-  {
-    std::cout << "INIT ERROR" << std::endl;
-  }
-
-  if (EVP_PKEY_generate(keyAlgorithmContext, &keypair) <= 0)
-  {
-    std::cout << "GENERATE ERROR" << std::endl;
-  }
-
-  EVP_PKEY_CTX_free(keyAlgorithmContext);
-
-  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(keypair));
+  return std::make_unique<ED25519PrivateKey>(*this);
 }
 
+//-----
+std::shared_ptr<PublicKey> ED25519PrivateKey::getPublicKey() const
+{
+  return mPublicKey;
+}
+
+//-----
+std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
+{
+  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
+
+  if (!messageDigestContext)
+  {
+    throw std::runtime_error("Digest context construction failed");
+  }
+
+  if (EVP_DigestSignInit(messageDigestContext, nullptr, nullptr, nullptr, mKeypair) <= 0)
+  {
+    EVP_MD_CTX_free(messageDigestContext);
+    throw std::runtime_error("Digest sign initialization failed");
+  }
+
+  size_t signatureLength;
+  /* Calculate the required size for the signature */
+  if (EVP_DigestSign(messageDigestContext, nullptr, &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
+  {
+    EVP_MD_CTX_free(messageDigestContext);
+    throw std::runtime_error("Failed to calculate signature length");
+  }
+
+  auto signature = std::vector<unsigned char>(signatureLength);
+
+  if (EVP_DigestSign(
+        messageDigestContext, &signature.front(), &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
+  {
+    EVP_MD_CTX_free(messageDigestContext);
+    throw std::runtime_error("Signature generation failed");
+  }
+
+  EVP_MD_CTX_free(messageDigestContext);
+
+  return signature;
+}
+
+//-----
+std::string ED25519PrivateKey::toString() const
+{
+  return internal::HexConverter::base64ToHex(toBytes());
+}
+
+//-----
+ED25519PrivateKey::ED25519PrivateKey(EVP_PKEY* keypair)
+  : PrivateKey()
+  , mKeypair(keypair)
+  , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
+{
+}
+
+//-----
 std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 {
-  int bytesLength = i2d_PrivateKey(this->keypair, nullptr);
+  int bytesLength = i2d_PrivateKey(mKeypair, nullptr);
 
   std::vector<unsigned char> outputBytes(bytesLength);
-  unsigned char* rawBytes = &outputBytes.front();
 
-  if (i2d_PrivateKey(this->keypair, &rawBytes) <= 0)
+  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(mKeypair, &rawBytes) <= 0)
   {
-    std::cout << "ED25519PrivateKey toBytes I2D error" << std::endl;
+    throw std::runtime_error("ED225519PrivateKey private key serialization error");
   }
 
   return outputBytes;
 }
 
+//-----
+std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
+{
+  int bytesLength = i2d_PUBKEY(mKeypair, nullptr);
+
+  std::vector<unsigned char> publicKeyBytes(bytesLength);
+
+  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mKeypair, &rawPublicKeyBytes) <= 0)
+  {
+    throw std::runtime_error("ED225519PrivateKey public key serialization error");
+  }
+
+  return publicKeyBytes;
+}
+
+//-----
 EVP_PKEY* ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   const unsigned char* rawKeyBytes = &keyBytes.front();
   return d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, (long)keyBytes.size());
 }
-}
+
+} // namespace Hedera

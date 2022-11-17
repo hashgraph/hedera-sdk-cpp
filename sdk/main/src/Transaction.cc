@@ -18,20 +18,18 @@
  *
  */
 #include "Transaction.h"
-
 #include "AccountCreateTransaction.h"
 #include "Client.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
-
-#include "helper/DurationConverter.h"
+#include "impl/DurationConverter.h"
+#include "impl/Node.h"
 
 #include <proto/basic_types.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>
 #include <proto/transaction_contents.pb.h>
-
 #include <vector>
 
 namespace Hedera
@@ -84,7 +82,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
 
 //-----
 template<typename SdkRequestType>
-void Transaction<SdkRequestType>::onSelectNode(const std::shared_ptr<Node>& node)
+void Transaction<SdkRequestType>::onSelectNode(const std::shared_ptr<internal::Node>& node)
 {
   mNodeAccountId = node->getAccountId();
 }
@@ -95,21 +93,21 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
                                                                 const Client& client) const
 {
   // Make sure the operator has been set, and therefore has an account ID and key.
-  if (client.getOperator())
+  if (client.getOperatorAccountId() && client.getOperatorPublicKey())
   {
     // Generate a signature from the TransactionBody
-    auto transactionBodySerialized = new std::string(transaction.SerializeAsString());
-    const std::vector<unsigned char> signature = client.getOperator()->mPrivateKey->sign(
-      { transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
+    auto transactionBodySerialized = std::make_unique<std::string>(transaction.SerializeAsString());
+    const std::vector<unsigned char> signature =
+      client.sign({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
-    auto signatureMap = new proto::SignatureMap();
+    auto signatureMap = std::make_unique<proto::SignatureMap>();
     signatureMap->add_sigpair()->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
 
     // Create a protobuf SignedTransaction from the TransactionBody and SignatureMap
     proto::SignedTransaction signedTransaction;
-    signedTransaction.set_allocated_bodybytes(transactionBodySerialized);
-    signedTransaction.set_allocated_sigmap(signatureMap);
+    signedTransaction.set_allocated_bodybytes(transactionBodySerialized.release());
+    signedTransaction.set_allocated_sigmap(signatureMap.release());
 
     // Serialize the protobuf SignedTransaction to a protobuf Transaction
     proto::Transaction transactionToReturn;
@@ -126,11 +124,11 @@ template<typename SdkRequestType>
 proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(const Client& client) const
 {
   proto::TransactionBody body;
-  body.set_allocated_transactionid(mTransactionId.toProtobuf());
+  body.set_allocated_transactionid(mTransactionId.toProtobuf().release());
   body.set_transactionfee(static_cast<uint64_t>(getMaxTransactionFee(client).toTinybars()));
   body.set_allocated_memo(new std::string(mTransactionMemo));
-  body.set_allocated_transactionvalidduration(DurationConverter::toProtobuf(mTransactionValidDuration));
-  body.set_allocated_nodeaccountid(mNodeAccountId->toProtobuf());
+  body.set_allocated_transactionvalidduration(internal::DurationConverter::toProtobuf(mTransactionValidDuration));
+  body.set_allocated_nodeaccountid(mNodeAccountId->toProtobuf().release());
   return body;
 }
 
@@ -143,7 +141,7 @@ Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client& client) con
     return mMaxTransactionFee;
   }
 
-  else if (const std::shared_ptr<Hbar> defaultMaxTxFee = client.getDefaultMaxTransactionFee())
+  else if (const std::unique_ptr<Hbar> defaultMaxTxFee = client.getDefaultMaxTransactionFee())
   {
     return *defaultMaxTxFee;
   }
@@ -155,7 +153,7 @@ Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client& client) con
 }
 
 /**
- * Explicit template instantiation
+ * Explicit template instantiation.
  */
 template class Transaction<AccountCreateTransaction>;
 template class Transaction<TransferTransaction>;

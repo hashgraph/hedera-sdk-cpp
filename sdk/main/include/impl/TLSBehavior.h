@@ -17,26 +17,27 @@
  * limitations under the License.
  *
  */
-#include "ExchangeRate.h"
-#include "impl/TimestampConverter.h"
 
-#include <proto/exchange_rate.pb.h>
+#ifndef HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_
+#define HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_
 
 namespace Hedera
 {
-//-----
-ExchangeRate ExchangeRate::fromProtobuf(const proto::ExchangeRate& proto)
+/**
+ * Enum representing different modes of network operation
+ */
+enum TLSBehavior
 {
-  ExchangeRate exchangeRate;
-  exchangeRate.mHbars = proto.hbarequiv();
-  exchangeRate.mCents = proto.centequiv();
+  /**
+   * Communicate only in the clear
+   */
+  DISABLE,
+  /**
+   * Require TLS connection
+   */
+  REQUIRE
+};
 
-  if (proto.has_expirationtime())
-  {
-    exchangeRate.mExpirationTime = internal::TimestampConverter::fromProtobuf(proto.expirationtime());
-  }
-  
-  return exchangeRate;
-}
+} // Hedera
 
-} // namespace Hedera
+#endif // HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_

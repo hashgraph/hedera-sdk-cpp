@@ -26,6 +26,10 @@
 
 namespace Hedera
 {
+namespace internal
+{
+class Node;
+}
 class AccountBalance;
 class AccountBalanceQuery;
 class AccountId;
@@ -59,24 +63,35 @@ namespace Hedera
 template<typename SdkRequestType, typename SdkResponseType>
 class Query : public Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>
 {
+public:
+  ~Query() override = default;
+
 protected:
   /**
-   * Default destructor.
+   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
    */
-  virtual ~Query() = default;
+  Query() = default;
+  Query(const Query&) = default;
+  Query& operator=(const Query&) = default;
+  Query(Query&&) noexcept = default;
+  Query& operator=(Query&&) noexcept = default;
 
   /**
    * Derived from Executable. Perform any operations needed when this Query is being executed.
    */
-  void onExecute(const Client&) override {}
+  void onExecute(const Client&) override
+  { // Intentionally unimplemented
+  }
 
   /**
-   * Derived from Executable. Perform any needed actions for this Query when a Node has been selected to which to
-   * send this Query.
+   * Derived from Executable. Perform any needed actions for this Query when a
+   * Node has been selected to which to send this Query.
    *
    * @param node The Node to which this Query is being sent.
    */
-  void onSelectNode(const std::shared_ptr<Node>&) override {}
+  void onSelectNode(const std::shared_ptr<internal::Node>&) override
+  { // Intentionally unimplemented
+  }
 };
 
 /**

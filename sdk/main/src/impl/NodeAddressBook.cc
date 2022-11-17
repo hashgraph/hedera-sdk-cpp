@@ -17,12 +17,12 @@
  * limitations under the License.
  *
  */
-#include "NodeAddressBook.h"
+#include "impl/NodeAddressBook.h"
 
-#include <proto/basic_types.pb.h>
 #include <fstream>
+#include <proto/basic_types.pb.h>
 
-namespace Hedera
+namespace Hedera::internal
 {
 NodeAddressBook NodeAddressBook::fromFile(const std::string& fileName)
 {
@@ -50,15 +50,16 @@ NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& addr
     const proto::NodeAddress& nodeAddress = addressBook.nodeaddress(i);
 
     outputAddressBook.addressMap.insert(
-      { AccountId::fromProtobuf(nodeAddress.nodeaccountid()), std::make_shared<NodeAddress>(NodeAddress::fromProtobuf(nodeAddress)) });
+      { AccountId::fromProtobuf(nodeAddress.nodeaccountid()),
+        std::make_shared<internal::NodeAddress>(internal::NodeAddress::fromProtobuf(nodeAddress)) });
   }
 
   return outputAddressBook;
 }
 
-const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& NodeAddressBook::getAddressMap() const
+const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& NodeAddressBook::getAddressMap() const
 {
   return addressMap;
 }
 
-} // Hedera
+} // namespace Hedera::internal

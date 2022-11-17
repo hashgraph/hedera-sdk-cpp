@@ -18,9 +18,8 @@
  *
  */
 #include "TransferTransaction.h"
-
-#include "Client.h"
 #include "TransactionResponse.h"
+#include "impl/Node.h"
 
 #include <proto/crypto_transfer.pb.h>
 #include <proto/response.pb.h>
@@ -28,6 +27,13 @@
 
 namespace Hedera
 {
+//-----
+std::unique_ptr<Executable<TransferTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>>
+TransferTransaction::clone() const
+{
+  return std::make_unique<TransferTransaction>(*this);
+}
+
 //-----
 TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId,
                                                                   const Hbar& amount)
@@ -44,7 +50,7 @@ TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const std::s
 }
 
 //-----
-proto::Transaction TransferTransaction::makeRequest(const Client& client, const std::shared_ptr<Node>&) const
+proto::Transaction TransferTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
 {
   proto::TransactionBody body = generateTransactionBody(client);
   body.set_allocated_cryptotransfer(build());
@@ -54,7 +60,7 @@ proto::Transaction TransferTransaction::makeRequest(const Client& client, const 
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-TransferTransaction::getGrpcMethod(const std::shared_ptr<Node>& node) const
+TransferTransaction::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
 {
   return node->getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoTransfer);
 }
@@ -67,7 +73,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
   for (const Transfer& transfer : mHbarTransfers)
   {
     proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
-    amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf());
+    amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf().release());
     amount->set_amount(transfer.getAmount().toTinybars());
     amount->set_is_approval(transfer.getApproval());
   }
@@ -78,6 +84,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 //----
 void TransferTransaction::addHbarTransfer(const Transfer& transfer)
 {
+  // If a transfer has already been added for an account, just update the amount if the approval status is the same
   for (Transfer& hbarTransfer : mHbarTransfers)
   {
     if (hbarTransfer.getAccountId() == transfer.getAccountId() && hbarTransfer.getApproval() == transfer.getApproval())

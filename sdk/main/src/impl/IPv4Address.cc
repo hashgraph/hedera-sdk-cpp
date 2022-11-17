@@ -17,14 +17,13 @@
  * limitations under the License.
  *
  */
-
-#include "IPv4Address.h"
+#include "impl/IPv4Address.h"
 
 #include <iostream>
 #include <sstream>
 #include <vector>
 
-namespace Hedera
+namespace Hedera::internal
 {
 
 IPv4Address::IPv4Address(unsigned char octet1, unsigned char octet2, unsigned char octet3, unsigned char octet4)
@@ -100,4 +99,4 @@ std::string IPv4Address::toString() const
   return outputStream.str();
 }
 
-} // Hedera
+} // namespace Hedera::internal

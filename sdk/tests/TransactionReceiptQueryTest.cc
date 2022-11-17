@@ -30,13 +30,13 @@ protected:
   [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mTestAccountId; }
 
 private:
-  const std::shared_ptr<AccountId> mTestAccountId = std::make_shared<AccountId>(0ULL, 0ULL, 10ULL);
+  const std::shared_ptr<AccountId> mTestAccountId = std::make_shared<AccountId>(10ULL);
 };
 
 TEST_F(TransactionReceiptQueryTest, SetTransactionId)
 {
   TransactionReceiptQuery query;
   const TransactionId transactionId = TransactionId::generate(getTestAccountId());
-  query.setTransactionId(TransactionId::generate(getTestAccountId()));
+  query.setTransactionId(transactionId);
   EXPECT_EQ(query.getTransactionId(), transactionId);
 }

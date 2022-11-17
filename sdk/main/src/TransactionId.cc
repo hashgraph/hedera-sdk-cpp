@@ -18,8 +18,7 @@
  *
  */
 #include "TransactionId.h"
-
-#include "helper/TimestampConverter.h"
+#include "impl/TimestampConverter.h"
 
 #include <proto/basic_types.pb.h>
 
@@ -41,7 +40,7 @@ TransactionId TransactionId::fromProtobuf(const proto::TransactionID& proto)
 
   if (proto.has_transactionvalidstart())
   {
-    id.mValidTransactionTime = TimestampConverter::fromProtobuf(proto.transactionvalidstart());
+    id.mValidTransactionTime = internal::TimestampConverter::fromProtobuf(proto.transactionvalidstart());
   }
 
   if (proto.has_accountid())
@@ -53,12 +52,11 @@ TransactionId TransactionId::fromProtobuf(const proto::TransactionID& proto)
 }
 
 //-----
-proto::TransactionID* TransactionId::toProtobuf() const
+std::unique_ptr<proto::TransactionID> TransactionId::toProtobuf() const
 {
-  auto proto = new proto::TransactionID;
-  proto->set_allocated_transactionvalidstart(TimestampConverter::toProtobuf(mValidTransactionTime));
-  proto->set_allocated_accountid(mAccountId->toProtobuf());
-
+  auto proto = std::make_unique<proto::TransactionID>();
+  proto->set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(mValidTransactionTime));
+  proto->set_allocated_accountid(mAccountId->toProtobuf().release());
   return proto;
 }
 

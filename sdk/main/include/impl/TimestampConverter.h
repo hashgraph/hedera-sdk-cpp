@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HELPER_TIMESTAMP_CONVERTER_H_
-#define HELPER_TIMESTAMP_CONVERTER_H_
+#ifndef HEDERA_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_
+#define HEDERA_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_
 
 #include <chrono>
 #include <memory>
@@ -29,7 +29,7 @@ class Timestamp;
 class TimestampSeconds;
 }
 
-namespace Hedera::TimestampConverter
+namespace Hedera::internal::TimestampConverter
 {
 /**
  * Create a system time object from a Timestamp protobuf.
@@ -53,8 +53,8 @@ std::chrono::system_clock::time_point fromProtobuf(const proto::TimestampSeconds
  * @param time The system time.
  * @return The Timestamp protobuf represented by the input system time.
  */
-proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point & time);
+proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time);
 
-} // namespace Hedera::TimestampConverter
+} // namespace Hedera::internal::TimestampConverter
 
-#endif // HELPER_TIMESTAMP_CONVERTER_H_
+#endif // HEDERA_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_

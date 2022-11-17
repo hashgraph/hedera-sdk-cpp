@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,43 +17,37 @@
  * limitations under the License.
  *
  */
-#ifndef CHANNEL_H_
-#define CHANNEL_H_
+#ifndef HEDERA_SDK_CPP_IMPL_CHANNEL_H_
+#define HEDERA_SDK_CPP_IMPL_CHANNEL_H_
 
-#include "NodeAddress.h"
 #include <chrono>
 #include <memory>
 #include <string>
 
 namespace grpc
 {
+class ChannelCredentials;
 class ClientContext;
 class Status;
-class ChannelCredentials;
 }
 
 namespace proto
 {
-class CryptoService;
 class Query;
 class Response;
 class Transaction;
 class TransactionResponse;
 }
 
-namespace Hedera
+namespace Hedera::internal
 {
+/**
+ * Internal utility class used to represent a communication stream between a client and a network node.
+ */
 class Channel
 {
 public:
-  /**
-   * Default constructor.
-   */
   Channel();
-
-  /**
-   * Default destructor.
-   */
   ~Channel();
 
   /**
@@ -88,7 +82,8 @@ public:
    * @param transactionBodyDataCase The case describing the function to get.
    * @return The function described by the case, bound to this channel's proper stub.
    */
-  std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
+  [[nodiscard]] std::function<
+    grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
   getGrpcTransactionMethod(int transactionBodyDataCase) const;
 
   /**
@@ -97,8 +92,8 @@ public:
    * @param queryBodyDataCase The case describing the function to get.
    * @return The function described by the case, bound to this channel's proper stub.
    */
-  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcQueryMethod(
-    int queryBodyDataCase) const;
+  [[nodiscard]] std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
+  getGrpcQueryMethod(int queryBodyDataCase) const;
 
   /**
    * Shutdown the channel.
@@ -128,6 +123,6 @@ private:
   bool mInitialized = false;
 };
 
-} // namespace Hedera
+} // namespace Hedera::internal
 
-#endif // CHANNEL_H_
+#endif // HEDERA_SDK_CPP_IMPL_CHANNEL_H_

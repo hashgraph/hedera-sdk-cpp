@@ -19,13 +19,11 @@
  */
 #include "TransactionId.h"
 #include "AccountId.h"
-
-#include "helper/TimestampConverter.h"
-
-#include <gtest/gtest.h>
-#include <proto/basic_types.pb.h>
+#include "impl/TimestampConverter.h"
 
 #include <chrono>
+#include <gtest/gtest.h>
+#include <proto/basic_types.pb.h>
 
 using namespace Hedera;
 
@@ -55,15 +53,15 @@ TEST_F(TransactionIdTest, ProtobufTransactionId)
   const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
   proto::TransactionID protoTransactionId;
-  protoTransactionId.set_allocated_accountid(getTestAccountId()->toProtobuf());
-  protoTransactionId.set_allocated_transactionvalidstart(TimestampConverter::toProtobuf(now));
+  protoTransactionId.set_allocated_accountid(getTestAccountId()->toProtobuf().release());
+  protoTransactionId.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(now));
 
   const TransactionId transactionId = TransactionId::fromProtobuf(protoTransactionId);
   EXPECT_EQ(*transactionId.getAccountId(), *getTestAccountId());
   EXPECT_EQ(transactionId.getValidTransactionTime(), now);
 
   const auto protoTransactionIdPtr = std::unique_ptr<proto::TransactionID>(transactionId.toProtobuf());
-  const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(TimestampConverter::toProtobuf(now));
+  const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(internal::TimestampConverter::toProtobuf(now));
   EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), getTestAccountId()->getShardNum());
   EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), getTestAccountId()->getRealmNum());
   EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()),

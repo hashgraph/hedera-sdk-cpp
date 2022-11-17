@@ -17,12 +17,13 @@
  * limitations under the License.
  *
  */
-
-#ifndef HEDERA_SDK_CPP_HEDERACERTIFICATEVERIFIER_H
-#define HEDERA_SDK_CPP_HEDERACERTIFICATEVERIFIER_H
+#ifndef HEDERA_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
+#define HEDERA_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
 
 #include <grpcpp/security/credentials.h>
 
+namespace Hedera::internal
+{
 /**
  * Custom TLS verifier which checks if node TLS cert chain matches the expected hash
  */
@@ -58,15 +59,16 @@ private:
               grpc::Status* sync_status) override;
 
   /**
-   * Cancels a verification request previously started via Verify().
-   * Used when the connection attempt times out or is cancelled while an async
-   * verification request is pending. The implementation should abort whatever
-   * async operation it is waiting for and quickly invoke the callback that was
-   * passed to Verify() with a status indicating the cancellation.
+   * Cancels a verification request previously started via Verify(). Used when the connection attempt times out or is
+   * cancelled while an async verification request is pending. The impl should abort whatever async operation
+   * it is waiting for and quickly invoke the callback that was passed to Verify() with a status indicating the
+   * cancellation.
    *
    * @param request the verification information associated with this request
    */
-  void Cancel(grpc::experimental::TlsCustomVerificationCheckRequest* request) override;
+  void Cancel(grpc::experimental::TlsCustomVerificationCheckRequest* request) override{};
 };
 
-#endif // HEDERA_SDK_CPP_HEDERACERTIFICATEVERIFIER_H
+} // namespace Hedera::internal
+
+#endif // HEDERA_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_

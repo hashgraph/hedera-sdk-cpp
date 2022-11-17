@@ -17,11 +17,11 @@
  * limitations under the License.
  *
  */
-#include "helper/TimestampConverter.h"
+#include "impl/TimestampConverter.h"
 
 #include <proto/timestamp.pb.h>
 
-namespace Hedera::TimestampConverter
+namespace Hedera::internal::TimestampConverter
 {
 //-----
 std::chrono::system_clock::time_point fromProtobuf(const proto::Timestamp& timestamp)
@@ -47,4 +47,4 @@ proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time)
   return timestamp.release();
 }
 
-} // namespace Hedera::TimestampConverter
+} // namespace Hedera::internal::TimestampConverter
