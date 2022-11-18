@@ -18,22 +18,22 @@
  *
  */
 
-#include "MnemonicBIP39.h"
+#ifndef HEDERA_SDK_CPP_OPENSSLRANDOM_H
+#define HEDERA_SDK_CPP_OPENSSLRANDOM_H
 
-#include <gtest/gtest.h>
+#include <vector>
 
-using namespace Hedera;
-
-class MnemonicTest : public ::testing::Test
+namespace Hedera
 {
+
+class OpenSSLRandom
+{
+public:
+  OpenSSLRandom() = delete;
+
+  static std::vector<unsigned char> getRandomBytes(int count);
 };
 
-TEST_F(MnemonicTest, DefaultConstructContractId)
-{
-  MnemonicBIP39 mnemonic =
-    MnemonicBIP39::initializeBIP39Mnemonic("inmate flip alley wear offer often piece magnet surge toddler submit right "
-                                           "radio absent pear floor belt raven price stove replace reduce plate home");
+} // Hedera
 
-  std::cout << MnemonicBIP39::generate12WordBIP39Mnemonic().toString() << std::endl;
-  std::cout << MnemonicBIP39::generate24WordBIP39Mnemonic().toString() << std::endl;
-}
+#endif // HEDERA_SDK_CPP_OPENSSLRANDOM_H

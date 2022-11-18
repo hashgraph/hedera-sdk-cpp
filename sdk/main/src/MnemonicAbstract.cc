@@ -20,7 +20,8 @@
 
 #include "MnemonicAbstract.h"
 #include "helper/OpenSSLHasher.h"
-#include "helper/HexConverter.h"
+
+#include <sstream>
 
 namespace Hedera
 {
@@ -94,7 +95,7 @@ uint16_t MnemonicAbstract::getIndexFromWordString(const std::string& word) const
 
 bool MnemonicAbstract::verifyChecksum() const
 {
-  const std::vector<unsigned char>& entropyAndChecksum = wordsToEntropyAndChecksum();
+  const std::vector<unsigned char>& entropyAndChecksum = computeEntropyAndChecksum();
 
   const std::vector<unsigned char> entropy = { entropyAndChecksum.begin(), entropyAndChecksum.end() - 1 };
   unsigned char checksum = entropyAndChecksum[entropyAndChecksum.size() - 1];
@@ -102,12 +103,13 @@ bool MnemonicAbstract::verifyChecksum() const
   return OpenSSLHasher::computeSHA256(entropy)[0] == checksum;
 }
 
-std::vector<unsigned char> MnemonicAbstract::wordsToEntropyAndChecksum() const
+std::vector<unsigned char> MnemonicAbstract::computeEntropyAndChecksum() const
 {
-  // The algorithm described below is the reverse algorithm of `entropyToWords()`
-  // Recall, since each mnemonic word index is < 2048, it can be contained in an 11 bit unsigned integer. In the
-  // description below, an X represents an unset bit, and an underscore represents a meaningful bit. Numbers in
-  // parentheses are for reference in the algorithm implementation
+  // The algorithm described below is the reverse algorithm of `MnemonicBIP39::entropyToWordIndices`
+  // Recall, since each mnemonic word index is < 2048 in the BIP39 list, they can be contained each in an 11 bit
+  // unsigned integer. In the description below, an X represents an unset bit, and an underscore represents a meaningful
+  // bit. The scratch variable is being represented by the Xs and underscores. Numbers in parentheses are for reference
+  // in the algorithm implementation
   //
   // Algorithm start:
   // (1) The 11 bits of the first mnemonic word index is 'or'ed into 32 bit scratch
@@ -142,9 +144,8 @@ std::vector<unsigned char> MnemonicAbstract::wordsToEntropyAndChecksum() const
   //
   // Repeat until all mnemonic words are handled.
   //
-  // (4) For 12 word mnemonics, the final byte of the buffer only has 4 meaningful bits ____XXXX
-  //                                                                                ^^^^
-  // This is handled separately, after having iterated all mnemonic words
+  // (4) For 12 word mnemonics, the final byte of the buffer will only have 4 meaningful bits. This is handled
+  // separately, after having iterated through all mnemonic words
 
   std::vector<unsigned char> buffer = {};
 
@@ -170,6 +171,39 @@ std::vector<unsigned char> MnemonicAbstract::wordsToEntropyAndChecksum() const
   }
 
   return buffer;
+}
+
+std::string MnemonicAbstract::toString() const
+{
+  std::stringstream stream;
+
+  int nextIndex = 1;
+  for (uint16_t wordIndex : wordIndices)
+  {
+
+    stream << getWordFromIndex(wordIndex);
+
+    if (nextIndex != wordIndices.size())
+    {
+      stream << " ";
+    }
+
+    ++nextIndex;
+  }
+
+  return stream.str();
+}
+
+std::string MnemonicAbstract::getWordFromIndex(uint16_t index) const
+{
+  const std::vector<std::string>& wordList = getWordList();
+
+  if (index >= wordList.size())
+  {
+    throw std::invalid_argument("Invalid index");
+  }
+
+  return wordList.at(index);
 }
 
 } // Hedera

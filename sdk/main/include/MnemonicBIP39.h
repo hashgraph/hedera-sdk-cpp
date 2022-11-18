@@ -32,9 +32,12 @@ namespace Hedera
 class MnemonicBIP39 : public MnemonicAbstract
 {
 public:
-  static MnemonicBIP39 createBIP39Mnemonic(const std::vector<uint16_t>& wordIndices);
-  static MnemonicBIP39 createBIP39Mnemonic(const std::vector<std::string>& words);
-  static MnemonicBIP39 createBIP39Mnemonic(const std::string& fullMnemonic, const std::string& delimiter = " ");
+  static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<uint16_t>& wordIndices);
+  static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<std::string>& words);
+  static MnemonicBIP39 initializeBIP39Mnemonic(const std::string& fullMnemonic, const std::string& delimiter = " ");
+
+  static MnemonicBIP39 generate12WordBIP39Mnemonic();
+  static MnemonicBIP39 generate24WordBIP39Mnemonic();
 
 protected:
   [[nodiscard]] const std::vector<std::string>& getWordList() const override;
@@ -43,6 +46,8 @@ protected:
 
 private:
   MnemonicBIP39() = default;
+
+  static std::vector<uint16_t> entropyToWordIndices(const std::vector<unsigned char>& entropy);
 };
 
 } // Hedera

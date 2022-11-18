@@ -58,6 +58,7 @@ add_library(${PROJECT_NAME} STATIC
 
         src/helper/DurationConverter.cc
         src/helper/HexConverter.cc
+        src/helper/OpenSSLRandom.cc
         src/helper/OpenSSLHasher.cc
         src/helper/TimestampConverter.cc)
 

@@ -42,6 +42,9 @@ namespace Hedera
  */
 class MnemonicAbstract
 {
+public:
+  [[nodiscard]] std::string toString() const;
+
 private:
   /**
    * Reads in a word list file line by line
@@ -78,6 +81,8 @@ private:
 
   [[nodiscard]] uint16_t getIndexFromWordString(const std::string& word) const;
 
+  [[nodiscard]] std::string getWordFromIndex(uint16_t index) const;
+
   [[nodiscard]] virtual const std::vector<std::string>& getWordList() const = 0;
 
   [[nodiscard]] virtual std::set<unsigned long> getAcceptableWordCounts() const = 0;
@@ -96,7 +101,7 @@ protected:
 
   [[nodiscard]] bool verifyChecksum() const;
 
-  [[nodiscard]] std::vector<unsigned char> wordsToEntropyAndChecksum() const;
+  [[nodiscard]] std::vector<unsigned char> computeEntropyAndChecksum() const;
 };
 
 } // Hedera
