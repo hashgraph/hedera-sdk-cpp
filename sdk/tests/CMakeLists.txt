@@ -14,6 +14,7 @@ set(TestSources
         ED25519PublicKeyTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
+        MnemonicTest.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
@@ -34,6 +35,11 @@ message(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+
+file(COPY ${PROJECT_SOURCE_DIR}/wordlists/bip39-english.txt
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+file(COPY ${PROJECT_SOURCE_DIR}/wordlists/legacy-english.txt
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
 
 target_link_libraries(${TEST_PROJECT_NAME}

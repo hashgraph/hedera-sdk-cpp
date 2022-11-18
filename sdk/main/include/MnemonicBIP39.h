@@ -18,25 +18,33 @@
  *
  */
 
-#ifndef HEDERA_SDK_CPP_OPENSSLHASHER_H
-#define HEDERA_SDK_CPP_OPENSSLHASHER_H
+#ifndef HEDERA_SDK_CPP_MNEMONICBIP39_H
+#define HEDERA_SDK_CPP_MNEMONICBIP39_H
 
-#include <vector>
+#include "MnemonicAbstract.h"
+
 #include <string>
+#include <vector>
 
 namespace Hedera
 {
 
-/**
- * Utility class wrapper around openssl hashing functions
- */
-class OpenSSLHasher
+class MnemonicBIP39 : public MnemonicAbstract
 {
 public:
-  static std::vector<unsigned char> computeSHA384(const std::string& data);
-  static std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
+  static MnemonicBIP39 createBIP39Mnemonic(const std::vector<uint16_t>& wordIndices);
+  static MnemonicBIP39 createBIP39Mnemonic(const std::vector<std::string>& words);
+  static MnemonicBIP39 createBIP39Mnemonic(const std::string& fullMnemonic, const std::string& delimiter = " ");
+
+protected:
+  [[nodiscard]] const std::vector<std::string>& getWordList() const override;
+
+  [[nodiscard]] std::set<unsigned long> getAcceptableWordCounts() const override;
+
+private:
+  MnemonicBIP39() = default;
 };
 
 } // Hedera
 
-#endif // HEDERA_SDK_CPP_OPENSSLHASHER_H
+#endif // HEDERA_SDK_CPP_MNEMONICBIP39_H

@@ -33,4 +33,14 @@ std::vector<unsigned char> OpenSSLHasher::computeSHA384(const std::string& data)
 
   return outputBytes;
 }
+
+std::vector<unsigned char> OpenSSLHasher::computeSHA256(const std::vector<unsigned char>& data)
+{
+  std::vector<unsigned char> outputBytes = std::vector<unsigned char>(32);
+
+  const unsigned char* rawData = &data.front();
+  SHA256(rawData, data.size(), &outputBytes.front());
+
+  return outputBytes;
+}
 } // Hedera

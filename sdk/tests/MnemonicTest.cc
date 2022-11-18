@@ -18,25 +18,19 @@
  *
  */
 
-#ifndef HEDERA_SDK_CPP_OPENSSLHASHER_H
-#define HEDERA_SDK_CPP_OPENSSLHASHER_H
+#include "MnemonicBIP39.h"
 
-#include <vector>
-#include <string>
+#include <gtest/gtest.h>
 
-namespace Hedera
+using namespace Hedera;
+
+class MnemonicTest : public ::testing::Test
 {
-
-/**
- * Utility class wrapper around openssl hashing functions
- */
-class OpenSSLHasher
-{
-public:
-  static std::vector<unsigned char> computeSHA384(const std::string& data);
-  static std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
 };
 
-} // Hedera
-
-#endif // HEDERA_SDK_CPP_OPENSSLHASHER_H
+TEST_F(MnemonicTest, DefaultConstructContractId)
+{
+  MnemonicBIP39 mnemonic =
+    MnemonicBIP39::createBIP39Mnemonic("inmate flip alley wear offer often piece magnet surge toddler submit right "
+                                       "radio absent pear floor belt raven price stove replace reduce plate home");
+}
