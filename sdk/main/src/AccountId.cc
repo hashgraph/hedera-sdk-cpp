@@ -41,9 +41,10 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
 //-----
 AccountId::AccountId(const std::string& str)
 {
+  size_t numDots = 0ULL;
   for (char c : str)
   {
-    if (!isdigit(c) && c != '.')
+    if ((!isdigit(c) && c != '.') || (c == '.' && ++numDots > 2))
     {
       throw std::invalid_argument("AccountId string is malformed");
     }
@@ -55,6 +56,11 @@ AccountId::AccountId(const std::string& str)
   const std::string shardStr = str.substr(0, firstDot);
   const std::string realmStr = str.substr(firstDot + 1, secondDot - firstDot - 1);
   const std::string accountStr = str.substr(secondDot + 1, str.size() - secondDot - 1);
+
+  if (shardStr.empty() || realmStr.empty() || accountStr.empty())
+  {
+    throw std::invalid_argument("AccountId string is malformed");
+  }
 
   mShardNum = std::stoll(shardStr);
   mRealmNum = std::stoll(realmStr);
