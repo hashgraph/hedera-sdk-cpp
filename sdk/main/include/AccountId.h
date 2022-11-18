@@ -39,7 +39,7 @@ public:
   AccountId() = default;
 
   /**
-   * Define a default comparator operator so that AccountId object's can be compared.
+   * Define a default comparator operator so that AccountId objects can be compared.
    */
   bool operator==(const AccountId&) const = default;
 
@@ -63,15 +63,15 @@ public:
    * Construct from a string of the form "<shard>.<realm>.<num>".
    *
    * @param str The string from which to construct.
-   * @throws std::invalid_argument if input string is malformed.
+   * @throws std::invalid_argument If input string is malformed.
    */
   explicit AccountId(const std::string& str);
 
   /**
-   * Retrieve the account ID from an AccountID protobuf object.
+   * Create an AccountId object from an AccountID protobuf object.
    *
-   * @param proto The AccountID protobuf object.
-   * @return An AccountId object with the AccountID protobuf object data.
+   * @param proto The AccountID protobuf object from which to create an AccountId object.
+   * @return The created AccountId object.
    */
   static AccountId fromProtobuf(const proto::AccountID& proto);
 
@@ -161,7 +161,7 @@ struct hash<Hedera::AccountId>
   /**
    * Operator override to enable use of AccountId as map key
    */
-  std::size_t operator()(const Hedera::AccountId& id) const { return hash<string>()(id.toString()); }
+  size_t operator()(const Hedera::AccountId& id) const { return hash<string>()(id.toString()); }
 };
 
 } // namespace std
