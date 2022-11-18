@@ -20,7 +20,6 @@
 #include "ED25519PrivateKey.h"
 #include "impl/HexConverter.h"
 
-#include <openssl/evp.h>
 #include <openssl/x509.h>
 
 namespace Hedera

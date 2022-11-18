@@ -22,10 +22,7 @@
 
 #include "PublicKey.h"
 
-#include <memory>
 #include <openssl/crypto.h>
-#include <openssl/evp.h>
-#include <string>
 #include <vector>
 
 namespace Hedera

@@ -31,21 +31,9 @@
 #include <string>
 #include <string_view>
 
-namespace Hedera
-{
-namespace internal
-{
-class Node;
-}
-class Channel;
-class TransactionResponse;
-}
-
 namespace proto
 {
 class CryptoCreateTransactionBody;
-class Transaction;
-class TransactionResponse;
 }
 
 namespace Hedera

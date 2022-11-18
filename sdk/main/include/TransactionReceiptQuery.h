@@ -27,15 +27,6 @@
 
 namespace Hedera
 {
-namespace internal
-{
-class Node;
-}
-class TransactionReceipt;
-}
-
-namespace Hedera
-{
 /**
  * Get the receipt of a transaction, given its transaction ID. Once a transaction reaches consensus, then information
  * about whether it succeeded or failed will be available until the end of the receipt period. Before and after the

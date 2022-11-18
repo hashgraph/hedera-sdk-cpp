@@ -24,14 +24,9 @@
 
 namespace Hedera
 {
-namespace internal
-{
-class Node;
-}
 class AccountBalance;
 class AccountBalanceQuery;
 class AccountId;
-class Client;
 class TransactionReceipt;
 class TransactionReceiptQuery;
 class TransactionRecord;
@@ -42,12 +37,6 @@ namespace proto
 {
 class Query;
 class Response;
-}
-
-namespace grpc
-{
-class ClientContext;
-class Status;
 }
 
 namespace Hedera

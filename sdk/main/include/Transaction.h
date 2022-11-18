@@ -31,12 +31,6 @@
 
 namespace Hedera
 {
-namespace internal
-{
-class Node;
-}
-
-class Client;
 class TransactionResponse;
 }
 
@@ -45,12 +39,6 @@ namespace proto
 class Transaction;
 class TransactionBody;
 class TransactionResponse;
-}
-
-namespace grpc
-{
-class ClientContext;
-class Status;
 }
 
 namespace Hedera

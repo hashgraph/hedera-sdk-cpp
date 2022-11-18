@@ -28,28 +28,6 @@
 
 namespace Hedera
 {
-namespace internal
-{
-class Node;
-}
-class AccountBalance;
-class Client;
-}
-
-namespace proto
-{
-class Query;
-class Response;
-}
-
-namespace grpc
-{
-class ClientContext;
-class Status;
-}
-
-namespace Hedera
-{
 /**
  * Get the balance of a Hedera crypto-currency account. This returns only the balance, so it is a smaller and faster
  * reply than an AccountInfoQuery.

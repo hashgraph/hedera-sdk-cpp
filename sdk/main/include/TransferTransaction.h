@@ -26,21 +26,9 @@
 #include <memory>
 #include <vector>
 
-namespace Hedera
-{
-namespace internal
-{
-class Node;
-}
-class TransactionRecordQuery;
-class TransactionResponse;
-}
-
 namespace proto
 {
 class CryptoTransferTransactionBody;
-class Response;
-class Transaction;
 }
 
 namespace Hedera
