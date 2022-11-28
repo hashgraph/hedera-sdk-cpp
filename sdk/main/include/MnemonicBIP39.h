@@ -39,6 +39,8 @@ public:
   static MnemonicBIP39 generate12WordBIP39Mnemonic();
   static MnemonicBIP39 generate24WordBIP39Mnemonic();
 
+  [[nodiscard]] std::vector<unsigned char> toSeed(const std::string& passphrase = "") const;
+
 protected:
   [[nodiscard]] const std::vector<std::string>& getWordList() const override;
 

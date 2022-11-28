@@ -23,6 +23,8 @@
 #include "helper/OpenSSLHasher.h"
 #include "helper/OpenSSLRandom.h"
 
+#include <openssl/evp.h>
+
 namespace Hedera
 {
 MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<uint16_t>& wordIndices)
@@ -140,7 +142,7 @@ std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsi
   unsigned int offset = 0;
   for (unsigned char byte : entropyAndChecksum)
   {
-    scratch <<= 8; // (2)
+    scratch <<= 8;   // (2)
     scratch |= byte; // (1)
 
     offset += 8;
@@ -154,6 +156,53 @@ std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsi
   }
 
   return wordIndicesOut;
+}
+
+std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) const
+{
+  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
+
+  if (!messageDigestContext)
+  {
+    throw std::runtime_error("Digest context construction failed");
+  }
+
+  EVP_MD* messageDigest = EVP_MD_fetch(nullptr, "SHA512", nullptr);
+
+  if (messageDigest == nullptr)
+  {
+    throw std::runtime_error("Digest construction failed");
+  }
+
+  if (EVP_DigestInit(messageDigestContext, messageDigest) <= 0)
+  {
+    throw std::runtime_error("Digest init failed");
+  }
+
+  std::vector<unsigned char> seed(64);
+
+  const std::string mnemonicString = toString();
+  const char* mnemonicStringAddress = mnemonicString.c_str();
+
+  const std::string salt = "mnemonic" + passphrase;
+  const unsigned char* saltAddress = (unsigned char*)salt.c_str();
+
+  if (PKCS5_PBKDF2_HMAC(mnemonicStringAddress,
+                        (int)mnemonicString.length(),
+                        saltAddress,
+                        (int)salt.length(),
+                        2048,
+                        messageDigest,
+                        (int)seed.size(),
+                        &seed.front()) <= 0)
+  {
+    throw std::runtime_error("PKCS5_PBKDF2_HMAC failed");
+  }
+
+  EVP_MD_CTX_free(messageDigestContext);
+  EVP_MD_free(messageDigest);
+
+  return seed;
 }
 
 } // Hedera
