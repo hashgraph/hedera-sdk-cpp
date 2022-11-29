@@ -60,6 +60,13 @@ public:
   [[nodiscard]] std::string toString() const override;
 
   /**
+   * Get the byte representation (DER format) of the public key
+   *
+   * @return the byte representation of the key
+   */
+  [[nodiscard]] std::vector<unsigned char> toBytes() const override;
+
+  /**
    * Verify that a signature was made by the private key which corresponds to this public key
    * @param signatureBytes
    * the byte vector representing the signature
@@ -71,8 +78,9 @@ public:
                                      const std::vector<unsigned char>& signedBytes) const override;
 
 private:
-  inline static const std::string DER_PREFIX_HEX = "302A300506032B6570032100";
-  inline static const std::vector<unsigned char> DER_PREFIX_BYTES = HexConverter::hexToBase64(DER_PREFIX_HEX);
+  const inline static std::string ALGORITHM_IDENTIFIER_HEX = "302A300506032B6570032100";
+  const inline static std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
+    HexConverter::hexToBase64(ALGORITHM_IDENTIFIER_HEX);
 
   /**
    * The underlying OpenSSL representation of the key
@@ -86,17 +94,13 @@ private:
   explicit ED25519PublicKey(EVP_PKEY* publicKey);
 
   /**
-   * Get the byte representation (DER format) of the public key
-   * @return the byte representation of the key
-   */
-  [[nodiscard]] std::vector<unsigned char> toBytes() const;
-
-  /**
    * Creates a new EVP_PKEY object from a byte vector representing a public key
    * @param keyBytes the bytes representing the public key
    * @return the newly created EVP_PKEY object
    */
   static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+
+  static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
 };
 }
 

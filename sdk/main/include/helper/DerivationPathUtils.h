@@ -18,27 +18,24 @@
  *
  */
 
-#ifndef HEDERA_SDK_CPP_OPENSSLHASHER_H
-#define HEDERA_SDK_CPP_OPENSSLHASHER_H
+#ifndef HEDERA_SDK_CPP_DERIVATIONPATHUTILS_H
+#define HEDERA_SDK_CPP_DERIVATIONPATHUTILS_H
 
-#include <string>
-#include <vector>
+#include <cstdint>
 
 namespace Hedera
 {
 
-/**
- * Utility class wrapper around openssl hashing functions
- */
-class OpenSSLHasher
+class DerivationPathUtils
 {
 public:
-  [[nodiscard]] static std::vector<unsigned char> computeSHA384(const std::string& data);
-  [[nodiscard]] static std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
-  [[nodiscard]] static std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
-                                                                    const std::vector<unsigned char>& data);
+  DerivationPathUtils() = delete;
+
+  static bool isHardenedChildIndex(uint32_t index);
+
+  static uint32_t getHardenedIndex(uint32_t standardIndex);
 };
 
 } // Hedera
 
-#endif // HEDERA_SDK_CPP_OPENSSLHASHER_H
+#endif // HEDERA_SDK_CPP_DERIVATIONPATHUTILS_H

@@ -56,6 +56,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Transfer.cc
         src/TransferTransaction.cc
 
+        src/helper/DerivationPathUtils.cc
         src/helper/DurationConverter.cc
         src/helper/HexConverter.cc
         src/helper/OpenSSLRandom.cc

@@ -31,7 +31,7 @@ namespace Hedera
 {
 ED25519PublicKey::ED25519PublicKey(const ED25519PublicKey& other)
 {
-  this->publicKey = bytesToPKEY(other.toBytes());
+  this->publicKey = bytesToPKEY(prependAlgorithmIdentifier(other.toBytes()));
 }
 
 ED25519PublicKey::ED25519PublicKey(EVP_PKEY* publicKey)
@@ -48,11 +48,8 @@ proto::Key* ED25519PublicKey::toProtobuf() const
 {
   auto* keyProtobuf = new proto::Key();
 
-  // raw bytes, which include the ed25519 DER encoding prefix
   std::vector<unsigned char> rawBytes = toBytes();
-
-  // discard the 12 prefix bytes, leaving behind only the 32 pubkey bytes
-  auto* stringPointer = new std::string({ rawBytes.cbegin() + 12, rawBytes.cend() });
+  auto* stringPointer = new std::string({ rawBytes.cbegin(), rawBytes.cend() });
 
   keyProtobuf->set_allocated_ed25519(stringPointer);
 
@@ -71,7 +68,7 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string
   // key size of 64 means RFC 8410 prefix is missing. add it before making calls to OpenSSL
   if (keyString.size() == 64)
   {
-    fullKeyString = DER_PREFIX_HEX + keyString;
+    fullKeyString = ALGORITHM_IDENTIFIER_HEX + keyString;
   }
 
   return fromBytes(HexConverter::hexToBase64(fullKeyString));
@@ -89,18 +86,18 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
     std::cout << "ED25519PublicKey to bytes I2D error" << std::endl;
   }
 
-  return publicKeyBytes;
+  // don't return the algorithm identification bytes
+  return { publicKeyBytes.begin() + 12, publicKeyBytes.end() };
 }
 
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
 
-  // If there are only 32 key bytes, we need to add the DER prefex, so that OpenSSL can correctly decode
+  // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
   if (keyBytes.size() == 32)
   {
-    fullKeyBytes = DER_PREFIX_BYTES;
-    fullKeyBytes.insert(fullKeyBytes.end(), keyBytes.begin(), keyBytes.end());
+    fullKeyBytes = prependAlgorithmIdentifier(keyBytes);
   }
   else
   {
@@ -143,6 +140,17 @@ EVP_PKEY* ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyByt
   const unsigned char* rawKeyBytes = &keyBytes.front();
 
   return d2i_PUBKEY(nullptr, &rawKeyBytes, (long)keyBytes.size());
+}
+
+std::vector<unsigned char> ED25519PublicKey::prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes)
+{
+  // full key will begin with the algorithm identifier bytes
+  std::vector<unsigned char> fullKey = ALGORITHM_IDENTIFIER_BYTES;
+
+  // insert the raw key bytes onto the end of the full key
+  fullKey.insert(fullKey.end(), keyBytes.begin(), keyBytes.end());
+
+  return fullKey;
 }
 
 } // namespace Hedera
