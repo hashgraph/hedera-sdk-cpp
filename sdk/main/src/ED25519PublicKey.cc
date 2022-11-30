@@ -63,15 +63,7 @@ std::string ED25519PublicKey::toString() const
 
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string& keyString)
 {
-  std::string fullKeyString = keyString;
-
-  // key size of 64 means RFC 8410 prefix is missing. add it before making calls to OpenSSL
-  if (keyString.size() == 64)
-  {
-    fullKeyString = ALGORITHM_IDENTIFIER_HEX + keyString;
-  }
-
-  return fromBytes(HexConverter::hexToBase64(fullKeyString));
+  return fromBytes(HexConverter::hexToBase64(keyString));
 }
 
 std::vector<unsigned char> ED25519PublicKey::toBytes() const
@@ -93,7 +85,6 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
-
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
   if (keyBytes.size() == 32)
   {

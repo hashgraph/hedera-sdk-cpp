@@ -52,15 +52,7 @@ public:
   [[nodiscard]] static std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
 
   /**
-   * Computes the HMAC-SHA512 hash of a string
-   *
-   * @param data the data to compute the hash of
-   *
-   * @return the hash of the data
-   */
-
-  /**
-   * Computes the HMAC-SHA512 hash of a string
+   * Computes the HMAC-SHA512 hash of a key and data
    *
    * @param key the key input to the hash function
    * @param data the data input to the hash function

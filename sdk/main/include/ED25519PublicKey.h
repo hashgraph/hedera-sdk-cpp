@@ -79,15 +79,10 @@ public:
 
 private:
   /**
-   * The hex algorithm identifier for an ED25519 public key
-   */
-  const inline static std::string ALGORITHM_IDENTIFIER_HEX = "302A300506032B6570032100";
-
-  /**
-   * The algorithm identifier in byte form
+   * The algorithm identifier for an ED25519 public key
    */
   const inline static std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
-    HexConverter::hexToBase64(ALGORITHM_IDENTIFIER_HEX);
+    HexConverter::hexToBase64("302A300506032B6570032100");
 
   /**
    * The underlying OpenSSL representation of the key

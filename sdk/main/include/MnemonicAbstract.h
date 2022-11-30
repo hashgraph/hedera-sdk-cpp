@@ -101,7 +101,7 @@ private:
   [[nodiscard]] virtual const std::vector<std::string>& getWordList() const = 0;
 
   /**
-   * Gets a set of values, which represent acceptable numbers of words for this mnemonic. Some mnemonic types have only
+   * Gets a set of values which represent acceptable word counts for this mnemonic. Some mnemonic types have only
    * 1 acceptable word count, others have multiple
    *
    * @return the set of acceptable word counts
@@ -125,7 +125,7 @@ protected:
   MnemonicAbstract() = default;
 
   /**
-   * Initialize this mnemonic with a vector of word indices. Throws an exception if the the provided indices aren't
+   * Initialize this mnemonic with a vector of word indices. Throws an exception if the provided indices aren't
    * valid
    *
    * @param indices the indices to initialize the mnemonic with

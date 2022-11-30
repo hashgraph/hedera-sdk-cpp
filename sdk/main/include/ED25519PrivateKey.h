@@ -114,15 +114,10 @@ public:
 
 private:
   /**
-   * The hex algorithm identifier for an ED25519 private key
-   */
-  const inline static std::string ALGORITHM_IDENTIFIER_HEX = "302E020100300506032B657004220420";
-
-  /**
-   * The algorithm identifier in byte form
+   * The algorithm identifier for an ED25519 private key
    */
   const inline static std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
-    HexConverter::hexToBase64(ALGORITHM_IDENTIFIER_HEX);
+    HexConverter::hexToBase64("302E020100300506032B657004220420");
 
   /**
    * The underlying OpenSSL representation of the key
@@ -177,6 +172,15 @@ private:
    * @return a new vector of bytes, which begins with the algorithm identifier, followed by the key bytes
    */
   static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
+
+  /**
+   * Creates a new key from the output of an HMAC hash function
+   *
+   * @param hmacOutput the output of the HMAC hash function
+   *
+   * @return the new key, with key material and chain code set from the hash output
+   */
+  static std::unique_ptr<ED25519PrivateKey> fromHMACOutput(const std::vector<unsigned char>& hmacOutput);
 };
 }
 
