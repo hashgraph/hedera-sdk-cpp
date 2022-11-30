@@ -108,9 +108,63 @@ TEST_F(ED25519PrivateKeyTest, FromString)
   EXPECT_EQ(privateKeyFromExtended->toString(), privateKeyFromShort->toString());
 }
 
+TEST_F(ED25519PrivateKeyTest, SLIP10TestVector1)
+{
+  // SLIP10 spec provided test vector
+  std::string hexSeed = "000102030405060708090a0b0c0d0e0f";
+
+  std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::fromSeed(HexConverter::hexToBase64(hexSeed));
+  std::string expectedChainCode = "90046a93de5380a72b5e45010748567d5ea02bbf6522f979e05c0d8d8ca9fffb";
+  std::string expectedPrivate = "2b4be7f19ee27bbf30c667b642d5f4aa69fd169872f8fc3059c08ebae2eb19e7";
+  std::string expectedPublic = "a4b2856bfec510abab89753fac1ac0e1112364e7d250545963f135f2a33188ed";
+  EXPECT_EQ(privateKey->getChainCode(), HexConverter::hexToBase64(expectedChainCode));
+  EXPECT_EQ(privateKey->toBytes(), HexConverter::hexToBase64(expectedPrivate));
+  EXPECT_EQ(privateKey->getPublicKey()->toBytes(), HexConverter::hexToBase64(expectedPublic));
+
+  privateKey = privateKey->derive(DerivationPathUtils::getHardenedIndex(0));
+  expectedChainCode = "8b59aa11380b624e81507a27fedda59fea6d0b779a778918a2fd3590e16e9c69";
+  expectedPrivate = "68e0fe46dfb67e368c75379acec591dad19df3cde26e63b93a8e704f1dade7a3";
+  expectedPublic = "8c8a13df77a28f3445213a0f432fde644acaa215fc72dcdf300d5efaa85d350c";
+  EXPECT_EQ(privateKey->getChainCode(), HexConverter::hexToBase64(expectedChainCode));
+  EXPECT_EQ(privateKey->toBytes(), HexConverter::hexToBase64(expectedPrivate));
+  EXPECT_EQ(privateKey->getPublicKey()->toBytes(), HexConverter::hexToBase64(expectedPublic));
+
+  privateKey = privateKey->derive(DerivationPathUtils::getHardenedIndex(1));
+  expectedChainCode = "a320425f77d1b5c2505a6b1b27382b37368ee640e3557c315416801243552f14";
+  expectedPrivate = "b1d0bad404bf35da785a64ca1ac54b2617211d2777696fbffaf208f746ae84f2";
+  expectedPublic = "1932a5270f335bed617d5b935c80aedb1a35bd9fc1e31acafd5372c30f5c1187";
+  EXPECT_EQ(privateKey->getChainCode(), HexConverter::hexToBase64(expectedChainCode));
+  EXPECT_EQ(privateKey->toBytes(), HexConverter::hexToBase64(expectedPrivate));
+  EXPECT_EQ(privateKey->getPublicKey()->toBytes(), HexConverter::hexToBase64(expectedPublic));
+
+  privateKey = privateKey->derive(DerivationPathUtils::getHardenedIndex(2));
+  expectedChainCode = "2e69929e00b5ab250f49c3fb1c12f252de4fed2c1db88387094a0f8c4c9ccd6c";
+  expectedPrivate = "92a5b23c0b8a99e37d07df3fb9966917f5d06e02ddbd909c7e184371463e9fc9";
+  expectedPublic = "ae98736566d30ed0e9d2f4486a64bc95740d89c7db33f52121f8ea8f76ff0fc1";
+  EXPECT_EQ(privateKey->getChainCode(), HexConverter::hexToBase64(expectedChainCode));
+  EXPECT_EQ(privateKey->toBytes(), HexConverter::hexToBase64(expectedPrivate));
+  EXPECT_EQ(privateKey->getPublicKey()->toBytes(), HexConverter::hexToBase64(expectedPublic));
+
+  privateKey = privateKey->derive(DerivationPathUtils::getHardenedIndex(2));
+  expectedChainCode = "8f6d87f93d750e0efccda017d662a1b31a266e4a6f5993b15f5c1f07f74dd5cc";
+  expectedPrivate = "30d1dc7e5fc04c31219ab25a27ae00b50f6fd66622f6e9c913253d6511d1e662";
+  expectedPublic = "8abae2d66361c879b900d204ad2cc4984fa2aa344dd7ddc46007329ac76c429c";
+  EXPECT_EQ(privateKey->getChainCode(), HexConverter::hexToBase64(expectedChainCode));
+  EXPECT_EQ(privateKey->toBytes(), HexConverter::hexToBase64(expectedPrivate));
+  EXPECT_EQ(privateKey->getPublicKey()->toBytes(), HexConverter::hexToBase64(expectedPublic));
+
+  privateKey = privateKey->derive(DerivationPathUtils::getHardenedIndex(1000000000));
+  expectedChainCode = "68789923a0cac2cd5a29172a475fe9e0fb14cd6adb5ad98a3fa70333e7afa230";
+  expectedPrivate = "8f94d394a8e8fd6b1bc2f3f49f5c47e385281d5c17e65324b0f62483e37e8793";
+  expectedPublic = "3c24da049451555d51a7014a37337aa4e12d41e485abccfa46b47dfb2af54b7a";
+  EXPECT_EQ(privateKey->getChainCode(), HexConverter::hexToBase64(expectedChainCode));
+  EXPECT_EQ(privateKey->toBytes(), HexConverter::hexToBase64(expectedPrivate));
+  EXPECT_EQ(privateKey->getPublicKey()->toBytes(), HexConverter::hexToBase64(expectedPublic));
+}
+
 TEST_F(ED25519PrivateKeyTest, SLIP10TestVector2)
 {
-  // from SLIP10 spec
+  // SLIP10 spec provided test vector
   std::string hexSeed = "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875"
                         "726f6c696663605d5a5754514e4b484542";
 
