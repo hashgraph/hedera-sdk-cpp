@@ -38,8 +38,6 @@ add_library(${PROJECT_NAME} STATIC
         src/IPv4Address.cc
         src/MnemonicAbstract.cc
         src/MnemonicBIP39.cc
-        src/MnemonicLegacyV1.cc
-        src/MnemonicLegacyV2.cc
         src/Network.cc
         src/Node.cc
         src/NodeAddress.cc
