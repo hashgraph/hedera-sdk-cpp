@@ -26,13 +26,34 @@
 namespace Hedera
 {
 
+/**
+ * Utility classes dealing with wallet derivation paths, as described in BIP32, BIP44, and SLIP10
+ */
 class DerivationPathUtils
 {
 public:
   DerivationPathUtils() = delete;
 
+  /**
+   * Checks whether an integer falls into the "unhardened", or "hardened" category
+   * <p>
+   * Unhardened: [0, 2147483647]; Hardened: [2147483648, max]
+   *
+   * @param index the index to check
+   *
+   * @return true if the index is in the hardened range, otherwise false
+   */
   static bool isHardenedChildIndex(uint32_t index);
 
+  /**
+   * Converts an index into its hardened counterpart. Throws an exception if the index is already hardened
+   * <p>
+   * 0 -> 2147483648, 1-> 2147483649, etc.
+   *
+   * @param standardIndex the index to convert
+   *
+   * @return the hardened index
+   */
   static uint32_t getHardenedIndex(uint32_t standardIndex);
 };
 

@@ -33,8 +33,40 @@ namespace Hedera
 class OpenSSLHasher
 {
 public:
+  /**
+   * Computes the SHA384 hash of a string
+   *
+   * @param data the data to compute the hash of
+   *
+   * @return the hash of the data
+   */
   [[nodiscard]] static std::vector<unsigned char> computeSHA384(const std::string& data);
+
+  /**
+   * Computes the SHA256 hash of a byte array
+   *
+   * @param data the data to compute the hash of
+   *
+   * @return the hash of the data
+   */
   [[nodiscard]] static std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
+
+  /**
+   * Computes the HMAC-SHA512 hash of a string
+   *
+   * @param data the data to compute the hash of
+   *
+   * @return the hash of the data
+   */
+
+  /**
+   * Computes the HMAC-SHA512 hash of a string
+   *
+   * @param key the key input to the hash function
+   * @param data the data input to the hash function
+   *
+   * @return the result of the hash function
+   */
   [[nodiscard]] static std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
                                                                     const std::vector<unsigned char>& data);
 };

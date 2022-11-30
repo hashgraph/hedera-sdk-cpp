@@ -78,7 +78,14 @@ public:
                                      const std::vector<unsigned char>& signedBytes) const override;
 
 private:
+  /**
+   * The hex algorithm identifier for an ED25519 public key
+   */
   const inline static std::string ALGORITHM_IDENTIFIER_HEX = "302A300506032B6570032100";
+
+  /**
+   * The algorithm identifier in byte form
+   */
   const inline static std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
     HexConverter::hexToBase64(ALGORITHM_IDENTIFIER_HEX);
 
@@ -100,6 +107,13 @@ private:
    */
   static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
+  /**
+   * Prepends this key type's algorithm identifier to an array of bytes representing a key
+   *
+   * @param keyBytes the bytes representing the key
+   *
+   * @return a new vector of bytes, which begins with the algorithm identifier, followed by the key bytes
+   */
   static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
 };
 }

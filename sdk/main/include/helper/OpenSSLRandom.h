@@ -26,11 +26,21 @@
 namespace Hedera
 {
 
+/**
+ * Utility class wrapping around OpenSSL random functions
+ */
 class OpenSSLRandom
 {
 public:
   OpenSSLRandom() = delete;
 
+  /**
+   * Gets a vector of random bytes
+   *
+   * @param count number of random bytes to generate
+   *
+   * @return the vector of random bytes
+   */
   static std::vector<unsigned char> getRandomBytes(int count);
 };
 

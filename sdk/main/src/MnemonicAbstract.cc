@@ -26,7 +26,7 @@
 namespace Hedera
 {
 
-bool MnemonicAbstract::initialize(const std::vector<uint16_t>& indices)
+void MnemonicAbstract::initialize(const std::vector<uint16_t>& indices)
 {
   if (!validateIndexInputs(indices))
   {
@@ -204,6 +204,25 @@ std::string MnemonicAbstract::getWordFromIndex(uint16_t index) const
   }
 
   return wordList.at(index);
+}
+
+std::vector<std::string> MnemonicAbstract::readWordListFromFile(const std::string& fileName)
+{
+  std::vector<std::string> output = std::vector<std::string>();
+
+  std::ifstream infile(fileName);
+  if (infile.is_open())
+  {
+    std::string line;
+    while (std::getline(infile, line))
+    {
+      output.push_back(line);
+    }
+
+    infile.close();
+  }
+
+  return output;
 }
 
 } // Hedera

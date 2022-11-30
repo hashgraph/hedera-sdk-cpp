@@ -45,9 +45,24 @@ public:
    */
   static std::unique_ptr<ED25519PrivateKey> fromString(const std::string& keyString);
 
+  /**
+   * Recovers a master private key from a BIP39 mnemonic phrase and passphrase
+   *
+   * @param mnemonic the mnemonic phrase
+   * @param passphrase the passphrase
+   *
+   * @return the recovered master private key
+   */
   static std::unique_ptr<ED25519PrivateKey> fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
                                                               const std::string& passphrase);
 
+  /**
+   * Derives a master private key from a seed array
+   *
+   * @param seed the array seed to generate the master private key from
+   *
+   * @return the computed master private key
+   */
   static std::unique_ptr<ED25519PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
 
   /**
@@ -80,12 +95,32 @@ public:
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const;
 
+  /**
+   * Gets this private key's chain code. It is possible that a private key has an empty chain code
+   *
+   * @return the chaincode if it exists, otherwise an empty vector
+   */
   [[nodiscard]] std::vector<unsigned char> getChainCode() const;
 
+  /**
+   * Derives a child key from this key. Throws an error if an invalid index is provided, or if this key doesn't support
+   * derivation
+   *
+   * @param childIndex the index of the child to derive
+   *
+   * @return the derived child key
+   */
   [[nodiscard]] std::unique_ptr<ED25519PrivateKey> derive(uint32_t childIndex) const;
 
 private:
+  /**
+   * The hex algorithm identifier for an ED25519 private key
+   */
   const inline static std::string ALGORITHM_IDENTIFIER_HEX = "302E020100300506032B657004220420";
+
+  /**
+   * The algorithm identifier in byte form
+   */
   const inline static std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
     HexConverter::hexToBase64(ALGORITHM_IDENTIFIER_HEX);
 
@@ -99,18 +134,30 @@ private:
    */
   std::shared_ptr<ED25519PublicKey> publicKey;
 
+  /**
+   * The chain code of this key. If this is empty, then this key will not support derivation
+   */
   std::vector<unsigned char> chainCode = {};
 
   /**
    * Private constructor
+   *
    * @param keypair the underlying OpenSSL object representing the private key
    */
   explicit ED25519PrivateKey(EVP_PKEY* keypair);
 
-  ED25519PrivateKey(EVP_PKEY* keypair, std::vector<unsigned char>  chainCode);
+  /**
+   * Constructor that accepts a keypair, and also a chaincode
+   *
+   * @param keypair the keypair for the new key
+   *
+   * @param chainCode the new key's chain code
+   */
+  ED25519PrivateKey(EVP_PKEY* keypair, std::vector<unsigned char> chainCode);
 
   /**
    * Derives the byte representation of the public key which corresponds to this private key
+   *
    * @return the byte representation of the corresponding public key
    */
   [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
@@ -122,6 +169,13 @@ private:
    */
   static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
+  /**
+   * Prepends this key type's algorithm identifier to an array of bytes representing a key
+   *
+   * @param keyBytes the bytes representing the key
+   *
+   * @return a new vector of bytes, which begins with the algorithm identifier, followed by the key bytes
+   */
   static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
 };
 }
