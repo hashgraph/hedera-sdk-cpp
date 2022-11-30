@@ -97,10 +97,8 @@ bool MnemonicAbstract::verifyChecksum() const
 {
   const std::vector<unsigned char>& entropyAndChecksum = computeEntropyAndChecksum();
 
-  const std::vector<unsigned char> entropy = { entropyAndChecksum.begin(), entropyAndChecksum.end() - 1 };
-  unsigned char checksum = entropyAndChecksum[entropyAndChecksum.size() - 1];
-
-  return OpenSSLHasher::computeSHA256(entropy)[0] == checksum;
+  return computeChecksumFromEntropy({ entropyAndChecksum.begin(), entropyAndChecksum.end() - 1 }) ==
+         entropyAndChecksum[entropyAndChecksum.size() - 1];
 }
 
 std::vector<unsigned char> MnemonicAbstract::computeEntropyAndChecksum() const
@@ -223,6 +221,18 @@ std::vector<std::string> MnemonicAbstract::readWordListFromFile(const std::strin
   }
 
   return output;
+}
+
+unsigned char MnemonicAbstract::computeChecksumFromEntropy(const std::vector<unsigned char>& entropy)
+{
+  if ((entropy.size() * 8) % 32)
+  {
+    throw std::runtime_error("Entropy must have a bit count that is a multiple of 32");
+  }
+
+  unsigned char mask = ~(0xFF >> (entropy.size() * 8 / 32));
+
+  return (OpenSSLHasher::computeSHA256(entropy)[0] & mask);
 }
 
 } // Hedera

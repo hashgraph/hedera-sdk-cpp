@@ -82,24 +82,8 @@ MnemonicBIP39 MnemonicBIP39::generate24WordBIP39Mnemonic()
 std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsigned char>& entropy)
 {
   std::vector<unsigned char> entropyAndChecksum = entropy;
-  const std::vector<unsigned char>& entropyHash = OpenSSLHasher::computeSHA256(entropy);
 
-  // 16 bytes of entropy, as described in the BIP39 spec, are required to produce a 12 word mnemonic. 32 bytes are
-  // required for a 24 word mnemonic.
-
-  unsigned char checksum;
-  if (entropy.size() == 16)
-  {
-    // the checksum when producing a 12 word mnemonic is only 4 bits. Zero out the other 4 bits in the byte
-    checksum = entropyHash[entropyHash.size() - 1] & 0xF0;
-  }
-  else
-  {
-    // the checksum when producing a 24 word mnemonic is a full byte
-    checksum = entropyHash[entropyHash.size() - 1];
-  }
-
-  entropyAndChecksum.push_back(checksum);
+  entropyAndChecksum.push_back(computeChecksumFromEntropy(entropy));
 
   // The algorithm described below is the reverse algorithm of `MnemonicAbstract::computeEntropyAndChecksum`
   // Recall, since each mnemonic word index is < 2048 in the BIP39 list, it can be contained in an 11 bit unsigned

@@ -164,6 +164,15 @@ protected:
    * @return a byte vector, representing the entropy and checksum of the mnemonic
    */
   [[nodiscard]] std::vector<unsigned char> computeEntropyAndChecksum() const;
+
+  /**
+   * Computes the checksum byte from an array of entropy. Throws an exception if entropy bit size isn't a multiple of 32
+   *
+   * @param entropy the array of entropy to compute the checksum of
+   *
+   * @return the checksum of the entropy
+   */
+  [[nodiscard]] static unsigned char computeChecksumFromEntropy(const std::vector<unsigned char>& entropy);
 };
 
 } // Hedera

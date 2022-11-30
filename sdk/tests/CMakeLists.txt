@@ -14,7 +14,7 @@ set(TestSources
         ED25519PublicKeyTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
-        MnemonicTest.cc
+        MnemonicBIP39Test.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc

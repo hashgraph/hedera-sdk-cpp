@@ -86,6 +86,15 @@ public:
    */
   [[nodiscard]] std::vector<unsigned char> toSeed(const std::string& passphrase = "") const;
 
+  /**
+   * Computes the word indices that result from the input entropy
+   *
+   * @param entropy the entropy to compute the word indices from
+   *
+   * @return the word indices
+   */
+  static std::vector<uint16_t> entropyToWordIndices(const std::vector<unsigned char>& entropy);
+
 protected:
   /**
    * Gets a reference to the BIP39 word list
@@ -106,15 +115,6 @@ private:
    * Hidden constructor
    */
   MnemonicBIP39() = default;
-
-  /**
-   * Computes the word indices that result from the input entropy
-   *
-   * @param entropy the entropy to compute the word indices from
-   *
-   * @return the word indices
-   */
-  static std::vector<uint16_t> entropyToWordIndices(const std::vector<unsigned char>& entropy);
 };
 
 } // Hedera
