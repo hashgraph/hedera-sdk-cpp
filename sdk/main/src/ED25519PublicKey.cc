@@ -48,7 +48,11 @@ ED25519PublicKey::ED25519PublicKey(const ED25519PublicKey& other)
 //-----
 ED25519PublicKey& ED25519PublicKey::operator=(const ED25519PublicKey& other)
 {
-  mPublicKey = bytesToPKEY(other.toBytes());
+  if (this != &other)
+  {
+    mPublicKey = bytesToPKEY(other.toBytes());
+  }
+
   return *this;
 }
 

@@ -41,8 +41,12 @@ ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
 //-----
 ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 {
-  mKeypair = bytesToPKEY(other.toBytes());
-  mPublicKey = other.mPublicKey;
+  if (this != &other)
+  {
+    mKeypair = bytesToPKEY(other.toBytes());
+    mPublicKey = other.mPublicKey;
+  }
+
   return *this;
 }
 
@@ -50,7 +54,7 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
   : PrivateKey()
   , mKeypair(other.mKeypair)
-  , mPublicKey(other.mPublicKey)
+  , mPublicKey(std::move(other.mPublicKey))
 {
   other.mKeypair = nullptr;
 }
