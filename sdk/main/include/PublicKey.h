@@ -76,6 +76,13 @@ public:
    * @return the DER string
    */
   [[nodiscard]] virtual std::string toString() const = 0;
+
+  /**
+   * Get the byte representation (DER format) of the public key
+   *
+   * @return the byte representation of the key
+   */
+  [[nodiscard]] virtual std::vector<unsigned char> toBytes() const = 0;
 };
 
 } // namespace Hedera

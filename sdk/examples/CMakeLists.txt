@@ -11,6 +11,11 @@ file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
 
+file(COPY ${PROJECT_SOURCE_DIR}/wordlists/bip39-english.txt
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+file(COPY ${PROJECT_SOURCE_DIR}/wordlists/legacy-english.txt
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_CRYPTO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})

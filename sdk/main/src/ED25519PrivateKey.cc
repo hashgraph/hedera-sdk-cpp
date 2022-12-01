@@ -19,28 +19,37 @@
  */
 
 #include "ED25519PrivateKey.h"
+#include "helper/DerivationPathUtils.h"
 #include "helper/HexConverter.h"
-#include "openssl/x509.h"
-#include <iostream>
+#include "helper/OpenSSLHasher.h"
 
-#include "helper/HexConverter.h"
+#include <iostream>
+#include <openssl/hmac.h>
+#include <openssl/x509.h>
+#include <utility>
 
 namespace Hedera
 {
 
 ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
+  : keypair(bytesToPKEY(prependAlgorithmIdentifier(other.toBytes())))
+  , publicKey(other.publicKey)
+  , chainCode()
 {
-  // the underlying keypair must be copied. serialize and then deserialize to accomplish this
-  this->keypair = bytesToPKEY(other.toBytes());
-
-  // public key can be directly copied, since it's a shared pointer
-  this->publicKey = other.publicKey;
 }
 
 ED25519PrivateKey::ED25519PrivateKey(EVP_PKEY* keypair)
+  : keypair(keypair)
+  , publicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
+  , chainCode()
 {
-  this->keypair = keypair;
-  this->publicKey = ED25519PublicKey::fromBytes(getPublicKeyBytes());
+}
+
+ED25519PrivateKey::ED25519PrivateKey(EVP_PKEY* keypair, std::vector<unsigned char> chainCode)
+  : keypair(keypair)
+  , publicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
+  , chainCode(std::move(chainCode))
+{
 }
 
 std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
@@ -109,15 +118,7 @@ std::string ED25519PrivateKey::toString() const
 
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::string& keyString)
 {
-  std::string fullKeyString = keyString;
-
-  // key size of 64 means RFC 8410 prefix is missing. add it before making calls to OpenSSL
-  if (keyString.size() == 64)
-  {
-    fullKeyString = "302E020100300506032B657004220420" + keyString;
-  }
-
-  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(fullKeyString))));
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(HexConverter::hexToBase64(keyString))));
 }
 
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
@@ -157,12 +158,98 @@ std::vector<unsigned char> ED25519PrivateKey::toBytes() const
     std::cout << "ED25519PrivateKey toBytes I2D error" << std::endl;
   }
 
-  return outputBytes;
+  // don't return the algorithm identification bytes
+  return { outputBytes.begin() + 16, outputBytes.end() };
 }
 
 EVP_PKEY* ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
-  const unsigned char* rawKeyBytes = &keyBytes.front();
-  return d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, (long)keyBytes.size());
+  std::vector<unsigned char> fullKeyBytes;
+  // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
+  if (keyBytes.size() == 32)
+  {
+    fullKeyBytes = prependAlgorithmIdentifier(keyBytes);
+  }
+  else
+  {
+    fullKeyBytes = keyBytes;
+  }
+
+  const unsigned char* rawKeyBytes = &fullKeyBytes.front();
+
+  return d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, (long)fullKeyBytes.size());
+}
+
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
+                                                                        const std::string& passphrase)
+{
+  return fromSeed(mnemonic.toSeed(passphrase));
+}
+
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromHMACOutput(const std::vector<unsigned char>& hmacOutput)
+{
+  if (hmacOutput.size() != 64) {
+    throw std::runtime_error("Unexpected size for hmac output");
+  }
+
+  // the first 32 bytes of the hmac are the new key material. the algorithm identifier must come first, though
+  std::vector<unsigned char> fullKey = prependAlgorithmIdentifier({ hmacOutput.begin(), hmacOutput.begin() + 32 });
+
+  // chain code is the next 32 bytes of the computed hmac
+  std::vector<unsigned char> chainCode(hmacOutput.begin() + 32, hmacOutput.end());
+
+  return std::unique_ptr<ED25519PrivateKey>(new ED25519PrivateKey(bytesToPKEY(fullKey), chainCode));
+}
+
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector<unsigned char>& seed)
+{
+  static const std::string keyString = "ed25519 seed"; // as defined by SLIP 0010
+
+  return fromHMACOutput(OpenSSLHasher::computeSHA512HMAC({ keyString.begin(), keyString.end() }, seed));
+}
+
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(const uint32_t childIndex) const
+{
+  if (chainCode.size() != 32)
+  {
+    throw std::runtime_error("Key doesn't support derivation");
+  }
+
+  if (!DerivationPathUtils::isHardenedChildIndex(childIndex))
+  {
+    throw std::runtime_error("Key supports only hardened derivation");
+  }
+
+  // as per SLIP0010, private key must be padded to 33 bytes
+  std::vector<unsigned char> data = { 0x0 };
+
+  const std::vector<unsigned char> keyBytes = toBytes();
+  data.insert(data.end(), keyBytes.begin(), keyBytes.end());
+
+  // converts unsigned 32 bit int index into big endian byte array (ser32 function from BIP 32)
+  std::vector<unsigned char> indexVector = {};
+  for (int byteIndex = 3; byteIndex >= 0; --byteIndex)
+  {
+    indexVector.push_back((childIndex >> (byteIndex << 3)) & 0xFF);
+  }
+  data.insert(data.end(), indexVector.begin(), indexVector.end());
+
+  return fromHMACOutput(OpenSSLHasher::computeSHA512HMAC(chainCode, data));
+}
+
+std::vector<unsigned char> ED25519PrivateKey::prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes)
+{
+  // full key will begin with the algorithm identifier bytes
+  std::vector<unsigned char> fullKey = ALGORITHM_IDENTIFIER_BYTES;
+
+  // insert the raw key bytes onto the end of the full key
+  fullKey.insert(fullKey.end(), keyBytes.begin(), keyBytes.end());
+
+  return fullKey;
+}
+
+std::vector<unsigned char> ED25519PrivateKey::getChainCode() const
+{
+  return chainCode;
 }
 }

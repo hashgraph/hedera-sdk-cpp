@@ -18,7 +18,8 @@
  *
  */
 
-#include "openssl/sha.h"
+#include <openssl/hmac.h>
+#include <openssl/sha.h>
 
 #include "helper/OpenSSLHasher.h"
 
@@ -32,5 +33,59 @@ std::vector<unsigned char> OpenSSLHasher::computeSHA384(const std::string& data)
   SHA384(rawData, data.size(), &outputBytes.front());
 
   return outputBytes;
+}
+
+std::vector<unsigned char> OpenSSLHasher::computeSHA256(const std::vector<unsigned char>& data)
+{
+  std::vector<unsigned char> outputBytes = std::vector<unsigned char>(32);
+
+  const unsigned char* rawData = &data.front();
+  SHA256(rawData, data.size(), &outputBytes.front());
+
+  return outputBytes;
+}
+
+std::vector<unsigned char> OpenSSLHasher::computeSHA512HMAC(const std::vector<unsigned char>& key,
+                                                            const std::vector<unsigned char>& data)
+{
+  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
+
+  if (messageDigestContext == nullptr)
+  {
+    throw std::runtime_error("Digest context construction failed");
+  }
+
+  EVP_MD* messageDigest = EVP_MD_fetch(nullptr, "SHA512", nullptr);
+
+  if (messageDigest == nullptr)
+  {
+    EVP_MD_CTX_free(messageDigestContext);
+    throw std::runtime_error("Digest construction failed");
+  }
+
+  if (EVP_DigestInit(messageDigestContext, messageDigest) <= 0)
+  {
+    EVP_MD_CTX_free(messageDigestContext);
+    EVP_MD_free(messageDigest);
+    throw std::runtime_error("Digest init failed");
+  }
+
+  std::vector<unsigned char> digest(64);
+
+  unsigned int digestSize;
+  unsigned char* hmac =
+    HMAC(messageDigest, &key.front(), (int)key.size(), &data.front(), (int)data.size(), &digest.front(), &digestSize);
+
+  if (hmac == nullptr)
+  {
+    EVP_MD_CTX_free(messageDigestContext);
+    EVP_MD_free(messageDigest);
+    throw std::runtime_error("HMAC failed");
+  }
+
+  EVP_MD_CTX_free(messageDigestContext);
+  EVP_MD_free(messageDigest);
+
+  return { hmac, hmac + 64 };
 }
 } // Hedera

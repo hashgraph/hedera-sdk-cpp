@@ -36,6 +36,8 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileCreateTransaction.cc
         src/HederaCertificateVerifier.cc
         src/IPv4Address.cc
+        src/MnemonicAbstract.cc
+        src/MnemonicBIP39.cc
         src/Network.cc
         src/Node.cc
         src/NodeAddress.cc
@@ -52,8 +54,10 @@ add_library(${PROJECT_NAME} STATIC
         src/Transfer.cc
         src/TransferTransaction.cc
 
+        src/helper/DerivationPathUtils.cc
         src/helper/DurationConverter.cc
         src/helper/HexConverter.cc
+        src/helper/OpenSSLRandom.cc
         src/helper/OpenSSLHasher.cc
         src/helper/TimestampConverter.cc)
 
