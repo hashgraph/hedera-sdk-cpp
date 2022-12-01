@@ -69,7 +69,7 @@ public:
   /**
    * Construct an ContractID protobuf object from this ContractId object.
    *
-   * @return A pointer to a created ContractID protobuf object filled with this ContractId object's data.
+   * @return A pointer to the created ContractID protobuf object filled with this ContractId object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::ContractID> toProtobuf() const;
 

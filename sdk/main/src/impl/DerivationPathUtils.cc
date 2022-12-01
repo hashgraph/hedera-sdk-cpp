@@ -17,29 +17,27 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_
-#define HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_
+#include "impl/DerivationPathUtils.h"
 
-#include <string>
-#include <vector>
+#include <stdexcept>
 
-namespace Hedera
+namespace Hedera::internal::DerivationPathUtils
 {
-/**
- * Enum representing different modes of network communication.
- */
-enum class TLSBehavior
+//-----
+bool isHardenedChildIndex(uint32_t index)
 {
-  /**
-   * Communicate only in the clear
-   */
-  DISABLE,
-  /**
-   * Require TLS connection
-   */
-  REQUIRE
-};
+  return index >> 31 == 0x1;
+}
 
-} // Hedera
+//-----
+uint32_t getHardenedIndex(uint32_t index)
+{
+  if (isHardenedChildIndex(index))
+  {
+    throw std::invalid_argument("Index is already hardened");
+  }
 
-#endif // HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_
+  return ~(UINT32_MAX >> 1) | index;
+}
+
+} // namespaceHedera::internal::DerivationPathUtils

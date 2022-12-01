@@ -76,7 +76,7 @@ public:
   /**
    * Construct a TransactionID protobuf object from this TransactionId object.
    *
-   * @return A pointer to a created TransactionID protobuf object filled with this TransactionId object's data.
+   * @return A pointer to the created TransactionID protobuf object filled with this TransactionId object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::TransactionID> toProtobuf() const;
 

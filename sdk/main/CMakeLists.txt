@@ -32,6 +32,8 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
         #    src/FileCreateTransaction.cc
+        src/Mnemonic.cc
+        src/MnemonicBIP39.cc
         src/PublicKey.cc
         src/Status.cc
         src/Transaction.cc
@@ -45,6 +47,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TransferTransaction.cc
 
         src/impl/Channel.cc
+        src/impl/DerivationPathUtils.cc
         src/impl/Endpoint.cc
         src/impl/DurationConverter.cc
         src/impl/HederaCertificateVerifier.cc
@@ -54,6 +57,7 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/Node.cc
         src/impl/NodeAddress.cc
         src/impl/NodeAddressBook.cc
+        src/impl/OpenSSLRandom.cc
         src/impl/OpenSSLHasher.cc
         src/impl/TimestampConverter.cc)
 

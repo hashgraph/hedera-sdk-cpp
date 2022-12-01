@@ -64,7 +64,7 @@ public:
   /**
    * Construct a Key protobuf object from this PublicKey object.
    *
-   * @return A pointer to a created Key protobuf object filled with this PublicKey object's data.
+   * @return A pointer to the created Key protobuf object filled with this PublicKey object's data.
    */
   [[nodiscard]] virtual std::unique_ptr<proto::Key> toProtobuf() const = 0;
 
@@ -79,11 +79,18 @@ public:
                                              const std::vector<unsigned char>& signedBytes) const = 0;
 
   /**
-   * Get a string representation of this PublicKey, in DER format.
+   * Get the string representation of this PublicKey.
    *
-   * @return A string representation of this PublicKey in DER format.
+   * @return The string representation of this PublicKey.
    */
   [[nodiscard]] virtual std::string toString() const = 0;
+
+  /**
+   * Get the byte representation of this PublicKey.
+   *
+   * @return The byte representation of this PublicKey.
+   */
+  [[nodiscard]] virtual std::vector<unsigned char> toBytes() const = 0;
 
 protected:
   PublicKey() = default;

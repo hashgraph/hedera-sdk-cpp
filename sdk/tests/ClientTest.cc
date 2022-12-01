@@ -53,7 +53,7 @@ TEST_F(ClientTest, SetOperator)
   client.setOperator(accountId, ED25519PrivateKey::generatePrivateKey());
 
   // No way to grab the string value of the rvalue, just make it's not empty
-  EXPECT_NE(client.getOperatorPublicKey()->toString(), std::string());
+  EXPECT_FALSE(client.getOperatorPublicKey()->toString().empty());
 }
 
 TEST_F(ClientTest, SetDefaultMaxTransactionFee)
