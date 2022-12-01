@@ -83,8 +83,9 @@ function(create_external_package prefix)
 
 #        message("LIBNAME${index}=${LIBNAME${index}}")
 #        message("LINKTARGET${index}=${LINKTARGET${index}}")
-
-        add_library(${LIBNAME${index}} STATIC IMPORTED)
+        if (NOT ${${LINKTARGET${index}}} STREQUAL "")
+            add_library(${LIBNAME${index}} STATIC IMPORTED)
+        endif()
     endforeach()
 
     # Now import the link targets

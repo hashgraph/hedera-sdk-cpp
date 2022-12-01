@@ -90,8 +90,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::grpc++
         gRPC::grpc++_alts
         gRPC::grpc++_error_details
-        gRPC::grpc++_reflection
         gRPC::grpc++_unsecure)
+
+if (TARGET gRPC::grpc++_reflection)
+    target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpc++_reflection)
+endif()
 
 if (TARGET gRPC::grpcpp_channelz)
     target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpcpp_channelz)
