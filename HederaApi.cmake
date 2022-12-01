@@ -89,7 +89,9 @@ function(create_external_package prefix)
 
     # Now import the link targets
     foreach(index RANGE 1 ${lastIndex})
-        set_target_properties(${LIBNAME${index}} PROPERTIES IMPORTED_LOCATION ${${LINKTARGET${index}}})
+        if (NOT ${${LINKTARGET${index}}} STREQUAL "")
+            set_target_properties(${LIBNAME${index}} PROPERTIES IMPORTED_LOCATION ${${LINKTARGET${index}}})
+        endif()
     endforeach()
 endfunction()
 
@@ -142,10 +144,8 @@ create_req_link_target(gRPC grpc++_alts libgrpc++_alts.a grpc++_alts.lib)
 create_req_link_target(gRPC grpc++_error_details libgrpc++_error_details.a grpc++_error_details.lib)
 create_req_link_target(gRPC grpc++_unsecure libgrpc++_unsecure.a grpc++_unsecure.lib)
 
-if(NOT WINDOWS)
-    create_req_link_target(gRPC grpc++_reflection libgrpc++_reflection.a grpc++_reflection.lib)
-    create_opt_link_target(gRPC grpcpp_channelz libgrpcpp_channelz.a grpcpp_channelz.lib)
-endif()
+create_opt_link_target(gRPC grpc++_reflection libgrpc++_reflection.a grpc++_reflection.lib)
+create_opt_link_target(gRPC grpcpp_channelz libgrpcpp_channelz.a grpcpp_channelz.lib)
 
 
 create_external_package(gRPC
