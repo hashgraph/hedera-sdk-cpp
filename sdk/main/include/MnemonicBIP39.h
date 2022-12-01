@@ -104,11 +104,13 @@ protected:
   [[nodiscard]] const std::vector<std::string>& getWordList() const override;
 
   /**
-   * Gets the set of acceptable word counts. In the case of a BIP39 passphrase, this set will include 12 and 24
+   * Gets the set of acceptable word counts.
+   * <p>
+   * In the case of a BIP39 passphrase, this set will include 12 and 24
    *
    * @return the acceptable word counts
    */
-  [[nodiscard]] std::set<unsigned long> getAcceptableWordCounts() const override;
+  [[nodiscard]] const std::set<unsigned long>& getAcceptableWordCounts() const override;
 
 private:
   /**

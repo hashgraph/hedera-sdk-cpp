@@ -59,11 +59,14 @@ std::vector<unsigned char> OpenSSLHasher::computeSHA512HMAC(const std::vector<un
 
   if (messageDigest == nullptr)
   {
+    EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Digest construction failed");
   }
 
   if (EVP_DigestInit(messageDigestContext, messageDigest) <= 0)
   {
+    EVP_MD_CTX_free(messageDigestContext);
+    EVP_MD_free(messageDigest);
     throw std::runtime_error("Digest init failed");
   }
 
@@ -75,6 +78,8 @@ std::vector<unsigned char> OpenSSLHasher::computeSHA512HMAC(const std::vector<un
 
   if (hmac == nullptr)
   {
+    EVP_MD_CTX_free(messageDigestContext);
+    EVP_MD_free(messageDigest);
     throw std::runtime_error("HMAC failed");
   }
 

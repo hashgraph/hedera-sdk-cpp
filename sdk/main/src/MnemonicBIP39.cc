@@ -61,10 +61,12 @@ const std::vector<std::string>& MnemonicBIP39::getWordList() const
   return MnemonicAbstract::bip39WordList;
 }
 
-std::set<unsigned long> MnemonicBIP39::getAcceptableWordCounts() const
+const std::set<unsigned long>& MnemonicBIP39::getAcceptableWordCounts() const
 {
   // we allow either 12 or 24 word mnemonics
-  return std::set<unsigned long>{ 12, 24 };
+  static const std::set<unsigned long> acceptableCounts = { 12, 24 };
+
+  return acceptableCounts;
 }
 
 MnemonicBIP39 MnemonicBIP39::generate12WordBIP39Mnemonic()
@@ -155,11 +157,15 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) 
 
   if (messageDigest == nullptr)
   {
+    EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Digest construction failed");
   }
 
   if (EVP_DigestInit(messageDigestContext, messageDigest) <= 0)
   {
+
+    EVP_MD_CTX_free(messageDigestContext);
+    EVP_MD_free(messageDigest);
     throw std::runtime_error("Digest init failed");
   }
 
@@ -180,6 +186,8 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) 
                         (int)seed.size(),
                         &seed.front()) <= 0)
   {
+    EVP_MD_CTX_free(messageDigestContext);
+    EVP_MD_free(messageDigest);
     throw std::runtime_error("PKCS5_PBKDF2_HMAC failed");
   }
 

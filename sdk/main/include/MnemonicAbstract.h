@@ -52,7 +52,8 @@ public:
 
 private:
   /**
-   * The words that make up this mnemonic
+   * The indices of the words that make up this mnemonic. Each index in this vector represents a word of the mnemonic.
+   * 16 bit unsigned values are used, since BIP39 indices need 11 bits, and legacy word list indices need 12
    */
   std::vector<uint16_t> wordIndices;
 
@@ -106,7 +107,7 @@ private:
    *
    * @return the set of acceptable word counts
    */
-  [[nodiscard]] virtual std::set<unsigned long> getAcceptableWordCounts() const = 0;
+  [[nodiscard]] virtual const std::set<unsigned long>& getAcceptableWordCounts() const = 0;
 
 protected:
   /**

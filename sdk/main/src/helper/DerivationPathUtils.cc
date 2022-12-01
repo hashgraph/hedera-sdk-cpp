@@ -22,9 +22,9 @@
 
 #include <stdexcept>
 
-namespace Hedera
+namespace Hedera::DerivationPathUtils
 {
-uint32_t DerivationPathUtils::getHardenedIndex(uint32_t standardIndex)
+uint32_t getHardenedIndex(uint32_t standardIndex)
 {
   if (isHardenedChildIndex(standardIndex))
   {
@@ -34,8 +34,8 @@ uint32_t DerivationPathUtils::getHardenedIndex(uint32_t standardIndex)
   return ~(UINT32_MAX >> 1) | standardIndex;
 }
 
-bool DerivationPathUtils::isHardenedChildIndex(uint32_t index)
+bool isHardenedChildIndex(uint32_t index)
 {
   return index >> 31 == 0x1;
 }
-} // Hedera
+} // Hedera::DerivationPathUtils

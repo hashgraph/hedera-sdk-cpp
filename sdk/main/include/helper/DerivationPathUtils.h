@@ -23,17 +23,11 @@
 
 #include <cstdint>
 
-namespace Hedera
-{
-
 /**
  * Utility classes dealing with wallet derivation paths, as described in BIP32, BIP44, and SLIP10
  */
-class DerivationPathUtils
+namespace Hedera::DerivationPathUtils
 {
-public:
-  DerivationPathUtils() = delete;
-
   /**
    * Checks whether an integer falls into the "unhardened", or "hardened" category
    * <p>
@@ -43,7 +37,7 @@ public:
    *
    * @return true if the index is in the hardened range, otherwise false
    */
-  static bool isHardenedChildIndex(uint32_t index);
+  bool isHardenedChildIndex(uint32_t index);
 
   /**
    * Converts an index into its hardened counterpart. Throws an exception if the index is already hardened
@@ -54,9 +48,7 @@ public:
    *
    * @return the hardened index
    */
-  static uint32_t getHardenedIndex(uint32_t standardIndex);
+  uint32_t getHardenedIndex(uint32_t standardIndex);
 };
-
-} // Hedera
 
 #endif // HEDERA_SDK_CPP_DERIVATIONPATHUTILS_H

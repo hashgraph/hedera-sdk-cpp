@@ -203,7 +203,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromHMACOutput(const std::
 
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector<unsigned char>& seed)
 {
-  std::string keyString = "ed25519 seed"; // as defined by SLIP 0010
+  static const std::string keyString = "ed25519 seed"; // as defined by SLIP 0010
 
   return fromHMACOutput(OpenSSLHasher::computeSHA512HMAC({ keyString.begin(), keyString.end() }, seed));
 }

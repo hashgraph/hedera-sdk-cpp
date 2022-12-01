@@ -23,17 +23,11 @@
 
 #include <vector>
 
-namespace Hedera
-{
-
 /**
  * Utility class wrapping around OpenSSL random functions
  */
-class OpenSSLRandom
+namespace Hedera::OpenSSLRandom
 {
-public:
-  OpenSSLRandom() = delete;
-
   /**
    * Gets a vector of random bytes
    *
@@ -41,9 +35,7 @@ public:
    *
    * @return the vector of random bytes
    */
-  static std::vector<unsigned char> getRandomBytes(int count);
+  std::vector<unsigned char> getRandomBytes(int count);
 };
-
-} // Hedera
 
 #endif // HEDERA_SDK_CPP_OPENSSLRANDOM_H
