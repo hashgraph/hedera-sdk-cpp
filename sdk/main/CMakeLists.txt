@@ -67,12 +67,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CF_NETWORK})
-endif ()
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
 
 #target_link_libraries(${PROJECT_NAME} PRIVATE ${RESOLV_LIBRARY})
-target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
+if (NOT WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         OpenSSL::Crypto
