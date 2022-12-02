@@ -72,14 +72,6 @@ public:
   [[nodiscard]] std::unique_ptr<PublicKey> clone() const override;
 
   /**
-   * Derived from PublicKey. Construct a Key protobuf object from this ED25519PublicKey object.
-   *
-   * @return A pointer to a created Key protobuf object filled with this ED25519PublicKey object's data.
-   * @throws std::runtime_error If OpenSSL serialization fails.
-   */
-  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
-
-  /**
    * Derived from PublicKey. Verify that a signature was made by the ED25519PrivateKey which corresponds to this
    * ED25519PublicKey.
    *
@@ -92,14 +84,47 @@ public:
                                      const std::vector<unsigned char>& signedBytes) const override;
 
   /**
-   * Derived from PublicKey. Get a string representation of this ED25519PublicKey, in DER format.
+   * Derived from PublicKey. Construct a Key protobuf object from this ED25519PublicKey object.
    *
-   * @return A string representation of this ED25519PublicKey in DER format.
+   * @return A pointer to a created Key protobuf object filled with this ED25519PublicKey object's data.
+   * @throws std::runtime_error If OpenSSL serialization fails.
+   */
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
+
+private:
+  /**
+   * Derived from PublicKey. Get the string representation of this ED25519PublicKey, in DER format.
+   *
+   * @return The string representation of this ED25519PublicKey in DER format.
    * @throws std::runtime_error If OpenSSL serialization fails.
    */
   [[nodiscard]] std::string toString() const override;
 
+  /**
+   * Derived from PublicKey. Get the byte representation of this ED25519PublicKey, in DER format.
+   *
+   * @return The byte representation of this ED25519PublicKey.
+   */
+  [[nodiscard]] std::vector<unsigned char> toBytes() const override;
+
 private:
+  /**
+   * Create an OpenSSL keypair object from a byte vector representing an ED25519PublicKey.
+   *
+   * @param keyBytes The bytes representing a ED25519PublicKey.
+   * @return A pointer to a newly created OpenSSL keypair object.
+   */
+  static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+
+  /**
+   * Prepend an ED25519PublicKey's algorithm identifier to an array of serialized ED25519PublicKey bytes.
+   *
+   * @param keyBytes The bytes representing an ED25519PublicKey.
+   * @return An array of bytes that contains the ED25519PublicKey's algorithm identifier bytes, followed by the input
+   *         ED25519PublicKey bytes.
+   */
+  static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
+
   /**
    * Construct from an OpenSSL key object.
    *
@@ -108,22 +133,7 @@ private:
   explicit ED25519PublicKey(EVP_PKEY* publicKey);
 
   /**
-   * Get the byte representation of this ED25519PublicKey.
-   *
-   * @return The byte representation of this ED25519PublicKey.
-   */
-  [[nodiscard]] std::vector<unsigned char> toBytes() const;
-
-  /**
-   * Create a new EVP_PKEY object from a byte vector representing an ED25519PublicKey.
-   *
-   * @param keyBytes The bytes representing a ED25519PublicKey.
-   * @return A pointer to a newly created EVP_PKEY object.
-   */
-  static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
-
-  /**
-   * The underlying OpenSSL representation of the key. Defaults to uninitialized (nullptr).
+   * A pointer to the underlying OpenSSL keypair.
    */
   EVP_PKEY* mPublicKey = nullptr;
 };

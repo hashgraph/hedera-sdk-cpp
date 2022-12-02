@@ -67,7 +67,7 @@ void Network::setNetwork(const NodeAddressBook& nodeAddressBook)
 }
 
 //-----
-void Network::close()
+void Network::close() const
 {
   for (const auto& node : mNodes)
   {
@@ -75,7 +75,7 @@ void Network::close()
   }
 }
 
-void Network::setTLSBehavior(TLSBehavior desiredBehavior)
+void Network::setTLSBehavior(TLSBehavior desiredBehavior) const
 {
   for (const auto& node : mNodes)
   {

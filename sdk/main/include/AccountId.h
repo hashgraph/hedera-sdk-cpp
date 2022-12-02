@@ -78,7 +78,7 @@ public:
   /**
    * Construct an AccountID protobuf object from this AccountId object.
    *
-   * @return A pointer to a created AccountID protobuf object filled with this AccountId object's data.
+   * @return A pointer to the created AccountID protobuf object filled with this AccountId object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::AccountID> toProtobuf() const;
 

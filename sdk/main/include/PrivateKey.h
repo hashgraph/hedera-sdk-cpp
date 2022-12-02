@@ -71,7 +71,7 @@ public:
   /**
    * Get the string representation of this PrivateKey.
    *
-   * @return A string representation of this PrivateKey.
+   * @return The string representation of this PrivateKey.
    */
   [[nodiscard]] virtual std::string toString() const = 0;
 

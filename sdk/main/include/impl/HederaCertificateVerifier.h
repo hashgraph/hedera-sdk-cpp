@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
 
 #include <grpcpp/security/credentials.h>
+#include <string>
 
 namespace Hedera::internal
 {
@@ -31,15 +32,15 @@ class HederaCertificateVerifier : public grpc::experimental::ExternalCertificate
 {
 public:
   /**
-   * Constructor
+   * Construct with a node certificate chain hash.
    *
-   * @param certificateHash the claimed hash of the node certificate chain
+   * @param certificateHash The claimed hash of the node certificate chain.
    */
-  explicit HederaCertificateVerifier(const std::string& certificateHash);
+  explicit HederaCertificateVerifier(std::string certificateHash);
 
 private:
   /**
-   * The hash of the certificate chain for the node, from the address book
+   * The hash of the certificate chain for the node, from the address book.
    */
   std::string mExpectedHash;
 
@@ -47,12 +48,12 @@ private:
    * The verification logic that will be performed after the TLS handshake
    * completes
    *
-   * @param request the verification information associated with this request
-   * @param callback only used for asynchronous verification (therefore unused in this case, since verification is
-   * currently synchronous)
-   * @param sync_status This should only be used if your check is done synchronously. Modifies this value to indicate
-   * the success or the failure of the check.
-   * @return true if your check is done synchronously, otherwise return false. always true in this case
+   * @param request     The verification information associated with this request.
+   * @param callback    Callback for asynchronous requests. This is unused since the SDK does all requests
+   *                    synchronously.
+   * @param sync_status Pointer to the gRPC status that should be updated to indicate the success or the failure of the
+   *                    check.
+   * @return \c TRUE because all checks are done synchronously.
    */
   bool Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
               std::function<void(grpc::Status)> callback,
@@ -64,9 +65,11 @@ private:
    * it is waiting for and quickly invoke the callback that was passed to Verify() with a status indicating the
    * cancellation.
    *
-   * @param request the verification information associated with this request
+   * @param request Pointer to the verification information associated with this request.
    */
-  void Cancel(grpc::experimental::TlsCustomVerificationCheckRequest* request) override{};
+  void Cancel(grpc::experimental::TlsCustomVerificationCheckRequest* request) override
+  { // Intentionally unimplemented
+  }
 };
 
 } // namespace Hedera::internal

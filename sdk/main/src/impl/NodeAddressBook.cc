@@ -35,7 +35,7 @@ NodeAddressBook NodeAddressBook::fromFile(const std::string& fileName)
 
 NodeAddressBook NodeAddressBook::fromBytes(const std::vector<char>& bytes)
 {
-  proto::NodeAddressBook addressBook = proto::NodeAddressBook();
+  proto::NodeAddressBook addressBook;
   addressBook.ParseFromArray(&bytes.front(), (int)bytes.size());
 
   return fromProtobuf(addressBook);
@@ -43,15 +43,15 @@ NodeAddressBook NodeAddressBook::fromBytes(const std::vector<char>& bytes)
 
 NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& addressBook)
 {
-  NodeAddressBook outputAddressBook = NodeAddressBook();
+  NodeAddressBook outputAddressBook;
 
   for (int i = 0; i < addressBook.nodeaddress_size(); ++i)
   {
     const proto::NodeAddress& nodeAddress = addressBook.nodeaddress(i);
 
-    outputAddressBook.addressMap.insert(
-      { AccountId::fromProtobuf(nodeAddress.nodeaccountid()),
-        std::make_shared<internal::NodeAddress>(internal::NodeAddress::fromProtobuf(nodeAddress)) });
+    outputAddressBook.addressMap.try_emplace(
+      AccountId::fromProtobuf(nodeAddress.nodeaccountid()),
+      std::make_shared<internal::NodeAddress>(internal::NodeAddress::fromProtobuf(nodeAddress)));
   }
 
   return outputAddressBook;
