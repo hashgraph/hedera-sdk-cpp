@@ -60,14 +60,14 @@ public:
   /**
    * Close this network.
    */
-  void close();
+  void close() const;
 
   /**
-   * Sets the TLS behavior of all nodes
+   * Sets the TLS behavior of all nodes.
    *
-   * @param desiredBehavior the desired behavior
+   * @param desiredBehavior The desired behavior.
    */
-  void setTLSBehavior(TLSBehavior desiredBehavior);
+  void setTLSBehavior(TLSBehavior desiredBehavior) const;
 
 private:
   /**

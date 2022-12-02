@@ -23,21 +23,18 @@
 
 namespace Hedera::internal
 {
-HederaCertificateVerifier::HederaCertificateVerifier(const std::string& certificateHash)
+HederaCertificateVerifier::HederaCertificateVerifier(std::string certificateHash)
+  : mExpectedHash(std::move(certificateHash))
 {
-  mExpectedHash = certificateHash;
 }
 
 bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
                                        std::function<void(grpc::Status)> callback,
                                        grpc::Status* sync_status)
 {
-  auto grpcCertificateChain = request->peer_cert_full_chain();
-  std::string certificateChain = { grpcCertificateChain.cbegin(), grpcCertificateChain.cend() };
-
-  std::vector<unsigned char> hashBytes = OpenSSLHasher::computeSHA384(certificateChain);
-
-  if (mExpectedHash != HexConverter::bytesToHex(hashBytes))
+  if (auto grpcCertificateChain = request->peer_cert_full_chain();
+      mExpectedHash != HexConverter::bytesToHex(
+                         OpenSSLHasher::computeSHA384({ grpcCertificateChain.cbegin(), grpcCertificateChain.cend() })))
   {
     *sync_status = grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
                                 "Hash of node certificate chain doesn't match hash contained in address book");

@@ -36,10 +36,33 @@ private:
   const Hbar mAmount = Hbar(10ULL);
 };
 
-TEST_F(TransferTransactionTest, ConstructAccountCreateTransaction)
+TEST_F(TransferTransactionTest, ConstructTransferTransaction)
 {
   TransferTransaction transaction;
   EXPECT_TRUE(transaction.getHbarTransfers().empty());
+}
+
+TEST_F(TransferTransactionTest, CloneTransferTransaction)
+{
+  TransferTransaction transaction;
+  const std::string memo = "this is a test memo";
+  transaction.setNodeAccountIds({ getTestAccountId() });
+  transaction.setTransactionMemo(memo);
+  transaction.addUnapprovedHbarTransfer(getTestAccountId(), getTestAmount());
+
+  auto clonedExecutableTransactionPtr = transaction.clone();
+  EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().size(), transaction.getNodeAccountIds().size());
+  EXPECT_EQ(*clonedExecutableTransactionPtr->getNodeAccountIds().at(0), *getTestAccountId());
+
+  auto clonedTransactionPtr = dynamic_cast<Transaction<TransferTransaction>*>(clonedExecutableTransactionPtr.get());
+  EXPECT_NE(clonedTransactionPtr, nullptr);
+  EXPECT_EQ(clonedTransactionPtr->getTransactionMemo(), memo);
+
+  auto clonedAccountCreateTransactionPtr = dynamic_cast<TransferTransaction*>(clonedTransactionPtr);
+  EXPECT_NE(clonedAccountCreateTransactionPtr, nullptr);
+  EXPECT_FALSE(clonedAccountCreateTransactionPtr->getHbarTransfers().empty());
+  EXPECT_EQ(*clonedAccountCreateTransactionPtr->getHbarTransfers().at(0).getAccountId(), *getTestAccountId());
+  EXPECT_EQ(clonedAccountCreateTransactionPtr->getHbarTransfers().at(0).getAmount(), getTestAmount());
 }
 
 TEST_F(TransferTransactionTest, AddApproved)

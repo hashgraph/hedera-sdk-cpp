@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -35,14 +35,15 @@ std::string base64ToHex(const std::vector<unsigned char>& bytes)
     std::cout << "buf2hexstr_ex determine size error" << std::endl;
   }
 
-  char charString[stringLength];
+  std::string charString(stringLength, '\0');
 
-  if (OPENSSL_buf2hexstr_ex(charString, stringLength, &stringLength, &bytes.front(), bytes.size(), '\0') <= 0)
+  if (OPENSSL_buf2hexstr_ex(&charString.front(), stringLength, &stringLength, &bytes.front(), bytes.size(), '\0') <= 0)
   {
     std::cout << "buf2hexstr_ex generate string error" << std::endl;
   }
 
-  return { charString };
+  charString.pop_back(); // Remove the '\0'
+  return charString;
 }
 
 std::vector<unsigned char> hexToBase64(const std::string& inputString)
@@ -53,7 +54,7 @@ std::vector<unsigned char> hexToBase64(const std::string& inputString)
     std::cout << "hexstr2buf_ex determine size error" << std::endl;
   }
 
-  std::vector<unsigned char> outputBytes = std::vector<unsigned char>(bufferLength);
+  std::vector<unsigned char> outputBytes(bufferLength);
 
   if (OPENSSL_hexstr2buf_ex(&outputBytes.front(), bufferLength, &bufferLength, inputString.c_str(), '\0') <= 0)
   {

@@ -54,8 +54,8 @@ public:
    */
   Client(const Client& other) = delete;
   Client& operator=(const Client& other) = delete;
-  Client(Client&& other) noexcept = default;
-  Client& operator=(Client&& other) noexcept = default;
+  Client(Client&& other) noexcept;
+  Client& operator=(Client&& other) noexcept;
 
   /**
    * Construct a Hedera client pre-configured for Hedera testnet access.

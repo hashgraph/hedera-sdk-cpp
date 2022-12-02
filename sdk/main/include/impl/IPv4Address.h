@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_IMPL_IPV4_ADDRESS_H_
 
 #include <string>
+#include <string_view>
 
 namespace Hedera::internal
 {
@@ -47,7 +48,7 @@ public:
    *
    * @return the new IP address. Currently returns address of 0.0.0.0 if there is an error in creation
    */
-  static IPv4Address fromString(const std::string& inputString);
+  static IPv4Address fromString(std::string_view inputString);
 
   /**
    * Converts address to form octet1.octet2.octet3.octet4

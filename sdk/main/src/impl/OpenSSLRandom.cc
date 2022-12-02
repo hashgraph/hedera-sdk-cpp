@@ -17,29 +17,28 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_
-#define HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_
+#include "impl/OpenSSLRandom.h"
 
-#include <string>
-#include <vector>
+#include <openssl/rand.h>
 
-namespace Hedera
+namespace Hedera::internal::OpenSSLRandom
 {
-/**
- * Enum representing different modes of network communication.
- */
-enum class TLSBehavior
+//-----
+std::vector<unsigned char> getRandomBytes(int count)
 {
-  /**
-   * Communicate only in the clear
-   */
-  DISABLE,
-  /**
-   * Require TLS connection
-   */
-  REQUIRE
-};
+  if (count <= 0)
+  {
+    throw std::invalid_argument("The number of random bytes to generate must be positive");
+  }
 
-} // Hedera
+  std::vector<unsigned char> randomBytes(count);
 
-#endif // HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_
+  if (RAND_priv_bytes(&randomBytes.front(), count) <= 0)
+  {
+    throw std::runtime_error("RAND_priv_bytes failure");
+  }
+
+  return randomBytes;
+}
+
+} // namespace Hedera::internal::OpenSSLRandom
