@@ -1,5 +1,5 @@
 
-if (NOT WINDOWS)
+if (NOT WIN32)
     if (NOT DEFINED RESOLV_LIBRARY)
         find_library(RESOLV_LIBRARY resolv)
     endif()
