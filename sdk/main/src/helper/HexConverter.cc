@@ -33,8 +33,6 @@ namespace Hedera {
         }
 
         std::unique_ptr<char> charArray(new char[stringLength]);
-        std::string charString;
-        charString.reserve(stringLength);
 
         if (OPENSSL_buf2hexstr_ex(charArray.get(), stringLength, &stringLength, &bytes.front(), bytes.size(), '\0') <=
             0) {
@@ -42,8 +40,7 @@ namespace Hedera {
             std::cout << "buf2hexstr_ex generate string error" << std::endl;
         }
 
-        charString.append(charArray.get());
-
+        std::string charString(charArray.get());
         return charString;
     }
 
