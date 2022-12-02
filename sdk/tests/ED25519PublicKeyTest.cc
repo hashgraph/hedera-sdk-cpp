@@ -30,29 +30,49 @@ using namespace Hedera;
 class ED25519PublicKeyTest : public ::testing::Test
 {
 protected:
-  std::unique_ptr<ED25519PrivateKey> privateKey;
-  std::shared_ptr<PublicKey> publicKeyFromPrivate;
-  std::shared_ptr<ED25519PublicKey> publicKeyFromString;
-  std::shared_ptr<PublicKey> publicKeyFromProtobuf;
-
-  void SetUp() override
+  [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
+  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKeyFromPrivate() const
   {
-    // generate a private key
-    privateKey = ED25519PrivateKey::generatePrivateKey();
-
-    publicKeyFromPrivate = privateKey->getPublicKey();
-    publicKeyFromString = ED25519PublicKey::fromString(publicKeyFromPrivate->toString());
-
-    const auto* protobufFromPrivate = publicKeyFromPrivate->toProtobuf().release();
-    publicKeyFromProtobuf = PublicKey::fromProtobuf(*protobufFromPrivate);
+    return mPublicKeyFromPrivate;
   }
+  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKeyFromString() const
+  {
+    return mPublicKeyFromString;
+  }
+  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKeyFromProtobuf() const
+  {
+    return mPublicKeyFromProtobuf;
+  }
+
+private:
+  const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> mPublicKeyFromPrivate = mPrivateKey->getPublicKey();
+  const std::shared_ptr<PublicKey> mPublicKeyFromString =
+    ED25519PublicKey::fromString(mPublicKeyFromPrivate->toString());
+  const std::shared_ptr<PublicKey> mPublicKeyFromProtobuf =
+    PublicKey::fromProtobuf(*mPublicKeyFromString->toProtobuf());
 };
+
+TEST_F(ED25519PublicKeyTest, CopyAndMoveConstructors)
+{
+  ED25519PublicKey copiedPublicKey(*dynamic_cast<ED25519PublicKey*>(getTestPublicKeyFromPrivate().get()));
+  EXPECT_EQ(copiedPublicKey.toString(), getTestPublicKeyFromPrivate()->toString());
+
+  copiedPublicKey = *dynamic_cast<ED25519PublicKey*>(getTestPublicKeyFromString().get());
+  EXPECT_EQ(copiedPublicKey.toString(), getTestPublicKeyFromString()->toString());
+
+  ED25519PublicKey movedPublicKey(std::move(copiedPublicKey));
+  EXPECT_EQ(movedPublicKey.toString(), getTestPublicKeyFromString()->toString());
+
+  copiedPublicKey = std::move(movedPublicKey);
+  EXPECT_EQ(copiedPublicKey.toString(), getTestPublicKeyFromString()->toString());
+}
 
 TEST_F(ED25519PublicKeyTest, ToString)
 {
-  std::string derEncodingFromPrivate = publicKeyFromPrivate->toString();
-  std::string derEncodingFromLoaded = publicKeyFromString->toString();
-  std::string derEncodingFromProtobuf = publicKeyFromProtobuf->toString();
+  const std::string derEncodingFromPrivate = getTestPublicKeyFromPrivate()->toString();
+  const std::string derEncodingFromLoaded = getTestPublicKeyFromString()->toString();
+  const std::string derEncodingFromProtobuf = getTestPublicKeyFromProtobuf()->toString();
 
   EXPECT_EQ(derEncodingFromPrivate.size(), 64);
   EXPECT_EQ(derEncodingFromLoaded.size(), 64);
@@ -64,75 +84,74 @@ TEST_F(ED25519PublicKeyTest, ToString)
 
 TEST_F(ED25519PublicKeyTest, VerifyValidSignature)
 {
-  std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
-  std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
+  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  const std::vector<unsigned char> signature = getTestPrivateKey()->sign(bytesToSign);
 
-  EXPECT_TRUE(publicKeyFromPrivate->verifySignature(signature, bytesToSign));
-  EXPECT_TRUE(publicKeyFromString->verifySignature(signature, bytesToSign));
-  EXPECT_TRUE(publicKeyFromProtobuf->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(getTestPublicKeyFromPrivate()->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(getTestPublicKeyFromString()->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(getTestPublicKeyFromProtobuf()->verifySignature(signature, bytesToSign));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyValidSignatureOfEmptyMessage)
 {
-  auto bytesToSign = std::vector<unsigned char>();
-  std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
+  const std::vector<unsigned char> bytesToSign;
+  const std::vector<unsigned char> signature = getTestPrivateKey()->sign(bytesToSign);
 
-  EXPECT_TRUE(publicKeyFromPrivate->verifySignature(signature, bytesToSign));
-  EXPECT_TRUE(publicKeyFromString->verifySignature(signature, bytesToSign));
-  EXPECT_TRUE(publicKeyFromProtobuf->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(getTestPublicKeyFromPrivate()->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(getTestPublicKeyFromString()->verifySignature(signature, bytesToSign));
+  EXPECT_TRUE(getTestPublicKeyFromProtobuf()->verifySignature(signature, bytesToSign));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifySignatureAgainstModifiedBytes)
 {
-  std::vector<unsigned char> signature = privateKey->sign({ 0x1, 0x2, 0x3 });
+  const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
+  const std::vector<unsigned char> modifiedBytes = { 0x1, 0x2, 0x3, 0x4 };
 
-  std::vector<unsigned char> modifiedBytes = { 0x1, 0x2, 0x3, 0x4 };
-
-  EXPECT_FALSE(publicKeyFromPrivate->verifySignature(signature, modifiedBytes));
-  EXPECT_FALSE(publicKeyFromString->verifySignature(signature, modifiedBytes));
-  EXPECT_FALSE(publicKeyFromProtobuf->verifySignature(signature, modifiedBytes));
+  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(signature, modifiedBytes));
+  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(signature, modifiedBytes));
+  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(signature, modifiedBytes));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature)
 {
-  std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
-  std::vector<unsigned char> arbitrarySignature = { 0x1, 0x2, 0x3, 0x4 };
+  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  const std::vector<unsigned char> arbitrarySignature = { 0x1, 0x2, 0x3, 0x4 };
 
-  EXPECT_FALSE(publicKeyFromPrivate->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_FALSE(publicKeyFromString->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_FALSE(publicKeyFromProtobuf->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyEmptySignature)
 {
-  std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
-  std::vector<unsigned char> emptySignature = std::vector<unsigned char>();
+  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  const std::vector<unsigned char> emptySignature;
 
-  EXPECT_FALSE(publicKeyFromPrivate->verifySignature(emptySignature, bytesToSign));
-  EXPECT_FALSE(publicKeyFromString->verifySignature(emptySignature, bytesToSign));
-  EXPECT_FALSE(publicKeyFromProtobuf->verifySignature(emptySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(emptySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(emptySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(emptySignature, bytesToSign));
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyEmptyMessage)
 {
-  std::vector<unsigned char> signature = privateKey->sign({ 0x1, 0x2, 0x3 });
-  std::vector<unsigned char> emptyMessage = std::vector<unsigned char>();
+  const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
+  const std::vector<unsigned char> emptyMessage;
 
-  EXPECT_FALSE(publicKeyFromPrivate->verifySignature(signature, emptyMessage));
-  EXPECT_FALSE(publicKeyFromString->verifySignature(signature, emptyMessage));
-  EXPECT_FALSE(publicKeyFromProtobuf->verifySignature(signature, emptyMessage));
+  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(signature, emptyMessage));
+  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(signature, emptyMessage));
+  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(signature, emptyMessage));
 }
 
 TEST_F(ED25519PublicKeyTest, FromString)
 {
-  // these are 2 versions of the same public key. the first conforms to the full RFC 8410 standard, the second is just
-  // the public key
-  std::string publicKeyStringExtended =
+  // These are 2 versions of the same public key. The first conforms to the full RFC 8410 standard, the second is just
+  // the public key.
+  const std::string publicKeyStringExtended =
     "302A300506032B6570032100F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";
-  std::string publicKeyStringShort = "F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";
+  const std::string publicKeyStringShort = "F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";
 
-  std::shared_ptr<ED25519PublicKey> publicKeyFromExtended = ED25519PublicKey::fromString(publicKeyStringExtended);
-  std::shared_ptr<ED25519PublicKey> publicKeyFromShort = ED25519PublicKey::fromString(publicKeyStringShort);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromExtended = ED25519PublicKey::fromString(publicKeyStringExtended);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromShort = ED25519PublicKey::fromString(publicKeyStringShort);
 
   EXPECT_NE(publicKeyFromExtended, nullptr);
   EXPECT_NE(publicKeyFromShort, nullptr);

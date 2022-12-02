@@ -32,9 +32,9 @@ protected:
   [[nodiscard]] inline const uint64_t& getTestContractNum() const { return mContractNum; }
 
 private:
-  const uint64_t mShardNum = 8;
-  const uint64_t mRealmNum = 9;
-  const uint64_t mContractNum = 10;
+  const uint64_t mShardNum = 8ULL;
+  const uint64_t mRealmNum = 9ULL;
+  const uint64_t mContractNum = 10ULL;
 };
 
 TEST_F(ContractIdTest, DefaultConstructContractId)

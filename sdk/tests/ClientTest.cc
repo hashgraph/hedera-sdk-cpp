@@ -28,6 +28,13 @@ using namespace Hedera;
 
 class ClientTest : public ::testing::Test
 {
+protected:
+  [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
+
+private:
+  const std::shared_ptr<AccountId> mAccountId = std::make_shared<AccountId>(10ULL);
+  const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
 };
 
 TEST_F(ClientTest, ConstructClient)
@@ -39,18 +46,25 @@ TEST_F(ClientTest, ConstructClient)
   EXPECT_EQ(client.getRequestTimeout(), std::chrono::minutes(2));
 }
 
+TEST_F(ClientTest, MoveClient)
+{
+  Client client = Client::forTestnet();
+  client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
+
+  Client client2 = std::move(client);
+  EXPECT_EQ(*client2.getOperatorAccountId(), *getTestAccountId());
+  EXPECT_EQ(client2.getOperatorPublicKey()->toString(), getTestPrivateKey()->getPublicKey()->toString());
+}
+
 TEST_F(ClientTest, SetOperator)
 {
   Client client = Client::forTestnet();
-  const auto accountId = std::make_shared<AccountId>(10ULL);
-  std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
-  const std::string publicKeyStr = privateKey->getPublicKey()->toString();
-  client.setOperator(accountId, privateKey);
+  client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
 
-  EXPECT_EQ(*client.getOperatorAccountId(), *accountId);
-  EXPECT_EQ(client.getOperatorPublicKey()->toString(), publicKeyStr);
+  EXPECT_EQ(*client.getOperatorAccountId(), *getTestAccountId());
+  EXPECT_EQ(client.getOperatorPublicKey()->toString(), getTestPrivateKey()->getPublicKey()->toString());
 
-  client.setOperator(accountId, ED25519PrivateKey::generatePrivateKey());
+  client.setOperator(getTestAccountId(), ED25519PrivateKey::generatePrivateKey());
 
   // No way to grab the string value of the rvalue, just make it's not empty
   EXPECT_FALSE(client.getOperatorPublicKey()->toString().empty());
@@ -64,7 +78,7 @@ TEST_F(ClientTest, SetDefaultMaxTransactionFee)
   EXPECT_EQ(*client.getDefaultMaxTransactionFee(), fee);
 
   // Negative value should throw
-  EXPECT_ANY_THROW(client.setDefaultMaxTransactionFee(fee.negated()));
+  EXPECT_THROW(client.setDefaultMaxTransactionFee(fee.negated()), std::invalid_argument);
 }
 
 TEST_F(ClientTest, CloseClient)

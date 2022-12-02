@@ -31,38 +31,53 @@ using namespace Hedera;
 class ED25519PrivateKeyTest : public ::testing::Test
 {
 protected:
-  std::unique_ptr<ED25519PrivateKey> privateKeyGenerated;
-  std::unique_ptr<ED25519PrivateKey> privateKeyLoaded;
-
-  void SetUp() override
+  [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKeyGenerated() const
   {
-    // generate a private key
-    privateKeyGenerated = ED25519PrivateKey::generatePrivateKey();
-
-    // serialize and then load private key back in
-    privateKeyLoaded = ED25519PrivateKey::fromString(privateKeyGenerated->toString());
+    return mPrivateKeyGenerated;
   }
+
+  [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKeyLoaded() const
+  {
+    return mPrivateKeyLoaded;
+  }
+
+private:
+  const std::unique_ptr<ED25519PrivateKey> mPrivateKeyGenerated = ED25519PrivateKey::generatePrivateKey();
+  const std::unique_ptr<ED25519PrivateKey> mPrivateKeyLoaded =
+    ED25519PrivateKey::fromString(mPrivateKeyGenerated->toString());
 };
+
+TEST_F(ED25519PrivateKeyTest, CopyAndMoveConstructors)
+{
+  ED25519PrivateKey copiedPrivateKey(*getTestPrivateKeyGenerated());
+  EXPECT_EQ(copiedPrivateKey.toString(), getTestPrivateKeyGenerated()->toString());
+
+  copiedPrivateKey = *getTestPrivateKeyLoaded();
+  EXPECT_EQ(copiedPrivateKey.toString(), getTestPrivateKeyLoaded()->toString());
+
+  ED25519PrivateKey movedPrivateKey(std::move(copiedPrivateKey));
+  EXPECT_EQ(movedPrivateKey.toString(), getTestPrivateKeyLoaded()->toString());
+
+  copiedPrivateKey = std::move(movedPrivateKey);
+  EXPECT_EQ(copiedPrivateKey.toString(), getTestPrivateKeyLoaded()->toString());
+}
 
 TEST_F(ED25519PrivateKeyTest, GetPublicKey)
 {
   // get the public keys from the private keys
-  std::shared_ptr<PublicKey> publicFromGenerated = privateKeyGenerated->getPublicKey();
-  std::shared_ptr<PublicKey> publicFromLoaded = privateKeyLoaded->getPublicKey();
+  const std::shared_ptr<PublicKey> publicFromGenerated = getTestPrivateKeyGenerated()->getPublicKey();
+  const std::shared_ptr<PublicKey> publicFromLoaded = getTestPrivateKeyLoaded()->getPublicKey();
 
   EXPECT_NE(publicFromGenerated, nullptr);
   EXPECT_NE(publicFromLoaded, nullptr);
-
-  // make sure returned public keys are the same for generated or loaded private
-  // keys
   EXPECT_EQ(publicFromGenerated->toString(), publicFromLoaded->toString());
 }
 
 TEST_F(ED25519PrivateKeyTest, Sign)
 {
-  std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
-  std::vector<unsigned char> signatureFromGenerated = privateKeyGenerated->sign(bytesToSign);
-  std::vector<unsigned char> signatureFromLoaded = privateKeyLoaded->sign(bytesToSign);
+  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  const std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
+  const std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign(bytesToSign);
 
   EXPECT_EQ(signatureFromGenerated.size(), 64);
   EXPECT_EQ(signatureFromLoaded.size(), 64);
@@ -71,10 +86,9 @@ TEST_F(ED25519PrivateKeyTest, Sign)
 
 TEST_F(ED25519PrivateKeyTest, SignEmptyBytes)
 {
-  std::vector<unsigned char> bytesToSign;
-
-  std::vector<unsigned char> signatureFromGenerated = privateKeyGenerated->sign(bytesToSign);
-  std::vector<unsigned char> signatureFromLoaded = privateKeyLoaded->sign(bytesToSign);
+  const std::vector<unsigned char> bytesToSign;
+  const std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
+  const std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign(bytesToSign);
 
   EXPECT_EQ(signatureFromGenerated.size(), 64);
   EXPECT_EQ(signatureFromLoaded.size(), 64);
@@ -83,8 +97,8 @@ TEST_F(ED25519PrivateKeyTest, SignEmptyBytes)
 
 TEST_F(ED25519PrivateKeyTest, ToString)
 {
-  std::string stringFromGenerated = privateKeyGenerated->toString();
-  std::string stringFromLoaded = privateKeyLoaded->toString();
+  const std::string stringFromGenerated = getTestPrivateKeyGenerated()->toString();
+  const std::string stringFromLoaded = getTestPrivateKeyLoaded()->toString();
 
   EXPECT_EQ(stringFromGenerated.size(), 64);
   EXPECT_EQ(stringFromLoaded.size(), 64);
@@ -93,14 +107,15 @@ TEST_F(ED25519PrivateKeyTest, ToString)
 
 TEST_F(ED25519PrivateKeyTest, FromString)
 {
-  // these are 2 versions of the same private key. the first conforms to the full RFC 8410 standard, the second is just
-  // the private key
-  std::string privateKeyStringExtended =
+  // These are 2 versions of the same private key. The first conforms to the full RFC 8410 standard, the second is just
+  // the private key.
+  const std::string privateKeyStringExtended =
     "302E020100300506032B65700422042068FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
-  std::string privateKeyStringShort = "68FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
+  const std::string privateKeyStringShort = "68FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
 
-  std::unique_ptr<ED25519PrivateKey> privateKeyFromExtended = ED25519PrivateKey::fromString(privateKeyStringExtended);
-  std::unique_ptr<ED25519PrivateKey> privateKeyFromShort = ED25519PrivateKey::fromString(privateKeyStringShort);
+  const std::unique_ptr<ED25519PrivateKey> privateKeyFromExtended =
+    ED25519PrivateKey::fromString(privateKeyStringExtended);
+  const std::unique_ptr<ED25519PrivateKey> privateKeyFromShort = ED25519PrivateKey::fromString(privateKeyStringShort);
 
   EXPECT_NE(privateKeyFromExtended, nullptr);
   EXPECT_NE(privateKeyFromShort, nullptr);
@@ -110,7 +125,7 @@ TEST_F(ED25519PrivateKeyTest, FromString)
 TEST_F(ED25519PrivateKeyTest, SLIP10TestVector1)
 {
   // SLIP10 spec provided test vector
-  std::string hexSeed = "000102030405060708090a0b0c0d0e0f";
+  const std::string hexSeed = "000102030405060708090a0b0c0d0e0f";
 
   std::unique_ptr<ED25519PrivateKey> privateKey =
     ED25519PrivateKey::fromSeed(internal::HexConverter::hexToBase64(hexSeed));
@@ -165,8 +180,8 @@ TEST_F(ED25519PrivateKeyTest, SLIP10TestVector1)
 TEST_F(ED25519PrivateKeyTest, SLIP10TestVector2)
 {
   // SLIP10 spec provided test vector
-  std::string hexSeed = "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875"
-                        "726f6c696663605d5a5754514e4b484542";
+  const std::string hexSeed = "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e"
+                              "7b7875726f6c696663605d5a5754514e4b484542";
 
   std::unique_ptr<ED25519PrivateKey> privateKey =
     ED25519PrivateKey::fromSeed(internal::HexConverter::hexToBase64(hexSeed));

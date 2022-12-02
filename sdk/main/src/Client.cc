@@ -37,15 +37,17 @@ struct Client::ClientImpl
   ClientImpl(ClientImpl&& other) noexcept = default;
   ClientImpl& operator=(ClientImpl&& other) noexcept = default;
 
-  std::unique_ptr<internal::Network> mNetwork;
-  std::unique_ptr<AccountId> mOperatorAccountId;
-  std::unique_ptr<PrivateKey> mOperatorPrivateKey;
-  std::unique_ptr<Hbar> mDefaultMaxTransactionFee;
+  std::unique_ptr<internal::Network> mNetwork = nullptr;
+  std::unique_ptr<AccountId> mOperatorAccountId = nullptr;
+  std::unique_ptr<PrivateKey> mOperatorPrivateKey = nullptr;
+  std::unique_ptr<Hbar> mDefaultMaxTransactionFee = nullptr;
   std::chrono::duration<int64_t> mRequestTimeout = std::chrono::minutes(2);
 };
 
 //-----
 Client::~Client() = default;
+Client::Client(Client&& other) noexcept = default;
+Client& Client::operator=(Client&& other) noexcept = default;
 
 //-----
 Client Client::forTestnet()
