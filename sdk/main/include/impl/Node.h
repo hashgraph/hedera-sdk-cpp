@@ -53,7 +53,7 @@ public:
    *
    * @param address The address of the node
    */
-  explicit Node(const std::shared_ptr<NodeAddress>& address);
+  explicit Node(std::shared_ptr<NodeAddress> address);
 
   /**
    * Shutdown connections with the node.

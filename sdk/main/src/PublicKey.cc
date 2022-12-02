@@ -26,16 +26,13 @@ namespace Hedera
 {
 std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
 {
-  switch (key.key_case())
+  if (key.key_case() == proto::Key::KeyCase::kEd25519)
   {
-    case proto::Key::KeyCase::kEd25519:
-    {
-      return ED25519PublicKey::fromBytes({ key.ed25519().cbegin(), key.ed25519().cend() });
-    }
-    default:
-    {
-      return std::shared_ptr<PublicKey>();
-    }
+    return ED25519PublicKey::fromBytes({ key.ed25519().cbegin(), key.ed25519().cend() });
+  }
+  else
+  {
+    return nullptr;
   }
 }
 

@@ -110,6 +110,11 @@ private:
    * Hidden constructor. Static initialization/generation functions should be used to create MnemonicBIP39 objects.
    */
   MnemonicBIP39() = default;
+
+  /**
+   * Set of acceptable words counts for a MnemonicBIP39.
+   */
+  inline static const std::set<unsigned long> ACCEPTABLE_COUNTS = { 12U, 24U };
 };
 
 } // namespace Hedera

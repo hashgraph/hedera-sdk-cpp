@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -199,10 +199,7 @@ const std::vector<std::string>& MnemonicBIP39::getWordList() const
 //-----
 const std::set<unsigned long>& MnemonicBIP39::getAcceptableWordCounts() const
 {
-  // we allow either 12 or 24 word mnemonics
-  static const std::set<unsigned long> acceptableCounts = { 12U, 24U };
-
-  return acceptableCounts;
+  return ACCEPTABLE_COUNTS;
 }
 
 } // Hedera

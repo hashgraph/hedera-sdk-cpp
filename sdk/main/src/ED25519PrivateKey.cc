@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -288,7 +288,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromHMACOutput(const std::
   // chain code is the next 32 bytes of the computed hmac
   std::vector<unsigned char> chainCode(hmacOutput.begin() + 32, hmacOutput.end());
 
-  return std::unique_ptr<ED25519PrivateKey>(new ED25519PrivateKey(bytesToPKEY(key), chainCode));
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(key), chainCode));
 }
 
 //-----

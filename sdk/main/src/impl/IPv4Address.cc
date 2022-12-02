@@ -19,22 +19,22 @@
  */
 #include "impl/IPv4Address.h"
 
+#include <charconv>
 #include <iostream>
 #include <sstream>
 #include <vector>
 
 namespace Hedera::internal
 {
-
 IPv4Address::IPv4Address(unsigned char octet1, unsigned char octet2, unsigned char octet3, unsigned char octet4)
+  : mOctet1(octet1)
+  , mOctet2(octet2)
+  , mOctet3(octet3)
+  , mOctet4(octet4)
 {
-  mOctet1 = octet1;
-  mOctet2 = octet2;
-  mOctet3 = octet3;
-  mOctet4 = octet4;
 }
 
-IPv4Address IPv4Address::fromString(const std::string& inputString)
+IPv4Address IPv4Address::fromString(std::string_view inputString)
 {
   // input string is in byte format, where each byte represents a single IP address octet
   if (inputString.size() == 4)
@@ -55,11 +55,11 @@ IPv4Address IPv4Address::fromString(const std::string& inputString)
   std::vector<unsigned char> byteVector;
 
   int previousDelimiter = -1;
-  int nextDelimiter = (int)inputString.find('.');
+  auto nextDelimiter = static_cast<int>(inputString.find('.'));
 
   for (int i = 0; i < 4; ++i)
   {
-    std::string byteString = inputString.substr(previousDelimiter + 1, nextDelimiter - previousDelimiter - 1);
+    std::string_view byteString = inputString.substr(previousDelimiter + 1, nextDelimiter - previousDelimiter - 1);
 
     if (!byteString.length())
     {
@@ -74,8 +74,9 @@ IPv4Address IPv4Address::fromString(const std::string& inputString)
       }
     }
 
-    unsigned int byteInt = std::stoi(byteString);
-    if (byteInt > 255)
+    unsigned char byteInt;
+    if (auto result = std::from_chars(byteString.begin(), byteString.end(), byteInt);
+        result.ec == std::errc::invalid_argument)
     {
       throw std::invalid_argument("Input IPv4Address octet is > 255");
     }
@@ -83,7 +84,7 @@ IPv4Address IPv4Address::fromString(const std::string& inputString)
     byteVector.push_back(byteInt);
 
     previousDelimiter = nextDelimiter;
-    nextDelimiter = (int)inputString.find('.', previousDelimiter + 1);
+    nextDelimiter = static_cast<int>(inputString.find('.', previousDelimiter + 1));
   }
 
   return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };

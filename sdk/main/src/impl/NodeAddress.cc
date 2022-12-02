@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -27,18 +27,18 @@
 namespace Hedera::internal
 {
 NodeAddress::NodeAddress()
+  : mEndpoints()
+  , mAccountId()
+  , mRSAPublicKey()
+  , mNodeId(-1)
+  , mCertificateHash()
+  , mDescription()
 {
-  mEndpoints = {};
-  mAccountId = {};
-  mRSAPublicKey = "";
-  mNodeId = -1;
-  mCertificateHash = "";
-  mDescription = "";
 }
 
 NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
 {
-  NodeAddress outputNodeAddress = NodeAddress();
+  NodeAddress outputNodeAddress;
 
   for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
   {
@@ -74,9 +74,7 @@ std::string NodeAddress::toString() const
                << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
 
-  unsigned int endpointCount = mEndpoints.size();
-
-  if (!endpointCount)
+  if (unsigned int endpointCount = mEndpoints.size(); !endpointCount)
   {
     outputStream << "<None>";
   }

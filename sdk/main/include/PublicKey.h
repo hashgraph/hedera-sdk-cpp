@@ -50,7 +50,7 @@ public:
    * Create a PublicKey object from a Key protobuf object.
    *
    * @param proto The Key protobuf object from which to create a PublicKey object.
-   * @return A pointer to the created PublicKey object.
+   * @return A pointer to the created PublicKey object. Nullptr if the key type is not recognized.
    */
   static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
 
