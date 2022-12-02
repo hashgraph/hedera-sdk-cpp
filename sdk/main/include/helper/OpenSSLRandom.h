@@ -22,6 +22,8 @@
 #define HEDERA_SDK_CPP_OPENSSLRANDOM_H
 
 #include <vector>
+#include <functional>
+#include <stdexcept>
 
 /**
  * Utility class wrapping around OpenSSL random functions
