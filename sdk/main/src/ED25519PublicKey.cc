@@ -81,18 +81,7 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
-  std::vector<unsigned char> fullKeyBytes;
-  // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
-  if (keyBytes.size() == 32)
-  {
-    fullKeyBytes = prependAlgorithmIdentifier(keyBytes);
-  }
-  else
-  {
-    fullKeyBytes = keyBytes;
-  }
-
-  return std::make_shared<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(fullKeyBytes)));
+  return std::make_shared<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(keyBytes)));
 }
 
 //-----
@@ -165,8 +154,19 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 //-----
 EVP_PKEY* ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
-  const unsigned char* rawKeyBytes = &keyBytes.front();
-  return d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(keyBytes.size()));
+  std::vector<unsigned char> fullKeyBytes;
+  // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
+  if (keyBytes.size() == 32)
+  {
+    fullKeyBytes = prependAlgorithmIdentifier(keyBytes);
+  }
+  else
+  {
+    fullKeyBytes = keyBytes;
+  }
+
+  const unsigned char* rawKeyBytes = &fullKeyBytes.front();
+  return d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size()));
 }
 
 //-----

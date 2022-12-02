@@ -41,7 +41,7 @@ ED25519PrivateKey::~ED25519PrivateKey()
 //-----
 ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
   : PrivateKey()
-  , mKeypair(bytesToPKEY(prependAlgorithmIdentifier(other.toBytes())))
+  , mKeypair(bytesToPKEY(other.toBytes()))
   , mPublicKey(other.mPublicKey)
   , mChainCode(other.mChainCode)
 {
@@ -283,12 +283,12 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromHMACOutput(const std::
   }
 
   // the first 32 bytes of the hmac are the new key material. the algorithm identifier must come first, though
-  std::vector<unsigned char> fullKey = prependAlgorithmIdentifier({ hmacOutput.begin(), hmacOutput.begin() + 32 });
+  std::vector<unsigned char> key(hmacOutput.begin(), hmacOutput.begin() + 32);
 
   // chain code is the next 32 bytes of the computed hmac
   std::vector<unsigned char> chainCode(hmacOutput.begin() + 32, hmacOutput.end());
 
-  return std::unique_ptr<ED25519PrivateKey>(new ED25519PrivateKey(bytesToPKEY(fullKey), chainCode));
+  return std::unique_ptr<ED25519PrivateKey>(new ED25519PrivateKey(bytesToPKEY(key), chainCode));
 }
 
 //-----
