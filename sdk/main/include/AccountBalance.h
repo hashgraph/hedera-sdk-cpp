@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_BALANCE_H_
-#define ACCOUNT_BALANCE_H_
+#ifndef HEDERA_SDK_CPP_ACCOUNT_BALANCE_H_
+#define HEDERA_SDK_CPP_ACCOUNT_BALANCE_H_
 
 #include "Hbar.h"
 
@@ -36,27 +36,27 @@ class AccountBalance
 {
 public:
   /**
-   * Convert a CryptoGetAccountBalance protobuf object to an AccountBalance object.
+   * Create an AccountBalance object from a CryptoGetAccountBalanceResponse protobuf object.
    *
-   * @param proto The CryptoGetAccountBalance protobuf object.
-   * @return The converted AccountBalance object.
+   * @param proto The CryptoGetAccountBalance protobuf object from which to create an AccountBalance object.
+   * @return The created AccountBalance object.
    */
   static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
 
   /**
-   * Extract the account balance.
+   * Get the balance of the queried account or contract.
    *
-   * @return The account balance.
+   * @return The account or contract balance.
    */
-  inline Hbar getBalance() const { return mBalance; }
+  [[nodiscard]] inline Hbar getBalance() const { return mBalance; }
 
 private:
   /**
-   * The account balance.
+   * The account or contract balance.
    */
   Hbar mBalance;
 };
 
 } // namespace Hedera
 
-#endif // ACCOUNT_BALANCE_H_
+#endif // HEDERA_SDK_CPP_ACCOUNT_BALANCE_H_

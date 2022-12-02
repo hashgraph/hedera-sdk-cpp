@@ -1,116 +1,142 @@
-#ifndef ED25519_PUBLIC_KEY_H_
-#define ED25519_PUBLIC_KEY_H_
-
-#include <memory>
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
+/*-
+ *
+ * Hedera C++ SDK
+ *
+ * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#ifndef HEDERA_SDK_CPP_ED25519_PUBLIC_KEY_H_
+#define HEDERA_SDK_CPP_ED25519_PUBLIC_KEY_H_
 
 #include "PublicKey.h"
 
-#include "helper/HexConverter.h"
+#include <openssl/crypto.h>
+#include <vector>
 
 namespace Hedera
 {
 /**
- * An ED25519 public key
+ * A class representing an ED25519 public key.
  */
 class ED25519PublicKey : public PublicKey
 {
 public:
   /**
-   * Delete the default constructor
+   * Disallow default construction of an ED25519PublicKey, as an uninitialized ED25519PublicKey provides no
+   * functionality. Instead, the 'fromString()' or 'fromBytes()' functions should be used.
    */
   ED25519PublicKey() = delete;
 
   /**
-   * Copy constructor
-   * @param other the key being copied
-   */
-  ED25519PublicKey(const ED25519PublicKey& other);
-
-  /**
-   * Destructor
+   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
    */
   ~ED25519PublicKey() override;
+  ED25519PublicKey(const ED25519PublicKey& other);
+  ED25519PublicKey& operator=(const ED25519PublicKey& other);
+  ED25519PublicKey(ED25519PublicKey&& other) noexcept;
+  ED25519PublicKey& operator=(ED25519PublicKey&& other) noexcept;
 
   /**
-   * Create a new ED25519 public key from a string
-   * @param keyString the DER encoding of a public key
-   * @return the new public key
+   * Construct an ED25519PublicKey object from the DER string representation.
+   *
+   * @param keyString The string from which to create an ED25519PublicKey.
+   * @return A pointer to an ED25519PublicKey representing the input string.
    */
   static std::shared_ptr<ED25519PublicKey> fromString(const std::string& keyString);
 
   /**
-   * Create a new ED25519 public key from byte vector
-   * @param keyBytes a vector of bytes, which are a DER encoding of a public key
-   * @return the new public key
+   * Construct an ED25519PublicKey object from a byte vector.
+   *
+   * @param keyBytes The vector of bytes from which to construct the ED25519PublicKey, which are a DER encoding.
+   * @return A pointer to an ED25519PublicKey representing the input bytes.
    */
   static std::shared_ptr<ED25519PublicKey> fromBytes(const std::vector<unsigned char>& keyBytes);
 
   /**
-   * Convert the public key to a protobuf key
-   * @return the protobuf key
-   */
-  [[nodiscard]] proto::Key* toProtobuf() const override;
-
-  /**
-   * Get the string representation of this key, in DER format
-   * @return the DER string
-   */
-  [[nodiscard]] std::string toString() const override;
-
-  /**
-   * Get the byte representation (DER format) of the public key
+   * Derived from PublicKey. Create a clone of this ED25519PublicKey object.
    *
-   * @return the byte representation of the key
+   * @return A pointer to the created clone of this ED25519PublicKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytes() const override;
+  [[nodiscard]] std::unique_ptr<PublicKey> clone() const override;
 
   /**
-   * Verify that a signature was made by the private key which corresponds to this public key
-   * @param signatureBytes
-   * the byte vector representing the signature
-   * @param signedBytes
-   * the bytes which were purportedly signed to create the signature
-   * @return true if the signature is valid, otherwise false
+   * Derived from PublicKey. Verify that a signature was made by the ED25519PrivateKey which corresponds to this
+   * ED25519PublicKey.
+   *
+   * @param signatureBytes The byte vector representing the signature.
+   * @param signedBytes    The bytes which were purportedly signed to create the signature.
+   * @return \c TRUE if the signature is valid, otherwise \c FALSE.
+   * @throws std::runtime_error If OpenSSL signature verification fails.
    */
   [[nodiscard]] bool verifySignature(const std::vector<unsigned char>& signatureBytes,
                                      const std::vector<unsigned char>& signedBytes) const override;
 
+  /**
+   * Derived from PublicKey. Construct a Key protobuf object from this ED25519PublicKey object.
+   *
+   * @return A pointer to a created Key protobuf object filled with this ED25519PublicKey object's data.
+   * @throws std::runtime_error If OpenSSL serialization fails.
+   */
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
+
+  /**
+   * Derived from PublicKey. Get the string representation of this ED25519PublicKey, in DER format.
+   *
+   * @return The string representation of this ED25519PublicKey in DER format.
+   * @throws std::runtime_error If OpenSSL serialization fails.
+   */
+  [[nodiscard]] std::string toString() const override;
+
+  /**
+   * Derived from PublicKey. Get the byte representation of this ED25519PublicKey, in DER format.
+   *
+   * @return The byte representation of this ED25519PublicKey.
+   */
+  [[nodiscard]] std::vector<unsigned char> toBytes() const override;
+
 private:
   /**
-   * The algorithm identifier for an ED25519 public key
-   */
-  const inline static std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
-    HexConverter::hexToBase64("302A300506032B6570032100");
-
-  /**
-   * The underlying OpenSSL representation of the key
-   */
-  EVP_PKEY* publicKey;
-
-  /**
-   * Private constructor
-   * @param publicKey the OpenSSL object containing the public key information
-   */
-  explicit ED25519PublicKey(EVP_PKEY* publicKey);
-
-  /**
-   * Creates a new EVP_PKEY object from a byte vector representing a public key
-   * @param keyBytes the bytes representing the public key
-   * @return the newly created EVP_PKEY object
+   * Create an OpenSSL keypair object from a byte vector representing an ED25519PublicKey.
+   *
+   * @param keyBytes The bytes representing a ED25519PublicKey.
+   * @return A pointer to a newly created OpenSSL keypair object.
    */
   static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
-   * Prepends this key type's algorithm identifier to an array of bytes representing a key
+   * Prepend an ED25519PublicKey's algorithm identifier to an array of serialized ED25519PublicKey bytes.
    *
-   * @param keyBytes the bytes representing the key
-   *
-   * @return a new vector of bytes, which begins with the algorithm identifier, followed by the key bytes
+   * @param keyBytes The bytes representing an ED25519PublicKey.
+   * @return An array of bytes that contains the ED25519PublicKey's algorithm identifier bytes, followed by the input
+   *         ED25519PublicKey bytes.
    */
   static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
-};
-}
 
-#endif // ED25519_PUBLIC_KEY_H_
+  /**
+   * Construct from an OpenSSL key object.
+   *
+   * @param keypair The underlying OpenSSL keypair object from which to construct this ED25519PublicKey.
+   */
+  explicit ED25519PublicKey(EVP_PKEY* publicKey);
+
+  /**
+   * A pointer to the underlying OpenSSL keypair.
+   */
+  EVP_PKEY* mPublicKey = nullptr;
+};
+
+} // namespace Hedera
+
+#endif // HEDERA_SDK_CPP_ED25519_PUBLIC_KEY_H_

@@ -17,16 +17,13 @@
  * limitations under the License.
  *
  */
-#ifndef TRANSACTION_RECEIPT_QUERY_H_
-#define TRANSACTION_RECEIPT_QUERY_H_
+#ifndef HEDERA_SDK_CPP_TRANSACTION_RECEIPT_QUERY_H_
+#define HEDERA_SDK_CPP_TRANSACTION_RECEIPT_QUERY_H_
 
 #include "Query.h"
 #include "TransactionId.h"
 
-namespace Hedera
-{
-class TransactionReceipt;
-}
+#include <optional>
 
 namespace Hedera
 {
@@ -39,58 +36,67 @@ namespace Hedera
 class TransactionReceiptQuery : public Query<TransactionReceiptQuery, TransactionReceipt>
 {
 public:
-  /**
-   * Default destructor.
-   */
   ~TransactionReceiptQuery() override = default;
 
   /**
-   * The transaction ID for which the receipt is being requested.
+   * Derived from Executable. Create a clone of this TransactionReceiptQuery.
    *
-   * @param transactionId The TransactionId to set.
-   * @return Reference to this TransactionReceiptQuery object.
+   * @return A pointer to the created clone.
+   */
+  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
+
+  /**
+   * Set the ID of the transaction of which to request the receipt.
+   *
+   * @param transactionId The ID of the desired transaction of which to request the receipt.
+   * @return A reference to this TransactionReceiptQuery object with the newly-set transaction ID.
    */
   TransactionReceiptQuery& setTransactionId(const TransactionId& transactionId);
 
   /**
-   * Extract the transaction ID of the transaction for which this query is meant.
+   * Get the ID of the transaction of which this query is currently configured to get the receipt.
    *
-   * @return The transaction ID of the query.
+   * @return The ID of the transaction for which this query is meant. Returns uninitialized if a value has not yet been
+   *         set.
    */
-  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
+  [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionId; }
 
 protected:
   /**
-   * Derived from Executable. Get the gRPC method to call to retrieve a transaction receipt.
+   * Derived from Executable. Construct a Query protobuf object from this TransactionReceiptQuery object.
    *
-   * @param node The Node from which to retrieve the function.
-   * @return The gRPC method to call to execute this TransactionReceiptQuery.
+   * @param client The Client trying to construct this TransactionReceiptQuery.
+   * @param node   The Node on which this TransactionReceiptQuery will be sent.
+   * @return A Query protobuf object filled with this TransactionReceiptQuery object's data.
    */
-  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
-    const std::shared_ptr<Node>& node) const override;
+  [[nodiscard]] proto::Query makeRequest(const Client& client,
+                                         const std::shared_ptr<internal::Node>& node) const override;
 
   /**
-   * Derived from Executable. Construct a query protobuf object from this TransactionReceiptQuery.
+   * Derived from Executable. Construct a TransactionReceipt object from a Response protobuf object.
    *
-   * @return The query protobuf object that contains this TransactionReceiptQuery information.
-   */
-  [[nodiscard]] proto::Query makeRequest(const Client&, const std::shared_ptr<Node>&) const override;
-
-  /**
-   * Derived from Executable. Create a response object from a protobuf response object.
-   *
-   * @param response The protobuf response object.
-   * @return The response object with the response data.
+   * @param response The Response protobuf object from which to construct a TransactionReceipt object.
+   * @return An TransactionReceipt object filled with the Response protobuf object's data
    */
   [[nodiscard]] TransactionReceipt mapResponse(const proto::Response& response) const override;
 
+  /**
+   * Derived from Executable. Get the gRPC method to call to send this TransactionReceiptQuery.
+   *
+   * @param node The Node to which this TransactionReceiptQuery is being sent and from which to retrieve the gRPC
+   *             method.
+   * @return The gRPC method to call to execute this TransactionReceiptQuery.
+   */
+  [[nodiscard]] std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
+    const std::shared_ptr<internal::Node>& node) const override;
+
 private:
   /**
-   * The ID of the transaction for which the receipt is requested.
+   * The ID of the transaction of which this query should get the receipt.
    */
-  TransactionId mTransactionId;
+  std::optional<TransactionId> mTransactionId;
 };
 
 } // namespace Hedera
 
-#endif // TRANSACTION_RECEIPT_QUERY_H_
+#endif // HEDERA_SDK_CPP_TRANSACTION_RECEIPT_QUERY_H_

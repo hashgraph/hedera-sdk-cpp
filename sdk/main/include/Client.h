@@ -17,17 +17,24 @@
  * limitations under the License.
  *
  */
-#ifndef CLIENT_H_
-#define CLIENT_H_
+#ifndef HEDERA_SDK_CPP_CLIENT_H_
+#define HEDERA_SDK_CPP_CLIENT_H_
 
-#include "AccountId.h"
-#include "Hbar.h"
-#include "Network.h"
-#include "PrivateKey.h"
-#include "PublicKey.h"
-
+#include <chrono>
 #include <memory>
-#include <stdexcept>
+#include <vector>
+
+namespace Hedera
+{
+namespace internal
+{
+class Node;
+}
+class AccountId;
+class Hbar;
+class PrivateKey;
+class PublicKey;
+}
 
 namespace Hedera
 {
@@ -36,55 +43,69 @@ namespace Hedera
  */
 class Client
 {
-private:
-  /**
-   * Information about the account that will pay for transactions and queries made with this client.
-   */
-  struct Operator
-  {
-    /**
-     * The account ID of the account.
-     */
-    std::shared_ptr<AccountId> mAccountId;
-
-    /**
-     * The private key of the account.
-     */
-    std::unique_ptr<PrivateKey> mPrivateKey;
-  };
-
 public:
+  /**
+   * Default destructor, but must be "defined" after ChannelImpl implementation object is defined.
+   */
+  ~Client();
+
+  /**
+   * No copying allowed. Underlying connections should be moved instead of copied.
+   */
+  Client(const Client& other) = delete;
+  Client& operator=(const Client& other) = delete;
+  Client(Client&& other) noexcept;
+  Client& operator=(Client&& other) noexcept;
+
   /**
    * Construct a Hedera client pre-configured for Hedera testnet access.
    *
-   * @return Client object that can communicate with the Hedera testnet.
+   * @return A Client object that can communicate with the Hedera testnet.
    */
   static Client forTestnet();
 
   /**
-   * Set the account that will, by default, be paying for transactions and queries built with this client. The operator
-   * account ID is used to generate the default transaction ID for all transactions executed with this client. The
-   * operator private key is used to sign all transactions executed by this client.
+   * Set the account that will, by default, be paying for requests submitted by this Client. The operator account ID is
+   * used to generate the default transaction ID for all transactions executed with this Client. The operator private
+   * key is used to sign all transactions executed by this client.
    *
    * @param accountId  The account ID of the operator.
    * @param privateKey Pointer to the private key of the operator. This transfers ownership of the pointed-to PrivateKey
    *                   to this Client.
-   * @return Reference to this Client object.
+   * @return A reference to this Client object with the newly-set operator account ID and private key.
    */
   Client& setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>& privateKey);
   Client& setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>&& privateKey);
 
   /**
-   * Set the maximum fee to be paid for transactions executed by this client.
+   * Set the maximum fee to be paid for requests executed by this Client.
    *
    * Because transaction fees are always maximums, this will simply add a call to setMaxTransactionFee() on every new
    * transaction. The actual fee assessed for a given transaction may be less than this value, but never greater.
    *
-   * @param defaultMaxTransactionFee The Hbar to be set.
-   * @return Reference to this Client object.
+   * @param defaultMaxTransactionFee The desired maximum transaction fee for requests made by this Client.
+   * @return A reference to this Client object with the newly-set default maximum transaction fee.
    * @throws std::invalid_argument If the transaction fee is negative.
    */
   Client& setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee);
+
+  /**
+   * Sign a serialized request with this Client's operator.
+   *
+   * @param bytes The bytes for this Client's operator to sign.
+   * @return The bytes, signed with this Client's operator.
+   */
+  [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytes) const;
+
+  /**
+   * Get a list of nodes on this Client's network that are associated with the input account IDs. If no account IDs are
+   * specified, returns all nodes.
+   *
+   * @param accountIds The account IDs of the requested nodes.
+   * @return A list of nodes that are associated with the requested account IDs.
+   */
+  [[nodiscard]] std::vector<std::shared_ptr<internal::Node>> getNodesWithAccountIds(
+    const std::vector<std::shared_ptr<AccountId>>& accountIds) const;
 
   /**
    * Initiates an orderly shutdown of all channels (to the Hedera network) in which preexisting transactions or queries
@@ -92,77 +113,49 @@ public:
    *
    * After this method returns, this client can be re-used. Channels will be re-established as needed.
    */
-  void close();
+  void close() const;
 
   /**
-   * Get the network of this client.
+   * Get the account ID of this Client's operator.
    *
-   * @return Pointer to the network of this client.
+   * @return A pointer to the account ID of this Client's operator. Nullptr if the operator has not been set yet.
    */
-  [[nodiscard]] inline std::shared_ptr<Network> getNetwork() const { return mNetwork; }
+  [[nodiscard]] std::unique_ptr<AccountId> getOperatorAccountId() const;
 
   /**
-   * Extract the operator of this client.
+   * Get the public key of this Client's operator.
    *
-   * @return Pointer to the operator of this client. Nullptr if the operator has not been set yet.
+   * @return A pointer to the public key of this Client's operator. Nullptr if the operator has not been set yet.
    */
-  [[nodiscard]] inline std::shared_ptr<Operator> getOperator() const { return mOperator; }
+  [[nodiscard]] std::unique_ptr<PublicKey> getOperatorPublicKey() const;
 
   /**
-   * Get the account ID of the operator.
+   * Get the default maximum fee used for transactions.
    *
-   * @return The account ID of this client's operator.
-   * @throws std::runtime_error If the operator has not yet been set.
+   * @return A pointer to the max transaction fee. Nullptr if the default max transaction fee has not been set.
    */
-  [[nodiscard]] std::shared_ptr<AccountId> getOperatorAccountId() const;
+  [[nodiscard]] std::unique_ptr<Hbar> getDefaultMaxTransactionFee() const;
 
   /**
-   * Get the public key of the operator.
-   *
-   * @return The public key of this client's operator, if valid.
-   * @throws std::runtime_error If the operator has not yet been set.
-   */
-  [[nodiscard]] std::shared_ptr<PublicKey> getOperatorPublicKey() const;
-
-  /**
-   * The default maximum fee used for transactions.
-   *
-   * @return Pointer to the max transaction fee. Nullptr if the default max transaction fee has not been set.
-   */
-  [[nodiscard]] inline std::unique_ptr<Hbar> getDefaultMaxTransactionFee() const
-  {
-    return mDefaultMaxTransactionFee ? std::make_unique<Hbar>(*mDefaultMaxTransactionFee) : nullptr;
-  }
-
-  /**
-   * Extract the request timeout.
+   * Get the request timeout, which defaults to 2 minutes.
    *
    * @return The request timeout.
    */
-  [[nodiscard]] inline std::chrono::duration<int64_t> getRequestTimeout() const { return mRequestTimeout; }
+  [[nodiscard]] std::chrono::duration<int64_t> getRequestTimeout() const;
 
 private:
   /**
-   * The network object encompassing the network setup this client is using. Defaults to uninitialized.
+   * Only allow Clients to be constructed from within static functions.
    */
-  std::shared_ptr<Network> mNetwork;
+  Client();
 
   /**
-   * The operator for this client. Defaults to uninitialized.
+   * Implementation object used to hide implementation details and internal headers.
    */
-  std::shared_ptr<Operator> mOperator;
-
-  /**
-   * The default max transaction fee for transactions processed by this client. Defaults to uninitialized.
-   */
-  std::unique_ptr<Hbar> mDefaultMaxTransactionFee;
-
-  /**
-   * The request timeout. Defaults to 2 minutes.
-   */
-  std::chrono::duration<int64_t> mRequestTimeout = std::chrono::minutes(2);
+  struct ClientImpl;
+  std::unique_ptr<ClientImpl> mImpl;
 };
 
 } // namespace Hedera
 
-#endif // CLIENT_H_
+#endif // HEDERA_SDK_CPP_CLIENT_H_

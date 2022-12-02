@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,35 +17,37 @@
  * limitations under the License.
  *
  */
-
 #include "MnemonicBIP39.h"
+#include "impl/OpenSSLHasher.h"
+#include "impl/OpenSSLRandom.h"
 
-#include "helper/OpenSSLHasher.h"
-#include "helper/OpenSSLRandom.h"
-
+#include <bit>
 #include <openssl/evp.h>
 
 namespace Hedera
 {
+//-----
 MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<uint16_t>& wordIndices)
 {
-  MnemonicBIP39 outputMnemonic = MnemonicBIP39();
+  MnemonicBIP39 outputMnemonic;
   outputMnemonic.initialize(wordIndices);
 
   return outputMnemonic;
 }
 
+//-----
 MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<std::string>& words)
 {
-  MnemonicBIP39 outputMnemonic = MnemonicBIP39();
+  MnemonicBIP39 outputMnemonic;
   outputMnemonic.initialize(outputMnemonic.wordsToIndices(words));
 
   return outputMnemonic;
 }
 
+//-----
 MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::string& fullMnemonic, const std::string& delimiter)
 {
-  MnemonicBIP39 outputMnemonic = MnemonicBIP39();
+  MnemonicBIP39 outputMnemonic;
   outputMnemonic.initialize(outputMnemonic.wordsToIndices(splitMnemonicString(fullMnemonic, delimiter)));
 
   if (!outputMnemonic.verifyChecksum())
@@ -56,31 +58,75 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::string& fullMnem
   return outputMnemonic;
 }
 
-const std::vector<std::string>& MnemonicBIP39::getWordList() const
-{
-  return MnemonicAbstract::bip39WordList;
-}
-
-const std::set<unsigned long>& MnemonicBIP39::getAcceptableWordCounts() const
-{
-  // we allow either 12 or 24 word mnemonics
-  static const std::set<unsigned long> acceptableCounts = { 12, 24 };
-
-  return acceptableCounts;
-}
-
+//-----
 MnemonicBIP39 MnemonicBIP39::generate12WordBIP39Mnemonic()
 {
   // BIP39 dictates 16 bytes of entropy for 12 words
-  return initializeBIP39Mnemonic(entropyToWordIndices(OpenSSLRandom::getRandomBytes(16)));
+  return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLRandom::getRandomBytes(16)));
 }
 
+//-----
 MnemonicBIP39 MnemonicBIP39::generate24WordBIP39Mnemonic()
 {
   // BIP39 dictates 32 bytes of entropy for 24 words
-  return initializeBIP39Mnemonic(entropyToWordIndices(OpenSSLRandom::getRandomBytes(32)));
+  return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLRandom::getRandomBytes(32)));
 }
 
+//-----
+std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) const
+{
+  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
+
+  if (!messageDigestContext)
+  {
+    throw std::runtime_error("Digest context construction failed");
+  }
+
+  EVP_MD* messageDigest = EVP_MD_fetch(nullptr, "SHA512", nullptr);
+
+  if (messageDigest == nullptr)
+  {
+    EVP_MD_CTX_free(messageDigestContext);
+    throw std::runtime_error("Digest construction failed");
+  }
+
+  if (EVP_DigestInit(messageDigestContext, messageDigest) <= 0)
+  {
+
+    EVP_MD_CTX_free(messageDigestContext);
+    EVP_MD_free(messageDigest);
+    throw std::runtime_error("Digest init failed");
+  }
+
+  std::vector<unsigned char> seed(64);
+
+  const std::string mnemonicString = toString();
+  const char* mnemonicStringAddress = mnemonicString.c_str();
+
+  const std::string salt = "mnemonic" + passphrase;
+
+  if (auto saltAddress = reinterpret_cast<const unsigned char*>(salt.c_str());
+      PKCS5_PBKDF2_HMAC(mnemonicStringAddress,
+                        static_cast<int>(mnemonicString.length()),
+                        saltAddress,
+                        static_cast<int>(salt.length()),
+                        2048,
+                        messageDigest,
+                        static_cast<int>(seed.size()),
+                        &seed.front()) <= 0)
+  {
+    EVP_MD_CTX_free(messageDigestContext);
+    EVP_MD_free(messageDigest);
+    throw std::runtime_error("PKCS5_PBKDF2_HMAC failed");
+  }
+
+  EVP_MD_CTX_free(messageDigestContext);
+  EVP_MD_free(messageDigest);
+
+  return seed;
+}
+
+//-----
 std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsigned char>& entropy)
 {
   std::vector<unsigned char> entropyAndChecksum = entropy;
@@ -144,57 +190,16 @@ std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsi
   return wordIndicesOut;
 }
 
-std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) const
+//-----
+const std::vector<std::string>& MnemonicBIP39::getWordList() const
 {
-  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
+  return Mnemonic::BIP39_WORD_LIST;
+}
 
-  if (!messageDigestContext)
-  {
-    throw std::runtime_error("Digest context construction failed");
-  }
-
-  EVP_MD* messageDigest = EVP_MD_fetch(nullptr, "SHA512", nullptr);
-
-  if (messageDigest == nullptr)
-  {
-    EVP_MD_CTX_free(messageDigestContext);
-    throw std::runtime_error("Digest construction failed");
-  }
-
-  if (EVP_DigestInit(messageDigestContext, messageDigest) <= 0)
-  {
-
-    EVP_MD_CTX_free(messageDigestContext);
-    EVP_MD_free(messageDigest);
-    throw std::runtime_error("Digest init failed");
-  }
-
-  std::vector<unsigned char> seed(64);
-
-  const std::string mnemonicString = toString();
-  const char* mnemonicStringAddress = mnemonicString.c_str();
-
-  const std::string salt = "mnemonic" + passphrase;
-  const unsigned char* saltAddress = (unsigned char*)salt.c_str();
-
-  if (PKCS5_PBKDF2_HMAC(mnemonicStringAddress,
-                        (int)mnemonicString.length(),
-                        saltAddress,
-                        (int)salt.length(),
-                        2048,
-                        messageDigest,
-                        (int)seed.size(),
-                        &seed.front()) <= 0)
-  {
-    EVP_MD_CTX_free(messageDigestContext);
-    EVP_MD_free(messageDigest);
-    throw std::runtime_error("PKCS5_PBKDF2_HMAC failed");
-  }
-
-  EVP_MD_CTX_free(messageDigestContext);
-  EVP_MD_free(messageDigest);
-
-  return seed;
+//-----
+const std::set<unsigned long>& MnemonicBIP39::getAcceptableWordCounts() const
+{
+  return ACCEPTABLE_COUNTS;
 }
 
 } // Hedera

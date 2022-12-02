@@ -19,8 +19,7 @@
  */
 #include "ExchangeRate.h"
 #include "ExchangeRateSet.h"
-
-#include "helper/TimestampConverter.h"
+#include "impl/TimestampConverter.h"
 
 #include <gtest/gtest.h>
 #include <proto/exchange_rate.pb.h>
@@ -58,7 +57,7 @@ TEST_F(ExchangeRateTest, ProtobufExchangeRate)
   EXPECT_EQ(rate.getCurrentExchangeRate(), cents / hbar);
   EXPECT_TRUE(rate.getExpirationTime().has_value());
   EXPECT_EQ(rate.getExpirationTime().value().time_since_epoch().count(),
-            TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
+            internal::TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
 
   protoRateSecs->set_seconds(seconds + seconds);
   protoRate->set_centequiv(cents * cents);
@@ -73,7 +72,7 @@ TEST_F(ExchangeRateTest, ProtobufExchangeRate)
   EXPECT_EQ(set.getNextExchangeRate().value().getCurrentExchangeRate(), cents * cents / hbar * hbar);
   EXPECT_TRUE(set.getNextExchangeRate().has_value());
   EXPECT_EQ(set.getNextExchangeRate().value().getExpirationTime().value().time_since_epoch().count(),
-            TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
+            internal::TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
 
   protoSet.set_allocated_currentrate(protoSet.release_nextrate());
 
@@ -82,6 +81,6 @@ TEST_F(ExchangeRateTest, ProtobufExchangeRate)
   EXPECT_EQ(set.getCurrentExchangeRate().value().getCurrentExchangeRate(), cents * cents / hbar * hbar);
   EXPECT_TRUE(set.getCurrentExchangeRate().has_value());
   EXPECT_EQ(set.getCurrentExchangeRate().value().getExpirationTime().value().time_since_epoch().count(),
-            TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
+            internal::TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
   EXPECT_FALSE(set.getNextExchangeRate().has_value());
 }

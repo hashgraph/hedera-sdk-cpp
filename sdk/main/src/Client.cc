@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,16 +18,42 @@
  *
  */
 #include "Client.h"
+#include "AccountId.h"
+#include "Hbar.h"
+#include "PrivateKey.h"
+#include "PublicKey.h"
+#include "impl/Network.h"
 
 #include <stdexcept>
 
 namespace Hedera
 {
 //-----
+struct Client::ClientImpl
+{
+  ClientImpl() = default;
+  ClientImpl(const ClientImpl& other) = delete;
+  ClientImpl& operator=(const ClientImpl& other) = delete;
+  ClientImpl(ClientImpl&& other) noexcept = default;
+  ClientImpl& operator=(ClientImpl&& other) noexcept = default;
+
+  std::unique_ptr<internal::Network> mNetwork = nullptr;
+  std::unique_ptr<AccountId> mOperatorAccountId = nullptr;
+  std::unique_ptr<PrivateKey> mOperatorPrivateKey = nullptr;
+  std::unique_ptr<Hbar> mDefaultMaxTransactionFee = nullptr;
+  std::chrono::duration<int64_t> mRequestTimeout = std::chrono::minutes(2);
+};
+
+//-----
+Client::~Client() = default;
+Client::Client(Client&& other) noexcept = default;
+Client& Client::operator=(Client&& other) noexcept = default;
+
+//-----
 Client Client::forTestnet()
 {
   Client client;
-  client.mNetwork = std::make_shared<Network>(Network::forTestnet());
+  client.mImpl->mNetwork = std::make_unique<internal::Network>(internal::Network::forTestnet());
   return client;
 }
 
@@ -40,9 +66,8 @@ Client& Client::setOperator(const std::shared_ptr<AccountId>& accountId, std::un
 //-----
 Client& Client::setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>&& privateKey)
 {
-  mOperator = std::make_shared<Operator>();
-  mOperator->mAccountId = accountId;
-  mOperator->mPrivateKey = std::move(privateKey);
+  mImpl->mOperatorAccountId = std::make_unique<AccountId>(*accountId);
+  mImpl->mOperatorPrivateKey = std::move(privateKey);
 
   return *this;
 }
@@ -55,35 +80,56 @@ Client& Client::setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee
     throw std::invalid_argument("Transaction fee cannot be negative");
   }
 
-  mDefaultMaxTransactionFee = std::make_unique<Hbar>(defaultMaxTransactionFee);
+  mImpl->mDefaultMaxTransactionFee = std::make_unique<Hbar>(defaultMaxTransactionFee);
   return *this;
 }
 
-void Client::close()
+//-----
+std::vector<unsigned char> Client::sign(const std::vector<unsigned char>& bytes) const
 {
-  mNetwork->close();
+  return mImpl->mOperatorPrivateKey->sign(bytes);
 }
 
 //-----
-[[nodiscard]] std::shared_ptr<AccountId> Client::getOperatorAccountId() const
+std::vector<std::shared_ptr<internal::Node>> Client::getNodesWithAccountIds(
+  const std::vector<std::shared_ptr<AccountId>>& accountIds) const
 {
-  if (!mOperator)
-  {
-    throw std::runtime_error("Operator has not yet been set");
-  }
+  return mImpl->mNetwork->getNodesWithAccountIds(accountIds);
+}
 
-  return mOperator->mAccountId;
+void Client::close() const
+{
+  mImpl->mNetwork->close();
 }
 
 //-----
-[[nodiscard]] std::shared_ptr<PublicKey> Client::getOperatorPublicKey() const
+std::unique_ptr<AccountId> Client::getOperatorAccountId() const
 {
-  if (!mOperator)
-  {
-    throw std::runtime_error("Operator has not yet been set");
-  }
+  return mImpl->mOperatorAccountId ? std::make_unique<AccountId>(*mImpl->mOperatorAccountId) : nullptr;
+}
 
-  return mOperator->mPrivateKey->getPublicKey();
+//-----
+std::unique_ptr<PublicKey> Client::getOperatorPublicKey() const
+{
+  return mImpl->mOperatorPrivateKey ? mImpl->mOperatorPrivateKey->getPublicKey()->clone() : nullptr;
+}
+
+//-----
+std::unique_ptr<Hbar> Client::getDefaultMaxTransactionFee() const
+{
+  return mImpl->mDefaultMaxTransactionFee ? std::make_unique<Hbar>(*mImpl->mDefaultMaxTransactionFee) : nullptr;
+}
+
+//-----
+std::chrono::duration<int64_t> Client::getRequestTimeout() const
+{
+  return mImpl->mRequestTimeout;
+}
+
+//-----
+Client::Client()
+  : mImpl(std::make_unique<ClientImpl>())
+{
 }
 
 } // namespace Hedera

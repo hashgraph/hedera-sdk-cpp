@@ -35,7 +35,7 @@ protected:
 
 private:
   const std::shared_ptr<PublicKey> mPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-  const AccountId mAccountId = AccountId(0ULL, 0ULL, 10ULL);
+  const AccountId mAccountId = AccountId(10ULL);
   const uint64_t mNodeId = 10ULL;
 };
 
@@ -48,10 +48,33 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransaction)
   EXPECT_EQ(transaction.getAutoRenewPeriod(), std::chrono::months(3));
   EXPECT_EQ(transaction.getTransactionMemo(), std::string());
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 0U);
-  EXPECT_EQ(transaction.getStakedAccountId(), nullptr);
-  EXPECT_EQ(transaction.getStakedNodeId(), nullptr);
+  EXPECT_FALSE(transaction.getStakedAccountId());
+  EXPECT_FALSE(transaction.getStakedNodeId());
   EXPECT_FALSE(transaction.getDeclineStakingReward());
   EXPECT_EQ(transaction.getAlias(), nullptr);
+}
+
+TEST_F(AccountCreateTransactionTest, CloneAccountCreateTransaction)
+{
+  AccountCreateTransaction transaction;
+  const std::string memo = "this is a test memo";
+  transaction.setNodeAccountIds({ std::make_shared<AccountId>(getTestAccountId()) });
+  transaction.setTransactionMemo(memo);
+  transaction.setStakedAccountId(getTestAccountId());
+
+  auto clonedExecutableTransactionPtr = transaction.clone();
+  EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().size(), transaction.getNodeAccountIds().size());
+  EXPECT_EQ(*clonedExecutableTransactionPtr->getNodeAccountIds().at(0), getTestAccountId());
+
+  auto clonedTransactionPtr =
+    dynamic_cast<Transaction<AccountCreateTransaction>*>(clonedExecutableTransactionPtr.get());
+  EXPECT_NE(clonedTransactionPtr, nullptr);
+  EXPECT_EQ(clonedTransactionPtr->getTransactionMemo(), memo);
+
+  auto clonedAccountCreateTransactionPtr = dynamic_cast<AccountCreateTransaction*>(clonedTransactionPtr);
+  EXPECT_NE(clonedAccountCreateTransactionPtr, nullptr);
+  EXPECT_TRUE(clonedAccountCreateTransactionPtr->getStakedAccountId());
+  EXPECT_EQ(*clonedAccountCreateTransactionPtr->getStakedAccountId(), getTestAccountId());
 }
 
 TEST_F(AccountCreateTransactionTest, SetKey)
@@ -93,17 +116,18 @@ TEST_F(AccountCreateTransactionTest, SetAccountMemo)
   transaction.setAccountMemo(memo);
 
   EXPECT_EQ(transaction.getAccountMemo(), memo);
+  // Throw if account memo is larger than 100 characters
+  EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::invalid_argument);
 }
 
 TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
 {
   AccountCreateTransaction transaction;
   transaction.setMaxAutomaticTokenAssociations(5);
-  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 5);
 
-  // Cap at 1000
-  transaction.setMaxAutomaticTokenAssociations(2000U);
-  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 1000U);
+  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 5);
+  // Throw if over 1000
+  EXPECT_ANY_THROW(transaction.setMaxAutomaticTokenAssociations(2000U));
 }
 
 TEST_F(AccountCreateTransactionTest, SetStakedAccountId)
@@ -140,8 +164,10 @@ TEST_F(AccountCreateTransactionTest, ResetMutuallyExclusiveIds)
   transaction.setStakedAccountId(getTestAccountId());
   transaction.setStakedNodeId(getTestNodeId());
 
-  EXPECT_EQ(transaction.getStakedAccountId(), nullptr);
+  EXPECT_FALSE(transaction.getStakedAccountId());
+  EXPECT_TRUE(transaction.getStakedNodeId());
 
   transaction.setStakedAccountId(getTestAccountId());
-  EXPECT_EQ(transaction.getStakedNodeId(), nullptr);
+  EXPECT_TRUE(transaction.getStakedAccountId());
+  EXPECT_FALSE(transaction.getStakedNodeId());
 }

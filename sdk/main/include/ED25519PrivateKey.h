@@ -1,187 +1,210 @@
-#ifndef ED25519_PRIVATE_KEY_H_
-#define ED25519_PRIVATE_KEY_H_
-
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
+/*-
+ *
+ * Hedera C++ SDK
+ *
+ * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#ifndef HEDERA_SDK_CPP_ED25519_PRIVATE_KEY_H_
+#define HEDERA_SDK_CPP_ED25519_PRIVATE_KEY_H_
 
 #include "ED25519PublicKey.h"
 #include "MnemonicBIP39.h"
 #include "PrivateKey.h"
 
+#include <memory>
+#include <openssl/crypto.h>
+#include <string>
+#include <vector>
+
 namespace Hedera
 {
 /**
- * An ED25519 private key
+ * A class representing an ED25519 private key.
  */
 class ED25519PrivateKey : public PrivateKey
 {
 public:
   /**
-   * Deleted default constructor
+   * Disallow default construction of an ED25519PrivateKey, as an uninitialized ED25519PrivateKey provides no
+   * functionality. Instead, the 'fromString()' or 'fromBytes()' functions should be used.
    */
   ED25519PrivateKey() = delete;
 
   /**
-   * Copy constructor
-   * @param other the other key being copied
-   */
-  ED25519PrivateKey(const ED25519PrivateKey& other);
-
-  /**
-   * Destructor
+   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
    */
   ~ED25519PrivateKey() override;
+  ED25519PrivateKey(const ED25519PrivateKey& other);
+  ED25519PrivateKey& operator=(const ED25519PrivateKey& other);
+  ED25519PrivateKey(ED25519PrivateKey&& other) noexcept;
+  ED25519PrivateKey& operator=(ED25519PrivateKey&& other) noexcept;
 
   /**
-   * Generates a new random private key
-   * @return the newly generated private key
+   * Generate a new ED25519PrivateKey.
+   *
+   * @return A pointer to the generated ED25519PrivateKey.
+   * @throws std::runtime_error If OpenSSL keypair initialization fails.
    */
   static std::unique_ptr<ED25519PrivateKey> generatePrivateKey();
 
   /**
-   * Creates a new private key object from the DER string representation
-   * @param keyString the string representation of a private key
-   * @return the new private key
+   * Construct an ED25519PrivateKey object from the DER string representation.
+   *
+   * @param keyString The string from which to create an ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input string.
+   * @throws std::runtime_error If OpenSSL deserialization of keyString fails.
    */
   static std::unique_ptr<ED25519PrivateKey> fromString(const std::string& keyString);
 
   /**
-   * Recovers a master private key from a BIP39 mnemonic phrase and passphrase
+   * Recover an ED25519PrivateKey from a BIP39 mnemonic phrase and passphrase.
    *
-   * @param mnemonic the mnemonic phrase
-   * @param passphrase the passphrase
-   *
-   * @return the recovered master private key
+   * @param mnemonic   The mnemonic phrase from which to recover the ED25519PrivateKey.
+   * @param passphrase The passphrase from which to recover the ED25519PrivateKey.
+   * @return A pointer to the recovered ED25519PrivateKey.
    */
   static std::unique_ptr<ED25519PrivateKey> fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
                                                               const std::string& passphrase);
 
   /**
-   * Derives a master private key from a seed array
+   * Derive an ED25519PrivateKey from a seed array.
    *
-   * @param seed the array seed to generate the master private key from
-   *
-   * @return the computed master private key
+   * @param seed The array seed from which to derive the ED25519PrivateKey.
+   * @return A pointer to the derived ED25519PrivateKey.
    */
   static std::unique_ptr<ED25519PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
 
   /**
-   * Get the public key that corresponds to this private key
+   * Derived from PrivateKey. Create a clone of this ED25519PrivateKey object.
    *
-   * @return the public key
+   * @return A pointer to the created clone of this ED25519PrivateKey.
+   */
+  [[nodiscard]] std::unique_ptr<PrivateKey> clone() const override;
+
+  /**
+   * Derived from PrivateKey. Get the ED25519PublicKey that corresponds to this ED25519PrivateKey.
+   *
+   * @return A pointer to the ED25519PublicKey that corresponds to this ED25519PrivateKey.
    */
   [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const override;
 
   /**
-   * Sign an arbitrary byte message. Message is hashed before signing
+   * Derived from PrivateKey. Sign an arbitrary byte array.
    *
-   * @param bytesToSign the bytes to sign
-   *
-   * @return the signature
+   * @param bytesToSign The bytes to sign.
+   * @return The signature of the byte array.
+   * @throws std::runtime_error If OpenSSL signature generation fails.
    */
   [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
 
   /**
-   * Gets the string representation of the private key, in DER format
+   * Derived from PrivateKey. Get the string representation of this ED25519PrivateKey, in DER format.
    *
-   * @return the string representation of the private key
+   * @return The string representation of this ED25519PrivateKey.
+   * @throws std::runtime_error If OpenSSL serialization fails.
    */
   [[nodiscard]] std::string toString() const override;
 
   /**
-   * Gets the byte representation of the private key
+   * Derive a child ED25519PrivateKey from this ED25519PrivateKey.
    *
-   * @return the byte representation of the key
+   * @param childIndex The index of the child to derive.
+   * @return A pointer to the derived ED25519PrivateKey child.
+   * @throws std::runtime_error If an invalid index is provided, or this key doesn't support child key derivation.
+   */
+  [[nodiscard]] std::unique_ptr<ED25519PrivateKey> derive(uint32_t childIndex) const;
+
+  /**
+   * Get the byte representation of this ED25519PrivateKey.
+   *
+   * @return The byte representation of this ED25519PrivateKey.
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const;
 
   /**
-   * Gets this private key's chain code. It is possible that a private key has an empty chain code
+   * Get this ED25519PrivateKey's chain code. It is possible that the chain code could be empty.
    *
-   * @return the chaincode if it exists, otherwise an empty vector
+   * @return This ED25519PrivateKey's chaincode if it exists, otherwise an empty vector.
    */
   [[nodiscard]] std::vector<unsigned char> getChainCode() const;
 
-  /**
-   * Derives a child key from this key. Throws an error if an invalid index is provided, or if this key doesn't support
-   * derivation
-   *
-   * @param childIndex the index of the child to derive
-   *
-   * @return the derived child key
-   */
-  [[nodiscard]] std::unique_ptr<ED25519PrivateKey> derive(uint32_t childIndex) const;
-
 private:
   /**
-   * The algorithm identifier for an ED25519 private key
-   */
-  const inline static std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
-    HexConverter::hexToBase64("302E020100300506032B657004220420");
-
-  /**
-   * The underlying OpenSSL representation of the key
-   */
-  EVP_PKEY* keypair;
-
-  /**
-   * The public key object which corresponds to the private key
-   */
-  std::shared_ptr<ED25519PublicKey> publicKey;
-
-  /**
-   * The chain code of this key. If this is empty, then this key will not support derivation
-   */
-  std::vector<unsigned char> chainCode = {};
-
-  /**
-   * Private constructor
+   * Create an OpenSSL keypair object from a byte vector representing an ED25519PrivateKey.
    *
-   * @param keypair the underlying OpenSSL object representing the private key
-   */
-  explicit ED25519PrivateKey(EVP_PKEY* keypair);
-
-  /**
-   * Constructor that accepts a keypair, and also a chaincode
-   *
-   * @param keypair the keypair for the new key
-   *
-   * @param chainCode the new key's chain code
-   */
-  ED25519PrivateKey(EVP_PKEY* keypair, std::vector<unsigned char> chainCode);
-
-  /**
-   * Derives the byte representation of the public key which corresponds to this private key
-   *
-   * @return the byte representation of the corresponding public key
-   */
-  [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
-
-  /**
-   * Creates a new EVP_PKEY object from a byte vector representing a private key
-   * @param keyBytes the bytes representing the private key
-   * @return the newly created EVP_PKEY object
+   * @param keyBytes The bytes representing a ED25519PrivateKey.
+   * @return A pointer to a newly created OpenSSL keypair object.
    */
   static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
-   * Prepends this key type's algorithm identifier to an array of bytes representing a key
+   * Prepend an ED25519PrivateKey's algorithm identifier to an array of serialized ED25519PrivateKey bytes.
    *
-   * @param keyBytes the bytes representing the key
-   *
-   * @return a new vector of bytes, which begins with the algorithm identifier, followed by the key bytes
+   * @param keyBytes The bytes representing an ED25519PrivateKey.
+   * @return An array of bytes that contains the ED25519PrivateKey's algorithm identifier bytes, followed by the input
+   *         ED25519PrivateKey bytes.
    */
   static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
 
   /**
-   * Creates a new key from the output of an HMAC hash function
+   * Create an ED25519PrivateKey from the output of an HMAC hash function.
    *
-   * @param hmacOutput the output of the HMAC hash function
-   *
-   * @return the new key, with key material and chain code set from the hash output
+   * @param hmacOutput The output of the HMAC hash function from which to create an ED25519PrivateKey.
+   * @return A pointer to the new ED25519PrivateKey, with key material and chain code set from the hash output.
    */
   static std::unique_ptr<ED25519PrivateKey> fromHMACOutput(const std::vector<unsigned char>& hmacOutput);
-};
-}
 
-#endif // ED25519_PRIVATE_KEY_H_
+  /**
+   * Construct from an OpenSSL keypair object.
+   *
+   * @param keypair A pointer to the underlying OpenSSL keypair object from which to construct this ED25519PrivateKey.
+   */
+  explicit ED25519PrivateKey(EVP_PKEY* keypair);
+
+  /**
+   * Construct from an OpenSSL keypair object and a chaincode.
+   *
+   * @param keypair   A pointer to the underlying OpenSSL keypair.
+   * @param chainCode The new ED25519PrivateKey's chain code.
+   */
+  ED25519PrivateKey(EVP_PKEY* keypair, std::vector<unsigned char> chainCode);
+
+  /**
+   * Get the byte representation of the ED25519PublicKey that corresponds to this ED25519PrivateKey.
+   *
+   * @return The byte representation of the corresponding ED25519PublicKey.
+   */
+  [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
+
+  /**
+   * A pointer to the underlying OpenSSL keypair.
+   */
+  EVP_PKEY* mKeypair = nullptr;
+
+  /**
+   * A pointer to the ED25519PublicKey object that corresponds to this ED25519PrivateKey.
+   */
+  std::shared_ptr<ED25519PublicKey> mPublicKey = nullptr;
+
+  /**
+   * This ED25519PrivateKey's chain code. If this is empty, then this ED25519PrivateKey will not support derivation.
+   */
+  std::vector<unsigned char> mChainCode;
+};
+
+} // namespace Hedera
+
+#endif // HEDERA_SDK_CPP_ED25519_PRIVATE_KEY_H_

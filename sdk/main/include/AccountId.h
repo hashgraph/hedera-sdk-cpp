@@ -17,13 +17,11 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_ID_H_
-#define ACCOUNT_ID_H_
-
-#include "PublicKey.h"
+#ifndef HEDERA_SDK_CPP_ACCOUNT_ID_H_
+#define HEDERA_SDK_CPP_ACCOUNT_ID_H_
 
 #include <memory>
-#include <optional>
+#include <string>
 
 namespace proto
 {
@@ -38,10 +36,12 @@ namespace Hedera
 class AccountId
 {
 public:
-  /**
-   * Default constructor.
-   */
   AccountId() = default;
+
+  /**
+   * Define a default comparator operator so that AccountId objects can be compared.
+   */
+  bool operator==(const AccountId&) const = default;
 
   /**
    * Construct with an account number.
@@ -63,45 +63,37 @@ public:
    * Construct from a string of the form "<shard>.<realm>.<num>".
    *
    * @param str The string from which to construct.
-   * @throws std::invalid_argument if input string is malformed.
+   * @throws std::invalid_argument If input string is malformed.
    */
   explicit AccountId(const std::string& str);
 
   /**
-   * Default comparator operator.
+   * Create an AccountId object from an AccountID protobuf object.
    *
-   * @param other The other AccountId to compare
-   * @return \c TRUE if the input AccountId is the same as this one, otherwise \c FALSE
-   */
-  bool operator==(const AccountId& other) const = default;
-
-  /**
-   * Retrieve the account ID from a protobuf AccountID.
-   *
-   * @param proto The AccountID protobuf object.
-   * @return An AccountId object with the protobuf AccountID data.
+   * @param proto The AccountID protobuf object from which to create an AccountId object.
+   * @return The created AccountId object.
    */
   static AccountId fromProtobuf(const proto::AccountID& proto);
 
   /**
-   * Convert this AccountId to its corresponding protobuf AccountID.
+   * Construct an AccountID protobuf object from this AccountId object.
    *
-   * @return Pointer to the created protobuf AccountID.
+   * @return A pointer to the created AccountID protobuf object filled with this AccountId object's data.
    */
-  proto::AccountID* toProtobuf() const;
+  [[nodiscard]] std::unique_ptr<proto::AccountID> toProtobuf() const;
 
   /**
-   * Put this AccountId in a string with the form "<shard>.<realm>.<num>".
+   * Get a string representation of this AccountId object with the form "<shard>.<realm>.<num>".
    *
-   * @return String representation of this AccountId.
+   * @return A string representation of this AccountId.
    */
-  std::string toString() const;
+  [[nodiscard]] std::string toString() const;
 
   /**
    * Set the shard number.
    *
-   * @param num The shard number to set.
-   * @return Reference to this AccountId object.
+   * @param num The desired shard number to set.
+   * @return A reference to this AccountId object with the newly-set shard number.
    */
   AccountId& setShardNum(const uint64_t& num);
 
@@ -109,7 +101,7 @@ public:
    * Set the realm number.
    *
    * @param num The realm number to set.
-   * @return Reference to this AccountId object.
+   * @return A reference to this AccountId object with the newly-set realm number.
    */
   AccountId& setRealmNum(const uint64_t& num);
 
@@ -117,46 +109,46 @@ public:
    * Set the account number.
    *
    * @param num The account number to set.
-   * @return Reference to this AccountId object.
+   * @return A reference to this AccountId object with the newly-set account number.
    */
   AccountId& setAccountNum(const uint64_t& num);
 
   /**
-   * Extract the shard number.
+   * Get the shard number.
    *
    * @return The shard number.
    */
-  inline uint64_t getShardNum() const { return mShardNum; }
+  [[nodiscard]] inline uint64_t getShardNum() const { return mShardNum; }
 
   /**
-   * Extract the realm number.
+   * Get the realm number.
    *
    * @return The realm number.
    */
-  inline uint64_t getRealmNum() const { return mRealmNum; }
+  [[nodiscard]] inline uint64_t getRealmNum() const { return mRealmNum; }
 
   /**
-   * Extract the account number.
+   * Get the account number.
    *
    * @return The account number.
    */
-  inline std::optional<uint64_t> getAccountNum() const { return mAccountNum; }
+  [[nodiscard]] inline uint64_t getAccountNum() const { return mAccountNum; }
 
 private:
   /**
-   * The shard number.
+   * The shard number. Defaults to 0.
    */
-  uint64_t mShardNum;
+  uint64_t mShardNum = 0ULL;
 
   /**
-   * The realm number.
+   * The realm number. Defaults to 0.
    */
-  uint64_t mRealmNum;
+  uint64_t mRealmNum = 0ULL;
 
   /**
-   * The account ID number.
+   * The account ID number. Defaults to 0.
    */
-  uint64_t mAccountNum;
+  uint64_t mAccountNum = 0ULL;
 };
 
 } // namespace Hedera
@@ -169,8 +161,9 @@ struct hash<Hedera::AccountId>
   /**
    * Operator override to enable use of AccountId as map key
    */
-  std::size_t operator()(const Hedera::AccountId& id) const { return hash<std::string>()(id.toString()); }
+  size_t operator()(const Hedera::AccountId& id) const { return hash<string>()(id.toString()); }
 };
-}
 
-#endif // ACCOUNT_ID_H_
+} // namespace std
+
+#endif // HEDERA_SDK_CPP_ACCOUNT_ID_H_

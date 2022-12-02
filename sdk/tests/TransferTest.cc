@@ -36,7 +36,7 @@ TEST_F(TransferTest, ProtoTransferTest)
   int64_t amount = 10LL;
 
   proto::AccountAmount protoAccountAmount;
-  protoAccountAmount.set_allocated_accountid(accountId->toProtobuf());
+  protoAccountAmount.set_allocated_accountid(accountId->toProtobuf().release());
   protoAccountAmount.set_amount(amount);
   protoAccountAmount.set_is_approval(true);
 

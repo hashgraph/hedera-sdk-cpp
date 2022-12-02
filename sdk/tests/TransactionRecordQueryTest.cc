@@ -28,15 +28,34 @@ class TransactionRecordQueryTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mTestAccountId; }
+  [[nodiscard]] inline const TransactionId& getTestTransactionId() const { return mTestTransactionId; }
 
 private:
-  const std::shared_ptr<AccountId> mTestAccountId = std::make_shared<AccountId>(0ULL, 0ULL, 10ULL);
+  const std::shared_ptr<AccountId> mTestAccountId = std::make_shared<AccountId>(10ULL);
+  const TransactionId mTestTransactionId = TransactionId::generate(mTestAccountId);
 };
+
+TEST_F(TransactionRecordQueryTest, CloneTransactionReceiptQuery)
+{
+  TransactionRecordQuery transactionRecordQuery;
+  transactionRecordQuery.setNodeAccountIds({ getTestAccountId() });
+  transactionRecordQuery.setTransactionId(getTestTransactionId());
+
+  auto clonedExecutablePtr = transactionRecordQuery.clone();
+  EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().size(), transactionRecordQuery.getNodeAccountIds().size());
+  EXPECT_EQ(*clonedExecutablePtr->getNodeAccountIds().at(0), *getTestAccountId());
+
+  // TODO: get and test Query derived class members when they're added
+
+  auto clonedTransactionReceiptQueryPtr = dynamic_cast<TransactionRecordQuery*>(clonedExecutablePtr.get());
+  EXPECT_TRUE(clonedTransactionReceiptQueryPtr->getTransactionId());
+  EXPECT_EQ(*clonedTransactionReceiptQueryPtr->getTransactionId(), getTestTransactionId());
+}
 
 TEST_F(TransactionRecordQueryTest, SetTransactionId)
 {
   TransactionRecordQuery query;
   const TransactionId transactionId = TransactionId::generate(getTestAccountId());
-  query.setTransactionId(TransactionId::generate(getTestAccountId()));
+  query.setTransactionId(transactionId);
   EXPECT_EQ(query.getTransactionId(), transactionId);
 }

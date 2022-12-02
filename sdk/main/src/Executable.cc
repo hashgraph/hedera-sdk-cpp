@@ -18,12 +18,10 @@
  *
  */
 #include "Executable.h"
-
 #include "AccountBalance.h"
 #include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
 #include "Client.h"
-#include "Node.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
 #include "TransactionRecord.h"
@@ -31,14 +29,12 @@
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
+#include <grpcpp/client_context.h>
+#include <grpcpp/impl/codegen/status.h>
 #include <proto/query.pb.h>
 #include <proto/response.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_response.pb.h>
-
-#include <grpcpp/client_context.h>
-#include <grpcpp/impl/codegen/status.h>
-
 #include <stdexcept>
 #include <utility>
 
@@ -69,7 +65,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   // The response object to fill
   ProtoResponseType response;
 
-  for (const auto& node : client.getNetwork()->getNodesWithAccountIds(mNodeAccountIds))
+  for (const auto& node : client.getNodesWithAccountIds(mNodeAccountIds))
   {
     // Do node specific tasks
     onSelectNode(node);

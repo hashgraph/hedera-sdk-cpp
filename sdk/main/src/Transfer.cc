@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -40,14 +40,14 @@ Transfer Transfer::fromProtobuf(const proto::AccountAmount& proto)
 }
 
 //-----
-proto::AccountAmount* Transfer::toProtobuf() const
+std::unique_ptr<proto::AccountAmount> Transfer::toProtobuf() const
 {
   auto proto = std::make_unique<proto::AccountAmount>();
-  proto->set_allocated_accountid(mAccountId->toProtobuf());
+  proto->set_allocated_accountid(mAccountId->toProtobuf().release());
   proto->set_amount(mAmount.toTinybars());
   proto->set_is_approval(mIsApproved);
 
-  return proto.release();
+  return proto;
 }
 
 //-----

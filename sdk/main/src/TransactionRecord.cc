@@ -18,10 +18,7 @@
  *
  */
 #include "TransactionRecord.h"
-
-#include "TransactionReceipt.h"
-
-#include "helper/TimestampConverter.h"
+#include "impl/TimestampConverter.h"
 
 #include <proto/transaction_record.pb.h>
 
@@ -41,7 +38,7 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
 
   if (proto.has_consensustimestamp())
   {
-    transactionRecord.mConsensusTimestamp = TimestampConverter::fromProtobuf(proto.consensustimestamp());
+    transactionRecord.mConsensusTimestamp = internal::TimestampConverter::fromProtobuf(proto.consensustimestamp());
   }
 
   if (proto.has_transactionid())
@@ -56,9 +53,11 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   {
     for (int i = 0; i < proto.transferlist().accountamounts_size(); ++i)
     {
-      transactionRecord.mTransferList.emplace_back(
-        AccountId::fromProtobuf(proto.transferlist().accountamounts(i).accountid()),
-        Hbar(proto.transferlist().accountamounts(i).amount(), HbarUnit::TINYBAR()));
+      Transfer transfer;
+      transfer.setAccountId(
+        std::make_shared<AccountId>(AccountId::fromProtobuf(proto.transferlist().accountamounts(i).accountid())));
+      transfer.setAmount(Hbar(proto.transferlist().accountamounts(i).amount(), HbarUnit::TINYBAR()));
+      transactionRecord.mTransferList.push_back(transfer);
     }
   }
 

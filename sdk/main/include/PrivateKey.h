@@ -17,48 +17,68 @@
  * limitations under the License.
  *
  */
-#ifndef PRIVATE_KEY_H_
-#define PRIVATE_KEY_H_
+#ifndef HEDERA_SDK_CPP_PRIVATE_KEY_H_
+#define HEDERA_SDK_CPP_PRIVATE_KEY_H_
 
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "PublicKey.h"
+namespace Hedera
+{
+class PublicKey;
+}
 
 namespace Hedera
 {
 /**
- * A generic private key. Contains the public key in addition to the private key
+ * A generic class representing a private key.
  */
 class PrivateKey
 {
 public:
   /**
-   * Get the public key that corresponds to this private key
-   * @return the public key
+   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
+   */
+  virtual ~PrivateKey() = default;
+  PrivateKey(const PrivateKey&) = delete;
+  PrivateKey& operator=(const PrivateKey&) = delete;
+  PrivateKey(PrivateKey&&) noexcept = delete;
+  PrivateKey& operator=(PrivateKey&&) noexcept = delete;
+
+  /**
+   * Create a clone of this PrivateKey object.
+   *
+   * @return A pointer to the created clone of this PrivateKey.
+   */
+  [[nodiscard]] virtual std::unique_ptr<PrivateKey> clone() const = 0;
+
+  /**
+   * Get the PublicKey that corresponds to this PrivateKey.
+   *
+   * @return A pointer to the PublicKey that corresponds to this PrivateKey.
    */
   [[nodiscard]] virtual std::shared_ptr<PublicKey> getPublicKey() const = 0;
 
   /**
-   * Sign an arbitrary byte message. Message is hashed before signing
-   * @param bytesToSign the bytes to sign
-   * @return the signature
+   * Sign an arbitrary byte array.
+   *
+   * @param bytesToSign The bytes to sign.
+   * @return The signature of the byte array.
    */
   [[nodiscard]] virtual std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const = 0;
 
   /**
-   * Gets the string representation of the private key, in DER format
-   * @return the string representation of the private key
+   * Get the string representation of this PrivateKey.
+   *
+   * @return The string representation of this PrivateKey.
    */
   [[nodiscard]] virtual std::string toString() const = 0;
 
-  /**
-   * Default destructor
-   */
-  virtual ~PrivateKey() = default;
+protected:
+  PrivateKey() = default;
 };
 
 } // namespace Hedera
 
-#endif // PRIVATE_KEY_H_
+#endif // HEDERA_SDK_CPP_PRIVATE_KEY_H_

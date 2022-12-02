@@ -18,12 +18,13 @@
  *
  */
 #include "TransactionRecordQuery.h"
-
 #include "Client.h"
 #include "TransactionRecord.h"
 #include "TransferTransaction.h"
+#include "impl/Node.h"
 
 #include <proto/query.pb.h>
+#include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
 #include <proto/transaction_get_record.pb.h>
 
@@ -32,6 +33,13 @@
 namespace Hedera
 {
 //-----
+std::unique_ptr<Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>>
+TransactionRecordQuery::clone() const
+{
+  return std::make_unique<TransactionRecordQuery>(*this);
+}
+
+//-----
 TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const TransactionId& transactionId)
 {
   mTransactionId = transactionId;
@@ -39,14 +47,8 @@ TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const Transacti
 }
 
 //-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
-TransactionRecordQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
-{
-  return node->getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetRecord);
-}
-
-//-----
-proto::Query TransactionRecordQuery::makeRequest(const Client& client, const std::shared_ptr<Node>& node) const
+proto::Query TransactionRecordQuery::makeRequest(const Client& client,
+                                                 const std::shared_ptr<internal::Node>& node) const
 {
   proto::Query query;
   proto::TransactionGetRecordQuery* getTransactionRecordQuery = query.mutable_transactiongetrecord();
@@ -63,7 +65,7 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client, const std
   tx.onSelectNode(node);
   header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
 
-  getTransactionRecordQuery->set_allocated_transactionid(mTransactionId.toProtobuf());
+  getTransactionRecordQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
 
   return query;
 }
@@ -72,6 +74,13 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client, const std
 TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& response) const
 {
   return TransactionRecord::fromProtobuf(response.transactiongetrecord().transactionrecord());
+}
+
+//-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
+TransactionRecordQuery::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
+{
+  return node->getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetRecord);
 }
 
 } // namespace Hedera

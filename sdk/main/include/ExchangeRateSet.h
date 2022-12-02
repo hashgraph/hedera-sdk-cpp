@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef EXCHANGE_RATE_SET_H_
-#define EXCHANGE_RATE_SET_H_
+#ifndef HEDERA_SDK_CPP_EXCHANGE_RATE_SET_H_
+#define HEDERA_SDK_CPP_EXCHANGE_RATE_SET_H_
 
 #include "ExchangeRate.h"
 
@@ -39,22 +39,22 @@ class ExchangeRateSet
 {
 public:
   /**
-   * Create an ExchangeRateSet from a protobuf ExchangeRateSet.
+   * Create an ExchangeRateSet object from a ExchangeRateSet protobuf object.
    *
-   * @param proto The protobuf ExchangeRateSet.
-   * @return An ExchangeRateSet with the protobuf ExchangeRateSet data.
+   * @param proto The ExchangeRateSet protobuf object from which to create an ExchangeRateSet object.
+   * @return The created ExchangeRateSet object.
    */
   static ExchangeRateSet fromProtobuf(const proto::ExchangeRateSet& proto);
 
   /**
-   * Extract the current exchange rate.
+   * Get the current exchange rate.
    *
    * @return The current exchange rate.
    */
   [[nodiscard]] inline std::optional<ExchangeRate> getCurrentExchangeRate() const { return mCurrentRate; }
 
   /**
-   * Extract the next exchange rate.
+   * Get the next exchange rate.
    *
    * @return The next exchange rate.
    */
@@ -74,4 +74,4 @@ private:
 
 } // namespace Hedera
 
-#endif // EXCHANGE_RATE_SET_H_
+#endif // HEDERA_SDK_CPP_EXCHANGE_RATE_SET_H_

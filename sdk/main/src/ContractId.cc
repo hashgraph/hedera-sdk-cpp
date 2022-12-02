@@ -40,27 +40,20 @@ ContractId::ContractId(const uint64_t& shard, const uint64_t& realm, const uint6
 //-----
 ContractId ContractId::fromProtobuf(const proto::ContractID& proto)
 {
-  ContractId contractId;
-  contractId.mShardNum = static_cast<uint64_t>(proto.shardnum());
-  contractId.mRealmNum = static_cast<uint64_t>(proto.realmnum());
-
-  if (proto.has_contractnum())
-  {
-    contractId.mContractNum = static_cast<uint64_t>(proto.contractnum());
-  }
-
-  return contractId;
+  return ContractId(static_cast<uint64_t>(proto.shardnum()),
+                    static_cast<uint64_t>(proto.realmnum()),
+                    static_cast<uint64_t>(proto.contractnum()));
 }
 
 //-----
-proto::ContractID* ContractId::toProtobuf() const
+std::unique_ptr<proto::ContractID> ContractId::toProtobuf() const
 {
   auto proto = std::make_unique<proto::ContractID>();
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
   proto->set_contractnum(static_cast<int64_t>(mContractNum));
 
-  return proto.release();
+  return proto;
 }
 
 //-----

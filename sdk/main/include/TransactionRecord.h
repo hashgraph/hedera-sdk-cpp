@@ -17,17 +17,19 @@
  * limitations under the License.
  *
  */
-#ifndef TRANSACTION_RECORD_H_
-#define TRANSACTION_RECORD_H_
+#ifndef HEDERA_SDK_CPP_TRANSACTION_RECORD_H_
+#define HEDERA_SDK_CPP_TRANSACTION_RECORD_H_
 
 #include "AccountId.h"
 #include "Hbar.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
+#include "Transfer.h"
 
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace proto
 {
@@ -45,29 +47,29 @@ class TransactionRecord
 {
 public:
   /**
-   * Construct a TransactionRecord from a protobuf TransactionRecord.
+   * Create a TransactionRecord object from a TransactionRecord protobuf object.
    *
-   * @param proto The protobuf TransactionRecord.
-   * @return A TransactionRecord containing the protobuf TransactionRecord data.
+   * @param proto The TransactionRecord protobuf object from which to create an TransactionRecord object.
+   * @return The created TransactionRecord object.
    */
   static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
 
   /**
-   * Extract the transaction receipt.
+   * Get the receipt of the transaction with which this TransactionRecord is associated.
    *
    * @return The transaction receipt.
    */
-  [[nodiscard]] inline TransactionReceipt getReceipt() const { return mReceipt; }
+  [[nodiscard]] inline std::optional<TransactionReceipt> getReceipt() const { return mReceipt; }
 
   /**
-   * Extract the transaction hash.
+   * Get the hash of the transaction with which this TransactionRecord is associated.
    *
    * @return The transaction hash.
    */
   [[nodiscard]] inline std::string getTransactionHash() const { return mTransactionHash; }
 
   /**
-   * Extract the consensus timestamp.
+   * Get the timestamp of when the transaction with which this TransactionRecord is associated reached consensus.
    *
    * @return The consensus timestamp.
    */
@@ -77,54 +79,56 @@ public:
   }
 
   /**
-   * Extract the transaction ID.
+   * Get the ID of the transaction with which this TransactionRecord is associated.
    *
    * @return The transaction ID.
    */
   [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionID; }
 
   /**
-   * Extract the transaction memo.
+   * Get the memo of the transaction with which this TransactionRecord is associated.
    *
    * @return The transaction memo.
    */
   [[nodiscard]] inline std::string getTransactionMemo() const { return mMemo; }
 
   /**
-   * Extract the transaction fee.
+   * Get the fee that was paid to execute the transaction with which this TransactionRecord is associated.
    *
    * @return The transaction fee.
    */
   [[nodiscard]] inline uint64_t getTransactionFee() const { return mTransactionFee; }
 
   /**
-   * Extract the transfer list.
+   * Get the list of all crypto transfers that occurred during the execution of the transaction with which this
+   * TransactionRecord is associated.
    *
-   * @return The transfer list.
+   * @return A list of IDs for accounts that sent/received a crypto transfer, as well as the amount that was
+   *         transferred.
    */
-  [[nodiscard]] inline std::vector<std::pair<AccountId, Hbar>> getTransferList() const { return mTransferList; }
+  [[nodiscard]] inline std::vector<Transfer> getTransferList() const { return mTransferList; }
 
 private:
   /**
    * The status (reach consensus, or failed, or is unknown) and the ID of any new account/file/instance created.
    */
-  TransactionReceipt mReceipt;
+  std::optional<TransactionReceipt> mReceipt;
 
   /**
-   * The hash of the Transaction that executed (not the hash of any Transaction that failed for having a duplicate
-   * TransactionID).
+   * The hash of the transaction that executed (not the hash of any transaction that failed for having a duplicate
+   * transaction ID).
    */
   std::string mTransactionHash;
 
   /**
-   * The consensus timestamp (or null if didn't reach consensus yet).
+   * The consensus timestamp (or uninitialized if the transaction hasn't reached consensus yet).
    */
   std::optional<std::chrono::system_clock::time_point> mConsensusTimestamp;
 
   /**
    * The ID of the transaction this record represents.
    */
-  TransactionId mTransactionID;
+  std::optional<TransactionId> mTransactionID;
 
   /**
    * The memo that was submitted as part of the transaction (max 100 bytes).
@@ -132,7 +136,7 @@ private:
   std::string mMemo;
 
   /**
-   * The actual transaction fee charged, not the original transactionFee value from TransactionBody.
+   * The actual transaction fee charged, not the original transaction fee value from TransactionBody.
    */
   uint64_t mTransactionFee;
 
@@ -140,9 +144,9 @@ private:
    * All Hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by
    * a smart contract it calls, or by the creation of threshold records that it triggers.
    */
-  std::vector<std::pair<AccountId, Hbar>> mTransferList;
+  std::vector<Transfer> mTransferList;
 };
 
 } // namespace Hedera
 
-#endif // TRANSACTION_RECORD_H_
+#endif // HEDERA_SDK_CPP_TRANSACTION_RECORD_H_
