@@ -19,6 +19,7 @@
  */
 #include "Client.h"
 #include "AccountId.h"
+#include "Defaults.h"
 #include "Hbar.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
@@ -31,23 +32,68 @@ namespace Hedera
 //-----
 struct Client::ClientImpl
 {
-  ClientImpl() = default;
-  ClientImpl(const ClientImpl& other) = delete;
-  ClientImpl& operator=(const ClientImpl& other) = delete;
-  ClientImpl(ClientImpl&& other) noexcept = default;
-  ClientImpl& operator=(ClientImpl&& other) noexcept = default;
-
+  // Pointer to the network object that contains all processing for sending/receiving information to/from a Hedera
+  // network.
   std::unique_ptr<internal::Network> mNetwork = nullptr;
-  std::unique_ptr<AccountId> mOperatorAccountId = nullptr;
+
+  // The ID of the account that will pay for requests using this Client.
+  std::optional<AccountId> mOperatorAccountId;
+
+  // Pointer to the private key this Client should use to sign transactions.
   std::unique_ptr<PrivateKey> mOperatorPrivateKey = nullptr;
-  std::unique_ptr<Hbar> mDefaultMaxTransactionFee = nullptr;
-  std::chrono::duration<int64_t> mRequestTimeout = std::chrono::minutes(2);
+
+  // The maximum fee this Client is willing to pay for transactions.
+  std::optional<Hbar> mDefaultMaxTransactionFee;
+
+  // The transaction ID regeneration policy to utilize when transactions submitted by this Client receive a
+  // TRANSACTION_EXPIRED response from the network.
+  std::optional<bool> mTransactionIdRegenerationPolicy;
+
+  // The maximum length of time this Client should wait to get a response after sending a request to the network.
+  std::chrono::duration<double> mRequestTimeout = DEFAULT_REQUEST_TIMEOUT;
+
+  // The maximum number of attempts a request sent by this Client will attempt to send a request. A manually-set maximum
+  // number of attempts in the request will override this.
+  std::optional<uint32_t> mMaxAttempts;
+
+  // The minimum length of time a request sent to a Node by this Client will wait before attempting to send a request
+  // again after a failure to the same Node. A manually-set minimum backoff in the request will override this.
+  std::optional<std::chrono::duration<double>> mMinBackoff;
+
+  // The maximum length of time a request sent to a Node by this Client will wait before attempting to send a request
+  // again after a failure to the same Node. A manually-set maximum backoff in the request will override this.
+  std::optional<std::chrono::duration<double>> mMaxBackoff;
 };
 
 //-----
-Client::~Client() = default;
-Client::Client(Client&& other) noexcept = default;
-Client& Client::operator=(Client&& other) noexcept = default;
+Client::Client()
+  : mImpl(std::make_unique<ClientImpl>())
+{
+}
+
+//-----
+Client::~Client()
+{
+  close();
+}
+
+//-----
+Client::Client(Client&& other) noexcept
+  : mImpl(std::move(other.mImpl))
+{
+  // Leave moved-from object in a valid state
+  other.mImpl = std::make_unique<ClientImpl>();
+}
+
+//-----
+Client& Client::operator=(Client&& other) noexcept
+{
+  mImpl = std::move(other.mImpl);
+
+  // Leave moved-from object in a valid state
+  other.mImpl = std::make_unique<ClientImpl>();
+  return *this;
+}
 
 //-----
 Client Client::forTestnet()
@@ -58,18 +104,29 @@ Client Client::forTestnet()
 }
 
 //-----
-Client& Client::setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>& privateKey)
+Client& Client::setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>& privateKey)
 {
   return setOperator(accountId, std::move(privateKey));
 }
 
 //-----
-Client& Client::setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>&& privateKey)
+Client& Client::setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>&& privateKey)
 {
-  mImpl->mOperatorAccountId = std::make_unique<AccountId>(*accountId);
+  mImpl->mOperatorAccountId = accountId;
   mImpl->mOperatorPrivateKey = std::move(privateKey);
 
   return *this;
+}
+
+//-----
+std::vector<unsigned char> Client::sign(const std::vector<unsigned char>& bytes) const
+{
+  if (mImpl->mOperatorPrivateKey)
+  {
+    return mImpl->mOperatorPrivateKey->sign(bytes);
+  }
+
+  throw std::runtime_error("No client operator private key with which to sign");
 }
 
 //-----
@@ -80,32 +137,72 @@ Client& Client::setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee
     throw std::invalid_argument("Transaction fee cannot be negative");
   }
 
-  mImpl->mDefaultMaxTransactionFee = std::make_unique<Hbar>(defaultMaxTransactionFee);
+  mImpl->mDefaultMaxTransactionFee = defaultMaxTransactionFee;
   return *this;
 }
 
 //-----
-std::vector<unsigned char> Client::sign(const std::vector<unsigned char>& bytes) const
+Client& Client::setTransactionIdRegenerationPolicy(bool regenerate)
 {
-  return mImpl->mOperatorPrivateKey->sign(bytes);
+  mImpl->mTransactionIdRegenerationPolicy = regenerate;
+  return *this;
+}
+
+//-----
+Client& Client::setMaxAttempts(uint32_t attempts)
+{
+  mImpl->mMaxAttempts = attempts;
+  return *this;
+}
+
+//-----
+Client& Client::setMinBackoff(const std::chrono::duration<double>& backoff)
+{
+  if ((mImpl->mMaxBackoff && backoff > *mImpl->mMaxBackoff) || (!mImpl->mMaxBackoff && backoff > DEFAULT_MAX_BACKOFF))
+  {
+    throw std::invalid_argument("Minimum backoff would be larger than maximum backoff");
+  }
+
+  mImpl->mMinBackoff = backoff;
+  return *this;
+}
+
+//-----
+Client& Client::setMaxBackoff(const std::chrono::duration<double>& backoff)
+{
+  if ((mImpl->mMinBackoff && backoff < *mImpl->mMinBackoff) || (!mImpl->mMinBackoff && backoff < DEFAULT_MIN_BACKOFF))
+  {
+    throw std::invalid_argument("Maximum backoff would be smaller than minimum backoff");
+  }
+
+  mImpl->mMaxBackoff = backoff;
+  return *this;
 }
 
 //-----
 std::vector<std::shared_ptr<internal::Node>> Client::getNodesWithAccountIds(
-  const std::vector<std::shared_ptr<AccountId>>& accountIds) const
+  const std::vector<AccountId>& accountIds) const
 {
-  return mImpl->mNetwork->getNodesWithAccountIds(accountIds);
+  if (mImpl->mNetwork)
+  {
+    return mImpl->mNetwork->getNodesWithAccountIds(accountIds);
+  }
+
+  throw std::runtime_error("Client network uninitialized");
 }
 
 void Client::close() const
 {
-  mImpl->mNetwork->close();
+  if (mImpl && mImpl->mNetwork)
+  {
+    mImpl->mNetwork->close();
+  }
 }
 
 //-----
-std::unique_ptr<AccountId> Client::getOperatorAccountId() const
+std::optional<AccountId> Client::getOperatorAccountId() const
 {
-  return mImpl->mOperatorAccountId ? std::make_unique<AccountId>(*mImpl->mOperatorAccountId) : nullptr;
+  return mImpl->mOperatorAccountId;
 }
 
 //-----
@@ -115,21 +212,39 @@ std::unique_ptr<PublicKey> Client::getOperatorPublicKey() const
 }
 
 //-----
-std::unique_ptr<Hbar> Client::getDefaultMaxTransactionFee() const
+std::optional<Hbar> Client::getDefaultMaxTransactionFee() const
 {
-  return mImpl->mDefaultMaxTransactionFee ? std::make_unique<Hbar>(*mImpl->mDefaultMaxTransactionFee) : nullptr;
+  return mImpl->mDefaultMaxTransactionFee;
 }
 
 //-----
-std::chrono::duration<int64_t> Client::getRequestTimeout() const
+std::optional<bool> Client::getTransactionIdRegenerationPolicy() const
+{
+  return mImpl->mTransactionIdRegenerationPolicy;
+}
+
+//-----
+std::chrono::duration<double> Client::getRequestTimeout() const
 {
   return mImpl->mRequestTimeout;
 }
 
 //-----
-Client::Client()
-  : mImpl(std::make_unique<ClientImpl>())
+std::optional<uint32_t> Client::getMaxAttempts() const
 {
+  return mImpl->mMaxAttempts;
+}
+
+//-----
+std::optional<std::chrono::duration<double>> Client::getMinBackoff() const
+{
+  return mImpl->mMinBackoff;
+}
+
+//-----
+std::optional<std::chrono::duration<double>> Client::getMaxBackoff() const
+{
+  return mImpl->mMaxBackoff;
 }
 
 } // namespace Hedera

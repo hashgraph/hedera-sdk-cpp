@@ -43,7 +43,7 @@ namespace Hedera
  * accounts that have mReceiverSigRequired == \c TRUE. The signatures are in the same order as the accounts, skipping
  * those accounts that don't need a signature.
  */
-class TransferTransaction : public Transaction<TransferTransaction>
+class TransferTransaction final : public Transaction<TransferTransaction>
 {
 public:
   ~TransferTransaction() override = default;
@@ -62,7 +62,7 @@ public:
    * @param amount    The amount to transfer.
    * @return A reference to this TransferTransaction object with the newly-added approved transfer.
    */
-  TransferTransaction& addApprovedHbarTransfer(const std::shared_ptr<AccountId>&, const Hbar& amount);
+  TransferTransaction& addApprovedHbarTransfer(const AccountId&, const Hbar& amount);
 
   /**
    * Add an unapproved Hbar transfer to be submitted as part of this TransferTransaction.
@@ -71,7 +71,7 @@ public:
    * @param amount    The amount to transfer.
    * @return A reference to this TransferTransaction object with the newly-added unapproved transfer.
    */
-  TransferTransaction& addUnapprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId, const Hbar& amount);
+  TransferTransaction& addUnapprovedHbarTransfer(const AccountId& accountId, const Hbar& amount);
 
   /**
    * Get the list of Hbar transfers that have been added to this TransferTransaction.
@@ -80,32 +80,36 @@ public:
    */
   [[nodiscard]] inline std::vector<Transfer> getHbarTransfers() const { return mHbarTransfers; }
 
-protected:
-  /**
-   * Derived from Executable. Construct a Transaction protobuf object from this TransferTransaction object.
-   *
-   * @param client The Client trying to construct this TransferTransaction.
-   * @param node   The Node on which this TransferTransaction will be sent.
-   * @return A Transaction protobuf object filled with this TransferTransaction object's data.
-   */
-  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>& node) const override;
-
-  /**
-   * Derived from Executable. Get the gRPC method to call to send this TransferTransaction.
-   *
-   * @param node The Node to which this TransferTransaction is being sent and from which to retrieve the gRPC method.
-   * @return The gRPC method to call to execute this TransferTransaction.
-   */
-  [[nodiscard]] std::function<
-    grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-  getGrpcMethod(const std::shared_ptr<internal::Node>& node) const override;
-
 private:
   /**
    * Allow queries that are not free to create Transaction protobuf objects from TransferTransactions.
    */
   friend class TransactionRecordQuery;
+
+  /**
+   * Derived from Executable. Construct a Transaction protobuf object from this TransferTransaction object.
+   *
+   * @param client The Client trying to construct this TransferTransaction.
+   * @param node   The Node to which this TransferTransaction will be sent. This is unused.
+   * @return A Transaction protobuf object filled with this TransferTransaction object's data.
+   */
+  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
+                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
+
+  /**
+   * Derived from Executable. Submit this TransferTransaction to a Node.
+   *
+   * @param client   The Client submitting this TransferTransaction.
+   * @param deadline The deadline for submitting this TransferTransaction.
+   * @param node     Pointer to the Node to which this TransferTransaction should be submitted.
+   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
+   *                 information from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::TransactionResponse* response) const override;
 
   /**
    * Build a CryptoTransferTransactionBody protobuf object from this TransferTransaction object.

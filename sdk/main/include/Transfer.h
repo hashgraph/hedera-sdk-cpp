@@ -23,8 +23,6 @@
 #include "AccountId.h"
 #include "Hbar.h"
 
-#include <memory>
-
 namespace proto
 {
 class AccountAmount;
@@ -56,7 +54,7 @@ public:
    * @param accountId The ID of the account sent, received, is sending, or is receiving Hbar.
    * @return A reference to this Transfer object with the newly-set account ID.
    */
-  Transfer& setAccountId(const std::shared_ptr<AccountId>& accountId);
+  Transfer& setAccountId(const AccountId& accountId);
 
   /**
    * Set the amount of Hbar that was transferred into (positive) or out of (negative) the account.
@@ -79,7 +77,7 @@ public:
    *
    * @return The account ID.
    */
-  [[nodiscard]] inline std::shared_ptr<AccountId> getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
 
   /**
    * Get the amount that was or will be transferred.
@@ -99,7 +97,7 @@ private:
   /**
    * The ID of the account associated with this Transfer.
    */
-  std::shared_ptr<AccountId> mAccountId;
+  AccountId mAccountId;
 
   /**
    * The amount of Hbar transferred or to be transferred. Defaults to 0.

@@ -28,14 +28,17 @@
 #include "TransactionRecordQuery.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "impl/Node.h"
 
-#include <grpcpp/client_context.h>
+#include <algorithm>
 #include <grpcpp/impl/codegen/status.h>
+#include <limits>
 #include <proto/query.pb.h>
 #include <proto/response.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_response.pb.h>
 #include <stdexcept>
+#include <thread>
 #include <utility>
 
 namespace Hedera
@@ -52,48 +55,201 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
   const Client& client,
-  const std::chrono::duration<int64_t>& duration)
+  const std::chrono::duration<double>& timeout)
 {
-  // Perform any operations needed when executing.
+  setParametersFromClient(client);
   onExecute(client);
 
-  // Create the context from the timeout duration
-  grpc::ClientContext context;
-  context.set_deadline(std::chrono::system_clock::now() +
-                       std::chrono::duration_cast<std::chrono::milliseconds>(duration));
+  // The time to timeout
+  const std::chrono::system_clock::time_point timeoutTime =
+    std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(timeout);
 
   // The response object to fill
   ProtoResponseType response;
 
-  for (const auto& node : client.getNodesWithAccountIds(mNodeAccountIds))
+  // List of nodes to which this Executable may be sent
+  const std::vector<std::shared_ptr<internal::Node>> nodes = client.getNodesWithAccountIds(mNodeAccountIds);
+
+  for (uint32_t attempt = 1;; ++attempt)
   {
+    if (attempt > mMaxAttempts)
+    {
+      throw std::runtime_error("Max number of attempts made");
+    }
+
+    std::shared_ptr<internal::Node> node = getNodeForExecute(nodes);
+
+    // If the returned node is not healthy, then no nodes are healthy and the returned node has the shortest remaining
+    // delay. Sleep for the delay period.
+    if (!node->isHealthy())
+    {
+      std::this_thread::sleep_for(node->getRemainingTimeForBackoff());
+    }
+
+    // Make sure the Node is connected. If it can't connect, mark this Node as unhealthy and try another Node.
+    if (!node->connect(timeoutTime))
+    {
+      node->increaseBackoff();
+      continue;
+    }
+
     // Do node specific tasks
     onSelectNode(node);
 
-    auto grpcFunc = getGrpcMethod(node);
+    const grpc::Status status = submitRequest(client, timeoutTime, node, &response);
 
-    // Create the request
-    const ProtoRequestType request = makeRequest(client, node);
-
-    // Call the gRPC method
-    grpc::Status status = grpcFunc(&context, request, &response);
-
-    if (status.error_code() == 0)
+    // Increase backoff for this node but try submitting again for UNAVAILABLE, RESOURCE_EXHAUSTED, and INTERNAL
+    // responses.
+    if (const grpc::StatusCode errorCode = status.error_code(); errorCode == grpc::StatusCode::UNAVAILABLE ||
+                                                                errorCode == grpc::StatusCode::RESOURCE_EXHAUSTED ||
+                                                                errorCode == grpc::StatusCode::INTERNAL)
     {
-      return mapResponse(response);
+      node->increaseBackoff();
+      continue;
+    }
+
+    // Successful submission, so decrease backoff for this node.
+    node->decreaseBackoff();
+
+    switch (shouldRetry(mapResponseStatus(response), client, response))
+    {
+      case ExecutionStatus::SERVER_ERROR:
+      {
+        continue;
+      }
+      // Response isn't ready yet from the network
+      case ExecutionStatus::RETRY:
+      {
+        std::this_thread::sleep_for(mCurrentBackoff);
+        mCurrentBackoff *= 2;
+        break;
+      }
+      case ExecutionStatus::REQUEST_ERROR:
+      {
+        throw std::invalid_argument("Malformed request");
+      }
+      default:
+      {
+        return mapResponse(response);
+      }
     }
   }
-
-  throw std::runtime_error("Unable to communicate with any node");
 }
 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setNodeAccountIds(
-  const std::vector<std::shared_ptr<AccountId>>& nodeAccountIds)
+  const std::vector<AccountId>& nodeAccountIds)
 {
   mNodeAccountIds = nodeAccountIds;
   return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMaxAttempts(
+  uint32_t attempts)
+{
+  mMaxAttempts = attempts;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMinBackoff(
+  const std::chrono::duration<double>& backoff)
+{
+  mMinBackoff = backoff;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMaxBackoff(
+  const std::chrono::duration<double>& backoff)
+{
+  mMaxBackoff = backoff;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::onSelectNode(
+  const std::shared_ptr<internal::Node>& node)
+{
+  node->setMinBackoff(mMinBackoff);
+  node->setMaxBackoff(mMaxBackoff);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+typename Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::ExecutionStatus
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::shouldRetry(Status status,
+                                                                                              const Client&,
+                                                                                              const ProtoResponseType&)
+{
+  switch (status)
+  {
+    using enum Status;
+    case PLATFORM_TRANSACTION_NOT_CREATED:
+    case PLATFORM_NOT_ACTIVE:
+    case BUSY:
+      return ExecutionStatus::SERVER_ERROR;
+    // Let derived class handle this status
+    default:
+      return ExecutionStatus::UNKNOWN;
+  }
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setParametersFromClient(
+  const Client& client)
+{
+  mMaxAttempts = mDefaultMaxAttempts       ? *mDefaultMaxAttempts
+                 : client.getMaxAttempts() ? *client.getMaxAttempts()
+                                           : DEFAULT_MAX_ATTEMPTS;
+  mMinBackoff = mDefaultMinBackoff       ? *mDefaultMinBackoff
+                : client.getMinBackoff() ? *client.getMinBackoff()
+                                         : DEFAULT_MIN_BACKOFF;
+  mMaxBackoff = mDefaultMaxBackoff       ? *mDefaultMaxBackoff
+                : client.getMaxBackoff() ? *client.getMaxBackoff()
+                                         : DEFAULT_MAX_BACKOFF;
+  mCurrentBackoff = mMinBackoff;
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+std::shared_ptr<internal::Node>
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::getNodeForExecute(
+  const std::vector<std::shared_ptr<internal::Node>>& nodes) const
+{
+  // Keep track of the best candidate node and its delay.
+  std::shared_ptr<internal::Node> candidateNode = nullptr;
+  std::chrono::duration<double> candidateDelay(std::numeric_limits<int64_t>::max());
+
+  for (const auto& node : nodes)
+  {
+    if (!node->isHealthy())
+    {
+      // Mark this the candidate node if it has the smaller delay than the previous candidate.
+      const std::chrono::duration<double> backoffTime = node->getRemainingTimeForBackoff();
+      if (backoffTime < candidateDelay)
+      {
+        candidateNode = node;
+        candidateDelay = backoffTime;
+      }
+    }
+
+    // If this node is healthy, then return it.
+    else
+    {
+      return node;
+    }
+  }
+
+  // No nodes are healthy, return the one with the smallest delay.
+  return candidateNode;
 }
 
 /**

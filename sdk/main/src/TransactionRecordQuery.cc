@@ -19,6 +19,7 @@
  */
 #include "TransactionRecordQuery.h"
 #include "Client.h"
+#include "Status.h"
 #include "TransactionRecord.h"
 #include "TransferTransaction.h"
 #include "impl/Node.h"
@@ -57,10 +58,10 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client,
   header->set_responsetype(proto::ResponseType::ANSWER_ONLY);
 
   TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(client.getOperatorAccountId()))
+                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
                              .setNodeAccountIds({ node->getAccountId() })
                              .setMaxTransactionFee(Hbar(1ULL))
-                             .addUnapprovedHbarTransfer(client.getOperatorAccountId(), Hbar(-1ULL))
+                             .addUnapprovedHbarTransfer(*client.getOperatorAccountId(), Hbar(-1ULL))
                              .addUnapprovedHbarTransfer(node->getAccountId(), Hbar(1ULL));
   tx.onSelectNode(node);
   header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
@@ -77,10 +78,54 @@ TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& res
 }
 
 //-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
-TransactionRecordQuery::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
+Status TransactionRecordQuery::mapResponseStatus(const proto::Response& response) const
 {
-  return node->getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetRecord);
+  return STATUS_MAP.at(response.transactiongetrecord().header().nodetransactionprecheckcode());
+}
+
+//-----
+typename Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::ExecutionStatus
+TransactionRecordQuery::shouldRetry(Status status, const Client& client, const proto::Response& response)
+{
+  if (const Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::ExecutionStatus
+        baseStatus = Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::shouldRetry(
+          status, client, response);
+      baseStatus != ExecutionStatus::UNKNOWN)
+  {
+    return baseStatus;
+  }
+
+  switch (status)
+  {
+    case Status::UNKNOWN:
+    case Status::RECORD_NOT_FOUND:
+      return ExecutionStatus::RETRY;
+    case Status::OK:
+      break;
+    default:
+      return ExecutionStatus::REQUEST_ERROR;
+  }
+
+  // Check the actual receipt status value to ensure the record actually holds correct data.
+  switch (STATUS_MAP.at(response.transactiongetrecord().transactionrecord().receipt().status()))
+  {
+    case Status::OK:
+    case Status::RECORD_NOT_FOUND:
+    case Status::UNKNOWN:
+      return ExecutionStatus::RETRY;
+    default:
+      return ExecutionStatus::SUCCESS;
+  }
+}
+
+//-----
+grpc::Status TransactionRecordQuery::submitRequest(const Client& client,
+                                                   const std::chrono::system_clock::time_point& deadline,
+                                                   const std::shared_ptr<internal::Node>& node,
+                                                   proto::Response* response) const
+{
+  return node->submitQuery(
+    proto::Query::QueryCase::kTransactionGetRecord, makeRequest(client, node), deadline, response);
 }
 
 } // namespace Hedera

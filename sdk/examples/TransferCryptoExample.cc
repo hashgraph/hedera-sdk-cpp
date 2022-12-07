@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -44,14 +44,14 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  const auto operatorId = std::make_shared<AccountId>(argv[1]);
+  const auto operatorId = AccountId(argv[1]);
   client.setOperator(operatorId, ED25519PrivateKey::fromString(argv[2]));
 
-  const auto recipientId = std::make_shared<AccountId>("0.0.3");
+  const auto recipientId = AccountId(3ULL);
   const Hbar amount(10000ULL, HbarUnit::TINYBAR());
 
-  const Hbar senderBalanceBefore = AccountBalanceQuery().setAccountId(*operatorId).execute(client).getBalance();
-  const Hbar recipientBalanceBefore = AccountBalanceQuery().setAccountId(*recipientId).execute(client).getBalance();
+  const Hbar senderBalanceBefore = AccountBalanceQuery().setAccountId(operatorId).execute(client).getBalance();
+  const Hbar recipientBalanceBefore = AccountBalanceQuery().setAccountId(recipientId).execute(client).getBalance();
 
   std::cout << "Sender balance before transfer: " << senderBalanceBefore.toTinybars() << HbarUnit::TINYBAR().getSymbol()
             << std::endl;
@@ -68,8 +68,8 @@ int main(int argc, char** argv)
 
   std::cout << "Transferred " << amount.toTinybars() << HbarUnit::TINYBAR().getSymbol() << std::endl;
 
-  const Hbar senderBalanceAfter = AccountBalanceQuery().setAccountId(*operatorId).execute(client).getBalance();
-  const Hbar recipientBalanceAfter = AccountBalanceQuery().setAccountId(*recipientId).execute(client).getBalance();
+  const Hbar senderBalanceAfter = AccountBalanceQuery().setAccountId(operatorId).execute(client).getBalance();
+  const Hbar recipientBalanceAfter = AccountBalanceQuery().setAccountId(recipientId).execute(client).getBalance();
 
   std::cout << "Sender balance after transfer: " << senderBalanceAfter.toTinybars() << HbarUnit::TINYBAR().getSymbol()
             << std::endl;

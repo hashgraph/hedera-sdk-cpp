@@ -55,7 +55,7 @@ public:
    * @return List of nodes with the requested account IDs.
    */
   [[nodiscard]] std::vector<std::shared_ptr<Node>> getNodesWithAccountIds(
-    const std::vector<std::shared_ptr<AccountId>>& accountIds) const;
+    const std::vector<AccountId>& accountIds) const;
 
   /**
    * Close this network.

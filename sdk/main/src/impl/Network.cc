@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -23,7 +23,6 @@
 
 namespace Hedera::internal
 {
-
 //-----
 Network Network::forTestnet()
 {
@@ -34,8 +33,7 @@ Network Network::forTestnet()
 }
 
 //-----
-std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(
-  const std::vector<std::shared_ptr<AccountId>>& accountIds) const
+std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const
 {
   if (accountIds.empty())
   {

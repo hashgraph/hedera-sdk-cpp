@@ -91,7 +91,6 @@ public:
    */
   [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
-private:
   /**
    * Derived from PublicKey. Get the string representation of this ED25519PublicKey, in DER format.
    *

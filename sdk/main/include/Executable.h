@@ -21,9 +21,9 @@
 #define HEDERA_SDK_CPP_EXECUTABLE_H_
 
 #include "AccountId.h"
+#include "Defaults.h"
 
 #include <chrono>
-#include <functional>
 #include <memory>
 #include <vector>
 
@@ -34,11 +34,11 @@ namespace internal
 class Node;
 }
 class Client;
+enum class Status;
 }
 
 namespace grpc
 {
-class ClientContext;
 class Status;
 }
 
@@ -70,6 +70,7 @@ public:
    *
    * @param client The Client to use to submit this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
+   * @throws std::invalid_argument If the there was a network issue processing this Executable.
    * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
    */
   SdkResponseType execute(const Client& client);
@@ -80,9 +81,10 @@ public:
    * @param client The Client to use to submit this Executable.
    * @param timeout The desired timeout for the execution of this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
+   * @throws std::invalid_argument If the there was a network issue processing this Executable.
    * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
    */
-  SdkResponseType execute(const Client& client, const std::chrono::duration<int64_t>& duration);
+  SdkResponseType execute(const Client& client, const std::chrono::duration<double>& timeout);
 
   /**
    * Set the desired account IDs of nodes to which this transaction will be submitted.
@@ -90,14 +92,65 @@ public:
    * @param nodeAccountIds The desired list of account IDs of nodes to submit this request.
    * @return A reference to this Executable derived class with the newly-set node account IDs.
    */
-  SdkRequestType& setNodeAccountIds(const std::vector<std::shared_ptr<AccountId>>& nodeAccountIds);
+  SdkRequestType& setNodeAccountIds(const std::vector<AccountId>& nodeAccountIds);
+
+  /**
+   * Set the maximum number of times this Executable should attempt to be submitted before the execution is considered a
+   * failure.
+   *
+   * @param attempts The desired maximum number of execution attempts.
+   * @return A reference to this Executable derived class with the newly-set maximum number of execution attempts.
+   */
+  SdkRequestType& setMaxAttempts(uint32_t attempts);
+
+  /**
+   * Set the minimum amount of time this Executable should wait after a failed submission to a node before attempting
+   * another to that same node.
+   *
+   * @param backoff The desired minimum amount of time this Executable should wait between retries.
+   * @return A reference to this Executable derived class with the newly-set minimum backoff time.
+   */
+  SdkRequestType& setMinBackoff(const std::chrono::duration<double>& backoff);
+
+  /**
+   * Set the maximum amount of time this Executable should wait after a failed submission to a node before attempting
+   * another to that same node. If the succeeding attempt fails after reaching this maximum, the execution of this
+   * Executable is then considered a failure.
+   *
+   * @param backoff The desired maximum amount of time this Executable should wait between retries.
+   * @return A reference to this Executable derived class with the newly-set maximum backoff time.
+   */
+  SdkRequestType& setMaxBackoff(const std::chrono::duration<double>& backoff);
 
   /**
    * Get the list of account IDs for nodes with which execution will be attempted.
    *
    * @return The list of account IDs of nodes this Executable would attempt request submission.
    */
-  [[nodiscard]] inline std::vector<std::shared_ptr<AccountId>> getNodeAccountIds() const { return mNodeAccountIds; }
+  [[nodiscard]] inline std::vector<AccountId> getNodeAccountIds() const { return mNodeAccountIds; }
+
+  /**
+   * Get the maximum number of execution attempts this Executable is currently configured to try.
+   *
+   * @return The maximum number of execution attempts.
+   */
+  [[nodiscard]] inline std::optional<uint32_t> getMaxAttempts() const { return mDefaultMaxAttempts; }
+
+  /**
+   * Get the minimum amount of time this Executable is currently configured to wait between submission attempts to a
+   * specific node.
+   *
+   * @return The minimum amount of time between submission attempts to a specific node.
+   */
+  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMinBackoff() const { return mDefaultMinBackoff; }
+
+  /**
+   * Get the maximum amount of time this Executable is currently configured to wait between submission attempts to a
+   * specific node.
+   *
+   * @return The maximum amount of time between submission attempts to a specific node.
+   */
+  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMaxBackoff() const { return mDefaultMaxBackoff; }
 
 protected:
   /**
@@ -110,14 +163,62 @@ protected:
   Executable& operator=(Executable&&) noexcept = default;
 
   /**
+   * Enumeration describing the status of a submitted Executable.
+   */
+  enum class ExecutionStatus
+  {
+    /**
+     * The request was successfully executed.
+     */
+    SUCCESS,
+    /**
+     * There was an error on the server side that shouldn't be retried.
+     */
+    SERVER_ERROR,
+    /**
+     * There was a user error with the request.
+     */
+    REQUEST_ERROR,
+    /**
+     * The call was successful but an operation did not complete.
+     */
+    RETRY,
+    /**
+     * The status of the request could not be determined, requires further processing.
+     */
+    UNKNOWN
+  };
+
+  /**
+   * Perform any needed actions for this Executable when a Node has been selected to which to submit this Executable.
+   *
+   * @param node The Node to which this Executable is being submitted.
+   */
+  virtual void onSelectNode([[maybe_unused]] const std::shared_ptr<internal::Node>& node);
+
+  /**
+   * Determine the ExecutionStatus of this Executable after being submitted.
+   *
+   * @param status   The response status of the previous attempt.
+   * @param client   The Client that attempted to submit this Executable.
+   * @param response The ProtoResponseType received from the network in response to submitting this request.
+   * @return The status of the submitted request.
+   */
+  [[nodiscard]] virtual ExecutionStatus shouldRetry(Status status,
+                                                    [[maybe_unused]] const Client& client,
+                                                    [[maybe_unused]] const ProtoResponseType& response);
+
+private:
+  /**
    * Construct a ProtoRequestType object from this Executable object.
    *
    * @param client The Client being used to submit this Executable.
-   * @param node   The Node on which this Executable will be sent.
+   * @param node   The Node to which this Executable will be sent.
    * @return A ProtoRequestType object filled with this Executable object's data.
    */
-  virtual ProtoRequestType makeRequest([[maybe_unused]] const Client& client,
-                                       [[maybe_unused]] const std::shared_ptr<internal::Node>& node) const = 0;
+  [[nodiscard]] virtual ProtoRequestType makeRequest(
+    [[maybe_unused]] const Client& client,
+    [[maybe_unused]] const std::shared_ptr<internal::Node>& node) const = 0;
 
   /**
    * Construct an SdkResponseType from a ProtoResponseType object.
@@ -125,16 +226,30 @@ protected:
    * @param response The ProtoResponseType object from which to construct an SdkResponseType object.
    * @return An SdkResponseType object filled with the ProtoResponseType object's data.
    */
-  virtual SdkResponseType mapResponse(const ProtoResponseType& response) const = 0;
+  [[nodiscard]] virtual SdkResponseType mapResponse(const ProtoResponseType& response) const = 0;
 
   /**
-   * Get the gRPC method to call to send this Executable.
+   * Grab the status response code from a ProtoResponseType object.
    *
-   * @param node The Node to which this Executable is being sent and from which the gRPC method should be retrieved.
-   * @return The gRPC method to call to submit this Executable.
+   * @param response The ProtoResponseType object from which to grab the status response code.
+   * @return The status response code of the input ProtoResponseType object.
    */
-  virtual std::function<grpc::Status(grpc::ClientContext*, const ProtoRequestType&, ProtoResponseType*)> getGrpcMethod(
-    const std::shared_ptr<internal::Node>& node) const = 0;
+  [[nodiscard]] virtual Status mapResponseStatus(const ProtoResponseType& response) const = 0;
+
+  /**
+   * Submit this Executable to a Node.
+   *
+   * @param client   The Client submitting this Executable.
+   * @param deadline The deadline for submitting this Executable.
+   * @param node     Pointer to the Node to which this Executable should be submitted.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] virtual grpc::Status submitRequest(const Client& client,
+                                                   const std::chrono::system_clock::time_point& deadline,
+                                                   const std::shared_ptr<internal::Node>& node,
+                                                   ProtoResponseType* response) const = 0;
 
   /**
    * Perform any needed actions for this Executable when it is being submitted.
@@ -144,17 +259,70 @@ protected:
   virtual void onExecute([[maybe_unused]] const Client& client) = 0;
 
   /**
-   * Perform any needed actions for this Executable when a Node has been selected to which to submit this Executable.
+   * Grab parameters from the Client that is submitting this Executable, if these parameters have not been set
+   * specifically for this Executable.
    *
-   * @param node The Node to which this Executable is being submitted.
+   * @param client The Client submitting this Executable.
    */
-  virtual void onSelectNode([[maybe_unused]] const std::shared_ptr<internal::Node>& node) = 0;
+  void setParametersFromClient(const Client& client);
 
-private:
+  /**
+   * Get a Node from a list of Nodes to which to try and send this Executable. This will prioritize getting "healthy"
+   * Nodes first in order to ensure as little wait time to submit as possible.
+   *
+   * @param nodes The list of Nodes from which to select a Node.
+   * @return A pointer to a Node to which to try and send this Executable.
+   */
+  [[nodiscard]] std::shared_ptr<internal::Node> getNodeForExecute(
+    const std::vector<std::shared_ptr<internal::Node>>& nodes) const;
+
   /**
    * The list of account IDs of the nodes with which execution should be attempted.
    */
-  std::vector<std::shared_ptr<AccountId>> mNodeAccountIds;
+  std::vector<AccountId> mNodeAccountIds;
+
+  /**
+   * The default maximum number of attempts that will be made to submit this Executable. If not set, a submission will
+   * use the Client's set maximum number of attempts. If that's not set, DEFAULT_MAX_ATTEMPTS will be used.
+   */
+  std::optional<uint32_t> mDefaultMaxAttempts;
+
+  /**
+   * The default minimum amount of time to wait between submission attempts. If not set, a submission will use the
+   * Client's set minimum backoff. If that's not set, DEFAULT_MIN_BACKOFF will be used.
+   */
+  std::optional<std::chrono::duration<double>> mDefaultMinBackoff;
+
+  /**
+   * The default maximum amount of time to wait between submission attempts. If not set, a submission will use the
+   * Client's set maximum backoff. If that's not set, DEFAULT_MAX_BACKOFF will be used.
+   */
+  std::optional<std::chrono::duration<double>> mDefaultMaxBackoff;
+
+  /**
+   * The current maximum number of attempts being used during execution. This may be this Executable's
+   * mDefaultMaxAttempts, the Client's max attempts, or DEFAULT_MAX_ATTEMPTS.
+   */
+  uint32_t mMaxAttempts;
+
+  /**
+   * The current minimum backoff being used during execution. This may be this Executable's mDefaultMinBackoff, the
+   * Client's set minimum backoff, or DEFAULT_MIN_BACKOFF.
+   */
+  std::chrono::duration<double> mMinBackoff;
+
+  /**
+   * The current maximum backoff being used during execution. This may be this Executable's mDefaultMaxBackoff, the
+   * Client's set maximum backoff, or DEFAULT_MAX_BACKOFF.
+   */
+  std::chrono::duration<double> mMaxBackoff;
+
+  /**
+   * The current backoff time being used during execution. Every failed submission attempt waits a certain amount of
+   * time that is double the previous amount of time this Executable waited for its previous submission attempt, up to
+   * the specified maximum backoff time, at which point the execution is considered a failure.
+   */
+  std::chrono::duration<double> mCurrentBackoff;
 };
 
 } // namespace Hedera

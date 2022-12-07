@@ -18,6 +18,7 @@
  *
  */
 #include "TransactionReceiptQuery.h"
+#include "Status.h"
 #include "TransactionReceipt.h"
 #include "impl/Node.h"
 
@@ -64,10 +65,57 @@ TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& r
 }
 
 //-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
-TransactionReceiptQuery::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
+Status TransactionReceiptQuery::mapResponseStatus(const proto::Response& response) const
 {
-  return node->getGrpcQueryMethod(proto::Query::QueryCase::kTransactionGetReceipt);
+  return STATUS_MAP.at(response.transactiongetreceipt().header().nodetransactionprecheckcode());
+}
+
+//-----
+typename Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::ExecutionStatus
+TransactionReceiptQuery::shouldRetry(Status status, const Client& client, const proto::Response& response)
+{
+  if (const Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::ExecutionStatus
+        baseStatus =
+          Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::shouldRetry(
+            status, client, response);
+      baseStatus != ExecutionStatus::UNKNOWN)
+  {
+    return baseStatus;
+  }
+
+  switch (status)
+  {
+    case Status::UNKNOWN:
+    case Status::RECEIPT_NOT_FOUND:
+      return ExecutionStatus::RETRY;
+    case Status::OK:
+      break;
+    default:
+      return ExecutionStatus::REQUEST_ERROR;
+  }
+
+  // Check the actual receipt status value to ensure the receipt actually holds correct data.
+  switch (STATUS_MAP.at(response.transactiongetreceipt().receipt().status()))
+  {
+    case Status::BUSY:
+    case Status::UNKNOWN:
+    case Status::RECEIPT_NOT_FOUND:
+    case Status::RECORD_NOT_FOUND:
+    case Status::OK:
+      return ExecutionStatus::RETRY;
+    default:
+      return ExecutionStatus::SUCCESS;
+  }
+}
+
+//-----
+grpc::Status TransactionReceiptQuery::submitRequest(const Client& client,
+                                                    const std::chrono::system_clock::time_point& deadline,
+                                                    const std::shared_ptr<internal::Node>& node,
+                                                    proto::Response* response) const
+{
+  return node->submitQuery(
+    proto::Query::QueryCase::kTransactionGetReceipt, makeRequest(client, node), deadline, response);
 }
 
 } // namespace Hedera

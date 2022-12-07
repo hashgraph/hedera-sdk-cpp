@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -32,20 +32,20 @@ class TransferTest : public ::testing::Test
 
 TEST_F(TransferTest, ProtoTransferTest)
 {
-  auto accountId = std::make_shared<AccountId>(10ULL);
+  AccountId accountId(10ULL);
   int64_t amount = 10LL;
 
   proto::AccountAmount protoAccountAmount;
-  protoAccountAmount.set_allocated_accountid(accountId->toProtobuf().release());
+  protoAccountAmount.set_allocated_accountid(accountId.toProtobuf().release());
   protoAccountAmount.set_amount(amount);
   protoAccountAmount.set_is_approval(true);
 
   Transfer transfer = Transfer::fromProtobuf(protoAccountAmount);
-  EXPECT_EQ(*transfer.getAccountId(), *accountId);
+  EXPECT_EQ(transfer.getAccountId(), accountId);
   EXPECT_EQ(transfer.getAmount().toTinybars(), amount);
   EXPECT_TRUE(transfer.getApproval());
 
-  accountId->setAccountNum(15ULL);
+  accountId.setAccountNum(15ULL);
   amount = 15LL;
 
   transfer.setAccountId(accountId);
@@ -53,7 +53,7 @@ TEST_F(TransferTest, ProtoTransferTest)
   transfer.setApproved(false);
 
   const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(transfer.toProtobuf());
-  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), accountId->getAccountNum());
+  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), accountId.getAccountNum());
   EXPECT_EQ(protoAccountAmountPtr->amount(), amount);
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }

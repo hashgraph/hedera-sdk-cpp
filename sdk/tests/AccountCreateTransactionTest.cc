@@ -58,13 +58,13 @@ TEST_F(AccountCreateTransactionTest, CloneAccountCreateTransaction)
 {
   AccountCreateTransaction transaction;
   const std::string memo = "this is a test memo";
-  transaction.setNodeAccountIds({ std::make_shared<AccountId>(getTestAccountId()) });
+  transaction.setNodeAccountIds({ getTestAccountId() });
   transaction.setTransactionMemo(memo);
   transaction.setStakedAccountId(getTestAccountId());
 
   auto clonedExecutableTransactionPtr = transaction.clone();
   EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().size(), transaction.getNodeAccountIds().size());
-  EXPECT_EQ(*clonedExecutableTransactionPtr->getNodeAccountIds().at(0), getTestAccountId());
+  EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().at(0), getTestAccountId());
 
   auto clonedTransactionPtr =
     dynamic_cast<Transaction<AccountCreateTransaction>*>(clonedExecutableTransactionPtr.get());

@@ -36,7 +36,7 @@ NodeAddressBook NodeAddressBook::fromFile(const std::string& fileName)
 NodeAddressBook NodeAddressBook::fromBytes(const std::vector<char>& bytes)
 {
   proto::NodeAddressBook addressBook;
-  addressBook.ParseFromArray(&bytes.front(), (int)bytes.size());
+  addressBook.ParseFromArray(&bytes.front(), static_cast<int>(bytes.size()));
 
   return fromProtobuf(addressBook);
 }
