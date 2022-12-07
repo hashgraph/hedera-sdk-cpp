@@ -1,14 +1,20 @@
 set(HAPI_LIBRARY_HASH "dafc0ad0181a05f1bccd0bc041f32be8b8cff3c7b7c7ffbec8062d7355c3e832" CACHE STRING "Use the configured hash to verify the Hedera API protobuf library release")
 set(HAPI_LIBRARY_URL "https://github.com/hashgraph/hedera-protobufs-cpp/releases/download/v0.30.0/hapi-library-61c288b7.tar.gz" CACHE STRING "Use the configured URL to download the Hedera API protobuf library package")
 
-# Fetch the HAPI Library
-FetchContent_Declare(
-        hapi
-        URL ${HAPI_LIBRARY_URL}
-        URL_HASH SHA256=${HAPI_LIBRARY_HASH}
-)
-set(FETCHCONTENT_QUIET OFF)
-FetchContent_MakeAvailable(hapi)
+set(HAPI_LOCAL_LIBRARY_PATH "" CACHE STRING "Overrides the configured HAPI_LIBRARY_URL setting and instead uses the local path to retrieve the artifacts")
+
+if(HAPI_LOCAL_LIBRARY_PATH STREQUAL "")
+    # Fetch the HAPI Library
+    FetchContent_Declare(
+            hapi
+            URL ${HAPI_LIBRARY_URL}
+            URL_HASH SHA256=${HAPI_LIBRARY_HASH}
+    )
+    set(FETCHCONTENT_QUIET OFF)
+    FetchContent_MakeAvailable(hapi)
+else()
+    set(hapi_SOURCE_DIR ${HAPI_LOCAL_LIBRARY_PATH})
+endif()
 
 set(HAPI_ROOT_DIR ${hapi_SOURCE_DIR}/${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR})
 
