@@ -80,7 +80,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
-          "value": "x64-windows-static"
+          "value": "x64-windows-static-md"
         }
       }
     }
