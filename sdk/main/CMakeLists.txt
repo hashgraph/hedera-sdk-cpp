@@ -63,6 +63,8 @@ add_library(${PROJECT_NAME} STATIC
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
 
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
@@ -86,7 +88,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::grpc
         gRPC::grpc_plugin_support
         gRPC::grpc_unsecure
-        protobuf::protobuf)
+        ${Protobuf_LIBRARIES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::grpc++
@@ -183,13 +185,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
         c-ares::cares
         re2::re2
-        zlib::zlib)
+        ${ZLIB_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 
 # Install Library & Headers
-install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib)
+install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin)
 install(DIRECTORY include/ TYPE INCLUDE FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY ${HAPI_INCLUDE_DIR}/ TYPE INCLUDE)
 install(DIRECTORY ${HAPI_LIB_DIR}/ TYPE LIB)

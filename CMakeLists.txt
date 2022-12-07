@@ -9,7 +9,15 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${CMAKE_BUILD_TYPE}/${CMAKE_HOS
 
 include(FetchContent)
 
-find_package(upb REQUIRED)
+set(Protobuf_USE_STATIC_LIBS ON)
+
+find_package(ZLIB REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
+find_package(re2 CONFIG REQUIRED)
+find_package(absl CONFIG REQUIRED)
+find_package(upb CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 
 include(SystemLibraries.cmake)
