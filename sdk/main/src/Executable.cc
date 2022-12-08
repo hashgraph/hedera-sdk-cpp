@@ -29,12 +29,12 @@
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
-#include <grpcpp/client_context.h>
-#include <grpcpp/impl/codegen/status.h>
 #include <proto/query.pb.h>
 #include <proto/response.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_response.pb.h>
+#include <grpcpp/client_context.h>
+#include <grpcpp/impl/codegen/status.h>
 #include <stdexcept>
 #include <utility>
 
