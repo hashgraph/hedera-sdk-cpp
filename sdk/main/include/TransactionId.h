@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef TRANSACTION_ID_H_
-#define TRANSACTION_ID_H_
+#ifndef HEDERA_SDK_CPP_TRANSACTION_ID_H_
+#define HEDERA_SDK_CPP_TRANSACTION_ID_H_
 
 #include "AccountId.h"
 
@@ -33,50 +33,57 @@ class TransactionID;
 namespace Hedera
 {
 /**
- * The client-generated ID for a transaction.
+ * The ID for a transaction. This is used for retrieving receipts and records for a transaction, for appending to a file
+ * right after creating it, for instantiating a smart contract with bytecode in a file just created, and internally by
+ * the network for detecting when duplicate transactions are submitted. A user might get a transaction processed faster
+ * by submitting it to N nodes, each with a different node account, but all with the same TransactionID. Then, the
+ * transaction will take effect when the first of all those nodes submits the transaction and it reaches consensus. The
+ * other transactions will not take effect. So this could make the transaction take effect faster, if any given node
+ * might be slow. However, the full transaction fee is charged for each transaction, so the total fee is N times as much
+ * if the transaction is sent to N nodes.
  *
- * This is used for retrieving receipts and records for a transaction, for appending to a file right after creating it,
- * for instantiating a smart contract with bytecode in a file just created, and internally by the network for detecting
- * when duplicate transactions are submitted.
+ * Applicable to Scheduled Transactions:
+ *  - The ID of a Scheduled Transaction has transactionValidStart and accountIDs inherited from the
+ *    ScheduleCreate transaction that created it. That is to say that they are equal
+ *  - The scheduled property is true for Scheduled Transactions
+ *  - transactionValidStart, accountID and scheduled properties should be omitted
  */
 class TransactionId
 {
 public:
   /**
-   * Generate a transaction ID for a transaction.
+   * Define a default comparator operator so that TransactionId object's can be compared.
+   */
+  bool operator==(const TransactionId&) const = default;
+
+  /**
+   * Generate a new TransactionId.
    *
-   * @param accountId The ID of the account that will be charged for this transaction.
-   * @return A new TransactionId.
+   * @param accountId The ID of the account to be charged for the execution of the transaction with which this ID will
+   *                  be associated.
+   * @return A generated TransactionId to be used for any transaction submitted by the account with the input ID.
    */
   static TransactionId generate(const std::shared_ptr<AccountId>& accountId);
 
   /**
-   * Construct a TransactionId from a protobuf TransactionID.
+   * Create a TransactionId object from a TransactionID protobuf object.
    *
-   * @param proto The TransactionID protobuf object.
-   * @return A TransactionId object with the protobuf TransactionID data.
+   * @param proto The TransactionID protobuf object from which to create a TransactionId object.
+   * @return The created TransactionId object.
    */
   static TransactionId fromProtobuf(const proto::TransactionID& proto);
 
   /**
-   * Default comparator operator.
+   * Construct a TransactionID protobuf object from this TransactionId object.
    *
-   * @param other The other TransactionId against which to compare.
-   * @return \c TRUE if these TransactionIds are the same, otherwise \c FALSE.
+   * @return A pointer to the created TransactionID protobuf object filled with this TransactionId object's data.
    */
-  bool operator==(const TransactionId& other) const = default;
+  [[nodiscard]] std::unique_ptr<proto::TransactionID> toProtobuf() const;
 
   /**
-   * Convert this TransactionId to its corresponding protobuf TransactionID.
+   * Get the point in time when the transaction represented by this TransactionId becomes (or became) valid.
    *
-   * @return Pointer to the created protobuf TransactionID.
-   */
-  [[nodiscard]] proto::TransactionID* toProtobuf() const;
-
-  /**
-   * Extract the valid transaction time.
-   *
-   * @return The valid transaction time.
+   * @return The valid start time of the transaction.
    */
   [[nodiscard]] inline std::chrono::system_clock::time_point getValidTransactionTime() const
   {
@@ -84,27 +91,27 @@ public:
   }
 
   /**
-   * Extract the account ID.
+   * Get the ID of the account submitting the transaction represented by this TransactionId.
    *
-   * @return The account ID.
+   * @return A pointer to the account ID associated with this TransactionId.
    */
   [[nodiscard]] inline std::shared_ptr<AccountId> getAccountId() const { return mAccountId; }
 
 private:
   /**
-   * The time at which the transaction is no longer considered "valid".
+   * The time at which the transaction associated with this TransactionId is considered "valid".
    *
    * When a transaction is submitted there is additionally a validDuration (defaults to 120s) and together they define a
-   * time window in which a transaction may be processed.
+   * time window in which the transaction may be processed.
    */
   std::chrono::system_clock::time_point mValidTransactionTime;
 
   /**
-   * The account ID of the account that is paying for this transaction.
+   * The ID of the account that is paying for this transaction associated with this TransactionId.
    */
   std::shared_ptr<AccountId> mAccountId;
 };
 
 } // namespace Hedera
 
-#endif // TRANSACTION_ID_H_
+#endif // HEDERA_SDK_CPP_TRANSACTION_ID_H_

@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef EXCHANGE_RATE_H_
-#define EXCHANGE_RATE_H_
+#ifndef HEDERA_SDK_CPP_EXCHANGE_RATE_H_
+#define HEDERA_SDK_CPP_EXCHANGE_RATE_H_
 
 #include <chrono>
 #include <optional>
@@ -31,23 +31,24 @@ class ExchangeRate;
 namespace Hedera
 {
 /**
- * Denotes a conversion between Hbars and cents (USD).
+ * An exchange rate between hbar and cents (USD) and the time at which the exchange rate will expire, and be superseded
+ * by a new exchange rate.
  */
 class ExchangeRate
 {
 public:
   /**
-   * Create an ExchangeRate from a protobuf ExchangeRate.
+   * Create an ExchangeRate object from a ExchangeRate protobuf object.
    *
-   * @param exchangeRate The protobuf ExchangeRate.
-   * @return An ExchangeRate with the protobuf ExchangeRate data.
+   * @param proto The ExchangeRate protobuf object from which to create an ExchangeRate object.
+   * @return The created ExchangeRate object.
    */
   static ExchangeRate fromProtobuf(const proto::ExchangeRate& proto);
 
   /**
-   * Get the amount an Hbar is worth in cents (USD)
+   * Get the amount an Hbar is worth in cents (USD).
    *
-   * @return The amount an Hbar is currently worth
+   * @return The amount an Hbar is currently worth.
    */
   [[nodiscard]] inline double getCurrentExchangeRate() const
   {
@@ -55,11 +56,11 @@ public:
   }
 
   /**
-   * Extract the expiration time of this exchange rate.
+   * Get the time this ExchangeRate will expire.
    *
-   * @return The expiration time of this exchange rate.
+   * @return The expiration time of this ExchangeRate.
    */
-  inline std::optional<std::chrono::system_clock::time_point> getExpirationTime() const
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getExpirationTime() const
   {
     return mExpirationTime;
   }
@@ -83,4 +84,4 @@ private:
 
 } // namespace Hedera
 
-#endif // EXCHANGE_RATE_H_
+#endif // HEDERA_SDK_CPP_EXCHANGE_RATE_H_

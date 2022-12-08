@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef TRANSACTION_RECEIPT_H_
-#define TRANSACTION_RECEIPT_H_
+#ifndef HEDERA_SDK_CPP_TRANSACTION_RECEIPT_H_
+#define HEDERA_SDK_CPP_TRANSACTION_RECEIPT_H_
 
 #include "AccountId.h"
 #include "ExchangeRateSet.h"
@@ -34,45 +34,46 @@ class TransactionReceipt;
 namespace Hedera
 {
 /**
- * The summary of a transaction's result so far. If the transaction has not reached consensus, this
- * result will be necessarily incomplete.
+ * The summary of a transaction's result so far. If the transaction has not reached consensus, this result will be
+ * necessarily incomplete.
  */
 class TransactionReceipt
 {
 public:
   /**
-   * Create a TransactionReceipt from a protobuf TransactionReceipt.
+   * Create a TransactionReceipt object from a TransactionReceipt protobuf object.
    *
-   * @param proto The protobuf TransactionReceipt.
-   * @return A TransactionReceipt with the protobuf TransactionReceipt data.
+   * @param proto The TransactionReceipt protobuf object from which to create an TransactionReceipt object.
+   * @return The created TransactionReceipt object.
    */
   static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto);
 
   /**
-   * Extract the transaction status.
+   * Get the transaction status.
    *
    * @return The transaction status.
    */
-  inline Status getStatus() const { return mStatus; }
+  [[nodiscard]] inline Status getStatus() const { return mStatus; }
 
   /**
-   * Extract the created account ID.
+   * Get the ID of the account that was created as a result of the submitted transaction. Only valid is this
+   * TransactionReceipt is for an AccountCreateTransaction.
    *
-   * @return The created account ID.
+   * @return The ID of the created account.
    */
-  inline std::optional<AccountId> getAccountId() const { return mAccountId; };
+  [[nodiscard]] inline std::optional<AccountId> getAccountId() const { return mAccountId; };
 
   /**
-   * Extract the current and next exchange rates.
+   * Get the exchange rates in effect when the transaction reached consensus.
    *
    * @return The current and next exchange rates.
    */
-  inline std::optional<ExchangeRateSet> getExchangeRates() const { return mExchangeRates; }
+  [[nodiscard]] inline std::optional<ExchangeRateSet> getExchangeRates() const { return mExchangeRates; }
 
 private:
   /**
    * The consensus status of the transaction; is UNKNOWN if consensus has not been reached, or if the associated
-   * transaction did not have a valid payer signature
+   * transaction did not have a valid payer signature.
    */
   Status mStatus = UNKNOWN;
 
@@ -89,4 +90,4 @@ private:
 
 } // namespace Hedera
 
-#endif // TRANSACTION_RECEIPT_H_
+#endif // HEDERA_SDK_CPP_TRANSACTION_RECEIPT_H_

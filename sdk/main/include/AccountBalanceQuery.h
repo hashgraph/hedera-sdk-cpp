@@ -17,123 +17,109 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_BALANCE_QUERY_H_
-#define ACCOUNT_BALANCE_QUERY_H_
+#ifndef HEDERA_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_
+#define HEDERA_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_
 
 #include "AccountId.h"
 #include "ContractId.h"
 #include "Query.h"
 
-#include <memory>
-
-namespace Hedera
-{
-class AccountBalance;
-class Client;
-class Node;
-}
-
-namespace proto
-{
-class Query;
-class Response;
-}
-
-namespace grpc
-{
-class ClientContext;
-class Status;
-}
+#include <optional>
 
 namespace Hedera
 {
 /**
  * Get the balance of a Hedera crypto-currency account. This returns only the balance, so it is a smaller and faster
- * reply than AccountInfoQuery.
+ * reply than an AccountInfoQuery.
  *
  * This query is free.
  */
 class AccountBalanceQuery : public Query<AccountBalanceQuery, AccountBalance>
 {
 public:
-  /**
-   * Default destructor.
-   */
   ~AccountBalanceQuery() override = default;
 
   /**
-   * The account ID for which the balance is being requested. This is mutually exclusive with setContractId().
+   * Derived from Executable. Create a clone of this AccountBalanceQuery.
    *
-   * @param accountId The account ID to set.
-   * @return Reference to this AccountBalanceQuery object.
+   * @return A pointer to the created clone.
+   */
+  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
+
+  /**
+   * Set the ID of the account of which to request the balance. This is mutually exclusive with setContractId() and will
+   * clear the contract ID if one is already set.
+   *
+   * @param accountId The ID of the desired account of which to request the balance.
+   * @return A reference to this AccountBalanceQuery object with the newly-set account ID.
    */
   AccountBalanceQuery& setAccountId(const AccountId& accountId);
 
   /**
-   * The contract ID for which the balance is being requested. This is mutually exclusive with setAccountId().
+   * Set the ID of the contract of which to request the balance. This is mutually exclusive with setAccountId() and will
+   * clear the account ID if one is already set.
    *
-   * @param contractId The ContractId to set.
-   * @return Reference to this AccountBalanceQuery object.
+   * @param contractId The ID of the desired contract of which to request the balance.
+   * @return A reference to this AccountBalanceQuery object with the newly-set contract ID.
    */
   AccountBalanceQuery& setContractId(const ContractId& contractId);
 
   /**
-   * Extract the account ID of the account for which this query is meant.
+   * Get the ID of the account of which this query is currently configured to get the balance.
    *
-   * @return The account ID of the query.
+   * @return The ID of the account for which this query is meant. Returns uninitialized if a value has not yet been set,
+   *         or if a contract ID has been set most recently.
    */
-  inline std::unique_ptr<AccountId> getAccountId()
-  {
-    return mAccountId ? std::make_unique<AccountId>(*mAccountId) : std::unique_ptr<AccountId>();
-  }
+  [[nodiscard]] inline std::optional<AccountId> getAccountId() { return mAccountId; }
 
   /**
-   * Extract the contract ID of the contract for which this query is meant.
+   * Get the ID of the contract of which this query is currently configured to get the balance.
    *
-   * @return The contract ID of the contract for which this query is meant.
+   * @return The ID of the contract for which this query is meant. Returns uninitialized if a value has not yet been
+   *         set, or if an account ID has been set most recently.
    */
-  inline std::unique_ptr<ContractId> getContractId()
-  {
-    return mContractId ? std::make_unique<ContractId>(*mContractId) : std::unique_ptr<ContractId>();
-  }
+  [[nodiscard]] inline std::optional<ContractId> getContractId() { return mContractId; }
 
 protected:
   /**
-   * Derived from Executable. Get the gRPC method to call to retrieve an account balance.
+   * Derived from Executable. Construct a Query protobuf object from this AccountBalanceQuery object.
    *
-   * @param node The Node from which to retrieve the function.
+   * @param client The Client trying to construct this AccountBalanceQuery.
+   * @param node   The Node on which this AccountBalanceQuery will be sent.
+   * @return A Query protobuf object filled with this AccountBalanceQuery object's data.
+   */
+  [[nodiscard]] proto::Query makeRequest(const Client& client,
+                                         const std::shared_ptr<internal::Node>& node) const override;
+
+  /**
+   * Derived from Executable. Construct an AccountBalance object from a Response protobuf object.
+   *
+   * @param response The Response protobuf object from which to construct an AccountBalance object.
+   * @return An AccountBalance object filled with the Response protobuf object's data
+   */
+  [[nodiscard]] AccountBalance mapResponse(const proto::Response& response) const override;
+
+  /**
+   * Derived from Executable. Get the gRPC method to call to send this AccountBalanceQuery.
+   *
+   * @param node The Node to which this AccountBalanceQuery is being sent and from which to retrieve the gRPC method.
    * @return The gRPC method to call to execute this AccountBalanceQuery.
    */
-  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
-    const std::shared_ptr<Node>& node) const override;
-
-  /**
-   * Derived from Executable. Construct a query protobuf object from this AccountBalanceQuery.
-   *
-   * @return The query protobuf object that contains this AccountBalanceQuery information.
-   */
-  proto::Query makeRequest(const Client&, const std::shared_ptr<Node>&) const override;
-
-  /**
-   * Derived from Executable. Create an AccountBalance object from a protobuf response object.
-   *
-   * @param response The protobuf response object.
-   * @return The response object with the AccountBalance data.
-   */
-  AccountBalance mapResponse(const proto::Response& response) const override;
+  [[nodiscard]] std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
+    const std::shared_ptr<internal::Node>& node) const override;
 
 private:
   /**
-   * The account ID of the account for which this query is meant.
+   * The ID of the account of which this query should get the balance.
    */
-  std::unique_ptr<AccountId> mAccountId;
+  std::optional<AccountId> mAccountId;
 
   /**
-   * The contract ID with which this request is associated.
+   * The ID of the contract of which this query should get the balance.
    */
-  std::unique_ptr<ContractId> mContractId;
+  std::optional<ContractId> mContractId;
 };
 
 } // namespace Hedera
 
-#endif // ACCOUNT_BALANCE_QUERY_H_
+#endif // HEDERA_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_

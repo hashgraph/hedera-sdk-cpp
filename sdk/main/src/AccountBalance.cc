@@ -27,7 +27,7 @@ namespace Hedera
 AccountBalance AccountBalance::fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto)
 {
   AccountBalance balance;
-  balance.mBalance = Hbar(proto.balance(), HbarUnit::TINYBAR());
+  balance.mBalance = Hbar(static_cast<int64_t>(proto.balance()), HbarUnit::TINYBAR());
   return balance;
 }
 

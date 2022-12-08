@@ -18,9 +18,8 @@
  *
  */
 #include "AccountBalanceQuery.h"
-
 #include "AccountBalance.h"
-#include "Node.h"
+#include "impl/Node.h"
 
 #include <proto/crypto_get_account_balance.pb.h>
 #include <proto/query.pb.h>
@@ -30,9 +29,16 @@
 namespace Hedera
 {
 //-----
+std::unique_ptr<Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>>
+AccountBalanceQuery::clone() const
+{
+  return std::make_unique<AccountBalanceQuery>(*this);
+}
+
+//-----
 AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountId)
 {
-  mAccountId = std::make_unique<AccountId>(accountId);
+  mAccountId = accountId;
   mContractId.reset();
 
   return *this;
@@ -41,21 +47,14 @@ AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountI
 //-----
 AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contractId)
 {
-  mContractId = std::make_unique<ContractId>(contractId);
+  mContractId = contractId;
   mAccountId.reset();
 
   return *this;
 }
 
 //-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
-AccountBalanceQuery::getGrpcMethod(const std::shared_ptr<Node>& node) const
-{
-  return node->getGrpcQueryMethod(proto::Query::QueryCase::kCryptogetAccountBalance);
-}
-
-//-----
-proto::Query AccountBalanceQuery::makeRequest(const Client&, const std::shared_ptr<Node>&) const
+proto::Query AccountBalanceQuery::makeRequest(const Client&, const std::shared_ptr<internal::Node>&) const
 {
   proto::Query query;
   proto::CryptoGetAccountBalanceQuery* getAccountBalanceQuery = query.mutable_cryptogetaccountbalance();
@@ -66,12 +65,12 @@ proto::Query AccountBalanceQuery::makeRequest(const Client&, const std::shared_p
 
   if (mAccountId)
   {
-    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf());
+    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf().release());
   }
 
   if (mContractId)
   {
-    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf());
+    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf().release());
   }
 
   return query;
@@ -81,6 +80,13 @@ proto::Query AccountBalanceQuery::makeRequest(const Client&, const std::shared_p
 AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response) const
 {
   return AccountBalance::fromProtobuf(response.cryptogetaccountbalance());
+}
+
+//-----
+std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
+AccountBalanceQuery::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
+{
+  return node->getGrpcQueryMethod(proto::Query::QueryCase::kCryptogetAccountBalance);
 }
 
 } // namespace Hedera

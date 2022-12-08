@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -20,16 +20,13 @@
 #include "AccountId.h"
 
 #include <proto/basic_types.pb.h>
-
 #include <stdexcept>
 
 namespace Hedera
 {
 //-----
 AccountId::AccountId(const uint64_t& num)
-  : mShardNum(0)
-  , mRealmNum(0)
-  , mAccountNum(num)
+  : mAccountNum(num)
 {
 }
 
@@ -67,18 +64,15 @@ AccountId::AccountId(const std::string& str)
 //-----
 AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
 {
-  AccountId accountId;
-  accountId.mShardNum = static_cast<uint64_t>(proto.shardnum());
-  accountId.mRealmNum = static_cast<uint64_t>(proto.realmnum());
-  accountId.mAccountNum = static_cast<uint64_t>(proto.accountnum());
-
-  return accountId;
+  return AccountId(static_cast<uint64_t>(proto.shardnum()),
+                   static_cast<uint64_t>(proto.realmnum()),
+                   static_cast<uint64_t>(proto.accountnum()));
 }
 
 //-----
-proto::AccountID* AccountId::toProtobuf() const
+std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
 {
-  auto proto = new proto::AccountID;
+  auto proto = std::make_unique<proto::AccountID>();
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
   proto->set_accountnum(static_cast<int64_t>(mAccountNum));

@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,108 +17,106 @@
  * limitations under the License.
  *
  */
+#ifndef HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
+#define HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
 
-#ifndef HEDERA_SDK_CPP_MNEMONICBIP39_H
-#define HEDERA_SDK_CPP_MNEMONICBIP39_H
-
-#include "MnemonicAbstract.h"
+#include "Mnemonic.h"
 
 #include <string>
 #include <vector>
 
 namespace Hedera
 {
-
 /**
- * A standard BIP39 mnemonic
+ * A standard BIP39 mnemonic.
  */
-class MnemonicBIP39 : public MnemonicAbstract
+class MnemonicBIP39 : public Mnemonic
 {
 public:
   /**
-   * Initializes a mnemonic from a vector of word indices
+   * Initialize a MnemonicBIP39 from a vector of word indices.
    *
-   * @param wordIndices the word indices to create the mnemonic from
-   *
-   * @return the new mnemonic object
+   * @param wordIndices The indices of the words from the BIP32 word list to use to create a MnemonicBIP39.
+   * @return An initialized MnemonicBIP39.
    */
   static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<uint16_t>& wordIndices);
 
   /**
-   * Initializes a mnemonic from a vector of word strings
+   * Initialize a MnemonicBIP39 from a vector of word strings.
    *
-   * @param words the words to create the mnemonic from
-   *
-   * @return the new mnemonic object
+   * @param words The words from which to create a MnemonicBIP39.
+   * @return An initialized MnemonicBIP39.
    */
   static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<std::string>& words);
 
   /**
-   * Initializes a mnemonic from a string containing all the words of a mnemonic phrase
+   * Initialize a MnemonicBIP39 from a string containing all the words of a mnemonic phrase.
    *
-   * @param fullMnemonic the string to create the mnemonic from
-   * @param delimiter the character delimiting the mnemonic string
-   *
-   * @return the new mnemonic object
+   * @param fullMnemonic The string that contains all the words from which to create a MnemonicBIP39.
+   * @param delimiter    The delimiting string for the mnemonic string.
+   * @return An initialized MnemonicBIP39.
+   * @throws std::invalid_argument If the resulting checksum is invalid.
    */
   static MnemonicBIP39 initializeBIP39Mnemonic(const std::string& fullMnemonic, const std::string& delimiter = " ");
 
   /**
-   * Generates a new mnemonic phrase with 12 words
+   * Generate a MnemonicBIP39 phrase with 12 words.
    *
-   * @return the newly generated mnemonic object
+   * @return The newly-generated MnemonicBIP39.
    */
   static MnemonicBIP39 generate12WordBIP39Mnemonic();
 
   /**
-   * Generates a new mnemonic phrase with 24 words
+   * Generate a MnemonicBIP39 phrase with 24 words.
    *
-   * @return the newly generated mnemonic object
+   * @return The newly-generated MnemonicBIP39.
    */
   static MnemonicBIP39 generate24WordBIP39Mnemonic();
 
   /**
-   * Computes the seed that results from this mnemonic
+   * Compute a seed that results from this MnemonicBIP39.
    *
-   * @param passphrase the passphrase to use in seed generation
-   *
-   * @return this mnemonic's seed, which the given passphrase
+   * @param passphrase The passphrase to use in seed generation.
+   * @return This MnemonicBIP39's seed, given the input passphrase.
+   * @throws std::runtime_error If OpenSSL HMAC generation fails.
    */
   [[nodiscard]] std::vector<unsigned char> toSeed(const std::string& passphrase = "") const;
 
   /**
-   * Computes the word indices that result from the input entropy
+   * Compute the word indices that result from the input entropy.
    *
-   * @param entropy the entropy to compute the word indices from
-   *
-   * @return the word indices
+   * @param entropy The entropy from which to compute the word indices.
+   * @return A vector containing the word indices.
    */
   static std::vector<uint16_t> entropyToWordIndices(const std::vector<unsigned char>& entropy);
 
 protected:
   /**
-   * Gets a reference to the BIP39 word list
+   * Derived from Mnemonic. Get a reference to the BIP39 word list.
    *
-   * @return the BIP39 word list
+   * @return The BIP39 word list.
    */
   [[nodiscard]] const std::vector<std::string>& getWordList() const override;
 
   /**
-   * Gets the set of acceptable word counts.
-   * <p>
-   * In the case of a BIP39 passphrase, this set will include 12 and 24
+   * Get the set of acceptable word counts. In the case of a BIP39 passphrase, this set will include 12 and 24.
    *
-   * @return the acceptable word counts
+   * @return The set of acceptable word counts.
    */
   [[nodiscard]] const std::set<unsigned long>& getAcceptableWordCounts() const override;
 
 private:
   /**
-   * Hidden constructor
+   * Hidden constructor. Static initialization/generation functions should be used to create MnemonicBIP39 objects.
    */
   MnemonicBIP39() = default;
+
+  /**
+   * Set of acceptable words counts for a MnemonicBIP39.
+   */
+  inline static const std::set<unsigned long> ACCEPTABLE_COUNTS = { 12U, 24U };
 };
 
-} // Hedera
+} // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_MNEMONICBIP39_H
+#endif // HEDERA_SDK_CPP_MNEMONIC_BIP39_H_

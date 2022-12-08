@@ -18,25 +18,31 @@
  *
  */
 #include "AccountCreateTransaction.h"
-
-#include "Channel.h"
-#include "Client.h"
-#include "PublicKey.h"
 #include "TransactionResponse.h"
+#include "impl/DurationConverter.h"
+#include "impl/Node.h"
 
-#include "helper/DurationConverter.h"
-
+#include <grpcpp/client_context.h>
 #include <proto/crypto_create.pb.h>
-#include <proto/crypto_service.grpc.pb.h>
-#include <proto/response.pb.h>
 #include <proto/transaction.pb.h>
+#include <proto/transaction_response.pb.h>
+#include <stdexcept>
 
 namespace Hedera
 {
 //-----
 AccountCreateTransaction::AccountCreateTransaction()
+  : Transaction<AccountCreateTransaction>()
 {
   setMaxTransactionFee(Hbar(5LL));
+}
+
+//-----
+std::unique_ptr<
+  Executable<AccountCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>>
+AccountCreateTransaction::clone() const
+{
+  return std::make_unique<AccountCreateTransaction>(*this);
 }
 
 //-----
@@ -61,7 +67,8 @@ AccountCreateTransaction& AccountCreateTransaction::setReceiverSignatureRequired
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(const std::chrono::duration<int64_t>& autoRenewPeriod)
+AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
+  const std::chrono::duration<int64_t>& autoRenewPeriod)
 {
   mAutoRenewPeriod = autoRenewPeriod;
   return *this;
@@ -70,6 +77,11 @@ AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(const std
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_view memo)
 {
+  if (memo.size() > 100)
+  {
+    throw std::invalid_argument("Account memo is too large. Must be smaller than 100 bytes");
+  }
+
   mAccountMemo = memo;
   return *this;
 }
@@ -77,14 +89,19 @@ AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_v
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
 {
-  mMaxAutomaticTokenAssociations = associations > 1000U ? 1000U : associations;
+  if (associations > 1000)
+  {
+    throw std::invalid_argument("Too many maximum number of token associations. Maximum can't be over 1000");
+  }
+
+  mMaxAutomaticTokenAssociations = associations;
   return *this;
 }
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 {
-  mStakedAccountId = std::make_unique<AccountId>(stakedAccountId);
+  mStakedAccountId = stakedAccountId;
   mStakedNodeId.reset();
   return *this;
 }
@@ -92,7 +109,7 @@ AccountCreateTransaction& AccountCreateTransaction::setStakedAccountId(const Acc
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setStakedNodeId(const uint64_t& stakedNodeId)
 {
-  mStakedNodeId = std::make_unique<uint64_t>(stakedNodeId);
+  mStakedNodeId = stakedNodeId;
   mStakedAccountId.reset();
   return *this;
 }
@@ -112,7 +129,8 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 }
 
 //-----
-proto::Transaction AccountCreateTransaction::makeRequest(const Client& client, const std::shared_ptr<Node>&) const
+proto::Transaction AccountCreateTransaction::makeRequest(const Client& client,
+                                                         const std::shared_ptr<internal::Node>&) const
 {
   proto::TransactionBody transactionBody = generateTransactionBody(client);
   transactionBody.set_allocated_cryptocreateaccount(build());
@@ -122,7 +140,7 @@ proto::Transaction AccountCreateTransaction::makeRequest(const Client& client, c
 
 //-----
 std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-AccountCreateTransaction::getGrpcMethod(const std::shared_ptr<Node>& node) const
+AccountCreateTransaction::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
 {
   return node->getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoCreateAccount);
 }
@@ -134,19 +152,19 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   if (mKey)
   {
-    body->set_allocated_key(mKey->toProtobuf());
+    body->set_allocated_key(mKey->toProtobuf().release());
   }
 
   body->set_initialbalance(mInitialBalance.toTinybars());
   body->set_receiversigrequired(mReceiverSignatureRequired);
   body->set_allocated_autorenewperiod(
-    DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod)));
+    internal::DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod)));
   body->set_memo(mAccountMemo);
   body->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
 
   if (mStakedAccountId)
   {
-    body->set_allocated_staked_account_id(mStakedAccountId->toProtobuf());
+    body->set_allocated_staked_account_id(mStakedAccountId->toProtobuf().release());
   }
 
   if (mStakedNodeId)

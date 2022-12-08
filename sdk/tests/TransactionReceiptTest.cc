@@ -19,8 +19,7 @@
  */
 #include "TransactionReceipt.h"
 #include "Status.h"
-
-#include "helper/TimestampConverter.h"
+#include "impl/TimestampConverter.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_receipt.pb.h>
@@ -48,7 +47,7 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
 {
   proto::TransactionReceipt protoTxReceipt;
   protoTxReceipt.set_status(proto::ResponseCodeEnum::SUCCESS);
-  protoTxReceipt.set_allocated_accountid(getTestAccountId().toProtobuf());
+  protoTxReceipt.set_allocated_accountid(getTestAccountId().toProtobuf().release());
 
   const int32_t value = 6;
   const int32_t secs = 100;

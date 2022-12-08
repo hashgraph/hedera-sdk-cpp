@@ -17,18 +17,13 @@
  * limitations under the License.
  *
  */
-#ifndef TRANSACTION_RECORD_QUERY_H_
-#define TRANSACTION_RECORD_QUERY_H_
+#ifndef HEDERA_SDK_CPP_TRANSACTION_RECORD_QUERY_H_
+#define HEDERA_SDK_CPP_TRANSACTION_RECORD_QUERY_H_
 
 #include "Query.h"
 #include "TransactionId.h"
 
 #include <optional>
-
-namespace Hedera
-{
-class TransactionRecord;
-}
 
 namespace Hedera
 {
@@ -43,60 +38,67 @@ namespace Hedera
 class TransactionRecordQuery : public Query<TransactionRecordQuery, TransactionRecord>
 {
 public:
-  /**
-   * Default destructor.
-   */
   ~TransactionRecordQuery() override = default;
 
   /**
-   * The transaction ID for which the record is being requested.
+   * Derived from Executable. Create a clone of this TransactionRecordQuery.
    *
-   * @param transactionId The TransactionId to set.
-   * @return Reference to this TransactionRecordQuery object.
+   * @return A pointer to the created clone.
+   */
+  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
+
+  /**
+   * Set the ID of the transaction of which to request the record.
+   *
+   * @param transactionId The ID of the desired transaction of which to request the record.
+   * @return A reference to this TransactionRecordQuery object with the newly-set transaction ID.
    */
   TransactionRecordQuery& setTransactionId(const TransactionId& transactionId);
 
   /**
-   * Extract the transaction ID of the transaction for which this query is meant.
+   * Get the ID of the transaction of which this query is currently configured to get the record.
    *
-   * @return The transaction ID of the query.
+   * @return The ID of the transaction for which this query is meant. Returns uninitialized if a value has not yet been
+   *         set.
    */
-  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
+  [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionId; }
 
 protected:
   /**
-   * Derived from Executable. Get the gRPC method to call to retrieve a transaction record.
+   * Derived from Executable. Construct a Query protobuf object from this TransactionRecordQuery object.
    *
-   * @param node The Node from which to retrieve the function.
-   * @return The gRPC method to call to execute this TransactionRecordQuery.
+   * @param client The Client trying to construct this TransactionRecordQuery.
+   * @param node   The Node on which this TransactionRecordQuery will be sent.
+   * @return A Query protobuf object filled with this TransactionRecordQuery object's data.
    */
-  std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
-    const std::shared_ptr<Node>& node) const override;
+  [[nodiscard]] proto::Query makeRequest(const Client& client,
+                                         const std::shared_ptr<internal::Node>& node) const override;
 
   /**
-   * Derived from Executable. Construct a query protobuf object from this TransactionRecordQuery.
+   * Derived from Executable. Construct a TransactionRecord object from a Response protobuf object.
    *
-   * @param client The Client submitting this TransactionRecordQuery.
-   * @param node   The Node to which this TransactionRecordQuery is being submitted.
-   * @return The query protobuf object that contains this TransactionRecordQuery information.
-   */
-  [[nodiscard]] proto::Query makeRequest(const Client& client, const std::shared_ptr<Node>& node) const override;
-
-  /**
-   * Derived from Query. Create an TransactionRecord object from a protobuf response object.
-   *
-   * @param response The protobuf response object.
-   * @return The response object with the TransactionRecord data.
+   * @param response The Response protobuf object from which to construct a TransactionRecord object.
+   * @return An TransactionRecord object filled with the Response protobuf object's data
    */
   [[nodiscard]] TransactionRecord mapResponse(const proto::Response& response) const override;
 
+  /**
+   * Derived from Executable. Get the gRPC method to call to send this TransactionRecordQuery.
+   *
+   * @param node The Node to which this TransactionRecordQuery is being sent and from which to retrieve the gRPC
+   *             method.
+   * @return The gRPC method to call to execute this TransactionRecordQuery.
+   */
+  [[nodiscard]] std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
+    const std::shared_ptr<internal::Node>& node) const override;
+
 private:
   /**
-   * The ID of the transaction for which the record is requested.
+   * The ID of the transaction of which this query should get the record.
    */
-  TransactionId mTransactionId;
+  std::optional<TransactionId> mTransactionId;
 };
 
 } // namespace Hedera
 
-#endif // TRANSACTION_RECORD_QUERY_H_
+#endif // HEDERA_SDK_CPP_TRANSACTION_RECORD_QUERY_H_

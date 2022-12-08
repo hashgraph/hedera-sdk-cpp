@@ -17,19 +17,16 @@
  * limitations under the License.
  *
  */
-#ifndef QUERY_H_
-#define QUERY_H_
+#ifndef HEDERA_SDK_CPP_QUERY_H_
+#define HEDERA_SDK_CPP_QUERY_H_
 
 #include "Executable.h"
-
-#include <functional>
 
 namespace Hedera
 {
 class AccountBalance;
 class AccountBalanceQuery;
 class AccountId;
-class Client;
 class TransactionReceipt;
 class TransactionReceiptQuery;
 class TransactionRecord;
@@ -40,12 +37,6 @@ namespace proto
 {
 class Query;
 class Response;
-}
-
-namespace grpc
-{
-class ClientContext;
-class Status;
 }
 
 namespace Hedera
@@ -59,24 +50,35 @@ namespace Hedera
 template<typename SdkRequestType, typename SdkResponseType>
 class Query : public Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>
 {
+public:
+  ~Query() override = default;
+
 protected:
   /**
-   * Default destructor.
+   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
    */
-  virtual ~Query() = default;
+  Query() = default;
+  Query(const Query&) = default;
+  Query& operator=(const Query&) = default;
+  Query(Query&&) noexcept = default;
+  Query& operator=(Query&&) noexcept = default;
 
   /**
    * Derived from Executable. Perform any operations needed when this Query is being executed.
    */
-  void onExecute(const Client&) override {}
+  void onExecute(const Client&) override
+  { // Intentionally unimplemented
+  }
 
   /**
-   * Derived from Executable. Perform any needed actions for this Query when a Node has been selected to which to
-   * send this Query.
+   * Derived from Executable. Perform any needed actions for this Query when a
+   * Node has been selected to which to send this Query.
    *
    * @param node The Node to which this Query is being sent.
    */
-  void onSelectNode(const std::shared_ptr<Node>&) override {}
+  void onSelectNode(const std::shared_ptr<internal::Node>&) override
+  { // Intentionally unimplemented
+  }
 };
 
 /**
@@ -88,4 +90,4 @@ template class Query<TransactionRecordQuery, TransactionRecord>;
 
 } // namespace Hedera
 
-#endif // QUERY_H_
+#endif // HEDERA_SDK_CPP_QUERY_H_
