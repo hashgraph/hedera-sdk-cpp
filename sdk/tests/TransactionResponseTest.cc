@@ -44,11 +44,3 @@ TEST_F(TransactionResponseTest, ProtobufTransactionResponse)
   txResponse = TransactionResponse::fromProtobuf(protoTransactionResponse);
   EXPECT_TRUE(txResponse.getValidateStatus());
 }
-
-TEST_F(TransactionResponseTest, TransactionId)
-{
-  const TransactionId transactionId = TransactionId::generate(AccountId(10ULL));
-  TransactionResponse txResponse;
-  txResponse.setTransactionId(transactionId);
-  EXPECT_EQ(txResponse.getTransactionId(), transactionId);
-}

@@ -71,7 +71,7 @@ std::string bytesToHex(const std::vector<unsigned char>& bytes)
 
   for (unsigned char byte : bytes)
   {
-    stream << std::setw(2) << std::setfill('0') << (int)byte;
+    stream << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
   }
 
   return stream.str();

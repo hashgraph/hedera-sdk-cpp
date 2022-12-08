@@ -64,11 +64,4 @@ TransactionRecord TransactionResponse::getRecord(const Client& client,
   return TransactionRecordQuery().setTransactionId(mTransactionId).execute(client, timeout);
 }
 
-//-----
-TransactionResponse& TransactionResponse::setTransactionId(const Hedera::TransactionId& transactionId)
-{
-  mTransactionId = transactionId;
-  return *this;
-}
-
 } // namespace Hedera

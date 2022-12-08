@@ -40,11 +40,10 @@ class NodeAddress
 {
 public:
   /**
-   * Creates a new node address object from a protobuf
+   * Create a NodeAddress object from a NodeAddress protobuf object.
    *
-   * @param protoNodeAddress the protobuf address
-   *
-   * @return the new node address object
+   * @param proto The NodeAddress protobuf object from which to create a NodeAddress object.
+   * @return The created NodeAddress object.
    */
   static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
@@ -65,30 +64,30 @@ public:
   static inline bool isNonTlsPort(int port) { return (port == PORT_NODE_PLAIN) || (port == PORT_MIRROR_PLAIN); }
 
   /**
-   * Gets the string representation of the address, for debugging purposes
+   * Get a string representation of the address.
    *
-   * @return a string representing the address
+   * @return A string representing the address.
    */
   [[nodiscard]] std::string toString() const;
 
   /**
-   * Gets the account ID associated with the node
+   * Get the account ID associated with the node at this address.
    *
-   * @return the account ID associated with the node
+   * @return The account ID associated with the node at this address.
    */
   [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
 
   /**
-   * Gets a vector of endpoints associated with the node
+   * Get a vector of endpoints associated with the node.
    *
-   * @return the node endpoints
+   * @return The node endpoints.
    */
   [[nodiscard]] inline const std::vector<Endpoint>& getEndpoints() const { return mEndpoints; }
 
   /**
-   * Gets the SHA-384 hash of the node certificate chain
+   * Get the SHA-384 hash of the node certificate chain.
    *
-   * @return the certificate chain hash
+   * @return The certificate chain hash.
    */
   [[nodiscard]] inline std::string getCertificateHash() const { return mCertificateHash; }
 
@@ -102,32 +101,32 @@ private:
   static constexpr int PORT_NODE_TLS = 50212;
 
   /**
-   * The endpoints associated with the node
+   * The endpoints associated with the node.
    */
   std::vector<Endpoint> mEndpoints;
 
   /**
-   * The node's public key
+   * The node's public key.
    */
   std::string mRSAPublicKey;
 
   /**
-   * The ID of the node
+   * The ID of the node.
    */
   int64_t mNodeId = -1;
 
   /**
-   * The SHA-384 hash of the node's certificate chain
+   * The SHA-384 hash of the node's certificate chain.
    */
   std::string mCertificateHash;
 
   /**
-   * A string description of the node
+   * A string description of the node.
    */
   std::string mDescription;
 
   /**
-   * The account ID associated with the node
+   * The account ID associated with the node.
    */
   AccountId mAccountId;
 };

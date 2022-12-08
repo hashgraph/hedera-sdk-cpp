@@ -56,15 +56,6 @@ std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(const std::ve
 }
 
 //-----
-void Network::setNetwork(const NodeAddressBook& nodeAddressBook)
-{
-  for (const auto& [accountId, nodeAddress] : nodeAddressBook.getAddressMap())
-  {
-    mNodes.push_back(std::make_shared<Node>(nodeAddress));
-  }
-}
-
-//-----
 void Network::close() const
 {
   for (const auto& node : mNodes)
@@ -78,6 +69,15 @@ void Network::setTLSBehavior(TLSBehavior desiredBehavior) const
   for (const auto& node : mNodes)
   {
     node->setTLSBehavior(desiredBehavior);
+  }
+}
+
+//-----
+void Network::setNetwork(const NodeAddressBook& nodeAddressBook)
+{
+  for (const auto& [accountId, nodeAddress] : nodeAddressBook.getAddressMap())
+  {
+    mNodes.push_back(std::make_shared<Node>(nodeAddress));
   }
 }
 

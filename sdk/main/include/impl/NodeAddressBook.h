@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-
 #ifndef HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_BOOK_H_
 #define HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_BOOK_H_
 
@@ -36,35 +35,32 @@ class NodeAddress;
 namespace Hedera::internal
 {
 /**
- * An address book containing all known nodes on the network
+ * An address book containing all known nodes on the network.
  */
 class NodeAddressBook
 {
 public:
   /**
-   * Creates a new address book from a file. File must contain the serialization of an address book protobuf
+   * Create a NodeAddressBook object from a file that contains the serialization of a NodeAddressBook protobuf object.
    *
-   * @param fileName the name of the file where the address book is encoded
-   *
-   * @return the newly created address book
+   * @param fileName The name of the file where the NodeAddressBook protobuf object is encoded.
+   * @return The created NodeAddressBook object.
    */
   static NodeAddressBook fromFile(const std::string& fileName);
 
   /**
-   * Creates a new address book from the byte serialization of an address book protobuf
+   * Create a NodeAddressBook object from the bye serialization of a NodeAddressBook protobuf object.
    *
-   * @param bytes the byte serialization of an address book protobuf
-   *
-   * @return the newly created address book
+   * @param bytes The byte serialization of the NodeAddressBook protobuf object to decode.
+   * @return The created NodeAddressBook object.
    */
   static NodeAddressBook fromBytes(const std::vector<char>& bytes);
 
   /**
-   * Creates a new address book from an address book protobuf
+   * Create a NodeAddressBook object from a NodeAddressBook protobuf object.
    *
-   * @param addressBook the address book protobuf
-   *
-   * @return the newly created address book
+   * @param proto The NodeAddressBook protobuf object from which to create a NodeAddressBook object.
+   * @return The created NodeAddressBook object.
    */
   static NodeAddressBook fromProtobuf(const proto::NodeAddressBook& addressBook);
 
@@ -77,9 +73,9 @@ public:
 
 private:
   /**
-   * A map from node account ID to node address
+   * A map from node account ID to node address.
    */
-  std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>> addressMap;
+  std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>> mAddressMap;
 };
 
 } // namespace Hedera::internal

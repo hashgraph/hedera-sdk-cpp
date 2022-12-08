@@ -78,7 +78,7 @@ public:
   /**
    * Submit this Executable to a Hedera network with a specific timeout.
    *
-   * @param client The Client to use to submit this Executable.
+   * @param client  The Client to use to submit this Executable.
    * @param timeout The desired timeout for the execution of this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
    * @throws std::invalid_argument If the there was a network issue processing this Executable.
@@ -95,8 +95,9 @@ public:
   SdkRequestType& setNodeAccountIds(const std::vector<AccountId>& nodeAccountIds);
 
   /**
-   * Set the maximum number of times this Executable should attempt to be submitted before the execution is considered a
-   * failure.
+   * Set the maximum number of times this Executable should try to resubmit itself after a failed attempt before it
+   * considers itself a failure. This will override the maximum number of attempts of the Client used to submit this
+   * Executable.
    *
    * @param attempts The desired maximum number of execution attempts.
    * @return A reference to this Executable derived class with the newly-set maximum number of execution attempts.
@@ -104,18 +105,21 @@ public:
   SdkRequestType& setMaxAttempts(uint32_t attempts);
 
   /**
-   * Set the minimum amount of time this Executable should wait after a failed submission to a node before attempting
-   * another to that same node.
+   * Set the minimum amount of time a Node should wait after this Executable failed to execute before being willing to
+   * submit this Executable again. This will override the minimum backoff time of the Client used to submit this
+   * Executable.
    *
    * @param backoff The desired minimum amount of time this Executable should wait between retries.
    * @return A reference to this Executable derived class with the newly-set minimum backoff time.
+   * @throws std::invalid_argument If the desired minimum backoff duration is longer than the set maximum backoff time
+   *                               (DEFAULT_MAX_BACKOFF if the maximum backoff time has not been set).
    */
   SdkRequestType& setMinBackoff(const std::chrono::duration<double>& backoff);
 
   /**
-   * Set the maximum amount of time this Executable should wait after a failed submission to a node before attempting
-   * another to that same node. If the succeeding attempt fails after reaching this maximum, the execution of this
-   * Executable is then considered a failure.
+   * Set the maximum amount of time a Node should wait after this Executable failed to execute before being willing to
+   * submit this Executable again. This will override the maximum backoff time of the Client used to submit this
+   * Executable.
    *
    * @param backoff The desired maximum amount of time this Executable should wait between retries.
    * @return A reference to this Executable derived class with the newly-set maximum backoff time.
@@ -130,27 +134,30 @@ public:
   [[nodiscard]] inline std::vector<AccountId> getNodeAccountIds() const { return mNodeAccountIds; }
 
   /**
-   * Get the maximum number of execution attempts this Executable is currently configured to try.
+   * Get the maximum number of times this Executable should try to resubmit itself after a failed attempt before it
+   * considers itself a failure.
    *
-   * @return The maximum number of execution attempts.
+   * @return The maximum number of execution attempts. Uninitialized value if not previously set.
    */
-  [[nodiscard]] inline std::optional<uint32_t> getMaxAttempts() const { return mDefaultMaxAttempts; }
+  [[nodiscard]] inline std::optional<uint32_t> getMaxAttempts() const { return mMaxAttempts; }
 
   /**
-   * Get the minimum amount of time this Executable is currently configured to wait between submission attempts to a
-   * specific node.
+   * Get the minimum amount of time a Node should wait after this Executable failed to execute before being willing to
+   * submit this Executable again.
    *
-   * @return The minimum amount of time between submission attempts to a specific node.
+   * @return The minimum backoff time for Nodes for execution attempts of this Executable. Uninitialized value if not
+   * previously set.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMinBackoff() const { return mDefaultMinBackoff; }
+  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMinBackoff() const { return mMinBackoff; }
 
   /**
-   * Get the maximum amount of time this Executable is currently configured to wait between submission attempts to a
-   * specific node.
+   * Get the maximum amount of time a Node should wait after this Executable failed to execute before being willing to
+   * submit this Executable again.
    *
-   * @return The maximum amount of time between submission attempts to a specific node.
+   * @return The maximum backoff time for Nodes for execution attempts of this Executable. Uninitialized value if not
+   * previously set.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMaxBackoff() const { return mDefaultMaxBackoff; }
+  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMaxBackoff() const { return mMaxBackoff; }
 
 protected:
   /**
@@ -199,10 +206,10 @@ protected:
   /**
    * Determine the ExecutionStatus of this Executable after being submitted.
    *
-   * @param status   The response status of the previous attempt.
-   * @param client   The Client that attempted to submit this Executable.
-   * @param response The ProtoResponseType received from the network in response to submitting this request.
-   * @return The status of the submitted request.
+   * @param status   The response status from the network.
+   * @param client   The Client that submitted this Executable.
+   * @param response The ProtoResponseType received from the network in response to submitting this Executable.
+   * @return The status of the submitted Executable.
    */
   [[nodiscard]] virtual ExecutionStatus shouldRetry(Status status,
                                                     [[maybe_unused]] const Client& client,
@@ -229,7 +236,7 @@ private:
   [[nodiscard]] virtual SdkResponseType mapResponse(const ProtoResponseType& response) const = 0;
 
   /**
-   * Grab the status response code from a ProtoResponseType object.
+   * Get the status response code from a ProtoResponseType object.
    *
    * @param response The ProtoResponseType object from which to grab the status response code.
    * @return The status response code of the input ProtoResponseType object.
@@ -259,12 +266,15 @@ private:
   virtual void onExecute([[maybe_unused]] const Client& client) = 0;
 
   /**
-   * Grab parameters from the Client that is submitting this Executable, if these parameters have not been set
-   * specifically for this Executable.
+   * Set the execution parameters to be used to submit this Executable. If any of mMaxAttempts, mMinBackoff, or
+   * mMaxBackoff have been set with setMaxAttempts(), setMinBackoff(), or setMaxBackoff() respectively, these values
+   * will be placed into mCurrentMaxAttempts, mCurrentMinBackoff, and mCurrentMaxBackoff respectively. If these values
+   * have not been set for this Executable, the respective values for the Client will be grabbed and set instead. If
+   * these values have not been set in the Client, the defaults are set.
    *
    * @param client The Client submitting this Executable.
    */
-  void setParametersFromClient(const Client& client);
+  void setExecutionParameters(const Client& client);
 
   /**
    * Get a Node from a list of Nodes to which to try and send this Executable. This will prioritize getting "healthy"
@@ -282,45 +292,45 @@ private:
   std::vector<AccountId> mNodeAccountIds;
 
   /**
-   * The default maximum number of attempts that will be made to submit this Executable. If not set, a submission will
-   * use the Client's set maximum number of attempts. If that's not set, DEFAULT_MAX_ATTEMPTS will be used.
+   * The maximum number of attempts that will be made to submit this Executable. If not set, a submission will use the
+   * Client's set maximum number of attempts. If that's not set, DEFAULT_MAX_ATTEMPTS will be used.
    */
-  std::optional<uint32_t> mDefaultMaxAttempts;
+  std::optional<uint32_t> mMaxAttempts;
 
   /**
-   * The default minimum amount of time to wait between submission attempts. If not set, a submission will use the
-   * Client's set minimum backoff. If that's not set, DEFAULT_MIN_BACKOFF will be used.
+   * The minimum amount of time to wait between submission attempts. If not set, a submission will use the Client's set
+   * minimum backoff. If that's not set, DEFAULT_MIN_BACKOFF will be used.
    */
-  std::optional<std::chrono::duration<double>> mDefaultMinBackoff;
+  std::optional<std::chrono::duration<double>> mMinBackoff;
 
   /**
-   * The default maximum amount of time to wait between submission attempts. If not set, a submission will use the
-   * Client's set maximum backoff. If that's not set, DEFAULT_MAX_BACKOFF will be used.
+   * The maximum amount of time to wait between submission attempts. If not set, a submission will use the Client's set
+   * maximum backoff. If that's not set, DEFAULT_MAX_BACKOFF will be used.
    */
-  std::optional<std::chrono::duration<double>> mDefaultMaxBackoff;
+  std::optional<std::chrono::duration<double>> mMaxBackoff;
 
   /**
-   * The current maximum number of attempts being used during execution. This may be this Executable's
-   * mDefaultMaxAttempts, the Client's max attempts, or DEFAULT_MAX_ATTEMPTS.
+   * The maximum number of attempts to be used for an execution. This may be this Executable's mMaxAttempts, the
+   * Client's max attempts, or DEFAULT_MAX_ATTEMPTS.
    */
-  uint32_t mMaxAttempts;
+  uint32_t mCurrentMaxAttempts;
 
   /**
-   * The current minimum backoff being used during execution. This may be this Executable's mDefaultMinBackoff, the
-   * Client's set minimum backoff, or DEFAULT_MIN_BACKOFF.
+   * The minimum backoff to be used for an execution. This may be this Executable's mMinBackoff, the Client's set
+   * minimum backoff, or DEFAULT_MIN_BACKOFF.
    */
-  std::chrono::duration<double> mMinBackoff;
+  std::chrono::duration<double> mCurrentMinBackoff;
 
   /**
-   * The current maximum backoff being used during execution. This may be this Executable's mDefaultMaxBackoff, the
-   * Client's set maximum backoff, or DEFAULT_MAX_BACKOFF.
+   * The maximum backoff to be used for an execution. This may be this Executable's mMaxBackoff, the Client's set
+   * maximum backoff, or DEFAULT_MAX_BACKOFF.
    */
-  std::chrono::duration<double> mMaxBackoff;
+  std::chrono::duration<double> mCurrentMaxBackoff;
 
   /**
-   * The current backoff time being used during execution. Every failed submission attempt waits a certain amount of
-   * time that is double the previous amount of time this Executable waited for its previous submission attempt, up to
-   * the specified maximum backoff time, at which point the execution is considered a failure.
+   * The current backoff time being used during the current execution. Every failed submission attempt waits a certain
+   * amount of time that is double the previous amount of time this Executable waited for its previous submission
+   * attempt, up to the specified maximum backoff time, at which point the execution is considered a failure.
    */
   std::chrono::duration<double> mCurrentBackoff;
 };

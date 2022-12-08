@@ -34,7 +34,7 @@ struct Client::ClientImpl
 {
   // Pointer to the network object that contains all processing for sending/receiving information to/from a Hedera
   // network.
-  std::unique_ptr<internal::Network> mNetwork = nullptr;
+  std::optional<internal::Network> mNetwork;
 
   // The ID of the account that will pay for requests using this Client.
   std::optional<AccountId> mOperatorAccountId;
@@ -43,17 +43,17 @@ struct Client::ClientImpl
   std::unique_ptr<PrivateKey> mOperatorPrivateKey = nullptr;
 
   // The maximum fee this Client is willing to pay for transactions.
-  std::optional<Hbar> mDefaultMaxTransactionFee;
+  std::optional<Hbar> mMaxTransactionFee;
 
   // The transaction ID regeneration policy to utilize when transactions submitted by this Client receive a
   // TRANSACTION_EXPIRED response from the network.
   std::optional<bool> mTransactionIdRegenerationPolicy;
 
   // The maximum length of time this Client should wait to get a response after sending a request to the network.
-  std::chrono::duration<double> mRequestTimeout = DEFAULT_REQUEST_TIMEOUT;
+  std::chrono::duration<double> mRequestTimeout = std::chrono::minutes(2);
 
-  // The maximum number of attempts a request sent by this Client will attempt to send a request. A manually-set maximum
-  // number of attempts in the request will override this.
+  // The maximum number of attempts a request sent by this Client will attempt to send a request. A manually-set
+  // maximum number of attempts in the request will override this.
   std::optional<uint32_t> mMaxAttempts;
 
   // The minimum length of time a request sent to a Node by this Client will wait before attempting to send a request
@@ -99,7 +99,7 @@ Client& Client::operator=(Client&& other) noexcept
 Client Client::forTestnet()
 {
   Client client;
-  client.mImpl->mNetwork = std::make_unique<internal::Network>(internal::Network::forTestnet());
+  client.mImpl->mNetwork = internal::Network::forTestnet();
   return client;
 }
 
@@ -130,14 +130,41 @@ std::vector<unsigned char> Client::sign(const std::vector<unsigned char>& bytes)
 }
 
 //-----
-Client& Client::setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee)
+std::vector<std::shared_ptr<internal::Node>> Client::getNodesWithAccountIds(
+  const std::vector<AccountId>& accountIds) const
 {
-  if (defaultMaxTransactionFee.toTinybars() < 0)
+  if (mImpl->mNetwork)
+  {
+    return mImpl->mNetwork->getNodesWithAccountIds(accountIds);
+  }
+
+  throw std::runtime_error("Client network uninitialized");
+}
+
+void Client::close() const
+{
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->close();
+  }
+}
+
+//-----
+Client& Client::setRequestTimeout(const std::chrono::duration<double>& timeout)
+{
+  mImpl->mRequestTimeout = timeout;
+  return *this;
+}
+
+//-----
+Client& Client::setMaxTransactionFee(const Hbar& fee)
+{
+  if (fee.toTinybars() < 0)
   {
     throw std::invalid_argument("Transaction fee cannot be negative");
   }
 
-  mImpl->mDefaultMaxTransactionFee = defaultMaxTransactionFee;
+  mImpl->mMaxTransactionFee = fee;
   return *this;
 }
 
@@ -180,26 +207,6 @@ Client& Client::setMaxBackoff(const std::chrono::duration<double>& backoff)
 }
 
 //-----
-std::vector<std::shared_ptr<internal::Node>> Client::getNodesWithAccountIds(
-  const std::vector<AccountId>& accountIds) const
-{
-  if (mImpl->mNetwork)
-  {
-    return mImpl->mNetwork->getNodesWithAccountIds(accountIds);
-  }
-
-  throw std::runtime_error("Client network uninitialized");
-}
-
-void Client::close() const
-{
-  if (mImpl && mImpl->mNetwork)
-  {
-    mImpl->mNetwork->close();
-  }
-}
-
-//-----
 std::optional<AccountId> Client::getOperatorAccountId() const
 {
   return mImpl->mOperatorAccountId;
@@ -212,21 +219,21 @@ std::unique_ptr<PublicKey> Client::getOperatorPublicKey() const
 }
 
 //-----
-std::optional<Hbar> Client::getDefaultMaxTransactionFee() const
+std::chrono::duration<double> Client::getRequestTimeout() const
 {
-  return mImpl->mDefaultMaxTransactionFee;
+  return mImpl->mRequestTimeout;
+}
+
+//-----
+std::optional<Hbar> Client::getMaxTransactionFee() const
+{
+  return mImpl->mMaxTransactionFee;
 }
 
 //-----
 std::optional<bool> Client::getTransactionIdRegenerationPolicy() const
 {
   return mImpl->mTransactionIdRegenerationPolicy;
-}
-
-//-----
-std::chrono::duration<double> Client::getRequestTimeout() const
-{
-  return mImpl->mRequestTimeout;
 }
 
 //-----

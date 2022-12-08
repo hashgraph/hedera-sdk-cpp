@@ -42,7 +42,7 @@ TEST_F(ClientTest, ConstructClient)
   Client client;
   EXPECT_FALSE(client.getOperatorAccountId());
   EXPECT_EQ(client.getOperatorPublicKey(), nullptr);
-  EXPECT_FALSE(client.getDefaultMaxTransactionFee());
+  EXPECT_FALSE(client.getMaxTransactionFee());
   EXPECT_EQ(client.getRequestTimeout(), std::chrono::minutes(2));
 }
 
@@ -74,9 +74,9 @@ TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 {
   Client client;
   const auto fee = Hbar(1ULL);
-  client.setDefaultMaxTransactionFee(fee);
-  EXPECT_EQ(*client.getDefaultMaxTransactionFee(), fee);
+  client.setMaxTransactionFee(fee);
+  EXPECT_EQ(*client.getMaxTransactionFee(), fee);
 
   // Negative value should throw
-  EXPECT_THROW(client.setDefaultMaxTransactionFee(fee.negated()), std::invalid_argument);
+  EXPECT_THROW(client.setMaxTransactionFee(fee.negated()), std::invalid_argument);
 }

@@ -43,7 +43,7 @@ namespace Hedera
  * accounts that have mReceiverSigRequired == \c TRUE. The signatures are in the same order as the accounts, skipping
  * those accounts that don't need a signature.
  */
-class TransferTransaction final : public Transaction<TransferTransaction>
+class TransferTransaction : public Transaction<TransferTransaction>
 {
 public:
   ~TransferTransaction() override = default;

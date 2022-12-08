@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace Hedera
+namespace Hedera::internal
 {
 /**
  * Enum representing different modes of network communication.
@@ -40,6 +40,6 @@ enum class TLSBehavior
   REQUIRE
 };
 
-} // Hedera
+} // namespace Hedera::internal
 
 #endif // HEDERA_SDK_CPP_IMPL_TLS_BEHAVIOR_H_

@@ -25,8 +25,28 @@
 
 namespace Hedera::internal::HexConverter
 {
+/**
+ * Convert an array of 64 bytes to their hex values and put them in a string.
+ *
+ * @param bytes The bytes from which to get the hex string.
+ * @return A string containing the hex values of the input byte array.
+ */
 std::string base64ToHex(const std::vector<unsigned char>& bytes);
+
+/**
+ * Convert a hex string to the array of bytes 64 it represents.
+ *
+ * @param inputString The hex string to convert to a byte array.
+ * @return The byte array containing the values of the input hex string.
+ */
 std::vector<unsigned char> hexToBase64(const std::string& inputString);
+
+/**
+ * Convert an array of bytes to their hex values and put them in a string.
+ *
+ * @param bytes The bytes from which to get the hex string.
+ * @return A string containing the hex values of the input byte array.
+ */
 std::string bytesToHex(const std::vector<unsigned char>& bytes);
 } // namespace Hedera::internal::HexConverter
 

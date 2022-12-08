@@ -40,30 +40,32 @@ class Network
 {
 public:
   /**
-   * Create a testnet network.
+   * Construct a Network that is pre-configured for Hedera Testnet access.
    *
-   * @return The new testnet network.
+   * @return A Network object that is set-up to communicate with the Hedera Testnet.
    */
   static Network forTestnet();
 
   /**
-   * Get a list of nodes on this Client's network that are associated with the input account IDs. If no account IDs are
-   * specified, returns all nodes
+   * Get a list of Node pointers that point to Nodes on this Network that are associated with the input account IDs. If
+   * no account IDs are specified, pointers to all Nodes on this Network are returned.
    *
-   * @param accountIds The account IDs of the requested nodes.
-   *
-   * @return List of nodes with the requested account IDs.
+   * @param accountIds The IDs of the accounts that are associated with the desired Nodes.
+   * @return A list of Nodes pointers that point to Nodes with the requested account IDs.
    */
   [[nodiscard]] std::vector<std::shared_ptr<Node>> getNodesWithAccountIds(
     const std::vector<AccountId>& accountIds) const;
 
   /**
-   * Close this network.
+   * Initiate an orderly shutdown of communications with the Nodes that are a part of this Network. Preexisting
+   * transactions or queries continue but more would be immediately cancelled.
+   *
+   * After this method returns, this Network can be re-used. All network communication can be re-established as needed.
    */
   void close() const;
 
   /**
-   * Sets the TLS behavior of all nodes.
+   * Set the TLS behavior of all Nodes on this Network.
    *
    * @param desiredBehavior The desired behavior.
    */
@@ -71,14 +73,14 @@ public:
 
 private:
   /**
-   * Set the network configuration for this network.
+   * Establish communications with all Nodes for this Network that are specified in the input address book.
    *
-   * @param nodeAddressBook The address book the network will be communicating with
+   * @param nodeAddressBook The address book that contains the Nodes with which this Network will be communicating.
    */
   void setNetwork(const NodeAddressBook& nodeAddressBook);
 
   /**
-   * List of nodes with which this network is communicating.
+   * The list of pointers to Nodes with which this Network is communicating.
    */
   std::vector<std::shared_ptr<Node>> mNodes;
 };

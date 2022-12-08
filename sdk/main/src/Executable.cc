@@ -57,7 +57,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::duration<double>& timeout)
 {
-  setParametersFromClient(client);
+  setExecutionParameters(client);
   onExecute(client);
 
   // The time to timeout
@@ -72,7 +72,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
   for (uint32_t attempt = 1;; ++attempt)
   {
-    if (attempt > mMaxAttempts)
+    if (attempt > mCurrentMaxAttempts)
     {
       throw std::runtime_error("Max number of attempts made");
     }
@@ -159,6 +159,11 @@ template<typename SdkRequestType, typename ProtoRequestType, typename ProtoRespo
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMinBackoff(
   const std::chrono::duration<double>& backoff)
 {
+  if ((mMaxBackoff && backoff > *mMaxBackoff) || (!mMaxBackoff && backoff > DEFAULT_MAX_BACKOFF))
+  {
+    throw std::invalid_argument("Minimum backoff would be larger than maximum backoff");
+  }
+
   mMinBackoff = backoff;
   return static_cast<SdkRequestType&>(*this);
 }
@@ -168,6 +173,11 @@ template<typename SdkRequestType, typename ProtoRequestType, typename ProtoRespo
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMaxBackoff(
   const std::chrono::duration<double>& backoff)
 {
+  if ((mMinBackoff && backoff < *mMinBackoff) || (!mMinBackoff && backoff < DEFAULT_MIN_BACKOFF))
+  {
+    throw std::invalid_argument("Maximum backoff would be smaller than minimum backoff");
+  }
+
   mMaxBackoff = backoff;
   return static_cast<SdkRequestType&>(*this);
 }
@@ -177,8 +187,8 @@ template<typename SdkRequestType, typename ProtoRequestType, typename ProtoRespo
 void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::onSelectNode(
   const std::shared_ptr<internal::Node>& node)
 {
-  node->setMinBackoff(mMinBackoff);
-  node->setMaxBackoff(mMaxBackoff);
+  node->setMinBackoff(mCurrentMinBackoff);
+  node->setMaxBackoff(mCurrentMaxBackoff);
 }
 
 //-----
@@ -203,19 +213,19 @@ Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>
 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
-void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setParametersFromClient(
+void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setExecutionParameters(
   const Client& client)
 {
-  mMaxAttempts = mDefaultMaxAttempts       ? *mDefaultMaxAttempts
-                 : client.getMaxAttempts() ? *client.getMaxAttempts()
-                                           : DEFAULT_MAX_ATTEMPTS;
-  mMinBackoff = mDefaultMinBackoff       ? *mDefaultMinBackoff
-                : client.getMinBackoff() ? *client.getMinBackoff()
-                                         : DEFAULT_MIN_BACKOFF;
-  mMaxBackoff = mDefaultMaxBackoff       ? *mDefaultMaxBackoff
-                : client.getMaxBackoff() ? *client.getMaxBackoff()
-                                         : DEFAULT_MAX_BACKOFF;
-  mCurrentBackoff = mMinBackoff;
+  mCurrentMaxAttempts = mMaxAttempts              ? *mMaxAttempts
+                        : client.getMaxAttempts() ? *client.getMaxAttempts()
+                                                  : DEFAULT_MAX_ATTEMPTS;
+  mCurrentMinBackoff = mMinBackoff              ? *mMinBackoff
+                       : client.getMinBackoff() ? *client.getMinBackoff()
+                                                : DEFAULT_MIN_BACKOFF;
+  mCurrentMaxBackoff = mMaxBackoff              ? *mMaxBackoff
+                       : client.getMaxBackoff() ? *client.getMaxBackoff()
+                                                : DEFAULT_MAX_BACKOFF;
+  mCurrentBackoff = mCurrentMinBackoff;
 }
 
 //-----

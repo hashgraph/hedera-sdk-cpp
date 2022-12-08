@@ -35,7 +35,7 @@ namespace Hedera
  * TransferList which gives the details of that transfer. If the transaction didn't return anything that should be in
  * the record, then the results field will be set to nothing.
  */
-class TransactionRecordQuery final : public Query<TransactionRecordQuery, TransactionRecord>
+class TransactionRecordQuery : public Query<TransactionRecordQuery, TransactionRecord>
 {
 public:
   ~TransactionRecordQuery() override = default;
@@ -83,7 +83,7 @@ private:
   [[nodiscard]] TransactionRecord mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Grab the status response code for a submitted TransactionRecordQuery from a Response
+   * Derived from Executable. Get the status response code for a submitted TransactionRecordQuery from a Response
    * protobuf object.
    *
    * @param response The Response protobuf object from which to grab the TransactionRecordQuery status response code.

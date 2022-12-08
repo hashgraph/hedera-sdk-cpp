@@ -29,25 +29,17 @@ namespace Hedera
  */
 constexpr auto DEFAULT_MAX_ATTEMPTS = 10U;
 /**
- * The default minimum duration of time to wait to attempt another submission amount of an Executable.
+ * The default minimum duration of time a Node should wait before retrying to submit a previously-failed request.
  */
 constexpr auto DEFAULT_MIN_BACKOFF = std::chrono::milliseconds(250);
 /**
- * The default maximum duration of time to wait to attempt another submission amount of an Executable.
+ * The default maximum duration of time a Node should wait before retrying to submit a previously-failed request.
  */
 constexpr auto DEFAULT_MAX_BACKOFF = std::chrono::seconds(8);
-/**
- * The default amount of time to wait to get a response from the network.
- */
-constexpr auto DEFAULT_REQUEST_TIMEOUT = std::chrono::minutes(2);
 /**
  * The default maximum transaction fee.
  */
 constexpr auto DEFAULT_MAX_TRANSACTION_FEE = Hbar(2LL);
-/**
- * The default length of time that a transaction will remain valid.
- */
-constexpr auto DEFAULT_TRANSACTION_VALID_DURATION = std::chrono::minutes(2);
 }
 
 #endif // HEDERA_SDK_CPP_DEFAULTS_H_

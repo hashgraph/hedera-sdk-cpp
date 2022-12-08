@@ -24,6 +24,7 @@
 
 namespace Hedera::internal
 {
+//-----
 NodeAddressBook NodeAddressBook::fromFile(const std::string& fileName)
 {
   std::ifstream infile(fileName, std::ios_base::binary);
@@ -33,6 +34,7 @@ NodeAddressBook NodeAddressBook::fromFile(const std::string& fileName)
   return NodeAddressBook::fromBytes(buffer);
 }
 
+//-----
 NodeAddressBook NodeAddressBook::fromBytes(const std::vector<char>& bytes)
 {
   proto::NodeAddressBook addressBook;
@@ -41,6 +43,7 @@ NodeAddressBook NodeAddressBook::fromBytes(const std::vector<char>& bytes)
   return fromProtobuf(addressBook);
 }
 
+//-----
 NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& addressBook)
 {
   NodeAddressBook outputAddressBook;
@@ -49,7 +52,7 @@ NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& addr
   {
     const proto::NodeAddress& nodeAddress = addressBook.nodeaddress(i);
 
-    outputAddressBook.addressMap.try_emplace(
+    outputAddressBook.mAddressMap.try_emplace(
       AccountId::fromProtobuf(nodeAddress.nodeaccountid()),
       std::make_shared<internal::NodeAddress>(internal::NodeAddress::fromProtobuf(nodeAddress)));
   }
@@ -57,9 +60,10 @@ NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& addr
   return outputAddressBook;
 }
 
+//-----
 const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& NodeAddressBook::getAddressMap() const
 {
-  return addressMap;
+  return mAddressMap;
 }
 
 } // namespace Hedera::internal

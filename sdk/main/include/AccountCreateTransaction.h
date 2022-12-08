@@ -63,7 +63,7 @@ namespace Hedera
  * The current API ignores shardID, realmID, and newRealmAdminKey, and creates everything in shard 0 and realm 0, with a
  * null key. Future versions of the API will support multiple realms and multiple shards.
  */
-class AccountCreateTransaction final : public Transaction<AccountCreateTransaction>
+class AccountCreateTransaction : public Transaction<AccountCreateTransaction>
 {
 public:
   AccountCreateTransaction();
@@ -190,7 +190,7 @@ public:
   /**
    * Get the desired Hbar transfer receiver signature policy for the new account.
    *
-   * @return \c TRUE if the new account will be required to sign all incoming Hbar transfers, otherwise \c FALSE.
+   * @return \c TRUE if the new account should be required to sign all incoming Hbar transfers, otherwise \c FALSE.
    */
   [[nodiscard]] inline bool getReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
 
@@ -234,7 +234,7 @@ public:
   /**
    * Get the desired staking rewards reception policy for the new account.
    *
-   * @return \c TRUE if the new account will decline from receiving staking rewards, otherwise \c FALSE
+   * @return \c TRUE if the new account should decline from receiving staking rewards, otherwise \c FALSE
    */
   [[nodiscard]] inline bool getDeclineStakingReward() const { return mDeclineStakingReward; }
 
@@ -292,7 +292,7 @@ private:
 
   /**
    * If \c TRUE, the new account's key must sign any transaction being deposited into it (in addition to all
-   * withdrawals). Defaults to \c FALSE.
+   * withdrawals).
    */
   bool mReceiverSignatureRequired = false;
 

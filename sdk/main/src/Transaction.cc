@@ -132,27 +132,18 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
 template<typename SdkRequestType>
 Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client& client) const
 {
-  if (mMaxTransactionFee)
-  {
-    return *mMaxTransactionFee;
-  }
-
-  else if (const std::optional<Hbar> clientMaxTxFee = client.getDefaultMaxTransactionFee())
-  {
-    return *clientMaxTxFee;
-  }
-
-  else
-  {
-    return DEFAULT_MAX_TRANSACTION_FEE;
-  }
+  return mMaxTransactionFee              ? *mMaxTransactionFee
+         : client.getMaxTransactionFee() ? *client.getMaxTransactionFee()
+                                         : DEFAULT_MAX_TRANSACTION_FEE;
 }
 
 //-----
 template<typename SdkRequestType>
 TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
 {
-  return TransactionResponse::fromProtobuf(response).setTransactionId(mTransactionId);
+  TransactionResponse txResp = TransactionResponse::fromProtobuf(response);
+  txResp.mTransactionId = mTransactionId;
+  return txResp;
 }
 
 //-----

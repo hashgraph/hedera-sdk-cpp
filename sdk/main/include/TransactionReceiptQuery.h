@@ -33,7 +33,7 @@ namespace Hedera
  * receipt period, and for a transaction that was never submitted, the receipt is unknown. This query is free (the
  * payment field is left empty). No State proof is available for this response
  */
-class TransactionReceiptQuery final : public Query<TransactionReceiptQuery, TransactionReceipt>
+class TransactionReceiptQuery : public Query<TransactionReceiptQuery, TransactionReceipt>
 {
 public:
   ~TransactionReceiptQuery() override = default;
@@ -81,7 +81,7 @@ private:
   [[nodiscard]] TransactionReceipt mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Grab the status response code for a submitted TransactionReceiptQuery from a Response
+   * Derived from Executable. Get the status response code for a submitted TransactionReceiptQuery from a Response
    * protobuf object.
    *
    * @param response The Response protobuf object from which to grab the TransactionReceiptQuery status response code.
@@ -92,10 +92,11 @@ private:
   /**
    * Derived from Executable. Determine the ExecutionStatus of this TransactionReceiptQuery after being submitted.
    *
-   * @param status   The response status of the previous attempt.
-   * @param client   The Client that attempted to submit this TransactionReceiptQuery.
-   * @param response The Response protobuf object received from the network in response to submitting this request.
-   * @return The status of the submitted request.
+   * @param status   The response status from the network.
+   * @param client   The Client that submitted this TransactionReceiptQuery.
+   * @param response The Response protobuf object received from the network in response to submitting this
+   *                 TransactionReceiptQuery.
+   * @return The status of the submitted TransactionReceiptQuery.
    */
   [[nodiscard]]
   typename Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::ExecutionStatus

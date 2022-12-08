@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef TRANSACTION_RESPONSE_H_
-#define TRANSACTION_RESPONSE_H_
+#ifndef HEDERA_SDK_CPP_TRANSACTION_RESPONSE_H_
+#define HEDERA_SDK_CPP_TRANSACTION_RESPONSE_H_
 
 #include "TransactionId.h"
 
@@ -27,6 +27,9 @@
 
 namespace Hedera
 {
+template<typename SdkRequestType>
+class Transaction;
+
 class Client;
 class TransactionReceipt;
 class TransactionRecord;
@@ -41,104 +44,97 @@ namespace Hedera
 {
 /**
  * When the client sends the node a transaction of any kind, the node replies with this, which simply says that the
- * transaction passed the precheck (so the node will submit it to the network) or it failed (so it won't). To learn the
+ * transaction passed the pre-check (so the node will submit it to the network) or it failed (so it won't). To learn the
  * consensus result, the client should later obtain a receipt (free), or can buy a more detailed record (not free).
  */
 class TransactionResponse
 {
 public:
   /**
-   * Create a TransactionResponse object from a transaction response protobuf object.
+   * Create a TransactionResponse object from a TransactionResponse protobuf object.
    *
-   * @param proto The protobuf transaction response object.
-   * @return A TransactionResponse object containing the data of the input protobuf transaction response.
+   * @param proto The TransactionResponse protobuf object from which to create a TransactionResponse object.
+   * @return The created TransactionResponse object.
    */
   static TransactionResponse fromProtobuf(const proto::TransactionResponse& proto);
 
   /**
-   * Get the receipt for this transaction.
+   * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction.
    *
-   * @param client The client with which this query will be executed.
-   * @return The receipt for this transaction.
-   * @throws std::runtime_error if unable to communicate with client network.
+   * @param client The Client to use to submit a TransactionReceiptQuery.
+   * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws std::runtime_error If unable to communicate with client network.
    */
   [[nodiscard]] TransactionReceipt getReceipt(const Client& client) const;
 
   /**
-   * Get the receipt for this transaction with a specified timeout.
+   * Get a TransactionReceipt for the Transaction to which this TransactionResponse is responding.
    *
-   * @param client  The client with which this query will be executed.
-   * @param timeout The timeout for this query.
-   * @return The receipt for this transaction.
-   * @throws std::runtime_error if unable to communicate with client network.
+   * @param client  The Client to use to submit a TransactionReceiptQuery.
+   * @param timeout The desired timeout for the execution of the TransactionReceiptQuery.
+   * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws std::runtime_error If unable to communicate with client network.
    */
   [[nodiscard]] TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
 
   /**
-   * Get the record for this transaction.
+   * Get a TransactionRecord for the Transaction to which this TransactionResponse is responding.
    *
-   * @param client The client with which this query will be executed.
-   * @return The record for this transaction.
-   * @throws std::runtime_error if unable to communicate with client network.
+   * @param client The Client to use to submit a TransactionRecordQuery.
+   * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws std::runtime_error If unable to communicate with client network.
    */
   [[nodiscard]] TransactionRecord getRecord(const Client& client) const;
 
   /**
-   * Get the record for this transaction with a specified timeout.
+   * Get a TransactionRecord for the Transaction to which this TransactionResponse is responding.
    *
-   * @param client  The client with which this query will be executed.
-   * @param timeout The timeout for this query.
-   * @return The record for this transaction.
-   * @throws std::runtime_error if unable to communicate with client network.
+   * @param client  The Client to use to submit a TransactionRecordQuery.
+   * @param timeout The desired timeout for the execution of the TransactionRecordQuery.
+   * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws std::runtime_error If unable to communicate with client network.
    */
   [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
 
   /**
-   * Set the transaction ID to which this TransactionResponse is responding.
+   * Get the cost to execute this TransactionResponse's corresponding Transaction if the Transaction's max transaction
+   * fee wasn't enough.
    *
-   * @param transactionId The transaction ID to set.
-   * @return Reference to this Transaction object.
-   */
-  TransactionResponse& setTransactionId(const TransactionId& transactionId);
-
-  /**
-   * Extract the price of the transaction.
-   *
-   * @return The price of the transaction.
+   * @return The cost to execute this TransactionResponse's corresponding Transaction.
    */
   [[nodiscard]] inline uint64_t getCost() const { return mCost; }
 
   /**
-   * Determine if the transaction pre-checks were a success.
+   * Determine if this TransactionResponse's corresponding Transaction pre-checks were a success.
    *
-   * @return \c TRUE if the transaction pre-checks were a success, otherwise \c FALSE.
+   * @return \c TRUE if this TransactionResponse's corresponding Transaction pre-checks were a success, otherwise \c
+   *         FALSE.
    */
   [[nodiscard]] inline bool getValidateStatus() const { return mValidateStatus; }
 
-  /**
-   * Extract the transaction ID of the transaction.
-   *
-   * @return The transaction ID of the transaction.
-   */
-  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
-
 private:
   /**
-   * The price of the transaction. Defaults to 0.
+   * Allow Transactions to adjust this TransactionResponse's mTransactionId.
    */
-  uint64_t mCost = 0;
+  template<typename SdkRequestType>
+  friend class Transaction;
 
   /**
-   * The response of the transaction. \c TRUE if the precheck was a success, otherwise \c FALSE. Defaults to \c FALSE.
+   * The cost to execute this TransactionResponse's corresponding Transaction.
+   */
+  uint64_t mCost = 0ULL;
+
+  /**
+   * Did this TransactionResponse's corresponding Transaction have a successful pre-check?
    */
   bool mValidateStatus = false;
 
   /**
-   * The transaction ID of the transaction.
+   * The ID of this TransactionResponse's corresponding Transaction.
    */
   TransactionId mTransactionId;
 };
 
 } // namespace Hedera
 
-#endif // TRANSACTION_RESPONSE_H_
+#endif // HEDERA_SDK_CPP_TRANSACTION_RESPONSE_H_

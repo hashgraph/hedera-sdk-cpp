@@ -37,13 +37,13 @@ public:
   /**
    * Construct this Node with an address.
    *
-   * @param address The desired NodeAddress for this Node.
-   * @param tls     The TLS behavior this Node should initially use. Defaults to requiring TLS.
+   * @param address A pointer to the desired NodeAddress for this Node.
+   * @param tls     The TLS behavior this Node should initially use.
    */
   explicit Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls = TLSBehavior::REQUIRE);
 
   /**
-   * Attempt to connect this Node to a Hedera network.
+   * Attempt to connect with the Node at this Node's NodeAddress.
    *
    * @param timeout The point in time that the attempted connection will cease and be considered a failure.
    * @return \c TRUE if the Node is already connected or successfully connected, otherwise \c FALSE.
@@ -51,7 +51,7 @@ public:
   bool connect(const std::chrono::system_clock::time_point& timeout);
 
   /**
-   * Shutdown this Node.
+   * Shutdown the connection for this Node.
    */
   void shutdown();
 
@@ -91,14 +91,14 @@ public:
   void setTLSBehavior(TLSBehavior desiredBehavior);
 
   /**
-   * Set the minimum backoff time this Node should use.
+   * Set the minimum amount of time this Node should wait before being willing to resubmit a previously failed request.
    *
    * @param backoff The minimum backoff time.
    */
   void setMinBackoff(const std::chrono::duration<double>& backoff);
 
   /**
-   * Set the maximum backoff time this Node should use.
+   * Set the maximum amount of time this Node should wait before being willing to resubmit a previously failed request.
    *
    * @param backoff The maximum backoff time.
    */
@@ -119,8 +119,7 @@ public:
   void increaseBackoff();
 
   /**
-   * Decrease the backoff of this Node. This should be called when the Node either fails to connect to the network or
-   * returns a bad gRPC status.
+   * Decrease the backoff of this Node. This should be called when the Node returns a good gRPC status.
    */
   void decreaseBackoff();
 
@@ -159,7 +158,7 @@ private:
   std::shared_ptr<grpc::ChannelCredentials> mTlsChannelCredentials = nullptr;
 
   /**
-   * Pointer to the gRPC channel used to communicate with the Hedera network.
+   * Pointer to the gRPC channel used to communicate with the gRPC server.
    */
   std::shared_ptr<grpc::Channel> mChannel = nullptr;
 
@@ -179,12 +178,12 @@ private:
   std::chrono::system_clock::time_point mReadmitTime = std::chrono::system_clock::now();
 
   /**
-   * The minimum amount of time to wait between submission attempts.
+   * The minimum length of time this Node should wait before being willing to attempt to send a failed request again.
    */
   std::chrono::duration<double> mMinBackoff = DEFAULT_MIN_BACKOFF;
 
   /**
-   * The maximum amount of time to wait between submission attempts.
+   * The maximum length of time this Node should wait before being willing to attempt to send a failed request again.
    */
   std::chrono::duration<double> mMaxBackoff = DEFAULT_MAX_BACKOFF;
 

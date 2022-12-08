@@ -34,7 +34,7 @@ namespace Hedera
  *
  * This query is free.
  */
-class AccountBalanceQuery final : public Query<AccountBalanceQuery, AccountBalance>
+class AccountBalanceQuery : public Query<AccountBalanceQuery, AccountBalance>
 {
 public:
   ~AccountBalanceQuery() override = default;
@@ -94,13 +94,13 @@ private:
   /**
    * Derived from Executable. Construct an AccountBalance object from a Response protobuf object.
    *
-   * @param response The Response protobuf object from which to construct a AccountBalance object.
+   * @param response The Response protobuf object from which to construct an AccountBalance object.
    * @return An AccountBalance object filled with the Response protobuf object's data
    */
   [[nodiscard]] AccountBalance mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Grab the status response code for a submitted AccountBalanceQuery from a Response protobuf
+   * Derived from Executable. Get the status response code for a submitted AccountBalanceQuery from a Response protobuf
    * object.
    *
    * @param response The Response protobuf object from which to grab the AccountBalanceQuery status response code.

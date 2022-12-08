@@ -19,19 +19,20 @@
  */
 #include "impl/Endpoint.h"
 
-#include <iomanip>
 #include <proto/basic_types.pb.h>
 #include <sstream>
 
 namespace Hedera::internal
 {
+//-----
 Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint)
 {
   return { IPv4Address::fromString(serviceEndpoint.ipaddressv4()),
-           (int)(serviceEndpoint.port() & 0x00000000ffffffffL) };
+           static_cast<int>(serviceEndpoint.port() & 0x00000000ffffffffL) };
 }
 
-Endpoint::Endpoint(IPv4Address address, int port)
+//-----
+Endpoint::Endpoint(const IPv4Address& address, int port)
   : mAddress(address)
   , mPort(port)
 {
@@ -43,6 +44,7 @@ Endpoint::Endpoint(IPv4Address address, int port)
   }
 }
 
+//-----
 std::string Endpoint::toString() const
 {
   std::stringstream outputStream;
@@ -52,6 +54,7 @@ std::string Endpoint::toString() const
   return outputStream.str();
 }
 
+//-----
 int Endpoint::getPort() const
 {
   return mPort;
