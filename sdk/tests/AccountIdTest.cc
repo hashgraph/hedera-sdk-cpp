@@ -37,7 +37,7 @@ private:
   const uint64_t mAccountNum = 10ULL;
 };
 
-TEST_F(AccountIdTest, DefaultConstructaccountId)
+TEST_F(AccountIdTest, DefaultConstructAccountId)
 {
   AccountId accountId;
   EXPECT_EQ(accountId.getShardNum(), 0ULL);
@@ -45,7 +45,7 @@ TEST_F(AccountIdTest, DefaultConstructaccountId)
   EXPECT_EQ(accountId.getAccountNum(), 0ULL);
 }
 
-TEST_F(AccountIdTest, ConstructWithaccountnum)
+TEST_F(AccountIdTest, ConstructWithAccountNum)
 {
   AccountId accountId(getTestAccountNum());
   EXPECT_EQ(accountId.getShardNum(), 0ULL);
@@ -53,7 +53,7 @@ TEST_F(AccountIdTest, ConstructWithaccountnum)
   EXPECT_EQ(accountId.getAccountNum(), getTestAccountNum());
 }
 
-TEST_F(AccountIdTest, ConstructWithShardRealmaccountnum)
+TEST_F(AccountIdTest, ConstructWithShardRealmAccountNum)
 {
   AccountId accountId(getTestShardNum(), getTestRealmNum(), getTestAccountNum());
   EXPECT_EQ(accountId.getShardNum(), getTestShardNum());
@@ -72,6 +72,11 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_EQ(accountId.getRealmNum(), getTestRealmNum());
   EXPECT_EQ(accountId.getAccountNum(), getTestAccountNum());
 
+  EXPECT_THROW(AccountId(testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId('.' + testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId(testShardNumStr + testRealmNumStr + testAccountNumStr + '.'), std::invalid_argument);
   EXPECT_THROW(AccountId(".." + testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
   EXPECT_THROW(AccountId('.' + testShardNumStr + '.' + testRealmNumStr + testAccountNumStr), std::invalid_argument);
   EXPECT_THROW(AccountId('.' + testShardNumStr + testRealmNumStr + '.' + testAccountNumStr), std::invalid_argument);
@@ -88,7 +93,7 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_THROW(AccountId("0.0.1!"), std::invalid_argument);
 }
 
-TEST_F(AccountIdTest, SetShardRealmaccountnum)
+TEST_F(AccountIdTest, SetShardRealmAccountNum)
 {
   AccountId accountId;
   accountId.setShardNum(getTestShardNum());
@@ -100,7 +105,7 @@ TEST_F(AccountIdTest, SetShardRealmaccountnum)
   EXPECT_EQ(accountId.getAccountNum(), getTestAccountNum());
 }
 
-TEST_F(AccountIdTest, ProtobufaccountId)
+TEST_F(AccountIdTest, ProtobufAccountId)
 {
   AccountId accountId;
   accountId.setShardNum(getTestShardNum());

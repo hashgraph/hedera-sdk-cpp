@@ -47,6 +47,7 @@ public:
    * Construct with an account number.
    *
    * @param num The account number to set.
+   * @throws std::invalid_argument If the account number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   explicit AccountId(const uint64_t& num);
 
@@ -56,6 +57,7 @@ public:
    * @param shard The shard number to set.
    * @param realm The realm number to set.
    * @param num   The account number to set.
+   * @throws std::invalid_argument If any number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   explicit AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
@@ -94,6 +96,7 @@ public:
    *
    * @param num The desired shard number to set.
    * @return A reference to this AccountId object with the newly-set shard number.
+   * @throws std::invalid_argument If the shard number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   AccountId& setShardNum(const uint64_t& num);
 
@@ -102,6 +105,7 @@ public:
    *
    * @param num The realm number to set.
    * @return A reference to this AccountId object with the newly-set realm number.
+   * @throws std::invalid_argument If the realm number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   AccountId& setRealmNum(const uint64_t& num);
 
@@ -110,6 +114,7 @@ public:
    *
    * @param num The account number to set.
    * @return A reference to this AccountId object with the newly-set account number.
+   * @throws std::invalid_argument If the account number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   AccountId& setAccountNum(const uint64_t& num);
 
@@ -136,17 +141,17 @@ public:
 
 private:
   /**
-   * The shard number. Defaults to 0.
+   * The shard number.
    */
   uint64_t mShardNum = 0ULL;
 
   /**
-   * The realm number. Defaults to 0.
+   * The realm number.
    */
   uint64_t mRealmNum = 0ULL;
 
   /**
-   * The account ID number. Defaults to 0.
+   * The account ID number.
    */
   uint64_t mAccountNum = 0ULL;
 };

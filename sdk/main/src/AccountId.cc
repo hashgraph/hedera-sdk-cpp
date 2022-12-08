@@ -19,6 +19,7 @@
  */
 #include "AccountId.h"
 
+#include <limits>
 #include <proto/basic_types.pb.h>
 #include <stdexcept>
 
@@ -28,6 +29,10 @@ namespace Hedera
 AccountId::AccountId(const uint64_t& num)
   : mAccountNum(num)
 {
+  if (num > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input account number is too big");
+  }
 }
 
 //-----
@@ -36,6 +41,20 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
   , mRealmNum(realm)
   , mAccountNum(num)
 {
+  if (shard > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input shard number is too big");
+  }
+
+  if (realm > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input realm number is too big");
+  }
+
+  if (num > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input account number is too big");
+  }
 }
 
 //-----
@@ -44,10 +63,22 @@ AccountId::AccountId(const std::string& str)
   size_t numDots = 0ULL;
   for (char c : str)
   {
-    if ((!isdigit(c) && c != '.') || (c == '.' && ++numDots > 2))
+    if (c != '.')
     {
-      throw std::invalid_argument("AccountId string is malformed");
+      if (!isdigit(c))
+      {
+        throw std::invalid_argument("AccountId string is malformed");
+      }
     }
+    else
+    {
+      ++numDots;
+    }
+  }
+
+  if (numDots != 2ULL)
+  {
+    throw std::invalid_argument("AccountId string is malformed");
   }
 
   const size_t firstDot = str.find_first_of('.');
@@ -95,6 +126,11 @@ std::string AccountId::toString() const
 //-----
 AccountId& AccountId::setShardNum(const uint64_t& num)
 {
+  if (num > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input shard number is too big");
+  }
+
   mShardNum = num;
   return *this;
 }
@@ -102,6 +138,11 @@ AccountId& AccountId::setShardNum(const uint64_t& num)
 //-----
 AccountId& AccountId::setRealmNum(const uint64_t& num)
 {
+  if (num > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input realm number is too big");
+  }
+
   mRealmNum = num;
   return *this;
 }
@@ -109,6 +150,11 @@ AccountId& AccountId::setRealmNum(const uint64_t& num)
 //-----
 AccountId& AccountId::setAccountNum(const uint64_t& num)
 {
+  if (num > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input account number is too big");
+  }
+
   mAccountNum = num;
   return *this;
 }
