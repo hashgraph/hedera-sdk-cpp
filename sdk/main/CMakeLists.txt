@@ -88,7 +88,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::grpc
         gRPC::grpc_plugin_support
         gRPC::grpc_unsecure
-        ${Protobuf_LIBRARIES})
+        protobuf::libprotobuf)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::grpc++
