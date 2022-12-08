@@ -66,7 +66,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
 
-if (APPLE)
+if(APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CF_NETWORK})
 endif()
@@ -74,7 +74,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
 
 #target_link_libraries(${PROJECT_NAME} PRIVATE ${RESOLV_LIBRARY})
-if (NOT WIN32)
+if(NOT WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
 endif()
 
@@ -96,13 +96,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::grpc++_error_details
         gRPC::grpc++_unsecure)
 
-if (TARGET gRPC::grpc++_reflection)
+if(TARGET gRPC::grpc++_reflection)
     target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpc++_reflection)
 endif()
 
-if (TARGET gRPC::grpcpp_channelz)
+if(TARGET gRPC::grpcpp_channelz)
     target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpcpp_channelz)
-endif ()
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         absl::bad_any_cast_impl
