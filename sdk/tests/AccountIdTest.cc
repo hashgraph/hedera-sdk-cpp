@@ -35,8 +35,8 @@ protected:
 
 private:
   static constexpr const uint64_t mShardNum = 8ULL;
-  static constexpr const uint64_t mRealmNum = 9ULL;
-  static constexpr const uint64_t mAccountNum = 10ULL;
+  static constexpr const uint64_t mRealmNum = 90ULL;
+  static constexpr const uint64_t mAccountNum = 1000ULL;
   static constexpr const uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1;
 };
 
@@ -106,8 +106,11 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_THROW(AccountId test("abc"), std::invalid_argument);
   EXPECT_THROW(AccountId test("o.o.e"), std::invalid_argument);
   EXPECT_THROW(AccountId test("0.0.1!"), std::invalid_argument);
-  EXPECT_THROW(AccountId test(testNumTooBigStr + '.' + testNumTooBigStr + '.' + testNumTooBigStr),
+  EXPECT_THROW(AccountId test(testNumTooBigStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + '.' + testNumTooBigStr + '.' + testAccountNumStr),
+               std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + '.' + testRealmNumStr + '.' + testNumTooBigStr), std::invalid_argument);
 }
 
 TEST_F(AccountIdTest, SetShardRealmAccountNum)
