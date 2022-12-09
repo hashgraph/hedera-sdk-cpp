@@ -57,6 +57,7 @@ TEST_F(AccountIdTest, ConstructWithAccountNum)
 
   // For some reason this doesn't work even though it's identical to constructing with shard and realm?
   // EXPECT_THROW(AccountId(getTestNumTooBig()), std::invalid_argument);
+
 }
 
 TEST_F(AccountIdTest, ConstructWithShardRealmAccountNum)
@@ -146,4 +147,12 @@ TEST_F(AccountIdTest, ProtobufAccountId)
   EXPECT_EQ(accountId.getShardNum(), newShard);
   EXPECT_EQ(accountId.getRealmNum(), newRealm);
   EXPECT_EQ(accountId.getAccountNum(), newContract);
+}
+
+TEST_F(AccountIdTest, ToString)
+{
+  const std::string accountIdStr = "123.456.789";
+  AccountId accountId(accountIdStr);
+
+  EXPECT_EQ(accountId.toString(), accountIdStr);
 }
