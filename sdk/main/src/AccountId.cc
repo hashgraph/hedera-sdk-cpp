@@ -29,7 +29,7 @@ namespace Hedera
 AccountId::AccountId(const uint64_t& num)
   : mAccountNum(num)
 {
-  if (num > std::numeric_limits<int64_t>::max())
+  if (mAccountNum > std::numeric_limits<int64_t>::max())
   {
     throw std::invalid_argument("Input account number is too big");
   }
@@ -41,17 +41,17 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
   , mRealmNum(realm)
   , mAccountNum(num)
 {
-  if (shard > std::numeric_limits<int64_t>::max())
+  if (mShardNum > std::numeric_limits<int64_t>::max())
   {
     throw std::invalid_argument("Input shard number is too big");
   }
 
-  if (realm > std::numeric_limits<int64_t>::max())
+  if (mRealmNum > std::numeric_limits<int64_t>::max())
   {
     throw std::invalid_argument("Input realm number is too big");
   }
 
-  if (num > std::numeric_limits<int64_t>::max())
+  if (mAccountNum > std::numeric_limits<int64_t>::max())
   {
     throw std::invalid_argument("Input account number is too big");
   }
@@ -60,42 +60,91 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
 //-----
 AccountId::AccountId(const std::string& str)
 {
-  size_t numDots = 0ULL;
-  for (char c : str)
+  constexpr size_t numStrings = 3;              // Looking to make three strings (shard, realm, account number)
+  std::vector<std::string> numbers(numStrings); // Create container in which to put the strings
+  size_t curStringIndex = 0;                    // The index of the current string being built
+  bool previousWasDot = true;                   // Keep track of if the previous character was a '.'
+
+  // Make one pass over input string, constructing string values for shard, realm, and account number
+  for (const char c : str)
   {
-    if (c != '.')
+    if (c == '.')
     {
-      if (!isdigit(c))
+      if (previousWasDot)
       {
+        // Two dots next to each other, or dot at beginning
         throw std::invalid_argument("AccountId string is malformed");
+      }
+      else
+      {
+        ++curStringIndex;
+        previousWasDot = true;
       }
     }
     else
     {
-      ++numDots;
+      if (isdigit(c) && curStringIndex < numStrings)
+      {
+        numbers[curStringIndex].push_back(c);
+        previousWasDot = false;
+      }
+      else
+      {
+        // Either not a digit or too many dots found
+        throw std::invalid_argument("AccountId string is malformed");
+      }
     }
   }
 
-  if (numDots != 2ULL)
+  // Make sure all numbers where constructed
+  if (numbers.at(0).empty() || numbers.at(1).empty() || numbers.at(2).empty())
   {
     throw std::invalid_argument("AccountId string is malformed");
   }
 
-  const size_t firstDot = str.find_first_of('.');
-  const size_t secondDot = str.find_last_of('.');
-
-  const std::string shardStr = str.substr(0, firstDot);
-  const std::string realmStr = str.substr(firstDot + 1, secondDot - firstDot - 1);
-  const std::string accountStr = str.substr(secondDot + 1, str.size() - secondDot - 1);
-
-  if (shardStr.empty() || realmStr.empty() || accountStr.empty())
+  // Translate out_or_range exception to invalid_argument to allow for more descriptive exception
+  try
   {
-    throw std::invalid_argument("AccountId string is malformed");
+    mShardNum = std::stoll(numbers.at(0));
+  }
+  catch (const std::out_of_range&)
+  {
+    throw std::invalid_argument("Input shard number is too big");
   }
 
-  mShardNum = std::stoll(shardStr);
-  mRealmNum = std::stoll(realmStr);
-  mAccountNum = std::stoll(accountStr);
+  try
+  {
+    mRealmNum = std::stoll(numbers.at(1));
+  }
+  catch (const std::out_of_range&)
+  {
+    throw std::invalid_argument("Input realm number is too big");
+  }
+
+  try
+  {
+    mAccountNum = std::stoll(numbers.at(2));
+  }
+  catch (const std::out_of_range&)
+  {
+    throw std::invalid_argument("Input account number is too big");
+  }
+
+  // Make sure the numbers aren't too big
+  if (mShardNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input shard number is too big");
+  }
+
+  if (mRealmNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input realm number is too big");
+  }
+
+  if (mAccountNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input account number is too big");
+  }
 }
 
 //-----

@@ -65,7 +65,7 @@ public:
    * Construct from a string of the form "<shard>.<realm>.<num>".
    *
    * @param str The string from which to construct.
-   * @throws std::invalid_argument If input string is malformed.
+   * @throws std::invalid_argument If the input string is malformed or the numbers in the input string are too large.
    */
   explicit AccountId(const std::string& str);
 
