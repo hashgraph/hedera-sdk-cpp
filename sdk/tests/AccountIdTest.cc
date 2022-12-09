@@ -34,10 +34,10 @@ protected:
   [[nodiscard]] static constexpr const uint64_t& getTestNumTooBig() { return mNumTooBig; }
 
 private:
-  static constexpr uint64_t mShardNum = 8ULL;
-  static constexpr uint64_t mRealmNum = 9ULL;
-  static constexpr uint64_t mAccountNum = 10ULL;
-  static constexpr uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1;
+  static constexpr const uint64_t mShardNum = 8ULL;
+  static constexpr const uint64_t mRealmNum = 9ULL;
+  static constexpr const uint64_t mAccountNum = 10ULL;
+  static constexpr const uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1;
 };
 
 TEST_F(AccountIdTest, DefaultConstructAccountId)
@@ -55,9 +55,7 @@ TEST_F(AccountIdTest, ConstructWithAccountNum)
   EXPECT_EQ(accountId.getRealmNum(), 0ULL);
   EXPECT_EQ(accountId.getAccountNum(), getTestAccountNum());
 
-  // For some reason this doesn't work even though it's identical to constructing with shard and realm?
-  // EXPECT_THROW(AccountId(getTestNumTooBig()), std::invalid_argument);
-
+  EXPECT_THROW(AccountId test(getTestNumTooBig()), std::invalid_argument);
 }
 
 TEST_F(AccountIdTest, ConstructWithShardRealmAccountNum)
@@ -67,9 +65,9 @@ TEST_F(AccountIdTest, ConstructWithShardRealmAccountNum)
   EXPECT_EQ(accountId.getRealmNum(), getTestRealmNum());
   EXPECT_EQ(accountId.getAccountNum(), getTestAccountNum());
 
-  EXPECT_THROW(AccountId(getTestNumTooBig(), getTestRealmNum(), getTestAccountNum()), std::invalid_argument);
-  EXPECT_THROW(AccountId(getTestShardNum(), getTestNumTooBig(), getTestAccountNum()), std::invalid_argument);
-  EXPECT_THROW(AccountId(getTestShardNum(), getTestRealmNum(), getTestNumTooBig()), std::invalid_argument);
+  EXPECT_THROW(AccountId test(getTestNumTooBig(), getTestRealmNum(), getTestAccountNum()), std::invalid_argument);
+  EXPECT_THROW(AccountId test(getTestShardNum(), getTestNumTooBig(), getTestAccountNum()), std::invalid_argument);
+  EXPECT_THROW(AccountId test(getTestShardNum(), getTestRealmNum(), getTestNumTooBig()), std::invalid_argument);
 }
 
 TEST_F(AccountIdTest, ConstructFromString)
@@ -84,26 +82,32 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_EQ(accountId.getRealmNum(), getTestRealmNum());
   EXPECT_EQ(accountId.getAccountNum(), getTestAccountNum());
 
-  EXPECT_THROW(AccountId(testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId('.' + testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId(testShardNumStr + testRealmNumStr + testAccountNumStr + '.'), std::invalid_argument);
-  EXPECT_THROW(AccountId(".." + testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId('.' + testShardNumStr + '.' + testRealmNumStr + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId('.' + testShardNumStr + testRealmNumStr + '.' + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId('.' + testShardNumStr + testRealmNumStr + testAccountNumStr + '.'), std::invalid_argument);
-  EXPECT_THROW(AccountId(testShardNumStr + ".." + testRealmNumStr + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr + '.'), std::invalid_argument);
-  EXPECT_THROW(AccountId(testShardNumStr + testRealmNumStr + ".." + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr + '.'), std::invalid_argument);
-  EXPECT_THROW(AccountId('.' + testShardNumStr + '.' + testRealmNumStr + '.' + testAccountNumStr + '.'),
+  EXPECT_THROW(AccountId test(testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId test('.' + testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + testRealmNumStr + testAccountNumStr + '.'), std::invalid_argument);
+  EXPECT_THROW(AccountId test(".." + testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId test('.' + testShardNumStr + '.' + testRealmNumStr + testAccountNumStr),
+               std::invalid_argument);
+  EXPECT_THROW(AccountId test('.' + testShardNumStr + testRealmNumStr + '.' + testAccountNumStr),
+               std::invalid_argument);
+  EXPECT_THROW(AccountId test('.' + testShardNumStr + testRealmNumStr + testAccountNumStr + '.'),
+               std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + ".." + testRealmNumStr + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr + '.'),
+               std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + testRealmNumStr + ".." + testAccountNumStr), std::invalid_argument);
+  EXPECT_THROW(AccountId test(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr + '.'),
+               std::invalid_argument);
+  EXPECT_THROW(AccountId test('.' + testShardNumStr + '.' + testRealmNumStr + '.' + testAccountNumStr + '.'),
                std::invalid_argument);
 
-  EXPECT_THROW(AccountId("abc"), std::invalid_argument);
-  EXPECT_THROW(AccountId("o.o.e"), std::invalid_argument);
-  EXPECT_THROW(AccountId("0.0.1!"), std::invalid_argument);
-  EXPECT_THROW(AccountId(testNumTooBigStr + '.' + testNumTooBigStr + '.' + testNumTooBigStr), std::invalid_argument);
+  EXPECT_THROW(AccountId test("abc"), std::invalid_argument);
+  EXPECT_THROW(AccountId test("o.o.e"), std::invalid_argument);
+  EXPECT_THROW(AccountId test("0.0.1!"), std::invalid_argument);
+  EXPECT_THROW(AccountId test(testNumTooBigStr + '.' + testNumTooBigStr + '.' + testNumTooBigStr),
+               std::invalid_argument);
 }
 
 TEST_F(AccountIdTest, SetShardRealmAccountNum)
