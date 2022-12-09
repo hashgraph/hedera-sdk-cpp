@@ -141,6 +141,15 @@ public:
 
 private:
   /**
+   * Check if the shard, realm, or account numbers (respectively) are too big.
+   *
+   * @throws std::invalid_argument If the shard, realm, or account number (respectively) is too big.
+   */
+  void checkShardNum() const;
+  void checkRealmNum() const;
+  void checkAccountNum() const;
+
+  /**
    * The shard number.
    */
   uint64_t mShardNum = 0ULL;

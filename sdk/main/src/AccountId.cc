@@ -29,10 +29,7 @@ namespace Hedera
 AccountId::AccountId(const uint64_t& num)
   : mAccountNum(num)
 {
-  if (mAccountNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input account number is too big");
-  }
+  checkAccountNum();
 }
 
 //-----
@@ -41,20 +38,9 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
   , mRealmNum(realm)
   , mAccountNum(num)
 {
-  if (mShardNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input shard number is too big");
-  }
-
-  if (mRealmNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input realm number is too big");
-  }
-
-  if (mAccountNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input account number is too big");
-  }
+  checkShardNum();
+  checkRealmNum();
+  checkAccountNum();
 }
 
 //-----
@@ -102,7 +88,7 @@ AccountId::AccountId(const std::string& str)
     throw std::invalid_argument("AccountId string is malformed");
   }
 
-  // Translate out_or_range exception to invalid_argument to allow for more descriptive exception
+  // Translate out_of_range exception to invalid_argument to allow for more descriptive exception
   try
   {
     mShardNum = std::stoll(numbers.at(0));
@@ -131,20 +117,9 @@ AccountId::AccountId(const std::string& str)
   }
 
   // Make sure the numbers aren't too big
-  if (mShardNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input shard number is too big");
-  }
-
-  if (mRealmNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input realm number is too big");
-  }
-
-  if (mAccountNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input account number is too big");
-  }
+  checkShardNum();
+  checkRealmNum();
+  checkAccountNum();
 }
 
 //-----
@@ -175,37 +150,52 @@ std::string AccountId::toString() const
 //-----
 AccountId& AccountId::setShardNum(const uint64_t& num)
 {
-  if (num > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input shard number is too big");
-  }
-
   mShardNum = num;
+  checkShardNum();
   return *this;
 }
 
 //-----
 AccountId& AccountId::setRealmNum(const uint64_t& num)
 {
-  if (num > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input realm number is too big");
-  }
-
   mRealmNum = num;
+  checkRealmNum();
   return *this;
 }
 
 //-----
 AccountId& AccountId::setAccountNum(const uint64_t& num)
 {
-  if (num > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input account number is too big");
-  }
-
   mAccountNum = num;
+  checkAccountNum();
   return *this;
+}
+
+//-----
+void AccountId::checkShardNum() const
+{
+  if (mShardNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input shard number is too large");
+  }
+}
+
+//-----
+void AccountId::checkRealmNum() const
+{
+  if (mRealmNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input realm number is too large");
+  }
+}
+
+//-----
+void AccountId::checkAccountNum() const
+{
+  if (mAccountNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input account number is too large");
+  }
 }
 
 } // namespace Hedera
