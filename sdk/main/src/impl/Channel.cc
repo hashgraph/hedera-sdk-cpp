@@ -17,10 +17,10 @@
  * limitations under the License.
  *
  */
-#include <proto/crypto_service.grpc.pb.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+#include <proto/crypto_service.grpc.pb.h>
 #include <stdexcept>
 
 #include "impl/Channel.h"
@@ -56,6 +56,15 @@ bool Channel::initializeEncryptedChannel(const std::string& url, const std::stri
   credentialsOptions.set_verify_server_certs(false);
   credentialsOptions.set_check_call_host(false);
   credentialsOptions.set_certificate_verifier(verifier);
+
+  // Feed in the root CA's file manually for Windows (this is a bug in the gRPC implementation and says here
+  // https://deploy-preview-763--grpc-io.netlify.app/docs/guides/auth/#using-client-side-ssltls that this needs to be
+  // specified manually).
+#ifdef _WIN32
+  credentialsOptions.set_certificate_provider(
+    std::make_shared<grpc::experimental::FileWatcherCertificateProvider>("roots.pem", -1));
+  credentialsOptions.watch_root_certs();
+#endif
 
   return initializeChannel(url, grpc::experimental::TlsCredentials(credentialsOptions));
 }

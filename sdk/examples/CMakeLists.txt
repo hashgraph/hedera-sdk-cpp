@@ -16,6 +16,12 @@ file(COPY ${PROJECT_SOURCE_DIR}/wordlists/bip39-english.txt
 file(COPY ${PROJECT_SOURCE_DIR}/wordlists/legacy-english.txt
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
 
+# Install gRPC's roots.pem file for Windows with the examples so that it can be easily referenced.
+IF (WIN32)
+    file(COPY ${PROJECT_SOURCE_DIR}/vcpkg/packages/grpc_x64-windows/share/grpc/roots.pem
+            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+ENDIF ()
+
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_CRYPTO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -26,4 +32,4 @@ install(TARGETS
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
         ${GET_ACCOUNT_BALANCE_EXAMPLE_NAME}
         ${TRANSFER_CRYPTO_EXAMPLE_NAME}
-    RUNTIME DESTINATION examples)
+        RUNTIME DESTINATION examples)
