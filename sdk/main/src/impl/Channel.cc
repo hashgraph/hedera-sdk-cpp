@@ -17,14 +17,15 @@
  * limitations under the License.
  *
  */
-#include <grpcpp/client_context.h>
-#include <grpcpp/create_channel.h>
-#include <grpcpp/security/credentials.h>
 #include <proto/crypto_service.grpc.pb.h>
-#include <stdexcept>
 
 #include "impl/Channel.h"
 #include "impl/HederaCertificateVerifier.h"
+
+#include <grpcpp/client_context.h>
+#include <grpcpp/create_channel.h>
+#include <grpcpp/security/credentials.h>
+#include <stdexcept>
 
 namespace Hedera::internal
 {
