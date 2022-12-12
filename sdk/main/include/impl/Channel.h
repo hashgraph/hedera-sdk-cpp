@@ -23,6 +23,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <functional>
 
 namespace grpc
 {

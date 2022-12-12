@@ -63,16 +63,20 @@ add_library(${PROJECT_NAME} STATIC
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
 
-if (APPLE)
+if(APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CF_NETWORK})
-endif ()
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
 
 #target_link_libraries(${PROJECT_NAME} PRIVATE ${RESOLV_LIBRARY})
-target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
+if(NOT WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         OpenSSL::Crypto
@@ -84,18 +88,21 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::grpc
         gRPC::grpc_plugin_support
         gRPC::grpc_unsecure
-        protobuf::protobuf)
+        protobuf::libprotobuf)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::grpc++
         gRPC::grpc++_alts
         gRPC::grpc++_error_details
-        gRPC::grpc++_reflection
         gRPC::grpc++_unsecure)
 
-if (TARGET gRPC::grpcpp_channelz)
+if(TARGET gRPC::grpc++_reflection)
+    target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpc++_reflection)
+endif()
+
+if(TARGET gRPC::grpcpp_channelz)
     target_link_libraries(${PROJECT_NAME} PRIVATE gRPC::grpcpp_channelz)
-endif ()
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         absl::bad_any_cast_impl
@@ -178,13 +185,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
         c-ares::cares
         re2::re2
-        zlib::zlib)
+        ${ZLIB_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSIONS 0.1.0)
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 
 # Install Library & Headers
-install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib)
+install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib LIBRARY DESTINATION lib RUNTIME DESTINATION bin)
 install(DIRECTORY include/ TYPE INCLUDE FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY ${HAPI_INCLUDE_DIR}/ TYPE INCLUDE)
 install(DIRECTORY ${HAPI_LIB_DIR}/ TYPE LIB)

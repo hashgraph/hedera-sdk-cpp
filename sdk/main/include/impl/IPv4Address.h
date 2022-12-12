@@ -48,7 +48,7 @@ public:
    *
    * @return the new IP address. Currently returns address of 0.0.0.0 if there is an error in creation
    */
-  static IPv4Address fromString(std::string_view inputString);
+  static IPv4Address fromString(const std::string& inputString);
 
   /**
    * Converts address to form octet1.octet2.octet3.octet4
