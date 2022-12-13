@@ -8,6 +8,7 @@ FetchContent_MakeAvailable(googletest)
 set(TestSources
         AccountBalanceQueryTest.cc
         AccountCreateTransactionTest.cc
+        AccountIdTest.cc
         ClientTest.cc
         ContractIdTest.cc
         ED25519PrivateKeyTest.cc
