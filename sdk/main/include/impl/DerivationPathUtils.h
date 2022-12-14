@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_DERIVATION_PATH_UTILS_H_
 #define HEDERA_SDK_CPP_DERIVATION_PATH_UTILS_H_
 
+#include <vector>
 #include <cstdint>
 
 /**
@@ -44,6 +45,15 @@ bool isHardenedChildIndex(uint32_t index);
  * @throws std::invalid_argument If the index is already hardened.
  */
 uint32_t getHardenedIndex(uint32_t index);
+
+/**
+ * Converts unsigned 32 bit int index into big endian byte array (direct implementation of ser32 function from BIP 32)
+ *
+ * @param childIndex the index to convert to a big endian byte array
+ *
+ * @return the big endian byte array representing the child index
+ */
+std::vector<unsigned char> ser32(uint32_t childIndex);
 
 }; // namespace Hedera::internal::DerivationPathUtils
 

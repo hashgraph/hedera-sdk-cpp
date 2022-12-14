@@ -40,4 +40,15 @@ uint32_t getHardenedIndex(uint32_t index)
   return ~(UINT32_MAX >> 1) | index;
 }
 
+//-----
+std::vector<unsigned char> ser32(const uint32_t childIndex) {
+  std::vector<unsigned char> indexVector = {};
+  for (int byteIndex = 3; byteIndex >= 0; --byteIndex)
+  {
+    indexVector.push_back((childIndex >> (byteIndex << 3)) & 0xFF);
+  }
+
+  return indexVector;
+}
+
 } // namespaceHedera::internal::DerivationPathUtils
