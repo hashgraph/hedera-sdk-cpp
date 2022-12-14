@@ -28,8 +28,8 @@ jobs:
         with:
           submodules: true
 
-      - name: Fixup VCPkg Triplets
-        run: echo "set(VCPKG_BUILD_TYPE release)" | tee -a vcpkg/triplets/x64-windows-static.cmake
+#      - name: Fixup VCPkg Triplets
+#        run: echo "set(VCPKG_BUILD_TYPE release)" | tee -a vcpkg/triplets/x64-windows-static.cmake
 
       - name: Install Linux Headers
         if: ${{ contains(runner.os, 'Linux') }}

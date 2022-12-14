@@ -19,6 +19,7 @@
  */
 #include "AccountId.h"
 
+#include <limits>
 #include <proto/basic_types.pb.h>
 #include <stdexcept>
 
@@ -28,6 +29,7 @@ namespace Hedera
 AccountId::AccountId(const uint64_t& num)
   : mAccountNum(num)
 {
+  checkAccountNum();
 }
 
 //-----
@@ -36,35 +38,88 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
   , mRealmNum(realm)
   , mAccountNum(num)
 {
+  checkShardNum();
+  checkRealmNum();
+  checkAccountNum();
 }
 
 //-----
 AccountId::AccountId(const std::string& str)
 {
-  size_t numDots = 0ULL;
-  for (char c : str)
+  constexpr size_t numStrings = 3;              // Looking to make three strings (shard, realm, account number)
+  std::vector<std::string> numbers(numStrings); // Create container in which to put the strings
+  size_t curStringIndex = 0;                    // The index of the current string being built
+  bool previousWasDot = true;                   // Keep track of if the previous character was a '.'
+
+  // Make one pass over input string, constructing string values for shard, realm, and account number
+  for (const char c : str)
   {
-    if ((!isdigit(c) && c != '.') || (c == '.' && ++numDots > 2))
+    if (c == '.')
     {
-      throw std::invalid_argument("AccountId string is malformed");
+      if (previousWasDot)
+      {
+        // Two dots next to each other, or dot at beginning
+        throw std::invalid_argument("AccountId string is malformed");
+      }
+      else
+      {
+        ++curStringIndex;
+        previousWasDot = true;
+      }
+    }
+    else
+    {
+      if (isdigit(c) && curStringIndex < numStrings)
+      {
+        numbers[curStringIndex].push_back(c);
+        previousWasDot = false;
+      }
+      else
+      {
+        // Either not a digit or too many dots found
+        throw std::invalid_argument("AccountId string is malformed");
+      }
     }
   }
 
-  const size_t firstDot = str.find_first_of('.');
-  const size_t secondDot = str.find_last_of('.');
-
-  const std::string shardStr = str.substr(0, firstDot);
-  const std::string realmStr = str.substr(firstDot + 1, secondDot - firstDot - 1);
-  const std::string accountStr = str.substr(secondDot + 1, str.size() - secondDot - 1);
-
-  if (shardStr.empty() || realmStr.empty() || accountStr.empty())
+  // Make sure all numbers where constructed
+  if (numbers.at(0).empty() || numbers.at(1).empty() || numbers.at(2).empty())
   {
     throw std::invalid_argument("AccountId string is malformed");
   }
 
-  mShardNum = std::stoll(shardStr);
-  mRealmNum = std::stoll(realmStr);
-  mAccountNum = std::stoll(accountStr);
+  // Translate out_of_range exception to invalid_argument to allow for more descriptive exception
+  try
+  {
+    mShardNum = std::stoll(numbers.at(0));
+  }
+  catch (const std::out_of_range&)
+  {
+    throw std::invalid_argument("Input shard number is too big");
+  }
+
+  try
+  {
+    mRealmNum = std::stoll(numbers.at(1));
+  }
+  catch (const std::out_of_range&)
+  {
+    throw std::invalid_argument("Input realm number is too big");
+  }
+
+  try
+  {
+    mAccountNum = std::stoll(numbers.at(2));
+  }
+  catch (const std::out_of_range&)
+  {
+    throw std::invalid_argument("Input account number is too big");
+  }
+
+  // Make sure the numbers aren't too big
+  checkShardNum();
+  checkRealmNum();
+  checkAccountNum();
 }
 
 //-----
@@ -96,6 +151,7 @@ std::string AccountId::toString() const
 AccountId& AccountId::setShardNum(const uint64_t& num)
 {
   mShardNum = num;
+  checkShardNum();
   return *this;
 }
 
@@ -103,6 +159,7 @@ AccountId& AccountId::setShardNum(const uint64_t& num)
 AccountId& AccountId::setRealmNum(const uint64_t& num)
 {
   mRealmNum = num;
+  checkRealmNum();
   return *this;
 }
 
@@ -110,7 +167,35 @@ AccountId& AccountId::setRealmNum(const uint64_t& num)
 AccountId& AccountId::setAccountNum(const uint64_t& num)
 {
   mAccountNum = num;
+  checkAccountNum();
   return *this;
+}
+
+//-----
+void AccountId::checkShardNum() const
+{
+  if (mShardNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input shard number is too large");
+  }
+}
+
+//-----
+void AccountId::checkRealmNum() const
+{
+  if (mRealmNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input realm number is too large");
+  }
+}
+
+//-----
+void AccountId::checkAccountNum() const
+{
+  if (mAccountNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input account number is too large");
+  }
 }
 
 } // namespace Hedera

@@ -20,14 +20,32 @@
 #ifndef HEDERA_SDK_CPP_IMPL_NODE_H_
 #define HEDERA_SDK_CPP_IMPL_NODE_H_
 
+#include <proto/crypto_service.grpc.pb.h>
+
 #include "Defaults.h"
 #include "impl/NodeAddress.h"
 #include "impl/TLSBehavior.h"
 
+#include <functional>
 #include <grpcpp/channel.h>
 #include <grpcpp/security/credentials.h>
 #include <memory>
-#include <proto/crypto_service.grpc.pb.h>
+#include <string>
+#include <utility>
+
+namespace grpc
+{
+class ClientContext;
+class Status;
+}
+
+namespace proto
+{
+class Query;
+class Response;
+class Transaction;
+class TransactionResponse;
+}
 
 namespace Hedera::internal
 {

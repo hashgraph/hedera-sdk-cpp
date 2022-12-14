@@ -22,6 +22,8 @@
 
 #include <string>
 #include <vector>
+#include <functional>
+#include <stdexcept>
 
 namespace Hedera::internal::OpenSSLHasher
 {

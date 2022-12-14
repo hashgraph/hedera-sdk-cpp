@@ -80,7 +80,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
-          "value": "x64-windows-static"
+          "value": "x64-windows"
         }
       }
     }
@@ -113,8 +113,8 @@
     {
       "name": "windows-x64-release",
       "configurePreset": "windows-x64-release",
-      "displayName": "Build ninja-multi-vcpkg",
-      "description": "Build ninja-multi-vcpkg Configurations",
+      "displayName": "MSVC Release (x64)",
+      "description": "Build MSVC Configurations",
       "configuration": "Release",
       "targets": ["install"]
     }

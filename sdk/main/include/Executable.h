@@ -26,6 +26,7 @@
 #include <chrono>
 #include <memory>
 #include <vector>
+#include <functional>
 
 namespace Hedera
 {

@@ -7,11 +7,11 @@ on:
         type: string
         required: false
         default: "v0.30.0"
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
+#  pull_request:
+#    types:
+#      - opened
+#      - reopened
+#      - synchronize
 
 
 concurrency:

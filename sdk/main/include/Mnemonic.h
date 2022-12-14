@@ -26,6 +26,9 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <functional>
+#include <stdexcept>
+#include <algorithm>
 
 namespace Hedera
 {
