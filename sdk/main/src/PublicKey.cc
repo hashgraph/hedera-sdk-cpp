@@ -18,6 +18,7 @@
  *
  */
 #include "PublicKey.h"
+#include "ECDSAPublicKey.h"
 #include "ED25519PublicKey.h"
 
 #include <proto/basic_types.pb.h>
@@ -29,6 +30,10 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
   if (key.key_case() == proto::Key::KeyCase::kEd25519)
   {
     return ED25519PublicKey::fromBytes({ key.ed25519().cbegin(), key.ed25519().cend() });
+  }
+  else if (key.key_case() == proto::Key::KeyCase::kECDSASecp256K1)
+  {
+    return ECDSAPublicKey::fromBytes({ key.ecdsa_secp256k1().cbegin(), key.ecdsa_secp256k1().cend() });
   }
   else
   {

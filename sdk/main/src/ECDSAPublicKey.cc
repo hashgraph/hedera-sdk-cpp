@@ -19,10 +19,8 @@
  */
 #include "ECDSAPublicKey.h"
 #include "impl/HexConverter.h"
+#include "impl/OpenSSLHasher.h"
 
-#include <iostream>
-#include <openssl/core_names.h>
-#include <openssl/err.h>
 #include <openssl/x509.h>
 #include <proto/basic_types.pb.h>
 
@@ -33,8 +31,11 @@ namespace Hedera
 {
 namespace
 {
+// size of an uncompressed public key without ASN1 prefix
 const inline size_t UNCOMPRESSED_KEY_SIZE = 65;
+// size of a compressed public key without ASN1 prefix
 const inline size_t COMPRESSED_KEY_SIZE = 33;
+const inline std::string UNCOMPRESSED_KEY_ASN1_PREFIX = "3056301006072A8648CE3D020106052B8104000A034200";
 }
 
 //-----
@@ -102,24 +103,18 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
 
   if (!messageDigestContext)
   {
-    throw std::runtime_error("Digest context construction failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestVerifyInit(messageDigestContext, nullptr, nullptr, nullptr, mPublicKey) <= 0)
+  if (EVP_DigestVerifyInit(messageDigestContext, nullptr, EVP_sha256(), nullptr, mPublicKey) <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
-    throw std::runtime_error("Digest verify initialization failed");
+
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerifyInit"));
   }
 
   int verificationResult = EVP_DigestVerify(
     messageDigestContext, &signatureBytes.front(), signatureBytes.size(), &signedBytes.front(), signedBytes.size());
-
-  if (verificationResult <= 0)
-  {
-    char* err = ERR_error_string(verificationResult, nullptr);
-    std::cout << std::endl << err << std::endl << std::endl;
-    std::cout << "Failed to verify signature with code [" << verificationResult << ']' << std::endl;
-  }
 
   EVP_MD_CTX_free(messageDigestContext);
 
@@ -130,6 +125,7 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
 std::unique_ptr<proto::Key> ECDSAPublicKey::toProtobuf() const
 {
   auto keyProtobuf = std::make_unique<proto::Key>();
+
   const std::vector<unsigned char> rawBytes = toBytes();
   keyProtobuf->set_allocated_ecdsa_secp256k1(new std::string({ rawBytes.cbegin(), rawBytes.cend() }));
   return keyProtobuf;
@@ -150,21 +146,26 @@ std::vector<unsigned char> ECDSAPublicKey::toBytes() const
 
   if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mPublicKey, &rawPublicKeyBytes) <= 0)
   {
-    throw std::runtime_error("ECDSAPublicKey serialization error");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_PUBKEY"));
   }
 
-  // don't return the algorithm identification bytes
-  // returned compressed representation by default
-  // TODO check sizes
-  return compressBytes({ publicKeyBytes.begin() + 23, publicKeyBytes.end() });
+  static const size_t asn1PrefixSize = UNCOMPRESSED_KEY_ASN1_PREFIX.size() / 2; // string has 2 chars per byte
+
+  if (publicKeyBytes.size() != UNCOMPRESSED_KEY_SIZE + asn1PrefixSize)
+  {
+    throw std::runtime_error("Expected public key size [" + std::to_string(UNCOMPRESSED_KEY_SIZE + asn1PrefixSize) +
+                             "]. Actual size was [" + std::to_string(publicKeyBytes.size()) + "]");
+  }
+
+  // don't return the algorithm identification bytes, and compress
+  return compressBytes({ publicKeyBytes.begin() + (long)asn1PrefixSize, publicKeyBytes.end() });
 }
 
 //-----
 EVP_PKEY* ECDSAPublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes)
 {
   // start the uncompressed bytes with the appropriate ASN1 prefix for an uncompressed public key
-  std::vector<unsigned char> uncompressedKeyBytes =
-    internal::HexConverter::hexToBase64("3056301006072A8648CE3D020106052B8104000A034200");
+  std::vector<unsigned char> uncompressedKeyBytes = internal::HexConverter::hexToBase64(UNCOMPRESSED_KEY_ASN1_PREFIX);
 
   const size_t inputKeySize = inputKeyBytes.size();
   if (inputKeySize == COMPRESSED_KEY_SIZE)
@@ -185,15 +186,14 @@ EVP_PKEY* ECDSAPublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKey
                                 std::to_string(COMPRESSED_KEY_SIZE) + "]");
   }
 
-  OSSL_DECODER_CTX* context;
   EVP_PKEY* pkey = nullptr;
 
-  context = OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr);
+  OSSL_DECODER_CTX* context =
+    OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr);
+
   if (context == nullptr)
   {
-    OSSL_DECODER_CTX_free(context);
-
-    throw std::runtime_error("OSSL_DECODER_CTX_new_for_pkey failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_CTX_new_for_pkey"));
   }
 
   const unsigned char* rawKeyBytes = &uncompressedKeyBytes.front();
@@ -203,7 +203,7 @@ EVP_PKEY* ECDSAPublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKey
     OSSL_DECODER_CTX_free(context);
     EVP_PKEY_free(pkey);
 
-    throw std::runtime_error("OSSL_DECODER_from_data failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_from_data"));
   }
 
   OSSL_DECODER_CTX_free(context);
@@ -219,7 +219,7 @@ ECDSAPublicKey::ECDSAPublicKey(EVP_PKEY* publicKey)
 
 std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsigned char>& uncompressedBytes)
 {
-  // recall, a public key is simply an (x, y) coordinate on the elliptic curve
+  // a public key is simply an (x, y) coordinate on the elliptic curve
   // the compressed key comes in the form [0x02 or 0x03][32 bytes of x coord]
   if (uncompressedBytes.size() != UNCOMPRESSED_KEY_SIZE)
   {
@@ -227,11 +227,16 @@ std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsig
                                 "] is invalid: must be [" + std::to_string(UNCOMPRESSED_KEY_SIZE) + "]");
   }
 
+  if (uncompressedBytes[0] != 0x4)
+  {
+    throw std::invalid_argument("Uncompressed bytes should begin with 0x04");
+  }
+
   EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_secp256k1);
 
   if (group == nullptr)
   {
-    throw std::runtime_error("EC_GROUP_new_by_curve_name failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_GROUP_new_by_curve_name"));
   }
 
   EC_POINT* uncompressedPoint = EC_POINT_new(group);
@@ -240,7 +245,7 @@ std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsig
   {
     EC_GROUP_free(group);
 
-    throw std::runtime_error("EC_POINT_new failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_new"));
   }
 
   BN_CTX* context = BN_CTX_new();
@@ -250,7 +255,7 @@ std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsig
     EC_GROUP_free(group);
     EC_POINT_free(uncompressedPoint);
 
-    throw std::runtime_error("BN_CTX_new failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_new"));
   }
 
   // parse the uncompressed point into an EC_POINT object
@@ -260,7 +265,7 @@ std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsig
     EC_POINT_free(uncompressedPoint);
     BN_CTX_free(context);
 
-    throw std::runtime_error("EC_POINT_oct2point failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_oct2point"));
   }
 
   std::vector<unsigned char> compressedBytes(COMPRESSED_KEY_SIZE);
@@ -277,7 +282,7 @@ std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsig
     EC_POINT_free(uncompressedPoint);
     BN_CTX_free(context);
 
-    throw std::runtime_error("EC_POINT_point2oct failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_point2oct"));
   }
 
   EC_GROUP_free(group);
@@ -297,11 +302,16 @@ std::vector<unsigned char> ECDSAPublicKey::uncompressBytes(const std::vector<uns
                                 "] is invalid: must be [" + std::to_string(COMPRESSED_KEY_SIZE) + "]");
   }
 
+  if (compressedBytes[0] != 0x2 && compressedBytes[0] != 0x3)
+  {
+    throw std::invalid_argument("Compressed bytes should begin with 0x02 or 0x03");
+  }
+
   EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_secp256k1);
 
   if (group == nullptr)
   {
-    throw std::runtime_error("EC_GROUP_new_by_curve_name failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_GROUP_new_by_curve_name"));
   }
 
   EC_POINT* compressedPoint = EC_POINT_new(group);
@@ -310,7 +320,7 @@ std::vector<unsigned char> ECDSAPublicKey::uncompressBytes(const std::vector<uns
   {
     EC_GROUP_free(group);
 
-    throw std::runtime_error("EC_POINT_new failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_new"));
   }
 
   BN_CTX* context = BN_CTX_new();
@@ -320,7 +330,7 @@ std::vector<unsigned char> ECDSAPublicKey::uncompressBytes(const std::vector<uns
     EC_GROUP_free(group);
     EC_POINT_free(compressedPoint);
 
-    throw std::runtime_error("BN_CTX_new failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_new"));
   }
 
   // parse the compressed point into an EC_POINT object
@@ -330,7 +340,7 @@ std::vector<unsigned char> ECDSAPublicKey::uncompressBytes(const std::vector<uns
     EC_POINT_free(compressedPoint);
     BN_CTX_free(context);
 
-    throw std::runtime_error("EC_POINT_oct2point failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_oct2point"));
   }
 
   std::vector<unsigned char> uncompressedBytes(UNCOMPRESSED_KEY_SIZE);
@@ -347,7 +357,7 @@ std::vector<unsigned char> ECDSAPublicKey::uncompressBytes(const std::vector<uns
     EC_POINT_free(compressedPoint);
     BN_CTX_free(context);
 
-    throw std::runtime_error("EC_POINT_point2oct failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_point2oct"));
   }
 
   EC_GROUP_free(group);

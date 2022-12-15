@@ -53,6 +53,15 @@ namespace Hedera::internal::OpenSSLHasher
  */
 [[nodiscard]] std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
                                                            const std::vector<unsigned char>& data);
+
+/**
+ * Gets an error message for an OpenSSL error. Includes as much detail as possible
+ *
+ * @param functionName the name of the OpenSSL function which caused the error
+ *
+ * @return an error string
+ */
+[[nodiscard]] std::string getOpenSSLErrorMessage(const std::string& functionName);
 } // namespace Hedera::internal::OpenSSLHasher
 
 #endif // HEDERA_SDK_CPP_IMPL_OPENSSL_HASHER_H_

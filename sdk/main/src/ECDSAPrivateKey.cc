@@ -149,20 +149,15 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
     throw std::runtime_error("Digest context construction failed");
   }
 
-  if (EVP_DigestSignInit(messageDigestContext, nullptr, nullptr, nullptr, mKeypair) <= 0)
+  if (EVP_DigestSignInit(messageDigestContext, nullptr, EVP_sha256(), nullptr, mKeypair) <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
-    throw std::runtime_error("Digest sign initialization failed");
+
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestSignInit"));
   }
 
-  size_t signatureLength;
-  /* Calculate the required size for the signature */
-  if (EVP_DigestSign(messageDigestContext, nullptr, &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
-  {
-    EVP_MD_CTX_free(messageDigestContext);
-    throw std::runtime_error("Failed to calculate signature length");
-  }
-
+  // 72 is the maximum required size
+  size_t signatureLength = 72;
   auto signature = std::vector<unsigned char>(signatureLength);
 
   if (EVP_DigestSign(
@@ -174,7 +169,9 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
 
   EVP_MD_CTX_free(messageDigestContext);
 
-  return signature;
+  // IMPORTANT: only return the *actual* length the signature ended up being. sometimes it is < 72, and the extra 0s at
+  // the end will ruin verification if included
+  return { signature.begin(), signature.begin() + (long)signatureLength };
 }
 
 //-----

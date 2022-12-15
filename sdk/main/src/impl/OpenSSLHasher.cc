@@ -19,6 +19,7 @@
  */
 #include "impl/OpenSSLHasher.h"
 
+#include <openssl/err.h>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 
@@ -90,6 +91,23 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
   EVP_MD_free(messageDigest);
 
   return { hmac, hmac + 64 };
+}
+
+std::string getOpenSSLErrorMessage(const std::string& functionName)
+{
+  unsigned long errorCode = ERR_get_error();
+
+  // no error was found
+  if (errorCode == 0)
+  {
+    return "Error occurred in [" + functionName + "]";
+  }
+
+  char errorStringRaw[256];
+
+  ERR_error_string_n(errorCode, errorStringRaw, 256);
+
+  return "Error occurred in [" + functionName + "]: " + std::string{ errorStringRaw };
 }
 
 } // namespace Hedera::internal::OpenSSLHasher
