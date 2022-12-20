@@ -20,10 +20,10 @@
 #ifndef HEDERA_SDK_CPP_IMPL_OPENSSL_HASHER_H_
 #define HEDERA_SDK_CPP_IMPL_OPENSSL_HASHER_H_
 
-#include <string>
-#include <vector>
 #include <functional>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace Hedera::internal::OpenSSLHasher
 {
@@ -55,13 +55,13 @@ namespace Hedera::internal::OpenSSLHasher
                                                            const std::vector<unsigned char>& data);
 
 /**
- * Gets an error message for an OpenSSL error. Includes as much detail as possible
+ * Gets an error message for an OpenSSL error. Includes as much detail as possible.
  *
- * @param functionName the name of the OpenSSL function which caused the error
- *
- * @return an error string
+ * @param functionName the name of the OpenSSL function which caused the error.
+ * @return An error string.
  */
 [[nodiscard]] std::string getOpenSSLErrorMessage(const std::string& functionName);
+
 } // namespace Hedera::internal::OpenSSLHasher
 
 #endif // HEDERA_SDK_CPP_IMPL_OPENSSL_HASHER_H_

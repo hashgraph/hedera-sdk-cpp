@@ -27,6 +27,7 @@
 
 namespace Hedera::internal::HexConverter
 {
+//-----
 std::string base64ToHex(const std::vector<unsigned char>& bytes)
 {
   size_t stringLength;
@@ -45,6 +46,7 @@ std::string base64ToHex(const std::vector<unsigned char>& bytes)
   return { rawString };
 }
 
+//-----
 std::vector<unsigned char> hexToBase64(const std::string& inputString)
 {
   size_t bufferLength;
@@ -63,6 +65,7 @@ std::vector<unsigned char> hexToBase64(const std::string& inputString)
   return outputBytes;
 }
 
+//-----
 std::string bytesToHex(const std::vector<unsigned char>& bytes)
 {
   std::stringstream stream;

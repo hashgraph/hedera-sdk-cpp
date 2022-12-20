@@ -31,24 +31,26 @@ using namespace Hedera;
 class ECDSAPrivateKeyTest : public ::testing::Test
 {
 protected:
-  std::unique_ptr<ECDSAPrivateKey> privateKeyGenerated;
-  std::unique_ptr<ECDSAPrivateKey> privateKeyLoaded;
-
-  void SetUp() override
+  [[nodiscard]] inline const std::unique_ptr<ECDSAPrivateKey>& getTestPrivateKeyGenerated() const
   {
-    // generate a private key
-    privateKeyGenerated = ECDSAPrivateKey::generatePrivateKey();
-
-    // serialize and then load private key back in
-    privateKeyLoaded = ECDSAPrivateKey::fromString(privateKeyGenerated->toString());
+    return mPrivateKeyGenerated;
   }
+  [[nodiscard]] inline const std::unique_ptr<ECDSAPrivateKey>& getTestPrivateKeyLoaded() const
+  {
+    return mPrivateKeyLoaded;
+  }
+
+private:
+  const std::unique_ptr<ECDSAPrivateKey> mPrivateKeyGenerated = ECDSAPrivateKey::generatePrivateKey();
+  const std::unique_ptr<ECDSAPrivateKey> mPrivateKeyLoaded =
+    ECDSAPrivateKey::fromString(mPrivateKeyGenerated->toString());
 };
 
 TEST_F(ECDSAPrivateKeyTest, GetPublicKey)
 {
   // get the public keys from the private keys
-  std::shared_ptr<PublicKey> publicFromGenerated = privateKeyGenerated->getPublicKey();
-  std::shared_ptr<PublicKey> publicFromLoaded = privateKeyLoaded->getPublicKey();
+  std::shared_ptr<PublicKey> publicFromGenerated = getTestPrivateKeyGenerated()->getPublicKey();
+  std::shared_ptr<PublicKey> publicFromLoaded = getTestPrivateKeyLoaded()->getPublicKey();
 
   EXPECT_NE(publicFromGenerated, nullptr);
   EXPECT_NE(publicFromLoaded, nullptr);
@@ -60,8 +62,8 @@ TEST_F(ECDSAPrivateKeyTest, GetPublicKey)
 TEST_F(ECDSAPrivateKeyTest, Sign)
 {
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
-  std::vector<unsigned char> signatureFromGenerated = privateKeyGenerated->sign(bytesToSign);
-  std::vector<unsigned char> signatureFromLoaded = privateKeyLoaded->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign(bytesToSign);
 
   // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality
   EXPECT_NE(signatureFromLoaded, signatureFromGenerated);
@@ -74,8 +76,8 @@ TEST_F(ECDSAPrivateKeyTest, SignEmptyBytes)
 {
   std::vector<unsigned char> bytesToSign;
 
-  std::vector<unsigned char> signatureFromGenerated = privateKeyGenerated->sign(bytesToSign);
-  std::vector<unsigned char> signatureFromLoaded = privateKeyLoaded->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
+  std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign(bytesToSign);
 
   // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality
   EXPECT_NE(signatureFromLoaded, signatureFromGenerated);
@@ -86,8 +88,8 @@ TEST_F(ECDSAPrivateKeyTest, SignEmptyBytes)
 
 TEST_F(ECDSAPrivateKeyTest, ToString)
 {
-  std::string stringFromGenerated = privateKeyGenerated->toString();
-  std::string stringFromLoaded = privateKeyLoaded->toString();
+  std::string stringFromGenerated = getTestPrivateKeyGenerated()->toString();
+  std::string stringFromLoaded = getTestPrivateKeyLoaded()->toString();
 
   EXPECT_EQ(stringFromGenerated.size(), 64);
   EXPECT_EQ(stringFromLoaded.size(), 64);

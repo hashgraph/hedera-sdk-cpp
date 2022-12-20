@@ -56,7 +56,7 @@ public:
    * Construct an ECDSAPublicKey object from the raw string representation
    *
    * @param keyString The string from which to create an ECDSAPublicKey. May be either compressed or uncompressed,
-   * but must be the raw encoding (no extra ASN.1 bytes)
+   *                  but must be the raw encoding (no extra ASN.1 bytes).
    * @return A pointer to an ECDSAPublicKey representing the input string.
    */
   static std::shared_ptr<ECDSAPublicKey> fromString(const std::string& keyString);
@@ -64,16 +64,16 @@ public:
   /**
    * Construct an ECDSAPublicKey object from a byte vector.
    *
-   * @param keyBytes The vector of raw bytes to construct the ECDSAPublicKey from
+   * @param keyBytes The vector of raw bytes from which to construct the ECDSAPublicKey.
    * @return A pointer to an ECDSAPublicKey representing the input bytes.
    */
   static std::shared_ptr<ECDSAPublicKey> fromBytes(const std::vector<unsigned char>& keyBytes);
 
   /**
-   * Converts an uncompressed representation of a public key to a compressed representation
+   * Converts an uncompressed representation of a public key to a compressed representation.
    *
-   * @param uncompressedBytes the uncompressed bytes of the public key
-   * @return a byte vector representing the public key in compressed form
+   * @param uncompressedBytes The uncompressed bytes of the public key.
+   * @return A byte vector representing the public key in compressed form.
    */
   static std::vector<unsigned char> compressBytes(const std::vector<unsigned char>& uncompressedBytes);
 

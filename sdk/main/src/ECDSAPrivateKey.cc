@@ -152,7 +152,6 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
   if (EVP_DigestSignInit(messageDigestContext, nullptr, EVP_sha256(), nullptr, mKeypair) <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestSignInit"));
   }
 

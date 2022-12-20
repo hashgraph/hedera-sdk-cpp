@@ -81,7 +81,7 @@ public:
    * @return A pointer to the recovered ECDSAPrivateKey.
    */
   static std::unique_ptr<ECDSAPrivateKey> fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
-                                                              const std::string& passphrase);
+                                                            const std::string& passphrase);
 
   /**
    * Derive an ECDSAPrivateKey from a seed array.

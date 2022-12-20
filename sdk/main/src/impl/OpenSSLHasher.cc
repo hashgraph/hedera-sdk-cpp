@@ -25,6 +25,7 @@
 
 namespace Hedera::internal::OpenSSLHasher
 {
+//-----
 std::vector<unsigned char> computeSHA384(const std::string& data)
 {
   auto outputBytes = std::vector<unsigned char>(48);
@@ -34,6 +35,7 @@ std::vector<unsigned char> computeSHA384(const std::string& data)
   return outputBytes;
 }
 
+//-----
 std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
 {
   auto outputBytes = std::vector<unsigned char>(32);
@@ -44,6 +46,7 @@ std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
   return outputBytes;
 }
 
+//-----
 std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
                                              const std::vector<unsigned char>& data)
 {
@@ -93,6 +96,7 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
   return { hmac, hmac + 64 };
 }
 
+//-----
 std::string getOpenSSLErrorMessage(const std::string& functionName)
 {
   unsigned long errorCode = ERR_get_error();

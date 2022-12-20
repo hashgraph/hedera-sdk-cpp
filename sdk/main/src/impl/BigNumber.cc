@@ -25,17 +25,19 @@
 
 namespace Hedera::internal
 {
-
+//-----
 BigNumber::BigNumber(BIGNUM* underlyingNum)
   : mUnderlyingBigNum(underlyingNum)
 {
 }
 
+//-----
 BigNumber::~BigNumber()
 {
   BN_clear_free(mUnderlyingBigNum);
 }
 
+//-----
 BigNumber BigNumber::fromHex(const std::string& hexString)
 {
   BIGNUM* bigNum = BN_secure_new();
@@ -55,12 +57,14 @@ BigNumber BigNumber::fromHex(const std::string& hexString)
   return BigNumber(bigNum);
 }
 
+//-----
 BigNumber BigNumber::fromBytes(const std::vector<unsigned char>& bytes)
 {
   // go through hex rather than using big-endian openssl functions
   return fromHex(HexConverter::base64ToHex(bytes));
 }
 
+//-----
 BigNumber BigNumber::modularAdd(const BigNumber& other, const BigNumber& modulo) const
 {
   BN_CTX* context = BN_CTX_secure_new();
@@ -75,7 +79,6 @@ BigNumber BigNumber::modularAdd(const BigNumber& other, const BigNumber& modulo)
   if (result == nullptr)
   {
     BN_CTX_free(context);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_secure_new"));
   }
 
@@ -83,7 +86,6 @@ BigNumber BigNumber::modularAdd(const BigNumber& other, const BigNumber& modulo)
   {
     BN_CTX_free(context);
     BN_clear_free(result);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_mod_add"));
   }
 
@@ -92,6 +94,7 @@ BigNumber BigNumber::modularAdd(const BigNumber& other, const BigNumber& modulo)
   return BigNumber(result);
 }
 
+//-----
 std::vector<unsigned char> BigNumber::toBytes() const
 {
   char* hex = BN_bn2hex(mUnderlyingBigNum);
@@ -102,4 +105,5 @@ std::vector<unsigned char> BigNumber::toBytes() const
 
   return outputBytes;
 }
-} // Hedera::internal
+
+} // namespace Hedera::internal
