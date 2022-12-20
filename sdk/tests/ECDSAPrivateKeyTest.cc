@@ -63,9 +63,11 @@ TEST_F(ECDSAPrivateKeyTest, Sign)
   std::vector<unsigned char> signatureFromGenerated = privateKeyGenerated->sign(bytesToSign);
   std::vector<unsigned char> signatureFromLoaded = privateKeyLoaded->sign(bytesToSign);
 
-  // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality, only output size
-  EXPECT_EQ(signatureFromGenerated.size(), 72);
-  EXPECT_EQ(signatureFromLoaded.size(), 72);
+  // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality
+  EXPECT_NE(signatureFromLoaded, signatureFromGenerated);
+  // output size should be <= 72
+  EXPECT_LE(signatureFromGenerated.size(), 72);
+  EXPECT_LE(signatureFromLoaded.size(), 72);
 }
 
 TEST_F(ECDSAPrivateKeyTest, SignEmptyBytes)
@@ -75,8 +77,11 @@ TEST_F(ECDSAPrivateKeyTest, SignEmptyBytes)
   std::vector<unsigned char> signatureFromGenerated = privateKeyGenerated->sign(bytesToSign);
   std::vector<unsigned char> signatureFromLoaded = privateKeyLoaded->sign(bytesToSign);
 
-  EXPECT_EQ(signatureFromGenerated.size(), 72);
-  EXPECT_EQ(signatureFromLoaded.size(), 72);
+  // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality
+  EXPECT_NE(signatureFromLoaded, signatureFromGenerated);
+  // output size should be <= 72
+  EXPECT_LE(signatureFromGenerated.size(), 72);
+  EXPECT_LE(signatureFromLoaded.size(), 72);
 }
 
 TEST_F(ECDSAPrivateKeyTest, ToString)

@@ -44,9 +44,13 @@ public:
   ECDSAPrivateKey() = delete;
 
   /**
-   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
+   * Destructor
    */
   ~ECDSAPrivateKey() override;
+
+  /**
+   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
+   */
   ECDSAPrivateKey(const ECDSAPrivateKey& other);
   ECDSAPrivateKey& operator=(const ECDSAPrivateKey& other);
   ECDSAPrivateKey(ECDSAPrivateKey&& other) noexcept;
@@ -61,7 +65,7 @@ public:
   static std::unique_ptr<ECDSAPrivateKey> generatePrivateKey();
 
   /**
-   * Construct an ECDSAPrivateKey object from the DER string representation.
+   * Construct an ECDSAPrivateKey object from the raw string representation.
    *
    * @param keyString The string from which to create an ECDSAPrivateKey.
    * @return A pointer to an ECDSAPrivateKey representing the input string.
@@ -111,7 +115,7 @@ public:
   [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
 
   /**
-   * Derived from PrivateKey. Get the string representation of this ECDSAPrivateKey, in DER format.
+   * Derived from PrivateKey. Get the raw string representation of this ECDSAPrivateKey
    *
    * @return The string representation of this ECDSAPrivateKey.
    * @throws std::runtime_error If OpenSSL serialization fails.
@@ -128,7 +132,7 @@ public:
   [[nodiscard]] std::unique_ptr<ECDSAPrivateKey> derive(uint32_t childIndex) const;
 
   /**
-   * Get the byte representation of this ECDSAPrivateKey.
+   * Get the raw byte representation of this ECDSAPrivateKey.
    *
    * @return The byte representation of this ECDSAPrivateKey.
    */

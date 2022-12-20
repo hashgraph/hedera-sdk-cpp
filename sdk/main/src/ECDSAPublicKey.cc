@@ -118,6 +118,12 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
 
   EVP_MD_CTX_free(messageDigestContext);
 
+  // any value other than 0 or 1 means an error occurred
+  if (verificationResult != 0 && verificationResult != 1)
+  {
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerify"));
+  }
+
   return verificationResult == 1;
 }
 
@@ -164,6 +170,7 @@ std::vector<unsigned char> ECDSAPublicKey::toBytes() const
 //-----
 EVP_PKEY* ECDSAPublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes)
 {
+  // OpenSSL requires that the bytes are uncompressed to construct the pkey output object
   // start the uncompressed bytes with the appropriate ASN1 prefix for an uncompressed public key
   std::vector<unsigned char> uncompressedKeyBytes = internal::HexConverter::hexToBase64(UNCOMPRESSED_KEY_ASN1_PREFIX);
 
@@ -219,8 +226,8 @@ ECDSAPublicKey::ECDSAPublicKey(EVP_PKEY* publicKey)
 
 std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsigned char>& uncompressedBytes)
 {
-  // a public key is simply an (x, y) coordinate on the elliptic curve
-  // the compressed key comes in the form [0x02 or 0x03][32 bytes of x coord]
+  // a public key is an (x, y) coordinate on the elliptic curve
+  // the uncompressed key comes in the form [0x04][32 bytes of x coord][32 bytes of y coord]
   if (uncompressedBytes.size() != UNCOMPRESSED_KEY_SIZE)
   {
     throw std::invalid_argument("compressBytes input bytes size [" + std::to_string(uncompressedBytes.size()) +
@@ -294,7 +301,7 @@ std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsig
 
 std::vector<unsigned char> ECDSAPublicKey::uncompressBytes(const std::vector<unsigned char>& compressedBytes)
 {
-  // recall, a public key is simply an (x, y) coordinate on the elliptic curve
+  // a public key is an (x, y) coordinate on the elliptic curve
   // the compressed key comes in the form [0x02 or 0x03][32 bytes of x coord]
   if (compressedBytes.size() != COMPRESSED_KEY_SIZE)
   {

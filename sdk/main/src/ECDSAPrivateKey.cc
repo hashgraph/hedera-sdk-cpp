@@ -90,7 +90,7 @@ std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::generatePrivateKey()
 
   if (keypair == nullptr)
   {
-    throw std::runtime_error("Keypair generation error");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_EC_gen"));
   }
 
   return std::make_unique<ECDSAPrivateKey>(ECDSAPrivateKey(keypair));
@@ -146,7 +146,7 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
 
   if (!messageDigestContext)
   {
-    throw std::runtime_error("Digest context construction failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
   if (EVP_DigestSignInit(messageDigestContext, nullptr, EVP_sha256(), nullptr, mKeypair) <= 0)
@@ -156,7 +156,7 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestSignInit"));
   }
 
-  // 72 is the maximum required size
+  // 72 is the maximum required size. actual signature may be slightly smaller
   size_t signatureLength = 72;
   auto signature = std::vector<unsigned char>(signatureLength);
 
@@ -164,12 +164,12 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
         messageDigestContext, &signature.front(), &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
-    throw std::runtime_error("Signature generation failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestSign"));
   }
 
   EVP_MD_CTX_free(messageDigestContext);
 
-  // IMPORTANT: only return the *actual* length the signature ended up being. sometimes it is < 72, and the extra 0s at
+  // only return the *actual* length the signature ended up being. sometimes it is < 72, and the extra 0s at
   // the end will ruin verification if included
   return { signature.begin(), signature.begin() + (long)signatureLength };
 }
@@ -225,7 +225,7 @@ std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::derive(const uint32_t childInd
 
   internal::BigNumber moduloSum = keyTerm1.modularAdd(keyTerm2, modulo);
 
-  // chain code is the next 32 bytes of the computed hmac
+  // chain code is the last 32 bytes of the computed hmac
   std::vector<unsigned char> chainCode(hmacOutput.begin() + CHAIN_CODE_SIZE, hmacOutput.end());
 
   return std::make_unique<ECDSAPrivateKey>(ECDSAPrivateKey(bytesToPKEY(moduloSum.toBytes()), chainCode));
@@ -240,10 +240,13 @@ std::vector<unsigned char> ECDSAPrivateKey::toBytes() const
 
   if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(mKeypair, &rawBytes) <= 0)
   {
-    throw std::runtime_error("ECDSAPrivateKey private key serialization error");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_PrivateKey"));
   }
 
-  // don't return the algorithm identification bytes
+  // only return the 32 private key bytes
+  // the return value of i2d_PrivateKey can be either 48 or 118 bytes, depending on how the private key was constructed
+  // this difference doesn't change anything with the return here: the first 7 bytes of each are algorithm identifiers,
+  // the next 32 are private key bytes, and the rest are for other purposes
   return { outputBytes.begin() + 7, outputBytes.begin() + 7 + PRIVATE_KEY_SIZE };
 }
 
@@ -281,7 +284,7 @@ EVP_PKEY* ECDSAPrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyByte
 
   if (key == nullptr)
   {
-    throw std::runtime_error("d2i_PrivateKey failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("d2i_PrivateKey"));
   }
 
   return key;
@@ -312,11 +315,10 @@ std::vector<unsigned char> ECDSAPrivateKey::getPublicKeyBytes() const
 
   if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(mKeypair, &rawPublicKeyBytes) <= 0)
   {
-    throw std::runtime_error("ECDSAPrivateKey public key serialization error");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_PUBKEY"));
   }
 
-  // TODO check lengths
-  // first 23 characters are the ASN.1 prefix
+  // first 23 characters are the ASN.1 prefix, and the remaining 65 bytes are the uncompressed pubkey
   return ECDSAPublicKey::compressBytes({ keyBytes.begin() + 23, keyBytes.end() });
 }
 

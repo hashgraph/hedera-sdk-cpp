@@ -34,19 +34,59 @@ namespace Hedera::internal
 class BigNumber
 {
 public:
+  /**
+   * Destructor
+   */
   ~BigNumber();
+
+  /**
+   * Don't allow copies or moves
+   */
   BigNumber(const BigNumber&) = delete;
   BigNumber(BigNumber&& other) = delete;
 
+  /**
+   * Create a new BigNumber from a hex string
+   *
+   * @param hexString string representing the big number
+   * @return a newly constructed BigNumber
+   */
   static BigNumber fromHex(const std::string& hexString);
+
+  /**
+   * Create a new BigNumber from a bytes vector
+   *
+   * @param bytes vector of bytes representing the big number
+   * @return a newly constructed BigNumber
+   */
   static BigNumber fromBytes(const std::vector<unsigned char>& bytes);
 
+  /**
+   * Add another big number to this one, and take the modulo of the sum
+   *
+   * @param other the other big number to add to this one
+   * @param modulo the module to take the sum to
+   * @return the modular sum
+   */
   [[nodiscard]] BigNumber modularAdd(const BigNumber& other, const BigNumber& modulo) const;
 
+  /**
+   * Get a vector of bytes representing this big number
+   *
+   * @return the byte vector representing this number
+   */
   [[nodiscard]] std::vector<unsigned char> toBytes() const;
 private:
+  /**
+   * Hidden constructor
+   *
+   * @param underlyingNum the underlying OpenSSL big number
+   */
   explicit BigNumber(BIGNUM* underlyingNum);
 
+  /**
+   * The OpenSSL big number wrapped by this object
+   */
   BIGNUM* mUnderlyingBigNum;
 };
 

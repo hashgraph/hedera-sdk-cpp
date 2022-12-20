@@ -19,13 +19,15 @@
  */
 #include "impl/BigNumber.h"
 #include "impl/HexConverter.h"
+#include "impl/OpenSSLHasher.h"
 
 #include <stdexcept>
 
 namespace Hedera::internal
 {
 
-BigNumber::BigNumber(BIGNUM* underlyingNum) : mUnderlyingBigNum(underlyingNum)
+BigNumber::BigNumber(BIGNUM* underlyingNum)
+  : mUnderlyingBigNum(underlyingNum)
 {
 }
 
@@ -40,14 +42,14 @@ BigNumber BigNumber::fromHex(const std::string& hexString)
 
   if (bigNum == nullptr)
   {
-    throw std::runtime_error("BN_secure_new failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_secure_new"));
   }
 
   if (BN_hex2bn(&bigNum, hexString.c_str()) <= 0)
   {
     BN_clear_free(bigNum);
 
-    throw std::runtime_error("BN_hex2bn failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_hex2bn"));
   }
 
   return BigNumber(bigNum);
@@ -63,8 +65,9 @@ BigNumber BigNumber::modularAdd(const BigNumber& other, const BigNumber& modulo)
 {
   BN_CTX* context = BN_CTX_secure_new();
 
-  if (context == nullptr) {
-    throw std::runtime_error("BN_CTX_new failed");
+  if (context == nullptr)
+  {
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_secure_new"));
   }
 
   BIGNUM* result = BN_secure_new();
@@ -73,14 +76,15 @@ BigNumber BigNumber::modularAdd(const BigNumber& other, const BigNumber& modulo)
   {
     BN_CTX_free(context);
 
-    throw std::runtime_error("BN_secure_new failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_secure_new"));
   }
 
-  if (BN_mod_add(result, mUnderlyingBigNum, other.mUnderlyingBigNum, modulo.mUnderlyingBigNum, context) <= 0) {
+  if (BN_mod_add(result, mUnderlyingBigNum, other.mUnderlyingBigNum, modulo.mUnderlyingBigNum, context) <= 0)
+  {
     BN_CTX_free(context);
     BN_clear_free(result);
 
-    throw std::runtime_error("BN_mod_add failed");
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_mod_add"));
   }
 
   BN_CTX_free(context);

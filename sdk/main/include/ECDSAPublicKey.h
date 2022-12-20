@@ -40,18 +40,23 @@ public:
   ECDSAPublicKey() = delete;
 
   /**
-   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
+   * Destructor
    */
   ~ECDSAPublicKey() override;
+
+  /**
+   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
+   */
   ECDSAPublicKey(const ECDSAPublicKey& other);
   ECDSAPublicKey& operator=(const ECDSAPublicKey& other);
   ECDSAPublicKey(ECDSAPublicKey&& other) noexcept;
   ECDSAPublicKey& operator=(ECDSAPublicKey&& other) noexcept;
 
   /**
-   * Construct an ECDSAPublicKey object from the DER string representation.
+   * Construct an ECDSAPublicKey object from the raw string representation
    *
-   * @param keyString The string from which to create an ECDSAPublicKey.
+   * @param keyString The string from which to create an ECDSAPublicKey. May be either compressed or uncompressed,
+   * but must be the raw encoding (no extra ASN.1 bytes)
    * @return A pointer to an ECDSAPublicKey representing the input string.
    */
   static std::shared_ptr<ECDSAPublicKey> fromString(const std::string& keyString);
@@ -59,12 +64,25 @@ public:
   /**
    * Construct an ECDSAPublicKey object from a byte vector.
    *
-   * @param keyBytes The vector of bytes from which to construct the ECDSAPublicKey, which are a DER encoding.
+   * @param keyBytes The vector of raw bytes to construct the ECDSAPublicKey from
    * @return A pointer to an ECDSAPublicKey representing the input bytes.
    */
   static std::shared_ptr<ECDSAPublicKey> fromBytes(const std::vector<unsigned char>& keyBytes);
 
+  /**
+   * Converts an uncompressed representation of a public key to a compressed representation
+   *
+   * @param uncompressedBytes the uncompressed bytes of the public key
+   * @return a byte vector representing the public key in compressed form
+   */
   static std::vector<unsigned char> compressBytes(const std::vector<unsigned char>& uncompressedBytes);
+
+  /**
+   * Converts a compressed representation of a public key to the uncompressed representation
+   *
+   * @param compressedBytes the compressed bytes of the public key
+   * @return a byte vector representing the public key in uncompressed form
+   */
   static std::vector<unsigned char> uncompressBytes(const std::vector<unsigned char>& compressedBytes);
 
   /**
@@ -81,7 +99,7 @@ public:
    * @param signatureBytes The byte vector representing the signature.
    * @param signedBytes    The bytes which were purportedly signed to create the signature.
    * @return \c TRUE if the signature is valid, otherwise \c FALSE.
-   * @throws std::runtime_error If OpenSSL signature verification fails.
+   * @throws std::runtime_error If OpenSSL signature verification experiences an error.
    */
   [[nodiscard]] bool verifySignature(const std::vector<unsigned char>& signatureBytes,
                                      const std::vector<unsigned char>& signedBytes) const override;
@@ -95,15 +113,15 @@ public:
   [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
   /**
-   * Derived from PublicKey. Get the string representation of this ECDSAPublicKey, in DER format.
+   * Derived from PublicKey. Get the raw string representation of this ECDSAPublicKey (no additional ASN.1 bytes)
    *
-   * @return The string representation of this ECDSAPublicKey in DER format.
+   * @return The string representation of this ECDSAPublicKey.
    * @throws std::runtime_error If OpenSSL serialization fails.
    */
   [[nodiscard]] std::string toString() const override;
 
   /**
-   * Derived from PublicKey. Get the byte representation of this ECDSAPublicKey, in DER format.
+   * Derived from PublicKey. Get the raw byte representation of this ECDSAPublicKey
    *
    * @return The byte representation of this ECDSAPublicKey.
    */
