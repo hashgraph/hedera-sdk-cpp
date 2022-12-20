@@ -101,9 +101,9 @@ private:
    */
   [[nodiscard]]
   typename Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::ExecutionStatus
-  shouldRetry(Status status,
-              [[maybe_unused]] const Client& client,
-              [[maybe_unused]] const proto::Response& response) override;
+  determineStatus(Status status,
+                  [[maybe_unused]] const Client& client,
+                  [[maybe_unused]] const proto::Response& response) override;
 
   /**
    * Derived from Executable. Submit this TransactionRecordQuery to a Node.

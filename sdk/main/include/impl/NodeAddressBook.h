@@ -49,7 +49,7 @@ public:
   static NodeAddressBook fromFile(const std::string& fileName);
 
   /**
-   * Create a NodeAddressBook object from the bye serialization of a NodeAddressBook protobuf object.
+   * Create a NodeAddressBook object from the byte serialization of a NodeAddressBook protobuf object.
    *
    * @param bytes The byte serialization of the NodeAddressBook protobuf object to decode.
    * @return The created NodeAddressBook object.

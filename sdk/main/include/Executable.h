@@ -24,9 +24,9 @@
 #include "Defaults.h"
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <vector>
-#include <functional>
 
 namespace Hedera
 {
@@ -212,9 +212,9 @@ protected:
    * @param response The ProtoResponseType received from the network in response to submitting this Executable.
    * @return The status of the submitted Executable.
    */
-  [[nodiscard]] virtual ExecutionStatus shouldRetry(Status status,
-                                                    [[maybe_unused]] const Client& client,
-                                                    [[maybe_unused]] const ProtoResponseType& response);
+  [[nodiscard]] virtual ExecutionStatus determineStatus(Status status,
+                                                        [[maybe_unused]] const Client& client,
+                                                        [[maybe_unused]] const ProtoResponseType& response);
 
 private:
   /**

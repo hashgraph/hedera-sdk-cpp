@@ -98,7 +98,7 @@ public:
 
   /**
    * Get the cost to execute this TransactionResponse's corresponding Transaction if the Transaction's max transaction
-   * fee wasn't enough.
+   * fee wasn't enough, unspecified otherwise.
    *
    * @return The cost to execute this TransactionResponse's corresponding Transaction.
    */

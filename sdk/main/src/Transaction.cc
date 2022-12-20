@@ -157,35 +157,21 @@ Status Transaction<SdkRequestType>::mapResponseStatus(const proto::TransactionRe
 template<typename SdkRequestType>
 typename Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
   ExecutionStatus
-  Transaction<SdkRequestType>::shouldRetry(Status status,
-                                           const Client& client,
-                                           const proto::TransactionResponse& response)
+  Transaction<SdkRequestType>::determineStatus(Status status,
+                                               const Client& client,
+                                               const proto::TransactionResponse& response)
 {
-  if (status == Status::TRANSACTION_EXPIRED)
+  // If the Transaction's not expired, forward to the base class.
+  if (status != Status::TRANSACTION_EXPIRED)
   {
-    if (mTransactionIdRegenerationPolicy)
-    {
-      if (*mTransactionIdRegenerationPolicy)
-      {
-        mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
-        return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
-          ExecutionStatus::RETRY;
-      }
-    }
+    return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+      determineStatus(status, client, response);
+  }
 
-    else if (const std::optional<bool> clientTxIdRegenPolicy = client.getTransactionIdRegenerationPolicy();
-             clientTxIdRegenPolicy)
-    {
-      if (*clientTxIdRegenPolicy)
-      {
-        mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
-        return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
-          ExecutionStatus::RETRY;
-      }
-    }
-
-    // Regenerate transaction IDs by default
-    else
+  // Follow this Transaction's policy if it has been explicitly set
+  if (mTransactionIdRegenerationPolicy)
+  {
+    if (*mTransactionIdRegenerationPolicy)
     {
       mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
       return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
@@ -193,14 +179,27 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
     }
   }
 
-  // If the Transaction's not expired, forward to the base class.
-  else
+  // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has been
+  else if (const std::optional<bool> clientTxIdRegenPolicy = client.getTransactionIdRegenerationPolicy();
+           clientTxIdRegenPolicy)
   {
-    return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::shouldRetry(
-      status, client, response);
+    if (*clientTxIdRegenPolicy)
+    {
+      mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
+      return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+        ExecutionStatus::RETRY;
+    }
   }
 
-  // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated.
+  // If no policy has been explicitly-set, regenerate transaction IDs by default
+  else
+  {
+    mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
+    return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+      ExecutionStatus::RETRY;
+  }
+
+  // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated
   return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
     ExecutionStatus::REQUEST_ERROR;
 }

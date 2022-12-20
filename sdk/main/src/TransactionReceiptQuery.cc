@@ -72,11 +72,11 @@ Status TransactionReceiptQuery::mapResponseStatus(const proto::Response& respons
 
 //-----
 typename Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::ExecutionStatus
-TransactionReceiptQuery::shouldRetry(Status status, const Client& client, const proto::Response& response)
+TransactionReceiptQuery::determineStatus(Status status, const Client& client, const proto::Response& response)
 {
   if (const Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::ExecutionStatus
         baseStatus =
-          Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::shouldRetry(
+          Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::determineStatus(
             status, client, response);
       baseStatus != ExecutionStatus::UNKNOWN)
   {

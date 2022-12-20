@@ -111,7 +111,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     // Successful submission, so decrease backoff for this node.
     node->decreaseBackoff();
 
-    switch (shouldRetry(mapResponseStatus(response), client, response))
+    switch (determineStatus(mapResponseStatus(response), client, response))
     {
       case ExecutionStatus::SERVER_ERROR:
       {
@@ -194,7 +194,7 @@ void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponse
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 typename Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::ExecutionStatus
-Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::shouldRetry(Status status,
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::determineStatus(Status status,
                                                                                               const Client&,
                                                                                               const ProtoResponseType&)
 {
