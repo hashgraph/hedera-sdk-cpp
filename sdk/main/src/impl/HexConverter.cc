@@ -18,52 +18,55 @@
  *
  */
 #include "impl/HexConverter.h"
+#include "impl/OpenSSLHasher.h"
 
 #include <iomanip>
-#include <iostream>
 #include <openssl/crypto.h>
 #include <sstream>
+#include <stdexcept>
 
 namespace Hedera::internal::HexConverter
 {
+//-----
 std::string base64ToHex(const std::vector<unsigned char>& bytes)
 {
   size_t stringLength;
-
   if (OPENSSL_buf2hexstr_ex(nullptr, 0, &stringLength, &bytes.front(), bytes.size(), '\0') <= 0)
   {
-    std::cout << "buf2hexstr_ex determine size error" << std::endl;
+    throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
 
   std::string charString(stringLength, '\0');
 
-  if (OPENSSL_buf2hexstr_ex(&charString.front(), stringLength, &stringLength, &bytes.front(), bytes.size(), '\0') <= 0)
+  if (OPENSSL_buf2hexstr_ex(&charString.front(), stringLength, nullptr, &bytes.front(), bytes.size(), '\0') <= 0)
   {
-    std::cout << "buf2hexstr_ex generate string error" << std::endl;
+    throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
 
   charString.pop_back(); // Remove the '\0'
   return charString;
 }
 
+//-----
 std::vector<unsigned char> hexToBase64(const std::string& inputString)
 {
   size_t bufferLength;
   if (OPENSSL_hexstr2buf_ex(nullptr, 0, &bufferLength, inputString.c_str(), '\0') <= 0)
   {
-    std::cout << "hexstr2buf_ex determine size error" << std::endl;
+    throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_hexstr2buf_ex"));
   }
 
   std::vector<unsigned char> outputBytes(bufferLength);
 
   if (OPENSSL_hexstr2buf_ex(&outputBytes.front(), bufferLength, &bufferLength, inputString.c_str(), '\0') <= 0)
   {
-    std::cout << "hexstr2buf_ex generate string error" << std::endl;
+    throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_hexstr2buf_ex"));
   }
 
   return outputBytes;
 }
 
+//-----
 std::string bytesToHex(const std::vector<unsigned char>& bytes)
 {
   std::stringstream stream;
