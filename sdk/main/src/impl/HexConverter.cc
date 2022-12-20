@@ -36,14 +36,18 @@ std::string base64ToHex(const std::vector<unsigned char>& bytes)
     throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
 
-  char rawString[stringLength];
+  char* rawString = new char[stringLength];
 
   if (OPENSSL_buf2hexstr_ex(rawString, stringLength, nullptr, &bytes.front(), bytes.size(), '\0') <= 0)
   {
+    delete[] rawString;
     throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
 
-  return { rawString };
+  std::string outputString = {rawString};
+  delete[] rawString;
+
+  return outputString;
 }
 
 //-----
