@@ -41,7 +41,7 @@ uint32_t getHardenedIndex(uint32_t index)
 }
 
 //-----
-std::vector<unsigned char> ser32(const uint32_t childIndex) {
+std::vector<unsigned char> indexToBigEndianArray(const uint32_t childIndex) {
   std::vector<unsigned char> indexVector = {};
   for (int byteIndex = 3; byteIndex >= 0; --byteIndex)
   {

@@ -188,7 +188,7 @@ std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::derive(const uint32_t childInd
   }
 
   // converts unsigned 32 bit int index into big endian byte array
-  std::vector<unsigned char> indexBytes = internal::DerivationPathUtils::ser32(childIndex);
+  std::vector<unsigned char> indexBytes = internal::DerivationPathUtils::indexToBigEndianArray(childIndex);
 
   std::vector<unsigned char> data;
 

@@ -39,10 +39,12 @@ public:
   ~BigNumber();
 
   /**
-   * Don't allow copies or moves
+   * Don't allow copies or moves or assignments
    */
   BigNumber(const BigNumber&) = delete;
+  BigNumber& operator=(const BigNumber&) = delete;
   BigNumber(BigNumber&& other) = delete;
+  BigNumber& operator=(BigNumber&&) = delete;
 
   /**
    * Create a new BigNumber from a hex string.

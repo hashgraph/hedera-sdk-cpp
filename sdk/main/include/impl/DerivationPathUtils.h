@@ -52,7 +52,7 @@ uint32_t getHardenedIndex(uint32_t index);
  * @param childIndex The index to convert to a big endian byte array.
  * @return The big endian byte array representing the child index.
  */
-std::vector<unsigned char> ser32(uint32_t childIndex);
+std::vector<unsigned char> indexToBigEndianArray(uint32_t childIndex);
 
 }; // namespace Hedera::internal::DerivationPathUtils
 
