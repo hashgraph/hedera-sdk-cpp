@@ -57,7 +57,7 @@ namespace Hedera::internal::OpenSSLHasher
 /**
  * Gets an error message for an OpenSSL error. Includes as much detail as possible.
  *
- * @param functionName the name of the OpenSSL function which caused the error.
+ * @param functionName The name of the OpenSSL function which caused the error.
  * @return An error string.
  */
 [[nodiscard]] std::string getOpenSSLErrorMessage(const std::string& functionName);
