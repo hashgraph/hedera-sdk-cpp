@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_OPENSSL_RANDOM_H_
-#define HEDERA_SDK_CPP_OPENSSL_RANDOM_H_
+#ifndef HEDERA_SDK_CPP_IMPL_OPENSSL_RANDOM_H_
+#define HEDERA_SDK_CPP_IMPL_OPENSSL_RANDOM_H_
 
 #include <vector>
 #include <functional>
@@ -41,4 +41,4 @@ std::vector<unsigned char> getRandomBytes(int count);
 
 } // namespace Hedera::internal::OpenSSLRandom
 
-#endif // HEDERA_SDK_CPP_OPENSSL_RANDOM_H_
+#endif // HEDERA_SDK_CPP_IMPL_OPENSSL_RANDOM_H_

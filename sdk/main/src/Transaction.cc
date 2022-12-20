@@ -20,6 +20,7 @@
 #include "Transaction.h"
 #include "AccountCreateTransaction.h"
 #include "Client.h"
+#include "Status.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
@@ -36,7 +37,7 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<int64_t>& duration)
+SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
 {
   mTransactionValidDuration = duration;
   return static_cast<SdkRequestType&>(*this);
@@ -68,22 +69,17 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
 
 //-----
 template<typename SdkRequestType>
-TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
+SdkRequestType& Transaction<SdkRequestType>::setRegenerateTransactionIdPolicy(bool regenerate)
 {
-  return TransactionResponse::fromProtobuf(response).setTransactionId(mTransactionId);
-}
-
-//-----
-template<typename SdkRequestType>
-void Transaction<SdkRequestType>::onExecute(const Client& client)
-{
-  mTransactionId = TransactionId::generate(client.getOperatorAccountId());
+  mTransactionIdRegenerationPolicy = regenerate;
+  return static_cast<SdkRequestType&>(*this);
 }
 
 //-----
 template<typename SdkRequestType>
 void Transaction<SdkRequestType>::onSelectNode(const std::shared_ptr<internal::Node>& node)
 {
+  Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::onSelectNode(node);
   mNodeAccountId = node->getAccountId();
 }
 
@@ -128,7 +124,7 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
   body.set_transactionfee(static_cast<uint64_t>(getMaxTransactionFee(client).toTinybars()));
   body.set_allocated_memo(new std::string(mTransactionMemo));
   body.set_allocated_transactionvalidduration(internal::DurationConverter::toProtobuf(mTransactionValidDuration));
-  body.set_allocated_nodeaccountid(mNodeAccountId->toProtobuf().release());
+  body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf().release());
   return body;
 }
 
@@ -136,20 +132,78 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
 template<typename SdkRequestType>
 Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client& client) const
 {
-  if (mMaxTransactionFee != mDefaultMaxTransactionFee)
+  return mMaxTransactionFee              ? *mMaxTransactionFee
+         : client.getMaxTransactionFee() ? *client.getMaxTransactionFee()
+                                         : DEFAULT_MAX_TRANSACTION_FEE;
+}
+
+//-----
+template<typename SdkRequestType>
+TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
+{
+  TransactionResponse txResp = TransactionResponse::fromProtobuf(response);
+  txResp.mTransactionId = mTransactionId;
+  return txResp;
+}
+
+//-----
+template<typename SdkRequestType>
+Status Transaction<SdkRequestType>::mapResponseStatus(const proto::TransactionResponse& response) const
+{
+  return STATUS_MAP.at(response.nodetransactionprecheckcode());
+}
+
+//-----
+template<typename SdkRequestType>
+typename Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+  ExecutionStatus
+  Transaction<SdkRequestType>::determineStatus(Status status,
+                                               const Client& client,
+                                               const proto::TransactionResponse& response)
+{
+  // If the Transaction's not expired, forward to the base class.
+  if (status != Status::TRANSACTION_EXPIRED)
   {
-    return mMaxTransactionFee;
+    return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+      determineStatus(status, client, response);
   }
 
-  else if (const std::unique_ptr<Hbar> defaultMaxTxFee = client.getDefaultMaxTransactionFee())
+  // Regenerate transaction IDs by default
+  bool shouldRegenerate = true;
+
+  // Follow this Transaction's policy if it has been explicitly set
+  if (mTransactionIdRegenerationPolicy)
   {
-    return *defaultMaxTxFee;
+    shouldRegenerate = *mTransactionIdRegenerationPolicy;
   }
 
+  // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has been
+  else if (const std::optional<bool> clientTxIdRegenPolicy = client.getTransactionIdRegenerationPolicy();
+           clientTxIdRegenPolicy)
+  {
+    shouldRegenerate = *clientTxIdRegenPolicy;
+  }
+
+  if (shouldRegenerate)
+  {
+    // Regenerate the transaction ID and return RETRY if transaction IDs are allowed to be regenerated
+    mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
+    return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+      ExecutionStatus::RETRY;
+  }
   else
   {
-    return mDefaultMaxTransactionFee;
+    // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated
+    return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+      ExecutionStatus::REQUEST_ERROR;
   }
+}
+
+//-----
+template<typename SdkRequestType>
+void Transaction<SdkRequestType>::onExecute(const Client& client)
+{
+  mTransactionId = TransactionId::generate(*client.getOperatorAccountId());
 }
 
 /**

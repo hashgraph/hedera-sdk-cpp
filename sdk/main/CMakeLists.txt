@@ -49,7 +49,6 @@ add_library(${PROJECT_NAME} STATIC
         src/TransferTransaction.cc
 
         src/impl/BigNumber.cc
-        src/impl/Channel.cc
         src/impl/DerivationPathUtils.cc
         src/impl/Endpoint.cc
         src/impl/DurationConverter.cc

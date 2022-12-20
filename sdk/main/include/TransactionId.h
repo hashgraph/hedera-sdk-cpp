@@ -23,7 +23,6 @@
 #include "AccountId.h"
 
 #include <chrono>
-#include <memory>
 
 namespace proto
 {
@@ -52,18 +51,13 @@ class TransactionId
 {
 public:
   /**
-   * Define a default comparator operator so that TransactionId object's can be compared.
-   */
-  bool operator==(const TransactionId&) const = default;
-
-  /**
    * Generate a new TransactionId.
    *
    * @param accountId The ID of the account to be charged for the execution of the transaction with which this ID will
    *                  be associated.
    * @return A generated TransactionId to be used for any transaction submitted by the account with the input ID.
    */
-  static TransactionId generate(const std::shared_ptr<AccountId>& accountId);
+  static TransactionId generate(const AccountId& accountId);
 
   /**
    * Create a TransactionId object from a TransactionID protobuf object.
@@ -72,6 +66,11 @@ public:
    * @return The created TransactionId object.
    */
   static TransactionId fromProtobuf(const proto::TransactionID& proto);
+
+  /**
+   * Define a default comparator operator so that TransactionId object's can be compared.
+   */
+  bool operator==(const TransactionId&) const = default;
 
   /**
    * Construct a TransactionID protobuf object from this TransactionId object.
@@ -95,7 +94,7 @@ public:
    *
    * @return A pointer to the account ID associated with this TransactionId.
    */
-  [[nodiscard]] inline std::shared_ptr<AccountId> getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
 
 private:
   /**
@@ -109,7 +108,7 @@ private:
   /**
    * The ID of the account that is paying for this transaction associated with this TransactionId.
    */
-  std::shared_ptr<AccountId> mAccountId;
+  AccountId mAccountId;
 };
 
 } // namespace Hedera

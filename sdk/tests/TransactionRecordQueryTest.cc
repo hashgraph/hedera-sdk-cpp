@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -27,11 +27,11 @@ using namespace Hedera;
 class TransactionRecordQueryTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mTestAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
   [[nodiscard]] inline const TransactionId& getTestTransactionId() const { return mTestTransactionId; }
 
 private:
-  const std::shared_ptr<AccountId> mTestAccountId = std::make_shared<AccountId>(10ULL);
+  const AccountId mTestAccountId = AccountId(10ULL);
   const TransactionId mTestTransactionId = TransactionId::generate(mTestAccountId);
 };
 
@@ -43,7 +43,7 @@ TEST_F(TransactionRecordQueryTest, CloneTransactionReceiptQuery)
 
   auto clonedExecutablePtr = transactionRecordQuery.clone();
   EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().size(), transactionRecordQuery.getNodeAccountIds().size());
-  EXPECT_EQ(*clonedExecutablePtr->getNodeAccountIds().at(0), *getTestAccountId());
+  EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().at(0), getTestAccountId());
 
   // TODO: get and test Query derived class members when they're added
 

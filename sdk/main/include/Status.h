@@ -34,12 +34,12 @@ namespace Hedera
  *
  * The success variant is SUCCESS which is what a TransactionReceipt will contain for a successful transaction.
  */
-enum Status : int
+enum class Status
 {
   /**
    * The transaction passed the pre-check validations.
    */
-  OK = 0,
+  OK,
 
   /**
    * For any error not handled by specific error codes listed below.
@@ -483,7 +483,7 @@ enum Status : int
    * Special Account Operations should be performed by only Genesis account, return this code if it
    * is not Genesis Account
    */
-  ACCOUNT_IS_NOT_GENESIS_ACCOUNT = 88,
+  ACCOUNT_IS_NOT_GENESIS_ACCOUNT,
 
   /**
    * The fee payer account doesn't have permission to submit such Transaction
@@ -998,7 +998,7 @@ enum Status : int
   /**
    * More than 10 custom fees were specified
    */
-  CUSTOM_FEES_LIST_TOO_LONG = 232,
+  CUSTOM_FEES_LIST_TOO_LONG,
 
   /**
    * Any of the feeCollector accounts for customFees is invalid
@@ -1269,7 +1269,7 @@ enum Status : int
   /**
    * The transfer account id in CryptoDelete transaction is invalid or does not exist.
    */
-  INVALID_TRANSFER_ACCOUNT_ID = 285,
+  INVALID_TRANSFER_ACCOUNT_ID,
 
   /**
    * The fee collector account id in TokenFeeScheduleUpdate is invalid or does not exist.
@@ -1301,7 +1301,7 @@ enum Status : int
   /**
    * The spender does not have an existing approved allowance with the hbar/token owner.
    */
-  SPENDER_DOES_NOT_HAVE_ALLOWANCE = 292,
+  SPENDER_DOES_NOT_HAVE_ALLOWANCE,
 
   /**
    * The transfer amount exceeds the current approved allowance for the spender account.
@@ -1322,7 +1322,7 @@ enum Status : int
   /**
    * Fungible common token used in NFT allowances
    */
-  FUNGIBLE_TOKEN_IN_NFT_ALLOWANCES = 298,
+  FUNGIBLE_TOKEN_IN_NFT_ALLOWANCES,
 
   /**
    * Non fungible token used in fungible token allowances
@@ -1342,7 +1342,7 @@ enum Status : int
   /**
    * If the account Id specified as the delegating spender is invalid or does not exist.
    */
-  INVALID_DELEGATING_SPENDER = 303,
+  INVALID_DELEGATING_SPENDER,
 
   /**
    * The delegating Spender cannot grant approveForAll allowance on a NFT token type for another spender.

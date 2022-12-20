@@ -58,21 +58,21 @@ public:
   /**
    * Set the length of time that this Transaction will remain valid.
    *
-   * @param duration The desired valid duration to set.
+   * @param duration The desired length of time to keep this Transaction valid.
    * @return A reference to this derived Transaction object with the newly-set valid duration.
    */
-  SdkRequestType& setValidTransactionDuration(const std::chrono::duration<int64_t>& duration);
+  SdkRequestType& setValidTransactionDuration(const std::chrono::duration<double>& duration);
 
   /**
    * Set the maximum transaction fee willing to be paid to execute this Transaction.
    *
-   * @param fee The desired maximum transaction fee willing to be paid for this Transaction.
+   * @param fee The desired maximum transaction fee willing to be paid to execute this Transaction.
    * @return A reference to this derived Transaction object with the newly-set maximum transaction fee.
    */
   SdkRequestType& setMaxTransactionFee(const Hbar& fee);
 
   /**
-   * Set a memo for this Transaction.
+   * Set the memo for this Transaction.
    *
    * @param memo The desired memo for this Transaction.
    * @return A reference to this derived Transaction object with the newly-set memo.
@@ -82,34 +82,36 @@ public:
   /**
    * Set the ID for this Transaction.
    *
-   * @param id The desired transaction ID to set.
+   * @param id The desired transaction ID for this Transaction.
    * @return A reference to this derived Transaction object with the newly-set transaction ID.
    */
   SdkRequestType& setTransactionId(const TransactionId& id);
 
   /**
+   * Set the transaction ID regeneration policy for this Transaction.
+   *
+   * @param regenerate \c TRUE if it is desired for this Transaction to regenerate a transaction ID upon receiving a
+   *                   TRANSACTION_EXPIRED response from the network after submission, otherwise \c FALSE.
+   * @return A reference to this derived Transaction object with the newly-set transaction ID regeneration policy.
+   */
+  SdkRequestType& setRegenerateTransactionIdPolicy(bool regenerate);
+
+  /**
    * Get the desired length of time for this Transaction to remain valid upon submission.
    *
-   * @return The duration this Transaction will remain valid.
+   * @return The length of time this Transaction will remain valid.
    */
-  [[nodiscard]] inline std::chrono::duration<int64_t> getValidTransactionDuration() const
+  [[nodiscard]] inline std::chrono::duration<double> getValidTransactionDuration() const
   {
     return mTransactionValidDuration;
   }
 
   /**
-   * Get the maximum transaction fee willing to be paid to execute this Transaction.
+   * Get the desired maximum transaction fee willing to be paid to execute this Transaction.
    *
-   * @return The maximum transaction fee willing to be paid.
+   * @return The desired maximum transaction fee willing to be paid.
    */
-  [[nodiscard]] inline Hbar getMaxTransactionFee() const { return mMaxTransactionFee; }
-
-  /**
-   * Get the default maximum transaction fee for all Transactions.
-   *
-   * @return The default maximum transaction fee.
-   */
-  [[nodiscard]] inline Hbar getDefaultMaxTransactionFee() const { return mDefaultMaxTransactionFee; }
+  [[nodiscard]] inline std::optional<Hbar> getMaxTransactionFee() const { return mMaxTransactionFee; }
 
   /**
    * Get the memo for this Transaction.
@@ -119,15 +121,26 @@ public:
   [[nodiscard]] inline std::string getTransactionMemo() const { return mTransactionMemo; }
 
   /**
-   * Get the ID of this Transaction.
+   * Get the desired ID for this Transaction.
    *
-   * @return The ID of this Transaction.
+   * @return The desired ID for this Transaction.
    */
   [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
 
+  /**
+   * Get the desired transaction ID regeneration policy of this Transaction.
+   *
+   * @return \c TRUE if this Transaction should regenerate its transaction ID upon receipt of a TRANSACTION_EXPIRED
+   *         response from the network, otherwise \c FALSE.
+   */
+  [[nodiscard]] inline std::optional<bool> getRegenerateTransactionIdPolicy() const
+  {
+    return mTransactionIdRegenerationPolicy;
+  }
+
 protected:
   /**
-   * Prevent copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
+   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
    */
   Transaction() = default;
   Transaction(const Transaction&) = default;
@@ -136,27 +149,8 @@ protected:
   Transaction& operator=(Transaction&&) noexcept = default;
 
   /**
-   * Derived from Executable. Construct a TransactionResponse object from a TransactionResponse protobuf object.
-   *
-   * @param response The TransactionResponse protobuf object from which to construct a TransactionResponse object.
-   * @return A TransactionResponse object filled with the TransactionResponse protobuf object's data.
-   */
-  [[nodiscard]] TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
-
-  /**
-   * Derived from Executable. Perform any needed actions for this Transaction when it is being submitted.
-   *
-   * Currently only sets the ID for this Transaction.
-   *
-   * @param client The Client being used to submit this Transaction.
-   */
-  void onExecute(const Client& client) override;
-
-  /**
    * Derived from Executable. Perform any needed actions for this Transaction when a Node has been selected to which to
    * submit this Transaction.
-   *
-   * Currently only sets the node account ID for this Transaction.
    *
    * @param node The Node to which this Executable is being submitted.
    */
@@ -182,9 +176,49 @@ protected:
 
 private:
   /**
+   * Derived from Executable. Construct a TransactionResponse object from a TransactionResponse protobuf object.
+   *
+   * @param response The TransactionResponse protobuf object from which to construct a TransactionResponse object.
+   * @return A TransactionResponse object filled with the TransactionResponse protobuf object's data.
+   */
+  [[nodiscard]] TransactionResponse mapResponse(const proto::TransactionResponse& response) const override;
+
+  /**
+   * Derived from Executable. Get the status response code for a submitted Transaction from a TransactionResponse
+   * protobuf object.
+   *
+   * @param response The TransactionResponse protobuf object from which to grab the Transaction status response code.
+   * @return The Transaction status response code of the input TransactionResponse protobuf object.
+   */
+  [[nodiscard]] Status mapResponseStatus(const proto::TransactionResponse& response) const override;
+
+  /**
+   * Derived from Executable. Determine the ExecutionStatus of this Transaction after being submitted.
+   *
+   * @param status   The response status from the network.
+   * @param client   The Client that submitted this Transaction.
+   * @param response The TransactionResponse protobuf object received from the network in response to submitting this
+   *                 Transaction.
+   * @return The status of the submitted Transaction.
+   */
+  [[nodiscard]]
+  typename Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+    ExecutionStatus
+    determineStatus(Status status,
+                    const Client& client,
+                    [[maybe_unused]] const proto::TransactionResponse& response) override;
+
+  /**
+   * Derived from Executable. Perform any needed actions for this Transaction when it is being submitted.
+   *
+   * @param client The Client being used to submit this Transaction.
+   */
+  void onExecute(const Client& client) override;
+
+  /**
    * Helper function used to get the proper maximum transaction fee to pack into a protobuf TransactionBody. The order
    * of priority for maximum transaction fees goes:
-   *  1. Manually-set maximum transaction fee for this transaction.
+   *  1. Manually-set maximum transaction fee for this Transaction.
    *  2. Client-set default max transaction fee.
    *  3. Default maximum transaction fee.
    *
@@ -194,34 +228,36 @@ private:
   [[nodiscard]] Hbar getMaxTransactionFee(const Client& client) const;
 
   /**
-   * The default maximum transaction fee.
+   * The length of time this Transaction will remain valid.
    */
-  const Hbar mDefaultMaxTransactionFee = Hbar(2LL);
+  std::chrono::duration<double> mTransactionValidDuration = std::chrono::minutes(2);
 
   /**
-   * The valid transaction duration. Defaults to two minutes.
+   * The account ID of the Node sending this Transaction.
    */
-  std::chrono::duration<int64_t> mTransactionValidDuration = std::chrono::minutes(2);
+  AccountId mNodeAccountId;
 
   /**
-   * The account ID of the node sending this Transaction.
+   * The maximum transaction fee willing to be paid to execute this Transaction.
    */
-  std::shared_ptr<AccountId> mNodeAccountId;
+  std::optional<Hbar> mMaxTransactionFee;
 
   /**
-   * The maximum transaction fee.
-   */
-  Hbar mMaxTransactionFee = mDefaultMaxTransactionFee;
-
-  /**
-   * The transaction memo.
+   * The memo to be associated with this Transaction.
    */
   std::string mTransactionMemo;
 
   /**
-   * The transaction ID.
+   * The ID of this Transaction.
    */
   TransactionId mTransactionId;
+
+  /**
+   * Should this Transaction regenerate its TransactionId upon a TRANSACTION_EXPIRED response from the network? If not
+   * set, this Transaction will use the Client's set transaction ID regeneration policy. If that's not set, the default
+   * behavior is to regenerate the transaction ID.
+   */
+  std::optional<bool> mTransactionIdRegenerationPolicy;
 };
 
 } // namespace Hedera

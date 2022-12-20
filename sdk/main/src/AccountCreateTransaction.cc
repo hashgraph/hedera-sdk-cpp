@@ -68,7 +68,7 @@ AccountCreateTransaction& AccountCreateTransaction::setReceiverSignatureRequired
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
-  const std::chrono::duration<int64_t>& autoRenewPeriod)
+  const std::chrono::duration<double>& autoRenewPeriod)
 {
   mAutoRenewPeriod = autoRenewPeriod;
   return *this;
@@ -139,10 +139,13 @@ proto::Transaction AccountCreateTransaction::makeRequest(const Client& client,
 }
 
 //-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-AccountCreateTransaction::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
+grpc::Status AccountCreateTransaction::submitRequest(const Client& client,
+                                                     const std::chrono::system_clock::time_point& deadline,
+                                                     const std::shared_ptr<internal::Node>& node,
+                                                     proto::TransactionResponse* response) const
 {
-  return node->getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoCreateAccount);
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kCryptoCreateAccount, makeRequest(client, node), deadline, response);
 }
 
 //-----

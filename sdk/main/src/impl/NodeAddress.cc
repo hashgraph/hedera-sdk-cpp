@@ -26,16 +26,6 @@
 
 namespace Hedera::internal
 {
-NodeAddress::NodeAddress()
-  : mEndpoints()
-  , mAccountId()
-  , mRSAPublicKey()
-  , mNodeId(-1)
-  , mCertificateHash()
-  , mDescription()
-{
-}
-
 NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
 {
   NodeAddress outputNodeAddress;
@@ -55,7 +45,7 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
   outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
   outputNodeAddress.mCertificateHash = protoNodeAddress.nodecerthash();
   outputNodeAddress.mDescription = protoNodeAddress.description();
-  outputNodeAddress.mAccountId = std::make_shared<AccountId>(AccountId::fromProtobuf(protoNodeAddress.nodeaccountid()));
+  outputNodeAddress.mAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
 
   return outputNodeAddress;
 }
@@ -66,7 +56,7 @@ std::string NodeAddress::toString() const
 
   int columnWidth = 20;
   outputStream << std::setw(columnWidth) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mAccountId->toString()
+  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mAccountId.toString()
                << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
@@ -74,7 +64,7 @@ std::string NodeAddress::toString() const
                << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
 
-  if (unsigned int endpointCount = mEndpoints.size(); !endpointCount)
+  if (size_t endpointCount = mEndpoints.size(); !endpointCount)
   {
     outputStream << "<None>";
   }
@@ -102,21 +92,6 @@ std::string NodeAddress::toString() const
   }
 
   return outputStream.str();
-}
-
-std::shared_ptr<AccountId> NodeAddress::getAccountId() const
-{
-  return mAccountId;
-}
-
-const std::vector<Endpoint>& NodeAddress::getEndpoints() const
-{
-  return mEndpoints;
-}
-
-std::string NodeAddress::getCertificateHash() const
-{
-  return mCertificateHash;
 }
 
 } // namespace Hedera::internal

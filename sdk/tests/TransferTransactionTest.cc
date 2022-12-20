@@ -28,11 +28,11 @@ using namespace Hedera;
 class TransferTransactionTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const Hbar& getTestAmount() const { return mAmount; }
 
 private:
-  const std::shared_ptr<AccountId> mAccountId = std::make_shared<AccountId>(10ULL);
+  const AccountId mAccountId = AccountId(10ULL);
   const Hbar mAmount = Hbar(10ULL);
 };
 
@@ -52,7 +52,7 @@ TEST_F(TransferTransactionTest, CloneTransferTransaction)
 
   auto clonedExecutableTransactionPtr = transaction.clone();
   EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().size(), transaction.getNodeAccountIds().size());
-  EXPECT_EQ(*clonedExecutableTransactionPtr->getNodeAccountIds().at(0), *getTestAccountId());
+  EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().at(0), getTestAccountId());
 
   auto clonedTransactionPtr = dynamic_cast<Transaction<TransferTransaction>*>(clonedExecutableTransactionPtr.get());
   EXPECT_NE(clonedTransactionPtr, nullptr);
@@ -61,7 +61,7 @@ TEST_F(TransferTransactionTest, CloneTransferTransaction)
   auto clonedAccountCreateTransactionPtr = dynamic_cast<TransferTransaction*>(clonedTransactionPtr);
   EXPECT_NE(clonedAccountCreateTransactionPtr, nullptr);
   EXPECT_FALSE(clonedAccountCreateTransactionPtr->getHbarTransfers().empty());
-  EXPECT_EQ(*clonedAccountCreateTransactionPtr->getHbarTransfers().at(0).getAccountId(), *getTestAccountId());
+  EXPECT_EQ(clonedAccountCreateTransactionPtr->getHbarTransfers().at(0).getAccountId(), getTestAccountId());
   EXPECT_EQ(clonedAccountCreateTransactionPtr->getHbarTransfers().at(0).getAmount(), getTestAmount());
 }
 

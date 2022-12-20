@@ -19,6 +19,7 @@
  */
 #include "AccountBalanceQuery.h"
 #include "AccountBalance.h"
+#include "Status.h"
 #include "impl/Node.h"
 
 #include <proto/crypto_get_account_balance.pb.h>
@@ -83,10 +84,19 @@ AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response)
 }
 
 //-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)>
-AccountBalanceQuery::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
+Status AccountBalanceQuery::mapResponseStatus(const proto::Response& response) const
 {
-  return node->getGrpcQueryMethod(proto::Query::QueryCase::kCryptogetAccountBalance);
+  return STATUS_MAP.at(response.cryptogetaccountbalance().header().nodetransactionprecheckcode());
+}
+
+//-----
+grpc::Status AccountBalanceQuery::submitRequest(const Client& client,
+                                                const std::chrono::system_clock::time_point& deadline,
+                                                const std::shared_ptr<internal::Node>& node,
+                                                proto::Response* response) const
+{
+  return node->submitQuery(
+    proto::Query::QueryCase::kCryptogetAccountBalance, makeRequest(client, node), deadline, response);
 }
 
 } // namespace Hedera

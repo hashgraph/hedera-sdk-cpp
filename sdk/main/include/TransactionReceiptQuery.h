@@ -61,36 +61,63 @@ public:
    */
   [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionId; }
 
-protected:
+private:
   /**
    * Derived from Executable. Construct a Query protobuf object from this TransactionReceiptQuery object.
    *
-   * @param client The Client trying to construct this TransactionReceiptQuery.
-   * @param node   The Node on which this TransactionReceiptQuery will be sent.
+   * @param client The Client trying to construct this TransactionReceiptQuery. This is unused.
+   * @param node   The Node to which this TransactionReceiptQuery will be sent. This is unused.
    * @return A Query protobuf object filled with this TransactionReceiptQuery object's data.
    */
-  [[nodiscard]] proto::Query makeRequest(const Client& client,
-                                         const std::shared_ptr<internal::Node>& node) const override;
+  [[nodiscard]] proto::Query makeRequest(const Client& /*client*/,
+                                         const std::shared_ptr<internal::Node>& /*node*/) const override;
 
   /**
    * Derived from Executable. Construct a TransactionReceipt object from a Response protobuf object.
    *
    * @param response The Response protobuf object from which to construct a TransactionReceipt object.
-   * @return An TransactionReceipt object filled with the Response protobuf object's data
+   * @return A TransactionReceipt object filled with the Response protobuf object's data
    */
   [[nodiscard]] TransactionReceipt mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Get the gRPC method to call to send this TransactionReceiptQuery.
+   * Derived from Executable. Get the status response code for a submitted TransactionReceiptQuery from a Response
+   * protobuf object.
    *
-   * @param node The Node to which this TransactionReceiptQuery is being sent and from which to retrieve the gRPC
-   *             method.
-   * @return The gRPC method to call to execute this TransactionReceiptQuery.
+   * @param response The Response protobuf object from which to grab the TransactionReceiptQuery status response code.
+   * @return The TransactionReceiptQuery status response code of the input Response protobuf object.
    */
-  [[nodiscard]] std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
-    const std::shared_ptr<internal::Node>& node) const override;
+  [[nodiscard]] Status mapResponseStatus(const proto::Response& response) const override;
 
-private:
+  /**
+   * Derived from Executable. Determine the ExecutionStatus of this TransactionReceiptQuery after being submitted.
+   *
+   * @param status   The response status from the network.
+   * @param client   The Client that submitted this TransactionReceiptQuery.
+   * @param response The Response protobuf object received from the network in response to submitting this
+   *                 TransactionReceiptQuery.
+   * @return The status of the submitted TransactionReceiptQuery.
+   */
+  [[nodiscard]]
+  typename Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::ExecutionStatus
+  determineStatus(Status status,
+                  [[maybe_unused]] const Client& client,
+                  [[maybe_unused]] const proto::Response& response) override;
+
+  /**
+   * Derived from Executable. Submit this TransactionReceiptQuery to a Node.
+   *
+   * @param client   The Client submitting this TransactionReceiptQuery.
+   * @param deadline The deadline for submitting this TransactionReceiptQuery.
+   * @param node     Pointer to the Node to which this TransactionReceiptQuery should be submitted.
+   * @param response Pointer to the Response protobuf object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::Response* response) const override;
   /**
    * The ID of the transaction of which this query should get the receipt.
    */

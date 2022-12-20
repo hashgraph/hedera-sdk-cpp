@@ -63,12 +63,12 @@ public:
    */
   [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionId; }
 
-protected:
+private:
   /**
    * Derived from Executable. Construct a Query protobuf object from this TransactionRecordQuery object.
    *
    * @param client The Client trying to construct this TransactionRecordQuery.
-   * @param node   The Node on which this TransactionRecordQuery will be sent.
+   * @param node   The Node to which this TransactionRecordQuery will be sent.
    * @return A Query protobuf object filled with this TransactionRecordQuery object's data.
    */
   [[nodiscard]] proto::Query makeRequest(const Client& client,
@@ -83,16 +83,43 @@ protected:
   [[nodiscard]] TransactionRecord mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Get the gRPC method to call to send this TransactionRecordQuery.
+   * Derived from Executable. Get the status response code for a submitted TransactionRecordQuery from a Response
+   * protobuf object.
    *
-   * @param node The Node to which this TransactionRecordQuery is being sent and from which to retrieve the gRPC
-   *             method.
-   * @return The gRPC method to call to execute this TransactionRecordQuery.
+   * @param response The Response protobuf object from which to grab the TransactionRecordQuery status response code.
+   * @return The TransactionRecordQuery status response code of the input Response protobuf object.
    */
-  [[nodiscard]] std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
-    const std::shared_ptr<internal::Node>& node) const override;
+  [[nodiscard]] Status mapResponseStatus(const proto::Response& response) const override;
 
-private:
+  /**
+   * Derived from Executable. Determine the ExecutionStatus of this TransactionRecordQuery after being submitted.
+   *
+   * @param status   The response status of the previous attempt.
+   * @param client   The Client that attempted to submit this TransactionRecordQuery.
+   * @param response The Response protobuf object received from the network in response to submitting this request.
+   * @return The status of the submitted request.
+   */
+  [[nodiscard]]
+  typename Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::ExecutionStatus
+  determineStatus(Status status,
+                  [[maybe_unused]] const Client& client,
+                  [[maybe_unused]] const proto::Response& response) override;
+
+  /**
+   * Derived from Executable. Submit this TransactionRecordQuery to a Node.
+   *
+   * @param client   The Client submitting this TransactionRecordQuery.
+   * @param deadline The deadline for submitting this TransactionRecordQuery.
+   * @param node     Pointer to the Node to which this TransactionRecordQuery should be submitted.
+   * @param response Pointer to the Response protobuf object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::Response* response) const override;
+
   /**
    * The ID of the transaction of which this query should get the record.
    */

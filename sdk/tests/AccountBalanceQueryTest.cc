@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -45,12 +45,12 @@ TEST_F(AccountBalanceQueryTest, ConstructAccountBalanceQuery)
 TEST_F(AccountBalanceQueryTest, CloneAccountBalanceQuery)
 {
   AccountBalanceQuery accountBalanceQuery;
-  accountBalanceQuery.setNodeAccountIds({ std::make_shared<AccountId>(getTestAccountId()) });
+  accountBalanceQuery.setNodeAccountIds({ getTestAccountId() });
   accountBalanceQuery.setAccountId(getTestAccountId());
 
   auto clonedExecutablePtr = accountBalanceQuery.clone();
   EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().size(), accountBalanceQuery.getNodeAccountIds().size());
-  EXPECT_EQ(*clonedExecutablePtr->getNodeAccountIds().at(0), getTestAccountId());
+  EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().at(0), getTestAccountId());
 
   // TODO: get and test Query derived class members when they're added
 
