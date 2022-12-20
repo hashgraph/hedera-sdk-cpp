@@ -114,9 +114,9 @@ public:
   [[nodiscard]] inline std::optional<Hbar> getMaxTransactionFee() const { return mMaxTransactionFee; }
 
   /**
-   * Get the desired memo for this Transaction.
+   * Get the memo for this Transaction.
    *
-   * @return The desired memo for this Transaction.
+   * @return The memo for this Transaction.
    */
   [[nodiscard]] inline std::string getTransactionMemo() const { return mTransactionMemo; }
 
