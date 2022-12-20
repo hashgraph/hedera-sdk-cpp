@@ -168,40 +168,35 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
       determineStatus(status, client, response);
   }
 
+  // Regenerate transaction IDs by default
+  bool shouldRegenerate = true;
+
   // Follow this Transaction's policy if it has been explicitly set
   if (mTransactionIdRegenerationPolicy)
   {
-    if (*mTransactionIdRegenerationPolicy)
-    {
-      mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
-      return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
-        ExecutionStatus::RETRY;
-    }
+    shouldRegenerate = *mTransactionIdRegenerationPolicy;
   }
 
   // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has been
   else if (const std::optional<bool> clientTxIdRegenPolicy = client.getTransactionIdRegenerationPolicy();
            clientTxIdRegenPolicy)
   {
-    if (*clientTxIdRegenPolicy)
-    {
-      mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
-      return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
-        ExecutionStatus::RETRY;
-    }
+    shouldRegenerate = *clientTxIdRegenPolicy;
   }
 
-  // If no policy has been explicitly-set, regenerate transaction IDs by default
-  else
+  if (shouldRegenerate)
   {
+    // Regenerate the transaction ID and return RETRY if transaction IDs are allowed to be regenerated
     mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
     return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
       ExecutionStatus::RETRY;
   }
-
-  // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated
-  return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
-    ExecutionStatus::REQUEST_ERROR;
+  else
+  {
+    // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated
+    return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+      ExecutionStatus::REQUEST_ERROR;
+  }
 }
 
 //-----
