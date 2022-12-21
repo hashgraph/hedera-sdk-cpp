@@ -48,9 +48,9 @@ Node::Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls)
   // https://deploy-preview-763--grpc-io.netlify.app/docs/guides/auth/#using-client-side-ssltls that this needs to be
   // specified manually).
 #ifdef _WIN32
-  credentialsOptions.set_certificate_provider(
+  tlsChannelCredentialsOptions.set_certificate_provider(
     std::make_shared<grpc::experimental::FileWatcherCertificateProvider>("roots.pem", -1));
-  credentialsOptions.watch_root_certs();
+  tlsChannelCredentialsOptions.watch_root_certs();
 #endif
 
   mTlsChannelCredentials = grpc::experimental::TlsCredentials(tlsChannelCredentialsOptions);
