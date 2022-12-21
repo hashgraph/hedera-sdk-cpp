@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -43,12 +43,4 @@ TEST_F(TransactionResponseTest, ProtobufTransactionResponse)
   protoTransactionResponse.set_nodetransactionprecheckcode(proto::ResponseCodeEnum::OK);
   txResponse = TransactionResponse::fromProtobuf(protoTransactionResponse);
   EXPECT_TRUE(txResponse.getValidateStatus());
-}
-
-TEST_F(TransactionResponseTest, TransactionId)
-{
-  const TransactionId transactionId = TransactionId::generate(std::make_shared<AccountId>(10ULL));
-  TransactionResponse txResponse;
-  txResponse.setTransactionId(transactionId);
-  EXPECT_EQ(txResponse.getTransactionId(), transactionId);
 }

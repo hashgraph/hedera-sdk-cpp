@@ -69,20 +69,10 @@ protected:
   void onExecute(const Client&) override
   { // Intentionally unimplemented
   }
-
-  /**
-   * Derived from Executable. Perform any needed actions for this Query when a
-   * Node has been selected to which to send this Query.
-   *
-   * @param node The Node to which this Query is being sent.
-   */
-  void onSelectNode(const std::shared_ptr<internal::Node>&) override
-  { // Intentionally unimplemented
-  }
 };
 
 /**
- * Explicit template instantiation
+ * Explicit template instantiations.
  */
 template class Query<AccountBalanceQuery, AccountBalance>;
 template class Query<TransactionReceiptQuery, TransactionReceipt>;

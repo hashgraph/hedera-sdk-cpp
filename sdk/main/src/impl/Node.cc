@@ -18,81 +18,132 @@
  *
  */
 #include "impl/Node.h"
+#include "impl/HederaCertificateVerifier.h"
 
-#include <proto/crypto_service.grpc.pb.h>
-
+#include <algorithm>
+#include <grpcpp/create_channel.h>
 #include <utility>
 
 namespace Hedera::internal
 {
 //-----
-Node::Node(std::shared_ptr<NodeAddress> address)
+Node::Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls)
   : mAddress(std::move(address))
 {
+  // In order to use TLS, a node certificate chain must be provided
+  if (tls == TLSBehavior::REQUIRE && mAddress->getCertificateHash().empty())
+  {
+    throw std::runtime_error("NodeAddress has empty certificate chain hash for TLS connection");
+  }
+
+  grpc::experimental::TlsChannelCredentialsOptions tlsChannelCredentialsOptions;
+
+  // Custom verification using the node's certificate chain hash
+  tlsChannelCredentialsOptions.set_verify_server_certs(false);
+  tlsChannelCredentialsOptions.set_check_call_host(false);
+  tlsChannelCredentialsOptions.set_certificate_verifier(
+    grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>(mAddress->getCertificateHash()));
+
+  mTlsChannelCredentials = grpc::experimental::TlsCredentials(tlsChannelCredentialsOptions);
 }
 
 //-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-Node::getGrpcTransactionMethod(int transactionBodyDataCase)
+bool Node::connect(const std::chrono::system_clock::time_point& timeout)
 {
-  if (!checkChannelInitialized())
-  {
-    return nullptr;
-  }
-
-  return mChannel.getGrpcTransactionMethod(transactionBodyDataCase);
-}
-
-//-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> Node::getGrpcQueryMethod(
-  int queryBodyDataCase)
-{
-  if (!checkChannelInitialized())
-  {
-    return nullptr;
-  }
-
-  return mChannel.getGrpcQueryMethod(queryBodyDataCase);
+  return mIsInitialized || initializeChannel(timeout);
 }
 
 //-----
 void Node::shutdown()
 {
-  mChannel.shutdown();
+  if (mCryptoStub)
+  {
+    mCryptoStub.reset();
+  }
+
+  if (mChannel)
+  {
+    mChannel.reset();
+  }
+
+  mIsInitialized = false;
 }
 
-bool Node::checkChannelInitialized()
+//-----
+grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
+                               const proto::Query& query,
+                               const std::chrono::system_clock::time_point& deadline,
+                               proto::Response* response)
 {
-  return mChannel.getInitialized() || tryInitializeChannel();
+  if (!connect(deadline))
+  {
+    return grpc::Status::CANCELLED;
+  }
+
+  grpc::ClientContext context;
+  context.set_deadline(deadline);
+
+  switch (funcEnum)
+  {
+    case proto::Query::QueryCase::kCryptogetAccountBalance:
+      return mCryptoStub->cryptoGetBalance(&context, query, response);
+    case proto::Query::QueryCase::kCryptoGetAccountRecords:
+      return mCryptoStub->getAccountRecords(&context, query, response);
+    case proto::Query::QueryCase::kCryptoGetInfo:
+      return mCryptoStub->getAccountInfo(&context, query, response);
+    case proto::Query::QueryCase::kCryptoGetLiveHash:
+      return mCryptoStub->getLiveHash(&context, query, response);
+    case proto::Query::QueryCase::kCryptoGetProxyStakers:
+      return mCryptoStub->getStakersByAccountID(&context, query, response);
+    case proto::Query::QueryCase::kTransactionGetReceipt:
+      return mCryptoStub->getTransactionReceipts(&context, query, response);
+    case proto::Query::QueryCase::kTransactionGetRecord:
+      return mCryptoStub->getTxRecordByTxID(&context, query, response);
+    default:
+      // This should never happen
+      throw std::invalid_argument("Unrecognized gRPC query method case");
+  }
 }
 
-bool Node::tryInitializeChannel()
+//-----
+grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
+                                     const proto::Transaction& transaction,
+                                     const std::chrono::system_clock::time_point& deadline,
+                                     proto::TransactionResponse* response)
 {
-  const std::vector<Endpoint> endpoints = mAddress->getEndpoints();
+  if (!connect(deadline))
+  {
+    return grpc::Status::CANCELLED;
+  }
 
-  return std::any_of(endpoints.begin(),
-                     endpoints.end(),
-                     [this](const Endpoint& endpoint)
-                     {
-                       switch (mTLSBehavior)
-                       {
-                         case TLSBehavior::REQUIRE:
-                           return (endpoint.getPort() == NodeAddress::PORT_NODE_TLS ||
-                                   endpoint.getPort() == NodeAddress::PORT_MIRROR_TLS) &&
-                                  !mAddress->getCertificateHash().empty() &&
-                                  mChannel.initializeEncryptedChannel(endpoint.toString(),
-                                                                      mAddress->getCertificateHash());
+  grpc::ClientContext context;
+  context.set_deadline(deadline);
 
-                         case TLSBehavior::DISABLE:
-                           return (endpoint.getPort() == NodeAddress::PORT_NODE_PLAIN ||
-                                   endpoint.getPort() == NodeAddress::PORT_MIRROR_PLAIN) &&
-                                  mChannel.initializeUnencryptedChannel(endpoint.toString());
-                         default:
-                           return false;
-                       }
-                     });
+  switch (funcEnum)
+  {
+    case proto::TransactionBody::DataCase::kCryptoAddLiveHash:
+      return mCryptoStub->addLiveHash(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kCryptoApproveAllowance:
+      return mCryptoStub->approveAllowances(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kCryptoDeleteAllowance:
+      return mCryptoStub->deleteAllowances(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kCryptoCreateAccount:
+      return mCryptoStub->createAccount(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kCryptoDelete:
+      return mCryptoStub->cryptoDelete(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kCryptoDeleteLiveHash:
+      return mCryptoStub->deleteLiveHash(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kCryptoTransfer:
+      return mCryptoStub->cryptoTransfer(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kCryptoUpdateAccount:
+      return mCryptoStub->updateAccount(&context, transaction, response);
+    default:
+      // This should never happen
+      throw std::invalid_argument("Unrecognized gRPC transaction method case");
+  }
 }
 
+//-----
 void Node::setTLSBehavior(TLSBehavior desiredBehavior)
 {
   if (desiredBehavior == mTLSBehavior)
@@ -100,8 +151,116 @@ void Node::setTLSBehavior(TLSBehavior desiredBehavior)
     return;
   }
 
+  // In order to use TLS, a node certificate chain must be provided
+  if (desiredBehavior == TLSBehavior::REQUIRE && mAddress->getCertificateHash().empty())
+  {
+    throw std::runtime_error("NodeAddress has empty certificate chain hash for TLS connection");
+  }
+
   mTLSBehavior = desiredBehavior;
-  mChannel.shutdown();
+  shutdown();
+}
+
+//-----
+void Node::setMinBackoff(const std::chrono::duration<double>& backoff)
+{
+  mMinBackoff = backoff;
+}
+
+//-----
+void Node::setMaxBackoff(const std::chrono::duration<double>& backoff)
+{
+  mMaxBackoff = backoff;
+}
+
+//-----
+bool Node::isHealthy() const
+{
+  return mReadmitTime < std::chrono::system_clock::now();
+}
+
+//-----
+void Node::increaseBackoff()
+{
+  mReadmitTime =
+    std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(mCurrentBackoff);
+  mCurrentBackoff = std::min(mCurrentBackoff * 2, mMaxBackoff);
+}
+
+//-----
+void Node::decreaseBackoff()
+{
+  mCurrentBackoff /= 2.0;
+  mCurrentBackoff = std::max(mCurrentBackoff / 2.0, mMinBackoff);
+}
+
+//-----
+std::chrono::duration<double> Node::getRemainingTimeForBackoff() const
+{
+  return mReadmitTime - std::chrono::system_clock::now();
+}
+
+//-----
+bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadline)
+{
+  const std::vector<Endpoint> endpoints = mAddress->getEndpoints();
+
+  std::shared_ptr<grpc::ChannelCredentials> channelCredentials = nullptr;
+  for (const auto& endpoint : endpoints)
+  {
+    switch (mTLSBehavior)
+    {
+      case TLSBehavior::REQUIRE:
+      {
+        if (NodeAddress::isTlsPort(endpoint.getPort()))
+        {
+          channelCredentials = mTlsChannelCredentials;
+        }
+
+        break;
+      }
+
+      case TLSBehavior::DISABLE:
+      {
+        if (NodeAddress::isNonTlsPort(endpoint.getPort()))
+        {
+          channelCredentials = grpc::InsecureChannelCredentials();
+        }
+
+        break;
+      }
+
+      default:
+      {
+        continue;
+      }
+    }
+
+    if (channelCredentials)
+    {
+      shutdown();
+
+      mChannel = grpc::CreateChannel(endpoint.toString(), channelCredentials);
+
+      if (mChannel->WaitForConnected(deadline))
+      {
+        mCryptoStub = proto::CryptoService::NewStub(mChannel);
+        mIsInitialized = true;
+
+        return true;
+      }
+      else
+      {
+        mChannel = nullptr;
+      }
+    }
+    else
+    {
+      channelCredentials = nullptr;
+    }
+  }
+
+  return false;
 }
 
 } // namespace Hedera::internal

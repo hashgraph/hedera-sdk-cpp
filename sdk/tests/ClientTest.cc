@@ -29,39 +29,39 @@ using namespace Hedera;
 class ClientTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const std::shared_ptr<AccountId>& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
 
 private:
-  const std::shared_ptr<AccountId> mAccountId = std::make_shared<AccountId>(10ULL);
+  const AccountId mAccountId = AccountId(10ULL);
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
 };
 
 TEST_F(ClientTest, ConstructClient)
 {
-  Client client = Client::forTestnet();
-  EXPECT_EQ(client.getOperatorAccountId(), nullptr);
+  Client client;
+  EXPECT_FALSE(client.getOperatorAccountId());
   EXPECT_EQ(client.getOperatorPublicKey(), nullptr);
-  EXPECT_EQ(client.getDefaultMaxTransactionFee(), nullptr);
+  EXPECT_FALSE(client.getMaxTransactionFee());
   EXPECT_EQ(client.getRequestTimeout(), std::chrono::minutes(2));
 }
 
 TEST_F(ClientTest, MoveClient)
 {
-  Client client = Client::forTestnet();
+  Client client;
   client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
 
   Client client2 = std::move(client);
-  EXPECT_EQ(*client2.getOperatorAccountId(), *getTestAccountId());
+  EXPECT_EQ(*client2.getOperatorAccountId(), getTestAccountId());
   EXPECT_EQ(client2.getOperatorPublicKey()->toString(), getTestPrivateKey()->getPublicKey()->toString());
 }
 
 TEST_F(ClientTest, SetOperator)
 {
-  Client client = Client::forTestnet();
+  Client client;
   client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
 
-  EXPECT_EQ(*client.getOperatorAccountId(), *getTestAccountId());
+  EXPECT_EQ(*client.getOperatorAccountId(), getTestAccountId());
   EXPECT_EQ(client.getOperatorPublicKey()->toString(), getTestPrivateKey()->getPublicKey()->toString());
 
   client.setOperator(getTestAccountId(), ED25519PrivateKey::generatePrivateKey());
@@ -72,17 +72,11 @@ TEST_F(ClientTest, SetOperator)
 
 TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 {
-  Client client = Client::forTestnet();
+  Client client;
   const auto fee = Hbar(1ULL);
-  client.setDefaultMaxTransactionFee(fee);
-  EXPECT_EQ(*client.getDefaultMaxTransactionFee(), fee);
+  client.setMaxTransactionFee(fee);
+  EXPECT_EQ(*client.getMaxTransactionFee(), fee);
 
   // Negative value should throw
-  EXPECT_THROW(client.setDefaultMaxTransactionFee(fee.negated()), std::invalid_argument);
-}
-
-TEST_F(ClientTest, CloseClient)
-{
-  Client client = Client::forTestnet();
-  client.close();
+  EXPECT_THROW(client.setMaxTransactionFee(fee.negated()), std::invalid_argument);
 }

@@ -31,20 +31,20 @@ class Duration;
 namespace Hedera::internal::DurationConverter
 {
 /**
- * Create a duration object from a protobuf.
+ * Get the duration in seconds represented by a Duration protobuf object.
  *
- * @param duration The duration protobuf.
- * @return The duration represented by the input duration.
+ * @param duration The Duration protobuf object from which to get the duration.
+ * @return The duration in seconds of the input Duration protobuf object.
  */
 std::chrono::seconds fromProtobuf(const proto::Duration& duration);
 
 /**
- * Create a duration protobuf object from a duration object.
+ * Create a Duration protobuf object from a generic duration.
  *
- * @param duration The duration object.
- * @return The duration protobuf object.
+ * @param duration The duration object from which to create a Duration protobuf object.
+ * @return A pointer to the created Duration protobuf object.
  */
-proto::Duration* toProtobuf(const std::chrono::duration<int64_t>& duration);
+proto::Duration* toProtobuf(const std::chrono::duration<double>& duration);
 
 } // namespace Hedera::internal::DurationConverter
 

@@ -22,6 +22,7 @@
 
 #include <chrono>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace Hedera
@@ -45,110 +46,200 @@ class Client
 {
 public:
   /**
-   * Default destructor, but must be "defined" after ChannelImpl implementation object is defined.
+   * Constructor creates implementation object.
+   */
+  Client();
+
+  /**
+   * Destructor closes all network connections.
    */
   ~Client();
 
   /**
    * No copying allowed. Underlying connections should be moved instead of copied.
    */
-  Client(const Client& other) = delete;
-  Client& operator=(const Client& other) = delete;
   Client(Client&& other) noexcept;
   Client& operator=(Client&& other) noexcept;
 
   /**
-   * Construct a Hedera client pre-configured for Hedera testnet access.
+   * Construct a Client pre-configured for Hedera Testnet access.
    *
-   * @return A Client object that can communicate with the Hedera testnet.
+   * @return A Client object that is set-up to communicate with the Hedera Testnet.
    */
   static Client forTestnet();
 
   /**
    * Set the account that will, by default, be paying for requests submitted by this Client. The operator account ID is
    * used to generate the default transaction ID for all transactions executed with this Client. The operator private
-   * key is used to sign all transactions executed by this client.
+   * key is used to sign all transactions executed by this Client.
    *
    * @param accountId  The account ID of the operator.
    * @param privateKey Pointer to the private key of the operator. This transfers ownership of the pointed-to PrivateKey
    *                   to this Client.
    * @return A reference to this Client object with the newly-set operator account ID and private key.
    */
-  Client& setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>& privateKey);
-  Client& setOperator(const std::shared_ptr<AccountId>& accountId, std::unique_ptr<PrivateKey>&& privateKey);
+  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>& privateKey);
+  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>&& privateKey);
 
   /**
-   * Set the maximum fee to be paid for requests executed by this Client.
-   *
-   * Because transaction fees are always maximums, this will simply add a call to setMaxTransactionFee() on every new
-   * transaction. The actual fee assessed for a given transaction may be less than this value, but never greater.
-   *
-   * @param defaultMaxTransactionFee The desired maximum transaction fee for requests made by this Client.
-   * @return A reference to this Client object with the newly-set default maximum transaction fee.
-   * @throws std::invalid_argument If the transaction fee is negative.
-   */
-  Client& setDefaultMaxTransactionFee(const Hbar& defaultMaxTransactionFee);
-
-  /**
-   * Sign a serialized request with this Client's operator.
+   * Sign an arbitrary array of bytes with this Client's operator.
    *
    * @param bytes The bytes for this Client's operator to sign.
-   * @return The bytes, signed with this Client's operator.
+   * @return The bytes with the signature of this Client's operator appended.
+   * @throws std::runtime_error If no client operator has been set.
    */
   [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytes) const;
 
   /**
-   * Get a list of nodes on this Client's network that are associated with the input account IDs. If no account IDs are
-   * specified, returns all nodes.
+   * Get a list of pointers to Nodes on this Client's network that are associated with the input account IDs. If no
+   * account IDs are specified, this returns the list a list of pointers to all nodes in this Client's network.
    *
-   * @param accountIds The account IDs of the requested nodes.
-   * @return A list of nodes that are associated with the requested account IDs.
+   * @param accountIds The account IDs of the requested nodes. This can be empty to get all Nodes.
+   * @return A list of pointers to Nodes that are associated with the requested account IDs.
+   * @throws std::runtime_error If no client network has been initialized.
    */
   [[nodiscard]] std::vector<std::shared_ptr<internal::Node>> getNodesWithAccountIds(
-    const std::vector<std::shared_ptr<AccountId>>& accountIds) const;
+    const std::vector<AccountId>& accountIds) const;
 
   /**
-   * Initiates an orderly shutdown of all channels (to the Hedera network) in which preexisting transactions or queries
-   * continue but more would be immediately cancelled.
+   * Initiate an orderly shutdown of communications with the network with which this Client was configured to
+   * communicate. Preexisting transactions or queries continue but subsequent calls would be immediately cancelled.
    *
-   * After this method returns, this client can be re-used. Channels will be re-established as needed.
+   * After this method returns, this Client can be re-used. All network communication can be re-established as needed.
    */
   void close() const;
 
   /**
+   * Set the length of time a request sent by this Client can be processed before it times out.
+   *
+   * @param timeout The desired timeout for requests submitted by this Client.
+   * @return A reference to this Client object with the newly-set request timeout.
+   */
+  Client& setRequestTimeout(const std::chrono::duration<double>& timeout);
+
+  /**
+   * Set the maximum transaction fee willing to be paid for transactions executed by this Client. Every request
+   * submitted with this Client will have its maximum transaction fee overwritten by this Client's maximum transaction
+   * fee if and only if it has not been set manually in the request itself.
+   *
+   * @param fee The desired maximum transaction fee willing to be paid for transactions submitted by this Client.
+   * @return A reference to this Client object with the newly-set maximum transaction fee.
+   * @throws std::invalid_argument If the transaction fee is negative.
+   */
+  Client& setMaxTransactionFee(const Hbar& fee);
+
+  /**
+   * Set the transaction ID regeneration policy for transactions executed by this Client. Every transaction submitted
+   * with this Client will have its transaction ID regeneration policy overwritten by this Client's transaction ID
+   * regeneration policy if and only if it has not been set manually in the request itself.
+   *
+   * @param regenerate The desired transaction ID regeneration policy for transactions submitted by this Client.
+   * @return A reference to this Client object with the newly-set transaction ID regeneration policy.
+   */
+  Client& setTransactionIdRegenerationPolicy(bool regenerate);
+
+  /**
+   * Set the maximum number of times this Client is willing to resubmit failed requests before considering the execution
+   * of the request a failure. Every request submitted with this Client will have its maximum number of attempts
+   * overwritten by this Client's maximum number of attempts if and only if it has not been set manually in the request
+   * itself.
+   *
+   * @param attempts The desired maximum number of execution attempts for requests submitted by this Client.
+   * @return A reference to this Client with the newly-set maximum number of execution attempts.
+   */
+  Client& setMaxAttempts(uint32_t attempts);
+
+  /**
+   * Set the minimum amount of time this Client should wait before attempting to resubmit a previously failed request to
+   * the same node. Every request submitted with this Client will have its minimum backoff time overwritten by this
+   * Client's minimum backoff time if and only if it has not been set manually in the request itself.
+   *
+   * @param backoff The desired minimum amount of time this Client should wait before attempting to resubmit a
+   *                previously failed to a particular node.
+   * @return A reference to this Client with the newly-set minimum backoff time.
+   * @throws std::invalid_argument If the desired minimum backoff duration is longer than the set maximum backoff time
+   *                               (DEFAULT_MAX_BACKOFF if the maximum backoff time has not been set).
+   */
+  Client& setMinBackoff(const std::chrono::duration<double>& backoff);
+
+  /**
+   * Set the maximum amount of time this Client should wait before attempting to resubmit a previously failed request to
+   * the same node. Every request submitted with this Client will have its maximum backoff time overwritten by this
+   * Client's maximum backoff time if and only if it has not been set manually in the request itself.
+   *
+   * @param backoff The desired maximum amount of time requests submitted by this Client should wait before attempting
+   *                to resubmit themselves to a particular node.
+   * @return A reference to this Client with the newly-set maximum backoff time.
+   * @throws std::invalid_argument If the desired maximum backoff duration is shorter than the set minimum backoff time
+   *                               (DEFAULT_MIN_BACKOFF if the minimum backoff time has not been set).
+   */
+  Client& setMaxBackoff(const std::chrono::duration<double>& backoff);
+
+  /**
    * Get the account ID of this Client's operator.
    *
-   * @return A pointer to the account ID of this Client's operator. Nullptr if the operator has not been set yet.
+   * @return The set account ID of this Client's operator. Uninitialized if the operator has not yet been set.
    */
-  [[nodiscard]] std::unique_ptr<AccountId> getOperatorAccountId() const;
+  [[nodiscard]] std::optional<AccountId> getOperatorAccountId() const;
 
   /**
    * Get the public key of this Client's operator.
    *
-   * @return A pointer to the public key of this Client's operator. Nullptr if the operator has not been set yet.
+   * @return A pointer to the public key of this Client's operator. Nullptr if the operator has not yet been set.
    */
   [[nodiscard]] std::unique_ptr<PublicKey> getOperatorPublicKey() const;
 
   /**
-   * Get the default maximum fee used for transactions.
+   * Get the length of time a request sent by this Client can be processed before it times out.
    *
-   * @return A pointer to the max transaction fee. Nullptr if the default max transaction fee has not been set.
+   * @return The request timeout duration. Defaults to 2 minutes if this value has not been set with
+   *         setRequestTimeout().
    */
-  [[nodiscard]] std::unique_ptr<Hbar> getDefaultMaxTransactionFee() const;
+  [[nodiscard]] std::chrono::duration<double> getRequestTimeout() const;
 
   /**
-   * Get the request timeout, which defaults to 2 minutes.
+   * Get the maximum transaction fee willing to be paid for transactions submitted by this Client.
    *
-   * @return The request timeout.
+   * @return The maximum transaction fee willing to be paid by this Client. Uninitialized if the fee has not yet been
+   *         set.
    */
-  [[nodiscard]] std::chrono::duration<int64_t> getRequestTimeout() const;
+  [[nodiscard]] std::optional<Hbar> getMaxTransactionFee() const;
+
+  /**
+   * Get the transaction ID regeneration policy for transactions submitted by this Client.
+   *
+   * @return The default transaction ID regeneration policy for this Client. Uninitialized if the policy has not yet
+   *         been set.
+   */
+  [[nodiscard]] std::optional<bool> getTransactionIdRegenerationPolicy() const;
+
+  /**
+   * Get the maximum number of times this Client is willing to resubmit failed requests before considering the execution
+   * of the request a failure.
+   *
+   * @return The maximum number of execution attempts. Uninitialized value if not previously set.
+   */
+  [[nodiscard]] std::optional<uint32_t> getMaxAttempts() const;
+
+  /**
+   * Get the minimum amount of time this Client should wait before attempting to resubmit a previously failed request to
+   * the same node.
+   *
+   * @return The minimum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
+   * not previously set.
+   */
+  [[nodiscard]] std::optional<std::chrono::duration<double>> getMinBackoff() const;
+
+  /**
+   * Get the maximum amount of time this Client should wait before attempting to resubmit a previously failed request to
+   * the same node.
+   *
+   * @return The maximum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
+   *         not previously set.
+   */
+  [[nodiscard]] std::optional<std::chrono::duration<double>> getMaxBackoff() const;
 
 private:
-  /**
-   * Only allow Clients to be constructed from within static functions.
-   */
-  Client();
-
   /**
    * Implementation object used to hide implementation details and internal headers.
    */

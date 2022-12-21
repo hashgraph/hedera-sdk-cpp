@@ -17,9 +17,8 @@
  * limitations under the License.
  *
  */
-
-#ifndef HEDERA_SDK_CPP_IMPL_ENDPOINT_H
-#define HEDERA_SDK_CPP_IMPL_ENDPOINT_H
+#ifndef HEDERA_SDK_CPP_IMPL_ENDPOINT_H_
+#define HEDERA_SDK_CPP_IMPL_ENDPOINT_H_
 
 #include "IPv4Address.h"
 
@@ -31,54 +30,53 @@ class ServiceEndpoint;
 namespace Hedera::internal
 {
 /**
- * A network endpoint, which contains an IPv4 address and a port
+ * A network endpoint, which contains an IPv4 address and a port.
  */
 class Endpoint
 {
 public:
   /**
-   * Constructor
+   * Construct from an address and a port number.
    *
-   * @param address the IPv4 address of the endpoint
-   * @param port the port of the endpoint
+   * @param address The IPv4 address of the endpoint.
+   * @param port    The port of the endpoint.
    */
-  Endpoint(IPv4Address address, int port);
+  Endpoint(const IPv4Address& address, int port);
 
   /**
-   * Creates a new endpoint object from a protobuf endpoint
+   * Create an Endpoint object from a ServiceEndpoint protobuf object.
    *
-   * @param serviceEndpoint the protobuf endpoint
-   *
-   * @return the new Endpoint object
+   * @param proto The ServiceEndpoint protobuf object from which to create an Endpoint object.
+   * @return The created Endpoint object.
    */
   static Endpoint fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint);
 
   /**
-   * Gets a string representation of the endpoint, of form <ip.add.re.ss>:<port>
+   * Get a string representation of the endpoint with the form <ip.add.re.ss>:<port>.
    *
-   * @return the string representation of the endpoint
+   * @return A string representation of the Endpoint.
    */
   [[nodiscard]] std::string toString() const;
 
   /**
-   * Gets the port of the endpoint
+   * Get the port of the Endpoint.
    *
-   * @return the port
+   * @return The port of the Endpoint.
    */
   [[nodiscard]] int getPort() const;
 
 private:
   /**
-   * The IP address of the endpoint
+   * The IP address of the Endpoint.
    */
-  IPv4Address mAddress{};
+  IPv4Address mAddress;
 
   /**
-   * The port of the endpoint
+   * The port of the Endpoint.
    */
   int mPort;
 };
 
 } // namespace Hedera::internal
 
-#endif // HEDERA_SDK_CPP_IMPL_ENDPOINT_H
+#endif // HEDERA_SDK_CPP_IMPL_ENDPOINT_H_

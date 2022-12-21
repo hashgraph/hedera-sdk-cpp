@@ -110,7 +110,7 @@ public:
    * @param autoRenewPeriod The desired auto renew period for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set auto renew period.
    */
-  AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<int64_t>& autoRenewPeriod);
+  AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
 
   /**
    * Set a memo for the new account.
@@ -190,7 +190,7 @@ public:
   /**
    * Get the desired Hbar transfer receiver signature policy for the new account.
    *
-   * @return \c TRUE if the new account will be required to sign all incoming Hbar transfers, otherwise \c FALSE.
+   * @return \c TRUE if the new account should be required to sign all incoming Hbar transfers, otherwise \c FALSE.
    */
   [[nodiscard]] inline bool getReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
 
@@ -199,7 +199,7 @@ public:
    *
    * @return The desired auto renew period for the new account.
    */
-  [[nodiscard]] inline std::chrono::duration<int64_t> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline std::chrono::duration<double> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Get the desired memo for the new account.
@@ -234,7 +234,7 @@ public:
   /**
    * Get the desired staking rewards reception policy for the new account.
    *
-   * @return \c TRUE if the new account will decline from receiving staking rewards, otherwise \c FALSE
+   * @return \c TRUE if the new account should decline from receiving staking rewards, otherwise \c FALSE
    */
   [[nodiscard]] inline bool getDeclineStakingReward() const { return mDeclineStakingReward; }
 
@@ -245,29 +245,32 @@ public:
    */
   [[nodiscard]] inline std::shared_ptr<PublicKey> getAlias() const { return mAlias; }
 
-protected:
+private:
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this AccountCreateTransaction object.
    *
    * @param client The Client trying to construct this AccountCreateTransaction.
-   * @param node   The Node on which this AccountCreateTransaction will be sent.
+   * @param node   The Node to which this AccountCreateTransaction will be sent. This is unused.
    * @return A Transaction protobuf object filled with this AccountCreateTransaction object's data.
    */
   [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>&) const override;
+                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
 
   /**
-   * Derived from Executable. Get the gRPC method to call to send this AccountCreateTransaction.
+   * Derived from Executable. Submit this AccountCreateTransaction to a Node.
    *
-   * @param node The Node to which this AccountCreateTransaction is being sent and from which to retrieve the gRPC
-   *             method.
-   * @return The gRPC method to call to execute this AccountCreateTransaction.
+   * @param client   The Client submitting this AccountCreateTransaction.
+   * @param deadline The deadline for submitting this AccountCreateTransaction.
+   * @param node     Pointer to the Node to which this AccountCreateTransaction should be submitted.
+   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
+   *                 information from the gRPC server.
+   * @return The gRPC status of the submission.
    */
-  [[nodiscard]] std::function<
-    grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-  getGrpcMethod(const std::shared_ptr<internal::Node>& node) const override;
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::TransactionResponse* response) const override;
 
-private:
   /**
    * Build a CryptoCreateTransactionBody protobuf object from this AccountCreateTransaction object.
    *
@@ -278,53 +281,50 @@ private:
 
   /**
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
-   * also sign any transfer into the account. Defaults to nullptr (uninitialized).
+   * also sign any transfer into the account.
    */
-  std::shared_ptr<PublicKey> mKey;
+  std::shared_ptr<PublicKey> mKey = nullptr;
 
   /**
-   * The initial amount to transfer into the new account. Defaults to 0 Hbar.
+   * The initial amount to transfer into the new account.
    */
   Hbar mInitialBalance = Hbar(0LL);
 
   /**
    * If \c TRUE, the new account's key must sign any transaction being deposited into it (in addition to all
-   * withdrawals). Defaults to \c FALSE.
+   * withdrawals).
    */
   bool mReceiverSignatureRequired = false;
 
   /**
    * A Hedera account is charged to extend its expiration date every renew period. If it doesn't have enough balance, it
-   * extends as long as possible. If the balance is zero when it expires, then the account is deleted. Defaults to 3
-   * months.
+   * extends as long as possible. If the balance is zero when it expires, then the account is deleted.
    */
-  std::chrono::duration<int64_t> mAutoRenewPeriod = std::chrono::months(3);
+  std::chrono::duration<double> mAutoRenewPeriod = std::chrono::months(3);
 
   /**
-   * The memo to be associated with the account (UTF-8 encoding max 100 bytes). Defaults to empty.
+   * The memo to be associated with the account (UTF-8 encoding max 100 bytes).
    */
   std::string mAccountMemo;
 
   /**
-   * The maximum number of tokens with which the new account can be implicitly associated. Defaults to 0 and up to a
+   * The maximum number of tokens with which the new account can be implicitly associated. Only allows values up to a
    * maximum value of 1000.
    */
   uint32_t mMaxAutomaticTokenAssociations = 0U;
 
   /**
-   * The ID of the account to which the new account will be staked. Mutually exclusive with mStakedNodeId. Defaults to
-   * uninitialized.
+   * The ID of the account to which the new account will be staked. Mutually exclusive with mStakedNodeId.
    */
   std::optional<AccountId> mStakedAccountId;
 
   /**
-   * The ID of the node to which the new account will be staked. Mutually exclusive with mStakedAccountId. Defaults to
-   * uninitialized.
+   * The ID of the node to which the new account will be staked. Mutually exclusive with mStakedAccountId.
    */
   std::optional<uint64_t> mStakedNodeId;
 
   /**
-   * If \c TRUE, the new account will decline receiving staking rewards. Defaults to \c FALSE.
+   * If \c TRUE, the new account will decline receiving staking rewards.
    */
   bool mDeclineStakingReward = false;
 
@@ -341,7 +341,7 @@ private:
    * If a transaction creates an account using an alias, any further crypto transfers to that alias will
    * simply be deposited in that account, without creating anything, and with no creation fee being charged.
    */
-  std::shared_ptr<PublicKey> mAlias;
+  std::shared_ptr<PublicKey> mAlias = nullptr;
 };
 
 } // namespace Hedera

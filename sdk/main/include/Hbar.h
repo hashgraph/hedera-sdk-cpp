@@ -38,14 +38,14 @@ public:
   /**
    * Default constructor.
    */
-  Hbar() = default;
+  constexpr Hbar() = default;
 
   /**
    * Constructs a new Hbar of the specified value.
    *
    * @param amount The amount of Hbar.
    */
-  explicit Hbar(const int64_t& amount)
+  constexpr explicit Hbar(const int64_t& amount)
     : Hbar(amount, HbarUnit::HBAR())
   {
   }
@@ -56,38 +56,35 @@ public:
    * @param amount The amount.
    * @param unit   The unit for amount.
    */
-  explicit Hbar(const int64_t& amount, const HbarUnit& unit)
-    : mValueInTinybar(amount * unit.getTinybars())
+  constexpr explicit Hbar(const int64_t& amount, const HbarUnit& unit)
+    : mValueInTinybar(amount * static_cast<int64_t>(unit.getTinybars()))
   {
   }
 
   /**
-   * Default comparator operator.
-   *
-   * @param other The other Hbar against which to compare value.
-   * @return \c TRUE if this Hbar has the same value as other, otherwise \c FALSE
+   * Define a default comparator operator so that Hbar object's can be compared.
    */
-  bool operator==(const Hbar& other) const = default;
+  bool operator==(const Hbar&) const = default;
 
   /**
    * Convert this Hbar value to tinybars.
    *
    * @return The amount this Hbar object represents in tinybars.
    */
-  inline int64_t toTinybars() const { return mValueInTinybar; }
+  [[nodiscard]] inline int64_t toTinybars() const { return mValueInTinybar; }
 
   /**
    * Returns an Hbar whose value is negative this Hbar.
    *
    * @return An Hbar object representing the negated value of this Hbar.
    */
-  inline Hbar negated() const { return Hbar(-mValueInTinybar, HbarUnit::TINYBAR()); }
+  [[nodiscard]] inline Hbar negated() const { return Hbar(-mValueInTinybar, HbarUnit::TINYBAR()); }
 
 private:
   /**
    * The value of this Hbar object in tinybars.
    */
-  int64_t mValueInTinybar = 0;
+  int64_t mValueInTinybar = 0LL;
 };
 
 } // namespace Hedera

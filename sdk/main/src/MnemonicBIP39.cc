@@ -32,6 +32,11 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<uint16_t>
   MnemonicBIP39 outputMnemonic;
   outputMnemonic.initialize(wordIndices);
 
+  if (!outputMnemonic.verifyChecksum())
+  {
+    throw std::invalid_argument("Invalid checksum");
+  }
+
   return outputMnemonic;
 }
 
@@ -40,6 +45,11 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<std::stri
 {
   MnemonicBIP39 outputMnemonic;
   outputMnemonic.initialize(outputMnemonic.wordsToIndices(words));
+
+  if (!outputMnemonic.verifyChecksum())
+  {
+    throw std::invalid_argument("Invalid checksum");
+  }
 
   return outputMnemonic;
 }
