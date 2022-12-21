@@ -22,6 +22,8 @@ add_library(${PROJECT_NAME} STATIC
         #    src/ContractInfo.cc
         #    src/ContractInfoQuery.cc
         #    src/ContractUpdateTransaction.cc
+        src/ECDSAPrivateKey.cc
+        src/ECDSAPublicKey.cc
         src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
         #    src/EthereumTransaction.cc
@@ -46,7 +48,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Transfer.cc
         src/TransferTransaction.cc
 
-        src/impl/Channel.cc
+        src/impl/BigNumber.cc
         src/impl/DerivationPathUtils.cc
         src/impl/Endpoint.cc
         src/impl/DurationConverter.cc

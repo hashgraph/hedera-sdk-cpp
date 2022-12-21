@@ -80,16 +80,16 @@ public:
    */
   [[nodiscard]] inline std::optional<ContractId> getContractId() { return mContractId; }
 
-protected:
+private:
   /**
    * Derived from Executable. Construct a Query protobuf object from this AccountBalanceQuery object.
    *
-   * @param client The Client trying to construct this AccountBalanceQuery.
-   * @param node   The Node on which this AccountBalanceQuery will be sent.
+   * @param client The Client trying to construct this AccountBalanceQuery. This is unused.
+   * @param node   The Node to which this AccountBalanceQuery will be sent. This is unused.
    * @return A Query protobuf object filled with this AccountBalanceQuery object's data.
    */
-  [[nodiscard]] proto::Query makeRequest(const Client& client,
-                                         const std::shared_ptr<internal::Node>& node) const override;
+  [[nodiscard]] proto::Query makeRequest(const Client& /*client*/,
+                                         const std::shared_ptr<internal::Node>& /*node*/) const override;
 
   /**
    * Derived from Executable. Construct an AccountBalance object from a Response protobuf object.
@@ -100,15 +100,29 @@ protected:
   [[nodiscard]] AccountBalance mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Get the gRPC method to call to send this AccountBalanceQuery.
+   * Derived from Executable. Get the status response code for a submitted AccountBalanceQuery from a Response protobuf
+   * object.
    *
-   * @param node The Node to which this AccountBalanceQuery is being sent and from which to retrieve the gRPC method.
-   * @return The gRPC method to call to execute this AccountBalanceQuery.
+   * @param response The Response protobuf object from which to grab the AccountBalanceQuery status response code.
+   * @return The AccountBalanceQuery status response code of the input Response protobuf object.
    */
-  [[nodiscard]] std::function<grpc::Status(grpc::ClientContext*, const proto::Query&, proto::Response*)> getGrpcMethod(
-    const std::shared_ptr<internal::Node>& node) const override;
+  [[nodiscard]] Status mapResponseStatus(const proto::Response& response) const override;
 
-private:
+  /**
+   * Derived from Executable. Submit this AccountBalanceQuery to a Node.
+   *
+   * @param client   The Client submitting this AccountBalanceQuery.
+   * @param deadline The deadline for submitting this AccountBalanceQuery.
+   * @param node     Pointer to the Node to which this AccountBalanceQuery should be submitted.
+   * @param response Pointer to the Response protobuf object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::Response* response) const override;
+
   /**
    * The ID of the account of which this query should get the balance.
    */

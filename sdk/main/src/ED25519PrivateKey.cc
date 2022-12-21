@@ -210,11 +210,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(const uint32_t chil
   data.insert(data.end(), keyBytes.begin(), keyBytes.end());
 
   // converts unsigned 32 bit int index into big endian byte array (ser32 function from BIP 32)
-  std::vector<unsigned char> indexVector = {};
-  for (int byteIndex = 3; byteIndex >= 0; --byteIndex)
-  {
-    indexVector.push_back((childIndex >> (byteIndex << 3)) & 0xFF);
-  }
+  std::vector<unsigned char> indexVector = internal::DerivationPathUtils::indexToBigEndianArray(childIndex);
   data.insert(data.end(), indexVector.begin(), indexVector.end());
 
   return fromHMACOutput(internal::OpenSSLHasher::computeSHA512HMAC(mChainCode, data));

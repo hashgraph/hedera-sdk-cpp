@@ -45,8 +45,7 @@ private:
   std::string mExpectedHash;
 
   /**
-   * The verification logic that will be performed after the TLS handshake
-   * completes
+   * The verification logic that will be performed after the TLS handshake completes.
    *
    * @param request     The verification information associated with this request.
    * @param callback    Callback for asynchronous requests. This is unused since the SDK does all requests
@@ -56,18 +55,17 @@ private:
    * @return \c TRUE because all checks are done synchronously.
    */
   bool Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
-              std::function<void(grpc::Status)> callback,
+              std::function<void(grpc::Status)> /*callback*/,
               grpc::Status* sync_status) override;
 
   /**
    * Cancels a verification request previously started via Verify(). Used when the connection attempt times out or is
-   * cancelled while an async verification request is pending. The impl should abort whatever async operation
-   * it is waiting for and quickly invoke the callback that was passed to Verify() with a status indicating the
-   * cancellation.
+   * cancelled while an async verification request is pending. The impl should abort whatever async operation it is
+   * waiting for and quickly invoke the callback that was passed to Verify() with a status indicating the cancellation.
    *
-   * @param request Pointer to the verification information associated with this request.
+   * @param request A pointer to the verification information associated with this request.
    */
-  void Cancel(grpc::experimental::TlsCustomVerificationCheckRequest* request) override
+  [[maybe_unused]] void Cancel(grpc::experimental::TlsCustomVerificationCheckRequest* request) override
   { // Intentionally unimplemented
   }
 };

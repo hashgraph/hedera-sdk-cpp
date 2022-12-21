@@ -32,57 +32,54 @@ class HbarUnit
 {
 public:
   /**
-   * The atomic (smallest) unit of hbar, used natively by the Hedera network.
-   *
-   * It is equivalent to 1/100,000,000 hbar.
+   * The atomic (smallest) unit of hbar, used natively by the Hedera network. It is equivalent to 1/100,000,000 hbar.
    */
-  static constexpr HbarUnit TINYBAR() { return HbarUnit("tℏ", 1ULL); }
+  static constexpr HbarUnit TINYBAR() { return { "tℏ", 1ULL }; }
 
   /**
    * Equivalent to 100 tinybar or 1/1,000,000 hbar.
    */
-  static constexpr HbarUnit MICROBAR() { return HbarUnit("μℏ", 100ULL); }
+  static constexpr HbarUnit MICROBAR() { return { "μℏ", 100ULL }; }
 
   /**
    * Equivalent to 100,000 tinybar or 1/1,000 hbar.
    */
-  static constexpr HbarUnit MILLIBAR() { return HbarUnit("mℏ", 100000ULL); }
+  static constexpr HbarUnit MILLIBAR() { return { "mℏ", 100000ULL }; }
 
   /**
    * The base unit of hbar, equivalent to 100 million tinybar.
    */
-  static constexpr HbarUnit HBAR() { return HbarUnit("ℏ", 100000000ULL); }
+  static constexpr HbarUnit HBAR() { return { "ℏ", 100000000ULL }; }
 
   /**
    * Equivalent to 1 thousand hbar or 100 billion tinybar.
    */
-  static constexpr HbarUnit KILOBAR() { return HbarUnit("kℏ", 100000000000ULL); }
+  static constexpr HbarUnit KILOBAR() { return { "kℏ", 100000000000ULL }; }
 
   /**
    * Equivalent to 1 million hbar or 100 trillion tinybar.
    */
-  static constexpr HbarUnit MEGABAR() { return HbarUnit("Mℏ", 100000000000000ULL); }
+  static constexpr HbarUnit MEGABAR() { return { "Mℏ", 100000000000000ULL }; }
 
   /**
-   * Equivalent to 1 billion hbar or 100 quadillion tinybar.
-   *
-   * The maximum hbar amount supported by Hedera in any context is ~92 gigabar (2^63 tinybar); use this unit sparingly.
+   * Equivalent to 1 billion hbar or 100 quadrillion tinybar. The maximum hbar amount supported by Hedera in any context
+   * is ~92 gigabar (2^63 tinybar); use this unit sparingly.
    */
-  static constexpr HbarUnit GIGABAR() { return HbarUnit("Gℏ", 100000000000000000ULL); }
+  static constexpr HbarUnit GIGABAR() { return { "Gℏ", 100000000000000000ULL }; }
 
   /**
    * Get the symbol of the current unit.
    *
    * @return The symbol of this unit.
    */
-  inline std::string getSymbol() const { return mSymbol; }
+  [[nodiscard]] constexpr const char* getSymbol() const { return mSymbol; }
 
   /**
    * Get the value of this unit, in tinybars.
    *
    * @return The unit value, in tinybars.
    */
-  inline uint64_t getTinybars() const { return mTinybars; }
+  [[nodiscard]] constexpr uint64_t getTinybars() const { return mTinybars; }
 
 private:
   /**

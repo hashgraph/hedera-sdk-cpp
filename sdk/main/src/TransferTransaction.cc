@@ -35,15 +35,13 @@ TransferTransaction::clone() const
 }
 
 //-----
-TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId,
-                                                                  const Hbar& amount)
+TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
 {
   addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(true));
   return *this;
 }
 //-----
-TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const std::shared_ptr<AccountId>& accountId,
-                                                                    const Hbar& amount)
+TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
 {
   addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(false));
   return *this;
@@ -59,10 +57,13 @@ proto::Transaction TransferTransaction::makeRequest(const Client& client, const 
 }
 
 //-----
-std::function<grpc::Status(grpc::ClientContext*, const proto::Transaction&, proto::TransactionResponse*)>
-TransferTransaction::getGrpcMethod(const std::shared_ptr<internal::Node>& node) const
+grpc::Status TransferTransaction::submitRequest(const Client& client,
+                                                const std::chrono::system_clock::time_point& deadline,
+                                                const std::shared_ptr<internal::Node>& node,
+                                                proto::TransactionResponse* response) const
 {
-  return node->getGrpcTransactionMethod(proto::TransactionBody::DataCase::kCryptoTransfer);
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kCryptoTransfer, makeRequest(client, node), deadline, response);
 }
 
 //-----
@@ -73,7 +74,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
   for (const Transfer& transfer : mHbarTransfers)
   {
     proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
-    amount->set_allocated_accountid(transfer.getAccountId()->toProtobuf().release());
+    amount->set_allocated_accountid(transfer.getAccountId().toProtobuf().release());
     amount->set_amount(transfer.getAmount().toTinybars());
     amount->set_is_approval(transfer.getApproval());
   }

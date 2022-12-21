@@ -34,88 +34,101 @@ class NodeAddress;
 namespace Hedera::internal
 {
 /**
- * Class containing all information related the the address(es) of a node
+ * Class containing all information related to the address(es) of a node.
  */
 class NodeAddress
 {
 public:
-  inline static const int PORT_MIRROR_PLAIN = 5600;
-  inline static const int PORT_MIRROR_TLS = 443;
-  inline static const int PORT_NODE_PLAIN = 50211;
-  inline static const int PORT_NODE_TLS = 50212;
-
   /**
-   * Constructor
-   */
-  NodeAddress();
-
-  /**
-   * Gets the account ID associated with the node
+   * Create a NodeAddress object from a NodeAddress protobuf object.
    *
-   * @return the account ID associated with the node
-   */
-  [[nodiscard]] std::shared_ptr<AccountId> getAccountId() const;
-
-  /**
-   * Gets a vector of endpoints associated with the node
-   *
-   * @return the node endpoints
-   */
-  [[nodiscard]] const std::vector<Endpoint>& getEndpoints() const;
-
-  /**
-   * Gets the SHA-384 hash of the node certificate chain
-   *
-   * @return the certificate chain hash
-   */
-  [[nodiscard]] std::string getCertificateHash() const;
-
-  /**
-   * Creates a new node address object from a protobuf
-   *
-   * @param protoNodeAddress the protobuf address
-   *
-   * @return the new node address object
+   * @param proto The NodeAddress protobuf object from which to create a NodeAddress object.
+   * @return The created NodeAddress object.
    */
   static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
   /**
-   * Gets the string representation of the address, for debugging purposes
+   * Determine if a particular port number corresponds to a TLS port.
    *
-   * @return a string representing the address
+   * @param port The port number.
+   * @return \c TRUE if the input port number corresponds to a TLS port, otherwise \c FALSE.
+   */
+  static inline bool isTlsPort(int port) { return (port == PORT_NODE_TLS) || (port == PORT_MIRROR_TLS); }
+
+  /**
+   * Determine if a particular port number corresponds to a non-TLS port.
+   *
+   * @param port The port number.
+   * @return \c TRUE if the input port number corresponds to a non-TLS port, otherwise \c FALSE.
+   */
+  static inline bool isNonTlsPort(int port) { return (port == PORT_NODE_PLAIN) || (port == PORT_MIRROR_PLAIN); }
+
+  /**
+   * Get a string representation of the address.
+   *
+   * @return A string representing the address.
    */
   [[nodiscard]] std::string toString() const;
 
+  /**
+   * Get the account ID associated with the node at this address.
+   *
+   * @return The account ID associated with the node at this address.
+   */
+  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
+
+  /**
+   * Get a vector of endpoints associated with the node.
+   *
+   * @return The node endpoints.
+   */
+  [[nodiscard]] inline const std::vector<Endpoint>& getEndpoints() const { return mEndpoints; }
+
+  /**
+   * Get the SHA-384 hash of the node certificate chain.
+   *
+   * @return The certificate chain hash.
+   */
+  [[nodiscard]] inline std::string getCertificateHash() const { return mCertificateHash; }
+
 private:
   /**
-   * The endpoints associated with the node
+   * Port numbers for various node types and security.
+   */
+  static constexpr int PORT_MIRROR_PLAIN = 5600;
+  static constexpr int PORT_MIRROR_TLS = 443;
+  static constexpr int PORT_NODE_PLAIN = 50211;
+  static constexpr int PORT_NODE_TLS = 50212;
+
+  /**
+   * The endpoints associated with the node.
    */
   std::vector<Endpoint> mEndpoints;
 
   /**
-   * The node's public key
+   * The node's public key.
    */
   std::string mRSAPublicKey;
 
   /**
-   * The ID of the node
+   * The ID of the node.
    */
-  int64_t mNodeId;
+  int64_t mNodeId = -1;
 
   /**
-   * The SHA-384 hash of the node's certificate chain
+   * The SHA-384 hash of the node's certificate chain.
    */
   std::string mCertificateHash;
 
   /**
-   * A string description of the node
+   * A string description of the node.
    */
   std::string mDescription;
 
   /**
-   * The account ID associated with the node
+   * The account ID associated with the node.
    */
-  std::shared_ptr<AccountId> mAccountId;
+  AccountId mAccountId;
 };
 
 } // namespace Hedera::internal

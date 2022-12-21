@@ -11,6 +11,8 @@ set(TestSources
         AccountIdTest.cc
         ClientTest.cc
         ContractIdTest.cc
+        ECDSAPrivateKeyTest.cc
+        ECDSAPublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
         ExchangeRateTest.cc
