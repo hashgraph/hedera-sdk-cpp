@@ -114,9 +114,9 @@ public:
   [[nodiscard]] inline std::optional<Hbar> getMaxTransactionFee() const { return mMaxTransactionFee; }
 
   /**
-   * Get the desired memo for this Transaction.
+   * Get the memo for this Transaction.
    *
-   * @return The desired memo for this Transaction.
+   * @return The memo for this Transaction.
    */
   [[nodiscard]] inline std::string getTransactionMemo() const { return mTransactionMemo; }
 
@@ -204,9 +204,9 @@ private:
   [[nodiscard]]
   typename Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
     ExecutionStatus
-    shouldRetry(Status status,
-                const Client& client,
-                [[maybe_unused]] const proto::TransactionResponse& response) override;
+    determineStatus(Status status,
+                    const Client& client,
+                    [[maybe_unused]] const proto::TransactionResponse& response) override;
 
   /**
    * Derived from Executable. Perform any needed actions for this Transaction when it is being submitted.

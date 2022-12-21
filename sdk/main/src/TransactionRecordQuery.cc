@@ -85,11 +85,12 @@ Status TransactionRecordQuery::mapResponseStatus(const proto::Response& response
 
 //-----
 typename Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::ExecutionStatus
-TransactionRecordQuery::shouldRetry(Status status, const Client& client, const proto::Response& response)
+TransactionRecordQuery::determineStatus(Status status, const Client& client, const proto::Response& response)
 {
   if (const Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::ExecutionStatus
-        baseStatus = Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::shouldRetry(
-          status, client, response);
+        baseStatus =
+          Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::determineStatus(
+            status, client, response);
       baseStatus != ExecutionStatus::UNKNOWN)
   {
     return baseStatus;

@@ -51,14 +51,14 @@ public:
    * no account IDs are specified, pointers to all Nodes on this Network are returned.
    *
    * @param accountIds The IDs of the accounts that are associated with the desired Nodes.
-   * @return A list of Nodes pointers that point to Nodes with the requested account IDs.
+   * @return A list of Node pointers that point to Nodes with the requested account IDs.
    */
   [[nodiscard]] std::vector<std::shared_ptr<Node>> getNodesWithAccountIds(
     const std::vector<AccountId>& accountIds) const;
 
   /**
    * Initiate an orderly shutdown of communications with the Nodes that are a part of this Network. Preexisting
-   * transactions or queries continue but more would be immediately cancelled.
+   * transactions or queries continue but subsequent calls would be immediately cancelled.
    *
    * After this method returns, this Network can be re-used. All network communication can be re-established as needed.
    */

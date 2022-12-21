@@ -49,11 +49,14 @@ class TransactionResponse;
 
 namespace Hedera::internal
 {
+/**
+ * Internal utility class used to represent a node on a Hedera network.
+ */
 class Node
 {
 public:
   /**
-   * Construct this Node with an address.
+   * Construct this Node with the NodeAddress of the remote node it is meant to represent.
    *
    * @param address A pointer to the desired NodeAddress for this Node.
    * @param tls     The TLS behavior this Node should initially use.
@@ -61,7 +64,7 @@ public:
   explicit Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls = TLSBehavior::REQUIRE);
 
   /**
-   * Attempt to connect with the Node at this Node's NodeAddress.
+   * Attempt to connect to this Node to the remote node.
    *
    * @param timeout The point in time that the attempted connection will cease and be considered a failure.
    * @return \c TRUE if the Node is already connected or successfully connected, otherwise \c FALSE.
@@ -69,12 +72,12 @@ public:
   bool connect(const std::chrono::system_clock::time_point& timeout);
 
   /**
-   * Shutdown the connection for this Node.
+   * Shutdown the connection from this Node to the remote node.
    */
   void shutdown();
 
   /**
-   * Submit a Query to this Node.
+   * Submit a Query protobuf to the remote node with which this Node is communicating.
    *
    * @param funcEnum The enumeration specifying which gRPC function to call for this specific Query.
    * @param query    The Query protobuf object to send.
@@ -88,7 +91,7 @@ public:
                            proto::Response* response);
 
   /**
-   * Submit a Transaction to this Node.
+   * Submit a Transaction protobuf to the remote node with which this Node is communicating.
    *
    * @param funcEnum    The enumeration specifying which gRPC function to call for this specific Transaction.
    * @param transaction The Transaction protobuf object to send.
@@ -102,49 +105,53 @@ public:
                                  proto::TransactionResponse* response);
 
   /**
-   * Set the TLS behavior this Node should utilize.
+   * Set the TLS behavior this Node should utilize when communicating with its remote node.
    *
    * @param desiredBehavior The desired behavior.
    */
   void setTLSBehavior(TLSBehavior desiredBehavior);
 
   /**
-   * Set the minimum amount of time this Node should wait before being willing to resubmit a previously failed request.
+   * Set the minimum amount of time this Node should wait before being willing to resubmit a previously failed request
+   * to its remote node.
    *
    * @param backoff The minimum backoff time.
    */
   void setMinBackoff(const std::chrono::duration<double>& backoff);
 
   /**
-   * Set the maximum amount of time this Node should wait before being willing to resubmit a previously failed request.
+   * Set the maximum amount of time this Node should wait before being willing to resubmit a previously failed request
+   * to its remote node.
    *
    * @param backoff The maximum backoff time.
    */
   void setMaxBackoff(const std::chrono::duration<double>& backoff);
 
   /**
-   * Determine if this Node is "healthy", meaning this Node has not received any bad gRPC statuses, or if it has then it
-   * has fully backed off for its full period of backoff time.
+   * Determine if this Node is "healthy", meaning this Node has received a gRPC status responses from its remote node
+   * that indicates a successful request attempt, or if it has fully backed off for its full period of backoff time
+   * after an unsuccessful submission attempt.
    *
    * @return \c TRUE if this Node is healthy, otherwise \c FALSE.
    */
   [[nodiscard]] bool isHealthy() const;
 
   /**
-   * Increase the backoff of this Node. This should be called when the Node either fails to connect to the network or
-   * returns a bad gRPC status.
+   * Increase the backoff of this Node. This should be called when this Node either fails to connect to its remote node
+   * or it receives a gRPC status from its remote node that indicates a failed submission attempt.
    */
   void increaseBackoff();
 
   /**
-   * Decrease the backoff of this Node. This should be called when the Node returns a good gRPC status.
+   * Decrease the backoff of this Node. This should be called when this Node successfully submits a request to its
+   * remote node.
    */
   void decreaseBackoff();
 
   /**
    * Get the amount of time remaining in this Node's current backoff.
    *
-   * @return The amount of time that should pass before this Node is good to submit another request.
+   * @return The amount of time that should pass before this Node is good to try and submit another request.
    */
   [[nodiscard]] std::chrono::duration<double> getRemainingTimeForBackoff() const;
 
@@ -157,10 +164,10 @@ public:
 
 private:
   /**
-   * Initialize the gRPC channel based on the TLS behavior.
+   * Initialize the gRPC channel used to communicate with this Node's remote node based on mTLSBehavior.
    *
-   * @param deadline The deadline to connect. Processing will wait until this point to establish a connection and will
-   *                 return \c FALSE if not established by then.
+   * @param deadline The deadline to connect. Processing will continue trying until this point to establish a connection
+   * and will return \c FALSE if not established by then.
    * @return \c TRUE if initialization was successful, otherwise \c FALSE.
    */
   bool initializeChannel(const std::chrono::system_clock::time_point& deadline);
@@ -171,22 +178,23 @@ private:
   std::shared_ptr<NodeAddress> mAddress = nullptr;
 
   /**
-   * The TLS channel credentials. This only depends on the NodeAddress so this will be updated whenever mAddress is.
+   * Pointer to this Node's TLS channel credentials. This only depends on the NodeAddress so this will be updated
+   * whenever mAddress is.
    */
   std::shared_ptr<grpc::ChannelCredentials> mTlsChannelCredentials = nullptr;
 
   /**
-   * Pointer to the gRPC channel used to communicate with the gRPC server.
+   * Pointer to the gRPC channel used to communicate with the gRPC server living on the remote node.
    */
   std::shared_ptr<grpc::Channel> mChannel = nullptr;
 
   /**
-   * Pointer to the gRPC stub used to communicate with the cryptography service.
+   * Pointer to the gRPC stub used to communicate with the cryptography service living on the remote node.
    */
   std::unique_ptr<proto::CryptoService::Stub> mCryptoStub = nullptr;
 
   /**
-   * The TLS behavior of this Node.
+   * The TLS behavior of this Node should use to communicate with its remote node.
    */
   TLSBehavior mTLSBehavior = TLSBehavior::REQUIRE;
 
@@ -196,24 +204,26 @@ private:
   std::chrono::system_clock::time_point mReadmitTime = std::chrono::system_clock::now();
 
   /**
-   * The minimum length of time this Node should wait before being willing to attempt to send a failed request again.
+   * The minimum length of time this Node should wait before being willing to attempt to send a failed request to its
+   * remote node again.
    */
   std::chrono::duration<double> mMinBackoff = DEFAULT_MIN_BACKOFF;
 
   /**
-   * The maximum length of time this Node should wait before being willing to attempt to send a failed request again.
+   * The maximum length of time this Node should wait before being willing to attempt to send a failed request to its
+   * remote node again.
    */
   std::chrono::duration<double> mMaxBackoff = DEFAULT_MAX_BACKOFF;
 
   /**
    * The current backoff time. Every failed submission attempt waits a certain amount of time that is double the
-   * previous amount of time this Executable waited for its previous submission attempt, up to the specified maximum
-   * backoff time, at which point the execution is considered a failure.
+   * previous amount of time a request waited for its previous submission attempt, up to the specified maximum backoff
+   * time, at which point the execution is considered a failure.
    */
   std::chrono::duration<double> mCurrentBackoff = mMinBackoff;
 
   /**
-   * Is the gRPC channel being utilized by this Node initialized?
+   * Is the gRPC channel being utilized by this Node to communicate with its remote node initialized?
    */
   bool mIsInitialized = false;
 };

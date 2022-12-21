@@ -34,7 +34,7 @@ namespace Hedera::internal::DurationConverter
  * Get the duration in seconds represented by a Duration protobuf object.
  *
  * @param duration The Duration protobuf object from which to get the duration.
- * @return The duration in seconds the input Duration protobuf object.
+ * @return The duration in seconds of the input Duration protobuf object.
  */
 std::chrono::seconds fromProtobuf(const proto::Duration& duration);
 

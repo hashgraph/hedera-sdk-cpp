@@ -31,11 +31,11 @@ namespace Hedera
  */
 constexpr auto DEFAULT_MAX_ATTEMPTS = 10U;
 /**
- * The default minimum duration of time a Node should wait before retrying to submit a previously-failed request.
+ * The default minimum duration of time to wait before retrying to submit a previously-failed request to the same node.
  */
 constexpr auto DEFAULT_MIN_BACKOFF = std::chrono::milliseconds(250);
 /**
- * The default maximum duration of time a Node should wait before retrying to submit a previously-failed request.
+ * The default maximum duration of time to wait before retrying to submit a previously-failed request to the same node.
  */
 constexpr auto DEFAULT_MAX_BACKOFF = std::chrono::seconds(8);
 /**

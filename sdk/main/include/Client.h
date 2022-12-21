@@ -103,7 +103,7 @@ public:
 
   /**
    * Initiate an orderly shutdown of communications with the network with which this Client was configured to
-   * communicate. Preexisting transactions or queries continue but more would be immediately cancelled.
+   * communicate. Preexisting transactions or queries continue but subsequent calls would be immediately cancelled.
    *
    * After this method returns, this Client can be re-used. All network communication can be re-established as needed.
    */
@@ -150,13 +150,12 @@ public:
   Client& setMaxAttempts(uint32_t attempts);
 
   /**
-   * Set the minimum amount of time a Node should wait before being willing to resubmit a previously failed request that
-   * was submitted by this Client. Every request submitted with this Client will have its minimum backoff time
-   * overwritten by this Client's minimum backoff time if and only if it has not been set manually in the request
-   * itself.
+   * Set the minimum amount of time this Client should wait before attempting to resubmit a previously failed request to
+   * the same node. Every request submitted with this Client will have its minimum backoff time overwritten by this
+   * Client's minimum backoff time if and only if it has not been set manually in the request itself.
    *
-   * @param backoff The desired minimum amount of time a Node should wait before retrying a request submission for this
-   *                Client.
+   * @param backoff The desired minimum amount of time this Client should wait before attempting to resubmit a
+   *                previously failed to a particular node.
    * @return A reference to this Client with the newly-set minimum backoff time.
    * @throws std::invalid_argument If the desired minimum backoff duration is longer than the set maximum backoff time
    *                               (DEFAULT_MAX_BACKOFF if the maximum backoff time has not been set).
@@ -164,13 +163,12 @@ public:
   Client& setMinBackoff(const std::chrono::duration<double>& backoff);
 
   /**
-   * Set the maximum amount of time a Node should wait before being willing to resubmit a previously failed request that
-   * was submitted by this Client. Every request submitted with this Client will have its maximum backoff time
-   * overwritten by this Client's maximum backoff time if and only if it has not been set manually in the request
-   * itself.
+   * Set the maximum amount of time this Client should wait before attempting to resubmit a previously failed request to
+   * the same node. Every request submitted with this Client will have its maximum backoff time overwritten by this
+   * Client's maximum backoff time if and only if it has not been set manually in the request itself.
    *
-   * @param backoff The desired maximum amount of time a Node should wait before retrying a request submission for this
-   *                Client.
+   * @param backoff The desired maximum amount of time requests submitted by this Client should wait before attempting
+   *                to resubmit themselves to a particular node.
    * @return A reference to this Client with the newly-set maximum backoff time.
    * @throws std::invalid_argument If the desired maximum backoff duration is shorter than the set minimum backoff time
    *                               (DEFAULT_MIN_BACKOFF if the minimum backoff time has not been set).
@@ -224,8 +222,8 @@ public:
   [[nodiscard]] std::optional<uint32_t> getMaxAttempts() const;
 
   /**
-   * Get the minimum amount of time a Node should wait before being willing to resubmit a previously failed request that
-   * was submitted by this Client.
+   * Get the minimum amount of time this Client should wait before attempting to resubmit a previously failed request to
+   * the same node.
    *
    * @return The minimum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
    * not previously set.
@@ -233,8 +231,8 @@ public:
   [[nodiscard]] std::optional<std::chrono::duration<double>> getMinBackoff() const;
 
   /**
-   * Get the minimum amount of time a Node should wait before being willing to resubmit a previously failed request that
-   * was submitted by this Client.
+   * Get the maximum amount of time this Client should wait before attempting to resubmit a previously failed request to
+   * the same node.
    *
    * @return The maximum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
    *         not previously set.
