@@ -44,6 +44,15 @@ Node::Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls)
   tlsChannelCredentialsOptions.set_certificate_verifier(
     grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>(mAddress->getCertificateHash()));
 
+  // Feed in the root CA's file manually for Windows (this is a bug in the gRPC implementation and says here
+  // https://deploy-preview-763--grpc-io.netlify.app/docs/guides/auth/#using-client-side-ssltls that this needs to be
+  // specified manually).
+#ifdef _WIN32
+  tlsChannelCredentialsOptions.set_certificate_provider(
+    std::make_shared<grpc::experimental::FileWatcherCertificateProvider>("roots.pem", -1));
+  tlsChannelCredentialsOptions.watch_root_certs();
+#endif
+
   mTlsChannelCredentials = grpc::experimental::TlsCredentials(tlsChannelCredentialsOptions);
 }
 
