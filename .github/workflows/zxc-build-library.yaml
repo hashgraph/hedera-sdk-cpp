@@ -36,7 +36,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config linux-headers-5.15.0-56-generic libtbb-dev libpthread-stubs0-dev build-essentials
+          sudo apt-get install -y pkg-config linux-headers-5.15.0-56-generic libtbb-dev libpthread-stubs0-dev build-essential
 
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
