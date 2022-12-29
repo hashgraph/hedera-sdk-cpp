@@ -18,7 +18,10 @@ find_package(gRPC CONFIG REQUIRED)
 find_package(re2 CONFIG REQUIRED)
 find_package(absl CONFIG REQUIRED)
 find_package(upb CONFIG REQUIRED)
-find_package(Threads REQUIRED)
+
+if(NOT UNIX)
+    find_package(Threads REQUIRED)
+endif()
 
 include(SystemLibraries.cmake)
 include(HederaApi.cmake)

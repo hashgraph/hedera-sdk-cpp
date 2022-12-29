@@ -1,7 +1,3 @@
-if(UNIX)
-    add_compile_options(-pthread)
-endif()
-
 include(FetchContent)
 
 FetchContent_Declare(googletest
