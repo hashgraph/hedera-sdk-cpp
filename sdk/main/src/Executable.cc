@@ -194,16 +194,16 @@ void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponse
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 typename Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::ExecutionStatus
-Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::determineStatus(Status status,
-                                                                                              const Client&,
-                                                                                              const ProtoResponseType&)
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::determineStatus(
+  Status status,
+  const Client&,
+  const ProtoResponseType&)
 {
   switch (status)
   {
-    using enum Status;
-    case PLATFORM_TRANSACTION_NOT_CREATED:
-    case PLATFORM_NOT_ACTIVE:
-    case BUSY:
+    case Status::PLATFORM_TRANSACTION_NOT_CREATED:
+    case Status::PLATFORM_NOT_ACTIVE:
+    case Status::BUSY:
       return ExecutionStatus::SERVER_ERROR;
     // Let derived class handle this status
     default:
