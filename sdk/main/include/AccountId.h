@@ -39,11 +39,6 @@ public:
   AccountId() = default;
 
   /**
-   * Define a default comparator operator so that AccountId objects can be compared.
-   */
-  bool operator==(const AccountId&) const = default;
-
-  /**
    * Construct with an account number.
    *
    * @param num The account number to set.
@@ -68,6 +63,14 @@ public:
    * @throws std::invalid_argument If the input string is malformed or the numbers in the input string are too large.
    */
   explicit AccountId(const std::string& str);
+
+  /**
+   * Compare this AccountId to another AccountId and determine if they represent the same account.
+   *
+   * @param other The other AccountId with which to compare this AccountId.
+   * @return \c TRUE if this AccountId is the same as the input AccountId, otherwise \c FALSE.
+   */
+  bool operator==(const AccountId& other) const;
 
   /**
    * Create an AccountId object from an AccountID protobuf object.

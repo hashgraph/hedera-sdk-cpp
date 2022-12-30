@@ -52,6 +52,12 @@ TransactionId TransactionId::fromProtobuf(const proto::TransactionID& proto)
 }
 
 //-----
+bool TransactionId::operator==(const TransactionId& other) const
+{
+  return (mValidTransactionTime == other.mValidTransactionTime) && (mAccountId == other.mAccountId);
+}
+
+//-----
 std::unique_ptr<proto::TransactionID> TransactionId::toProtobuf() const
 {
   auto proto = std::make_unique<proto::TransactionID>();

@@ -123,6 +123,12 @@ AccountId::AccountId(const std::string& str)
 }
 
 //-----
+bool AccountId::operator==(const AccountId& other) const
+{
+  return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) && (mAccountNum == other.mAccountNum);
+}
+
+//-----
 AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
 {
   return AccountId(static_cast<uint64_t>(proto.shardnum()),

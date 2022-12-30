@@ -298,9 +298,10 @@ private:
 
   /**
    * A Hedera account is charged to extend its expiration date every renew period. If it doesn't have enough balance, it
-   * extends as long as possible. If the balance is zero when it expires, then the account is deleted.
+   * extends as long as possible. If the balance is zero when it expires, then the account is deleted. Defaults to 90
+   * days.
    */
-  std::chrono::duration<double> mAutoRenewPeriod = std::chrono::months(3);
+  std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(2160);
 
   /**
    * The memo to be associated with the account (UTF-8 encoding max 100 bytes).

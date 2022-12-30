@@ -46,6 +46,12 @@ ContractId ContractId::fromProtobuf(const proto::ContractID& proto)
 }
 
 //-----
+bool ContractId::operator==(const ContractId& other) const
+{
+  return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) && (mContractNum == other.mContractNum);
+}
+
+//-----
 std::unique_ptr<proto::ContractID> ContractId::toProtobuf() const
 {
   auto proto = std::make_unique<proto::ContractID>();
