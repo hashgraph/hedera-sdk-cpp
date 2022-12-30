@@ -38,11 +38,6 @@ public:
   ContractId() = default;
 
   /**
-   * Define a default comparator operator so that ContractId's can be compared.
-   */
-  bool operator==(const ContractId&) const = default;
-
-  /**
    * Construct with a contract number.
    *
    * @param num The contract number to set.
@@ -65,6 +60,14 @@ public:
    * @return An ContractId object with the ContractID protobuf object data.
    */
   static ContractId fromProtobuf(const proto::ContractID& id);
+
+  /**
+   * Compare this ContractId to another ContractId and determine if they represent the same contract.
+   *
+   * @param other The other ContractId with which to compare this ContractId.
+   * @return \c TRUE if this ContractId is the same as the input ContractId, otherwise \c FALSE.
+   */
+  bool operator==(const ContractId& other) const;
 
   /**
    * Construct an ContractID protobuf object from this ContractId object.

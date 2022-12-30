@@ -207,7 +207,7 @@ std::vector<std::string> Mnemonic::readWordListFromFile(const std::string& fileN
 //-----
 bool Mnemonic::validateIndexInputs(const std::vector<uint16_t>& indices) const
 {
-  if (!getAcceptableWordCounts().contains(indices.size()))
+  if (getAcceptableWordCounts().find(indices.size()) == getAcceptableWordCounts().end())
   {
     return false;
   }

@@ -45,7 +45,7 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransaction)
   EXPECT_EQ(transaction.getKey(), nullptr);
   EXPECT_EQ(transaction.getInitialBalance(), Hbar(0ULL));
   EXPECT_FALSE(transaction.getReceiverSignatureRequired());
-  EXPECT_EQ(transaction.getAutoRenewPeriod(), std::chrono::months(3));
+  EXPECT_EQ(transaction.getAutoRenewPeriod(), std::chrono::hours(2160)); // 90 days
   EXPECT_EQ(transaction.getTransactionMemo(), std::string());
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 0U);
   EXPECT_FALSE(transaction.getStakedAccountId());
@@ -103,7 +103,7 @@ TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequired)
 TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriod)
 {
   AccountCreateTransaction transaction;
-  const auto duration = std::chrono::days(10);
+  const auto duration = std::chrono::hours(240); // 10 days
   transaction.setAutoRenewPeriod(duration);
 
   EXPECT_EQ(transaction.getAutoRenewPeriod(), duration);

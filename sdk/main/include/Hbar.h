@@ -62,9 +62,12 @@ public:
   }
 
   /**
-   * Define a default comparator operator so that Hbar object's can be compared.
+   * Compare this Hbar to another Hbar and determine if they represent the same amount.
+   *
+   * @param other The other Hbar with which to compare this Hbar.
+   * @return \c TRUE if this Hbar is the same amount as the input Hbar, otherwise \c FALSE.
    */
-  bool operator==(const Hbar&) const = default;
+  bool operator==(const Hbar& other) const { return mValueInTinybar == other.mValueInTinybar; }
 
   /**
    * Convert this Hbar value to tinybars.
