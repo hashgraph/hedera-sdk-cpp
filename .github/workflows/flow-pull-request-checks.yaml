@@ -1,17 +1,11 @@
 name: PR Checks
 on:
   workflow_dispatch:
-    inputs:
-      hapi-version-tag:
-        description: "HAPI Protobuf Release Tag:"
-        type: string
-        required: false
-        default: "v0.30.0"
-#  pull_request:
-#    types:
-#      - opened
-#      - reopened
-#      - synchronize
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
 
 
 concurrency:
