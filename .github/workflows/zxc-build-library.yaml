@@ -12,40 +12,48 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: ${{ matrix.os }}
+    runs-on:
+      - self-hosted
+      - "${{ matrix.os }}"
+      - xlarge
+      - ephemeral
     strategy:
       matrix:
         include:
-#          - os: ubuntu-latest
-#            preset: linux-x64
+          - os: Linux
+            preset: linux-x64
 #          - os: macos-12
 #            preset: macos-x64
-          - os: windows-latest
-            preset: windows-x64
+#          - os: windows-latest
+#            preset: windows-x64
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
           submodules: true
 
-#      - name: Fixup VCPkg Triplets
-#        run: echo "set(VCPKG_BUILD_TYPE release)" | tee -a vcpkg/triplets/x64-windows-static.cmake
+      - name: Install Linux Prerequisites
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
 
-      - name: Install Linux Headers
-        if: ${{ contains(runner.os, 'Linux') }}
-        run: sudo apt update && sudo apt install -y linux-headers-5.15.0-50-generic
+      - name: Ensure Binary Cache Path Exists
+        run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
       - name: Install CMake & Ninja
         uses: lukka/get-cmake@latest
 
       - name: Setup VCPkg
         uses: lukka/run-vcpkg@v10
+        with:
+          binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
-#      - name: CMake Build (Debug)
-#        uses: lukka/run-cmake@v10
-#        with:
-#          configurePreset: ${{ matrix.preset }}
-#          buildPreset: ${{ matrix.preset }}-debug
+      - name: CMake Build (Debug)
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: ${{ matrix.preset }}-debug
+          buildPreset: ${{ matrix.preset }}-debug
 
       - name: CMake Build (Release)
         uses: lukka/run-cmake@v10
