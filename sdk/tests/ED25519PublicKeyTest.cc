@@ -137,9 +137,9 @@ TEST_F(ED25519PublicKeyTest, VerifyEmptyMessage)
   const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
   const std::vector<unsigned char> emptyMessage;
 
-  EXPECT_ANY_THROW(getTestPublicKeyFromPrivate()->verifySignature(signature, emptyMessage));
-  EXPECT_ANY_THROW(getTestPublicKeyFromString()->verifySignature(signature, emptyMessage));
-  EXPECT_ANY_THROW(getTestPublicKeyFromProtobuf()->verifySignature(signature, emptyMessage));
+  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(signature, emptyMessage), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(signature, emptyMessage), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(signature, emptyMessage), std::runtime_error);
 }
 
 TEST_F(ED25519PublicKeyTest, FromString)
