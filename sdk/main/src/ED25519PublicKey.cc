@@ -110,12 +110,13 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
   int verificationResult = EVP_DigestVerify(
     messageDigestContext, &signatureBytes.front(), signatureBytes.size(), &signedBytes.front(), signedBytes.size());
 
+  EVP_MD_CTX_free(messageDigestContext);
+
   if (verificationResult <= 0)
   {
-    std::cout << "Failed to verify signature with code [" << verificationResult << ']' << std::endl;
+    std::string message = "Failed to verify signature with code [" + std::to_string(verificationResult) + ']';
+    throw std::runtime_error(message.c_str());
   }
-
-  EVP_MD_CTX_free(messageDigestContext);
 
   return verificationResult == 1;
 }

@@ -107,9 +107,9 @@ TEST_F(ED25519PublicKeyTest, VerifySignatureAgainstModifiedBytes)
   const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
   const std::vector<unsigned char> modifiedBytes = { 0x1, 0x2, 0x3, 0x4 };
 
-  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(signature, modifiedBytes));
-  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(signature, modifiedBytes));
-  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(signature, modifiedBytes));
+  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(signature, modifiedBytes), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(signature, modifiedBytes), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(signature, modifiedBytes), std::runtime_error);
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature)
@@ -117,9 +117,9 @@ TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature)
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
   const std::vector<unsigned char> arbitrarySignature = { 0x1, 0x2, 0x3, 0x4 };
 
-  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyEmptySignature)
@@ -127,9 +127,9 @@ TEST_F(ED25519PublicKeyTest, VerifyEmptySignature)
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
   const std::vector<unsigned char> emptySignature;
 
-  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(emptySignature, bytesToSign));
-  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(emptySignature, bytesToSign));
-  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(emptySignature, bytesToSign));
+  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(emptySignature, bytesToSign), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(emptySignature, bytesToSign), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(emptySignature, bytesToSign), std::runtime_error);
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyEmptyMessage)
@@ -137,9 +137,9 @@ TEST_F(ED25519PublicKeyTest, VerifyEmptyMessage)
   const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
   const std::vector<unsigned char> emptyMessage;
 
-  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(signature, emptyMessage));
-  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(signature, emptyMessage));
-  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(signature, emptyMessage));
+  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(signature, emptyMessage), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(signature, emptyMessage), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(signature, emptyMessage), std::runtime_error);
 }
 
 TEST_F(ED25519PublicKeyTest, FromString)
