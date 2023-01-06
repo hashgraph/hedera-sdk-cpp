@@ -107,9 +107,9 @@ TEST_F(ED25519PublicKeyTest, VerifySignatureAgainstModifiedBytes)
   const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
   const std::vector<unsigned char> modifiedBytes = { 0x1, 0x2, 0x3, 0x4 };
 
-  EXPECT_ANY_THROW(getTestPublicKeyFromPrivate()->verifySignature(signature, modifiedBytes));
-  EXPECT_ANY_THROW(getTestPublicKeyFromString()->verifySignature(signature, modifiedBytes));
-  EXPECT_ANY_THROW(getTestPublicKeyFromProtobuf()->verifySignature(signature, modifiedBytes));
+  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(signature, modifiedBytes), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(signature, modifiedBytes), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(signature, modifiedBytes), std::runtime_error);
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature)
