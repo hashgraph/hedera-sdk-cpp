@@ -117,9 +117,9 @@ TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature)
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
   const std::vector<unsigned char> arbitrarySignature = { 0x1, 0x2, 0x3, 0x4 };
 
-  EXPECT_ANY_THROW(getTestPublicKeyFromPrivate()->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_ANY_THROW(getTestPublicKeyFromString()->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_ANY_THROW(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
+  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyEmptySignature)
