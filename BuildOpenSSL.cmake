@@ -19,7 +19,6 @@ ExternalProject_Add(OpenSSL
         BUILD_BYPRODUCTS ${OPENSSL_INSTALL_DIR}/lib/libcrypto.a ${OPENSSL_INSTALL_DIR}/lib/libssl.a
         UPDATE_COMMAND ""
         )
-message(WARNING ${OPENSSL_INCLUDE_DIR})
 
 # We cannot use find_library because ExternalProject_Add() is performed at build time.
 # And to please the property INTERFACE_INCLUDE_DIRECTORIES, we make the include directory in advance.
