@@ -149,7 +149,14 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestSignInit(messageDigestContext, nullptr, EVP_sha256(), nullptr, mKeypair) <= 0)
+  OSSL_LIB_CTX* libraryContext = OSSL_LIB_CTX_new();
+  EVP_MD* messageDigest = EVP_MD_fetch(libraryContext, "KECCAK-256", nullptr);
+  OSSL_LIB_CTX_free(libraryContext);
+
+  int result = EVP_DigestSignInit(messageDigestContext, nullptr, messageDigest, nullptr, mKeypair);
+  EVP_MD_free(messageDigest);
+
+  if (result <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestSignInit"));

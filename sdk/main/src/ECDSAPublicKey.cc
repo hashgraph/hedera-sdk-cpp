@@ -100,7 +100,8 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
                                      const std::vector<unsigned char>& signedBytes) const
 {
   // incoming signatures are in the raw form (r, s), where r and s are each 32 bytes long
-  if (signatureBytes.size() != 64) {
+  if (signatureBytes.size() != 64)
+  {
     return false;
   }
 
@@ -123,7 +124,8 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
 
   // this set function transfers ownership of the big numbers to the signature object
   // after this call succeeds, signatureR and signatureS should NOT be freed manually
-  if (ECDSA_SIG_set0(signatureObject, signatureR, signatureS) <= 0) {
+  if (ECDSA_SIG_set0(signatureObject, signatureR, signatureS) <= 0)
+  {
     BN_free(signatureR);
     BN_free(signatureS);
     ECDSA_SIG_free(signatureObject);
@@ -152,15 +154,24 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestVerifyInit(messageDigestContext, nullptr, EVP_sha256(), nullptr, mPublicKey) <= 0)
+  OSSL_LIB_CTX* libraryContext = OSSL_LIB_CTX_new();
+  EVP_MD* messageDigest = EVP_MD_fetch(libraryContext, "KECCAK-256", nullptr);
+  OSSL_LIB_CTX_free(libraryContext);
+
+  int result = EVP_DigestVerifyInit(messageDigestContext, nullptr, messageDigest, nullptr, mPublicKey);
+  EVP_MD_free(messageDigest);
+
+  if (result <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerifyInit"));
   }
 
-  int verificationResult = EVP_DigestVerify(
-    messageDigestContext, &derEncodedSignature.front(), actualSignatureLength, &signedBytes.front(), signedBytes.size());
+  int verificationResult = EVP_DigestVerify(messageDigestContext,
+                                            &derEncodedSignature.front(),
+                                            actualSignatureLength,
+                                            &signedBytes.front(),
+                                            signedBytes.size());
 
   EVP_MD_CTX_free(messageDigestContext);
 
