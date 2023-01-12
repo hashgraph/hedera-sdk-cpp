@@ -75,14 +75,13 @@ endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
 
-#target_link_libraries(${PROJECT_NAME} PRIVATE ${RESOLV_LIBRARY})
 if (NOT WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
 endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        OpenSSL::Crypto
-        OpenSSL::SSL)
+        OpenSSL::SSL
+        OpenSSL::Crypto)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         gRPC::address_sorting
