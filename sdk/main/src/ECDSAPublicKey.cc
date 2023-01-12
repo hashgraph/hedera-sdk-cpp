@@ -99,52 +99,6 @@ std::unique_ptr<PublicKey> ECDSAPublicKey::clone() const
 bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
                                      const std::vector<unsigned char>& signedBytes) const
 {
-  // incoming signatures are in the raw form (r, s), where r and s are each 32 bytes long
-  if (signatureBytes.size() != 64) {
-    return false;
-  }
-
-  // first, convert the incoming signature to DER format, so that it can be verified
-
-  BIGNUM* signatureR = BN_bin2bn(&signatureBytes.front(), 32, nullptr);
-  if (signatureR == nullptr)
-  {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
-  }
-
-  BIGNUM* signatureS = BN_bin2bn(&signatureBytes.front() + 32, 32, nullptr);
-  if (signatureS == nullptr)
-  {
-    BN_free(signatureR);
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
-  }
-
-  ECDSA_SIG* signatureObject = ECDSA_SIG_new();
-
-  // this set function transfers ownership of the big numbers to the signature object
-  // after this call succeeds, signatureR and signatureS should NOT be freed manually
-  if (ECDSA_SIG_set0(signatureObject, signatureR, signatureS) <= 0) {
-    BN_free(signatureR);
-    BN_free(signatureS);
-    ECDSA_SIG_free(signatureObject);
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
-  }
-
-  // maximum length of DER encoded signature is 72
-  std::vector<unsigned char> derEncodedSignature(72);
-  unsigned char* encodedSignaturePointer = &derEncodedSignature.front();
-
-  // keep track of how long the DER encoding actually is, since we'll need to tell the verification function
-  int actualSignatureLength = i2d_ECDSA_SIG(signatureObject, &encodedSignaturePointer);
-  if (actualSignatureLength <= 0)
-  {
-    ECDSA_SIG_free(signatureObject);
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_ECDSA_SIG"));
-  }
-
-  // wash our hands of the signature object, since we've successfully gotten the DER encoding
-  ECDSA_SIG_free(signatureObject);
-
   EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
 
   if (!messageDigestContext)
@@ -160,7 +114,7 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
   }
 
   int verificationResult = EVP_DigestVerify(
-    messageDigestContext, &derEncodedSignature.front(), actualSignatureLength, &signedBytes.front(), signedBytes.size());
+    messageDigestContext, &signatureBytes.front(), signatureBytes.size(), &signedBytes.front(), signedBytes.size());
 
   EVP_MD_CTX_free(messageDigestContext);
 
