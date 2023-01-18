@@ -67,7 +67,7 @@ TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& r
 //-----
 Status TransactionReceiptQuery::mapResponseStatus(const proto::Response& response) const
 {
-  return STATUS_MAP.at(response.transactiongetreceipt().header().nodetransactionprecheckcode());
+  return gProtobufResponseCodeToStatus.at(response.transactiongetreceipt().header().nodetransactionprecheckcode());
 }
 
 //-----
@@ -95,7 +95,7 @@ TransactionReceiptQuery::determineStatus(Status status, const Client& client, co
   }
 
   // Check the actual receipt status value to ensure the receipt actually holds correct data.
-  switch (STATUS_MAP.at(response.transactiongetreceipt().receipt().status()))
+  switch (gProtobufResponseCodeToStatus.at(response.transactiongetreceipt().receipt().status()))
   {
     case Status::BUSY:
     case Status::UNKNOWN:
