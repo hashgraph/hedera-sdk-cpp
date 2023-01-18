@@ -19,6 +19,7 @@
  */
 #include "PrivateKey.h"
 #include "AccountId.h"
+#include "ContractId.h"
 
 #include <gtest/gtest.h>
 #include <iostream>
@@ -29,6 +30,9 @@ using namespace Hedera;
 class SerializeAndDeserializeTest : public ::testing::Test
 {
 protected:
+  [[nodiscard]] inline const uint64_t getTestShardNum() const { return mShardNum; }
+  [[nodiscard]] inline const uint64_t getTestRealmNum() const { return mRealmNum; }
+  [[nodiscard]] inline const uint64_t getTestContractNum() const { return mContractNum; }
   [[nodiscard]] inline const AccountId& getAccountId() const { return mAccountId; }
   [[nodiscard]] inline const AccountId& getNodeId() const { return mNodeId; }
   [[nodiscard]] inline const AccountId& getOperatorId() const { return mOperatorId; }
@@ -36,6 +40,9 @@ protected:
   [[nodiscard]] inline const AccountId& getRecipientId() const { return mRecipientId; }
 
 private:
+  const uint64_t mShardNum = 1;
+  const uint64_t mRealmNum = 2;
+  const uint64_t mContractNum = 3;
   const AccountId mAccountId = AccountId(10ULL);
   const AccountId mNodeId = AccountId("0.0.7");
   const AccountId mOperatorId = AccountId("0.0.666");
@@ -67,4 +74,44 @@ TEST_F(SerializeAndDeserializeTest, DeserializeAccountIdTest)
   AccountId accountId = AccountId::fromProtobuf(protoAccountId);
   
   EXPECT_EQ(accountId.toString(), "123.456.789");
+}
+
+TEST_F(SerializeAndDeserializeTest, SerializeContractIdTest)
+{
+  // Given
+  uint64_t testShardNum = getTestShardNum();
+  uint64_t testRealmNum = getTestRealmNum();
+  uint64_t testContractNum = getTestContractNum();
+
+  ContractId testContractId = ContractId(testShardNum, testRealmNum, testContractNum);
+
+  // When
+  auto protoContractId = std::unique_ptr<proto::ContractID>(testContractId.toProtobuf());
+
+  // Then
+  EXPECT_EQ(protoContractId->shardnum(), testShardNum);
+  EXPECT_EQ(protoContractId->realmnum(), testRealmNum);
+  EXPECT_EQ(protoContractId->contractnum(), testContractNum);
+}
+
+TEST_F(SerializeAndDeserializeTest, DeserializeContractIdTest)
+{
+  // Given
+  uint64_t testShardNum = getTestShardNum();
+  uint64_t testRealmNum = getTestRealmNum();
+  uint64_t testContractNum = getTestContractNum();
+
+  proto::ContractID testProtoContractId = proto::ContractID();
+
+  testProtoContractId.set_shardnum(testShardNum);
+  testProtoContractId.set_realmnum(testRealmNum);
+  testProtoContractId.set_contractnum(testContractNum);
+
+  // When
+  ContractId contractId = ContractId::fromProtobuf(testProtoContractId);
+  
+  // Then
+  EXPECT_EQ(contractId.getShardNum(), testShardNum);
+  EXPECT_EQ(contractId.getRealmNum(), testRealmNum);
+  EXPECT_EQ(contractId.getContractNum(), testContractNum);
 }
