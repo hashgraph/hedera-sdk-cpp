@@ -4,7 +4,6 @@
   "dependencies": [
     "pthreads",
     "zlib",
-    "openssl",
     "protobuf",
     "grpc",
     "upb"
