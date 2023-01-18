@@ -19,6 +19,8 @@ For MacOS and Linux users (these can be installed with `brew install` or `apt-ge
 For Windows users:
 
 - Visual Studio 2019/2022 Community/Pro with Universal Windows Platform Development Tools
+- [Perl](http://strawberryperl.com/) (`perl.exe` must be added to `%PATH%`)
+- [NASM](https://www.nasm.us) (`nasm.exe` must be added to `%PATH%`)
 
 ## Build
 
