@@ -85,13 +85,12 @@ TEST_F(SerializeAndDeserializeTest, DeserializeAccountIdFromProtobufTest)
   EXPECT_EQ(accountId.toString(), "123.456.789");
 }
 
-TEST_F(SerializeAndDeserializeTest, SerializeContractIdTest)
+TEST_F(SerializeAndDeserializeTest, SerializeContractIdТoProtobufTest)
 {
   // Given
   uint64_t testShardNum = getTestShardNum();
   uint64_t testRealmNum = getTestRealmNum();
   uint64_t testContractNum = getTestContractNum();
-
   ContractId testContractId = ContractId(testShardNum, testRealmNum, testContractNum);
 
   // When
@@ -103,15 +102,14 @@ TEST_F(SerializeAndDeserializeTest, SerializeContractIdTest)
   EXPECT_EQ(protoContractId->contractnum(), testContractNum);
 }
 
-TEST_F(SerializeAndDeserializeTest, DeserializeContractIdTest)
+TEST_F(SerializeAndDeserializeTest, DeserializeContractIdFromProtobufTest)
 {
   // Given
   uint64_t testShardNum = getTestShardNum();
   uint64_t testRealmNum = getTestRealmNum();
   uint64_t testContractNum = getTestContractNum();
-
+  
   proto::ContractID testProtoContractId = proto::ContractID();
-
   testProtoContractId.set_shardnum(testShardNum);
   testProtoContractId.set_realmnum(testRealmNum);
   testProtoContractId.set_contractnum(testContractNum);
