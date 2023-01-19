@@ -143,14 +143,23 @@ std::shared_ptr<PublicKey> ECDSAPrivateKey::getPublicKey() const
 std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
   EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
-
   if (!messageDigestContext)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
   OSSL_LIB_CTX* libraryContext = OSSL_LIB_CTX_new();
+  if (!libraryContext)
+  {
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_LIB_CTX_new"));
+  }
+
   EVP_MD* messageDigest = EVP_MD_fetch(libraryContext, "KECCAK-256", nullptr);
+  if (!messageDigest)
+  {
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
+  }
+
   OSSL_LIB_CTX_free(libraryContext);
 
   int result = EVP_DigestSignInit(messageDigestContext, nullptr, messageDigest, nullptr, mKeypair);

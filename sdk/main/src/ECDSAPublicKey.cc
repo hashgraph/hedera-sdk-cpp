@@ -148,14 +148,23 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
   ECDSA_SIG_free(signatureObject);
 
   EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
-
   if (!messageDigestContext)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
   OSSL_LIB_CTX* libraryContext = OSSL_LIB_CTX_new();
+  if (!libraryContext)
+  {
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_LIB_CTX_new"));
+  }
+
   EVP_MD* messageDigest = EVP_MD_fetch(libraryContext, "KECCAK-256", nullptr);
+  if (!messageDigest)
+  {
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
+  }
+
   OSSL_LIB_CTX_free(libraryContext);
 
   int result = EVP_DigestVerifyInit(messageDigestContext, nullptr, messageDigest, nullptr, mPublicKey);
@@ -172,7 +181,6 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
                                             actualSignatureLength,
                                             &signedBytes.front(),
                                             signedBytes.size());
-
   EVP_MD_CTX_free(messageDigestContext);
 
   // any value other than 0 or 1 means an error occurred
