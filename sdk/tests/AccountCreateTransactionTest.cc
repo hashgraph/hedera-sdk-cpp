@@ -123,11 +123,16 @@ TEST_F(AccountCreateTransactionTest, SetAccountMemo)
 TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
 {
   AccountCreateTransaction transaction;
-  transaction.setMaxAutomaticTokenAssociations(5);
+  const uint32_t associations = 5U;
+  transaction.setMaxAutomaticTokenAssociations(associations);
 
-  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 5);
-  // Throw if over 1000
-  EXPECT_ANY_THROW(transaction.setMaxAutomaticTokenAssociations(2000U));
+  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), associations);
+  
+  // Throw if over 5000
+  EXPECT_NO_THROW(transaction.setMaxAutomaticTokenAssociations(5000U));
+  EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(5001U), std::invalid_argument);
+  EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(std::numeric_limits<uint32_t>::max()),
+               std::invalid_argument);
 }
 
 TEST_F(AccountCreateTransactionTest, SetStakedAccountId)
