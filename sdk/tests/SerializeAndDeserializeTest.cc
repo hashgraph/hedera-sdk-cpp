@@ -19,8 +19,10 @@
  */
 #include "AccountId.h"
 #include "ContractId.h"
+#include "Hbar.h"
 #include "PrivateKey.h"
 #include "TransactionId.h"
+#include "Transfer.h"
 
 #include "impl/TimestampConverter.h"
 
@@ -37,7 +39,7 @@ protected:
   [[nodiscard]] inline const uint64_t getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t getTestContractNum() const { return mContractNum; }
-  [[nodiscard]] inline const AccountId& getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const AccountId& getNodeId() const { return mNodeId; }
   [[nodiscard]] inline const AccountId& getOperatorId() const { return mOperatorId; }
   [[nodiscard]] inline const AccountId& getSenderId() const { return mSenderId; }
@@ -160,4 +162,44 @@ TEST_F(SerializeAndDeserializeTest, DeserializeTransactionIdFromProtobufTest)
   EXPECT_EQ(transactionId.getAccountId().getRealmNum(), testAccountId.getRealmNum());
   EXPECT_EQ(transactionId.getAccountId().getShardNum(), testAccountId.getShardNum());
   EXPECT_EQ(transactionId.getValidTransactionTime(), now);
+}
+
+TEST_F(SerializeAndDeserializeTest, SerializeTransferToProtobufTest)
+{
+  // Given
+  const AccountId testAccountId = getTestAccountId();
+  const int64_t testAmount = 10LL;
+  const Hbar testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
+  
+  Transfer testTransfer = Transfer();
+  testTransfer.setAccountId(testAccountId);
+  testTransfer.setAmount(testHbarAmount);
+  testTransfer.setApproved(false);
+
+  // When
+  const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(testTransfer.toProtobuf());
+  
+  // Then
+  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), testAccountId.getAccountNum());
+  EXPECT_EQ(protoAccountAmountPtr->amount(), testAmount);
+  EXPECT_FALSE(protoAccountAmountPtr->is_approval());
+}
+
+TEST_F(SerializeAndDeserializeTest, DeserializeTransferFromProtobufTest)
+{
+  // Given
+  const AccountId testAccountId = getTestAccountId();
+  const int64_t testAmount = 10LL;
+  proto::AccountAmount testProtoAccountAmount;
+  testProtoAccountAmount.set_allocated_accountid(testAccountId.toProtobuf().release());
+  testProtoAccountAmount.set_amount(testAmount);
+  testProtoAccountAmount.set_is_approval(true);
+
+  // When
+  const Transfer transfer = Transfer::fromProtobuf(testProtoAccountAmount);
+  
+  // Then
+  EXPECT_EQ(transfer.getAccountId(), testAccountId);
+  EXPECT_EQ(transfer.getAmount().toTinybars(), testAmount);
+  EXPECT_TRUE(transfer.getApproval());
 }
