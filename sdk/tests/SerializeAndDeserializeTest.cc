@@ -29,7 +29,6 @@
 #include "impl/TimestampConverter.h"
 
 #include <chrono>
-#include <iostream>
 #include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>
 #include <proto/exchange_rate.pb.h>
