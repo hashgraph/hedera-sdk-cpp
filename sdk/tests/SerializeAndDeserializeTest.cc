@@ -55,28 +55,33 @@ private:
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
 
-TEST_F(SerializeAndDeserializeTest, SerializeAccountIdTest)
+TEST_F(SerializeAndDeserializeTest, SerializeAccountIdToProtobufTest)
 {
-  const std::string accountIdStr = "111.222.333";
-  AccountId accountId(accountIdStr);
+  // Given
+  const std::string testAccountIdStr = "111.222.333";
+  AccountId testAccountId(testAccountIdStr);
 
-  auto protoAccountId = std::unique_ptr<proto::AccountID>(accountId.toProtobuf());
+  // When
+  auto protoAccountId = std::unique_ptr<proto::AccountID>(testAccountId.toProtobuf());
 
-  EXPECT_EQ(protoAccountId->shardnum(), accountId.getShardNum());
-  EXPECT_EQ(protoAccountId->realmnum(), accountId.getRealmNum());
-  EXPECT_EQ(protoAccountId->accountnum(), accountId.getAccountNum());
+  // Then
+  EXPECT_EQ(protoAccountId->shardnum(), testAccountId.getShardNum());
+  EXPECT_EQ(protoAccountId->realmnum(), testAccountId.getRealmNum());
+  EXPECT_EQ(protoAccountId->accountnum(), testAccountId.getAccountNum());
 }
 
-TEST_F(SerializeAndDeserializeTest, DeserializeAccountIdTest)
+TEST_F(SerializeAndDeserializeTest, DeserializeAccountIdFromProtobufTest)
 {
-  proto::AccountID protoAccountId = proto::AccountID();
+  // Given
+  proto::AccountID testProtoAccountId = proto::AccountID();
+  testProtoAccountId.set_shardnum(123);
+  testProtoAccountId.set_realmnum(456);
+  testProtoAccountId.set_accountnum(789);
 
-  protoAccountId.set_shardnum(123);
-  protoAccountId.set_realmnum(456);
-  protoAccountId.set_accountnum(789);
-
-  AccountId accountId = AccountId::fromProtobuf(protoAccountId);
+  // When
+  AccountId accountId = AccountId::fromProtobuf(testProtoAccountId);
   
+  // Then
   EXPECT_EQ(accountId.toString(), "123.456.789");
 }
 
