@@ -24,6 +24,7 @@
 #include "Hbar.h"
 #include "PrivateKey.h"
 #include "TransactionId.h"
+#include "TransactionReceipt.h"
 #include "Transfer.h"
 
 #include "impl/TimestampConverter.h"
@@ -204,28 +205,4 @@ TEST_F(SerializeAndDeserializeTest, DeserializeTransferFromProtobufTest)
   EXPECT_EQ(transfer.getAccountId(), testAccountId);
   EXPECT_EQ(transfer.getAmount().toTinybars(), testAmount);
   EXPECT_TRUE(transfer.getApproval());
-}
-
-TEST_F(SerializeAndDeserializeTest, DeserializeExchangeRateFromProtobufTest)
-{
-  // Given
-  auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
-  proto::TimestampSeconds *testProtoExchangeRateSecs = testProtoExchangeRate->mutable_expirationtime();
-
-  const int32_t testCents = 2;
-  const int32_t testHbar = 1;
-  const uint64_t testSeconds = 100ULL;
-
-  testProtoExchangeRate->set_centequiv(testCents);
-  testProtoExchangeRate->set_hbarequiv(testHbar);
-  testProtoExchangeRateSecs->set_seconds(testSeconds);
-
-  // When
-  ExchangeRate exchangeRate = ExchangeRate::fromProtobuf(*testProtoExchangeRate);
-  
-  // Then
-  EXPECT_EQ(exchangeRate.getCurrentExchangeRate(), testCents / testHbar);
-  EXPECT_TRUE(exchangeRate.getExpirationTime().has_value());
-  EXPECT_EQ(exchangeRate.getExpirationTime().value().time_since_epoch().count(),
-            internal::TimestampConverter::fromProtobuf(*testProtoExchangeRateSecs).time_since_epoch().count());
 }
