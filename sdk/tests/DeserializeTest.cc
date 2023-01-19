@@ -19,6 +19,7 @@
  */
 #include "ExchangeRate.h"
 #include "ExchangeRateSet.h"
+
 #include "impl/TimestampConverter.h"
 
 #include <gtest/gtest.h>
@@ -33,22 +34,29 @@ protected:
   [[nodiscard]] inline const uint64_t getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t getTestContractNum() const { return mContractNum; }
+  [[nodiscard]] inline const int32_t  getTestCents() const { return cents; }
+  [[nodiscard]] inline const int32_t  getTestHbar() const { return hbar; }
+  [[nodiscard]] inline const uint64_t getTestSeconds() const { return seconds; }
+
 
 private:
   const uint64_t mShardNum = 1;
   const uint64_t mRealmNum = 2;
   const uint64_t mContractNum = 3;
+  const int32_t cents = 2;
+  const int32_t hbar = 1;
+  const uint64_t seconds = 100ULL;
 };
 
 TEST_F(DeserializeTest, DeserializeExchangeRateFromProtobufTest)
 {
   // Given
+  const int32_t testCents = getTestCents();
+  const int32_t testHbar = getTestHbar();
+  const uint64_t testSeconds = getTestSeconds();
+
   auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
   proto::TimestampSeconds *testProtoExchangeRateSecs = testProtoExchangeRate->mutable_expirationtime();
-
-  const int32_t testCents = 2;
-  const int32_t testHbar = 1;
-  const uint64_t testSeconds = 100ULL;
 
   testProtoExchangeRate->set_centequiv(testCents);
   testProtoExchangeRate->set_hbarequiv(testHbar);
@@ -67,9 +75,9 @@ TEST_F(DeserializeTest, DeserializeExchangeRateFromProtobufTest)
 TEST_F(DeserializeTest, DeserializeExchangeRateSetFromProtobufTest)
 {
   // Given
-  const int32_t testCents = 2;
-  const int32_t testHbar = 1;
-  const uint64_t testSeconds = 100ULL;
+  const int32_t testCents = getTestCents();
+  const int32_t testHbar = getTestHbar();
+  const uint64_t testSeconds = getTestSeconds();
 
   auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
   testProtoExchangeRate->set_centequiv(testCents * testCents);
