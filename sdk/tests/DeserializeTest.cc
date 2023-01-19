@@ -63,3 +63,26 @@ TEST_F(DeserializeTest, DeserializeExchangeRateFromProtobufTest)
   EXPECT_EQ(exchangeRate.getExpirationTime().value().time_since_epoch().count(),
             internal::TimestampConverter::fromProtobuf(*testProtoExchangeRateSecs).time_since_epoch().count());
 }
+
+TEST_F(DeserializeTest, DeserializeExchangeRateSetFromProtobufTest)
+{
+  // Given
+  const int32_t testCents = 2;
+  const int32_t testHbar = 1;
+  const uint64_t testSeconds = 100ULL;
+
+  auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
+  testProtoExchangeRate->set_centequiv(testCents * testCents);
+  testProtoExchangeRate->set_hbarequiv(testHbar * testHbar);
+
+  proto::ExchangeRateSet testProtoExchangeRateSet;
+  testProtoExchangeRateSet.set_allocated_nextrate(testProtoExchangeRate.release());
+
+  // When
+  ExchangeRateSet exchangeRateSet = ExchangeRateSet::fromProtobuf(testProtoExchangeRateSet);
+  
+  // Then
+  EXPECT_FALSE(exchangeRateSet.getCurrentExchangeRate().has_value());
+  EXPECT_TRUE(exchangeRateSet.getNextExchangeRate().has_value());
+  EXPECT_EQ(exchangeRateSet.getNextExchangeRate().value().getCurrentExchangeRate(), testCents * testCents / testHbar * testHbar);
+}
