@@ -17,12 +17,16 @@
  * limitations under the License.
  *
  */
-#include "PrivateKey.h"
 #include "AccountId.h"
 #include "ContractId.h"
+#include "PrivateKey.h"
+#include "TransactionId.h"
 
-#include <gtest/gtest.h>
+#include "impl/TimestampConverter.h"
+
+#include <chrono>
 #include <iostream>
+#include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>
 
 using namespace Hedera;
@@ -114,4 +118,43 @@ TEST_F(SerializeAndDeserializeTest, DeserializeContractIdTest)
   EXPECT_EQ(contractId.getShardNum(), testShardNum);
   EXPECT_EQ(contractId.getRealmNum(), testRealmNum);
   EXPECT_EQ(contractId.getContractNum(), testContractNum);
+}
+
+TEST_F(SerializeAndDeserializeTest, SerializeTransactionIdToProtobufTest)
+{
+  // Given
+  const std::string testAccountIdStr = "111.222.333";
+  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+  AccountId testAccountId(testAccountIdStr);
+  TransactionId testTransactionId = TransactionId::generate(testAccountId);
+
+  // When
+  const auto protoTransactionIdPtr = std::unique_ptr<proto::TransactionID>(testTransactionId.toProtobuf());
+  const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(internal::TimestampConverter::toProtobuf(now));
+
+  // Then
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), testAccountId.getShardNum());
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), testAccountId.getRealmNum());
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), testAccountId.getAccountNum());
+  EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
+}
+
+TEST_F(SerializeAndDeserializeTest, DeserializeTransactionIdFromProtobufTest)
+{
+  // Given
+  const std::string testAccountIdStr = "111.222.333";
+  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+  AccountId testAccountId(testAccountIdStr);
+  proto::TransactionID testProtoTransactionId;
+  testProtoTransactionId.set_allocated_accountid(testAccountId.toProtobuf().release());
+  testProtoTransactionId.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(now));
+
+  // When
+  const TransactionId transactionId = TransactionId::fromProtobuf(testProtoTransactionId);
+
+  // Then
+  EXPECT_EQ(transactionId.getAccountId().getAccountNum(), testAccountId.getAccountNum());
+  EXPECT_EQ(transactionId.getAccountId().getRealmNum(), testAccountId.getRealmNum());
+  EXPECT_EQ(transactionId.getAccountId().getShardNum(), testAccountId.getShardNum());
+  EXPECT_EQ(transactionId.getValidTransactionTime(), now);
 }
