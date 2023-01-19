@@ -22,10 +22,10 @@
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 
+#include <grpcpp/client_context.h>
 #include <proto/crypto_create.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_response.pb.h>
-#include <grpcpp/client_context.h>
 #include <stdexcept>
 
 namespace Hedera
@@ -89,9 +89,9 @@ AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_v
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
 {
-  if (associations > 1000)
+  if (associations > 5000U)
   {
-    throw std::invalid_argument("Too many maximum number of token associations. Maximum can't be over 1000");
+    throw std::invalid_argument("Too many maximum number of token associations. Maximum can't be over 5000");
   }
 
   mMaxAutomaticTokenAssociations = associations;

@@ -127,7 +127,7 @@ public:
    * @param associations The desired maximum amount of token associations for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set maximum automatic token
    *         associations.
-   * @throws std::invalid_argument If the desired maximum number of associations is over 1000.
+   * @throws std::invalid_argument If the desired maximum number of associations is over 5000.
    */
   AccountCreateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
 
@@ -310,7 +310,7 @@ private:
 
   /**
    * The maximum number of tokens with which the new account can be implicitly associated. Only allows values up to a
-   * maximum value of 1000.
+   * maximum value of 5000.
    */
   uint32_t mMaxAutomaticTokenAssociations = 0U;
 
