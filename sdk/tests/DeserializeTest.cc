@@ -23,6 +23,7 @@
 #include "Status.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
+#include "TransactionResponse.h"
 
 #include "impl/TimestampConverter.h"
 
@@ -31,6 +32,7 @@
 #include <proto/exchange_rate.pb.h>
 #include <proto/transaction_receipt.pb.h>
 #include <proto/transaction_record.pb.h>
+#include <proto/transaction_response.pb.h>
 
 using namespace Hedera;
 
@@ -192,4 +194,21 @@ TEST_F(DeserializeTest, DeserializeTransactionRecordFromProtobufTest)
   EXPECT_EQ(txRecord.getTransferList().at(0).getAmount().toTinybars(), -testTransferAmount);
   EXPECT_EQ(txRecord.getTransferList().at(1).getAccountId(), testAccountIdTo);
   EXPECT_EQ(txRecord.getTransferList().at(1).getAmount().toTinybars(), testTransferAmount);
+}
+
+TEST_F(DeserializeTest, DeserializeTransactionResponseFromProtobufTest)
+{
+  // Given
+  const uint64_t testCost = 10ULL;
+  const proto::ResponseCodeEnum testProtoResponseCode = proto::ResponseCodeEnum::AUTHORIZATION_FAILED;
+  proto::TransactionResponse testProtoTransactionResponse;
+  testProtoTransactionResponse.set_cost(testCost);
+  testProtoTransactionResponse.set_nodetransactionprecheckcode(testProtoResponseCode);
+
+  // When
+  TransactionResponse txResponse = TransactionResponse::fromProtobuf(testProtoTransactionResponse);
+  
+  // Then
+  EXPECT_EQ(txResponse.getCost(), testCost);
+  EXPECT_FALSE(txResponse.getValidateStatus());
 }
