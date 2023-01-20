@@ -117,9 +117,9 @@ TEST_F(ECDSAPublicKeyTest, VerifyArbitrarySignature)
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
   const std::vector<unsigned char> arbitrarySignature = { 0x1, 0x2, 0x3, 0x4 };
 
-  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
-  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
-  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign), std::runtime_error);
+  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(arbitrarySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign));
 }
 
 TEST_F(ECDSAPublicKeyTest, VerifyEmptySignature)
@@ -127,9 +127,9 @@ TEST_F(ECDSAPublicKeyTest, VerifyEmptySignature)
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
   const std::vector<unsigned char> emptySignature;
 
-  EXPECT_THROW(getTestPublicKeyFromPrivate()->verifySignature(emptySignature, bytesToSign), std::runtime_error);
-  EXPECT_THROW(getTestPublicKeyFromString()->verifySignature(emptySignature, bytesToSign), std::runtime_error);
-  EXPECT_THROW(getTestPublicKeyFromProtobuf()->verifySignature(emptySignature, bytesToSign), std::runtime_error);
+  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(emptySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(emptySignature, bytesToSign));
+  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(emptySignature, bytesToSign));
 }
 
 TEST_F(ECDSAPublicKeyTest, VerifyEmptyMessage)
