@@ -22,6 +22,7 @@
 #include "ExchangeRateSet.h"
 #include "Status.h"
 #include "TransactionReceipt.h"
+#include "TransactionRecord.h"
 
 #include "impl/TimestampConverter.h"
 
@@ -29,6 +30,7 @@
 #include <proto/basic_types.pb.h>
 #include <proto/exchange_rate.pb.h>
 #include <proto/transaction_receipt.pb.h>
+#include <proto/transaction_record.pb.h>
 
 using namespace Hedera;
 
@@ -42,6 +44,8 @@ protected:
   [[nodiscard]] inline const int32_t  getTestHbar() const { return hbar; }
   [[nodiscard]] inline const uint64_t getTestSeconds() const { return seconds; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountIdFrom() const { return mAccountIdFrom; }
+  [[nodiscard]] inline const AccountId& getTestAccountIdTo() const { return mAccountIdTo; }
 
 private:
   const uint64_t mShardNum = 1;
@@ -51,6 +55,8 @@ private:
   const int32_t hbar = 1;
   const uint64_t seconds = 100ULL;
   const AccountId mAccountId = AccountId(0ULL, 0ULL, 10ULL);
+  const AccountId mAccountIdFrom = AccountId(4ULL);
+  const AccountId mAccountIdTo = AccountId(3ULL);
 };
 
 TEST_F(DeserializeTest, DeserializeExchangeRateFromProtobufTest)
@@ -137,4 +143,53 @@ TEST_F(DeserializeTest, DeserializeTransactionReceiptFromProtobufTest)
   EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime().has_value());
   EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime(),
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
+}
+
+TEST_F(DeserializeTest, DeserializeTransactionRecordFromProtobufTest)
+{
+  // Given
+  const auto testAccountIdTo = getTestAccountIdTo();
+  const auto testAccountIdFrom = getTestAccountIdFrom();
+  const auto testTransactionIdFrom = TransactionId::generate(testAccountIdFrom).toProtobuf().release();
+  const int64_t testTransferAmount = 10LL;
+  const std::string testTxHash = "txHash";
+  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+  const std::string testTxMemo = "txMemo";
+  const uint64_t testTxFee = 10ULL;
+  proto::TransactionRecord testProtoTransactionRecord;
+  testProtoTransactionRecord.mutable_receipt()->set_allocated_accountid(testAccountIdFrom.toProtobuf().release());
+  testProtoTransactionRecord.set_allocated_transactionhash(new std::string(testTxHash));
+  testProtoTransactionRecord.set_allocated_consensustimestamp(internal::TimestampConverter::toProtobuf(now));
+  testProtoTransactionRecord.set_allocated_transactionid(testTransactionIdFrom);
+  testProtoTransactionRecord.set_allocated_memo(new std::string(testTxMemo));
+  testProtoTransactionRecord.set_transactionfee(testTxFee);
+  
+  proto::AccountAmount *testProtoAccountAmount = testProtoTransactionRecord.mutable_transferlist()->add_accountamounts();
+  testProtoAccountAmount->set_allocated_accountid(testAccountIdFrom.toProtobuf().release());
+  testProtoAccountAmount->set_amount(-testTransferAmount);
+  
+  testProtoAccountAmount = testProtoTransactionRecord.mutable_transferlist()->add_accountamounts();
+  testProtoAccountAmount->set_allocated_accountid(testAccountIdTo.toProtobuf().release());
+  testProtoAccountAmount->set_amount(testTransferAmount);
+
+  // When
+  TransactionRecord txRecord = TransactionRecord::fromProtobuf(testProtoTransactionRecord);
+  
+  // Then
+  EXPECT_TRUE(txRecord.getReceipt());
+  EXPECT_TRUE(txRecord.getReceipt()->getAccountId());
+  EXPECT_EQ(*txRecord.getReceipt()->getAccountId(), testAccountIdFrom);
+  EXPECT_EQ(txRecord.getTransactionHash(), testTxHash);
+  EXPECT_TRUE(txRecord.getConsensusTimestamp());
+  EXPECT_EQ(txRecord.getConsensusTimestamp()->time_since_epoch().count(), now.time_since_epoch().count());
+  EXPECT_TRUE(txRecord.getTransactionId());
+  EXPECT_EQ(txRecord.getTransactionId()->getAccountId(), testAccountIdFrom);
+  // EXPECT_GE(txRecord.getTransactionId().value().getValidTransactionTime(), now);
+  EXPECT_EQ(txRecord.getTransactionMemo(), testTxMemo);
+  EXPECT_EQ(txRecord.getTransactionFee(), testTxFee);
+  EXPECT_FALSE(txRecord.getTransferList().empty());
+  EXPECT_EQ(txRecord.getTransferList().at(0).getAccountId(), testAccountIdFrom);
+  EXPECT_EQ(txRecord.getTransferList().at(0).getAmount().toTinybars(), -testTransferAmount);
+  EXPECT_EQ(txRecord.getTransferList().at(1).getAccountId(), testAccountIdTo);
+  EXPECT_EQ(txRecord.getTransferList().at(1).getAmount().toTinybars(), testTransferAmount);
 }
