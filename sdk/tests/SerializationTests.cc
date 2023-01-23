@@ -25,7 +25,7 @@
 
 using namespace Hedera;
 
-class SerializeTest : public ::testing::Test
+class SerializationTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::unique_ptr<ECDSAPrivateKey>& getTestECDSAPrivateKey() const { return mPrivateKey; }
@@ -37,7 +37,7 @@ private:
   const std::shared_ptr<ECDSAPublicKey> mPublicKeyFromString = ECDSAPublicKey::fromString(mPublicKeyFromPrivate->toString());
 };
 
-TEST_F(SerializeTest, ECDSAPrivateKeyToProtobufTest)
+TEST_F(SerializationTests, ECDSAPrivateKeyToProtobufTest)
 {
   // Given
   const std::shared_ptr<ECDSAPublicKey> testECDSAPublicKey = getTestECDSAPublicKey();
