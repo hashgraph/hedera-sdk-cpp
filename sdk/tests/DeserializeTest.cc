@@ -17,6 +17,7 @@
  * limitations under the License.
  *
  */
+#include "AccountBalance.h"
 #include "AccountId.h"
 #include "ExchangeRate.h"
 #include "ExchangeRateSet.h"
@@ -33,6 +34,7 @@
 #include <proto/transaction_receipt.pb.h>
 #include <proto/transaction_record.pb.h>
 #include <proto/transaction_response.pb.h>
+#include <proto/crypto_get_account_balance.pb.h>
 
 using namespace Hedera;
 
@@ -45,6 +47,7 @@ protected:
   [[nodiscard]] inline const int32_t  getTestCents() const { return cents; }
   [[nodiscard]] inline const int32_t  getTestHbar() const { return hbar; }
   [[nodiscard]] inline const uint64_t getTestSeconds() const { return seconds; }
+  [[nodiscard]] inline const Hbar     getTestBalance() const { return mBalance; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const AccountId& getTestAccountIdFrom() const { return mAccountIdFrom; }
   [[nodiscard]] inline const AccountId& getTestAccountIdTo() const { return mAccountIdTo; }
@@ -56,6 +59,7 @@ private:
   const int32_t cents = 2;
   const int32_t hbar = 1;
   const uint64_t seconds = 100ULL;
+  const Hbar mBalance = Hbar(100LL);
   const AccountId mAccountId = AccountId(0ULL, 0ULL, 10ULL);
   const AccountId mAccountIdFrom = AccountId(4ULL);
   const AccountId mAccountIdTo = AccountId(3ULL);
@@ -211,4 +215,18 @@ TEST_F(DeserializeTest, DeserializeTransactionResponseFromProtobufTest)
   // Then
   EXPECT_EQ(txResponse.getCost(), testCost);
   EXPECT_FALSE(txResponse.getValidateStatus());
+}
+
+TEST_F(DeserializeTest, DeserializeAccountBalanceFromProtobufTest)
+{
+  // Given
+  const Hbar testBalance = getTestBalance();
+  proto::CryptoGetAccountBalanceResponse testProtoAccountBalance;
+  testProtoAccountBalance.set_balance(static_cast<unsigned long long>(testBalance.toTinybars()));
+  
+  // When
+  AccountBalance accountBalance = AccountBalance::fromProtobuf(testProtoAccountBalance);
+  
+  // Then
+  EXPECT_EQ(accountBalance.getBalance().toTinybars(), testBalance.toTinybars());
 }
