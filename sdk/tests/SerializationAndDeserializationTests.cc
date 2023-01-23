@@ -35,7 +35,7 @@
 
 using namespace Hedera;
 
-class SerializeAndDeserializeTest : public ::testing::Test
+class SerializationAndDeserializationTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const uint64_t getTestShardNum() const { return mShardNum; }
@@ -51,7 +51,7 @@ private:
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
 
-TEST_F(SerializeAndDeserializeTest, SerializeAccountIdToProtobufTest)
+TEST_F(SerializationAndDeserializationTests, SerializeAccountIdToProtobufTest)
 {
   // Given
   const std::string testAccountIdStr = "111.222.333";
@@ -66,7 +66,7 @@ TEST_F(SerializeAndDeserializeTest, SerializeAccountIdToProtobufTest)
   EXPECT_EQ(protoAccountId->accountnum(), testAccountId.getAccountNum());
 }
 
-TEST_F(SerializeAndDeserializeTest, DeserializeAccountIdFromProtobufTest)
+TEST_F(SerializationAndDeserializationTests, DeserializeAccountIdFromProtobufTest)
 {
   // Given
   proto::AccountID testProtoAccountId = proto::AccountID();
@@ -81,7 +81,7 @@ TEST_F(SerializeAndDeserializeTest, DeserializeAccountIdFromProtobufTest)
   EXPECT_EQ(accountId.toString(), "123.456.789");
 }
 
-TEST_F(SerializeAndDeserializeTest, SerializeContractIdТoProtobufTest)
+TEST_F(SerializationAndDeserializationTests, SerializeContractIdТoProtobufTest)
 {
   // Given
   uint64_t testShardNum = getTestShardNum();
@@ -98,7 +98,7 @@ TEST_F(SerializeAndDeserializeTest, SerializeContractIdТoProtobufTest)
   EXPECT_EQ(protoContractId->contractnum(), testContractNum);
 }
 
-TEST_F(SerializeAndDeserializeTest, DeserializeContractIdFromProtobufTest)
+TEST_F(SerializationAndDeserializationTests, DeserializeContractIdFromProtobufTest)
 {
   // Given
   uint64_t testShardNum = getTestShardNum();
@@ -119,7 +119,7 @@ TEST_F(SerializeAndDeserializeTest, DeserializeContractIdFromProtobufTest)
   EXPECT_EQ(contractId.getContractNum(), testContractNum);
 }
 
-TEST_F(SerializeAndDeserializeTest, SerializeTransactionIdToProtobufTest)
+TEST_F(SerializationAndDeserializationTests, SerializeTransactionIdToProtobufTest)
 {
   // Given
   const std::string testAccountIdStr = "111.222.333";
@@ -138,7 +138,7 @@ TEST_F(SerializeAndDeserializeTest, SerializeTransactionIdToProtobufTest)
   EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
 }
 
-TEST_F(SerializeAndDeserializeTest, DeserializeTransactionIdFromProtobufTest)
+TEST_F(SerializationAndDeserializationTests, DeserializeTransactionIdFromProtobufTest)
 {
   // Given
   const std::string testAccountIdStr = "111.222.333";
@@ -158,7 +158,7 @@ TEST_F(SerializeAndDeserializeTest, DeserializeTransactionIdFromProtobufTest)
   EXPECT_EQ(transactionId.getValidTransactionTime(), now);
 }
 
-TEST_F(SerializeAndDeserializeTest, SerializeTransferToProtobufTest)
+TEST_F(SerializationAndDeserializationTests, SerializeTransferToProtobufTest)
 {
   // Given
   const AccountId testAccountId = getTestAccountId();
@@ -179,7 +179,7 @@ TEST_F(SerializeAndDeserializeTest, SerializeTransferToProtobufTest)
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }
 
-TEST_F(SerializeAndDeserializeTest, DeserializeTransferFromProtobufTest)
+TEST_F(SerializationAndDeserializationTests, DeserializeTransferFromProtobufTest)
 {
   // Given
   const AccountId testAccountId = getTestAccountId();
