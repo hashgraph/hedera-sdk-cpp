@@ -41,7 +41,7 @@
 
 using namespace Hedera;
 
-class DeserializeTest : public ::testing::Test
+class DeserializationTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const uint64_t getTestShardNum() const { return mShardNum; }
@@ -72,7 +72,7 @@ private:
   const std::shared_ptr<ECDSAPublicKey> mPublicKeyFromString = ECDSAPublicKey::fromString(mPublicKeyFromPrivate->toString());
 };
 
-TEST_F(DeserializeTest, DeserializeExchangeRateFromProtobufTest)
+TEST_F(DeserializationTests, DeserializeExchangeRateFromProtobufTest)
 {
   // Given
   const int32_t testCents = getTestCents();
@@ -96,7 +96,7 @@ TEST_F(DeserializeTest, DeserializeExchangeRateFromProtobufTest)
             internal::TimestampConverter::fromProtobuf(*testProtoExchangeRateSecs).time_since_epoch().count());
 }
 
-TEST_F(DeserializeTest, DeserializeExchangeRateSetFromProtobufTest)
+TEST_F(DeserializationTests, DeserializeExchangeRateSetFromProtobufTest)
 {
   // Given
   const int32_t testCents = getTestCents();
@@ -119,7 +119,7 @@ TEST_F(DeserializeTest, DeserializeExchangeRateSetFromProtobufTest)
   EXPECT_EQ(exchangeRateSet.getNextExchangeRate().value().getCurrentExchangeRate(), testCents * testCents / testHbar * testHbar);
 }
 
-TEST_F(DeserializeTest, DeserializeTransactionReceiptFromProtobufTest)
+TEST_F(DeserializationTests, DeserializeTransactionReceiptFromProtobufTest)
 {
   // Given
   const proto::ResponseCodeEnum testResponseStatus = proto::ResponseCodeEnum::SUCCESS;
@@ -158,7 +158,7 @@ TEST_F(DeserializeTest, DeserializeTransactionReceiptFromProtobufTest)
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
 }
 
-TEST_F(DeserializeTest, DeserializeTransactionRecordFromProtobufTest)
+TEST_F(DeserializationTests, DeserializeTransactionRecordFromProtobufTest)
 {
   // Given
   const auto testAccountIdTo = getTestAccountIdTo();
@@ -207,7 +207,7 @@ TEST_F(DeserializeTest, DeserializeTransactionRecordFromProtobufTest)
   EXPECT_EQ(txRecord.getTransferList().at(1).getAmount().toTinybars(), testTransferAmount);
 }
 
-TEST_F(DeserializeTest, DeserializeTransactionResponseFromProtobufTest)
+TEST_F(DeserializationTests, DeserializeTransactionResponseFromProtobufTest)
 {
   // Given
   const uint64_t testCost = 10ULL;
@@ -224,7 +224,7 @@ TEST_F(DeserializeTest, DeserializeTransactionResponseFromProtobufTest)
   EXPECT_FALSE(txResponse.getValidateStatus());
 }
 
-TEST_F(DeserializeTest, DeserializeAccountBalanceFromProtobufTest)
+TEST_F(DeserializationTests, DeserializeAccountBalanceFromProtobufTest)
 {
   // Given
   const Hbar testBalance = getTestBalance();
@@ -238,7 +238,7 @@ TEST_F(DeserializeTest, DeserializeAccountBalanceFromProtobufTest)
   EXPECT_EQ(accountBalance.getBalance().toTinybars(), testBalance.toTinybars());
 }
 
-TEST_F(DeserializeTest, PublicKeyFromProtobufTest)
+TEST_F(DeserializationTests, PublicKeyFromProtobufTest)
 {
   // Given
   const std::shared_ptr<ECDSAPublicKey> testECDSAPublicKey = getTestECDSAPublicKey();
