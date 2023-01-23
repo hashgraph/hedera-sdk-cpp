@@ -19,7 +19,6 @@
  */
 #include "ECDSAPrivateKey.h"
 #include "ECDSAPublicKey.h"
-#include "PublicKey.h"
 
 #include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>

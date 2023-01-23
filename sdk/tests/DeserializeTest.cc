@@ -19,8 +19,11 @@
  */
 #include "AccountBalance.h"
 #include "AccountId.h"
+#include "ECDSAPrivateKey.h"
+#include "ECDSAPublicKey.h"
 #include "ExchangeRate.h"
 #include "ExchangeRateSet.h"
+#include "PublicKey.h"
 #include "Status.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
@@ -51,6 +54,7 @@ protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const AccountId& getTestAccountIdFrom() const { return mAccountIdFrom; }
   [[nodiscard]] inline const AccountId& getTestAccountIdTo() const { return mAccountIdTo; }
+  [[nodiscard]] inline const std::shared_ptr<ECDSAPublicKey>& getTestECDSAPublicKey() const { return mPublicKeyFromString; }
 
 private:
   const uint64_t mShardNum = 1;
@@ -63,6 +67,9 @@ private:
   const AccountId mAccountId = AccountId(0ULL, 0ULL, 10ULL);
   const AccountId mAccountIdFrom = AccountId(4ULL);
   const AccountId mAccountIdTo = AccountId(3ULL);
+  const std::unique_ptr<ECDSAPrivateKey> mPrivateKey = ECDSAPrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> mPublicKeyFromPrivate = mPrivateKey->getPublicKey();
+  const std::shared_ptr<ECDSAPublicKey> mPublicKeyFromString = ECDSAPublicKey::fromString(mPublicKeyFromPrivate->toString());
 };
 
 TEST_F(DeserializeTest, DeserializeExchangeRateFromProtobufTest)
@@ -229,4 +236,19 @@ TEST_F(DeserializeTest, DeserializeAccountBalanceFromProtobufTest)
   
   // Then
   EXPECT_EQ(accountBalance.getBalance().toTinybars(), testBalance.toTinybars());
+}
+
+TEST_F(DeserializeTest, PublicKeyFromProtobufTest)
+{
+  // Given
+  const std::shared_ptr<ECDSAPublicKey> testECDSAPublicKey = getTestECDSAPublicKey();
+  const std::string testECDSAPublicKeyAsString = testECDSAPublicKey.get()->toString();
+  const std::unique_ptr<proto::Key> testProtobufECDSAPublicKey = testECDSAPublicKey.get()->toProtobuf();
+
+  // When
+  std::shared_ptr<PublicKey> testPublicKey = PublicKey::fromProtobuf(*testProtobufECDSAPublicKey.get());
+  
+  // Then
+  EXPECT_NE(testPublicKey.get(), nullptr);
+  EXPECT_EQ(testECDSAPublicKeyAsString, testPublicKey.get()->toString());
 }
