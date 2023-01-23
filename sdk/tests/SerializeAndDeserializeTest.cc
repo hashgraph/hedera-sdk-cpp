@@ -22,7 +22,6 @@
 #include "ExchangeRate.h"
 #include "ExchangeRateSet.h"
 #include "Hbar.h"
-#include "PrivateKey.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
 #include "Transfer.h"
@@ -43,20 +42,12 @@ protected:
   [[nodiscard]] inline const uint64_t getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t getTestContractNum() const { return mContractNum; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
-  [[nodiscard]] inline const AccountId& getNodeId() const { return mNodeId; }
-  [[nodiscard]] inline const AccountId& getOperatorId() const { return mOperatorId; }
-  [[nodiscard]] inline const AccountId& getSenderId() const { return mSenderId; }
-  [[nodiscard]] inline const AccountId& getRecipientId() const { return mRecipientId; }
 
 private:
   const uint64_t mShardNum = 1;
   const uint64_t mRealmNum = 2;
   const uint64_t mContractNum = 3;
   const AccountId mAccountId = AccountId(10ULL);
-  const AccountId mNodeId = AccountId("0.0.7");
-  const AccountId mOperatorId = AccountId("0.0.666");
-  const AccountId mSenderId = AccountId("0.0.123456");
-  const AccountId mRecipientId = AccountId("0.0.654321");
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
 
