@@ -40,13 +40,17 @@ class SerializationAndDeserializationTests : public ::testing::Test
 protected:
   [[nodiscard]] inline const uint64_t getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t getTestRealmNum() const { return mRealmNum; }
+  [[nodiscard]] inline const uint64_t getTestAccountNum() const { return mAccountNum; }
   [[nodiscard]] inline const uint64_t getTestContractNum() const { return mContractNum; }
+  [[nodiscard]] inline const int64_t getTestAmount() const { return mAmount; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
 
 private:
-  const uint64_t mShardNum = 1;
-  const uint64_t mRealmNum = 2;
-  const uint64_t mContractNum = 3;
+  const uint64_t mShardNum = 111;
+  const uint64_t mRealmNum = 222;
+  const uint64_t mAccountNum = 333;
+  const uint64_t mContractNum = 444;
+  const int64_t mAmount = 10LL;
   const AccountId mAccountId = AccountId(10ULL);
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
@@ -55,42 +59,50 @@ private:
 TEST_F(SerializationAndDeserializationTests, SerializeAccountIdToProtobufTest)
 {
   // Given
-  const std::string testAccountIdStr = "111.222.333";
-  AccountId testAccountId(testAccountIdStr);
+  const uint64_t testShardNum = getTestShardNum();
+  const uint64_t testRealmNum = getTestRealmNum();
+  const uint64_t testAccountNum = getTestAccountNum();
+  AccountId testAccountId(testShardNum, testRealmNum, testAccountNum);
 
   // When
   auto protoAccountId = std::unique_ptr<proto::AccountID>(testAccountId.toProtobuf());
 
   // Then
-  EXPECT_EQ(protoAccountId->shardnum(), testAccountId.getShardNum());
-  EXPECT_EQ(protoAccountId->realmnum(), testAccountId.getRealmNum());
-  EXPECT_EQ(protoAccountId->accountnum(), testAccountId.getAccountNum());
+  EXPECT_EQ(protoAccountId->shardnum(), testShardNum);
+  EXPECT_EQ(protoAccountId->realmnum(), testRealmNum);
+  EXPECT_EQ(protoAccountId->accountnum(), testAccountNum);
 }
 
 // Tests deserialization of Hedera::AccountId object from a proto::AccountID object.
 TEST_F(SerializationAndDeserializationTests, DeserializeAccountIdFromProtobufTest)
 {
   // Given
+  const uint64_t testShardNum = getTestShardNum();
+  const uint64_t testRealmNum = getTestRealmNum();
+  const uint64_t testAccountNum = getTestAccountNum();
   proto::AccountID testProtoAccountId = proto::AccountID();
-  testProtoAccountId.set_shardnum(123);
-  testProtoAccountId.set_realmnum(456);
-  testProtoAccountId.set_accountnum(789);
+  testProtoAccountId.set_shardnum(testShardNum);
+  testProtoAccountId.set_realmnum(testRealmNum);
+  testProtoAccountId.set_accountnum(testAccountNum);
 
   // When
   AccountId accountId = AccountId::fromProtobuf(testProtoAccountId);
   
   // Then
-  EXPECT_EQ(accountId.toString(), "123.456.789");
+  EXPECT_EQ(accountId.getShardNum(), testShardNum);
+  EXPECT_EQ(accountId.getRealmNum(), testRealmNum);
+  EXPECT_EQ(accountId.getAccountNum(), testAccountNum);
+  EXPECT_EQ(accountId.toString(), "111.222.333");
 }
 
 // Tests serialization of Hedera::ContractId object to a proto::ContractID object.
 TEST_F(SerializationAndDeserializationTests, SerializeContractIdТoProtobufTest)
 {
   // Given
-  uint64_t testShardNum = getTestShardNum();
-  uint64_t testRealmNum = getTestRealmNum();
-  uint64_t testContractNum = getTestContractNum();
-  ContractId testContractId = ContractId(testShardNum, testRealmNum, testContractNum);
+  const uint64_t testShardNum = getTestShardNum();
+  const uint64_t testRealmNum = getTestRealmNum();
+  const uint64_t testAccountNum = getTestAccountNum();
+  ContractId testContractId = ContractId(testShardNum, testRealmNum, testAccountNum);
 
   // When
   auto protoContractId = std::unique_ptr<proto::ContractID>(testContractId.toProtobuf());
@@ -98,17 +110,16 @@ TEST_F(SerializationAndDeserializationTests, SerializeContractIdТoProtobufTest)
   // Then
   EXPECT_EQ(protoContractId->shardnum(), testShardNum);
   EXPECT_EQ(protoContractId->realmnum(), testRealmNum);
-  EXPECT_EQ(protoContractId->contractnum(), testContractNum);
+  EXPECT_EQ(protoContractId->contractnum(), testAccountNum);
 }
 
 // Tests deserialization of Hedera::ContractId object from a proto::ContractID object.
 TEST_F(SerializationAndDeserializationTests, DeserializeContractIdFromProtobufTest)
 {
   // Given
-  uint64_t testShardNum = getTestShardNum();
-  uint64_t testRealmNum = getTestRealmNum();
-  uint64_t testContractNum = getTestContractNum();
-  
+  const uint64_t testShardNum = getTestShardNum();
+  const uint64_t testRealmNum = getTestRealmNum();
+  const uint64_t testContractNum = getTestContractNum();
   proto::ContractID testProtoContractId = proto::ContractID();
   testProtoContractId.set_shardnum(testShardNum);
   testProtoContractId.set_realmnum(testRealmNum);
@@ -169,7 +180,7 @@ TEST_F(SerializationAndDeserializationTests, SerializeTransferToProtobufTest)
 {
   // Given
   const AccountId testAccountId = getTestAccountId();
-  const int64_t testAmount = 10LL;
+  const int64_t testAmount = getTestAmount();
   const Hbar testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
   
   Transfer testTransfer = Transfer();
@@ -191,7 +202,7 @@ TEST_F(SerializationAndDeserializationTests, DeserializeTransferFromProtobufTest
 {
   // Given
   const AccountId testAccountId = getTestAccountId();
-  const int64_t testAmount = 10LL;
+  const int64_t testAmount = getTestAmount();
   proto::AccountAmount testProtoAccountAmount;
   testProtoAccountAmount.set_allocated_accountid(testAccountId.toProtobuf().release());
   testProtoAccountAmount.set_amount(testAmount);
