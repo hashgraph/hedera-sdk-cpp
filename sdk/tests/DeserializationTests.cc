@@ -72,6 +72,7 @@ private:
   const std::shared_ptr<ECDSAPublicKey> mPublicKeyFromString = ECDSAPublicKey::fromString(mPublicKeyFromPrivate->toString());
 };
 
+// Tests deserialization of Hedera::ExchangeRate object from a proto::ExchangeRate object.
 TEST_F(DeserializationTests, DeserializeExchangeRateFromProtobufTest)
 {
   // Given
@@ -96,6 +97,7 @@ TEST_F(DeserializationTests, DeserializeExchangeRateFromProtobufTest)
             internal::TimestampConverter::fromProtobuf(*testProtoExchangeRateSecs).time_since_epoch().count());
 }
 
+// Tests deserialization of Hedera::ExchangeRateSet object from a proto::ExchangeRateSet object.
 TEST_F(DeserializationTests, DeserializeExchangeRateSetFromProtobufTest)
 {
   // Given
@@ -119,6 +121,7 @@ TEST_F(DeserializationTests, DeserializeExchangeRateSetFromProtobufTest)
   EXPECT_EQ(exchangeRateSet.getNextExchangeRate().value().getCurrentExchangeRate(), testCents * testCents / testHbar * testHbar);
 }
 
+// Tests deserialization of Hedera::TransactionReceipt object from a proto::TransactionReceipt object.
 TEST_F(DeserializationTests, DeserializeTransactionReceiptFromProtobufTest)
 {
   // Given
@@ -158,6 +161,7 @@ TEST_F(DeserializationTests, DeserializeTransactionReceiptFromProtobufTest)
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
 }
 
+// Tests deserialization of Hedera::TransactionRecord object from a proto::TransactionRecord object.
 TEST_F(DeserializationTests, DeserializeTransactionRecordFromProtobufTest)
 {
   // Given
@@ -207,6 +211,7 @@ TEST_F(DeserializationTests, DeserializeTransactionRecordFromProtobufTest)
   EXPECT_EQ(txRecord.getTransferList().at(1).getAmount().toTinybars(), testTransferAmount);
 }
 
+// Tests deserialization of Hedera::TransactionResponse object from a proto::TransactionResponse object.
 TEST_F(DeserializationTests, DeserializeTransactionResponseFromProtobufTest)
 {
   // Given
@@ -224,6 +229,7 @@ TEST_F(DeserializationTests, DeserializeTransactionResponseFromProtobufTest)
   EXPECT_FALSE(txResponse.getValidateStatus());
 }
 
+// Tests deserialization of Hedera::AccountBalance object from a proto::CryptoGetAccountBalanceResponse object.
 TEST_F(DeserializationTests, DeserializeAccountBalanceFromProtobufTest)
 {
   // Given
@@ -238,6 +244,7 @@ TEST_F(DeserializationTests, DeserializeAccountBalanceFromProtobufTest)
   EXPECT_EQ(accountBalance.getBalance().toTinybars(), testBalance.toTinybars());
 }
 
+// Tests deserialization of Hedera::PublicKey object from a proto::Key object.
 TEST_F(DeserializationTests, PublicKeyFromProtobufTest)
 {
   // Given

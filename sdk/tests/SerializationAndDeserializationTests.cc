@@ -51,6 +51,7 @@ private:
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
 
+// Tests serialization of Hedera::AccountId object to a proto::AccountID object.
 TEST_F(SerializationAndDeserializationTests, SerializeAccountIdToProtobufTest)
 {
   // Given
@@ -66,6 +67,7 @@ TEST_F(SerializationAndDeserializationTests, SerializeAccountIdToProtobufTest)
   EXPECT_EQ(protoAccountId->accountnum(), testAccountId.getAccountNum());
 }
 
+// Tests deserialization of Hedera::AccountId object from a proto::AccountID object.
 TEST_F(SerializationAndDeserializationTests, DeserializeAccountIdFromProtobufTest)
 {
   // Given
@@ -81,6 +83,7 @@ TEST_F(SerializationAndDeserializationTests, DeserializeAccountIdFromProtobufTes
   EXPECT_EQ(accountId.toString(), "123.456.789");
 }
 
+// Tests serialization of Hedera::ContractId object to a proto::ContractID object.
 TEST_F(SerializationAndDeserializationTests, SerializeContractIdТoProtobufTest)
 {
   // Given
@@ -98,6 +101,7 @@ TEST_F(SerializationAndDeserializationTests, SerializeContractIdТoProtobufTest)
   EXPECT_EQ(protoContractId->contractnum(), testContractNum);
 }
 
+// Tests deserialization of Hedera::ContractId object from a proto::ContractID object.
 TEST_F(SerializationAndDeserializationTests, DeserializeContractIdFromProtobufTest)
 {
   // Given
@@ -119,6 +123,7 @@ TEST_F(SerializationAndDeserializationTests, DeserializeContractIdFromProtobufTe
   EXPECT_EQ(contractId.getContractNum(), testContractNum);
 }
 
+// Tests serialization of Hedera::TransactionId object to a proto::TransactionID object.
 TEST_F(SerializationAndDeserializationTests, SerializeTransactionIdToProtobufTest)
 {
   // Given
@@ -138,6 +143,7 @@ TEST_F(SerializationAndDeserializationTests, SerializeTransactionIdToProtobufTes
   EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
 }
 
+// Tests deserialization of Hedera::TransactionId object from a proto::TransactionID object.
 TEST_F(SerializationAndDeserializationTests, DeserializeTransactionIdFromProtobufTest)
 {
   // Given
@@ -158,6 +164,7 @@ TEST_F(SerializationAndDeserializationTests, DeserializeTransactionIdFromProtobu
   EXPECT_EQ(transactionId.getValidTransactionTime(), now);
 }
 
+// Tests serialization of Hedera::Transfer object to a proto::AccountAmount object.
 TEST_F(SerializationAndDeserializationTests, SerializeTransferToProtobufTest)
 {
   // Given
@@ -179,6 +186,7 @@ TEST_F(SerializationAndDeserializationTests, SerializeTransferToProtobufTest)
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }
 
+// Tests deserialization of Hedera::Transfer object from a proto::AccountAmount object.
 TEST_F(SerializationAndDeserializationTests, DeserializeTransferFromProtobufTest)
 {
   // Given

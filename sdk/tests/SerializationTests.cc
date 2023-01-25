@@ -37,6 +37,7 @@ private:
   const std::shared_ptr<ECDSAPublicKey> mPublicKeyFromString = ECDSAPublicKey::fromString(mPublicKeyFromPrivate->toString());
 };
 
+// Tests serialization of ECDSAPublicKey to proto::Key.
 TEST_F(SerializationTests, ECDSAPrivateKeyToProtobufTest)
 {
   // Given
