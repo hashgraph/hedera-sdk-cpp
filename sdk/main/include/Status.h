@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_STATUS_H_
 #define HEDERA_SDK_CPP_STATUS_H_
 
+#include <string_view>
 #include <unordered_map>
 
 namespace proto
@@ -1490,6 +1491,11 @@ enum class Status
  * Map of protobuf ResponseCodeEnums to the corresponding Status.
  */
 extern const std::unordered_map<proto::ResponseCodeEnum, Status> STATUS_MAP;
+
+/**
+ * Map of Status to its corresponding string.
+ */
+extern const std::unordered_map<Status, std::string_view> gStatusToString;
 
 } // namespace Hedera
 
