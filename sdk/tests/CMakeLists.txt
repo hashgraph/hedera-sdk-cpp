@@ -19,7 +19,6 @@ add_executable(${TEST_PROJECT_NAME}
         AccountIdTest.cc
         ClientTest.cc
         ContractIdTest.cc
-        DeserializationTests.cc
         ECDSAPrivateKeyTest.cc
         ECDSAPublicKeyTest.cc
         ED25519PrivateKeyTest.cc

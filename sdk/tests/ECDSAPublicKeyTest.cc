@@ -169,3 +169,19 @@ TEST_F(ECDSAPublicKeyTest, ECDSAPublicKeyToProtobufTest)
   EXPECT_NE(protobufECDSAPublicKey.get(), nullptr);
   EXPECT_TRUE(protobufECDSAPublicKey.get()->has_ecdsa_secp256k1());
 }
+
+// Tests deserialization of Hedera::PublicKey -> proto::Key.
+TEST_F(ECDSAPublicKeyTest, PublicKeyFromProtobufTest)
+{
+  // Given
+  const std::shared_ptr<PublicKey> testPublicKey = getTestPublicKeyFromString();
+  const std::string testPublicKeyAsString = testPublicKey.get()->toString();
+  const std::unique_ptr<proto::Key> testProtobufPublicKey = testPublicKey.get()->toProtobuf();
+
+  // When
+  std::shared_ptr<PublicKey> publicKey = PublicKey::fromProtobuf(*testProtobufPublicKey.get());
+  
+  // Then
+  EXPECT_NE(publicKey.get(), nullptr);
+  EXPECT_EQ(publicKey.get()->toString(), testPublicKeyAsString);
+}
