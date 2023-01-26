@@ -43,6 +43,7 @@ TEST_F(TransactionReceiptTest, ConstructTransactionReceipt)
   EXPECT_FALSE(transactionReceipt.getExchangeRates().has_value());
 }
 
+// Tests deserialization of Hedera::TransactionReceipt -> proto::TransactionReceipt.
 TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
 {
   proto::TransactionReceipt protoTxReceipt;

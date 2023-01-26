@@ -72,46 +72,6 @@ private:
   const std::shared_ptr<ECDSAPublicKey> mPublicKeyFromString = ECDSAPublicKey::fromString(mPublicKeyFromPrivate->toString());
 };
 
-// Tests deserialization of Hedera::TransactionReceipt object from a proto::TransactionReceipt object.
-TEST_F(DeserializationTests, DeserializeTransactionReceiptFromProtobufTest)
-{
-  // Given
-  const proto::ResponseCodeEnum testResponseStatus = proto::ResponseCodeEnum::SUCCESS;
-  proto::AccountID *testProtoAccountId = getTestAccountId().toProtobuf().release();
-  proto::TransactionReceipt testProtoTxReceipt;
-  testProtoTxReceipt.set_status(testResponseStatus);
-  testProtoTxReceipt.set_allocated_accountid(testProtoAccountId);
-
-  const int32_t value = 6;
-  const int32_t secs = 100;
-
-  proto::ExchangeRateSet *protoExRateSet = testProtoTxReceipt.mutable_exchangerate();
-  protoExRateSet->mutable_currentrate()->set_hbarequiv(value);
-  protoExRateSet->mutable_currentrate()->set_centequiv(value);
-  protoExRateSet->mutable_currentrate()->mutable_expirationtime()->set_seconds(secs);
-  protoExRateSet->mutable_nextrate()->set_hbarequiv(value);
-  protoExRateSet->mutable_nextrate()->set_centequiv(value);
-  protoExRateSet->mutable_nextrate()->mutable_expirationtime()->set_seconds(secs);
-
-  // When
-  TransactionReceipt txRx = TransactionReceipt::fromProtobuf(testProtoTxReceipt);
-  
-  // Then
-  EXPECT_EQ(txRx.getStatus(), Status::SUCCESS);
-  EXPECT_EQ(txRx.getAccountId(), getTestAccountId());
-  EXPECT_TRUE(txRx.getExchangeRates().has_value());
-  EXPECT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getCurrentExchangeRate(), value / value);
-  EXPECT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime(),
-            std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
-  EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getCurrentExchangeRate(), value / value);
-  EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime(),
-            std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
-}
-
 // Tests deserialization of Hedera::TransactionRecord object from a proto::TransactionRecord object.
 TEST_F(DeserializationTests, DeserializeTransactionRecordFromProtobufTest)
 {
