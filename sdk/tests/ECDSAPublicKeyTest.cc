@@ -155,3 +155,17 @@ TEST_F(ECDSAPublicKeyTest, FromString)
   EXPECT_NE(publicKeyFromCompressed, nullptr);
   EXPECT_EQ(publicKeyFromUncompressed->toString(), publicKeyFromCompressed->toString());
 }
+
+// Tests serialization of ECDSAPublicKey -> proto::Key.
+TEST_F(ECDSAPublicKeyTest, ECDSAPublicKeyToProtobufTest)
+{
+  // Given
+  const std::shared_ptr<PublicKey> testPublicKey = getTestPublicKeyFromString();
+
+  // // When
+  const std::unique_ptr<proto::Key> protobufECDSAPublicKey = testPublicKey->toProtobuf();
+  
+  // Then
+  EXPECT_NE(protobufECDSAPublicKey.get(), nullptr);
+  EXPECT_TRUE(protobufECDSAPublicKey.get()->has_ecdsa_secp256k1());
+}
