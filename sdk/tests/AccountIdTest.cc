@@ -140,7 +140,7 @@ TEST_F(AccountIdTest, SerializeAccountIdToProtobufTest)
   EXPECT_EQ(protoAccountId->accountnum(), testAccountNum);
 }
 
-// Tests deserialization of Hedera::AccountId -> proto::AccountID.
+// Tests deserialization of proto::AccountID -> Hedera::AccountId.
 TEST_F(AccountIdTest, DeserializeAccountIdFromProtobufTest)
 {
   // Given

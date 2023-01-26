@@ -91,7 +91,7 @@ TEST_F(ContractIdTest, SerializeContractIdТoProtobufTest)
   EXPECT_EQ(protoContractId->contractnum(), testContractNum);
 }
 
-// Tests deserialization of Hedera::ContractId -> proto::ContractID.
+// Tests deserialization of proto::ContractID -> Hedera::ContractId.
 TEST_F(ContractIdTest, DeserializeContractIdFromProtobufTest)
 {
   // Given
