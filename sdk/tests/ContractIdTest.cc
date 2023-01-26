@@ -74,7 +74,7 @@ TEST_F(ContractIdTest, SetShardRealmContractNum)
 }
 
 // Tests serialization of Hedera::ContractId -> proto::ContractID.
-TEST_F(ContractIdTest, SerializeContractIdТoProtobufTest)
+TEST_F(ContractIdTest, SerializeContractIdТoProtobuf)
 {
   // Given
   const uint64_t testShardNum = getTestShardNum();
@@ -92,7 +92,7 @@ TEST_F(ContractIdTest, SerializeContractIdТoProtobufTest)
 }
 
 // Tests deserialization of proto::ContractID -> Hedera::ContractId.
-TEST_F(ContractIdTest, DeserializeContractIdFromProtobufTest)
+TEST_F(ContractIdTest, DeserializeContractIdFromProtobuf)
 {
   // Given
   const uint64_t testShardNum = getTestShardNum();
