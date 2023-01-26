@@ -47,9 +47,9 @@ protected:
   [[nodiscard]] inline const uint64_t getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t getTestContractNum() const { return mContractNum; }
-  [[nodiscard]] inline const int32_t  getTestCents() const { return cents; }
-  [[nodiscard]] inline const int32_t  getTestHbar() const { return hbar; }
-  [[nodiscard]] inline const uint64_t getTestSeconds() const { return seconds; }
+  [[nodiscard]] inline const int32_t  getTestCents() const { return mCents; }
+  [[nodiscard]] inline const int32_t  getTestHbar() const { return mHbar; }
+  [[nodiscard]] inline const uint64_t getTestSeconds() const { return mSeconds; }
   [[nodiscard]] inline const Hbar     getTestBalance() const { return mBalance; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const AccountId& getTestAccountIdFrom() const { return mAccountIdFrom; }
@@ -60,9 +60,9 @@ private:
   const uint64_t mShardNum = 1;
   const uint64_t mRealmNum = 2;
   const uint64_t mContractNum = 3;
-  const int32_t cents = 2;
-  const int32_t hbar = 1;
-  const uint64_t seconds = 100ULL;
+  const int32_t mCents = 2;
+  const int32_t mHbar = 1;
+  const uint64_t mSeconds = 100ULL;
   const Hbar mBalance = Hbar(100LL);
   const AccountId mAccountId = AccountId(0ULL, 0ULL, 10ULL);
   const AccountId mAccountIdFrom = AccountId(4ULL);
