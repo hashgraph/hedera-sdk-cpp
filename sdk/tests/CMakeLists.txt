@@ -27,7 +27,6 @@ add_executable(${TEST_PROJECT_NAME}
         ExchangeRateTest.cc
         HbarTest.cc
         MnemonicBIP39Test.cc
-        SerializationAndDeserializationTests.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
