@@ -49,7 +49,7 @@ TEST_F(TransactionIdTest, GenerateTransactionId)
 }
 
 // Tests serialization of Hedera::TransactionId -> proto::TransactionID.
-TEST_F(TransactionIdTest, SerializeTransactionIdToProtobufTest)
+TEST_F(TransactionIdTest, SerializeTransactionIdToProtobuf)
 {
   // Given
   const std::string testAccountIdStr = "111.222.333";
@@ -69,7 +69,7 @@ TEST_F(TransactionIdTest, SerializeTransactionIdToProtobufTest)
 }
 
 // Tests deserialization of proto::TransactionID -> Hedera::TransactionId.
-TEST_F(TransactionIdTest, DeserializeTransactionIdFromProtobufTest)
+TEST_F(TransactionIdTest, DeserializeTransactionIdFromProtobuf)
 {
   // Given
   const std::string testAccountIdStr = "123.456.789";
