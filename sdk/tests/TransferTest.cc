@@ -38,7 +38,7 @@ private:
 };
 
 // Tests serialization of Hedera::Transfer -> proto::AccountAmount.
-TEST_F(TransferTest, SerializeTransferToProtobufTest)
+TEST_F(TransferTest, SerializeTransferToProtobuf)
 {
   // Given
   const AccountId testAccountId = getTestAccountId();
@@ -60,7 +60,7 @@ TEST_F(TransferTest, SerializeTransferToProtobufTest)
 }
 
 // Tests deserialization of proto::AccountAmount -> Hedera::Transfer.
-TEST_F(TransferTest, DeserializeTransferFromProtobufTest)
+TEST_F(TransferTest, DeserializeTransferFromProtobuf)
 {
   // Given
   const AccountId testAccountId = getTestAccountId();
@@ -80,7 +80,7 @@ TEST_F(TransferTest, DeserializeTransferFromProtobufTest)
 }
 
 // Tests serialization & deserialization of Hedera::Transfer -> proto::AccountAmount -> Hedera::Transfer.
-TEST_F(TransferTest, ProtoTransferTest)
+TEST_F(TransferTest, ProtoTransfer)
 {
   AccountId accountId(10ULL);
   int64_t amount = 10LL;
