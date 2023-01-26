@@ -618,7 +618,9 @@ const std::unordered_map<Status, std::string_view> STATUS_STRING_MAP = {
   { Status::INVALID_FULL_PREFIX_SIGNATURE_FOR_PRECOMPILE,                   "INVALID_FULL_PREFIX_SIGNATURE_FOR_PRECOMPILE"      },
   { Status::INSUFFICIENT_BALANCES_FOR_STORAGE_RENT,                         "INSUFFICIENT_BALANCES_FOR_STORAGE_RENT"            },
   { Status::MAX_CHILD_RECORDS_EXCEEDED,                                     "MAX_CHILD_RECORDS_EXCEEDED"                        },
-  { Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         "INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES"            }
+  { Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         "INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES"            },
+  { Status::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 "TRANSACTION_HAS_UNKNOWN_FIELDS"                    },
+  { Status::ACCOUNT_IS_IMMUTABLE,                                           "ACCOUNT_IS_IMMUTABLE"                              }
 };
 
 } // namespace Hedera
