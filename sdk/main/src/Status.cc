@@ -333,7 +333,7 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
 };
 
 //-----
-const std::unordered_map<Status, std::string_view> STATUS_STRING_MAP = {
+const std::unordered_map<Status, std::string_view> gStatusToString = {
   {Status::OK,                                                              "OK"                                                },
   { Status::INVALID_TRANSACTION,                                            "INVALID_TRANSACTION"                               },
   { Status::PAYER_ACCOUNT_NOT_FOUND,                                        "PAYER_ACCOUNT_NOT_FOUND"                           },
