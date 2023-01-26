@@ -28,6 +28,7 @@ class TransactionResponseTest : public ::testing::Test
 {
 };
 
+// Tests deserialization of Hedera::TransactionResponse -> proto::TransactionResponse.
 TEST_F(TransactionResponseTest, ProtobufTransactionResponse)
 {
   const uint64_t cost = 10ULL;

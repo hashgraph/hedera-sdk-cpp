@@ -122,24 +122,6 @@ TEST_F(DeserializationTests, DeserializeTransactionRecordFromProtobufTest)
   EXPECT_EQ(txRecord.getTransferList().at(1).getAmount().toTinybars(), testTransferAmount);
 }
 
-// Tests deserialization of Hedera::TransactionResponse object from a proto::TransactionResponse object.
-TEST_F(DeserializationTests, DeserializeTransactionResponseFromProtobufTest)
-{
-  // Given
-  const uint64_t testCost = 10ULL;
-  const proto::ResponseCodeEnum testProtoResponseCode = proto::ResponseCodeEnum::AUTHORIZATION_FAILED;
-  proto::TransactionResponse testProtoTransactionResponse;
-  testProtoTransactionResponse.set_cost(testCost);
-  testProtoTransactionResponse.set_nodetransactionprecheckcode(testProtoResponseCode);
-
-  // When
-  TransactionResponse txResponse = TransactionResponse::fromProtobuf(testProtoTransactionResponse);
-  
-  // Then
-  EXPECT_EQ(txResponse.getCost(), testCost);
-  EXPECT_FALSE(txResponse.getValidateStatus());
-}
-
 // Tests deserialization of Hedera::AccountBalance object from a proto::CryptoGetAccountBalanceResponse object.
 TEST_F(DeserializationTests, DeserializeAccountBalanceFromProtobufTest)
 {
