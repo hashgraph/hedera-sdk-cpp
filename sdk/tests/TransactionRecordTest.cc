@@ -31,9 +31,10 @@ class TransactionRecordTest : public ::testing::Test
 {
 };
 
-// Tests deserialization of Hedera::TransactionRecord -> proto::TransactionRecord.
+// Tests deserialization of proto::TransactionRecord -> Hedera::TransactionRecord.
 TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
 {
+  // Given
   const auto accountIdTo = AccountId(3ULL);
   const auto accountIdFrom = AccountId(4ULL);
   const int64_t transferAmount = 10LL;
@@ -58,7 +59,10 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   aa->set_allocated_accountid(accountIdTo.toProtobuf().release());
   aa->set_amount(transferAmount);
 
+  // When
   TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
+
+  // Then
   EXPECT_TRUE(txRecord.getReceipt());
   EXPECT_TRUE(txRecord.getReceipt()->getAccountId());
   EXPECT_EQ(*txRecord.getReceipt()->getAccountId(), accountIdFrom);
