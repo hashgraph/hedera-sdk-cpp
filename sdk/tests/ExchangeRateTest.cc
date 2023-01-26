@@ -29,8 +29,8 @@ using namespace Hedera;
 class ExchangeRateTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const int32_t  getTestCents() const { return mCents; }
-  [[nodiscard]] inline const int32_t  getTestHbar() const { return mHbar; }
+  [[nodiscard]] inline const int32_t getTestCents() const { return mCents; }
+  [[nodiscard]] inline const int32_t getTestHbar() const { return mHbar; }
   [[nodiscard]] inline const uint64_t getTestSeconds() const { return mSeconds; }
 
 private:
@@ -58,7 +58,7 @@ TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobufTest)
   const uint64_t testSeconds = getTestSeconds();
 
   auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
-  proto::TimestampSeconds *testProtoExchangeRateSecs = testProtoExchangeRate->mutable_expirationtime();
+  proto::TimestampSeconds* testProtoExchangeRateSecs = testProtoExchangeRate->mutable_expirationtime();
 
   testProtoExchangeRate->set_centequiv(testCents);
   testProtoExchangeRate->set_hbarequiv(testHbar);
@@ -66,7 +66,7 @@ TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobufTest)
 
   // When
   ExchangeRate exchangeRate = ExchangeRate::fromProtobuf(*testProtoExchangeRate);
-  
+
   // Then
   EXPECT_EQ(exchangeRate.getCurrentExchangeRate(), testCents / testHbar);
   EXPECT_TRUE(exchangeRate.getExpirationTime().has_value());
@@ -91,11 +91,12 @@ TEST_F(ExchangeRateTest, DeserializeExchangeRateSetFromProtobufTest)
 
   // When
   ExchangeRateSet exchangeRateSet = ExchangeRateSet::fromProtobuf(testProtoExchangeRateSet);
-  
+
   // Then
   EXPECT_FALSE(exchangeRateSet.getCurrentExchangeRate().has_value());
   EXPECT_TRUE(exchangeRateSet.getNextExchangeRate().has_value());
-  EXPECT_EQ(exchangeRateSet.getNextExchangeRate().value().getCurrentExchangeRate(), testCents * testCents / testHbar * testHbar);
+  EXPECT_EQ(exchangeRateSet.getNextExchangeRate().value().getCurrentExchangeRate(),
+            testCents * testCents / testHbar * testHbar);
 }
 
 // Tests serialization & deserialization of Hedera::ExchangeRate -> proto::ExchangeRate -> Hedera::ExchangeRate.

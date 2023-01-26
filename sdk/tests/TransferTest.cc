@@ -44,7 +44,7 @@ TEST_F(TransferTest, SerializeTransferToProtobufTest)
   const AccountId testAccountId = getTestAccountId();
   const int64_t testAmount = getTestAmount();
   const Hbar testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
-  
+
   Transfer testTransfer = Transfer();
   testTransfer.setAccountId(testAccountId);
   testTransfer.setAmount(testHbarAmount);
@@ -52,7 +52,7 @@ TEST_F(TransferTest, SerializeTransferToProtobufTest)
 
   // When
   const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(testTransfer.toProtobuf());
-  
+
   // Then
   EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), testAccountId.getAccountNum());
   EXPECT_EQ(protoAccountAmountPtr->amount(), testAmount);
@@ -72,7 +72,7 @@ TEST_F(TransferTest, DeserializeTransferFromProtobufTest)
 
   // When
   const Transfer transfer = Transfer::fromProtobuf(testProtoAccountAmount);
-  
+
   // Then
   EXPECT_EQ(transfer.getAccountId(), testAccountId);
   EXPECT_EQ(transfer.getAmount().toTinybars(), testAmount);

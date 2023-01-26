@@ -127,7 +127,7 @@ TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
   transaction.setMaxAutomaticTokenAssociations(associations);
 
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), associations);
-  
+
   // Throw if over 5000
   EXPECT_NO_THROW(transaction.setMaxAutomaticTokenAssociations(5000U));
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(5001U), std::invalid_argument);

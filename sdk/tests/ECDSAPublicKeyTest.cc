@@ -164,7 +164,7 @@ TEST_F(ECDSAPublicKeyTest, ECDSAPublicKeyToProtobufTest)
 
   // // When
   const std::unique_ptr<proto::Key> protobufECDSAPublicKey = testPublicKey->toProtobuf();
-  
+
   // Then
   EXPECT_NE(protobufECDSAPublicKey.get(), nullptr);
   EXPECT_TRUE(protobufECDSAPublicKey.get()->has_ecdsa_secp256k1());
@@ -180,7 +180,7 @@ TEST_F(ECDSAPublicKeyTest, PublicKeyFromProtobufTest)
 
   // When
   std::shared_ptr<PublicKey> publicKey = PublicKey::fromProtobuf(*testProtobufPublicKey.get());
-  
+
   // Then
   EXPECT_NE(publicKey.get(), nullptr);
   EXPECT_EQ(publicKey.get()->toString(), testPublicKeyAsString);

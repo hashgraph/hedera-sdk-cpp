@@ -41,10 +41,10 @@ TEST_F(AccountBalanceTest, DeserializeAccountBalanceFromProtobufTest)
   const Hbar testBalance = getTestBalance();
   proto::CryptoGetAccountBalanceResponse testProtoAccountBalance;
   testProtoAccountBalance.set_balance(static_cast<unsigned long long>(testBalance.toTinybars()));
-  
+
   // When
   AccountBalance accountBalance = AccountBalance::fromProtobuf(testProtoAccountBalance);
-  
+
   // Then
   EXPECT_EQ(accountBalance.getBalance().toTinybars(), testBalance.toTinybars());
 }

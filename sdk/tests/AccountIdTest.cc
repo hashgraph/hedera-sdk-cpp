@@ -154,7 +154,7 @@ TEST_F(AccountIdTest, DeserializeAccountIdFromProtobufTest)
 
   // When
   AccountId accountId = AccountId::fromProtobuf(testProtoAccountId);
-  
+
   // Then
   EXPECT_EQ(accountId.getShardNum(), testShardNum);
   EXPECT_EQ(accountId.getRealmNum(), testRealmNum);

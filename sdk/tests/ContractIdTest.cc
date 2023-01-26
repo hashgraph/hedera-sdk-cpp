@@ -105,7 +105,7 @@ TEST_F(ContractIdTest, DeserializeContractIdFromProtobufTest)
 
   // When
   ContractId contractId = ContractId::fromProtobuf(testProtoContractId);
-  
+
   // Then
   EXPECT_EQ(contractId.getShardNum(), testShardNum);
   EXPECT_EQ(contractId.getRealmNum(), testRealmNum);
