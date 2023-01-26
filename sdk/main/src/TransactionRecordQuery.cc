@@ -80,7 +80,7 @@ TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& res
 //-----
 Status TransactionRecordQuery::mapResponseStatus(const proto::Response& response) const
 {
-  return STATUS_MAP.at(response.transactiongetrecord().header().nodetransactionprecheckcode());
+  return gProtobufResponseCodeToStatus.at(response.transactiongetrecord().header().nodetransactionprecheckcode());
 }
 
 //-----
@@ -108,7 +108,7 @@ TransactionRecordQuery::determineStatus(Status status, const Client& client, con
   }
 
   // Check the actual receipt status value to ensure the record actually holds correct data.
-  switch (STATUS_MAP.at(response.transactiongetrecord().transactionrecord().receipt().status()))
+  switch (gProtobufResponseCodeToStatus.at(response.transactiongetrecord().transactionrecord().receipt().status()))
   {
     case Status::OK:
     case Status::RECORD_NOT_FOUND:

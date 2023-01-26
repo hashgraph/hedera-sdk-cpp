@@ -86,7 +86,7 @@ AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response)
 //-----
 Status AccountBalanceQuery::mapResponseStatus(const proto::Response& response) const
 {
-  return STATUS_MAP.at(response.cryptogetaccountbalance().header().nodetransactionprecheckcode());
+  return gProtobufResponseCodeToStatus.at(response.cryptogetaccountbalance().header().nodetransactionprecheckcode());
 }
 
 //-----

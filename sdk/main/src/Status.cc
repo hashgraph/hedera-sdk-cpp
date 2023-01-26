@@ -24,7 +24,7 @@
 namespace Hedera
 {
 //-----
-const std::unordered_map<proto::ResponseCodeEnum, Status> STATUS_MAP = {
+const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeToStatus = {
   {proto::ResponseCodeEnum::OK,                                                              Status::OK                                     },
   { proto::ResponseCodeEnum::INVALID_TRANSACTION,                                            Status::INVALID_TRANSACTION                    },
   { proto::ResponseCodeEnum::PAYER_ACCOUNT_NOT_FOUND,                                        Status::PAYER_ACCOUNT_NOT_FOUND                },
@@ -327,7 +327,9 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> STATUS_MAP = {
    Status::INVALID_FULL_PREFIX_SIGNATURE_FOR_PRECOMPILE                                                                                     },
   { proto::ResponseCodeEnum::INSUFFICIENT_BALANCES_FOR_STORAGE_RENT,                         Status::INSUFFICIENT_BALANCES_FOR_STORAGE_RENT },
   { proto::ResponseCodeEnum::MAX_CHILD_RECORDS_EXCEEDED,                                     Status::MAX_CHILD_RECORDS_EXCEEDED             },
-  { proto::ResponseCodeEnum::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES }
+  { proto::ResponseCodeEnum::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES },
+  { proto::ResponseCodeEnum::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 Status::TRANSACTION_HAS_UNKNOWN_FIELDS         },
+  { proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE,                                           Status::ACCOUNT_IS_IMMUTABLE                   }
 };
 
 //-----

@@ -1484,13 +1484,24 @@ enum class Status
    * The combined balances of a contract and its auto-renew account (if any) or balance of an account did not cover
    * the auto-renewal fees in a transaction.
    */
-  INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES
+  INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,
+
+  /**
+   * A transaction's protobuf message includes unknown fields; could mean that a client expects not-yet-released
+   * functionality to be available.
+   */
+  TRANSACTION_HAS_UNKNOWN_FIELDS,
+
+  /**
+   * The account cannot be modified. Account's key is not set
+   */
+  ACCOUNT_IS_IMMUTABLE
 };
 
 /**
  * Map of protobuf ResponseCodeEnums to the corresponding Status.
  */
-extern const std::unordered_map<proto::ResponseCodeEnum, Status> STATUS_MAP;
+extern const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeToStatus;
 
 /**
  * Map of Status to its corresponding string.

@@ -150,7 +150,7 @@ TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::Transa
 template<typename SdkRequestType>
 Status Transaction<SdkRequestType>::mapResponseStatus(const proto::TransactionResponse& response) const
 {
-  return STATUS_MAP.at(response.nodetransactionprecheckcode());
+  return gProtobufResponseCodeToStatus.at(response.nodetransactionprecheckcode());
 }
 
 //-----

@@ -27,7 +27,7 @@ namespace Hedera
 TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionReceipt& proto)
 {
   TransactionReceipt receipt;
-  receipt.mStatus = STATUS_MAP.at(proto.status());
+  receipt.mStatus = gProtobufResponseCodeToStatus.at(proto.status());
 
   if (proto.has_accountid())
   {
