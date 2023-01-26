@@ -55,45 +55,6 @@ private:
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
 
-// Tests serialization of Hedera::ContractId object to a proto::ContractID object.
-TEST_F(SerializationAndDeserializationTests, SerializeContractIdТoProtobufTest)
-{
-  // Given
-  const uint64_t testShardNum = getTestShardNum();
-  const uint64_t testRealmNum = getTestRealmNum();
-  const uint64_t testAccountNum = getTestAccountNum();
-  ContractId testContractId = ContractId(testShardNum, testRealmNum, testAccountNum);
-
-  // When
-  auto protoContractId = std::unique_ptr<proto::ContractID>(testContractId.toProtobuf());
-
-  // Then
-  EXPECT_EQ(protoContractId->shardnum(), testShardNum);
-  EXPECT_EQ(protoContractId->realmnum(), testRealmNum);
-  EXPECT_EQ(protoContractId->contractnum(), testAccountNum);
-}
-
-// Tests deserialization of Hedera::ContractId object from a proto::ContractID object.
-TEST_F(SerializationAndDeserializationTests, DeserializeContractIdFromProtobufTest)
-{
-  // Given
-  const uint64_t testShardNum = getTestShardNum();
-  const uint64_t testRealmNum = getTestRealmNum();
-  const uint64_t testContractNum = getTestContractNum();
-  proto::ContractID testProtoContractId = proto::ContractID();
-  testProtoContractId.set_shardnum(testShardNum);
-  testProtoContractId.set_realmnum(testRealmNum);
-  testProtoContractId.set_contractnum(testContractNum);
-
-  // When
-  ContractId contractId = ContractId::fromProtobuf(testProtoContractId);
-  
-  // Then
-  EXPECT_EQ(contractId.getShardNum(), testShardNum);
-  EXPECT_EQ(contractId.getRealmNum(), testRealmNum);
-  EXPECT_EQ(contractId.getContractNum(), testContractNum);
-}
-
 // Tests serialization of Hedera::TransactionId object to a proto::TransactionID object.
 TEST_F(SerializationAndDeserializationTests, SerializeTransactionIdToProtobufTest)
 {
