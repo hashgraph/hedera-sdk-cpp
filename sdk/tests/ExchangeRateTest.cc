@@ -50,7 +50,7 @@ TEST_F(ExchangeRateTest, ConstructExchangeRateAndSet)
 }
 
 // Tests deserialization of Hedera::ExchangeRate -> proto::ExchangeRate.
-TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobufTest)
+TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobuf)
 {
   // Given
   const int32_t testCents = getTestCents();
@@ -75,7 +75,7 @@ TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobufTest)
 }
 
 // Tests deserialization of Hedera::ExchangeRateSet -> proto::ExchangeRateSet object.
-TEST_F(ExchangeRateTest, DeserializeExchangeRateSetFromProtobufTest)
+TEST_F(ExchangeRateTest, DeserializeExchangeRateSetFromProtobuf)
 {
   // Given
   const int32_t testCents = getTestCents();
