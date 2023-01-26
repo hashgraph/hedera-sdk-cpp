@@ -164,7 +164,11 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
 
   size_t signatureLength;
   /* Calculate the required size for the signature */
-  if (EVP_DigestSign(messageDigestContext, nullptr, &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
+  if (EVP_DigestSign(messageDigestContext,
+                     nullptr,
+                     &signatureLength,
+                     (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
+                     bytesToSign.size()) <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Failed to calculate signature length");
@@ -172,8 +176,11 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
 
   auto signature = std::vector<unsigned char>(signatureLength);
 
-  if (EVP_DigestSign(
-        messageDigestContext, &signature.front(), &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
+  if (EVP_DigestSign(messageDigestContext,
+                     &signature.front(),
+                     &signatureLength,
+                     (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
+                     bytesToSign.size()) <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Signature generation failed");
