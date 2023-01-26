@@ -55,44 +55,44 @@ private:
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
 
-// Tests serialization of Hedera::Transfer object to a proto::AccountAmount object.
-TEST_F(SerializationAndDeserializationTests, SerializeTransferToProtobufTest)
-{
-  // Given
-  const AccountId testAccountId = getTestAccountId();
-  const int64_t testAmount = getTestAmount();
-  const Hbar testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
+// // Tests serialization of Hedera::Transfer object to a proto::AccountAmount object.
+// TEST_F(SerializationAndDeserializationTests, SerializeTransferToProtobufTest)
+// {
+//   // Given
+//   const AccountId testAccountId = getTestAccountId();
+//   const int64_t testAmount = getTestAmount();
+//   const Hbar testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
   
-  Transfer testTransfer = Transfer();
-  testTransfer.setAccountId(testAccountId);
-  testTransfer.setAmount(testHbarAmount);
-  testTransfer.setApproved(false);
+//   Transfer testTransfer = Transfer();
+//   testTransfer.setAccountId(testAccountId);
+//   testTransfer.setAmount(testHbarAmount);
+//   testTransfer.setApproved(false);
 
-  // When
-  const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(testTransfer.toProtobuf());
+//   // When
+//   const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(testTransfer.toProtobuf());
   
-  // Then
-  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), testAccountId.getAccountNum());
-  EXPECT_EQ(protoAccountAmountPtr->amount(), testAmount);
-  EXPECT_FALSE(protoAccountAmountPtr->is_approval());
-}
+//   // Then
+//   EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), testAccountId.getAccountNum());
+//   EXPECT_EQ(protoAccountAmountPtr->amount(), testAmount);
+//   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
+// }
 
-// Tests deserialization of Hedera::Transfer object from a proto::AccountAmount object.
-TEST_F(SerializationAndDeserializationTests, DeserializeTransferFromProtobufTest)
-{
-  // Given
-  const AccountId testAccountId = getTestAccountId();
-  const int64_t testAmount = getTestAmount();
-  proto::AccountAmount testProtoAccountAmount;
-  testProtoAccountAmount.set_allocated_accountid(testAccountId.toProtobuf().release());
-  testProtoAccountAmount.set_amount(testAmount);
-  testProtoAccountAmount.set_is_approval(true);
+// // Tests deserialization of Hedera::Transfer object from a proto::AccountAmount object.
+// TEST_F(SerializationAndDeserializationTests, DeserializeTransferFromProtobufTest)
+// {
+//   // Given
+//   const AccountId testAccountId = getTestAccountId();
+//   const int64_t testAmount = getTestAmount();
+//   proto::AccountAmount testProtoAccountAmount;
+//   testProtoAccountAmount.set_allocated_accountid(testAccountId.toProtobuf().release());
+//   testProtoAccountAmount.set_amount(testAmount);
+//   testProtoAccountAmount.set_is_approval(true);
 
-  // When
-  const Transfer transfer = Transfer::fromProtobuf(testProtoAccountAmount);
+//   // When
+//   const Transfer transfer = Transfer::fromProtobuf(testProtoAccountAmount);
   
-  // Then
-  EXPECT_EQ(transfer.getAccountId(), testAccountId);
-  EXPECT_EQ(transfer.getAmount().toTinybars(), testAmount);
-  EXPECT_TRUE(transfer.getApproval());
-}
+//   // Then
+//   EXPECT_EQ(transfer.getAccountId(), testAccountId);
+//   EXPECT_EQ(transfer.getAmount().toTinybars(), testAmount);
+//   EXPECT_TRUE(transfer.getApproval());
+// }

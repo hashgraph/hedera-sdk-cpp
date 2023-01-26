@@ -28,8 +28,58 @@ using namespace Hedera;
 
 class TransferTest : public ::testing::Test
 {
+protected:
+  [[nodiscard]] inline const int64_t getTestAmount() const { return mAmount; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
+
+private:
+  const int64_t mAmount = 10LL;
+  const AccountId mAccountId = AccountId(10ULL);
 };
 
+// Tests serialization of Hedera::Transfer -> proto::AccountAmount.
+TEST_F(TransferTest, SerializeTransferToProtobufTest)
+{
+  // Given
+  const AccountId testAccountId = getTestAccountId();
+  const int64_t testAmount = getTestAmount();
+  const Hbar testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
+  
+  Transfer testTransfer = Transfer();
+  testTransfer.setAccountId(testAccountId);
+  testTransfer.setAmount(testHbarAmount);
+  testTransfer.setApproved(false);
+
+  // When
+  const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(testTransfer.toProtobuf());
+  
+  // Then
+  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), testAccountId.getAccountNum());
+  EXPECT_EQ(protoAccountAmountPtr->amount(), testAmount);
+  EXPECT_FALSE(protoAccountAmountPtr->is_approval());
+}
+
+// Tests deserialization of proto::AccountAmount -> Hedera::Transfer.
+TEST_F(TransferTest, DeserializeTransferFromProtobufTest)
+{
+  // Given
+  const AccountId testAccountId = getTestAccountId();
+  const int64_t testAmount = getTestAmount();
+  proto::AccountAmount testProtoAccountAmount;
+  testProtoAccountAmount.set_allocated_accountid(testAccountId.toProtobuf().release());
+  testProtoAccountAmount.set_amount(testAmount);
+  testProtoAccountAmount.set_is_approval(true);
+
+  // When
+  const Transfer transfer = Transfer::fromProtobuf(testProtoAccountAmount);
+  
+  // Then
+  EXPECT_EQ(transfer.getAccountId(), testAccountId);
+  EXPECT_EQ(transfer.getAmount().toTinybars(), testAmount);
+  EXPECT_TRUE(transfer.getApproval());
+}
+
+// Tests serialization & deserialization of Hedera::Transfer -> proto::AccountAmount -> Hedera::Transfer.
 TEST_F(TransferTest, ProtoTransferTest)
 {
   AccountId accountId(10ULL);
