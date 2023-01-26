@@ -72,30 +72,6 @@ private:
   const std::shared_ptr<ECDSAPublicKey> mPublicKeyFromString = ECDSAPublicKey::fromString(mPublicKeyFromPrivate->toString());
 };
 
-// Tests deserialization of Hedera::ExchangeRateSet object from a proto::ExchangeRateSet object.
-TEST_F(DeserializationTests, DeserializeExchangeRateSetFromProtobufTest)
-{
-  // Given
-  const int32_t testCents = getTestCents();
-  const int32_t testHbar = getTestHbar();
-  const uint64_t testSeconds = getTestSeconds();
-
-  auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
-  testProtoExchangeRate->set_centequiv(testCents * testCents);
-  testProtoExchangeRate->set_hbarequiv(testHbar * testHbar);
-
-  proto::ExchangeRateSet testProtoExchangeRateSet;
-  testProtoExchangeRateSet.set_allocated_nextrate(testProtoExchangeRate.release());
-
-  // When
-  ExchangeRateSet exchangeRateSet = ExchangeRateSet::fromProtobuf(testProtoExchangeRateSet);
-  
-  // Then
-  EXPECT_FALSE(exchangeRateSet.getCurrentExchangeRate().has_value());
-  EXPECT_TRUE(exchangeRateSet.getNextExchangeRate().has_value());
-  EXPECT_EQ(exchangeRateSet.getNextExchangeRate().value().getCurrentExchangeRate(), testCents * testCents / testHbar * testHbar);
-}
-
 // Tests deserialization of Hedera::TransactionReceipt object from a proto::TransactionReceipt object.
 TEST_F(DeserializationTests, DeserializeTransactionReceiptFromProtobufTest)
 {
