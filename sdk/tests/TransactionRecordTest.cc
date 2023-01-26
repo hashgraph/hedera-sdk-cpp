@@ -31,6 +31,7 @@ class TransactionRecordTest : public ::testing::Test
 {
 };
 
+// Tests deserialization of Hedera::TransactionRecord -> proto::TransactionRecord.
 TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
 {
   const auto accountIdTo = AccountId(3ULL);
