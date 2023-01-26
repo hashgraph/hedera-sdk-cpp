@@ -35,7 +35,7 @@ private:
 };
 
 // Tests deserialization of proto::CryptoGetAccountBalanceResponse -> Hedera::AccountBalance.
-TEST_F(AccountBalanceTest, DeserializeAccountBalanceFromProtobufTest)
+TEST_F(AccountBalanceTest, DeserializeAccountBalanceFromProtobuf)
 {
   // Given
   const Hbar testBalance = getTestBalance();
