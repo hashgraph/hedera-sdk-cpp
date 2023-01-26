@@ -68,7 +68,7 @@ jobs:
 
       - name: Compute Short SHA
         id: sha
-        run: echo "::set-output name=short::$(echo -n "${{ github.sha }}" | cut -c1-8)"
+        run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
 
       - name: Attach Artifact
         uses: actions/upload-artifact@v3
