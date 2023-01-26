@@ -49,7 +49,7 @@ TEST_F(ExchangeRateTest, ConstructExchangeRateAndSet)
   EXPECT_FALSE(set.getNextExchangeRate().has_value());
 }
 
-// Tests deserialization of Hedera::ExchangeRate -> proto::ExchangeRate.
+// Tests deserialization of proto::ExchangeRate -> Hedera::ExchangeRate
 TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobuf)
 {
   // Given
@@ -74,7 +74,7 @@ TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobuf)
             internal::TimestampConverter::fromProtobuf(*testProtoExchangeRateSecs).time_since_epoch().count());
 }
 
-// Tests deserialization of Hedera::ExchangeRateSet -> proto::ExchangeRateSet object.
+// Tests deserialization of proto::ExchangeRateSet -> Hedera::ExchangeRateSet.
 TEST_F(ExchangeRateTest, DeserializeExchangeRateSetFromProtobuf)
 {
   // Given
