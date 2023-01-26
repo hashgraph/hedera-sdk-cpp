@@ -55,46 +55,6 @@ private:
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
 
-// Tests serialization of Hedera::AccountId object to a proto::AccountID object.
-TEST_F(SerializationAndDeserializationTests, SerializeAccountIdToProtobufTest)
-{
-  // Given
-  const uint64_t testShardNum = getTestShardNum();
-  const uint64_t testRealmNum = getTestRealmNum();
-  const uint64_t testAccountNum = getTestAccountNum();
-  AccountId testAccountId(testShardNum, testRealmNum, testAccountNum);
-
-  // When
-  auto protoAccountId = std::unique_ptr<proto::AccountID>(testAccountId.toProtobuf());
-
-  // Then
-  EXPECT_EQ(protoAccountId->shardnum(), testShardNum);
-  EXPECT_EQ(protoAccountId->realmnum(), testRealmNum);
-  EXPECT_EQ(protoAccountId->accountnum(), testAccountNum);
-}
-
-// Tests deserialization of Hedera::AccountId object from a proto::AccountID object.
-TEST_F(SerializationAndDeserializationTests, DeserializeAccountIdFromProtobufTest)
-{
-  // Given
-  const uint64_t testShardNum = getTestShardNum();
-  const uint64_t testRealmNum = getTestRealmNum();
-  const uint64_t testAccountNum = getTestAccountNum();
-  proto::AccountID testProtoAccountId = proto::AccountID();
-  testProtoAccountId.set_shardnum(testShardNum);
-  testProtoAccountId.set_realmnum(testRealmNum);
-  testProtoAccountId.set_accountnum(testAccountNum);
-
-  // When
-  AccountId accountId = AccountId::fromProtobuf(testProtoAccountId);
-  
-  // Then
-  EXPECT_EQ(accountId.getShardNum(), testShardNum);
-  EXPECT_EQ(accountId.getRealmNum(), testRealmNum);
-  EXPECT_EQ(accountId.getAccountNum(), testAccountNum);
-  EXPECT_EQ(accountId.toString(), "111.222.333");
-}
-
 // Tests serialization of Hedera::ContractId object to a proto::ContractID object.
 TEST_F(SerializationAndDeserializationTests, SerializeContractIdТoProtobufTest)
 {
