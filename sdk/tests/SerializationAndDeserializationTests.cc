@@ -55,47 +55,6 @@ private:
   const std::chrono::system_clock::time_point mValidStart = std::chrono::system_clock::time_point();
 };
 
-// Tests serialization of Hedera::TransactionId object to a proto::TransactionID object.
-TEST_F(SerializationAndDeserializationTests, SerializeTransactionIdToProtobufTest)
-{
-  // Given
-  const std::string testAccountIdStr = "111.222.333";
-  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  AccountId testAccountId(testAccountIdStr);
-  TransactionId testTransactionId = TransactionId::generate(testAccountId);
-
-  // When
-  const auto protoTransactionIdPtr = std::unique_ptr<proto::TransactionID>(testTransactionId.toProtobuf());
-  const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(internal::TimestampConverter::toProtobuf(now));
-
-  // Then
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), testAccountId.getShardNum());
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), testAccountId.getRealmNum());
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), testAccountId.getAccountNum());
-  EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
-}
-
-// Tests deserialization of Hedera::TransactionId object from a proto::TransactionID object.
-TEST_F(SerializationAndDeserializationTests, DeserializeTransactionIdFromProtobufTest)
-{
-  // Given
-  const std::string testAccountIdStr = "111.222.333";
-  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  AccountId testAccountId(testAccountIdStr);
-  proto::TransactionID testProtoTransactionId;
-  testProtoTransactionId.set_allocated_accountid(testAccountId.toProtobuf().release());
-  testProtoTransactionId.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(now));
-
-  // When
-  const TransactionId transactionId = TransactionId::fromProtobuf(testProtoTransactionId);
-
-  // Then
-  EXPECT_EQ(transactionId.getAccountId().getAccountNum(), testAccountId.getAccountNum());
-  EXPECT_EQ(transactionId.getAccountId().getRealmNum(), testAccountId.getRealmNum());
-  EXPECT_EQ(transactionId.getAccountId().getShardNum(), testAccountId.getShardNum());
-  EXPECT_EQ(transactionId.getValidTransactionTime(), now);
-}
-
 // Tests serialization of Hedera::Transfer object to a proto::AccountAmount object.
 TEST_F(SerializationAndDeserializationTests, SerializeTransferToProtobufTest)
 {
