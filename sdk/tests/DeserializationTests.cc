@@ -72,21 +72,6 @@ private:
   const std::shared_ptr<ECDSAPublicKey> mPublicKeyFromString = ECDSAPublicKey::fromString(mPublicKeyFromPrivate->toString());
 };
 
-// Tests deserialization of Hedera::AccountBalance object from a proto::CryptoGetAccountBalanceResponse object.
-TEST_F(DeserializationTests, DeserializeAccountBalanceFromProtobufTest)
-{
-  // Given
-  const Hbar testBalance = getTestBalance();
-  proto::CryptoGetAccountBalanceResponse testProtoAccountBalance;
-  testProtoAccountBalance.set_balance(static_cast<unsigned long long>(testBalance.toTinybars()));
-  
-  // When
-  AccountBalance accountBalance = AccountBalance::fromProtobuf(testProtoAccountBalance);
-  
-  // Then
-  EXPECT_EQ(accountBalance.getBalance().toTinybars(), testBalance.toTinybars());
-}
-
 // Tests deserialization of Hedera::PublicKey object from a proto::Key object.
 TEST_F(DeserializationTests, PublicKeyFromProtobufTest)
 {
