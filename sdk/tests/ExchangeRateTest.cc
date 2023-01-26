@@ -28,6 +28,15 @@ using namespace Hedera;
 
 class ExchangeRateTest : public ::testing::Test
 {
+protected:
+  [[nodiscard]] inline const int32_t  getTestCents() const { return mCents; }
+  [[nodiscard]] inline const int32_t  getTestHbar() const { return mHbar; }
+  [[nodiscard]] inline const uint64_t getTestSeconds() const { return mSeconds; }
+
+private:
+  const int32_t mCents = 2;
+  const int32_t mHbar = 1;
+  const uint64_t mSeconds = 100ULL;
 };
 
 TEST_F(ExchangeRateTest, ConstructExchangeRateAndSet)
@@ -40,6 +49,32 @@ TEST_F(ExchangeRateTest, ConstructExchangeRateAndSet)
   EXPECT_FALSE(set.getNextExchangeRate().has_value());
 }
 
+// Tests deserialization of Hedera::ExchangeRate -> proto::ExchangeRate.
+TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobufTest)
+{
+  // Given
+  const int32_t testCents = getTestCents();
+  const int32_t testHbar = getTestHbar();
+  const uint64_t testSeconds = getTestSeconds();
+
+  auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
+  proto::TimestampSeconds *testProtoExchangeRateSecs = testProtoExchangeRate->mutable_expirationtime();
+
+  testProtoExchangeRate->set_centequiv(testCents);
+  testProtoExchangeRate->set_hbarequiv(testHbar);
+  testProtoExchangeRateSecs->set_seconds(testSeconds);
+
+  // When
+  ExchangeRate exchangeRate = ExchangeRate::fromProtobuf(*testProtoExchangeRate);
+  
+  // Then
+  EXPECT_EQ(exchangeRate.getCurrentExchangeRate(), testCents / testHbar);
+  EXPECT_TRUE(exchangeRate.getExpirationTime().has_value());
+  EXPECT_EQ(exchangeRate.getExpirationTime().value().time_since_epoch().count(),
+            internal::TimestampConverter::fromProtobuf(*testProtoExchangeRateSecs).time_since_epoch().count());
+}
+
+// Tests serialization & deserialization of Hedera::ExchangeRate -> proto::ExchangeRate -> Hedera::ExchangeRate.
 TEST_F(ExchangeRateTest, ProtobufExchangeRate)
 {
   auto protoRate = std::make_unique<proto::ExchangeRate>();
