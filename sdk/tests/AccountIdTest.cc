@@ -123,7 +123,7 @@ TEST_F(AccountIdTest, SetShardRealmAccountNum)
 }
 
 // Tests serialization of Hedera::AccountId -> proto::AccountID.
-TEST_F(AccountIdTest, SerializeAccountIdToProtobufTest)
+TEST_F(AccountIdTest, SerializeAccountIdToProtobuf)
 {
   // Given
   const uint64_t testShardNum = getTestShardNum();
@@ -141,7 +141,7 @@ TEST_F(AccountIdTest, SerializeAccountIdToProtobufTest)
 }
 
 // Tests deserialization of proto::AccountID -> Hedera::AccountId.
-TEST_F(AccountIdTest, DeserializeAccountIdFromProtobufTest)
+TEST_F(AccountIdTest, DeserializeAccountIdFromProtobuf)
 {
   // Given
   const uint64_t testShardNum = getTestShardNum();
