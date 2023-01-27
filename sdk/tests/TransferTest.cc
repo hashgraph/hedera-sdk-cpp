@@ -29,7 +29,7 @@ using namespace Hedera;
 class TransferTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const int64_t getTestAmount() const { return mAmount; }
+  [[nodiscard]] inline const int64_t& getTestAmount() const { return mAmount; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
 
 private:
@@ -43,9 +43,9 @@ TEST_F(TransferTest, SerializeTransferToProtobuf)
   // Given
   const AccountId testAccountId = getTestAccountId();
   const int64_t testAmount = getTestAmount();
-  const Hbar testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
+  const auto testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
 
-  Transfer testTransfer = Transfer();
+  Transfer testTransfer;
   testTransfer.setAccountId(testAccountId);
   testTransfer.setAmount(testHbarAmount);
   testTransfer.setApproved(false);

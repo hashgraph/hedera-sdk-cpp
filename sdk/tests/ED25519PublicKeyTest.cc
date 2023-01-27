@@ -87,15 +87,14 @@ TEST_F(ED25519PublicKeyTest, ED25519PublicKeyToProtobuf)
 {
   // Given
   const std::shared_ptr<PublicKey> testPublicKey = getTestPublicKeyFromPrivate();
-  ED25519PublicKey copiedPublicKey(*dynamic_cast<ED25519PublicKey*>(testPublicKey.get()));
 
   // When
-  const std::shared_ptr<proto::Key> protoPublicKey = copiedPublicKey.toProtobuf();
+  const std::shared_ptr<proto::Key> protoPublicKey = testPublicKey->toProtobuf();
 
   // Then
   EXPECT_NE(protoPublicKey, nullptr);
   EXPECT_TRUE(protoPublicKey->has_ed25519());
-  EXPECT_GT(protoPublicKey->ByteSize(), 0);
+  EXPECT_GT(protoPublicKey->ByteSizeLong(), 0ULL);
 }
 
 TEST_F(ED25519PublicKeyTest, VerifyValidSignature)

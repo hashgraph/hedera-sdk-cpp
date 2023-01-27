@@ -147,7 +147,7 @@ TEST_F(AccountIdTest, DeserializeAccountIdFromProtobuf)
   const uint64_t testShardNum = getTestShardNum();
   const uint64_t testRealmNum = getTestRealmNum();
   const uint64_t testAccountNum = getTestAccountNum();
-  proto::AccountID testProtoAccountId = proto::AccountID();
+  proto::AccountID testProtoAccountId;
   testProtoAccountId.set_shardnum(testShardNum);
   testProtoAccountId.set_realmnum(testRealmNum);
   testProtoAccountId.set_accountnum(testAccountNum);

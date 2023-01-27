@@ -29,9 +29,9 @@ using namespace Hedera;
 class ExchangeRateTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const int32_t getTestCents() const { return mCents; }
-  [[nodiscard]] inline const int32_t getTestHbar() const { return mHbar; }
-  [[nodiscard]] inline const uint64_t getTestSeconds() const { return mSeconds; }
+  [[nodiscard]] inline const int32_t& getTestCents() const { return mCents; }
+  [[nodiscard]] inline const int32_t& getTestHbar() const { return mHbar; }
+  [[nodiscard]] inline const uint64_t& getTestSeconds() const { return mSeconds; }
 
 private:
   const int32_t mCents = 2;
@@ -62,7 +62,7 @@ TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobuf)
 
   testProtoExchangeRate->set_centequiv(testCents);
   testProtoExchangeRate->set_hbarequiv(testHbar);
-  testProtoExchangeRateSecs->set_seconds(testSeconds);
+  testProtoExchangeRateSecs->set_seconds(static_cast<int64_t>(testSeconds));
 
   // When
   ExchangeRate exchangeRate = ExchangeRate::fromProtobuf(*testProtoExchangeRate);
@@ -80,7 +80,6 @@ TEST_F(ExchangeRateTest, DeserializeExchangeRateSetFromProtobuf)
   // Given
   const int32_t testCents = getTestCents();
   const int32_t testHbar = getTestHbar();
-  const uint64_t testSeconds = getTestSeconds();
 
   auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
   testProtoExchangeRate->set_centequiv(testCents * testCents);

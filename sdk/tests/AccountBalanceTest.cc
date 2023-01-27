@@ -28,7 +28,7 @@ using namespace Hedera;
 class AccountBalanceTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const Hbar getTestBalance() const { return mBalance; }
+  [[nodiscard]] inline const Hbar& getTestBalance() const { return mBalance; }
 
 private:
   const Hbar mBalance = Hbar(100LL);
