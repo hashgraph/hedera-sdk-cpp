@@ -43,8 +43,10 @@ TEST_F(TransactionReceiptTest, ConstructTransactionReceipt)
   EXPECT_FALSE(transactionReceipt.getExchangeRates().has_value());
 }
 
+// Tests deserialization of Hedera::TransactionReceipt -> proto::TransactionReceipt.
 TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
 {
+  // Given
   proto::TransactionReceipt protoTxReceipt;
   protoTxReceipt.set_status(proto::ResponseCodeEnum::SUCCESS);
   protoTxReceipt.set_allocated_accountid(getTestAccountId().toProtobuf().release());
@@ -60,7 +62,10 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   protoExRateSet->mutable_nextrate()->set_centequiv(value);
   protoExRateSet->mutable_nextrate()->mutable_expirationtime()->set_seconds(secs);
 
+  // When
   TransactionReceipt txRx = TransactionReceipt::fromProtobuf(protoTxReceipt);
+
+  // Then
   EXPECT_EQ(txRx.getStatus(), Status::SUCCESS);
   EXPECT_EQ(txRx.getAccountId(), getTestAccountId());
   EXPECT_TRUE(txRx.getExchangeRates().has_value());

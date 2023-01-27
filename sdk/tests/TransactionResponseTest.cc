@@ -28,15 +28,20 @@ class TransactionResponseTest : public ::testing::Test
 {
 };
 
+// Tests deserialization of Hedera::TransactionResponse -> proto::TransactionResponse.
 TEST_F(TransactionResponseTest, ProtobufTransactionResponse)
 {
+  // Given
   const uint64_t cost = 10ULL;
   const proto::ResponseCodeEnum response = proto::ResponseCodeEnum::AUTHORIZATION_FAILED;
   proto::TransactionResponse protoTransactionResponse;
   protoTransactionResponse.set_cost(cost);
   protoTransactionResponse.set_nodetransactionprecheckcode(response);
 
+  // When
   TransactionResponse txResponse = TransactionResponse::fromProtobuf(protoTransactionResponse);
+
+  // Then
   EXPECT_EQ(txResponse.getCost(), cost);
   EXPECT_FALSE(txResponse.getValidateStatus());
 

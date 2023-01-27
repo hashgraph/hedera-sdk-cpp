@@ -122,6 +122,47 @@ TEST_F(AccountIdTest, SetShardRealmAccountNum)
   EXPECT_THROW(accountId.setAccountNum(getTestNumTooBig()), std::invalid_argument);
 }
 
+// Tests serialization of Hedera::AccountId -> proto::AccountID.
+TEST_F(AccountIdTest, SerializeAccountIdToProtobuf)
+{
+  // Given
+  const uint64_t testShardNum = getTestShardNum();
+  const uint64_t testRealmNum = getTestRealmNum();
+  const uint64_t testAccountNum = getTestAccountNum();
+  AccountId testAccountId(testShardNum, testRealmNum, testAccountNum);
+
+  // When
+  auto protoAccountId = std::unique_ptr<proto::AccountID>(testAccountId.toProtobuf());
+
+  // Then
+  EXPECT_EQ(protoAccountId->shardnum(), testShardNum);
+  EXPECT_EQ(protoAccountId->realmnum(), testRealmNum);
+  EXPECT_EQ(protoAccountId->accountnum(), testAccountNum);
+}
+
+// Tests deserialization of proto::AccountID -> Hedera::AccountId.
+TEST_F(AccountIdTest, DeserializeAccountIdFromProtobuf)
+{
+  // Given
+  const uint64_t testShardNum = getTestShardNum();
+  const uint64_t testRealmNum = getTestRealmNum();
+  const uint64_t testAccountNum = getTestAccountNum();
+  proto::AccountID testProtoAccountId;
+  testProtoAccountId.set_shardnum(testShardNum);
+  testProtoAccountId.set_realmnum(testRealmNum);
+  testProtoAccountId.set_accountnum(testAccountNum);
+
+  // When
+  AccountId accountId = AccountId::fromProtobuf(testProtoAccountId);
+
+  // Then
+  EXPECT_EQ(accountId.getShardNum(), testShardNum);
+  EXPECT_EQ(accountId.getRealmNum(), testRealmNum);
+  EXPECT_EQ(accountId.getAccountNum(), testAccountNum);
+  EXPECT_EQ(accountId.toString(), "8.90.1000");
+}
+
+// Tests serialization & deserialization of Hedera::AccountId -> proto::AccountID -> Hedera::AccountId.
 TEST_F(AccountIdTest, ProtobufAccountId)
 {
   AccountId accountId;
