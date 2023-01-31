@@ -108,8 +108,11 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
     throw std::runtime_error("Digest verify initialization failed");
   }
 
-  int verificationResult = EVP_DigestVerify(
-    messageDigestContext, &signatureBytes.front(), signatureBytes.size(), &signedBytes.front(), signedBytes.size());
+  int verificationResult = EVP_DigestVerify(messageDigestContext,
+                                            (!signatureBytes.empty()) ? &signatureBytes.front() : nullptr,
+                                            signatureBytes.size(),
+                                            (!signedBytes.empty()) ? &signedBytes.front() : nullptr,
+                                            signedBytes.size());
 
   EVP_MD_CTX_free(messageDigestContext);
 

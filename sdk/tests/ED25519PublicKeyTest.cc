@@ -82,6 +82,21 @@ TEST_F(ED25519PublicKeyTest, ToString)
   EXPECT_EQ(derEncodingFromPrivate, derEncodingFromProtobuf);
 }
 
+// Tests serialization of Hedera::ED25519PublicKey -> proto::Key.
+TEST_F(ED25519PublicKeyTest, ED25519PublicKeyToProtobuf)
+{
+  // Given
+  const std::shared_ptr<PublicKey> testPublicKey = getTestPublicKeyFromPrivate();
+
+  // When
+  const std::shared_ptr<proto::Key> protoPublicKey = testPublicKey->toProtobuf();
+
+  // Then
+  EXPECT_NE(protoPublicKey, nullptr);
+  EXPECT_TRUE(protoPublicKey->has_ed25519());
+  EXPECT_GT(protoPublicKey->ByteSizeLong(), 0ULL);
+}
+
 TEST_F(ED25519PublicKeyTest, VerifyValidSignature)
 {
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };

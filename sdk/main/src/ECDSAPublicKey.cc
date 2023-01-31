@@ -180,7 +180,7 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
   int verificationResult = EVP_DigestVerify(messageDigestContext,
                                             &derEncodedSignature.front(),
                                             actualSignatureLength,
-                                            &signedBytes.front(),
+                                            (!signedBytes.empty()) ? &signedBytes.front() : nullptr,
                                             signedBytes.size());
   EVP_MD_CTX_free(messageDigestContext);
 

@@ -15,6 +15,7 @@ endif ()
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
 add_executable(${TEST_PROJECT_NAME}
         AccountBalanceQueryTest.cc
+        AccountBalanceTest.cc
         AccountCreateTransactionTest.cc
         AccountIdTest.cc
         ClientTest.cc
@@ -36,14 +37,14 @@ add_executable(${TEST_PROJECT_NAME}
         TransferTest.cc
         TransferTransactionTest.cc)
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE gtest_main gtest ${PROJECT_NAME})
-gtest_discover_tests(${TEST_PROJECT_NAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/release)
+gtest_discover_tests(${TEST_PROJECT_NAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
 file(COPY ${PROJECT_SOURCE_DIR}/wordlists/bip39-english.txt
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 file(COPY ${PROJECT_SOURCE_DIR}/wordlists/legacy-english.txt
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/release)
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})

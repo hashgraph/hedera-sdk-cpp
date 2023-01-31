@@ -19,7 +19,6 @@
  */
 #include "ECDSAPublicKey.h"
 #include "ECDSAPrivateKey.h"
-#include "impl/HexConverter.h"
 
 #include <gtest/gtest.h>
 #include <memory>
@@ -154,4 +153,34 @@ TEST_F(ECDSAPublicKeyTest, FromString)
   EXPECT_NE(publicKeyFromUncompressed, nullptr);
   EXPECT_NE(publicKeyFromCompressed, nullptr);
   EXPECT_EQ(publicKeyFromUncompressed->toString(), publicKeyFromCompressed->toString());
+}
+
+// Tests serialization of Hedera::ECDSAPublicKey -> proto::Key.
+TEST_F(ECDSAPublicKeyTest, ECDSAPublicKeyToProtobuf)
+{
+  // Given
+  const std::shared_ptr<PublicKey> testPublicKey = getTestPublicKeyFromString();
+
+  // // When
+  const std::unique_ptr<proto::Key> protobufECDSAPublicKey = testPublicKey->toProtobuf();
+
+  // Then
+  EXPECT_NE(protobufECDSAPublicKey, nullptr);
+  EXPECT_TRUE(protobufECDSAPublicKey->has_ecdsa_secp256k1());
+}
+
+// Tests deserialization of proto::Key -> Hedera::PublicKey.
+TEST_F(ECDSAPublicKeyTest, PublicKeyFromProtobuf)
+{
+  // Given
+  const std::shared_ptr<PublicKey> testPublicKey = getTestPublicKeyFromString();
+  const std::string testPublicKeyAsString = testPublicKey->toString();
+  const std::unique_ptr<proto::Key> testProtobufPublicKey = testPublicKey->toProtobuf();
+
+  // When
+  std::shared_ptr<PublicKey> publicKey = PublicKey::fromProtobuf(*testProtobufPublicKey);
+
+  // Then
+  EXPECT_NE(publicKey, nullptr);
+  EXPECT_EQ(publicKey->toString(), testPublicKeyAsString);
 }

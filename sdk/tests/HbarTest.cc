@@ -32,43 +32,43 @@ protected:
 TEST_F(HbarTest, TinybarUnit)
 {
   EXPECT_EQ(HbarUnit::TINYBAR().getTinybars(), 1ULL);
-  EXPECT_EQ(HbarUnit::TINYBAR().getSymbol(), "tℏ");
+  EXPECT_EQ(strcmp(HbarUnit::TINYBAR().getSymbol(), "tℏ"), 0);
 }
 
 TEST_F(HbarTest, MicrobarUnit)
 {
   EXPECT_EQ(HbarUnit::MICROBAR().getTinybars(), 100ULL);
-  EXPECT_EQ(HbarUnit::MICROBAR().getSymbol(), "μℏ");
+  EXPECT_EQ(strcmp(HbarUnit::MICROBAR().getSymbol(), "μℏ"), 0);
 }
 
 TEST_F(HbarTest, MillibarUnit)
 {
   EXPECT_EQ(HbarUnit::MILLIBAR().getTinybars(), 100000ULL);
-  EXPECT_EQ(HbarUnit::MILLIBAR().getSymbol(), "mℏ");
+  EXPECT_EQ(strcmp(HbarUnit::MILLIBAR().getSymbol(), "mℏ"), 0);
 }
 
 TEST_F(HbarTest, HbarUnit)
 {
   EXPECT_EQ(HbarUnit::HBAR().getTinybars(), 100000000ULL);
-  EXPECT_EQ(HbarUnit::HBAR().getSymbol(), "ℏ");
+  EXPECT_EQ(strcmp(HbarUnit::HBAR().getSymbol(), "ℏ"), 0);
 }
 
 TEST_F(HbarTest, KilobarUnit)
 {
   EXPECT_EQ(HbarUnit::KILOBAR().getTinybars(), 100000000000ULL);
-  EXPECT_EQ(HbarUnit::KILOBAR().getSymbol(), "kℏ");
+  EXPECT_EQ(strcmp(HbarUnit::KILOBAR().getSymbol(), "kℏ"), 0);
 }
 
 TEST_F(HbarTest, MegabarUnit)
 {
   EXPECT_EQ(HbarUnit::MEGABAR().getTinybars(), 100000000000000ULL);
-  EXPECT_EQ(HbarUnit::MEGABAR().getSymbol(), "Mℏ");
+  EXPECT_EQ(strcmp(HbarUnit::MEGABAR().getSymbol(), "Mℏ"), 0);
 }
 
 TEST_F(HbarTest, GigabarUnit)
 {
   EXPECT_EQ(HbarUnit::GIGABAR().getTinybars(), 100000000000000000ULL);
-  EXPECT_EQ(HbarUnit::GIGABAR().getSymbol(), "Gℏ");
+  EXPECT_EQ(strcmp(HbarUnit::GIGABAR().getSymbol(), "Gℏ"), 0);
 }
 
 TEST_F(HbarTest, DefaultConstructor)

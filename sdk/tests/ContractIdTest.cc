@@ -73,6 +73,46 @@ TEST_F(ContractIdTest, SetShardRealmContractNum)
   EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
 }
 
+// Tests serialization of Hedera::ContractId -> proto::ContractID.
+TEST_F(ContractIdTest, SerializeContractIdToProtobufTest)
+{
+  // Given
+  const uint64_t testShardNum = getTestShardNum();
+  const uint64_t testRealmNum = getTestRealmNum();
+  const uint64_t testContractNum = getTestContractNum();
+  const auto testContractId = ContractId(testShardNum, testRealmNum, testContractNum);
+
+  // When
+  auto protoContractId = std::unique_ptr<proto::ContractID>(testContractId.toProtobuf());
+
+  // Then
+  EXPECT_EQ(protoContractId->shardnum(), testShardNum);
+  EXPECT_EQ(protoContractId->realmnum(), testRealmNum);
+  EXPECT_EQ(protoContractId->contractnum(), testContractNum);
+}
+
+// Tests deserialization of proto::ContractID -> Hedera::ContractId.
+TEST_F(ContractIdTest, DeserializeContractIdFromProtobuf)
+{
+  // Given
+  const uint64_t testShardNum = getTestShardNum();
+  const uint64_t testRealmNum = getTestRealmNum();
+  const uint64_t testContractNum = getTestContractNum();
+  proto::ContractID testProtoContractId;
+  testProtoContractId.set_shardnum(static_cast<int64_t>(testShardNum));
+  testProtoContractId.set_realmnum(static_cast<int64_t>(testRealmNum));
+  testProtoContractId.set_contractnum(static_cast<int64_t>(testContractNum));
+
+  // When
+  ContractId contractId = ContractId::fromProtobuf(testProtoContractId);
+
+  // Then
+  EXPECT_EQ(contractId.getShardNum(), testShardNum);
+  EXPECT_EQ(contractId.getRealmNum(), testRealmNum);
+  EXPECT_EQ(contractId.getContractNum(), testContractNum);
+}
+
+// Tests serialization & deserialization of Hedera::ContractId -> proto::ContractID -> Hedera::ContractId.
 TEST_F(ContractIdTest, ProtobufContractId)
 {
   ContractId contractId;
