@@ -60,6 +60,11 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
     }
   }
 
+  if (!proto.evm_address().empty())
+  {
+    transactionRecord.mEvmAddress = EvmAddress::fromBytes({ proto.evm_address().cbegin(), proto.evm_address().cend() });
+  }
+
   return transactionRecord;
 }
 

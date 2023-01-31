@@ -19,6 +19,7 @@
  */
 #include "TransactionRecord.h"
 #include "AccountId.h"
+#include "EvmAddress.h"
 #include "impl/TimestampConverter.h"
 
 #include <chrono>
@@ -40,6 +41,8 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
   const std::string txMemo = "txMemo";
   const uint64_t txFee = 10ULL;
+  const std::vector<unsigned char> testEvmAddressBytes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                                                           'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' };
 
   proto::TransactionRecord protoTransactionRecord;
   protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf().release());
@@ -48,6 +51,8 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   protoTransactionRecord.set_allocated_transactionid(TransactionId::generate(accountIdFrom).toProtobuf().release());
   protoTransactionRecord.set_allocated_memo(new std::string(txMemo));
   protoTransactionRecord.set_transactionfee(txFee);
+  protoTransactionRecord.set_allocated_evm_address(
+    new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
 
   proto::AccountAmount* aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
   aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
@@ -58,15 +63,15 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   aa->set_amount(transferAmount);
 
   TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
-  EXPECT_TRUE(txRecord.getReceipt());
+  EXPECT_TRUE(txRecord.getReceipt().has_value());
   EXPECT_TRUE(txRecord.getReceipt()->getAccountId());
   EXPECT_EQ(*txRecord.getReceipt()->getAccountId(), accountIdFrom);
   EXPECT_EQ(txRecord.getTransactionHash(), txHash);
-  EXPECT_TRUE(txRecord.getConsensusTimestamp());
+  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
   EXPECT_EQ(txRecord.getConsensusTimestamp()->time_since_epoch().count(), now.time_since_epoch().count());
-  EXPECT_TRUE(txRecord.getTransactionId());
+  EXPECT_TRUE(txRecord.getTransactionId().has_value());
   EXPECT_EQ(txRecord.getTransactionId()->getAccountId(), accountIdFrom);
-  EXPECT_GE(txRecord.getTransactionId().value().getValidTransactionTime(), now);
+  EXPECT_GE(txRecord.getTransactionId()->getValidTransactionTime(), now);
   EXPECT_EQ(txRecord.getTransactionMemo(), txMemo);
   EXPECT_EQ(txRecord.getTransactionFee(), txFee);
   EXPECT_FALSE(txRecord.getTransferList().empty());
@@ -74,4 +79,6 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   EXPECT_EQ(txRecord.getTransferList().at(0).getAmount().toTinybars(), -transferAmount);
   EXPECT_EQ(txRecord.getTransferList().at(1).getAccountId(), accountIdTo);
   EXPECT_EQ(txRecord.getTransferList().at(1).getAmount().toTinybars(), transferAmount);
+  EXPECT_TRUE(txRecord.getEvmAddress().has_value());
+  EXPECT_EQ(txRecord.getEvmAddress()->toBytes(), testEvmAddressBytes);
 }
