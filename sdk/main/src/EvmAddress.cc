@@ -20,6 +20,7 @@
 #include "EvmAddress.h"
 #include "impl/HexConverter.h"
 
+#include <algorithm>
 #include <stdexcept>
 
 namespace Hedera
