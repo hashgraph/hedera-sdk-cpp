@@ -86,7 +86,8 @@ std::shared_ptr<ECDSAPublicKey> ECDSAPublicKey::fromString(const std::string& ke
 //-----
 std::shared_ptr<ECDSAPublicKey> ECDSAPublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
-  return std::make_shared<ECDSAPublicKey>(ECDSAPublicKey(bytesToPKEY(keyBytes)));
+  const ECDSAPublicKey ecdsaPublicKey(bytesToPKEY(keyBytes));
+  return (ecdsaPublicKey.mPublicKey) ? std::make_shared<ECDSAPublicKey>(ecdsaPublicKey) : nullptr;
 }
 
 //-----
@@ -239,8 +240,7 @@ EVP_PKEY* ECDSAPublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKey
   // start the uncompressed bytes with the appropriate ASN1 prefix for an uncompressed public key
   std::vector<unsigned char> uncompressedKeyBytes = internal::HexConverter::hexToBase64(UNCOMPRESSED_KEY_ASN1_PREFIX);
 
-  const size_t inputKeySize = inputKeyBytes.size();
-  if (inputKeySize == COMPRESSED_KEY_SIZE)
+  if (const size_t inputKeySize = inputKeyBytes.size(); inputKeySize == COMPRESSED_KEY_SIZE)
   {
     // get the uncompressed key representation, and append to the existing prefix
     const std::vector<unsigned char> rawUncompressedBytes = uncompressBytes(inputKeyBytes);
@@ -268,9 +268,9 @@ EVP_PKEY* ECDSAPublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKey
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_CTX_new_for_pkey"));
   }
 
-  const unsigned char* rawKeyBytes = &uncompressedKeyBytes.front();
   size_t dataLength = uncompressedKeyBytes.size();
-  if (OSSL_DECODER_from_data(context, &rawKeyBytes, &dataLength) <= 0)
+  if (const unsigned char* rawKeyBytes = &uncompressedKeyBytes.front();
+      OSSL_DECODER_from_data(context, &rawKeyBytes, &dataLength) <= 0)
   {
     OSSL_DECODER_CTX_free(context);
     EVP_PKEY_free(pkey);

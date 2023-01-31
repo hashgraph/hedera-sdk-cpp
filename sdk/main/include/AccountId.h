@@ -20,7 +20,11 @@
 #ifndef HEDERA_SDK_CPP_ACCOUNT_ID_H_
 #define HEDERA_SDK_CPP_ACCOUNT_ID_H_
 
+#include "EvmAddress.h"
+#include "PublicKey.h"
+
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace proto
@@ -41,28 +45,56 @@ public:
   /**
    * Construct with an account number.
    *
-   * @param num The account number to set.
+   * @param num The desired account number.
    * @throws std::invalid_argument If the account number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   explicit AccountId(const uint64_t& num);
 
   /**
+   * Construct with an account alias.
+   *
+   * @param alias The desired public key account alias.
+   */
+  explicit AccountId(const std::shared_ptr<PublicKey>& alias);
+
+  /**
+   * Construct with an EVM address.
+   *
+   * @param address The desired EVM address.
+   */
+  explicit AccountId(const EvmAddress& address);
+
+  /**
    * Construct with a shard, realm, and account number.
    *
-   * @param shard The shard number to set.
-   * @param realm The realm number to set.
-   * @param num   The account number to set.
+   * @param shard The desired shard number.
+   * @param realm The desired realm number.
+   * @param num   The desired account number.
    * @throws std::invalid_argument If any number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   explicit AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
   /**
-   * Construct from a string of the form "<shard>.<realm>.<num>".
+   * Construct with shard and realm numbers, and an account alias.
    *
-   * @param str The string from which to construct.
-   * @throws std::invalid_argument If the input string is malformed or the numbers in the input string are too large.
+   * @param shard The desired shard number.
+   * @param realm The desired realm number.
+   * @param alias The desired account alias.
+   * @throws std::invalid_argument If the shard or realm number is too big (max value is
+   *                               std::numeric_limits<int64_t>::max()).
    */
-  explicit AccountId(const std::string& str);
+  explicit AccountId(const uint64_t& shard, const uint64_t& realm, const std::shared_ptr<PublicKey>& alias);
+
+  /**
+   * Construct with shard and realm numbers, and an EVM address.
+   *
+   * @param shard   The desired shard number.
+   * @param realm   The desired realm number.
+   * @param address The desired EVM address.
+   * @throws std::invalid_argument If the shard or realm number is too big (max value is
+   *                               std::numeric_limits<int64_t>::max()).
+   */
+  explicit AccountId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address);
 
   /**
    * Compare this AccountId to another AccountId and determine if they represent the same account.
@@ -71,6 +103,15 @@ public:
    * @return \c TRUE if this AccountId is the same as the input AccountId, otherwise \c FALSE.
    */
   bool operator==(const AccountId& other) const;
+
+  /**
+   * Create an AccountId object from a string of the form "<shard>.<realm>.<num>". <num> can be the account number, the
+   * stringified PublicKey alias, or the stringified EVM address.
+   *
+   * @param id The account ID string from which to construct.
+   * @throws std::invalid_argument If the input string is malformed or the type of <num> cannot be determined.
+   */
+  static AccountId fromString(std::string_view id);
 
   /**
    * Create an AccountId object from an AccountID protobuf object.
@@ -113,13 +154,32 @@ public:
   AccountId& setRealmNum(const uint64_t& num);
 
   /**
-   * Set the account number.
+   * Set the account number. This is mutually exclusive with mAlias and mEvmAddress, and will reset the value of the
+   * mAlias or mEvmAddress if either is set.
    *
    * @param num The account number to set.
    * @return A reference to this AccountId object with the newly-set account number.
    * @throws std::invalid_argument If the account number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   AccountId& setAccountNum(const uint64_t& num);
+
+  /**
+   * Set the account alias. This is mutually exclusive with mAccountNum and mEvmAddress, and will reset the value of the
+   * mAccountNum or mEvmAddress if either is set.
+   *
+   * @param alias The public key alias to set.
+   * @return A reference to this AccountId object with the newly-set account alias.
+   */
+  AccountId& setAlias(const std::shared_ptr<PublicKey>& alias);
+
+  /**
+   * Set the account EVM address. This is mutually exclusive with mAccountNum and mAlias, and will reset the value of
+   * the mAccountNum or mAlias if either is set.
+   *
+   * @param address The EVM address to set.
+   * @return A reference to this AccountId object with the newly-set account EVM address.
+   */
+  AccountId& setEvmAddress(const EvmAddress& address);
 
   /**
    * Get the shard number.
@@ -140,7 +200,21 @@ public:
    *
    * @return The account number.
    */
-  [[nodiscard]] inline uint64_t getAccountNum() const { return mAccountNum; }
+  [[nodiscard]] inline std::optional<uint64_t> getAccountNum() const { return mAccountNum; }
+
+  /**
+   * Get the account alias.
+   *
+   * @return The account alias.
+   */
+  [[nodiscard]] inline std::shared_ptr<PublicKey> getAlias() const { return mAlias; }
+
+  /**
+   * Get the account EVM address.
+   *
+   * @return The account EVM address.
+   */
+  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddress() const { return mEvmAddress; }
 
 private:
   /**
@@ -165,7 +239,30 @@ private:
   /**
    * The account ID number.
    */
-  uint64_t mAccountNum = 0ULL;
+  std::optional<uint64_t> mAccountNum;
+
+  /**
+   * The public key to be used as the account's alias. Currently only primitive key bytes are supported as an alias
+   * (ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported)
+   *
+   * At most one account can ever have a given alias and it is used for account creation if it was automatically created
+   * using a crypto transfer. It will be nullptr if an account is created normally. It is immutable once it is set for
+   * an account.
+   *
+   * If a transaction auto-creates the account, any further transfers to that alias will simply be deposited in that
+   * account, without creating anything, and with no creation fee being charged.
+   */
+  std::shared_ptr<PublicKey> mAlias = nullptr;
+
+  /**
+   * The ethereum account 20-byte EVM address to be used initially in place of a PublicKey. This EVM address may be
+   * either the encoded form of the shard.realm.num or the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
+   *
+   * If a transaction lazily-creates this account, a subsequent transaction will be required containing the public key
+   * bytes that map to the EVM address bytes. Lazy account creates will only support the keccak-256 hash of a
+   * ECDSA_SECP256K1 primitive key form.
+   */
+  std::optional<EvmAddress> mEvmAddress;
 };
 
 } // namespace Hedera

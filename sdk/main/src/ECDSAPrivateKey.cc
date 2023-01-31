@@ -175,8 +175,11 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
   size_t signatureLength = 72;
   auto signature = std::vector<unsigned char>(signatureLength);
 
-  if (EVP_DigestSign(
-        messageDigestContext, &signature.front(), &signatureLength, &bytesToSign.front(), bytesToSign.size()) <= 0)
+  if (EVP_DigestSign(messageDigestContext,
+                     &signature.front(),
+                     &signatureLength,
+                     (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
+                     bytesToSign.size()) <= 0)
   {
     EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestSign"));

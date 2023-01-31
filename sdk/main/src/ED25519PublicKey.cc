@@ -81,7 +81,8 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
-  return std::make_shared<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(keyBytes)));
+  const ED25519PublicKey ed25519PublicKey(bytesToPKEY(keyBytes));
+  return (ed25519PublicKey.mPublicKey) ? std::make_shared<ED25519PublicKey>(ed25519PublicKey) : nullptr;
 }
 
 //-----
@@ -161,9 +162,14 @@ EVP_PKEY* ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyByt
   {
     fullKeyBytes = prependAlgorithmIdentifier(keyBytes);
   }
-  else
+  else if (keyBytes.size() == 44)
   {
     fullKeyBytes = keyBytes;
+  }
+  else
+  {
+    throw std::invalid_argument("bytesToPKEY input bytes size [" + std::to_string(keyBytes.size()) +
+                                "] is invalid: must be either [32] or [44]");
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();

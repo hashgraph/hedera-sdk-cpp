@@ -25,6 +25,7 @@
 
 namespace Hedera
 {
+//-----
 std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
 {
   if (key.key_case() == proto::Key::KeyCase::kEd25519)
@@ -39,6 +40,50 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
   {
     return nullptr;
   }
+}
+
+//-----
+std::shared_ptr<PublicKey> PublicKey::fromString(std::string_view key)
+{
+  try
+  {
+    return ED25519PublicKey::fromString(std::string(key));
+  }
+  catch (...)
+  {
+  }
+
+  try
+  {
+    return ECDSAPublicKey::fromString(std::string(key));
+  }
+  catch (...)
+  {
+  }
+
+  return nullptr;
+}
+
+//-----
+std::shared_ptr<PublicKey> PublicKey::fromBytes(const std::vector<unsigned char>& bytes)
+{
+  try
+  {
+    return ED25519PublicKey::fromBytes(bytes);
+  }
+  catch (...)
+  {
+  }
+
+  try
+  {
+    return ECDSAPublicKey::fromBytes(bytes);
+  }
+  catch (...)
+  {
+  }
+
+  return nullptr;
 }
 
 } // namespace Hedera
