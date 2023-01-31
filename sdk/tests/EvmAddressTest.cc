@@ -32,9 +32,7 @@ protected:
   [[nodiscard]] inline const std::vector<unsigned char>& getTestBytes() const { return mTestBytes; }
 
 private:
-  const std::string mTestString = { '3', '0', '3', '1', '3', '2', '3', '3', '3', '4', '3', '5', '3', '6',
-                                    '3', '7', '3', '8', '3', '9', '6', '1', '6', '2', '6', '3', '6', '4',
-                                    '6', '5', '6', '6', '6', '7', '6', '8', '6', '9', '6', 'a' };
+  const std::string mTestString = "303132333435363738396162636465666768696a";
   const std::vector<unsigned char> mTestBytes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                                   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' };
 };
