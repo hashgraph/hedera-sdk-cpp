@@ -1,4 +1,4 @@
-if(APPLE OR WIN32)
+if (APPLE OR WIN32)
     include(FetchContent)
     FetchContent_Declare(googletest
             GIT_REPOSITORY https://github.com/google/googletest.git
@@ -7,9 +7,9 @@ if(APPLE OR WIN32)
     set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
     include(googletest)
-else()
+else ()
     find_package(GTest REQUIRED)
-endif()
+endif ()
 
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
@@ -23,6 +23,7 @@ add_executable(${TEST_PROJECT_NAME}
         ECDSAPublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        EvmAddressTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
         MnemonicBIP39Test.cc
