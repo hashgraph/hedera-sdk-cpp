@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "ECDSAPrivateKey.h"
-#include "ECDSAPublicKey.h"
+#include "ECDSASecp256K1PrivateKey.h"
+#include "ECDSASecp256K1PublicKey.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 
@@ -28,25 +28,25 @@
 
 using namespace Hedera;
 
-class ECDSAPrivateKeyTest : public ::testing::Test
+class ECDSASecp256K1PrivateKeyTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const std::unique_ptr<ECDSAPrivateKey>& getTestPrivateKeyGenerated() const
+  [[nodiscard]] inline const std::unique_ptr<ECDSASecp256K1PrivateKey>& getTestPrivateKeyGenerated() const
   {
     return mPrivateKeyGenerated;
   }
-  [[nodiscard]] inline const std::unique_ptr<ECDSAPrivateKey>& getTestPrivateKeyLoaded() const
+  [[nodiscard]] inline const std::unique_ptr<ECDSASecp256K1PrivateKey>& getTestPrivateKeyLoaded() const
   {
     return mPrivateKeyLoaded;
   }
 
 private:
-  const std::unique_ptr<ECDSAPrivateKey> mPrivateKeyGenerated = ECDSAPrivateKey::generatePrivateKey();
-  const std::unique_ptr<ECDSAPrivateKey> mPrivateKeyLoaded =
-    ECDSAPrivateKey::fromString(mPrivateKeyGenerated->toString());
+  const std::unique_ptr<ECDSASecp256K1PrivateKey> mPrivateKeyGenerated = ECDSASecp256K1PrivateKey::generatePrivateKey();
+  const std::unique_ptr<ECDSASecp256K1PrivateKey> mPrivateKeyLoaded =
+    ECDSASecp256K1PrivateKey::fromString(mPrivateKeyGenerated->toString());
 };
 
-TEST_F(ECDSAPrivateKeyTest, GetPublicKey)
+TEST_F(ECDSASecp256K1PrivateKeyTest, GetPublicKey)
 {
   // get the public keys from the private keys
   std::shared_ptr<PublicKey> publicFromGenerated = getTestPrivateKeyGenerated()->getPublicKey();
@@ -59,7 +59,7 @@ TEST_F(ECDSAPrivateKeyTest, GetPublicKey)
   EXPECT_EQ(publicFromGenerated->toString(), publicFromLoaded->toString());
 }
 
-TEST_F(ECDSAPrivateKeyTest, Sign)
+TEST_F(ECDSASecp256K1PrivateKeyTest, Sign)
 {
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
   std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
@@ -72,7 +72,7 @@ TEST_F(ECDSAPrivateKeyTest, Sign)
   EXPECT_LE(signatureFromLoaded.size(), 72);
 }
 
-TEST_F(ECDSAPrivateKeyTest, SignEmptyBytes)
+TEST_F(ECDSASecp256K1PrivateKeyTest, SignEmptyBytes)
 {
   std::vector<unsigned char> bytesToSign;
 
@@ -86,7 +86,7 @@ TEST_F(ECDSAPrivateKeyTest, SignEmptyBytes)
   EXPECT_LE(signatureFromLoaded.size(), 72);
 }
 
-TEST_F(ECDSAPrivateKeyTest, ToString)
+TEST_F(ECDSASecp256K1PrivateKeyTest, ToString)
 {
   std::string stringFromGenerated = getTestPrivateKeyGenerated()->toString();
   std::string stringFromLoaded = getTestPrivateKeyLoaded()->toString();
@@ -96,7 +96,7 @@ TEST_F(ECDSAPrivateKeyTest, ToString)
   EXPECT_EQ(stringFromGenerated, stringFromLoaded);
 }
 
-TEST_F(ECDSAPrivateKeyTest, FromString)
+TEST_F(ECDSASecp256K1PrivateKeyTest, FromString)
 {
   // these are 2 versions of the same private key. the first conforms to the full RFC 8410 standard, the second is just
   // the private key
@@ -104,20 +104,23 @@ TEST_F(ECDSAPrivateKeyTest, FromString)
     "302E0201010420E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35A00706052B8104000A";
   std::string privateKeyStringShort = "E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35";
 
-  std::unique_ptr<ECDSAPrivateKey> privateKeyFromExtended = ECDSAPrivateKey::fromString(privateKeyStringExtended);
-  std::unique_ptr<ECDSAPrivateKey> privateKeyFromShort = ECDSAPrivateKey::fromString(privateKeyStringShort);
+  std::unique_ptr<ECDSASecp256K1PrivateKey> privateKeyFromExtended =
+    ECDSASecp256K1PrivateKey::fromString(privateKeyStringExtended);
+  std::unique_ptr<ECDSASecp256K1PrivateKey> privateKeyFromShort =
+    ECDSASecp256K1PrivateKey::fromString(privateKeyStringShort);
 
   EXPECT_NE(privateKeyFromExtended, nullptr);
   EXPECT_NE(privateKeyFromShort, nullptr);
   EXPECT_EQ(privateKeyFromExtended->toString(), privateKeyFromShort->toString());
 }
 
-TEST_F(ECDSAPrivateKeyTest, SLIP10TestVector1)
+TEST_F(ECDSASecp256K1PrivateKeyTest, SLIP10TestVector1)
 {
   // SLIP10 spec provided test vector
   std::string hexSeed = "000102030405060708090a0b0c0d0e0f";
 
-  std::unique_ptr<ECDSAPrivateKey> privateKey = ECDSAPrivateKey::fromSeed(internal::HexConverter::hexToBase64(hexSeed));
+  std::unique_ptr<ECDSASecp256K1PrivateKey> privateKey =
+    ECDSASecp256K1PrivateKey::fromSeed(internal::HexConverter::hexToBase64(hexSeed));
 
   std::string expectedChainCode = "873dff81c02f525623fd1fe5167eac3a55a049de3d314bb42ee227ffed37d508";
   std::string expectedPrivate = "e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35";

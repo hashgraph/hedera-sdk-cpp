@@ -20,8 +20,8 @@ add_executable(${TEST_PROJECT_NAME}
         AccountIdTest.cc
         ClientTest.cc
         ContractIdTest.cc
-        ECDSAPrivateKeyTest.cc
-        ECDSAPublicKeyTest.cc
+        ECDSASecp256K1PrivateKeyTest.cc
+        ECDSASecp256K1PublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
         EvmAddressTest.cc

@@ -17,15 +17,14 @@
  * limitations under the License.
  *
  */
-#include "ECDSAPublicKey.h"
+#include "ECDSASecp256K1PublicKey.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLHasher.h"
 
-#include <openssl/x509.h>
-#include <proto/basic_types.pb.h>
-
 #include <openssl/decoder.h>
 #include <openssl/ec.h>
+#include <openssl/x509.h>
+#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
@@ -39,19 +38,19 @@ const inline std::string UNCOMPRESSED_KEY_ASN1_PREFIX = "3056301006072A8648CE3D0
 }
 
 //-----
-ECDSAPublicKey::~ECDSAPublicKey()
+ECDSASecp256K1PublicKey::~ECDSASecp256K1PublicKey()
 {
   EVP_PKEY_free(mPublicKey);
 }
 
 //-----
-ECDSAPublicKey::ECDSAPublicKey(const ECDSAPublicKey& other)
+ECDSASecp256K1PublicKey::ECDSASecp256K1PublicKey(const ECDSASecp256K1PublicKey& other)
   : mPublicKey(bytesToPKEY(other.toBytes()))
 {
 }
 
 //-----
-ECDSAPublicKey& ECDSAPublicKey::operator=(const ECDSAPublicKey& other)
+ECDSASecp256K1PublicKey& ECDSASecp256K1PublicKey::operator=(const ECDSASecp256K1PublicKey& other)
 {
   if (this != &other)
   {
@@ -62,14 +61,14 @@ ECDSAPublicKey& ECDSAPublicKey::operator=(const ECDSAPublicKey& other)
 }
 
 //-----
-ECDSAPublicKey::ECDSAPublicKey(ECDSAPublicKey&& other) noexcept
+ECDSASecp256K1PublicKey::ECDSASecp256K1PublicKey(ECDSASecp256K1PublicKey&& other) noexcept
   : mPublicKey(other.mPublicKey)
 {
   other.mPublicKey = nullptr;
 }
 
 //-----
-ECDSAPublicKey& ECDSAPublicKey::operator=(ECDSAPublicKey&& other) noexcept
+ECDSASecp256K1PublicKey& ECDSASecp256K1PublicKey::operator=(ECDSASecp256K1PublicKey&& other) noexcept
 {
   mPublicKey = other.mPublicKey;
   other.mPublicKey = nullptr;
@@ -78,27 +77,27 @@ ECDSAPublicKey& ECDSAPublicKey::operator=(ECDSAPublicKey&& other) noexcept
 }
 
 //-----
-std::shared_ptr<ECDSAPublicKey> ECDSAPublicKey::fromString(const std::string& keyString)
+std::shared_ptr<ECDSASecp256K1PublicKey> ECDSASecp256K1PublicKey::fromString(const std::string& keyString)
 {
   return fromBytes(internal::HexConverter::hexToBase64(keyString));
 }
 
 //-----
-std::shared_ptr<ECDSAPublicKey> ECDSAPublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
+std::shared_ptr<ECDSASecp256K1PublicKey> ECDSASecp256K1PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
-  const ECDSAPublicKey ecdsaPublicKey(bytesToPKEY(keyBytes));
-  return (ecdsaPublicKey.mPublicKey) ? std::make_shared<ECDSAPublicKey>(ecdsaPublicKey) : nullptr;
+  const ECDSASecp256K1PublicKey ecdsaPublicKey(bytesToPKEY(keyBytes));
+  return (ecdsaPublicKey.mPublicKey) ? std::make_shared<ECDSASecp256K1PublicKey>(ecdsaPublicKey) : nullptr;
 }
 
 //-----
-std::unique_ptr<PublicKey> ECDSAPublicKey::clone() const
+std::unique_ptr<PublicKey> ECDSASecp256K1PublicKey::clone() const
 {
-  return std::make_unique<ECDSAPublicKey>(*this);
+  return std::make_unique<ECDSASecp256K1PublicKey>(*this);
 }
 
 //-----
-bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
-                                     const std::vector<unsigned char>& signedBytes) const
+bool ECDSASecp256K1PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
+                                              const std::vector<unsigned char>& signedBytes) const
 {
   // incoming signatures are in the raw form (r, s), where r and s are each 32 bytes long
   if (signatureBytes.size() != 64)
@@ -194,7 +193,7 @@ bool ECDSAPublicKey::verifySignature(const std::vector<unsigned char>& signature
 }
 
 //----
-std::unique_ptr<proto::Key> ECDSAPublicKey::toProtobuf() const
+std::unique_ptr<proto::Key> ECDSASecp256K1PublicKey::toProtobuf() const
 {
   auto keyProtobuf = std::make_unique<proto::Key>();
 
@@ -204,13 +203,13 @@ std::unique_ptr<proto::Key> ECDSAPublicKey::toProtobuf() const
 }
 
 //-----
-std::string ECDSAPublicKey::toString() const
+std::string ECDSASecp256K1PublicKey::toString() const
 {
   return internal::HexConverter::base64ToHex(toBytes());
 }
 
 //-----
-std::vector<unsigned char> ECDSAPublicKey::toBytes() const
+std::vector<unsigned char> ECDSASecp256K1PublicKey::toBytes() const
 {
   int bytesLength = i2d_PUBKEY(mPublicKey, nullptr);
 
@@ -234,7 +233,7 @@ std::vector<unsigned char> ECDSAPublicKey::toBytes() const
 }
 
 //-----
-EVP_PKEY* ECDSAPublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes)
+EVP_PKEY* ECDSASecp256K1PublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes)
 {
   // OpenSSL requires that the bytes are uncompressed to construct the pkey output object
   // start the uncompressed bytes with the appropriate ASN1 prefix for an uncompressed public key
@@ -284,12 +283,12 @@ EVP_PKEY* ECDSAPublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKey
 }
 
 //-----
-ECDSAPublicKey::ECDSAPublicKey(EVP_PKEY* publicKey)
+ECDSASecp256K1PublicKey::ECDSASecp256K1PublicKey(EVP_PKEY* publicKey)
   : mPublicKey(publicKey)
 {
 }
 
-std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsigned char>& uncompressedBytes)
+std::vector<unsigned char> ECDSASecp256K1PublicKey::compressBytes(const std::vector<unsigned char>& uncompressedBytes)
 {
   // a public key is an (x, y) coordinate on the elliptic curve
   // the uncompressed key comes in the form [0x04][32 bytes of x coord][32 bytes of y coord]
@@ -364,7 +363,7 @@ std::vector<unsigned char> ECDSAPublicKey::compressBytes(const std::vector<unsig
   return compressedBytes;
 }
 
-std::vector<unsigned char> ECDSAPublicKey::uncompressBytes(const std::vector<unsigned char>& compressedBytes)
+std::vector<unsigned char> ECDSASecp256K1PublicKey::uncompressBytes(const std::vector<unsigned char>& compressedBytes)
 {
   // a public key is an (x, y) coordinate on the elliptic curve
   // the compressed key comes in the form [0x02 or 0x03][32 bytes of x coord]

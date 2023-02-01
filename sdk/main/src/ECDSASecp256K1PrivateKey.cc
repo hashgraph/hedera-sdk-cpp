@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-#include "ECDSAPrivateKey.h"
+#include "ECDSASecp256K1PrivateKey.h"
 #include "impl/BigNumber.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
@@ -35,13 +35,13 @@ const inline size_t CHAIN_CODE_SIZE = 32;
 }
 
 //-----
-ECDSAPrivateKey::~ECDSAPrivateKey()
+ECDSASecp256K1PrivateKey::~ECDSASecp256K1PrivateKey()
 {
   EVP_PKEY_free(mKeypair);
 }
 
 //-----
-ECDSAPrivateKey::ECDSAPrivateKey(const ECDSAPrivateKey& other)
+ECDSASecp256K1PrivateKey::ECDSASecp256K1PrivateKey(const ECDSASecp256K1PrivateKey& other)
   : PrivateKey()
   , mKeypair(bytesToPKEY(other.toBytes()))
   , mPublicKey(other.mPublicKey)
@@ -50,7 +50,7 @@ ECDSAPrivateKey::ECDSAPrivateKey(const ECDSAPrivateKey& other)
 }
 
 //-----
-ECDSAPrivateKey& ECDSAPrivateKey::operator=(const ECDSAPrivateKey& other)
+ECDSASecp256K1PrivateKey& ECDSASecp256K1PrivateKey::operator=(const ECDSASecp256K1PrivateKey& other)
 {
   if (this != &other)
   {
@@ -63,7 +63,7 @@ ECDSAPrivateKey& ECDSAPrivateKey::operator=(const ECDSAPrivateKey& other)
 }
 
 //-----
-ECDSAPrivateKey::ECDSAPrivateKey(ECDSAPrivateKey&& other) noexcept
+ECDSASecp256K1PrivateKey::ECDSASecp256K1PrivateKey(ECDSASecp256K1PrivateKey&& other) noexcept
   : PrivateKey()
   , mKeypair(other.mKeypair)
   , mPublicKey(std::move(other.mPublicKey))
@@ -73,7 +73,7 @@ ECDSAPrivateKey::ECDSAPrivateKey(ECDSAPrivateKey&& other) noexcept
 }
 
 //-----
-ECDSAPrivateKey& ECDSAPrivateKey::operator=(ECDSAPrivateKey&& other) noexcept
+ECDSASecp256K1PrivateKey& ECDSASecp256K1PrivateKey::operator=(ECDSASecp256K1PrivateKey&& other) noexcept
 {
   mKeypair = other.mKeypair;
   other.mKeypair = nullptr;
@@ -84,7 +84,7 @@ ECDSAPrivateKey& ECDSAPrivateKey::operator=(ECDSAPrivateKey&& other) noexcept
 }
 
 //-----
-std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::generatePrivateKey()
+std::unique_ptr<ECDSASecp256K1PrivateKey> ECDSASecp256K1PrivateKey::generatePrivateKey()
 {
   EVP_PKEY* keypair = EVP_EC_gen("secp256k1");
 
@@ -93,25 +93,25 @@ std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::generatePrivateKey()
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_EC_gen"));
   }
 
-  return std::make_unique<ECDSAPrivateKey>(ECDSAPrivateKey(keypair));
+  return std::make_unique<ECDSASecp256K1PrivateKey>(ECDSASecp256K1PrivateKey(keypair));
 }
 
 //-----
-std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::fromString(const std::string& keyString)
+std::unique_ptr<ECDSASecp256K1PrivateKey> ECDSASecp256K1PrivateKey::fromString(const std::string& keyString)
 {
-  return std::make_unique<ECDSAPrivateKey>(
-    ECDSAPrivateKey(bytesToPKEY(internal::HexConverter::hexToBase64(keyString))));
+  return std::make_unique<ECDSASecp256K1PrivateKey>(
+    ECDSASecp256K1PrivateKey(bytesToPKEY(internal::HexConverter::hexToBase64(keyString))));
 }
 
 //-----
-std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
-                                                                    const std::string& passphrase)
+std::unique_ptr<ECDSASecp256K1PrivateKey> ECDSASecp256K1PrivateKey::fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
+                                                                                      const std::string& passphrase)
 {
   return fromSeed(mnemonic.toSeed(passphrase));
 }
 
 //-----
-std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::fromSeed(const std::vector<unsigned char>& seed)
+std::unique_ptr<ECDSASecp256K1PrivateKey> ECDSASecp256K1PrivateKey::fromSeed(const std::vector<unsigned char>& seed)
 {
   static const std::string keyString = "Bitcoin seed"; // as defined by BIP 32
 
@@ -124,23 +124,23 @@ std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::fromSeed(const std::vector<uns
   // chain code is the next 32 bytes of the computed hmac
   std::vector<unsigned char> chainCode(hmacOutput.begin() + CHAIN_CODE_SIZE, hmacOutput.end());
 
-  return std::make_unique<ECDSAPrivateKey>(ECDSAPrivateKey(bytesToPKEY(key), chainCode));
+  return std::make_unique<ECDSASecp256K1PrivateKey>(ECDSASecp256K1PrivateKey(bytesToPKEY(key), chainCode));
 }
 
 //-----
-std::unique_ptr<PrivateKey> ECDSAPrivateKey::clone() const
+std::unique_ptr<PrivateKey> ECDSASecp256K1PrivateKey::clone() const
 {
-  return std::make_unique<ECDSAPrivateKey>(*this);
+  return std::make_unique<ECDSASecp256K1PrivateKey>(*this);
 }
 
 //-----
-std::shared_ptr<PublicKey> ECDSAPrivateKey::getPublicKey() const
+std::shared_ptr<PublicKey> ECDSASecp256K1PrivateKey::getPublicKey() const
 {
   return mPublicKey;
 }
 
 //-----
-std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
+std::vector<unsigned char> ECDSASecp256K1PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
   EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
   if (!messageDigestContext)
@@ -229,13 +229,13 @@ std::vector<unsigned char> ECDSAPrivateKey::sign(const std::vector<unsigned char
 }
 
 //-----
-std::string ECDSAPrivateKey::toString() const
+std::string ECDSASecp256K1PrivateKey::toString() const
 {
   return internal::HexConverter::base64ToHex(toBytes());
 }
 
 //-----
-std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::derive(const uint32_t childIndex) const
+std::unique_ptr<ECDSASecp256K1PrivateKey> ECDSASecp256K1PrivateKey::derive(const uint32_t childIndex) const
 {
   if (mChainCode.size() != CHAIN_CODE_SIZE)
   {
@@ -282,11 +282,12 @@ std::unique_ptr<ECDSAPrivateKey> ECDSAPrivateKey::derive(const uint32_t childInd
   // chain code is the last 32 bytes of the computed hmac
   std::vector<unsigned char> chainCode(hmacOutput.begin() + CHAIN_CODE_SIZE, hmacOutput.end());
 
-  return std::make_unique<ECDSAPrivateKey>(ECDSAPrivateKey(bytesToPKEY(moduloSum.toBytes()), chainCode));
+  return std::make_unique<ECDSASecp256K1PrivateKey>(
+    ECDSASecp256K1PrivateKey(bytesToPKEY(moduloSum.toBytes()), chainCode));
 }
 
 //-----
-std::vector<unsigned char> ECDSAPrivateKey::toBytes() const
+std::vector<unsigned char> ECDSASecp256K1PrivateKey::toBytes() const
 {
   int bytesLength = i2d_PrivateKey(mKeypair, nullptr);
 
@@ -305,13 +306,13 @@ std::vector<unsigned char> ECDSAPrivateKey::toBytes() const
 }
 
 //-----
-std::vector<unsigned char> ECDSAPrivateKey::getChainCode() const
+std::vector<unsigned char> ECDSASecp256K1PrivateKey::getChainCode() const
 {
   return mChainCode;
 }
 
 //-----
-EVP_PKEY* ECDSAPrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+EVP_PKEY* ECDSASecp256K1PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that we can correctly decode
@@ -345,23 +346,23 @@ EVP_PKEY* ECDSAPrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyByte
 }
 
 //-----
-ECDSAPrivateKey::ECDSAPrivateKey(EVP_PKEY* keypair)
+ECDSASecp256K1PrivateKey::ECDSASecp256K1PrivateKey(EVP_PKEY* keypair)
   : PrivateKey()
   , mKeypair(keypair)
-  , mPublicKey(ECDSAPublicKey::fromBytes(getPublicKeyBytes()))
+  , mPublicKey(ECDSASecp256K1PublicKey::fromBytes(getPublicKeyBytes()))
 {
 }
 
 //-----
-ECDSAPrivateKey::ECDSAPrivateKey(EVP_PKEY* keypair, std::vector<unsigned char> chainCode)
+ECDSASecp256K1PrivateKey::ECDSASecp256K1PrivateKey(EVP_PKEY* keypair, std::vector<unsigned char> chainCode)
   : mKeypair(keypair)
-  , mPublicKey(ECDSAPublicKey::fromBytes(getPublicKeyBytes()))
+  , mPublicKey(ECDSASecp256K1PublicKey::fromBytes(getPublicKeyBytes()))
   , mChainCode(std::move(chainCode))
 {
 }
 
 //-----
-std::vector<unsigned char> ECDSAPrivateKey::getPublicKeyBytes() const
+std::vector<unsigned char> ECDSASecp256K1PrivateKey::getPublicKeyBytes() const
 {
   int bytesLength = i2d_PUBKEY(mKeypair, nullptr);
 
@@ -373,7 +374,7 @@ std::vector<unsigned char> ECDSAPrivateKey::getPublicKeyBytes() const
   }
 
   // first 23 characters are the ASN.1 prefix, and the remaining 65 bytes are the uncompressed pubkey
-  return ECDSAPublicKey::compressBytes({ keyBytes.begin() + 23, keyBytes.end() });
+  return ECDSASecp256K1PublicKey::compressBytes({ keyBytes.begin() + 23, keyBytes.end() });
 }
 
 } // namespace Hedera
