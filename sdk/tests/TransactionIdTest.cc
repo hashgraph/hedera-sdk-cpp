@@ -54,7 +54,7 @@ TEST_F(TransactionIdTest, SerializeTransactionIdToProtobuf)
   // Given
   const std::string testAccountIdStr = "111.222.333";
   const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  AccountId testAccountId(testAccountIdStr);
+  AccountId testAccountId = AccountId::fromString(testAccountIdStr);
   TransactionId testTransactionId = TransactionId::generate(testAccountId);
 
   // When
@@ -74,7 +74,7 @@ TEST_F(TransactionIdTest, DeserializeTransactionIdFromProtobuf)
   // Given
   const std::string testAccountIdStr = "123.456.789";
   const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  AccountId testAccountId(testAccountIdStr);
+  AccountId testAccountId = AccountId::fromString(testAccountIdStr);
   proto::TransactionID testProtoTransactionId;
   testProtoTransactionId.set_allocated_accountid(testAccountId.toProtobuf().release());
   testProtoTransactionId.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(now));

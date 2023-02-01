@@ -39,6 +39,7 @@ private:
   const uint64_t mNodeId = 10ULL;
 };
 
+//-----
 TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransaction)
 {
   AccountCreateTransaction transaction;
@@ -48,12 +49,14 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransaction)
   EXPECT_EQ(transaction.getAutoRenewPeriod(), std::chrono::hours(2160)); // 90 days
   EXPECT_EQ(transaction.getTransactionMemo(), std::string());
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 0U);
-  EXPECT_FALSE(transaction.getStakedAccountId());
-  EXPECT_FALSE(transaction.getStakedNodeId());
+  EXPECT_FALSE(transaction.getStakedAccountId().has_value());
+  EXPECT_FALSE(transaction.getStakedNodeId().has_value());
   EXPECT_FALSE(transaction.getDeclineStakingReward());
   EXPECT_EQ(transaction.getAlias(), nullptr);
+  EXPECT_FALSE(transaction.getEvmAddress().has_value());
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, CloneAccountCreateTransaction)
 {
   AccountCreateTransaction transaction;
@@ -77,6 +80,7 @@ TEST_F(AccountCreateTransactionTest, CloneAccountCreateTransaction)
   EXPECT_EQ(*clonedAccountCreateTransactionPtr->getStakedAccountId(), getTestAccountId());
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetKey)
 {
   AccountCreateTransaction transaction;
@@ -84,6 +88,7 @@ TEST_F(AccountCreateTransactionTest, SetKey)
   EXPECT_EQ(transaction.getKey()->toString(), getTestPublicKey()->toString());
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetInitialBalance)
 {
   AccountCreateTransaction transaction;
@@ -93,6 +98,7 @@ TEST_F(AccountCreateTransactionTest, SetInitialBalance)
   EXPECT_EQ(transaction.getInitialBalance(), initialBalance);
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequired)
 {
   AccountCreateTransaction transaction;
@@ -100,6 +106,7 @@ TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequired)
   EXPECT_TRUE(transaction.getReceiverSignatureRequired());
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriod)
 {
   AccountCreateTransaction transaction;
@@ -109,6 +116,7 @@ TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriod)
   EXPECT_EQ(transaction.getAutoRenewPeriod(), duration);
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetAccountMemo)
 {
   AccountCreateTransaction transaction;
@@ -120,6 +128,7 @@ TEST_F(AccountCreateTransactionTest, SetAccountMemo)
   EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::invalid_argument);
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
 {
   AccountCreateTransaction transaction;
@@ -135,6 +144,7 @@ TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
                std::invalid_argument);
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetStakedAccountId)
 {
   AccountCreateTransaction transaction;
@@ -142,6 +152,7 @@ TEST_F(AccountCreateTransactionTest, SetStakedAccountId)
   EXPECT_EQ(*transaction.getStakedAccountId(), getTestAccountId());
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetStakedNodeId)
 {
   AccountCreateTransaction transaction;
@@ -149,6 +160,7 @@ TEST_F(AccountCreateTransactionTest, SetStakedNodeId)
   EXPECT_EQ(*transaction.getStakedNodeId(), getTestNodeId());
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetStakingRewardPolicy)
 {
   AccountCreateTransaction transaction;
@@ -156,6 +168,7 @@ TEST_F(AccountCreateTransactionTest, SetStakingRewardPolicy)
   EXPECT_TRUE(transaction.getDeclineStakingReward());
 }
 
+//-----
 TEST_F(AccountCreateTransactionTest, SetAlias)
 {
   AccountCreateTransaction transaction;
@@ -163,6 +176,17 @@ TEST_F(AccountCreateTransactionTest, SetAlias)
   EXPECT_EQ(transaction.getAlias()->toString(), getTestPublicKey()->toString());
 }
 
+//-----
+TEST_F(AccountCreateTransactionTest, SetEvmAddress)
+{
+  AccountCreateTransaction transaction;
+  const std::string testEvmString = "303132333435363738396162636465666768696a";
+  transaction.setEvmAddress(EvmAddress::fromString(testEvmString));
+  EXPECT_TRUE(transaction.getEvmAddress().has_value());
+  EXPECT_EQ(transaction.getEvmAddress()->toString(), testEvmString);
+}
+
+//-----
 TEST_F(AccountCreateTransactionTest, ResetMutuallyExclusiveIds)
 {
   AccountCreateTransaction transaction;

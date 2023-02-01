@@ -24,6 +24,7 @@ add_executable(${TEST_PROJECT_NAME}
         ECDSAPublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        EvmAddressTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
         MnemonicBIP39Test.cc

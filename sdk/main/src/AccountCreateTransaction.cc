@@ -129,6 +129,13 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 }
 
 //-----
+AccountCreateTransaction& AccountCreateTransaction::setEvmAddress(const EvmAddress& address)
+{
+  mEvmAddress = address;
+  return *this;
+}
+
+//-----
 proto::Transaction AccountCreateTransaction::makeRequest(const Client& client,
                                                          const std::shared_ptr<internal::Node>&) const
 {
@@ -179,7 +186,14 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   if (mAlias)
   {
-    body->set_allocated_alias(new std::string(mAlias->toString()));
+    const std::vector<unsigned char> aliasBytes = mAlias->toBytes();
+    body->set_allocated_alias(new std::string{ aliasBytes.cbegin(), aliasBytes.cend() });
+  }
+
+  if (mEvmAddress)
+  {
+    const std::vector<unsigned char> addressBytes = mEvmAddress->toBytes();
+    body->set_allocated_evm_address(new std::string{ addressBytes.cbegin(), addressBytes.cend() });
   }
 
   return body.release();

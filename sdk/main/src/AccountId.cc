@@ -19,6 +19,7 @@
  */
 #include "AccountId.h"
 
+#include <charconv>
 #include <limits>
 #include <proto/basic_types.pb.h>
 #include <stdexcept>
@@ -33,6 +34,18 @@ AccountId::AccountId(const uint64_t& num)
 }
 
 //-----
+AccountId::AccountId(const std::shared_ptr<PublicKey>& alias)
+  : mAlias(alias)
+{
+}
+
+//-----
+AccountId::AccountId(const EvmAddress& address)
+  : mEvmAddress(address)
+{
+}
+
+//-----
 AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num)
   : mShardNum(shard)
   , mRealmNum(realm)
@@ -44,96 +57,122 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
 }
 
 //-----
-AccountId::AccountId(const std::string& str)
+AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const std::shared_ptr<PublicKey>& alias)
+  : mShardNum(shard)
+  , mRealmNum(realm)
+  , mAlias(alias)
 {
-  constexpr size_t numStrings = 3;              // Looking to make three strings (shard, realm, account number)
-  std::vector<std::string> numbers(numStrings); // Create container in which to put the strings
-  size_t curStringIndex = 0;                    // The index of the current string being built
-  bool previousWasDot = true;                   // Keep track of if the previous character was a '.'
-
-  // Make one pass over input string, constructing string values for shard, realm, and account number
-  for (const char c : str)
-  {
-    if (c == '.')
-    {
-      if (previousWasDot)
-      {
-        // Two dots next to each other, or dot at beginning
-        throw std::invalid_argument("AccountId string is malformed");
-      }
-      else
-      {
-        ++curStringIndex;
-        previousWasDot = true;
-      }
-    }
-    else
-    {
-      if (isdigit(c) && curStringIndex < numStrings)
-      {
-        numbers[curStringIndex].push_back(c);
-        previousWasDot = false;
-      }
-      else
-      {
-        // Either not a digit or too many dots found
-        throw std::invalid_argument("AccountId string is malformed");
-      }
-    }
-  }
-
-  // Make sure all numbers where constructed
-  if (numbers.at(0).empty() || numbers.at(1).empty() || numbers.at(2).empty())
-  {
-    throw std::invalid_argument("AccountId string is malformed");
-  }
-
-  // Translate out_of_range exception to invalid_argument to allow for more descriptive exception
-  try
-  {
-    mShardNum = std::stoll(numbers.at(0));
-  }
-  catch (const std::out_of_range&)
-  {
-    throw std::invalid_argument("Input shard number is too big");
-  }
-
-  try
-  {
-    mRealmNum = std::stoll(numbers.at(1));
-  }
-  catch (const std::out_of_range&)
-  {
-    throw std::invalid_argument("Input realm number is too big");
-  }
-
-  try
-  {
-    mAccountNum = std::stoll(numbers.at(2));
-  }
-  catch (const std::out_of_range&)
-  {
-    throw std::invalid_argument("Input account number is too big");
-  }
-
-  // Make sure the numbers aren't too big
   checkShardNum();
   checkRealmNum();
-  checkAccountNum();
+}
+
+//-----
+AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address)
+  : mShardNum(shard)
+  , mRealmNum(realm)
+  , mEvmAddress(address)
+{
+  checkShardNum();
+  checkRealmNum();
+}
+
+//-----
+AccountId AccountId::fromString(std::string_view id)
+{
+  AccountId accountId;
+
+  // Get the indices of the two delimiter '.'
+  const size_t firstDot = id.find_first_of('.');
+  const size_t secondDot = id.find_last_of('.');
+
+  // Make sure there are at least two dots
+  if (firstDot == secondDot)
+  {
+    throw std::invalid_argument("Input account ID string is malformed");
+  }
+
+  // Grab the three strings
+  const std::string_view shardStr = id.substr(0, firstDot);
+  const std::string_view realmStr = id.substr(firstDot + 1, secondDot - firstDot - 1);
+  const std::string_view accountNumStr = id.substr(secondDot + 1, id.size() - secondDot - 1);
+
+  // Convert the shard number
+  auto result = std::from_chars(shardStr.data(), shardStr.data() + shardStr.size(), accountId.mShardNum);
+  if (result.ec != std::errc() || result.ptr != shardStr.data() + shardStr.size())
+  {
+    throw std::invalid_argument("Input account ID string is malformed");
+  }
+  accountId.checkShardNum();
+
+  // Convert the realm number
+  result = std::from_chars(realmStr.data(), realmStr.data() + realmStr.size(), accountId.mRealmNum);
+  if (result.ec != std::errc() || result.ptr != realmStr.data() + realmStr.size())
+  {
+    throw std::invalid_argument("Input account ID string is malformed");
+  }
+  accountId.checkRealmNum();
+
+  // Determine what the input account number is. First determine if it is an alias (stringified PublicKey)
+  if (const std::shared_ptr<PublicKey> alias = PublicKey::fromString(accountNumStr); alias)
+  {
+    accountId.mAlias = alias;
+    return accountId;
+  }
+
+  // If not an alias, determine if it is an EVM address
+  try
+  {
+    accountId.mEvmAddress = EvmAddress::fromString(accountNumStr);
+  }
+  catch (const std::invalid_argument&)
+  {
+    // If not an EVM address, then treat as a normal account number
+    uint64_t accountNum;
+    result = std::from_chars(accountNumStr.data(), accountNumStr.data() + accountNumStr.size(), accountNum);
+    if (result.ec != std::errc() || result.ptr != accountNumStr.data() + accountNumStr.size())
+    {
+      throw std::invalid_argument("Input account ID string is malformed");
+    }
+    accountId.mAccountNum = accountNum;
+    accountId.checkAccountNum();
+  }
+
+  return accountId;
 }
 
 //-----
 bool AccountId::operator==(const AccountId& other) const
 {
-  return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) && (mAccountNum == other.mAccountNum);
+  return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) &&
+         ((mAccountNum && other.mAccountNum && mAccountNum == other.mAccountNum) ||
+          (mAlias && other.mAlias && mAlias->toString() == other.mAlias->toString()) ||
+          (mEvmAddress && other.mEvmAddress && mEvmAddress->toString() == other.mEvmAddress->toString()) ||
+          (!mAccountNum && !other.mAccountNum && !mAlias && !other.mAlias && !mEvmAddress && !other.mEvmAddress));
 }
 
 //-----
 AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
 {
-  return AccountId(static_cast<uint64_t>(proto.shardnum()),
-                   static_cast<uint64_t>(proto.realmnum()),
-                   static_cast<uint64_t>(proto.accountnum()));
+  AccountId accountId;
+  accountId.mShardNum = static_cast<uint64_t>(proto.shardnum());
+  accountId.mRealmNum = static_cast<uint64_t>(proto.realmnum());
+
+  switch (proto.account_case())
+  {
+    case proto::AccountID::kAccountNum:
+      accountId.mAccountNum = static_cast<uint64_t>(proto.accountnum());
+      break;
+    case proto::AccountID::kAlias:
+      accountId.mAlias = PublicKey::fromBytes({ proto.alias().cbegin(), proto.alias().cend() });
+      break;
+    case proto::AccountID::kEvmAddress:
+      accountId.mEvmAddress = EvmAddress::fromBytes({ proto.evm_address().cbegin(), proto.evm_address().cend() });
+      break;
+    default:
+      break;
+  }
+
+  return accountId;
 }
 
 //-----
@@ -142,7 +181,21 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
   auto proto = std::make_unique<proto::AccountID>();
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
-  proto->set_accountnum(static_cast<int64_t>(mAccountNum));
+
+  if (mAccountNum)
+  {
+    proto->set_accountnum(static_cast<int64_t>(*mAccountNum));
+  }
+  else if (mAlias)
+  {
+    const std::vector<unsigned char> bytes = mAlias->toBytes();
+    proto->set_allocated_alias(new std::string{ bytes.cbegin(), bytes.cend() });
+  }
+  else if (mEvmAddress)
+  {
+    const std::vector<unsigned char> bytes = mEvmAddress->toBytes();
+    proto->set_allocated_evm_address(new std::string{ bytes.cbegin(), bytes.cend() });
+  }
 
   return proto;
 }
@@ -150,7 +203,25 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
 //-----
 std::string AccountId::toString() const
 {
-  return std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.' + std::to_string(mAccountNum);
+  std::string str = std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.';
+
+  if (mAccountNum)
+  {
+    return str + std::to_string(*mAccountNum);
+  }
+  else if (mAlias)
+  {
+    return str + mAlias->toString();
+  }
+  else if (mEvmAddress)
+  {
+    return str + mEvmAddress->toString();
+  }
+  else
+  {
+    // Uninitialized case
+    return str + '0';
+  }
 }
 
 //-----
@@ -174,6 +245,27 @@ AccountId& AccountId::setAccountNum(const uint64_t& num)
 {
   mAccountNum = num;
   checkAccountNum();
+
+  mAlias = nullptr;
+  mEvmAddress.reset();
+  return *this;
+}
+
+//-----
+AccountId& AccountId::setAlias(const std::shared_ptr<PublicKey>& alias)
+{
+  mAlias = alias;
+  mAccountNum.reset();
+  mEvmAddress.reset();
+  return *this;
+}
+
+//-----
+AccountId& AccountId::setEvmAddress(const EvmAddress& address)
+{
+  mEvmAddress = address;
+  mAccountNum.reset();
+  mAlias = nullptr;
   return *this;
 }
 
@@ -198,7 +290,7 @@ void AccountId::checkRealmNum() const
 //-----
 void AccountId::checkAccountNum() const
 {
-  if (mAccountNum > std::numeric_limits<int64_t>::max())
+  if (*mAccountNum > std::numeric_limits<int64_t>::max())
   {
     throw std::invalid_argument("Input account number is too large");
   }

@@ -44,7 +44,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  const auto operatorId = AccountId(argv[1]);
+  const AccountId operatorId = AccountId::fromString(argv[1]);
   client.setOperator(operatorId, ED25519PrivateKey::fromString(argv[2]));
 
   const auto recipientId = AccountId(3ULL);

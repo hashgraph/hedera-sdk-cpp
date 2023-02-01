@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  const AccountId accountId(argv[1]);
+  const AccountId accountId = AccountId::fromString(argv[1]);
 
   // Get a client for the Hedera testnet
   Client client = Client::forTestnet();

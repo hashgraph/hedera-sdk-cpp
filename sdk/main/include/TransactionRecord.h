@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_TRANSACTION_RECORD_H_
 
 #include "AccountId.h"
+#include "EvmAddress.h"
 #include "Hbar.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
@@ -57,7 +58,7 @@ public:
   /**
    * Get the receipt of the transaction with which this TransactionRecord is associated.
    *
-   * @return The transaction receipt.
+   * @return The transaction receipt. Uninitialized if no receipt has been generated yet.
    */
   [[nodiscard]] inline std::optional<TransactionReceipt> getReceipt() const { return mReceipt; }
 
@@ -71,7 +72,7 @@ public:
   /**
    * Get the timestamp of when the transaction with which this TransactionRecord is associated reached consensus.
    *
-   * @return The consensus timestamp.
+   * @return The consensus timestamp. Uninitialized if the transaction has not yet reached consensus.
    */
   [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getConsensusTimestamp() const
   {
@@ -107,6 +108,14 @@ public:
    *         transferred.
    */
   [[nodiscard]] inline std::vector<Transfer> getTransferList() const { return mTransferList; }
+
+  /**
+   * Get the EVM address of the account created by the transaction with which this TransactionRecord is associated.
+   *
+   * @return The EVM address of the account created by the transaction with which this TransactionRecord is associated.
+   *         Uninitialized if no account was created by the transaction.
+   */
+  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddress() const { return mEvmAddress; }
 
 private:
   /**
@@ -145,6 +154,12 @@ private:
    * a smart contract it calls, or by the creation of threshold records that it triggers.
    */
   std::vector<Transfer> mTransferList;
+
+  /**
+   * The new default EVM address of the account created by transaction with which this TransactionRecord is associated.
+   * This field is populated only when the EVM address is not specified in the related transaction body.
+   */
+  std::optional<EvmAddress> mEvmAddress;
 };
 
 } // namespace Hedera

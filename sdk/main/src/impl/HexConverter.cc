@@ -58,7 +58,11 @@ std::vector<unsigned char> hexToBase64(const std::string& inputString)
 
   std::vector<unsigned char> outputBytes(bufferLength);
 
-  if (OPENSSL_hexstr2buf_ex(&outputBytes.front(), bufferLength, &bufferLength, inputString.c_str(), '\0') <= 0)
+  if (OPENSSL_hexstr2buf_ex((bufferLength > 0ULL) ? &outputBytes.front() : nullptr,
+                            bufferLength,
+                            &bufferLength,
+                            inputString.c_str(),
+                            '\0') <= 0)
   {
     throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_hexstr2buf_ex"));
   }

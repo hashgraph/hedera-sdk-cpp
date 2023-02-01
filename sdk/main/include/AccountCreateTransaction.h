@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_ACCOUNT_CREATE_TRANSACTION_H_
 
 #include "AccountId.h"
+#include "EvmAddress.h"
 #include "Hbar.h"
 #include "PublicKey.h"
 #include "Transaction.h"
@@ -153,51 +154,59 @@ public:
    * Set the staking reward reception policy for the new account.
    *
    * @param declineReward \c TRUE if the new account should decline receiving staking rewards, otherwise \c FALSE.
-   * @return A reference to this AccountCreateTransaction object, with the newly-set staking rewards reception policy.
+   * @return A reference to this AccountCreateTransaction object with the newly-set staking rewards reception policy.
    */
   AccountCreateTransaction& setDeclineStakingReward(bool declineReward);
 
   /**
-   * Set the key to be used as the new account's alias. Currently, only primitive keys and EVM addresses are supported.
-   * ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported. An EVM address may be either the
-   * encoded form of the <shard>.<realm>.<num>, or the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
+   * Set the key to be used as the new account's alias. Currently, only ED25519/ECDSA_SECP256K1 primitive key types are
+   * supported. ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported.
    *
-   * A given alias can map to at most one account on the network at a time. This uniqueness will be
-   * enforced relative to aliases currently on the network at alias assignment.
+   * A given alias can map to at most one account on the network at a time. This uniqueness will be enforced relative to
+   * aliases currently on the network at alias assignment.
    *
    * If a transaction creates an account using an alias, any further crypto transfers to that alias will simply be
    * deposited in that account, without creating anything, and with no creation fee being charged.
    *
    * @param alias The desired key to be used as the account's alias.
-   * @return A reference to this AccountCreateTransaction object.
+   * @return A reference to this AccountCreateTransaction object with the newly-set account alias.
    */
   AccountCreateTransaction& setAlias(const std::shared_ptr<PublicKey>& alias);
 
   /**
-   * Get the desired public key for the new account.
+   * Set the EOA 20-byte address to create for the new account. This EVM address may be either the encoded form of the
+   * <shard>.<realm>.<num>, or the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
    *
-   * @return The desired public key for the new account. Nullptr if the key has not yet been set.
+   * @param address The desired EVM address for the new account.
+   * @return A reference to this AccountCreateTransaction object with the newly-set EVM address.
+   */
+  AccountCreateTransaction& setEvmAddress(const EvmAddress& address);
+
+  /**
+   * Get the public key to be used for the new account.
+   *
+   * @return A pointer to the public key to be used for the new account. Nullptr if the key has not yet been set.
    */
   [[nodiscard]] inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
 
   /**
-   * Get the desired initial balance to transfer into the new account from the paying account.
+   * Get the initial balance to be transferred into the new account upon creation (from the paying account).
    *
-   * @return The desired initial balance to transfer into the new account from the paying account.
+   * @return The initial balance to be transferred into the new account upon creation (from the paying account).
    */
   [[nodiscard]] inline Hbar getInitialBalance() const { return mInitialBalance; }
 
   /**
-   * Get the desired Hbar transfer receiver signature policy for the new account.
+   * Get the Hbar transfer receiver signature policy to be used by the new account.
    *
    * @return \c TRUE if the new account should be required to sign all incoming Hbar transfers, otherwise \c FALSE.
    */
   [[nodiscard]] inline bool getReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
 
   /**
-   * Get the desired auto renew period for the new account.
+   * Get the auto renew period for the new account.
    *
-   * @return The desired auto renew period for the new account.
+   * @return The auto renew period for the new account.
    */
   [[nodiscard]] inline std::chrono::duration<double> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
@@ -209,41 +218,48 @@ public:
   [[nodiscard]] inline std::string getAccountMemo() const { return mAccountMemo; }
 
   /**
-   * Get the desired maximum automatic token associations for the new account.
+   * Get the maximum automatic token associations for the new account.
    *
-   * @return The desired maximum automatic token associations for the new account.
+   * @return The maximum automatic token associations for the new account.
    */
   [[nodiscard]] inline uint32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
-   * Get the ID of the desired account to which the new account should stake.
+   * Get the ID of the account to which the new account will stake.
    *
    * @return The ID of the desired account to which the new account will stake. Returns uninitialized if a value has not
-   * yet been set, or if a staked node ID has been set most recently.
+   *         yet been set, or if a staked node ID has been set most recently.
    */
   [[nodiscard]] inline std::optional<AccountId> getStakedAccountId() const { return mStakedAccountId; }
 
   /**
-   * Get the ID of the desired node to which the new account should stake.
+   * Get the ID of the desired node to which the new account will stake.
    *
    * @return The ID of the desired node to which the new account will stake. Returns uninitialized if a value has not
-   * yet been set, or if a staked account ID has been set most recently.
+   *         yet been set, or if a staked account ID has been set most recently.
    */
   [[nodiscard]] inline std::optional<uint64_t> getStakedNodeId() const { return mStakedNodeId; }
 
   /**
-   * Get the desired staking rewards reception policy for the new account.
+   * Get the staking rewards reception policy for the new account.
    *
    * @return \c TRUE if the new account should decline from receiving staking rewards, otherwise \c FALSE
    */
   [[nodiscard]] inline bool getDeclineStakingReward() const { return mDeclineStakingReward; }
 
   /**
-   * Get the desired key to be used as the new account's alias.
+   * Get the key to be used as the new account's alias.
    *
-   * @return The desired key to be used as the new account's alias.
+   * @return The key to be used as the new account's alias. Nullptr if the alias has not yet been set.
    */
   [[nodiscard]] inline std::shared_ptr<PublicKey> getAlias() const { return mAlias; }
+
+  /**
+   * Get the EVM address of the new account.
+   *
+   * @return The EVM address of the new account. Returns uninitialized if a value has not yet been set.
+   */
+  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddress() const { return mEvmAddress; }
 
 private:
   /**
@@ -330,11 +346,9 @@ private:
   bool mDeclineStakingReward = false;
 
   /**
-   * The public key to be used as the new account's alias. The bytes will be 1 of 2 options. It will be the
-   * serialization of a protobuf Key message for an ED25519/ECDSA_SECP256K1 primitive key type. If the account is
-   * ECDSA_SECP256K1 based it may also be the public address, calculated as the last 20 bytes of the keccak-256 hash of
-   * the ECDSA_SECP256K1 primitive key. Currently only primitive key bytes are supported as the key for an account with
-   * an alias. ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported.
+   * The bytes to be used as the account's alias. It will be the serialization of a protobuf Key message for an
+   * ED25519/ECDSA_SECP256K1 primitive key type. Currently only primitive key bytes are supported as the key for an
+   * account with an alias. ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported.
    *
    * A given alias can map to at most one account on the network at a time. This uniqueness will be enforced relative to
    * aliases currently on the network at alias assignment.
@@ -343,6 +357,11 @@ private:
    * simply be deposited in that account, without creating anything, and with no creation fee being charged.
    */
   std::shared_ptr<PublicKey> mAlias = nullptr;
+
+  /**
+   * The EOA 20-byte address to create that is derived from the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
+   */
+  std::optional<EvmAddress> mEvmAddress;
 };
 
 } // namespace Hedera

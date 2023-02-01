@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace proto
@@ -53,6 +54,22 @@ public:
    * @return A pointer to the created PublicKey object. Nullptr if the key type is not recognized.
    */
   static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
+
+  /**
+   * Create a PublicKey object from a string.
+   *
+   * @param key The string from which to create a PublicKey object.
+   * @return A pointer to the created PublicKey object. Nullptr if unable to create a PublicKey object.
+   */
+  static std::shared_ptr<PublicKey> fromString(std::string_view key);
+
+  /**
+   * Create a PublicKey object from a byte array.
+   *
+   * @param bytes The byte array from which to create a PublicKey object.
+   * @return A pointer to the created PublicKey object. Nullptr if unable to create a PublicKey object.
+   */
+  static std::shared_ptr<PublicKey> fromBytes(const std::vector<unsigned char>& bytes);
 
   /**
    * Create a clone of this PublicKey object.
