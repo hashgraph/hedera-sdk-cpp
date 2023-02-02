@@ -30,44 +30,44 @@ namespace Hedera
 /**
  * A class representing an ECDSA secp256k1 public key.
  */
-class ECDSASecp256K1PublicKey : public PublicKey
+class ECDSAsecp256k1PublicKey : public PublicKey
 {
 public:
   /**
-   * Disallow default construction of an ECDSASecp256K1PublicKey, as an uninitialized ECDSASecp256K1PublicKey provides
+   * Disallow default construction of an ECDSAsecp256k1PublicKey, as an uninitialized ECDSAsecp256k1PublicKey provides
    * no functionality. Instead, the 'fromString()' or 'fromBytes()' functions should be used.
    */
-  ECDSASecp256K1PublicKey() = delete;
+  ECDSAsecp256k1PublicKey() = delete;
 
   /**
    * Destructor
    */
-  ~ECDSASecp256K1PublicKey() override;
+  ~ECDSAsecp256k1PublicKey() override;
 
   /**
    * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
    */
-  ECDSASecp256K1PublicKey(const ECDSASecp256K1PublicKey& other);
-  ECDSASecp256K1PublicKey& operator=(const ECDSASecp256K1PublicKey& other);
-  ECDSASecp256K1PublicKey(ECDSASecp256K1PublicKey&& other) noexcept;
-  ECDSASecp256K1PublicKey& operator=(ECDSASecp256K1PublicKey&& other) noexcept;
+  ECDSAsecp256k1PublicKey(const ECDSAsecp256k1PublicKey& other);
+  ECDSAsecp256k1PublicKey& operator=(const ECDSAsecp256k1PublicKey& other);
+  ECDSAsecp256k1PublicKey(ECDSAsecp256k1PublicKey&& other) noexcept;
+  ECDSAsecp256k1PublicKey& operator=(ECDSAsecp256k1PublicKey&& other) noexcept;
 
   /**
-   * Construct an ECDSASecp256K1PublicKey object from the raw string representation.
+   * Construct an ECDSAsecp256k1PublicKey object from the raw string representation.
    *
-   * @param keyString The string from which to create an ECDSASecp256K1PublicKey. May be either compressed or
+   * @param keyString The string from which to create an ECDSAsecp256k1PublicKey. May be either compressed or
    *                  uncompressed, but must be the raw encoding (no extra ASN.1 bytes).
-   * @return A pointer to an ECDSASecp256K1PublicKey representing the input string.
+   * @return A pointer to an ECDSAsecp256k1PublicKey representing the input string.
    */
-  static std::shared_ptr<ECDSASecp256K1PublicKey> fromString(const std::string& keyString);
+  static std::shared_ptr<ECDSAsecp256k1PublicKey> fromString(const std::string& keyString);
 
   /**
-   * Construct an ECDSASecp256K1PublicKey object from a byte vector.
+   * Construct an ECDSAsecp256k1PublicKey object from a byte vector.
    *
-   * @param keyBytes The vector of raw bytes from which to construct the ECDSASecp256K1PublicKey.
-   * @return A pointer to an ECDSASecp256K1PublicKey representing the input bytes.
+   * @param keyBytes The vector of raw bytes from which to construct the ECDSAsecp256k1PublicKey.
+   * @return A pointer to an ECDSAsecp256k1PublicKey representing the input bytes.
    */
-  static std::shared_ptr<ECDSASecp256K1PublicKey> fromBytes(const std::vector<unsigned char>& keyBytes);
+  static std::shared_ptr<ECDSAsecp256k1PublicKey> fromBytes(const std::vector<unsigned char>& keyBytes);
 
   /**
    * Converts an uncompressed representation of a public key to a compressed representation.
@@ -86,15 +86,15 @@ public:
   static std::vector<unsigned char> uncompressBytes(const std::vector<unsigned char>& compressedBytes);
 
   /**
-   * Derived from PublicKey. Create a clone of this ECDSASecp256K1PublicKey object.
+   * Derived from PublicKey. Create a clone of this ECDSAsecp256k1PublicKey object.
    *
-   * @return A pointer to the created clone of this ECDSASecp256K1PublicKey.
+   * @return A pointer to the created clone of this ECDSAsecp256k1PublicKey.
    */
   [[nodiscard]] std::unique_ptr<PublicKey> clone() const override;
 
   /**
-   * Derived from PublicKey. Verify that a signature was made by the ECDSASecp256K1PrivateKey which corresponds to this
-   * ECDSASecp256K1PublicKey.
+   * Derived from PublicKey. Verify that a signature was made by the ECDSAsecp256k1PrivateKey which corresponds to this
+   * ECDSAsecp256k1PublicKey.
    *
    * @param signatureBytes The byte vector representing the signature.
    * @param signedBytes    The bytes which were purportedly signed to create the signature.
@@ -105,34 +105,34 @@ public:
                                      const std::vector<unsigned char>& signedBytes) const override;
 
   /**
-   * Derived from PublicKey. Construct a Key protobuf object from this ECDSASecp256K1PublicKey object.
+   * Derived from PublicKey. Construct a Key protobuf object from this ECDSAsecp256k1PublicKey object.
    *
-   * @return A pointer to a created Key protobuf object filled with this ECDSASecp256K1PublicKey object's data.
+   * @return A pointer to a created Key protobuf object filled with this ECDSAsecp256k1PublicKey object's data.
    * @throws std::runtime_error If OpenSSL serialization fails.
    */
   [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
   /**
-   * Derived from PublicKey. Get the raw string representation of this ECDSASecp256K1PublicKey (no additional ASN.1
+   * Derived from PublicKey. Get the raw string representation of this ECDSAsecp256k1PublicKey (no additional ASN.1
    * bytes).
    *
-   * @return The string representation of this ECDSASecp256K1PublicKey.
+   * @return The string representation of this ECDSAsecp256k1PublicKey.
    * @throws std::runtime_error If OpenSSL serialization fails.
    */
   [[nodiscard]] std::string toString() const override;
 
   /**
-   * Derived from PublicKey. Get the raw byte representation of this ECDSASecp256K1PublicKey.
+   * Derived from PublicKey. Get the raw byte representation of this ECDSAsecp256k1PublicKey.
    *
-   * @return The byte representation of this ECDSASecp256K1PublicKey.
+   * @return The byte representation of this ECDSAsecp256k1PublicKey.
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const override;
 
 private:
   /**
-   * Create an OpenSSL keypair object from a byte vector representing an ECDSASecp256K1PublicKey.
+   * Create an OpenSSL keypair object from a byte vector representing an ECDSAsecp256k1PublicKey.
    *
-   * @param inputKeyBytes The bytes representing a ECDSASecp256K1PublicKey.
+   * @param inputKeyBytes The bytes representing a ECDSAsecp256k1PublicKey.
    * @return A pointer to a newly created OpenSSL keypair object.
    */
   static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
@@ -140,9 +140,9 @@ private:
   /**
    * Construct from an OpenSSL key object.
    *
-   * @param keypair The underlying OpenSSL keypair object from which to construct this ECDSASecp256K1PublicKey.
+   * @param keypair The underlying OpenSSL keypair object from which to construct this ECDSAsecp256k1PublicKey.
    */
-  explicit ECDSASecp256K1PublicKey(EVP_PKEY* publicKey);
+  explicit ECDSAsecp256k1PublicKey(EVP_PKEY* publicKey);
 
   /**
    * A pointer to the underlying OpenSSL keypair.

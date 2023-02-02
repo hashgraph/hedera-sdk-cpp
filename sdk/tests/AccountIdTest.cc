@@ -18,7 +18,7 @@
  *
  */
 #include "AccountId.h"
-#include "ECDSASecp256K1PrivateKey.h"
+#include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "PublicKey.h"
 
@@ -49,7 +49,7 @@ private:
   const uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1ULL;
   const std::shared_ptr<PublicKey> mEd25519Alias = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
   const std::shared_ptr<PublicKey> mEcdsaSecp256k1Alias =
-    ECDSASecp256K1PrivateKey::generatePrivateKey()->getPublicKey();
+    ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const EvmAddress mEvmAddress = EvmAddress::fromString("0x0123456789abcdef0123456789abcdef01234567");
 };
 
@@ -189,7 +189,7 @@ TEST_F(AccountIdTest, CompareAccountIds)
   EXPECT_FALSE(AccountId(getTestAccountNum()) == AccountId(getTestAccountNum() - 1ULL));
   EXPECT_FALSE(AccountId(getTestEd25519Alias()) == AccountId(ED25519PrivateKey::generatePrivateKey()->getPublicKey()));
   EXPECT_FALSE(AccountId(getTestEcdsaSecp256k1Alias()) ==
-               AccountId(ECDSASecp256K1PrivateKey::generatePrivateKey()->getPublicKey()));
+               AccountId(ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey()));
   EXPECT_FALSE(AccountId(getTestEvmAddress()) ==
                AccountId(EvmAddress::fromString("abcdef1234567890abcdef1234567890abcdef12")));
 
@@ -429,7 +429,7 @@ TEST_F(AccountIdTest, ProtobufAccountId)
   EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kAlias);
 
   // Adjust protobuf fields
-  testBytes = ECDSASecp256K1PrivateKey::generatePrivateKey()->getPublicKey()->toBytes();
+  testBytes = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey()->toBytes();
   protoAccountId->set_allocated_alias(new std::string{ testBytes.cbegin(), testBytes.cend() });
 
   // Deserialize ECDSA alias

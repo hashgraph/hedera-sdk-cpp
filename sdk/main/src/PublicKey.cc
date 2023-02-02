@@ -18,7 +18,7 @@
  *
  */
 #include "PublicKey.h"
-#include "ECDSASecp256K1PublicKey.h"
+#include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
 
 #include <proto/basic_types.pb.h>
@@ -34,7 +34,7 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
   }
   else if (key.key_case() == proto::Key::KeyCase::kECDSASecp256K1)
   {
-    return ECDSASecp256K1PublicKey::fromBytes({ key.ecdsa_secp256k1().cbegin(), key.ecdsa_secp256k1().cend() });
+    return ECDSAsecp256k1PublicKey::fromBytes({ key.ecdsa_secp256k1().cbegin(), key.ecdsa_secp256k1().cend() });
   }
   else
   {
@@ -55,7 +55,7 @@ std::shared_ptr<PublicKey> PublicKey::fromString(std::string_view key)
 
   try
   {
-    return ECDSASecp256K1PublicKey::fromString(std::string(key));
+    return ECDSAsecp256k1PublicKey::fromString(std::string(key));
   }
   catch (...)
   {
@@ -77,7 +77,7 @@ std::shared_ptr<PublicKey> PublicKey::fromBytes(const std::vector<unsigned char>
 
   try
   {
-    return ECDSASecp256K1PublicKey::fromBytes(bytes);
+    return ECDSAsecp256k1PublicKey::fromBytes(bytes);
   }
   catch (...)
   {
