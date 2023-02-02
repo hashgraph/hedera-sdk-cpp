@@ -26,6 +26,7 @@
 
 #include <memory>
 #include <openssl/crypto.h>
+#include <openssl/evp.h>
 #include <string>
 #include <vector>
 
@@ -46,7 +47,7 @@ public:
   /**
    * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
    */
-  ~ED25519PrivateKey() override;
+  ~ED25519PrivateKey() override = default;
   ED25519PrivateKey(const ED25519PrivateKey& other);
   ED25519PrivateKey& operator=(const ED25519PrivateKey& other);
   ED25519PrivateKey(ED25519PrivateKey&& other) noexcept;
@@ -148,7 +149,7 @@ private:
    * @param keyBytes The bytes representing a ED25519PrivateKey.
    * @return A pointer to a newly created OpenSSL keypair object.
    */
-  static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+  static std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
    * Prepend an ED25519PrivateKey's algorithm identifier to an array of serialized ED25519PrivateKey bytes.
@@ -172,7 +173,7 @@ private:
    *
    * @param keypair A pointer to the underlying OpenSSL keypair object from which to construct this ED25519PrivateKey.
    */
-  explicit ED25519PrivateKey(EVP_PKEY* keypair);
+  explicit ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair);
 
   /**
    * Construct from an OpenSSL keypair object and a chaincode.
@@ -180,7 +181,7 @@ private:
    * @param keypair   A pointer to the underlying OpenSSL keypair.
    * @param chainCode The new ED25519PrivateKey's chain code.
    */
-  ED25519PrivateKey(EVP_PKEY* keypair, std::vector<unsigned char> chainCode);
+  ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair, std::vector<unsigned char> chainCode);
 
   /**
    * Get the byte representation of the ED25519PublicKey that corresponds to this ED25519PrivateKey.
@@ -192,7 +193,7 @@ private:
   /**
    * A pointer to the underlying OpenSSL keypair.
    */
-  EVP_PKEY* mKeypair = nullptr;
+  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> mKeypair = { nullptr, &EVP_PKEY_free };
 
   /**
    * A pointer to the ED25519PublicKey object that corresponds to this ED25519PrivateKey.

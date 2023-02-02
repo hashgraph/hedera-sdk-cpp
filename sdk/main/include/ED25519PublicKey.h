@@ -23,6 +23,7 @@
 #include "PublicKey.h"
 
 #include <openssl/crypto.h>
+#include <openssl/evp.h>
 #include <vector>
 
 namespace Hedera
@@ -42,7 +43,7 @@ public:
   /**
    * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
    */
-  ~ED25519PublicKey() override;
+  ~ED25519PublicKey() override = default;
   ED25519PublicKey(const ED25519PublicKey& other);
   ED25519PublicKey& operator=(const ED25519PublicKey& other);
   ED25519PublicKey(ED25519PublicKey&& other) noexcept;
@@ -113,7 +114,7 @@ private:
    * @param keyBytes The bytes representing a ED25519PublicKey.
    * @return A pointer to a newly created OpenSSL keypair object.
    */
-  static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+  static std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
    * Prepend an ED25519PublicKey's algorithm identifier to an array of serialized ED25519PublicKey bytes.
@@ -129,12 +130,12 @@ private:
    *
    * @param keypair The underlying OpenSSL keypair object from which to construct this ED25519PublicKey.
    */
-  explicit ED25519PublicKey(EVP_PKEY* publicKey);
+  explicit ED25519PublicKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& publicKey);
 
   /**
    * A pointer to the underlying OpenSSL keypair.
    */
-  EVP_PKEY* mPublicKey = nullptr;
+  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> mPublicKey = { nullptr, &EVP_PKEY_free };
 };
 
 } // namespace Hedera

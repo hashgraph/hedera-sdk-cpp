@@ -23,6 +23,7 @@
 #include "PublicKey.h"
 
 #include <openssl/crypto.h>
+#include <openssl/evp.h>
 #include <vector>
 
 namespace Hedera
@@ -40,13 +41,9 @@ public:
   ECDSAsecp256k1PublicKey() = delete;
 
   /**
-   * Destructor
-   */
-  ~ECDSAsecp256k1PublicKey() override;
-
-  /**
    * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
    */
+  ~ECDSAsecp256k1PublicKey() override = default;
   ECDSAsecp256k1PublicKey(const ECDSAsecp256k1PublicKey& other);
   ECDSAsecp256k1PublicKey& operator=(const ECDSAsecp256k1PublicKey& other);
   ECDSAsecp256k1PublicKey(ECDSAsecp256k1PublicKey&& other) noexcept;
@@ -135,19 +132,19 @@ private:
    * @param inputKeyBytes The bytes representing a ECDSAsecp256k1PublicKey.
    * @return A pointer to a newly created OpenSSL keypair object.
    */
-  static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
+  static std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
 
   /**
    * Construct from an OpenSSL key object.
    *
    * @param keypair The underlying OpenSSL keypair object from which to construct this ECDSAsecp256k1PublicKey.
    */
-  explicit ECDSAsecp256k1PublicKey(EVP_PKEY* publicKey);
+  explicit ECDSAsecp256k1PublicKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& publicKey);
 
   /**
    * A pointer to the underlying OpenSSL keypair.
    */
-  EVP_PKEY* mPublicKey = nullptr;
+  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> mPublicKey = { nullptr, &EVP_PKEY_free };
 };
 
 } // namespace Hedera

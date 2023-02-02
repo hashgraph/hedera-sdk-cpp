@@ -33,12 +33,6 @@ const inline std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
 }
 
 //-----
-ED25519PrivateKey::~ED25519PrivateKey()
-{
-  EVP_PKEY_free(mKeypair);
-}
-
-//-----
 ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
   : PrivateKey()
   , mKeypair(bytesToPKEY(other.toBytes()))
@@ -52,11 +46,6 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 {
   if (this != &other)
   {
-    if (mKeypair)
-    {
-      EVP_PKEY_free(mKeypair);
-    }
-
     mKeypair = bytesToPKEY(other.toBytes());
     mPublicKey = other.mPublicKey;
     mChainCode = other.mChainCode;
@@ -68,24 +57,16 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 //-----
 ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
   : PrivateKey()
-  , mKeypair(other.mKeypair)
+  , mKeypair(std::move(other.mKeypair))
   , mPublicKey(std::move(other.mPublicKey))
   , mChainCode(std::move(other.mChainCode))
 {
-  other.mKeypair = nullptr;
 }
 
 //-----
 ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexcept
 {
-  if (mKeypair)
-  {
-    EVP_PKEY_free(mKeypair);
-  }
-  
-  mKeypair = other.mKeypair;
-  other.mKeypair = nullptr;
-
+  mKeypair = std::move(other.mKeypair);
   mPublicKey = std::move(other.mPublicKey);
   mChainCode = std::move(other.mChainCode);
   return *this;
@@ -94,32 +75,27 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexc
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 {
-  EVP_PKEY* keypair = EVP_PKEY_new();
-  EVP_PKEY_CTX* keyAlgorithmContext = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr);
-
+  const std::unique_ptr<EVP_PKEY_CTX, void (*)(EVP_PKEY_CTX*)> keyAlgorithmContext = {
+    EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr), &EVP_PKEY_CTX_free
+  };
   if (!keyAlgorithmContext)
   {
-    EVP_PKEY_free(keypair);
     throw std::runtime_error("Key algorithm context invalid");
   }
 
-  if (EVP_PKEY_keygen_init(keyAlgorithmContext) <= 0)
+  if (EVP_PKEY_keygen_init(keyAlgorithmContext.get()) <= 0)
   {
-    EVP_PKEY_free(keypair);
-    EVP_PKEY_CTX_free(keyAlgorithmContext);
     throw std::runtime_error("Keygen initialization error");
   }
 
-  if (EVP_PKEY_generate(keyAlgorithmContext, &keypair) <= 0)
+  EVP_PKEY* keypair = EVP_PKEY_new();
+  if (EVP_PKEY_generate(keyAlgorithmContext.get(), &keypair) <= 0)
   {
     EVP_PKEY_free(keypair);
-    EVP_PKEY_CTX_free(keyAlgorithmContext);
     throw std::runtime_error("Keypair generation error");
   }
 
-  EVP_PKEY_CTX_free(keyAlgorithmContext);
-
-  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(keypair));
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey({ keypair, &EVP_PKEY_free }));
 }
 
 //-----
@@ -159,44 +135,38 @@ std::shared_ptr<PublicKey> ED25519PrivateKey::getPublicKey() const
 //-----
 std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
-  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
-
+  const std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX*)> messageDigestContext = { EVP_MD_CTX_new(),
+                                                                                    &EVP_MD_CTX_free };
   if (!messageDigestContext)
   {
     throw std::runtime_error("Digest context construction failed");
   }
 
-  if (EVP_DigestSignInit(messageDigestContext, nullptr, nullptr, nullptr, mKeypair) <= 0)
+  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, nullptr, nullptr, mKeypair.get()) <= 0)
   {
-    EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Digest sign initialization failed");
   }
 
+  // Calculate the required size for the signature
   size_t signatureLength;
-  /* Calculate the required size for the signature */
-  if (EVP_DigestSign(messageDigestContext,
+  if (EVP_DigestSign(messageDigestContext.get(),
                      nullptr,
                      &signatureLength,
                      (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
                      bytesToSign.size()) <= 0)
   {
-    EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Failed to calculate signature length");
   }
 
   auto signature = std::vector<unsigned char>(signatureLength);
-
-  if (EVP_DigestSign(messageDigestContext,
+  if (EVP_DigestSign(messageDigestContext.get(),
                      &signature.front(),
                      &signatureLength,
                      (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
                      bytesToSign.size()) <= 0)
   {
-    EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Signature generation failed");
   }
-
-  EVP_MD_CTX_free(messageDigestContext);
 
   return signature;
 }
@@ -236,11 +206,11 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(const uint32_t chil
 //-----
 std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 {
-  int bytesLength = i2d_PrivateKey(mKeypair, nullptr);
+  int bytesLength = i2d_PrivateKey(mKeypair.get(), nullptr);
 
   std::vector<unsigned char> outputBytes(bytesLength);
 
-  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(mKeypair, &rawBytes) <= 0)
+  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(mKeypair.get(), &rawBytes) <= 0)
   {
     throw std::runtime_error("ED225519PrivateKey private key serialization error");
   }
@@ -256,7 +226,8 @@ std::vector<unsigned char> ED25519PrivateKey::getChainCode() const
 }
 
 //-----
-EVP_PKEY* ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ED25519PrivateKey::bytesToPKEY(
+  const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly
@@ -271,8 +242,8 @@ EVP_PKEY* ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBy
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-
-  return d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, (long)fullKeyBytes.size());
+  return { d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())),
+           &EVP_PKEY_free };
 }
 
 //-----
@@ -305,17 +276,18 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromHMACOutput(const std::
 }
 
 //-----
-ED25519PrivateKey::ED25519PrivateKey(EVP_PKEY* keypair)
+ED25519PrivateKey::ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair)
   : PrivateKey()
-  , mKeypair(keypair)
+  , mKeypair(std::move(keypair))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
 {
 }
 
 //-----
-ED25519PrivateKey::ED25519PrivateKey(EVP_PKEY* keypair, std::vector<unsigned char> chainCode)
+ED25519PrivateKey::ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair,
+                                     std::vector<unsigned char> chainCode)
   : PrivateKey()
-  , mKeypair(keypair)
+  , mKeypair(std::move(keypair))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
   , mChainCode(std::move(chainCode))
 {
@@ -324,11 +296,11 @@ ED25519PrivateKey::ED25519PrivateKey(EVP_PKEY* keypair, std::vector<unsigned cha
 //-----
 std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
 {
-  int bytesLength = i2d_PUBKEY(mKeypair, nullptr);
+  int bytesLength = i2d_PUBKEY(mKeypair.get(), nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mKeypair, &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mKeypair.get(), &rawPublicKeyBytes) <= 0)
   {
     throw std::runtime_error("ED225519PrivateKey public key serialization error");
   }
