@@ -50,6 +50,11 @@ ED25519PublicKey& ED25519PublicKey::operator=(const ED25519PublicKey& other)
 {
   if (this != &other)
   {
+    if (mPublicKey)
+    {
+      EVP_PKEY_free(mPublicKey);
+    }
+
     mPublicKey = bytesToPKEY(other.toBytes());
   }
 
@@ -66,6 +71,11 @@ ED25519PublicKey::ED25519PublicKey(ED25519PublicKey&& other) noexcept
 //-----
 ED25519PublicKey& ED25519PublicKey::operator=(ED25519PublicKey&& other) noexcept
 {
+  if (mPublicKey)
+  {
+    EVP_PKEY_free(mPublicKey);
+  }
+
   mPublicKey = other.mPublicKey;
   other.mPublicKey = nullptr;
 

@@ -54,6 +54,11 @@ ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(const ECDSAsecp256
 {
   if (this != &other)
   {
+    if (mKeypair)
+    {
+      EVP_PKEY_free(mKeypair);
+    }
+
     mKeypair = bytesToPKEY(other.toBytes());
     mPublicKey = other.mPublicKey;
     mChainCode = other.mChainCode;
@@ -75,6 +80,11 @@ ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(ECDSAsecp256k1PrivateKey&& ot
 //-----
 ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(ECDSAsecp256k1PrivateKey&& other) noexcept
 {
+  if (mKeypair)
+  {
+    EVP_PKEY_free(mKeypair);
+  }
+
   mKeypair = other.mKeypair;
   other.mKeypair = nullptr;
 
@@ -142,12 +152,6 @@ std::shared_ptr<PublicKey> ECDSAsecp256k1PrivateKey::getPublicKey() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
-  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
-  if (!messageDigestContext)
-  {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
-  }
-
   OSSL_LIB_CTX* libraryContext = OSSL_LIB_CTX_new();
   if (!libraryContext)
   {
@@ -155,12 +159,17 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
   }
 
   EVP_MD* messageDigest = EVP_MD_fetch(libraryContext, "KECCAK-256", nullptr);
+  OSSL_LIB_CTX_free(libraryContext);
   if (!messageDigest)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
   }
 
-  OSSL_LIB_CTX_free(libraryContext);
+  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
+  if (!messageDigestContext)
+  {
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+  }
 
   int result = EVP_DigestSignInit(messageDigestContext, nullptr, messageDigest, nullptr, mKeypair);
   EVP_MD_free(messageDigest);
@@ -190,21 +199,21 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
   // we have the signature complete, now we need to turn it into its raw form of (r,s)
 
   const unsigned char* signaturePointer = &signature.front();
-  ECDSA_SIG* signatureObject = d2i_ECDSA_SIG(nullptr, &signaturePointer, (long)signatureLength);
-  if (signatureObject == nullptr)
+  ECDSA_SIG* signatureObject = d2i_ECDSA_SIG(nullptr, &signaturePointer, static_cast<long>(signatureLength));
+  if (!signatureObject)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("d2i_ECDSA_SIG"));
   }
 
   const BIGNUM* signatureR = ECDSA_SIG_get0_r(signatureObject);
-  if (signatureR == nullptr)
+  if (!signatureR)
   {
     ECDSA_SIG_free(signatureObject);
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("ECDSA_SIG_get0_r"));
   }
 
   const BIGNUM* signatureS = ECDSA_SIG_get0_s(signatureObject);
-  if (signatureS == nullptr)
+  if (!signatureS)
   {
     ECDSA_SIG_free(signatureObject);
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("ECDSA_SIG_get0_s"));
@@ -225,6 +234,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bn2binpad"));
   }
 
+  ECDSA_SIG_free(signatureObject);
   return outputArray;
 }
 

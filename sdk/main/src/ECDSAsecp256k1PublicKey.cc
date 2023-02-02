@@ -54,6 +54,11 @@ ECDSAsecp256k1PublicKey& ECDSAsecp256k1PublicKey::operator=(const ECDSAsecp256k1
 {
   if (this != &other)
   {
+    if (mPublicKey)
+    {
+      EVP_PKEY_free(mPublicKey);
+    }
+
     mPublicKey = bytesToPKEY(other.toBytes());
   }
 
@@ -70,6 +75,11 @@ ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(ECDSAsecp256k1PublicKey&& other
 //-----
 ECDSAsecp256k1PublicKey& ECDSAsecp256k1PublicKey::operator=(ECDSAsecp256k1PublicKey&& other) noexcept
 {
+  if (mPublicKey)
+  {
+    EVP_PKEY_free(mPublicKey);
+  }
+
   mPublicKey = other.mPublicKey;
   other.mPublicKey = nullptr;
 

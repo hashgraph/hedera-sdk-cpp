@@ -52,6 +52,11 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 {
   if (this != &other)
   {
+    if (mKeypair)
+    {
+      EVP_PKEY_free(mKeypair);
+    }
+
     mKeypair = bytesToPKEY(other.toBytes());
     mPublicKey = other.mPublicKey;
     mChainCode = other.mChainCode;
@@ -73,6 +78,11 @@ ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
 //-----
 ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexcept
 {
+  if (mKeypair)
+  {
+    EVP_PKEY_free(mKeypair);
+  }
+  
   mKeypair = other.mKeypair;
   other.mKeypair = nullptr;
 
