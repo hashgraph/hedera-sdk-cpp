@@ -55,6 +55,11 @@ ECDSAPublicKey& ECDSAPublicKey::operator=(const ECDSAPublicKey& other)
 {
   if (this != &other)
   {
+    if (mPublicKey)
+    {
+      EVP_PKEY_free(mPublicKey);
+    }
+
     mPublicKey = bytesToPKEY(other.toBytes());
   }
 
@@ -71,6 +76,11 @@ ECDSAPublicKey::ECDSAPublicKey(ECDSAPublicKey&& other) noexcept
 //-----
 ECDSAPublicKey& ECDSAPublicKey::operator=(ECDSAPublicKey&& other) noexcept
 {
+  if (mPublicKey)
+  {
+    EVP_PKEY_free(mPublicKey);
+  }
+
   mPublicKey = other.mPublicKey;
   other.mPublicKey = nullptr;
 
