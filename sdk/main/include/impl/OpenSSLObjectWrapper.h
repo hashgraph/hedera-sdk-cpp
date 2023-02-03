@@ -77,17 +77,9 @@ class OpenSSL_ECDSA_SIG : public OpenSSLObjectWrapper<ECDSA_SIG, decltype(&ECDSA
 {
 public:
   /**
-   * Default constructor sets the ECDSA_SIG_free deleter function.
-   */
-  OpenSSL_ECDSA_SIG()
-    : OpenSSLObjectWrapper(nullptr, &ECDSA_SIG_free)
-  {
-  }
-
-  /**
    * Construct with the input ECDSA_SIG and its ECDSA_SIG_free deleter function.
    *
-   * @param evpPkey The ECDSA_SIG OpenSSL object to wrap.
+   * @param ecdsaSig The ECDSA_SIG OpenSSL object to wrap.
    */
   explicit OpenSSL_ECDSA_SIG(ECDSA_SIG* ecdsaSig)
     : OpenSSLObjectWrapper(ecdsaSig, &ECDSA_SIG_free)
@@ -102,17 +94,9 @@ class OpenSSL_EVP_MD : public OpenSSLObjectWrapper<EVP_MD, decltype(&EVP_MD_free
 {
 public:
   /**
-   * Default constructor sets the EVP_MD_free deleter function.
-   */
-  OpenSSL_EVP_MD()
-    : OpenSSLObjectWrapper(nullptr, &EVP_MD_free)
-  {
-  }
-
-  /**
    * Construct with the input EVP_MD and its EVP_MD_free deleter function.
    *
-   * @param evpPkey The EVP_MD OpenSSL object to wrap.
+   * @param evpMd The EVP_MD OpenSSL object to wrap.
    */
   explicit OpenSSL_EVP_MD(EVP_MD* evpMd)
     : OpenSSLObjectWrapper(evpMd, &EVP_MD_free)
@@ -127,17 +111,9 @@ class OpenSSL_EVP_MD_CTX : public OpenSSLObjectWrapper<EVP_MD_CTX, decltype(&EVP
 {
 public:
   /**
-   * Default constructor sets the EVP_MD_CTX_free deleter function.
-   */
-  OpenSSL_EVP_MD_CTX()
-    : OpenSSLObjectWrapper(nullptr, &EVP_MD_CTX_free)
-  {
-  }
-
-  /**
    * Construct with the input EVP_MD_CTX and its EVP_MD_CTX_free deleter function.
    *
-   * @param evpPkey The EVP_MD_CTX OpenSSL object to wrap.
+   * @param evpMdCtx The EVP_MD_CTX OpenSSL object to wrap.
    */
   explicit OpenSSL_EVP_MD_CTX(EVP_MD_CTX* evpMdCtx)
     : OpenSSLObjectWrapper(evpMdCtx, &EVP_MD_CTX_free)
@@ -151,14 +127,6 @@ public:
 class OpenSSL_EVP_PKEY : public OpenSSLObjectWrapper<EVP_PKEY, decltype(&EVP_PKEY_free)>
 {
 public:
-  /**
-   * Default constructor sets the EVP_PKEY_free deleter function.
-   */
-  OpenSSL_EVP_PKEY()
-    : OpenSSLObjectWrapper(nullptr, &EVP_PKEY_free)
-  {
-  }
-
   /**
    * Construct with the input EVP_PKEY and its EVP_PKEY_free deleter function.
    *
@@ -177,17 +145,9 @@ class OpenSSL_EVP_PKEY_CTX : public OpenSSLObjectWrapper<EVP_PKEY_CTX, decltype(
 {
 public:
   /**
-   * Default constructor sets the EVP_PKEY_CTX_free deleter function.
-   */
-  OpenSSL_EVP_PKEY_CTX()
-    : OpenSSLObjectWrapper(nullptr, &EVP_PKEY_CTX_free)
-  {
-  }
-
-  /**
    * Construct with the input EVP_PKEY_CTX and its EVP_PKEY_CTX_free deleter function.
    *
-   * @param evpPkey The EVP_PKEY_CTX OpenSSL object to wrap.
+   * @param evpPkeyCtx The EVP_PKEY_CTX OpenSSL object to wrap.
    */
   explicit OpenSSL_EVP_PKEY_CTX(EVP_PKEY_CTX* evpPkeyCtx)
     : OpenSSLObjectWrapper(evpPkeyCtx, &EVP_PKEY_CTX_free)
@@ -202,17 +162,9 @@ class OpenSSL_OSSL_LIB_CTX : public OpenSSLObjectWrapper<OSSL_LIB_CTX, decltype(
 {
 public:
   /**
-   * Default constructor sets the OSSL_LIB_CTX_free deleter function.
-   */
-  OpenSSL_OSSL_LIB_CTX()
-    : OpenSSLObjectWrapper(nullptr, &OSSL_LIB_CTX_free)
-  {
-  }
-
-  /**
    * Construct with the input OSSL_LIB_CTX and its OSSL_LIB_CTX_free deleter function.
    *
-   * @param evpPkey The OSSL_LIB_CTX OpenSSL object to wrap.
+   * @param osslLibCtx The OSSL_LIB_CTX OpenSSL object to wrap.
    */
   explicit OpenSSL_OSSL_LIB_CTX(OSSL_LIB_CTX* osslLibCtx)
     : OpenSSLObjectWrapper(osslLibCtx, &OSSL_LIB_CTX_free)
@@ -227,17 +179,9 @@ class OpenSSL_OSSL_DECODER_CTX : public OpenSSLObjectWrapper<OSSL_DECODER_CTX, d
 {
 public:
   /**
-   * Default constructor sets the OSSL_DECODER_CTX_free deleter function.
-   */
-  OpenSSL_OSSL_DECODER_CTX()
-    : OpenSSLObjectWrapper(nullptr, &OSSL_DECODER_CTX_free)
-  {
-  }
-
-  /**
    * Construct with the input OSSL_DECODER_CTX and its OSSL_DECODER_CTX_free deleter function.
    *
-   * @param evpPkey The OSSL_DECODER_CTX OpenSSL object to wrap.
+   * @param osslDecoderCtx The OSSL_DECODER_CTX OpenSSL object to wrap.
    */
   explicit OpenSSL_OSSL_DECODER_CTX(OSSL_DECODER_CTX* osslDecoderCtx)
     : OpenSSLObjectWrapper(osslDecoderCtx, &OSSL_DECODER_CTX_free)
