@@ -38,9 +38,9 @@ class OpenSSLObjectWrapper
 {
 public:
   /**
-   * Get the pointed-to raw OpenSSL object.
+   * Get the wrapped OpenSSL object.
    *
-   * @return A pointer to the wrapped OpenSSL object.
+   * @return A pointer to the wrapped OpenSSL object, nullptr if no object exists.
    */
   [[nodiscard]] ObjectType* get() const { return mObject.get(); }
 
@@ -55,7 +55,7 @@ protected:
   /**
    * Construct with values for the object and its custom deleter.
    *
-   * @param object  The OpenSSL object to which to point.
+   * @param object  The OpenSSL object to wrap.
    * @param deleter The custom deleter for the OpenSSL object.
    */
   OpenSSLObjectWrapper(ObjectType* object, DeleterType deleter)
