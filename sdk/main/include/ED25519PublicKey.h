@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_ED25519_PUBLIC_KEY_H_
 
 #include "PublicKey.h"
+#include "impl/OpenSSLObjectWrapper.h"
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
@@ -109,12 +110,12 @@ public:
 
 private:
   /**
-   * Create an OpenSSL keypair object from a byte vector representing an ED25519PublicKey.
+   * Create a wrapped OpenSSL keypair object from a byte vector representing an ED25519PublicKey.
    *
    * @param keyBytes The bytes representing a ED25519PublicKey.
-   * @return A pointer to a newly created OpenSSL keypair object.
+   * @return The newly created wrapped OpenSSL keypair object.
    */
-  static std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+  static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
    * Prepend an ED25519PublicKey's algorithm identifier to an array of serialized ED25519PublicKey bytes.
@@ -126,16 +127,16 @@ private:
   static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
 
   /**
-   * Construct from an OpenSSL key object.
+   * Construct from a wrapped OpenSSL key object.
    *
-   * @param keypair The underlying OpenSSL keypair object from which to construct this ED25519PublicKey.
+   * @param keypair The wrapped OpenSSL keypair object from which to construct this ED25519PublicKey.
    */
-  explicit ED25519PublicKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& publicKey);
+  explicit ED25519PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey);
 
   /**
-   * A pointer to the underlying OpenSSL keypair.
+   * The wrapped OpenSSL keypair object.
    */
-  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> mPublicKey = { nullptr, &EVP_PKEY_free };
+  internal::OpenSSL_EVP_PKEY mPublicKey;
 };
 
 } // namespace Hedera

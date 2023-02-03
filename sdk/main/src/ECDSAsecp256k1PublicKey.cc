@@ -20,6 +20,7 @@
 #include "ECDSAsecp256k1PublicKey.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLHasher.h"
+#include "impl/OpenSSLObjectWrapper.h"
 
 #include <openssl/decoder.h>
 #include <openssl/ec.h>
@@ -114,7 +115,7 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
   }
 
-  const std::unique_ptr<ECDSA_SIG, void (*)(ECDSA_SIG*)> signatureObject = { ECDSA_SIG_new(), &ECDSA_SIG_free };
+  const internal::OpenSSL_ECDSA_SIG signatureObject(ECDSA_SIG_new());
 
   // this set function transfers ownership of the big numbers to the signature object after this call succeeds,
   // signatureR and signatureS should NOT be freed manually
@@ -136,23 +137,19 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_ECDSA_SIG"));
   }
 
-  const std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX*)> messageDigestContext = { EVP_MD_CTX_new(),
-                                                                                    &EVP_MD_CTX_free };
+  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
-  const std::unique_ptr<OSSL_LIB_CTX, void (*)(OSSL_LIB_CTX*)> libraryContext = { OSSL_LIB_CTX_new(),
-                                                                                  &OSSL_LIB_CTX_free };
+  const internal::OpenSSL_OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
   if (!libraryContext)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_LIB_CTX_new"));
   }
 
-  const std::unique_ptr<EVP_MD, void (*)(EVP_MD*)> messageDigest = {
-    EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr), &EVP_MD_free
-  };
+  const internal::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr));
   if (!messageDigest)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
@@ -219,8 +216,7 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytes() const
 }
 
 //-----
-std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ECDSAsecp256k1PublicKey::bytesToPKEY(
-  const std::vector<unsigned char>& inputKeyBytes)
+internal::OpenSSL_EVP_PKEY ECDSAsecp256k1PublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes)
 {
   // OpenSSL requires that the bytes are uncompressed to construct the pkey output object
   // start the uncompressed bytes with the appropriate ASN1 prefix for an uncompressed public key
@@ -245,10 +241,8 @@ std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ECDSAsecp256k1PublicKey::bytesToP
   }
 
   EVP_PKEY* pkey = nullptr;
-  const std::unique_ptr<OSSL_DECODER_CTX, void (*)(OSSL_DECODER_CTX*)> context = {
-    OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr),
-    &OSSL_DECODER_CTX_free
-  };
+  const internal::OpenSSL_OSSL_DECODER_CTX context(
+    OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr));
   if (!context)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_CTX_new_for_pkey"));
@@ -261,11 +255,11 @@ std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ECDSAsecp256k1PublicKey::bytesToP
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_from_data"));
   }
 
-  return { pkey, &EVP_PKEY_free };
+  return internal::OpenSSL_EVP_PKEY(pkey);
 }
 
 //-----
-ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& publicKey)
+ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey)
   : mPublicKey(std::move(publicKey))
 {
 }

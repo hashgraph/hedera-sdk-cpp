@@ -23,6 +23,7 @@
 #include "ED25519PublicKey.h"
 #include "MnemonicBIP39.h"
 #include "PrivateKey.h"
+#include "impl/OpenSSLObjectWrapper.h"
 
 #include <memory>
 #include <openssl/crypto.h>
@@ -144,12 +145,12 @@ public:
 
 private:
   /**
-   * Create an OpenSSL keypair object from a byte vector representing an ED25519PrivateKey.
+   * Create a wrapped OpenSSL keypair object from a byte vector representing an ED25519PrivateKey.
    *
    * @param keyBytes The bytes representing a ED25519PrivateKey.
-   * @return A pointer to a newly created OpenSSL keypair object.
+   * @return The newly created wrapped OpenSSL keypair object.
    */
-  static std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+  static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
    * Prepend an ED25519PrivateKey's algorithm identifier to an array of serialized ED25519PrivateKey bytes.
@@ -169,19 +170,19 @@ private:
   static std::unique_ptr<ED25519PrivateKey> fromHMACOutput(const std::vector<unsigned char>& hmacOutput);
 
   /**
-   * Construct from an OpenSSL keypair object.
+   * Construct from a wrapped OpenSSL keypair object.
    *
-   * @param keypair A pointer to the underlying OpenSSL keypair object from which to construct this ED25519PrivateKey.
+   * @param keypair The wrapped OpenSSL keypair object from which to construct this ED25519PrivateKey.
    */
-  explicit ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair);
+  explicit ED25519PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair);
 
   /**
-   * Construct from an OpenSSL keypair object and a chaincode.
+   * Construct from a wrapped OpenSSL keypair object and a chaincode.
    *
-   * @param keypair   A pointer to the underlying OpenSSL keypair.
+   * @param keypair   The wrapped OpenSSL keypair object.
    * @param chainCode The new ED25519PrivateKey's chain code.
    */
-  ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair, std::vector<unsigned char> chainCode);
+  ED25519PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair, std::vector<unsigned char> chainCode);
 
   /**
    * Get the byte representation of the ED25519PublicKey that corresponds to this ED25519PrivateKey.
@@ -191,9 +192,9 @@ private:
   [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
 
   /**
-   * A pointer to the underlying OpenSSL keypair.
+   * The wrapped OpenSSL keypair object.
    */
-  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> mKeypair = { nullptr, &EVP_PKEY_free };
+  internal::OpenSSL_EVP_PKEY mKeypair;
 
   /**
    * A pointer to the ED25519PublicKey object that corresponds to this ED25519PrivateKey.

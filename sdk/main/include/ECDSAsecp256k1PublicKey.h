@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_ECDSA_SECP256K1_PUBLIC_KEY_H_
 
 #include "PublicKey.h"
+#include "impl/OpenSSLObjectWrapper.h"
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
@@ -127,24 +128,24 @@ public:
 
 private:
   /**
-   * Create an OpenSSL keypair object from a byte vector representing an ECDSAsecp256k1PublicKey.
+   * Create a wrapped OpenSSL keypair object from a byte vector representing an ECDSAsecp256k1PublicKey.
    *
    * @param inputKeyBytes The bytes representing a ECDSAsecp256k1PublicKey.
-   * @return A pointer to a newly created OpenSSL keypair object.
+   * @return The newly created wrapped OpenSSL keypair object.
    */
-  static std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
+  static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
 
   /**
-   * Construct from an OpenSSL key object.
+   * Construct from a wrapped OpenSSL keypair object.
    *
-   * @param keypair The underlying OpenSSL keypair object from which to construct this ECDSAsecp256k1PublicKey.
+   * @param keypair The wrapped OpenSSL keypair object from which to construct this ECDSAsecp256k1PublicKey.
    */
-  explicit ECDSAsecp256k1PublicKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& publicKey);
+  explicit ECDSAsecp256k1PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey);
 
   /**
-   * A pointer to the underlying OpenSSL keypair.
+   * The wrapped OpenSSL keypair object.
    */
-  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> mPublicKey = { nullptr, &EVP_PKEY_free };
+  internal::OpenSSL_EVP_PKEY mPublicKey;
 };
 
 } // namespace Hedera

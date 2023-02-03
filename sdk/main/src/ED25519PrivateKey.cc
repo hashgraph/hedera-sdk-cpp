@@ -75,9 +75,7 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexc
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 {
-  const std::unique_ptr<EVP_PKEY_CTX, void (*)(EVP_PKEY_CTX*)> keyAlgorithmContext = {
-    EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr), &EVP_PKEY_CTX_free
-  };
+  const internal::OpenSSL_EVP_PKEY_CTX keyAlgorithmContext(EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr));
   if (!keyAlgorithmContext)
   {
     throw std::runtime_error("Key algorithm context invalid");
@@ -88,14 +86,13 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
     throw std::runtime_error("Keygen initialization error");
   }
 
-  EVP_PKEY* keypair = EVP_PKEY_new();
+  EVP_PKEY* keypair = nullptr;
   if (EVP_PKEY_generate(keyAlgorithmContext.get(), &keypair) <= 0)
   {
-    EVP_PKEY_free(keypair);
     throw std::runtime_error("Keypair generation error");
   }
 
-  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey({ keypair, &EVP_PKEY_free }));
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(internal::OpenSSL_EVP_PKEY(keypair)));
 }
 
 //-----
@@ -135,8 +132,7 @@ std::shared_ptr<PublicKey> ED25519PrivateKey::getPublicKey() const
 //-----
 std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
-  const std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX*)> messageDigestContext = { EVP_MD_CTX_new(),
-                                                                                    &EVP_MD_CTX_free };
+  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw std::runtime_error("Digest context construction failed");
@@ -226,8 +222,7 @@ std::vector<unsigned char> ED25519PrivateKey::getChainCode() const
 }
 
 //-----
-std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ED25519PrivateKey::bytesToPKEY(
-  const std::vector<unsigned char>& keyBytes)
+internal::OpenSSL_EVP_PKEY ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly
@@ -242,8 +237,8 @@ std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ED25519PrivateKey::bytesToPKEY(
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  return { d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())),
-           &EVP_PKEY_free };
+  return internal::OpenSSL_EVP_PKEY(
+    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
 }
 
 //-----
@@ -276,7 +271,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromHMACOutput(const std::
 }
 
 //-----
-ED25519PrivateKey::ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair)
+ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair)
   : PrivateKey()
   , mKeypair(std::move(keypair))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
@@ -284,8 +279,7 @@ ED25519PrivateKey::ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY
 }
 
 //-----
-ED25519PrivateKey::ED25519PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair,
-                                     std::vector<unsigned char> chainCode)
+ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair, std::vector<unsigned char> chainCode)
   : PrivateKey()
   , mKeypair(std::move(keypair))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))

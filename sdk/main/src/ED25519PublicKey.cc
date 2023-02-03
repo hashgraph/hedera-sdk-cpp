@@ -86,8 +86,7 @@ std::unique_ptr<PublicKey> ED25519PublicKey::clone() const
 bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
                                        const std::vector<unsigned char>& signedBytes) const
 {
-  const std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX*)> messageDigestContext = { EVP_MD_CTX_new(),
-                                                                                    &EVP_MD_CTX_free };
+  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw std::runtime_error("Digest context construction failed");
@@ -144,7 +143,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 }
 
 //-----
-std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+internal::OpenSSL_EVP_PKEY ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
@@ -163,7 +162,7 @@ std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ED25519PublicKey::bytesToPKEY(con
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  return { d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())), &EVP_PKEY_free };
+  return internal::OpenSSL_EVP_PKEY(d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
 }
 
 //-----
@@ -179,7 +178,7 @@ std::vector<unsigned char> ED25519PublicKey::prependAlgorithmIdentifier(const st
 }
 
 //-----
-ED25519PublicKey::ED25519PublicKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& publicKey)
+ED25519PublicKey::ED25519PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey)
   : mPublicKey(std::move(publicKey))
 {
 }

@@ -23,6 +23,7 @@
 #include "ECDSAsecp256k1PublicKey.h"
 #include "MnemonicBIP39.h"
 #include "PrivateKey.h"
+#include "impl/OpenSSLObjectWrapper.h"
 
 #include <memory>
 #include <openssl/crypto.h>
@@ -144,29 +145,27 @@ public:
 
 private:
   /**
-   * Create an OpenSSL key object from a byte vector representing an ECDSAsecp256k1PrivateKey.
+   * Create a wrapped OpenSSL key object from a byte vector representing an ECDSAsecp256k1PrivateKey.
    *
    * @param keyBytes The bytes representing a ECDSAsecp256k1PrivateKey.
-   * @return A pointer to a newly created OpenSSL keypair object.
+   * @return The newly created wrapped OpenSSL keypair object.
    */
-  static std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+  static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
-   * Construct from an OpenSSL keypair object.
+   * Construct from a wrapped OpenSSL keypair object.
    *
-   * @param keypair A pointer to the underlying OpenSSL keypair object from which to construct this
-   *                ECDSAsecp256k1PrivateKey.
+   * @param keypair The wrapped OpenSSL keypair object from which to construct this ECDSAsecp256k1PrivateKey.
    */
-  explicit ECDSAsecp256k1PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair);
+  explicit ECDSAsecp256k1PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair);
 
   /**
-   * Construct from an OpenSSL keypair object and a chaincode.
+   * Construct from a wrapped OpenSSL keypair object and a chaincode.
    *
-   * @param keypair   A pointer to the underlying OpenSSL keypair.
+   * @param keypair   The wrapped OpenSSL keypair.
    * @param chainCode The new ECDSAsecp256k1PrivateKey's chain code.
    */
-  ECDSAsecp256k1PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair,
-                           std::vector<unsigned char> chainCode);
+  ECDSAsecp256k1PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair, std::vector<unsigned char> chainCode);
 
   /**
    * Get the byte representation of the ECDSAsecp256k1PublicKey that corresponds to this ECDSAsecp256k1PrivateKey.
@@ -176,9 +175,9 @@ private:
   [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
 
   /**
-   * A pointer to the underlying OpenSSL keypair.
+   * The wrapped OpenSSL keypair.
    */
-  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> mKeypair = { nullptr, &EVP_PKEY_free };
+  internal::OpenSSL_EVP_PKEY mKeypair;
 
   /**
    * A pointer to the ECDSAsecp256k1PublicKey object that corresponds to this ECDSAsecp256k1PrivateKey.

@@ -77,7 +77,7 @@ ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(ECDSAsecp256k1Priv
 //-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::generatePrivateKey()
 {
-  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> key = { EVP_EC_gen("secp256k1"), &EVP_PKEY_free };
+  internal::OpenSSL_EVP_PKEY key(EVP_EC_gen("secp256k1"));
 
   if (!key)
   {
@@ -133,23 +133,19 @@ std::shared_ptr<PublicKey> ECDSAsecp256k1PrivateKey::getPublicKey() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
-  const std::unique_ptr<OSSL_LIB_CTX, void (*)(OSSL_LIB_CTX*)> libraryContext = { OSSL_LIB_CTX_new(),
-                                                                                  &OSSL_LIB_CTX_free };
+  const internal::OpenSSL_OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
   if (!libraryContext)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_LIB_CTX_new"));
   }
 
-  const std::unique_ptr<EVP_MD, void (*)(EVP_MD*)> messageDigest = {
-    EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr), &EVP_MD_free
-  };
+  const internal::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr));
   if (!messageDigest)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
   }
 
-  const std::unique_ptr<EVP_MD_CTX, void (*)(EVP_MD_CTX*)> messageDigestContext = { EVP_MD_CTX_new(),
-                                                                                    &EVP_MD_CTX_free };
+  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
@@ -176,9 +172,8 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
   // we have the signature complete, now we need to turn it into its raw form of (r,s)
 
   const unsigned char* signaturePointer = &signature.front();
-  const std::unique_ptr<ECDSA_SIG, void (*)(ECDSA_SIG*)> signatureObject = {
-    d2i_ECDSA_SIG(nullptr, &signaturePointer, static_cast<long>(signatureLength)), &ECDSA_SIG_free
-  };
+  const internal::OpenSSL_ECDSA_SIG signatureObject(
+    d2i_ECDSA_SIG(nullptr, &signaturePointer, static_cast<long>(signatureLength)));
   if (!signatureObject)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("d2i_ECDSA_SIG"));
@@ -296,8 +291,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::getChainCode() const
 }
 
 //-----
-std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ECDSAsecp256k1PrivateKey::bytesToPKEY(
-  const std::vector<unsigned char>& keyBytes)
+internal::OpenSSL_EVP_PKEY ECDSAsecp256k1PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that we can correctly decode
@@ -319,10 +313,8 @@ std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ECDSAsecp256k1PrivateKey::bytesTo
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> key = {
-    d2i_PrivateKey(EVP_PKEY_EC, nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())), &EVP_PKEY_free
-  };
-
+  internal::OpenSSL_EVP_PKEY key(
+    d2i_PrivateKey(EVP_PKEY_EC, nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
   if (!key)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("d2i_PrivateKey"));
@@ -332,7 +324,7 @@ std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)> ECDSAsecp256k1PrivateKey::bytesTo
 }
 
 //-----
-ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair)
+ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair)
   : PrivateKey()
   , mKeypair(std::move(keypair))
   , mPublicKey(ECDSAsecp256k1PublicKey::fromBytes(getPublicKeyBytes()))
@@ -340,7 +332,7 @@ ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(std::unique_ptr<EVP_PKEY, voi
 }
 
 //-----
-ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(std::unique_ptr<EVP_PKEY, void (*)(EVP_PKEY*)>&& keypair,
+ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair,
                                                    std::vector<unsigned char> chainCode)
   : mKeypair(std::move(keypair))
   , mPublicKey(ECDSAsecp256k1PublicKey::fromBytes(getPublicKeyBytes()))
