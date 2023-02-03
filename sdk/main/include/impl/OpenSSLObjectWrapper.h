@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_OPENSSL_OBJECT_WRAPPER_H_
-#define HEDERA_SDK_CPP_OPENSSL_OBJECT_WRAPPER_H_
+#ifndef HEDERA_SDK_CPP_IMPL_OPENSSL_OBJECT_WRAPPER_H_
+#define HEDERA_SDK_CPP_IMPL_OPENSSL_OBJECT_WRAPPER_H_
 
 #include <memory>
 #include <openssl/decoder.h>
@@ -247,4 +247,4 @@ public:
 
 } // namespace Hedera::internal
 
-#endif // HEDERA_SDK_CPP_OPENSSL_OBJECT_WRAPPER_H_
+#endif // HEDERA_SDK_CPP_IMPL_OPENSSL_OBJECT_WRAPPER_H_
