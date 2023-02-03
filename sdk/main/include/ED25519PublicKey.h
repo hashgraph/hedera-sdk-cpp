@@ -21,8 +21,10 @@
 #define HEDERA_SDK_CPP_ED25519_PUBLIC_KEY_H_
 
 #include "PublicKey.h"
+#include "impl/OpenSSLObjectWrapper.h"
 
 #include <openssl/crypto.h>
+#include <openssl/evp.h>
 #include <vector>
 
 namespace Hedera
@@ -42,7 +44,7 @@ public:
   /**
    * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
    */
-  ~ED25519PublicKey() override;
+  ~ED25519PublicKey() override = default;
   ED25519PublicKey(const ED25519PublicKey& other);
   ED25519PublicKey& operator=(const ED25519PublicKey& other);
   ED25519PublicKey(ED25519PublicKey&& other) noexcept;
@@ -108,12 +110,12 @@ public:
 
 private:
   /**
-   * Create an OpenSSL keypair object from a byte vector representing an ED25519PublicKey.
+   * Create a wrapped OpenSSL keypair object from a byte vector representing an ED25519PublicKey.
    *
    * @param keyBytes The bytes representing a ED25519PublicKey.
-   * @return A pointer to a newly created OpenSSL keypair object.
+   * @return The newly created wrapped OpenSSL keypair object.
    */
-  static EVP_PKEY* bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+  static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
    * Prepend an ED25519PublicKey's algorithm identifier to an array of serialized ED25519PublicKey bytes.
@@ -125,16 +127,16 @@ private:
   static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
 
   /**
-   * Construct from an OpenSSL key object.
+   * Construct from a wrapped OpenSSL key object.
    *
-   * @param keypair The underlying OpenSSL keypair object from which to construct this ED25519PublicKey.
+   * @param keypair The wrapped OpenSSL keypair object from which to construct this ED25519PublicKey.
    */
-  explicit ED25519PublicKey(EVP_PKEY* publicKey);
+  explicit ED25519PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey);
 
   /**
-   * A pointer to the underlying OpenSSL keypair.
+   * The wrapped OpenSSL keypair object.
    */
-  EVP_PKEY* mPublicKey = nullptr;
+  internal::OpenSSL_EVP_PKEY mPublicKey;
 };
 
 } // namespace Hedera

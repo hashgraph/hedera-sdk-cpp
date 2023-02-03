@@ -34,12 +34,6 @@ const inline std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
 }
 
 //-----
-ED25519PublicKey::~ED25519PublicKey()
-{
-  EVP_PKEY_free(mPublicKey);
-}
-
-//-----
 ED25519PublicKey::ED25519PublicKey(const ED25519PublicKey& other)
   : mPublicKey(bytesToPKEY(other.toBytes()))
 {
@@ -50,11 +44,6 @@ ED25519PublicKey& ED25519PublicKey::operator=(const ED25519PublicKey& other)
 {
   if (this != &other)
   {
-    if (mPublicKey)
-    {
-      EVP_PKEY_free(mPublicKey);
-    }
-
     mPublicKey = bytesToPKEY(other.toBytes());
   }
 
@@ -63,22 +52,14 @@ ED25519PublicKey& ED25519PublicKey::operator=(const ED25519PublicKey& other)
 
 //-----
 ED25519PublicKey::ED25519PublicKey(ED25519PublicKey&& other) noexcept
-  : mPublicKey(other.mPublicKey)
+  : mPublicKey(std::move(other.mPublicKey))
 {
-  other.mPublicKey = nullptr;
 }
 
 //-----
 ED25519PublicKey& ED25519PublicKey::operator=(ED25519PublicKey&& other) noexcept
 {
-  if (mPublicKey)
-  {
-    EVP_PKEY_free(mPublicKey);
-  }
-
-  mPublicKey = other.mPublicKey;
-  other.mPublicKey = nullptr;
-
+  mPublicKey = std::move(other.mPublicKey);
   return *this;
 }
 
@@ -105,27 +86,22 @@ std::unique_ptr<PublicKey> ED25519PublicKey::clone() const
 bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
                                        const std::vector<unsigned char>& signedBytes) const
 {
-  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
-
+  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw std::runtime_error("Digest context construction failed");
   }
 
-  if (EVP_DigestVerifyInit(messageDigestContext, nullptr, nullptr, nullptr, mPublicKey) <= 0)
+  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, nullptr, nullptr, mPublicKey.get()) <= 0)
   {
-    EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Digest verify initialization failed");
   }
 
-  int verificationResult = EVP_DigestVerify(messageDigestContext,
-                                            (!signatureBytes.empty()) ? &signatureBytes.front() : nullptr,
-                                            signatureBytes.size(),
-                                            (!signedBytes.empty()) ? &signedBytes.front() : nullptr,
-                                            signedBytes.size());
-
-  EVP_MD_CTX_free(messageDigestContext);
-
+  const int verificationResult = EVP_DigestVerify(messageDigestContext.get(),
+                                                  (!signatureBytes.empty()) ? &signatureBytes.front() : nullptr,
+                                                  signatureBytes.size(),
+                                                  (!signedBytes.empty()) ? &signedBytes.front() : nullptr,
+                                                  signedBytes.size());
   if (verificationResult <= 0)
   {
     std::string message = "Failed to verify signature with code [" + std::to_string(verificationResult) + ']';
@@ -153,11 +129,11 @@ std::string ED25519PublicKey::toString() const
 //-----
 std::vector<unsigned char> ED25519PublicKey::toBytes() const
 {
-  int bytesLength = i2d_PUBKEY(mPublicKey, nullptr);
+  int bytesLength = i2d_PUBKEY(mPublicKey.get(), nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mPublicKey, &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mPublicKey.get(), &rawPublicKeyBytes) <= 0)
   {
     throw std::runtime_error("ED25519PublicKey serialization error");
   }
@@ -167,7 +143,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 }
 
 //-----
-EVP_PKEY* ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+internal::OpenSSL_EVP_PKEY ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
@@ -186,7 +162,7 @@ EVP_PKEY* ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyByt
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  return d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size()));
+  return internal::OpenSSL_EVP_PKEY(d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
 }
 
 //-----
@@ -202,8 +178,8 @@ std::vector<unsigned char> ED25519PublicKey::prependAlgorithmIdentifier(const st
 }
 
 //-----
-ED25519PublicKey::ED25519PublicKey(EVP_PKEY* publicKey)
-  : mPublicKey(publicKey)
+ED25519PublicKey::ED25519PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey)
+  : mPublicKey(std::move(publicKey))
 {
 }
 
