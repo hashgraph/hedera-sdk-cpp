@@ -27,6 +27,8 @@
 #include <openssl/ec.h>
 #include <openssl/ecdsa.h>
 #include <openssl/evp.h>
+#include <string>
+#include <vector>
 
 namespace Hedera::internal
 {

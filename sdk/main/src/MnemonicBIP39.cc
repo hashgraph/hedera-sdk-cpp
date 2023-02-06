@@ -22,7 +22,6 @@
 #include "impl/OpenSSLObjectWrapper.h"
 #include "impl/OpenSSLRandom.h"
 
-#include <bit>
 #include <openssl/evp.h>
 
 namespace Hedera
