@@ -22,6 +22,7 @@
 
 #include "Mnemonic.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
