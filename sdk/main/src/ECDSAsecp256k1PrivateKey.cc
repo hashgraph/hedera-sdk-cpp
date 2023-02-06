@@ -95,13 +95,6 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(c
 }
 
 //-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
-                                                                                      const std::string& passphrase)
-{
-  return fromSeed(mnemonic.toSeed(passphrase));
-}
-
-//-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromSeed(const std::vector<unsigned char>& seed)
 {
   static const std::string keyString = "Bitcoin seed"; // as defined by BIP 32

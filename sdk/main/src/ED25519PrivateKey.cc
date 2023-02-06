@@ -103,13 +103,6 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(const std::stri
 }
 
 //-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
-                                                                        const std::string& passphrase)
-{
-  return fromSeed(mnemonic.toSeed(passphrase));
-}
-
-//-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector<unsigned char>& seed)
 {
   static const std::string keyString = "ed25519 seed"; // as defined by SLIP 0010
@@ -181,10 +174,12 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(const uint32_t chil
     throw std::runtime_error("Key doesn't support derivation");
   }
 
-  if (!internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
+  if (internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
   {
-    throw std::runtime_error("Key supports only hardened derivation");
+    throw std::runtime_error("Child index should not be pre-hardened");
   }
+
+  const uint32_t hardenedIndex = internal::DerivationPathUtils::getHardenedIndex(childIndex);
 
   // as per SLIP0010, private key must be padded to 33 bytes
   std::vector<unsigned char> data = { 0x0 };
@@ -193,7 +188,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(const uint32_t chil
   data.insert(data.end(), keyBytes.begin(), keyBytes.end());
 
   // converts unsigned 32 bit int index into big endian byte array (ser32 function from BIP 32)
-  std::vector<unsigned char> indexVector = internal::DerivationPathUtils::indexToBigEndianArray(childIndex);
+  std::vector<unsigned char> indexVector = internal::DerivationPathUtils::indexToBigEndianArray(hardenedIndex);
   data.insert(data.end(), indexVector.begin(), indexVector.end());
 
   return fromHMACOutput(internal::OpenSSLHasher::computeSHA512HMAC(mChainCode, data));

@@ -72,16 +72,6 @@ public:
   static std::unique_ptr<ED25519PrivateKey> fromString(const std::string& keyString);
 
   /**
-   * Recover an ED25519PrivateKey from a BIP39 mnemonic phrase and passphrase.
-   *
-   * @param mnemonic   The mnemonic phrase from which to recover the ED25519PrivateKey.
-   * @param passphrase The passphrase from which to recover the ED25519PrivateKey.
-   * @return A pointer to the recovered ED25519PrivateKey.
-   */
-  static std::unique_ptr<ED25519PrivateKey> fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
-                                                              const std::string& passphrase);
-
-  /**
    * Derive an ED25519PrivateKey from a seed array.
    *
    * @param seed The array seed from which to derive the ED25519PrivateKey.

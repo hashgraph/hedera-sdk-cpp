@@ -40,17 +40,17 @@ int main(int argc, char** argv)
   std::cout << "Generated 12-word MnemonicBIP39: " << mnemonicBip39.toString() << std::endl;
 
   // Generate and print a ED25519PrivateKey and ECDSAsecp256k1PrivateKey from the mnemonic with no passphrase
-  std::unique_ptr<ED25519PrivateKey> ed25519PrivateKey = ED25519PrivateKey::fromBIP39Mnemonic(mnemonicBip39, "");
+  std::unique_ptr<ED25519PrivateKey> ed25519PrivateKey = mnemonicBip39.toStandardEd25519PrivateKey();
   std::unique_ptr<ECDSAsecp256k1PrivateKey> ecdsaSecp256k1PrivateKey =
-    ECDSAsecp256k1PrivateKey::fromBIP39Mnemonic(mnemonicBip39, "");
+    mnemonicBip39.toStandardEcdsaSecp256k1PrivateKey();
   std::cout << "Generated ED25519PrivateKey from mnemonic with no passphrase: " << ed25519PrivateKey->toString()
             << std::endl;
   std::cout << "Generated ECDSAsecp256k1PrivateKey from mnemonic with no passphrase: "
             << ecdsaSecp256k1PrivateKey->toString() << std::endl;
 
   // Generate and print a ED25519PrivateKey and ECDSAsecp256k1PrivateKey from the mnemonic with a passphrase
-  ed25519PrivateKey = ED25519PrivateKey::fromBIP39Mnemonic(mnemonicBip39, passphrase);
-  ecdsaSecp256k1PrivateKey = ECDSAsecp256k1PrivateKey::fromBIP39Mnemonic(mnemonicBip39, passphrase);
+  ed25519PrivateKey = mnemonicBip39.toStandardEd25519PrivateKey(passphrase);
+  ecdsaSecp256k1PrivateKey = mnemonicBip39.toStandardEcdsaSecp256k1PrivateKey(passphrase);
   std::cout << "Generated ED25519PrivateKey from mnemonic with passphrase '" << passphrase
             << "': " << ed25519PrivateKey->toString() << std::endl;
   std::cout << "Generated ECDSAsecp256k1PrivateKey from mnemonic with passphrase '" << passphrase
@@ -64,16 +64,16 @@ int main(int argc, char** argv)
   std::cout << "Generated 24-word MnemonicBIP39: " << mnemonicBip39.toString() << std::endl;
 
   // Generate and print a ED25519PrivateKey and ECDSAsecp256k1PrivateKey from the mnemonic with no passphrase
-  ed25519PrivateKey = ED25519PrivateKey::fromBIP39Mnemonic(mnemonicBip39, "");
-  ecdsaSecp256k1PrivateKey = ECDSAsecp256k1PrivateKey::fromBIP39Mnemonic(mnemonicBip39, "");
+  ed25519PrivateKey = mnemonicBip39.toStandardEd25519PrivateKey();
+  ecdsaSecp256k1PrivateKey = mnemonicBip39.toStandardEcdsaSecp256k1PrivateKey();
   std::cout << "Generated ED25519PrivateKey from mnemonic with no passphrase: " << ed25519PrivateKey->toString()
             << std::endl;
   std::cout << "Generated ECDSAsecp256k1PrivateKey from mnemonic with no passphrase: "
             << ecdsaSecp256k1PrivateKey->toString() << std::endl;
 
   // Generate and print a ED25519PrivateKey and ECDSAsecp256k1PrivateKey from the mnemonic with a passphrase
-  ed25519PrivateKey = ED25519PrivateKey::fromBIP39Mnemonic(mnemonicBip39, passphrase);
-  ecdsaSecp256k1PrivateKey = ECDSAsecp256k1PrivateKey::fromBIP39Mnemonic(mnemonicBip39, passphrase);
+  ed25519PrivateKey = mnemonicBip39.toStandardEd25519PrivateKey(passphrase);
+  ecdsaSecp256k1PrivateKey = mnemonicBip39.toStandardEcdsaSecp256k1PrivateKey(passphrase);
   std::cout << "Generated ED25519PrivateKey from mnemonic with passphrase '" << passphrase
             << "': " << ed25519PrivateKey->toString() << std::endl;
   std::cout << "Generated ECDSAsecp256k1PrivateKey from mnemonic with passphrase '" << passphrase
