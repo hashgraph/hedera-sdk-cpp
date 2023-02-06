@@ -93,7 +93,7 @@ std::unique_ptr<ED25519PrivateKey> MnemonicBIP39::toStandardEd25519PrivateKey(co
 }
 
 //-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardEcdsaSecp256k1PrivateKey(
+std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k1PrivateKey(
   const std::string& passphrase,
   int index) const
 {
