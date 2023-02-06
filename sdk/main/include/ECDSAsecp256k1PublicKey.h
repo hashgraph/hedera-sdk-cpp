@@ -23,8 +23,8 @@
 #include "PublicKey.h"
 #include "impl/OpenSSLObjectWrapper.h"
 
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace Hedera

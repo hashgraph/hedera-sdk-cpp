@@ -21,15 +21,17 @@
 #define HEDERA_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_
 
 #include "ECDSAsecp256k1PublicKey.h"
-#include "MnemonicBIP39.h"
 #include "PrivateKey.h"
 #include "impl/OpenSSLObjectWrapper.h"
 
 #include <memory>
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
 #include <string>
 #include <vector>
+
+namespace Hedera
+{
+class MnemonicBIP39;
+}
 
 namespace Hedera
 {
