@@ -72,16 +72,6 @@ public:
   static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(const std::string& keyString);
 
   /**
-   * Recover an ECDSAsecp256k1PrivateKey from a BIP39 mnemonic phrase and passphrase.
-   *
-   * @param mnemonic   The mnemonic phrase from which to recover the ECDSAsecp256k1PrivateKey.
-   * @param passphrase The passphrase from which to recover the ECDSAsecp256k1PrivateKey.
-   * @return A pointer to the recovered ECDSAsecp256k1PrivateKey.
-   */
-  static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromBIP39Mnemonic(const MnemonicBIP39& mnemonic,
-                                                                     const std::string& passphrase);
-
-  /**
    * Derive an ECDSAsecp256k1PrivateKey from a seed array.
    *
    * @param seed The array seed from which to derive the ECDSAsecp256k1PrivateKey.

@@ -22,8 +22,15 @@
 
 #include "Mnemonic.h"
 
+#include <memory>
 #include <string>
 #include <vector>
+
+namespace Hedera
+{
+class ECDSAsecp256k1PrivateKey;
+class ED25519PrivateKey;
+}
 
 namespace Hedera
 {
@@ -72,6 +79,28 @@ public:
    * @return The newly-generated MnemonicBIP39.
    */
   static MnemonicBIP39 generate24WordBIP39Mnemonic();
+
+  /**
+   * Generate an ED25519PrivateKey from this Mnemonic using the input passphrase at the specified index.
+   *
+   * @param passphrase The passphrase to use to generate the ED25519PrivateKey.
+   * @param index      The unhardened index in the derivation path from which to derive the ED25519PrivateKey.
+   * @return A pointer to the derived ED25519PrivateKey.
+   * @throws std::runtime_error If the index is already hardened.
+   */
+  [[nodiscard]] std::unique_ptr<ED25519PrivateKey> toStandardEd25519PrivateKey(const std::string& passphrase = "",
+                                                                               int index = 0) const;
+
+  /**
+   * Generate an ECDSAsecp256k1PrivateKey from this Mnemonic using the input passphrase at the specified index.
+   *
+   * @param passphrase The passphrase to use to generate the ECDSAsecp256k1PrivateKey.
+   * @param index      The index in the derivation path from which to derive the ECDSAsecp256k1PrivateKey.
+   * @return A pointer to the derived ECDSAsecp256k1PrivateKey.
+   */
+  [[nodiscard]] std::unique_ptr<ECDSAsecp256k1PrivateKey> toStandardECDSAsecp256k1PrivateKey(
+    const std::string& passphrase = "",
+    int index = 0) const;
 
   /**
    * Compute a seed that results from this MnemonicBIP39.

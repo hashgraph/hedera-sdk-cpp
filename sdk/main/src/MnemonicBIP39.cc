@@ -18,6 +18,9 @@
  *
  */
 #include "MnemonicBIP39.h"
+#include "ECDSAsecp256k1PrivateKey.h"
+#include "ED25519PrivateKey.h"
+#include "impl/DerivationPathUtils.h"
 #include "impl/OpenSSLHasher.h"
 #include "impl/OpenSSLRandom.h"
 
@@ -80,6 +83,26 @@ MnemonicBIP39 MnemonicBIP39::generate24WordBIP39Mnemonic()
 {
   // BIP39 dictates 32 bytes of entropy for 24 words
   return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLRandom::getRandomBytes(32)));
+}
+
+//-----
+std::unique_ptr<ED25519PrivateKey> MnemonicBIP39::toStandardEd25519PrivateKey(const std::string& passphrase,
+                                                                              int index) const
+{
+  return ED25519PrivateKey::fromSeed(toSeed(passphrase))->derive(40)->derive(3030)->derive(0)->derive(0)->derive(index);
+}
+
+//-----
+std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k1PrivateKey(
+  const std::string& passphrase,
+  int index) const
+{
+  return ECDSAsecp256k1PrivateKey::fromSeed(toSeed(passphrase))
+    ->derive(internal::DerivationPathUtils::getHardenedIndex(40))
+    ->derive(internal::DerivationPathUtils::getHardenedIndex(3030))
+    ->derive(internal::DerivationPathUtils::getHardenedIndex(0))
+    ->derive(0)
+    ->derive(index);
 }
 
 //-----
