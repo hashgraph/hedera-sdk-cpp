@@ -19,6 +19,7 @@
  */
 #include "ED25519PublicKey.h"
 #include "impl/HexConverter.h"
+#include "impl/OpenSSLHasher.h"
 
 #include <iostream>
 #include <openssl/err.h>
@@ -102,10 +103,11 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
                                                   signatureBytes.size(),
                                                   (!signedBytes.empty()) ? &signedBytes.front() : nullptr,
                                                   signedBytes.size());
-  if (verificationResult <= 0)
+
+  // any value other than 0 or 1 means an error occurred
+  if (verificationResult != 0 && verificationResult != 1)
   {
-    std::string message = "Failed to verify signature with code [" + std::to_string(verificationResult) + ']';
-    throw std::runtime_error(message.c_str());
+    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerify"));
   }
 
   return verificationResult == 1;
