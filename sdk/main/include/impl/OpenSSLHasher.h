@@ -49,7 +49,7 @@ namespace Hedera::internal::OpenSSLHasher
  * @param key  The key input to the hash function.
  * @param data The data input to the hash function.
  * @return The hash of the data and key.
- * @throws std::runtime_error If OpenSSL has can't compute the HMAC-SHA512 hash for whatever reason.
+ * @throws OpenSSLException If OpenSSL cannot compute the HMAC-SHA512 hash for the given inputs.
  */
 [[nodiscard]] std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
                                                            const std::vector<unsigned char>& data);

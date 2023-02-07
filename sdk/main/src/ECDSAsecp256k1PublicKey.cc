@@ -18,6 +18,8 @@
  *
  */
 #include "ECDSAsecp256k1PublicKey.h"
+#include "exceptions/BadKeyException.h"
+#include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLHasher.h"
 #include "impl/OpenSSLObjectWrapper.h"
@@ -71,15 +73,29 @@ ECDSAsecp256k1PublicKey& ECDSAsecp256k1PublicKey::operator=(ECDSAsecp256k1Public
 //-----
 std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(const std::string& keyString)
 {
-  return fromBytes(internal::HexConverter::hexToBase64(keyString));
+  try
+  {
+    return fromBytes(internal::HexConverter::hexToBase64(keyString));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(openSSLException.what());
+  }
 }
 
 //-----
 std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
-  const ECDSAsecp256k1PublicKey ecdsaSecp256K1PublicKey(bytesToPKEY(keyBytes));
-  return (ecdsaSecp256K1PublicKey.mPublicKey) ? std::make_shared<ECDSAsecp256k1PublicKey>(ecdsaSecp256K1PublicKey)
-                                              : nullptr;
+  try
+  {
+    const ECDSAsecp256k1PublicKey ecdsaSecp256K1PublicKey(bytesToPKEY(keyBytes));
+    return (ecdsaSecp256K1PublicKey.mPublicKey) ? std::make_shared<ECDSAsecp256k1PublicKey>(ecdsaSecp256K1PublicKey)
+                                                : nullptr;
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(openSSLException.what());
+  }
 }
 
 //-----
@@ -102,19 +118,19 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
   internal::OpenSSL_BIGNUM signatureR(BN_bin2bn(&signatureBytes.front(), 32, nullptr));
   if (!signatureR)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
   }
 
   internal::OpenSSL_BIGNUM signatureS(BN_bin2bn(&signatureBytes.front() + 32, 32, nullptr));
   if (!signatureS)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
   }
 
   const internal::OpenSSL_ECDSA_SIG signatureObject(ECDSA_SIG_new());
   if (ECDSA_SIG_set0(signatureObject.get(), signatureR.get(), signatureS.get()) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("ECDSA_SIG_set0"));
   }
 
   // Ownership of signatureR and signatureS has been transferred to signatureObject as a part of the previous
@@ -130,30 +146,30 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
   int actualSignatureLength = i2d_ECDSA_SIG(signatureObject.get(), &encodedSignaturePointer);
   if (actualSignatureLength <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_ECDSA_SIG"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_ECDSA_SIG"));
   }
 
   const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
   const internal::OpenSSL_OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
   if (!libraryContext)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_LIB_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_LIB_CTX_new"));
   }
 
   const internal::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr));
   if (!messageDigest)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
   }
 
   if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, mPublicKey.get()) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerifyInit"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerifyInit"));
   }
 
   const int verificationResult = EVP_DigestVerify(messageDigestContext.get(),
@@ -165,7 +181,7 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
   // any value other than 0 or 1 means an error occurred
   if (verificationResult != 0 && verificationResult != 1)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerify"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerify"));
   }
 
   return verificationResult == 1;
@@ -196,15 +212,15 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytes() const
 
   if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mPublicKey.get(), &rawPublicKeyBytes) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_PUBKEY"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_PUBKEY"));
   }
 
   static const size_t asn1PrefixSize = UNCOMPRESSED_KEY_ASN1_PREFIX.size() / 2; // string has 2 chars per byte
 
   if (publicKeyBytes.size() != UNCOMPRESSED_KEY_SIZE + asn1PrefixSize)
   {
-    throw std::runtime_error("Expected public key size [" + std::to_string(UNCOMPRESSED_KEY_SIZE + asn1PrefixSize) +
-                             "]. Actual size was [" + std::to_string(publicKeyBytes.size()) + "]");
+    throw OpenSSLException("Expected public key size [" + std::to_string(UNCOMPRESSED_KEY_SIZE + asn1PrefixSize) +
+                           "]. Actual size was [" + std::to_string(publicKeyBytes.size()) + "]");
   }
 
   // don't return the algorithm identification bytes, and compress
@@ -214,26 +230,27 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytes() const
 //-----
 internal::OpenSSL_EVP_PKEY ECDSAsecp256k1PublicKey::bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes)
 {
-  // OpenSSL requires that the bytes are uncompressed to construct the pkey output object
-  // start the uncompressed bytes with the appropriate ASN1 prefix for an uncompressed public key
+  const size_t inputKeySize = inputKeyBytes.size();
+  if (inputKeySize != COMPRESSED_KEY_SIZE && inputKeySize != UNCOMPRESSED_KEY_SIZE)
+  {
+    throw std::invalid_argument("bytesToPKEY input bytes size [" + std::to_string(inputKeySize) +
+                                "] is invalid: must be either [" + std::to_string(UNCOMPRESSED_KEY_SIZE) + "] or [" +
+                                std::to_string(COMPRESSED_KEY_SIZE) + "]");
+  }
+
+  // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN1 prefix
   std::vector<unsigned char> uncompressedKeyBytes = internal::HexConverter::hexToBase64(UNCOMPRESSED_KEY_ASN1_PREFIX);
 
-  if (const size_t inputKeySize = inputKeyBytes.size(); inputKeySize == COMPRESSED_KEY_SIZE)
+  if (inputKeySize == COMPRESSED_KEY_SIZE)
   {
     // get the uncompressed key representation, and append to the existing prefix
     const std::vector<unsigned char> rawUncompressedBytes = uncompressBytes(inputKeyBytes);
     uncompressedKeyBytes.insert(uncompressedKeyBytes.end(), rawUncompressedBytes.begin(), rawUncompressedBytes.end());
   }
-  else if (inputKeySize == UNCOMPRESSED_KEY_SIZE)
+  else
   {
     // input bytes are already uncompressed, so simply append to existing prefix
     uncompressedKeyBytes.insert(uncompressedKeyBytes.end(), inputKeyBytes.begin(), inputKeyBytes.end());
-  }
-  else
-  {
-    throw std::invalid_argument("bytesToPKEY input bytes size [" + std::to_string(inputKeySize) +
-                                "] is invalid: must be either [" + std::to_string(UNCOMPRESSED_KEY_SIZE) + "] or [" +
-                                std::to_string(COMPRESSED_KEY_SIZE) + "]");
   }
 
   EVP_PKEY* pkey = nullptr;
@@ -241,14 +258,14 @@ internal::OpenSSL_EVP_PKEY ECDSAsecp256k1PublicKey::bytesToPKEY(const std::vecto
     OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr));
   if (!context)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_CTX_new_for_pkey"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_CTX_new_for_pkey"));
   }
 
   size_t dataLength = uncompressedKeyBytes.size();
   if (const unsigned char* rawKeyBytes = &uncompressedKeyBytes.front();
       OSSL_DECODER_from_data(context.get(), &rawKeyBytes, &dataLength) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_from_data"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("OSSL_DECODER_from_data"));
   }
 
   return internal::OpenSSL_EVP_PKEY(pkey);
@@ -278,26 +295,26 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::compressBytes(const std::vec
   const internal::OpenSSL_EC_GROUP group(EC_GROUP_new_by_curve_name(NID_secp256k1));
   if (!group)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_GROUP_new_by_curve_name"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_GROUP_new_by_curve_name"));
   }
 
   const internal::OpenSSL_EC_POINT uncompressedPoint(EC_POINT_new(group.get()));
   if (!uncompressedPoint)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_new"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_new"));
   }
 
   const internal::OpenSSL_BN_CTX context(BN_CTX_new());
   if (!context)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_new"));
   }
 
   // parse the uncompressed point into an EC_POINT object
   if (EC_POINT_oct2point(
         group.get(), uncompressedPoint.get(), &uncompressedBytes.front(), UNCOMPRESSED_KEY_SIZE, context.get()) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_oct2point"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_oct2point"));
   }
 
   std::vector<unsigned char> compressedBytes(COMPRESSED_KEY_SIZE);
@@ -310,7 +327,7 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::compressBytes(const std::vec
                          COMPRESSED_KEY_SIZE,
                          context.get()) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_point2oct"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_point2oct"));
   }
 
   return compressedBytes;
@@ -334,26 +351,26 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::uncompressBytes(const std::v
   const internal::OpenSSL_EC_GROUP group(EC_GROUP_new_by_curve_name(NID_secp256k1));
   if (!group)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_GROUP_new_by_curve_name"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_GROUP_new_by_curve_name"));
   }
 
   const internal::OpenSSL_EC_POINT compressedPoint(EC_POINT_new(group.get()));
   if (!compressedPoint)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_new"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_new"));
   }
 
   const internal::OpenSSL_BN_CTX context(BN_CTX_new());
   if (!context)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_new"));
   }
 
   // parse the compressed point into an EC_POINT object
   if (EC_POINT_oct2point(
         group.get(), compressedPoint.get(), &compressedBytes.front(), COMPRESSED_KEY_SIZE, context.get()) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_oct2point"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_oct2point"));
   }
 
   std::vector<unsigned char> uncompressedBytes(UNCOMPRESSED_KEY_SIZE);
@@ -366,7 +383,7 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::uncompressBytes(const std::v
                          UNCOMPRESSED_KEY_SIZE,
                          context.get()) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_point2oct"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_point2oct"));
   }
 
   return uncompressedBytes;

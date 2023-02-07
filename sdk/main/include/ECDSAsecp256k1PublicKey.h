@@ -42,7 +42,8 @@ public:
   ECDSAsecp256k1PublicKey() = delete;
 
   /**
-   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
+   * Copy constructor and copy assignment operator can throw OpenSSLException if OpenSSL is unable to serialize the
+   * input key to copy.
    */
   ~ECDSAsecp256k1PublicKey() override = default;
   ECDSAsecp256k1PublicKey(const ECDSAsecp256k1PublicKey& other);
@@ -56,6 +57,7 @@ public:
    * @param keyString The string from which to create an ECDSAsecp256k1PublicKey. May be either compressed or
    *                  uncompressed, but must be the raw encoding (no extra ASN.1 bytes).
    * @return A pointer to an ECDSAsecp256k1PublicKey representing the input string.
+   * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input keyString.
    */
   static std::shared_ptr<ECDSAsecp256k1PublicKey> fromString(const std::string& keyString);
 
@@ -64,6 +66,7 @@ public:
    *
    * @param keyBytes The vector of raw bytes from which to construct the ECDSAsecp256k1PublicKey.
    * @return A pointer to an ECDSAsecp256k1PublicKey representing the input bytes.
+   * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input keyBytes.
    */
   static std::shared_ptr<ECDSAsecp256k1PublicKey> fromBytes(const std::vector<unsigned char>& keyBytes);
 
@@ -72,14 +75,18 @@ public:
    *
    * @param uncompressedBytes The uncompressed bytes of the public key.
    * @return A byte vector representing the public key in compressed form.
+   * @throws std::invalid_argument If the input bytes are not the correct uncompressed key size or malformed.
+   * @throws OpenSSLException      If OpenSSL is unable to compress the input bytes.
    */
   static std::vector<unsigned char> compressBytes(const std::vector<unsigned char>& uncompressedBytes);
 
   /**
    * Converts a compressed representation of a public key to the uncompressed representation
    *
-   * @param compressedBytes the compressed bytes of the public key
-   * @return a byte vector representing the public key in uncompressed form
+   * @param compressedBytes The compressed bytes of the public key.
+   * @return A byte vector representing the public key in uncompressed form.
+   * @throws std::invalid_argument If the input bytes are not the correct compressed key size or malformed.
+   * @throws OpenSSLException      If OpenSSL is unable to uncompress the input bytes.
    */
   static std::vector<unsigned char> uncompressBytes(const std::vector<unsigned char>& compressedBytes);
 
@@ -97,7 +104,7 @@ public:
    * @param signatureBytes The byte vector representing the signature.
    * @param signedBytes    The bytes which were purportedly signed to create the signature.
    * @return \c TRUE if the signature is valid for this ECDSAsecp256k1PublicKey's private key, otherwise \c FALSE.
-   * @throws std::runtime_error If OpenSSL signature verification experiences an error.
+   * @throws OpenSSLException If OpenSSL is unable to verify the signature.
    */
   [[nodiscard]] bool verifySignature(const std::vector<unsigned char>& signatureBytes,
                                      const std::vector<unsigned char>& signedBytes) const override;
@@ -106,7 +113,7 @@ public:
    * Derived from PublicKey. Construct a Key protobuf object from this ECDSAsecp256k1PublicKey object.
    *
    * @return A pointer to a created Key protobuf object filled with this ECDSAsecp256k1PublicKey object's data.
-   * @throws std::runtime_error If OpenSSL serialization fails.
+   * @throws OpenSSLException If OpenSSL is unable to serialize this ECDSAsecp256k1PublicKey.
    */
   [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
@@ -115,7 +122,7 @@ public:
    * bytes).
    *
    * @return The string representation of this ECDSAsecp256k1PublicKey.
-   * @throws std::runtime_error If OpenSSL serialization fails.
+   * @throws OpenSSLException If OpenSSL is unable to encode this key to a DER-encoded string.
    */
   [[nodiscard]] std::string toString() const override;
 
@@ -123,6 +130,7 @@ public:
    * Derived from PublicKey. Get the raw byte representation of this ECDSAsecp256k1PublicKey.
    *
    * @return The byte representation of this ECDSAsecp256k1PublicKey.
+   * @throws OpenSSLException If OpenSSL is unable to decode this key to a byte array.
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const override;
 
@@ -132,6 +140,8 @@ private:
    *
    * @param inputKeyBytes The bytes representing a ECDSAsecp256k1PublicKey.
    * @return The newly created wrapped OpenSSL keypair object.
+   * @throws std::invalid_argument If the input bytes are not the correct size.
+   * @throws OpenSSLException      If OpenSSL is unable to create a keypair from the input bytes.
    */
   static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
 

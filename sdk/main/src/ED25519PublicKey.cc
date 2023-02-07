@@ -18,11 +18,11 @@
  *
  */
 #include "ED25519PublicKey.h"
+#include "exceptions/BadKeyException.h"
+#include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLHasher.h"
 
-#include <iostream>
-#include <openssl/err.h>
 #include <openssl/x509.h>
 #include <proto/basic_types.pb.h>
 
@@ -67,14 +67,28 @@ ED25519PublicKey& ED25519PublicKey::operator=(ED25519PublicKey&& other) noexcept
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string& keyString)
 {
-  return fromBytes(internal::HexConverter::hexToBase64(keyString));
+  try
+  {
+    return fromBytes(internal::HexConverter::hexToBase64(keyString));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(openSSLException.what());
+  }
 }
 
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
 {
-  const ED25519PublicKey ed25519PublicKey(bytesToPKEY(keyBytes));
-  return (ed25519PublicKey.mPublicKey) ? std::make_shared<ED25519PublicKey>(ed25519PublicKey) : nullptr;
+  try
+  {
+    const ED25519PublicKey ed25519PublicKey(bytesToPKEY(keyBytes));
+    return (ed25519PublicKey.mPublicKey) ? std::make_shared<ED25519PublicKey>(ed25519PublicKey) : nullptr;
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(openSSLException.what());
+  }
 }
 
 //-----
@@ -90,12 +104,12 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
   const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw std::runtime_error("Digest context construction failed");
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
   if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, nullptr, nullptr, mPublicKey.get()) <= 0)
   {
-    throw std::runtime_error("Digest verify initialization failed");
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerifyInit"));
   }
 
   const int verificationResult = EVP_DigestVerify(messageDigestContext.get(),
@@ -107,7 +121,7 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
   // any value other than 0 or 1 means an error occurred
   if (verificationResult != 0 && verificationResult != 1)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerify"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerify"));
   }
 
   return verificationResult == 1;
@@ -137,7 +151,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 
   if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mPublicKey.get(), &rawPublicKeyBytes) <= 0)
   {
-    throw std::runtime_error("ED25519PublicKey serialization error");
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_PUBKEY"));
   }
 
   // don't return the algorithm identification bytes
@@ -164,7 +178,13 @@ internal::OpenSSL_EVP_PKEY ED25519PublicKey::bytesToPKEY(const std::vector<unsig
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  return internal::OpenSSL_EVP_PKEY(d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
+  internal::OpenSSL_EVP_PKEY key(d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
+  if (!key)
+  {
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("d2i_PUBKEY"));
+  }
+
+  return key;
 }
 
 //-----

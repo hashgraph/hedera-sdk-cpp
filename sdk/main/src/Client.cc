@@ -23,6 +23,7 @@
 #include "Hbar.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
+#include "exceptions/UnintializedException.h"
 #include "impl/Network.h"
 
 #include <stdexcept>
@@ -126,7 +127,7 @@ std::vector<unsigned char> Client::sign(const std::vector<unsigned char>& bytes)
     return mImpl->mOperatorPrivateKey->sign(bytes);
   }
 
-  throw std::runtime_error("No client operator private key with which to sign");
+  throw UninitializedException("No client operator private key with which to sign");
 }
 
 //-----
@@ -138,7 +139,7 @@ std::vector<std::shared_ptr<internal::Node>> Client::getNodesWithAccountIds(
     return mImpl->mNetwork->getNodesWithAccountIds(accountIds);
   }
 
-  throw std::runtime_error("Client network uninitialized");
+  throw UninitializedException("Client network uninitialized");
 }
 
 void Client::close() const

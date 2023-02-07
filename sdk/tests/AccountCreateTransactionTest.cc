@@ -125,7 +125,7 @@ TEST_F(AccountCreateTransactionTest, SetAccountMemo)
 
   EXPECT_EQ(transaction.getAccountMemo(), memo);
   // Throw if account memo is larger than 100 characters
-  EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::invalid_argument);
+  EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::length_error);
 }
 
 //-----

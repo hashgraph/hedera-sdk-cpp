@@ -18,6 +18,7 @@
  *
  */
 #include "Mnemonic.h"
+#include "exceptions/BadMnemonicException.h"
 #include "impl/OpenSSLHasher.h"
 
 #include <sstream>
@@ -71,13 +72,7 @@ std::vector<std::string> Mnemonic::splitMnemonicString(const std::string& fullMn
 //-----
 unsigned char Mnemonic::computeChecksumFromEntropy(const std::vector<unsigned char>& entropy)
 {
-  if ((entropy.size() * 8) % 32)
-  {
-    throw std::runtime_error("Entropy must have a bit count that is a multiple of 32");
-  }
-
   unsigned char mask = ~(0xFF >> (entropy.size() * 8 / 32));
-
   return internal::OpenSSLHasher::computeSHA256(entropy)[0] & mask;
 }
 
@@ -86,7 +81,7 @@ void Mnemonic::initialize(const std::vector<uint16_t>& indices)
 {
   if (!validateIndexInputs(indices))
   {
-    throw std::invalid_argument("Invalid indices provided");
+    throw BadMnemonicException("Invalid indices provided");
   }
 
   wordIndices = indices;
@@ -110,8 +105,9 @@ bool Mnemonic::verifyChecksum() const
 {
   const std::vector<unsigned char>& entropyAndChecksum = computeEntropyAndChecksum();
 
-  return computeChecksumFromEntropy({ entropyAndChecksum.begin(), entropyAndChecksum.end() - 1 }) ==
-         entropyAndChecksum[entropyAndChecksum.size() - 1];
+  return ((entropyAndChecksum.size() * 8) % 32) &&
+         (computeChecksumFromEntropy({ entropyAndChecksum.begin(), entropyAndChecksum.end() - 1 }) ==
+          entropyAndChecksum[entropyAndChecksum.size() - 1]);
 }
 
 //-----
@@ -213,7 +209,6 @@ bool Mnemonic::validateIndexInputs(const std::vector<uint16_t>& indices) const
   }
 
   const auto wordListSize = static_cast<uint16_t>(getWordList().size());
-
   return std::none_of(indices.begin(), indices.end(), [wordListSize](uint16_t index) { return index >= wordListSize; });
 }
 
@@ -226,7 +221,7 @@ uint16_t Mnemonic::getIndexFromWordString(const std::string& word) const
 
   if (positionIterator == wordList.end())
   {
-    throw std::invalid_argument("Invalid word");
+    throw BadMnemonicException("Unknown word: " + word);
   }
 
   return static_cast<uint16_t>(positionIterator - wordList.begin());

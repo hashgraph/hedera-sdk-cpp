@@ -63,7 +63,7 @@ public:
    *
    * @param client The Client to use to submit a TransactionReceiptQuery.
    * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws std::runtime_error If unable to communicate with client network.
+   * @throws PrecheckStatusException If the TransactionReceiptQuery fails its pre-check.
    */
   [[nodiscard]] TransactionReceipt getReceipt(const Client& client) const;
 
@@ -73,7 +73,7 @@ public:
    * @param client  The Client to use to submit a TransactionReceiptQuery.
    * @param timeout The desired timeout for the execution of the TransactionReceiptQuery.
    * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws std::runtime_error If unable to communicate with client network.
+   * @throws PrecheckStatusException If the TransactionReceiptQuery fails its pre-check.
    */
   [[nodiscard]] TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
 
@@ -82,7 +82,7 @@ public:
    *
    * @param client The Client to use to submit a TransactionRecordQuery.
    * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws std::runtime_error If unable to communicate with client network.
+   * @throws PrecheckStatusException If the TransactionRecordQuery fails its pre-check.
    */
   [[nodiscard]] TransactionRecord getRecord(const Client& client) const;
 
@@ -92,7 +92,7 @@ public:
    * @param client  The Client to use to submit a TransactionRecordQuery.
    * @param timeout The desired timeout for the execution of the TransactionRecordQuery.
    * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws std::runtime_error If unable to communicate with client network.
+   * @throws PrecheckStatusException If the TransactionRecordQuery fails its pre-check.
    */
   [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
 

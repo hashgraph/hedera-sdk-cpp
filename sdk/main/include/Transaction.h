@@ -162,6 +162,7 @@ protected:
    * @param transaction The TransactionBody to sign.
    * @param client      The Client being used to sign the transaction.
    * @return A Transaction protobuf object containing the TransactionBody protobuf object signed by the Client.
+   * @throws UninitializedException If the input client has no operator with which to sign this Transaction.
    */
   [[nodiscard]] proto::Transaction signTransaction(const proto::TransactionBody& transaction,
                                                    const Client& client) const;

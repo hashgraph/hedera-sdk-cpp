@@ -72,6 +72,7 @@ public:
    *
    * @param client The Client to use to submit this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
+   * @throws PrecheckStatusException If this Executable fails its pre-check.
    * @throws std::invalid_argument If the there was a network issue processing this Executable.
    * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
    */
@@ -83,8 +84,8 @@ public:
    * @param client  The Client to use to submit this Executable.
    * @param timeout The desired timeout for the execution of this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
-   * @throws std::invalid_argument If the there was a network issue processing this Executable.
-   * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
    */
   SdkResponseType execute(const Client& client, const std::chrono::duration<double>& timeout);
 

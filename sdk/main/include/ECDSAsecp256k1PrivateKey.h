@@ -48,7 +48,8 @@ public:
   ECDSAsecp256k1PrivateKey() = delete;
 
   /**
-   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
+   * Copy constructor and copy assignment operator can throw OpenSSLException if OpenSSL is unable to serialize the
+   * input key to copy.
    */
   ~ECDSAsecp256k1PrivateKey() override = default;
   ECDSAsecp256k1PrivateKey(const ECDSAsecp256k1PrivateKey& other);
@@ -60,7 +61,7 @@ public:
    * Generate a new ECDSAsecp256k1PrivateKey.
    *
    * @return A pointer to the generated ECDSAsecp256k1PrivateKey.
-   * @throws std::runtime_error If OpenSSL keypair initialization fails.
+   * @throws OpenSSLException If OpenSSL fails to generate a key.
    */
   static std::unique_ptr<ECDSAsecp256k1PrivateKey> generatePrivateKey();
 
@@ -69,7 +70,7 @@ public:
    *
    * @param keyString The string from which to create an ECDSAsecp256k1PrivateKey.
    * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input string.
-   * @throws std::runtime_error If OpenSSL deserialization of keyString fails.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input keyString.
    */
   static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(const std::string& keyString);
 
@@ -78,6 +79,7 @@ public:
    *
    * @param seed The array seed from which to derive the ECDSAsecp256k1PrivateKey.
    * @return A pointer to the derived ECDSAsecp256k1PrivateKey.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input keyString.
    */
   static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
 
@@ -100,7 +102,7 @@ public:
    *
    * @param bytesToSign The bytes to sign.
    * @return The signature of the byte array.
-   * @throws std::runtime_error If OpenSSL signature generation fails.
+   * @throws OpenSSLException If OpenSSL is unable to generate a signature.
    */
   [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
 
@@ -108,7 +110,7 @@ public:
    * Derived from PrivateKey. Get the raw string representation of this ECDSAsecp256k1PrivateKey.
    *
    * @return The string representation of this ECDSAsecp256k1PrivateKey.
-   * @throws std::runtime_error If OpenSSL serialization fails.
+   * @throws OpenSSLException If OpenSSL is unable to encode this key to a DER-encoded string.
    */
   [[nodiscard]] std::string toString() const override;
 
@@ -117,7 +119,8 @@ public:
    *
    * @param childIndex The index of the child to derive.
    * @return A pointer to the derived ECDSAsecp256k1PrivateKey child.
-   * @throws std::runtime_error If an invalid index is provided, or this key doesn't support child key derivation.
+   * @throws OpenSSLException       If OpenSSL is unable to derive a key with the given childIndex.
+   * @throws UninitializedException If this ECDSAsecp256k1PrivateKey was not initialized with a chain code.
    */
   [[nodiscard]] std::unique_ptr<ECDSAsecp256k1PrivateKey> derive(uint32_t childIndex) const;
 
@@ -125,6 +128,7 @@ public:
    * Get the raw byte representation of this ECDSAsecp256k1PrivateKey.
    *
    * @return The byte representation of this ECDSAsecp256k1PrivateKey.
+   * @throws OpenSSLException If OpenSSL is unable to decode this key to a byte array.
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const;
 
@@ -141,6 +145,7 @@ private:
    *
    * @param keyBytes The bytes representing a ECDSAsecp256k1PrivateKey.
    * @return The newly created wrapped OpenSSL keypair object.
+   * @throws OpenSSLException If OpenSSL is unable to create a keypair from the input bytes.
    */
   static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
@@ -148,6 +153,8 @@ private:
    * Construct from a wrapped OpenSSL keypair object.
    *
    * @param keypair The wrapped OpenSSL keypair object from which to construct this ECDSAsecp256k1PrivateKey.
+   * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PublicKey's
+   *                          bytes.
    */
   explicit ECDSAsecp256k1PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair);
 
@@ -156,6 +163,8 @@ private:
    *
    * @param keypair   The wrapped OpenSSL keypair.
    * @param chainCode The new ECDSAsecp256k1PrivateKey's chain code.
+   * @throws OpenSSLException If OpenSSL is unable to get this ECDSAsecp256k1PrivateKey's corresponding
+   *                          ECDSAsecp256k1PublicKey's bytes.
    */
   ECDSAsecp256k1PrivateKey(internal::OpenSSL_EVP_PKEY&& keypair, std::vector<unsigned char> chainCode);
 
@@ -163,6 +172,8 @@ private:
    * Get the byte representation of the ECDSAsecp256k1PublicKey that corresponds to this ECDSAsecp256k1PrivateKey.
    *
    * @return The byte representation of the corresponding ECDSAsecp256k1PublicKey.
+   * @throws OpenSSLException If OpenSSL is unable to get this ECDSAsecp256k1PrivateKey's corresponding
+   *                          ECDSAsecp256k1PublicKey's bytes.
    */
   [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
 
