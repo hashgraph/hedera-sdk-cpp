@@ -21,9 +21,14 @@
 #define HEDERA_SDK_CPP_IMPL_OPENSSL_OBJECT_WRAPPER_H_
 
 #include <memory>
+#include <openssl/bn.h>
+#include <openssl/crypto.h>
 #include <openssl/decoder.h>
 #include <openssl/ec.h>
+#include <openssl/ecdsa.h>
 #include <openssl/evp.h>
+#include <string>
+#include <vector>
 
 namespace Hedera::internal
 {
@@ -43,6 +48,12 @@ public:
    * @return A pointer to the wrapped OpenSSL object, nullptr if no object exists.
    */
   [[nodiscard]] ObjectType* get() const { return mObject.get(); }
+
+  /**
+   * Release ownership of the wrapped OpenSSL object. This will cause memory leaks if ownership has not already been
+   * taken by another object.
+   */
+  void release() { mObject.release(); }
 
   /**
    * Determine if this OpenSSLObjectWrapper has a valid OpenSSL object.
@@ -71,6 +82,94 @@ private:
 };
 
 /**
+ * Wrapper class for the OpenSSL BIGNUM object.
+ */
+class OpenSSL_BIGNUM : public OpenSSLObjectWrapper<BIGNUM, decltype(&BN_clear_free)>
+{
+public:
+  /**
+   * Construct with the input BIGNUM and its BN_clear_free deleter function.
+   *
+   * @param bignum The BIGNUM OpenSSL object to wrap.
+   */
+  explicit OpenSSL_BIGNUM(BIGNUM* bignum);
+
+  /**
+   * Create a new OpenSSL_BIGNUM from a hex string.
+   *
+   * @param hexString A string representing the OpenSSL_BIGNUM.
+   * @return A newly constructed OpenSSL_BIGNUM.
+   */
+  static OpenSSL_BIGNUM fromHex(const std::string& hexString);
+
+  /**
+   * Create a new OpenSSL_BIGNUM from a bytes vector.
+   *
+   * @param bytes The vector of bytes representing the OpenSSL_BIGNUM.
+   * @return A newly constructed OpenSSL_BIGNUM.
+   */
+  static OpenSSL_BIGNUM fromBytes(const std::vector<unsigned char>& bytes);
+
+  /**
+   * Add another OpenSSL_BIGNUM to this one, and take the modulo of the sum.
+   *
+   * @param other  The other OpenSSL_BIGNUM to add to this one.
+   * @param modulo The modulo to take the sum to.
+   * @return The modular sum.
+   */
+  [[nodiscard]] OpenSSL_BIGNUM modularAdd(const OpenSSL_BIGNUM& other, const OpenSSL_BIGNUM& modulo) const;
+
+  /**
+   * Get a vector of bytes representing this OpenSSL_BIGNUM.
+   *
+   * @return The byte vector representing this OpenSSL_BIGNUM.
+   */
+  [[nodiscard]] std::vector<unsigned char> toBytes() const;
+};
+
+/**
+ * Wrapper class for the OpenSSL BN_CTX object.
+ */
+class OpenSSL_BN_CTX : public OpenSSLObjectWrapper<BN_CTX, decltype(&BN_CTX_free)>
+{
+public:
+  /**
+   * Construct with the input BN_CTX and its BN_CTX_free deleter function.
+   *
+   * @param bnCtx The BN_CTX OpenSSL object to wrap.
+   */
+  explicit OpenSSL_BN_CTX(BN_CTX* bnCtx);
+};
+
+/**
+ * Wrapper class for the OpenSSL EC_GROUP object.
+ */
+class OpenSSL_EC_GROUP : public OpenSSLObjectWrapper<EC_GROUP, decltype(&EC_GROUP_free)>
+{
+public:
+  /**
+   * Construct with the input EC_GROUP and its EC_GROUP_free deleter function.
+   *
+   * @param ecGroup The EC_GROUP OpenSSL object to wrap.
+   */
+  explicit OpenSSL_EC_GROUP(EC_GROUP* ecGroup);
+};
+
+/**
+ * Wrapper class for the OpenSSL EC_POINT object.
+ */
+class OpenSSL_EC_POINT : public OpenSSLObjectWrapper<EC_POINT, decltype(&EC_POINT_free)>
+{
+public:
+  /**
+   * Construct with the input EC_POINT and its EC_POINT_free deleter function.
+   *
+   * @param ecPoint The EC_POINT OpenSSL object to wrap.
+   */
+  explicit OpenSSL_EC_POINT(EC_POINT* ecPoint);
+};
+
+/**
  * Wrapper class for the OpenSSL ECDSA_SIG object.
  */
 class OpenSSL_ECDSA_SIG : public OpenSSLObjectWrapper<ECDSA_SIG, decltype(&ECDSA_SIG_free)>
@@ -81,10 +180,7 @@ public:
    *
    * @param ecdsaSig The ECDSA_SIG OpenSSL object to wrap.
    */
-  explicit OpenSSL_ECDSA_SIG(ECDSA_SIG* ecdsaSig)
-    : OpenSSLObjectWrapper(ecdsaSig, &ECDSA_SIG_free)
-  {
-  }
+  explicit OpenSSL_ECDSA_SIG(ECDSA_SIG* ecdsaSig);
 };
 
 /**
@@ -98,10 +194,7 @@ public:
    *
    * @param evpMd The EVP_MD OpenSSL object to wrap.
    */
-  explicit OpenSSL_EVP_MD(EVP_MD* evpMd)
-    : OpenSSLObjectWrapper(evpMd, &EVP_MD_free)
-  {
-  }
+  explicit OpenSSL_EVP_MD(EVP_MD* evpMd);
 };
 
 /**
@@ -115,10 +208,7 @@ public:
    *
    * @param evpMdCtx The EVP_MD_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_EVP_MD_CTX(EVP_MD_CTX* evpMdCtx)
-    : OpenSSLObjectWrapper(evpMdCtx, &EVP_MD_CTX_free)
-  {
-  }
+  explicit OpenSSL_EVP_MD_CTX(EVP_MD_CTX* evpMdCtx);
 };
 
 /**
@@ -132,10 +222,7 @@ public:
    *
    * @param evpPkey The EVP_PKEY OpenSSL object to wrap.
    */
-  explicit OpenSSL_EVP_PKEY(EVP_PKEY* evpPkey)
-    : OpenSSLObjectWrapper(evpPkey, &EVP_PKEY_free)
-  {
-  }
+  explicit OpenSSL_EVP_PKEY(EVP_PKEY* evpPkey);
 };
 
 /**
@@ -149,10 +236,7 @@ public:
    *
    * @param evpPkeyCtx The EVP_PKEY_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_EVP_PKEY_CTX(EVP_PKEY_CTX* evpPkeyCtx)
-    : OpenSSLObjectWrapper(evpPkeyCtx, &EVP_PKEY_CTX_free)
-  {
-  }
+  explicit OpenSSL_EVP_PKEY_CTX(EVP_PKEY_CTX* evpPkeyCtx);
 };
 
 /**
@@ -166,10 +250,7 @@ public:
    *
    * @param osslLibCtx The OSSL_LIB_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_OSSL_LIB_CTX(OSSL_LIB_CTX* osslLibCtx)
-    : OpenSSLObjectWrapper(osslLibCtx, &OSSL_LIB_CTX_free)
-  {
-  }
+  explicit OpenSSL_OSSL_LIB_CTX(OSSL_LIB_CTX* osslLibCtx);
 };
 
 /**
@@ -183,10 +264,7 @@ public:
    *
    * @param osslDecoderCtx The OSSL_DECODER_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_OSSL_DECODER_CTX(OSSL_DECODER_CTX* osslDecoderCtx)
-    : OpenSSLObjectWrapper(osslDecoderCtx, &OSSL_DECODER_CTX_free)
-  {
-  }
+  explicit OpenSSL_OSSL_DECODER_CTX(OSSL_DECODER_CTX* osslDecoderCtx);
 };
 
 } // namespace Hedera::internal

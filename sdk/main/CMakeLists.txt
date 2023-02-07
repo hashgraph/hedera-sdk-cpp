@@ -48,7 +48,6 @@ add_library(${PROJECT_NAME} STATIC
         src/Transfer.cc
         src/TransferTransaction.cc
 
-        src/impl/BigNumber.cc
         src/impl/DerivationPathUtils.cc
         src/impl/Endpoint.cc
         src/impl/DurationConverter.cc
@@ -59,8 +58,9 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/Node.cc
         src/impl/NodeAddress.cc
         src/impl/NodeAddressBook.cc
-        src/impl/OpenSSLRandom.cc
         src/impl/OpenSSLHasher.cc
+        src/impl/OpenSSLObjectWrapper.cc
+        src/impl/OpenSSLRandom.cc
         src/impl/TimestampConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)

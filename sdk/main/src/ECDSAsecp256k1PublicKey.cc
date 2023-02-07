@@ -98,33 +98,29 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
     return false;
   }
 
-  // first, convert the incoming signature to DER format, so that it can be verified
-
-  // These BIGNUM signature objects will transfer their ownership during call to ECDSA_SIG_set0, so memory should be
-  // managed manually until then
-  BIGNUM* signatureR = BN_bin2bn(&signatureBytes.front(), 32, nullptr);
+  // First, convert the incoming signature to DER format, so that it can be verified
+  internal::OpenSSL_BIGNUM signatureR(BN_bin2bn(&signatureBytes.front(), 32, nullptr));
   if (!signatureR)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
   }
 
-  BIGNUM* signatureS = BN_bin2bn(&signatureBytes.front() + 32, 32, nullptr);
+  internal::OpenSSL_BIGNUM signatureS(BN_bin2bn(&signatureBytes.front() + 32, 32, nullptr));
   if (!signatureS)
   {
-    BN_free(signatureR);
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
   }
 
   const internal::OpenSSL_ECDSA_SIG signatureObject(ECDSA_SIG_new());
-
-  // this set function transfers ownership of the big numbers to the signature object after this call succeeds,
-  // signatureR and signatureS should NOT be freed manually
-  if (ECDSA_SIG_set0(signatureObject.get(), signatureR, signatureS) <= 0)
+  if (ECDSA_SIG_set0(signatureObject.get(), signatureR.get(), signatureS.get()) <= 0)
   {
-    BN_free(signatureR);
-    BN_free(signatureS);
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_bin2bn"));
   }
+
+  // Ownership of signatureR and signatureS has been transferred to signatureObject as a part of the previous
+  // ECDSA_SIG_set0 call, so ownership should now be released
+  signatureR.release();
+  signatureS.release();
 
   // maximum length of DER encoded signature is 72
   std::vector<unsigned char> derEncodedSignature(72);
@@ -279,62 +275,43 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::compressBytes(const std::vec
     throw std::invalid_argument("Uncompressed bytes should begin with 0x04");
   }
 
-  EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_secp256k1);
-
-  if (group == nullptr)
+  const internal::OpenSSL_EC_GROUP group(EC_GROUP_new_by_curve_name(NID_secp256k1));
+  if (!group)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_GROUP_new_by_curve_name"));
   }
 
-  EC_POINT* uncompressedPoint = EC_POINT_new(group);
-
-  if (uncompressedPoint == nullptr)
+  const internal::OpenSSL_EC_POINT uncompressedPoint(EC_POINT_new(group.get()));
+  if (!uncompressedPoint)
   {
-    EC_GROUP_free(group);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_new"));
   }
 
-  BN_CTX* context = BN_CTX_new();
-
-  if (context == nullptr)
+  const internal::OpenSSL_BN_CTX context(BN_CTX_new());
+  if (!context)
   {
-    EC_GROUP_free(group);
-    EC_POINT_free(uncompressedPoint);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_new"));
   }
 
   // parse the uncompressed point into an EC_POINT object
-  if (EC_POINT_oct2point(group, uncompressedPoint, &uncompressedBytes.front(), UNCOMPRESSED_KEY_SIZE, context) <= 0)
+  if (EC_POINT_oct2point(
+        group.get(), uncompressedPoint.get(), &uncompressedBytes.front(), UNCOMPRESSED_KEY_SIZE, context.get()) <= 0)
   {
-    EC_GROUP_free(group);
-    EC_POINT_free(uncompressedPoint);
-    BN_CTX_free(context);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_oct2point"));
   }
 
   std::vector<unsigned char> compressedBytes(COMPRESSED_KEY_SIZE);
 
   // serialize the point to compressed form
-  if (EC_POINT_point2oct(group,
-                         uncompressedPoint,
+  if (EC_POINT_point2oct(group.get(),
+                         uncompressedPoint.get(),
                          POINT_CONVERSION_COMPRESSED,
                          &compressedBytes.front(),
                          COMPRESSED_KEY_SIZE,
-                         context) <= 0)
+                         context.get()) <= 0)
   {
-    EC_GROUP_free(group);
-    EC_POINT_free(uncompressedPoint);
-    BN_CTX_free(context);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_point2oct"));
   }
-
-  EC_GROUP_free(group);
-  EC_POINT_free(uncompressedPoint);
-  BN_CTX_free(context);
 
   return compressedBytes;
 }
@@ -354,62 +331,43 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::uncompressBytes(const std::v
     throw std::invalid_argument("Compressed bytes should begin with 0x02 or 0x03");
   }
 
-  EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_secp256k1);
-
-  if (group == nullptr)
+  const internal::OpenSSL_EC_GROUP group(EC_GROUP_new_by_curve_name(NID_secp256k1));
+  if (!group)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_GROUP_new_by_curve_name"));
   }
 
-  EC_POINT* compressedPoint = EC_POINT_new(group);
-
-  if (compressedPoint == nullptr)
+  const internal::OpenSSL_EC_POINT compressedPoint(EC_POINT_new(group.get()));
+  if (!compressedPoint)
   {
-    EC_GROUP_free(group);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_new"));
   }
 
-  BN_CTX* context = BN_CTX_new();
-
-  if (context == nullptr)
+  const internal::OpenSSL_BN_CTX context(BN_CTX_new());
+  if (!context)
   {
-    EC_GROUP_free(group);
-    EC_POINT_free(compressedPoint);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_new"));
   }
 
   // parse the compressed point into an EC_POINT object
-  if (EC_POINT_oct2point(group, compressedPoint, &compressedBytes.front(), COMPRESSED_KEY_SIZE, context) <= 0)
+  if (EC_POINT_oct2point(
+        group.get(), compressedPoint.get(), &compressedBytes.front(), COMPRESSED_KEY_SIZE, context.get()) <= 0)
   {
-    EC_GROUP_free(group);
-    EC_POINT_free(compressedPoint);
-    BN_CTX_free(context);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_oct2point"));
   }
 
   std::vector<unsigned char> uncompressedBytes(UNCOMPRESSED_KEY_SIZE);
 
   // serialize the point to uncompressed form
-  if (EC_POINT_point2oct(group,
-                         compressedPoint,
+  if (EC_POINT_point2oct(group.get(),
+                         compressedPoint.get(),
                          POINT_CONVERSION_UNCOMPRESSED,
                          &uncompressedBytes.front(),
                          UNCOMPRESSED_KEY_SIZE,
-                         context) <= 0)
+                         context.get()) <= 0)
   {
-    EC_GROUP_free(group);
-    EC_POINT_free(compressedPoint);
-    BN_CTX_free(context);
-
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EC_POINT_point2oct"));
   }
-
-  EC_GROUP_free(group);
-  EC_POINT_free(compressedPoint);
-  BN_CTX_free(context);
 
   return uncompressedBytes;
 }

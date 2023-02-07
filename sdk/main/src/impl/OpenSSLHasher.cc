@@ -18,6 +18,7 @@
  *
  */
 #include "impl/OpenSSLHasher.h"
+#include "impl/OpenSSLObjectWrapper.h"
 
 #include <openssl/err.h>
 #include <openssl/hmac.h>
@@ -50,32 +51,27 @@ std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
 std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
                                              const std::vector<unsigned char>& data)
 {
-  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
-
-  if (messageDigestContext == nullptr)
+  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  if (!messageDigestContext)
   {
     throw std::runtime_error("Digest context construction failed");
   }
 
-  EVP_MD* messageDigest = EVP_MD_fetch(nullptr, "SHA512", nullptr);
-
-  if (messageDigest == nullptr)
+  const internal::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
+  if (!messageDigest)
   {
-    EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Digest construction failed");
   }
 
-  if (EVP_DigestInit(messageDigestContext, messageDigest) <= 0)
+  if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
   {
-    EVP_MD_CTX_free(messageDigestContext);
-    EVP_MD_free(messageDigest);
     throw std::runtime_error("Digest init failed");
   }
 
   std::vector<unsigned char> digest(64);
 
   unsigned int digestSize;
-  unsigned char* hmac = HMAC(messageDigest,
+  unsigned char* hmac = HMAC(messageDigest.get(),
                              &key.front(),
                              static_cast<int>(key.size()),
                              &data.front(),
@@ -83,15 +79,10 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
                              &digest.front(),
                              &digestSize);
 
-  if (hmac == nullptr)
+  if (!hmac)
   {
-    EVP_MD_CTX_free(messageDigestContext);
-    EVP_MD_free(messageDigest);
     throw std::runtime_error("HMAC failed");
   }
-
-  EVP_MD_CTX_free(messageDigestContext);
-  EVP_MD_free(messageDigest);
 
   return { hmac, hmac + 64 };
 }

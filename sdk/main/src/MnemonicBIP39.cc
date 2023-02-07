@@ -22,9 +22,9 @@
 #include "ED25519PrivateKey.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/OpenSSLHasher.h"
+#include "impl/OpenSSLObjectWrapper.h"
 #include "impl/OpenSSLRandom.h"
 
-#include <bit>
 #include <openssl/evp.h>
 
 namespace Hedera
@@ -108,26 +108,20 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k
 //-----
 std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) const
 {
-  EVP_MD_CTX* messageDigestContext = EVP_MD_CTX_new();
-
+  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw std::runtime_error("Digest context construction failed");
   }
 
-  EVP_MD* messageDigest = EVP_MD_fetch(nullptr, "SHA512", nullptr);
-
-  if (messageDigest == nullptr)
+  const internal::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
+  if (!messageDigest)
   {
-    EVP_MD_CTX_free(messageDigestContext);
     throw std::runtime_error("Digest construction failed");
   }
 
-  if (EVP_DigestInit(messageDigestContext, messageDigest) <= 0)
+  if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
   {
-
-    EVP_MD_CTX_free(messageDigestContext);
-    EVP_MD_free(messageDigest);
     throw std::runtime_error("Digest init failed");
   }
 
@@ -144,17 +138,12 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) 
                         saltAddress,
                         static_cast<int>(salt.length()),
                         2048,
-                        messageDigest,
+                        messageDigest.get(),
                         static_cast<int>(seed.size()),
                         &seed.front()) <= 0)
   {
-    EVP_MD_CTX_free(messageDigestContext);
-    EVP_MD_free(messageDigest);
     throw std::runtime_error("PKCS5_PBKDF2_HMAC failed");
   }
-
-  EVP_MD_CTX_free(messageDigestContext);
-  EVP_MD_free(messageDigest);
 
   return seed;
 }

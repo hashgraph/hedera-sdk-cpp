@@ -18,12 +18,13 @@
  *
  */
 #include "ECDSAsecp256k1PrivateKey.h"
-#include "impl/BigNumber.h"
+#include "MnemonicBIP39.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLHasher.h"
+#include "impl/OpenSSLObjectWrapper.h"
 
-#include <openssl/err.h>
+#include <openssl/ec.h>
 #include <openssl/x509.h>
 
 namespace Hedera
@@ -78,7 +79,6 @@ ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(ECDSAsecp256k1Priv
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::generatePrivateKey()
 {
   internal::OpenSSL_EVP_PKEY key(EVP_EC_gen("secp256k1"));
-
   if (!key)
   {
     throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_EC_gen"));
@@ -240,22 +240,20 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::derive(const
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLHasher::computeSHA512HMAC(mChainCode, data);
 
   // the first 32 bytes of the hmac are used to compute the key
-  internal::BigNumber keyTerm1 =
-    internal::BigNumber::fromBytes({ hmacOutput.begin(), hmacOutput.begin() + PRIVATE_KEY_SIZE });
+  const internal::OpenSSL_BIGNUM keyTerm1 =
+    internal::OpenSSL_BIGNUM::fromBytes({ hmacOutput.begin(), hmacOutput.begin() + PRIVATE_KEY_SIZE });
   // first 32 bytes of hmac are added to existing private key
-  internal::BigNumber keyTerm2 = internal::BigNumber::fromBytes(toBytes());
+  const internal::OpenSSL_BIGNUM keyTerm2 = internal::OpenSSL_BIGNUM::fromBytes(toBytes());
 
   // this is the order of the curve
-  static const internal::BigNumber modulo =
-    internal::BigNumber::fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
-
-  internal::BigNumber moduloSum = keyTerm1.modularAdd(keyTerm2, modulo);
+  static const internal::OpenSSL_BIGNUM modulo =
+    internal::OpenSSL_BIGNUM::fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
 
   // chain code is the last 32 bytes of the computed hmac
   std::vector<unsigned char> chainCode(hmacOutput.begin() + CHAIN_CODE_SIZE, hmacOutput.end());
 
   return std::make_unique<ECDSAsecp256k1PrivateKey>(
-    ECDSAsecp256k1PrivateKey(bytesToPKEY(moduloSum.toBytes()), chainCode));
+    ECDSAsecp256k1PrivateKey(bytesToPKEY(keyTerm1.modularAdd(keyTerm2, modulo).toBytes()), chainCode));
 }
 
 //-----
