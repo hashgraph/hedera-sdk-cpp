@@ -63,7 +63,10 @@ public:
    *
    * @param client The Client to use to submit a TransactionReceiptQuery.
    * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws PrecheckStatusException If the TransactionReceiptQuery fails its pre-check.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   [[nodiscard]] TransactionReceipt getReceipt(const Client& client) const;
 
@@ -73,7 +76,10 @@ public:
    * @param client  The Client to use to submit a TransactionReceiptQuery.
    * @param timeout The desired timeout for the execution of the TransactionReceiptQuery.
    * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws PrecheckStatusException If the TransactionReceiptQuery fails its pre-check.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   [[nodiscard]] TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
 
@@ -82,7 +88,10 @@ public:
    *
    * @param client The Client to use to submit a TransactionRecordQuery.
    * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws PrecheckStatusException If the TransactionRecordQuery fails its pre-check.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   [[nodiscard]] TransactionRecord getRecord(const Client& client) const;
 
@@ -92,7 +101,10 @@ public:
    * @param client  The Client to use to submit a TransactionRecordQuery.
    * @param timeout The desired timeout for the execution of the TransactionRecordQuery.
    * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws PrecheckStatusException If the TransactionRecordQuery fails its pre-check.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
 

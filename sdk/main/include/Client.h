@@ -86,7 +86,7 @@ public:
    *
    * @param bytes The bytes for this Client's operator to sign.
    * @return The bytes with the signature of this Client's operator appended.
-   * @throws UninitializedException If no client operator has been set.
+   * @throws UninitializedException If this client's operator has not yet been set.
    */
   [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytes) const;
 
@@ -96,7 +96,7 @@ public:
    *
    * @param accountIds The account IDs of the requested nodes. This can be empty to get all Nodes.
    * @return A list of pointers to Nodes that are associated with the requested account IDs.
-   * @throws UninitializedException If no client network has been initialized.
+   * @throws UninitializedException If client's network has not yet been initialized.
    */
   [[nodiscard]] std::vector<std::shared_ptr<internal::Node>> getNodesWithAccountIds(
     const std::vector<AccountId>& accountIds) const;

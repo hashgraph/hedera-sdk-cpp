@@ -30,7 +30,7 @@ namespace Hedera::internal::HexConverter
  *
  * @param bytes The bytes from which to get the hex string.
  * @return A string containing the hex values of the input byte array.
- * @throws OpenSSLException If unable to convert the input bytes to hex.
+ * @throws OpenSSLException If OpenSSL is unable to convert the input bytes to hex.
  */
 std::string base64ToHex(const std::vector<unsigned char>& bytes);
 
@@ -39,7 +39,7 @@ std::string base64ToHex(const std::vector<unsigned char>& bytes);
  *
  * @param inputString The hex string to convert to a byte array.
  * @return The byte array containing the values of the input hex string.
- * @throws OpenSSLException If unable to convert the input string to a byte array.
+ * @throws OpenSSLException If OpenSSL is unable to convert the input string to a byte array.
  */
 std::vector<unsigned char> hexToBase64(const std::string& inputString);
 
