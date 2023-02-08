@@ -80,7 +80,7 @@ TEST_F(ClientTest, SignWithOperator)
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
 
   Client client;
-  EXPECT_THROW(client.sign(bytesToSign), UninitializedException);
+  EXPECT_THROW(auto bytes = client.sign(bytesToSign), UninitializedException);
 
   client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
   EXPECT_TRUE(getTestPrivateKey()->getPublicKey()->verifySignature(client.sign(bytesToSign), bytesToSign));
@@ -90,7 +90,7 @@ TEST_F(ClientTest, SignWithOperator)
 TEST_F(ClientTest, GetNodes)
 {
   Client client;
-  EXPECT_THROW(client.getNodesWithAccountIds({ getTestAccountId() }), UninitializedException);
+  EXPECT_THROW(auto nodes = client.getNodesWithAccountIds({ getTestAccountId() }), UninitializedException);
 }
 
 //-----

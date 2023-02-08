@@ -128,8 +128,8 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
 TEST_F(ECDSAsecp256k1PrivateKeyTest, Derive)
 {
   // Throw when not initialized with a chain code
-  EXPECT_THROW(getTestPrivateKeyLoaded()->derive(0), UninitializedException);
-  EXPECT_THROW(getTestPrivateKeyGenerated()->derive(0), UninitializedException);
+  EXPECT_THROW(auto key = getTestPrivateKeyLoaded()->derive(0), UninitializedException);
+  EXPECT_THROW(auto key = getTestPrivateKeyGenerated()->derive(0), UninitializedException);
 }
 
 //-----
