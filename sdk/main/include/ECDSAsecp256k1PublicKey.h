@@ -36,6 +36,16 @@ class ECDSAsecp256k1PublicKey : public PublicKey
 {
 public:
   /**
+   * The number of bytes in an uncompressed ECDSAsecp256k1PublicKey.
+   */
+  static constexpr const size_t UNCOMPRESSED_KEY_SIZE = 65;
+
+  /**
+   * The number of bytes in a compressed ECDSAsecp256k1PublicKey.
+   */
+  static constexpr const size_t COMPRESSED_KEY_SIZE = 33;
+
+  /**
    * Disallow default construction of an ECDSAsecp256k1PublicKey, as an uninitialized ECDSAsecp256k1PublicKey provides
    * no functionality. Instead, the 'fromString()' or 'fromBytes()' functions should be used.
    */

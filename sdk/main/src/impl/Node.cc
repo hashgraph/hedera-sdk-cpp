@@ -18,7 +18,7 @@
  *
  */
 #include "impl/Node.h"
-#include "exceptions/UnintializedException.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/HederaCertificateVerifier.h"
 
 #include <algorithm>

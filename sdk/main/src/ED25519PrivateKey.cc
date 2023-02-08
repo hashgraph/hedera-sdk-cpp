@@ -20,7 +20,7 @@
 #include "ED25519PrivateKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
-#include "exceptions/UnintializedException.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLHasher.h"

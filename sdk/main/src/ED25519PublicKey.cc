@@ -89,6 +89,10 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<
   {
     throw BadKeyException(openSSLException.what());
   }
+  catch (const std::invalid_argument& invalidArgument)
+  {
+    throw BadKeyException(invalidArgument.what());
+  }
 }
 
 //-----

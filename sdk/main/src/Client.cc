@@ -23,7 +23,7 @@
 #include "Hbar.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
-#include "exceptions/UnintializedException.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/Network.h"
 
 #include <stdexcept>

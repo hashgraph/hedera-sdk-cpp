@@ -43,7 +43,7 @@ public:
   /**
    * Initialize a MnemonicBIP39 from a vector of word indices.
    *
-   * @param wordIndices The indices of the words from the BIP32 word list to use to create a MnemonicBIP39.
+   * @param wordIndices The indices of the words from the BIP39 word list to use to create a MnemonicBIP39.
    * @return An initialized MnemonicBIP39.
    * @throws BadMnemonicException If the input indices are not valid or there is an invalid checksum.
    */

@@ -19,6 +19,8 @@
  */
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ECDSAsecp256k1PublicKey.h"
+#include "exceptions/BadKeyException.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 
@@ -46,6 +48,7 @@ private:
     ECDSAsecp256k1PrivateKey::fromString(mPrivateKeyGenerated->toString());
 };
 
+//-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, GetPublicKey)
 {
   // get the public keys from the private keys
@@ -59,6 +62,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, GetPublicKey)
   EXPECT_EQ(publicFromGenerated->toString(), publicFromLoaded->toString());
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, Sign)
 {
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
@@ -72,6 +76,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, Sign)
   EXPECT_LE(signatureFromLoaded.size(), 72);
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, SignEmptyBytes)
 {
   std::vector<unsigned char> bytesToSign;
@@ -86,6 +91,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, SignEmptyBytes)
   EXPECT_LE(signatureFromLoaded.size(), 72);
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, ToString)
 {
   std::string stringFromGenerated = getTestPrivateKeyGenerated()->toString();
@@ -96,6 +102,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, ToString)
   EXPECT_EQ(stringFromGenerated, stringFromLoaded);
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
 {
   // these are 2 versions of the same private key. the first conforms to the full RFC 8410 standard, the second is just
@@ -112,8 +119,20 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
   EXPECT_NE(privateKeyFromExtended, nullptr);
   EXPECT_NE(privateKeyFromShort, nullptr);
   EXPECT_EQ(privateKeyFromExtended->toString(), privateKeyFromShort->toString());
+
+  // Throw on garbage data
+  EXPECT_THROW(ECDSAsecp256k1PrivateKey::fromString("asdfdsafds"), BadKeyException);
 }
 
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, Derive)
+{
+  // Throw when not initialized with a chain code
+  EXPECT_THROW(getTestPrivateKeyLoaded()->derive(0), UninitializedException);
+  EXPECT_THROW(getTestPrivateKeyGenerated()->derive(0), UninitializedException);
+}
+
+//-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, SLIP10TestVector1)
 {
   // SLIP10 spec provided test vector

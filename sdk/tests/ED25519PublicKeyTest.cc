@@ -19,6 +19,7 @@
  */
 #include "ED25519PublicKey.h"
 #include "ED25519PrivateKey.h"
+#include "exceptions/BadKeyException.h"
 
 #include <gtest/gtest.h>
 #include <memory>
@@ -53,6 +54,7 @@ private:
     PublicKey::fromProtobuf(*mPublicKeyFromString->toProtobuf());
 };
 
+//-----
 TEST_F(ED25519PublicKeyTest, CopyAndMoveConstructors)
 {
   ED25519PublicKey copiedPublicKey(*dynamic_cast<ED25519PublicKey*>(getTestPublicKeyFromPrivate().get()));
@@ -68,6 +70,7 @@ TEST_F(ED25519PublicKeyTest, CopyAndMoveConstructors)
   EXPECT_EQ(copiedPublicKey.toString(), getTestPublicKeyFromString()->toString());
 }
 
+//-----
 TEST_F(ED25519PublicKeyTest, ToString)
 {
   const std::string derEncodingFromPrivate = getTestPublicKeyFromPrivate()->toString();
@@ -171,4 +174,18 @@ TEST_F(ED25519PublicKeyTest, FromString)
   EXPECT_NE(publicKeyFromExtended, nullptr);
   EXPECT_NE(publicKeyFromShort, nullptr);
   EXPECT_EQ(publicKeyFromExtended->toString(), publicKeyFromShort->toString());
+
+  // Throw if input garbage
+  EXPECT_THROW(ED25519PublicKey::fromString("fdsakfdsalf"), BadKeyException);
+}
+
+//-----
+TEST_F(ED25519PublicKeyTest, FromBytes)
+{
+  const std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  EXPECT_EQ(ED25519PublicKey::fromBytes(privateKey->getPublicKey()->toBytes())->toString(),
+            privateKey->getPublicKey()->toString());
+
+  // Throw if input garbage
+  EXPECT_THROW(ED25519PublicKey::fromBytes({ 0x1, 0x2, 0x3 }), BadKeyException);
 }

@@ -33,10 +33,6 @@ namespace Hedera
 {
 namespace
 {
-// size of an uncompressed public key without ASN1 prefix
-const inline size_t UNCOMPRESSED_KEY_SIZE = 65;
-// size of a compressed public key without ASN1 prefix
-const inline size_t COMPRESSED_KEY_SIZE = 33;
 const inline std::string UNCOMPRESSED_KEY_ASN1_PREFIX = "3056301006072A8648CE3D020106052B8104000A034200";
 }
 
@@ -95,6 +91,10 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytes(cons
   catch (const OpenSSLException& openSSLException)
   {
     throw BadKeyException(openSSLException.what());
+  }
+  catch (const std::invalid_argument& invalidArgument)
+  {
+    throw BadKeyException(invalidArgument.what());
   }
 }
 
