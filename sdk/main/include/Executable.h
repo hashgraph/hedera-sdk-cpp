@@ -72,9 +72,9 @@ public:
    *
    * @param client The Client to use to submit this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
-   * @throws PrecheckStatusException If this Executable fails its pre-check.
-   * @throws std::invalid_argument If the there was a network issue processing this Executable.
-   * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   SdkResponseType execute(const Client& client);
 
@@ -84,8 +84,9 @@ public:
    * @param client  The Client to use to submit this Executable.
    * @param timeout The desired timeout for the execution of this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
-   * @throws PrecheckStatusException      If this Executable fails its pre-check.
    * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   SdkResponseType execute(const Client& client, const std::chrono::duration<double>& timeout);
 
@@ -126,6 +127,8 @@ public:
    *
    * @param backoff The desired maximum amount of time this Executable should wait between retries.
    * @return A reference to this Executable derived class with the newly-set maximum backoff time.
+   * @throws std::invalid_argument If the desired maximum backoff duration is shorter than the set minimum backoff time
+   *                               (DEFAULT_MIN_BACKOFF if the minimum backoff time has not been set).
    */
   SdkRequestType& setMaxBackoff(const std::chrono::duration<double>& backoff);
 
@@ -149,7 +152,7 @@ public:
    * submit this Executable again.
    *
    * @return The minimum backoff time for Nodes for execution attempts of this Executable. Uninitialized value if not
-   * previously set.
+   *         previously set.
    */
   [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMinBackoff() const { return mMinBackoff; }
 
@@ -158,7 +161,7 @@ public:
    * submit this Executable again.
    *
    * @return The maximum backoff time for Nodes for execution attempts of this Executable. Uninitialized value if not
-   * previously set.
+   *         previously set.
    */
   [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMaxBackoff() const { return mMaxBackoff; }
 
