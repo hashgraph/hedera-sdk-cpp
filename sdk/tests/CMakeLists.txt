@@ -37,6 +37,7 @@ add_executable(${TEST_PROJECT_NAME}
         TransferTransactionTest.cc
 
         vectors/BIP39TestVectors.cc
+        vectors/HederaTestVectors.cc
         vectors/SLIP10TestVectors.cc)
 
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE gtest_main gtest ${PROJECT_NAME})
