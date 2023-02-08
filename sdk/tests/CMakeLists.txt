@@ -27,7 +27,6 @@ add_executable(${TEST_PROJECT_NAME}
         EvmAddressTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
-        MnemonicBIP39Test.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
@@ -35,7 +34,10 @@ add_executable(${TEST_PROJECT_NAME}
         TransactionRecordTest.cc
         TransactionResponseTest.cc
         TransferTest.cc
-        TransferTransactionTest.cc)
+        TransferTransactionTest.cc
+
+        vectors/BIP39TestVectors.cc
+        vectors/SLIP10TestVectors.cc)
 
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE gtest_main gtest ${PROJECT_NAME})
 gtest_discover_tests(${TEST_PROJECT_NAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
