@@ -18,7 +18,6 @@ add_executable(${TEST_PROJECT_NAME}
         AccountBalanceTest.cc
         AccountCreateTransactionTest.cc
         AccountIdTest.cc
-        MnemonicBIP39Test.cc
         ClientTest.cc
         ContractIdTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
@@ -28,6 +27,7 @@ add_executable(${TEST_PROJECT_NAME}
         EvmAddressTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
+        MnemonicBIP39Test.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
