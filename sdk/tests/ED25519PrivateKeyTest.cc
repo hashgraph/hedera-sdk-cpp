@@ -121,5 +121,3 @@ TEST_F(ED25519PrivateKeyTest, FromString)
   EXPECT_NE(privateKeyFromShort, nullptr);
   EXPECT_EQ(privateKeyFromExtended->toString(), privateKeyFromShort->toString());
 }
-
-TEST_F(ED25519PrivateKeyTest, SLIP10TestVector1) {}
