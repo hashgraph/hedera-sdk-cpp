@@ -27,7 +27,7 @@
 
 using namespace Hedera;
 
-class HederaTestVectors
+class Hedera24WordMnemonicBIP39TestVectors
   : public testing::TestWithParam<std::tuple<uint32_t, std::string, std::string, std::string, std::string>>
 {
 protected:
@@ -39,16 +39,16 @@ private:
                                            "radio absent pear floor belt raven price stove replace reduce plate home");
 };
 
-class HederaECDSAsecp256k1PrivateKeyFromMnemonicBIP39TestVectors : public HederaTestVectors
+class Hedera24WordMnemonicBIP39ToECDSAsecp256k1PrivateKeyTestVectors : public Hedera24WordMnemonicBIP39TestVectors
 {
 };
 
-class HederaED25519PrivateKeyFromMnemonicBIP39TestVectors : public HederaTestVectors
+class Hedera24WordMnemonicBIP39ToED25519PrivateKeyTestVectors : public Hedera24WordMnemonicBIP39TestVectors
 {
 };
 
 //-----
-TEST_P(HederaECDSAsecp256k1PrivateKeyFromMnemonicBIP39TestVectors, ECDSAsecp256k1PrivateKeyTest)
+TEST_P(Hedera24WordMnemonicBIP39ToECDSAsecp256k1PrivateKeyTestVectors, ECDSAsecp256k1PrivateKeyTest)
 {
   const auto& [index, passphrase, chainCode, privateKeyBytes, publicKeyBytes] = GetParam();
 
@@ -61,7 +61,7 @@ TEST_P(HederaECDSAsecp256k1PrivateKeyFromMnemonicBIP39TestVectors, ECDSAsecp256k
 }
 
 //-----
-TEST_P(HederaED25519PrivateKeyFromMnemonicBIP39TestVectors, ED25519PrivateKeyTest)
+TEST_P(Hedera24WordMnemonicBIP39ToED25519PrivateKeyTestVectors, ED25519PrivateKeyTest)
 {
   const auto& [index, passphrase, chainCode, privateKeyBytes, publicKeyBytes] = GetParam();
 
@@ -76,7 +76,7 @@ TEST_P(HederaED25519PrivateKeyFromMnemonicBIP39TestVectors, ED25519PrivateKeyTes
 //-----
 INSTANTIATE_TEST_SUITE_P(
   ECDSAsecp256k1PrivateKeyFromMnemonicBIP39Tests,
-  HederaECDSAsecp256k1PrivateKeyFromMnemonicBIP39TestVectors,
+  Hedera24WordMnemonicBIP39ToECDSAsecp256k1PrivateKeyTestVectors,
   testing::Values(std::make_tuple(0,
                                   "",
                                   "7717bc71194c257d4b233e16cf48c24adef630052f874a262d19aeb2b527620d",
@@ -111,7 +111,7 @@ INSTANTIATE_TEST_SUITE_P(
 //-----
 INSTANTIATE_TEST_SUITE_P(
   ED25519PrivateKeyFromMnemonicBIP39Tests,
-  HederaED25519PrivateKeyFromMnemonicBIP39TestVectors,
+  Hedera24WordMnemonicBIP39ToED25519PrivateKeyTestVectors,
   testing::Values(std::make_tuple(0,
                                   "",
                                   "404914563637c92d688deb9d41f3f25cbe8d6659d859cc743712fcfac72d7eda",
