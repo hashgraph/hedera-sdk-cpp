@@ -67,8 +67,6 @@ TEST_P(Hedera12WordMnemonicBIP39ToED25519PrivateKeyTestVectors, ED25519PrivateKe
   const std::unique_ptr<ED25519PrivateKey> ed25519PrivateKey =
     getTestMnemonicBIP39().toStandardEd25519PrivateKey(passphrase, index);
 
-  std::cout << internal::HexConverter::base64ToHex(ed25519PrivateKey->getChainCode()) << std::endl;
-
   ASSERT_EQ(ed25519PrivateKey->getChainCode(), internal::HexConverter::hexToBase64(chainCode));
   ASSERT_EQ(ed25519PrivateKey->toBytes(), internal::HexConverter::hexToBase64(privateKeyBytes));
   ASSERT_EQ(ed25519PrivateKey->getPublicKey()->toBytes(), internal::HexConverter::hexToBase64(publicKeyBytes));
