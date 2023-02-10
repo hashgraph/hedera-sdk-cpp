@@ -24,6 +24,7 @@
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 
@@ -203,6 +204,11 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
 template<typename SdkRequestType>
 void Transaction<SdkRequestType>::onExecute(const Client& client)
 {
+  if (!client.getOperatorAccountId())
+  {
+    throw UninitializedException("No client operator private key with which to sign");
+  }
+
   mTransactionId = TransactionId::generate(*client.getOperatorAccountId());
 }
 

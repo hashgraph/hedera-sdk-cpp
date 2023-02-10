@@ -18,6 +18,7 @@
  *
  */
 #include "impl/HexConverter.h"
+#include "exceptions/OpenSSLException.h"
 #include "impl/OpenSSLHasher.h"
 
 #include <iomanip>
@@ -33,14 +34,13 @@ std::string base64ToHex(const std::vector<unsigned char>& bytes)
   size_t stringLength;
   if (OPENSSL_buf2hexstr_ex(nullptr, 0, &stringLength, &bytes.front(), bytes.size(), '\0') <= 0)
   {
-    throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_buf2hexstr_ex"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
 
   std::string charString(stringLength, '\0');
-
   if (OPENSSL_buf2hexstr_ex(&charString.front(), stringLength, nullptr, &bytes.front(), bytes.size(), '\0') <= 0)
   {
-    throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_buf2hexstr_ex"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
 
   charString.pop_back(); // Remove the '\0'
@@ -53,18 +53,17 @@ std::vector<unsigned char> hexToBase64(const std::string& inputString)
   size_t bufferLength;
   if (OPENSSL_hexstr2buf_ex(nullptr, 0, &bufferLength, inputString.c_str(), '\0') <= 0)
   {
-    throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_hexstr2buf_ex"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_hexstr2buf_ex"));
   }
 
   std::vector<unsigned char> outputBytes(bufferLength);
-
   if (OPENSSL_hexstr2buf_ex((bufferLength > 0ULL) ? &outputBytes.front() : nullptr,
                             bufferLength,
                             &bufferLength,
                             inputString.c_str(),
                             '\0') <= 0)
   {
-    throw std::runtime_error(OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_hexstr2buf_ex"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("OPENSSL_hexstr2buf_ex"));
   }
 
   return outputBytes;

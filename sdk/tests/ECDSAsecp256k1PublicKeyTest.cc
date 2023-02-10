@@ -19,6 +19,7 @@
  */
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "exceptions/BadKeyException.h"
 
 #include <gtest/gtest.h>
 #include <memory>
@@ -56,6 +57,7 @@ private:
     PublicKey::fromProtobuf(*mPublicKeyFromString->toProtobuf());
 };
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, CopyAndMoveConstructors)
 {
   ECDSAsecp256k1PublicKey copiedPublicKey(*dynamic_cast<ECDSAsecp256k1PublicKey*>(getTestPublicKeyFromPrivate().get()));
@@ -71,6 +73,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, CopyAndMoveConstructors)
   EXPECT_EQ(copiedPublicKey.toString(), getTestPublicKeyFromString()->toString());
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, ToString)
 {
   const std::string derEncodingFromPrivate = getTestPublicKeyFromPrivate()->toString();
@@ -85,6 +88,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, ToString)
   EXPECT_EQ(derEncodingFromPrivate, derEncodingFromProtobuf);
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyValidSignature)
 {
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
@@ -95,6 +99,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyValidSignature)
   EXPECT_TRUE(getTestPublicKeyFromProtobuf()->verifySignature(signature, bytesToSign));
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyValidSignatureOfEmptyMessage)
 {
   const std::vector<unsigned char> bytesToSign;
@@ -105,6 +110,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyValidSignatureOfEmptyMessage)
   EXPECT_TRUE(getTestPublicKeyFromProtobuf()->verifySignature(signature, bytesToSign));
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, VerifySignatureAgainstModifiedBytes)
 {
   const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
@@ -115,6 +121,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, VerifySignatureAgainstModifiedBytes)
   EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(signature, modifiedBytes));
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyArbitrarySignature)
 {
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
@@ -125,6 +132,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyArbitrarySignature)
   EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign));
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyEmptySignature)
 {
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
@@ -135,6 +143,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyEmptySignature)
   EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(emptySignature, bytesToSign));
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyEmptyMessage)
 {
   const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
@@ -145,6 +154,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, VerifyEmptyMessage)
   EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(signature, emptyMessage));
 }
 
+//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
 {
   const std::string publicKeyUncompressed = "045B36E22D710E79646F1A86D633EB38343BFE9DF39185EC730B1E7DFA79EE92CFD8C980"
@@ -159,6 +169,42 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
   EXPECT_NE(publicKeyFromUncompressed, nullptr);
   EXPECT_NE(publicKeyFromCompressed, nullptr);
   EXPECT_EQ(publicKeyFromUncompressed->toString(), publicKeyFromCompressed->toString());
+
+  // Throw if input garbage
+  EXPECT_THROW(ECDSAsecp256k1PublicKey::fromString("fdsakfdsalf"), BadKeyException);
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PublicKeyTest, FromBytes)
+{
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  EXPECT_EQ(ECDSAsecp256k1PublicKey::fromBytes(privateKey->getPublicKey()->toBytes())->toString(),
+            privateKey->getPublicKey()->toString());
+
+  // Throw if input garbage
+  EXPECT_THROW(ECDSAsecp256k1PublicKey::fromBytes({ 0x1, 0x2, 0x3 }), BadKeyException);
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PublicKeyTest, CompressBytes)
+{
+  // Throw if not correct size
+  EXPECT_THROW(ECDSAsecp256k1PublicKey::compressBytes({ 0x4, 0x3, 0x2, 0x1 }), std::invalid_argument);
+  // Throw if not starting with 0x4
+  EXPECT_THROW(ECDSAsecp256k1PublicKey::compressBytes(
+                 std::vector<unsigned char>(ECDSAsecp256k1PublicKey::UNCOMPRESSED_KEY_SIZE, 0x3)),
+               std::invalid_argument);
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PublicKeyTest, UncompressBytes)
+{
+  // Throw if not correct size
+  EXPECT_THROW(ECDSAsecp256k1PublicKey::uncompressBytes({ 0x3, 0x2, 0x1 }), std::invalid_argument);
+  // Throw if not starting with 0x2 or 0x3
+  EXPECT_THROW(ECDSAsecp256k1PublicKey::uncompressBytes(
+                 std::vector<unsigned char>(ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE, 0x1)),
+               std::invalid_argument);
 }
 
 // Tests serialization of Hedera::ECDSAsecp256k1PublicKey -> proto::Key.

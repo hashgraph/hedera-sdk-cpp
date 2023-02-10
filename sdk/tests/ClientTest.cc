@@ -21,6 +21,7 @@
 #include "AccountId.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
+#include "exceptions/UninitializedException.h"
 
 #include <gtest/gtest.h>
 
@@ -37,6 +38,7 @@ private:
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
 };
 
+//-----
 TEST_F(ClientTest, ConstructClient)
 {
   Client client;
@@ -46,6 +48,7 @@ TEST_F(ClientTest, ConstructClient)
   EXPECT_EQ(client.getRequestTimeout(), std::chrono::minutes(2));
 }
 
+//-----
 TEST_F(ClientTest, MoveClient)
 {
   Client client;
@@ -56,6 +59,7 @@ TEST_F(ClientTest, MoveClient)
   EXPECT_EQ(client2.getOperatorPublicKey()->toString(), getTestPrivateKey()->getPublicKey()->toString());
 }
 
+//-----
 TEST_F(ClientTest, SetOperator)
 {
   Client client;
@@ -70,6 +74,26 @@ TEST_F(ClientTest, SetOperator)
   EXPECT_FALSE(client.getOperatorPublicKey()->toString().empty());
 }
 
+//-----
+TEST_F(ClientTest, SignWithOperator)
+{
+  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+
+  Client client;
+  EXPECT_THROW(auto bytes = client.sign(bytesToSign), UninitializedException);
+
+  client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
+  EXPECT_TRUE(getTestPrivateKey()->getPublicKey()->verifySignature(client.sign(bytesToSign), bytesToSign));
+}
+
+//-----
+TEST_F(ClientTest, GetNodes)
+{
+  Client client;
+  EXPECT_THROW(auto nodes = client.getNodesWithAccountIds({ getTestAccountId() }), UninitializedException);
+}
+
+//-----
 TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 {
   Client client;

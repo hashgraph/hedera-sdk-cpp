@@ -19,6 +19,8 @@
  */
 #include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
+#include "exceptions/BadKeyException.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 
@@ -120,4 +122,21 @@ TEST_F(ED25519PrivateKeyTest, FromString)
   EXPECT_NE(privateKeyFromExtended, nullptr);
   EXPECT_NE(privateKeyFromShort, nullptr);
   EXPECT_EQ(privateKeyFromExtended->toString(), privateKeyFromShort->toString());
+
+  // Throw on garbage data
+  EXPECT_THROW(ED25519PrivateKey::fromString("asdfdsafds"), BadKeyException);
+}
+
+//-----
+TEST_F(ED25519PrivateKeyTest, Derive)
+{
+  std::unique_ptr<ED25519PrivateKey> privateKey =
+    ED25519PrivateKey::fromSeed(internal::HexConverter::hexToBase64("000102030405060708090a0b0c0d0e0f"));
+
+  // Throw when not initialized with a chain code
+  EXPECT_THROW(privateKey = getTestPrivateKeyLoaded()->derive(0), UninitializedException);
+  EXPECT_THROW(privateKey = getTestPrivateKeyGenerated()->derive(0), UninitializedException);
+
+  // Throw if input index is hardened
+  EXPECT_THROW(privateKey = privateKey->derive(1 | 0x80000000), std::invalid_argument);
 }

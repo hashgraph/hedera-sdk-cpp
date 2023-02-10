@@ -42,7 +42,8 @@ public:
   ED25519PublicKey() = delete;
 
   /**
-   * Copy constructor and copy assignment operator can throw std::runtime_error if OpenSSL serialization fails.
+   * Copy constructor and copy assignment operator can throw OpenSSLException if OpenSSL is unable to serialize the
+   * input key to copy.
    */
   ~ED25519PublicKey() override = default;
   ED25519PublicKey(const ED25519PublicKey& other);
@@ -55,6 +56,7 @@ public:
    *
    * @param keyString The string from which to create an ED25519PublicKey.
    * @return A pointer to an ED25519PublicKey representing the input string.
+   * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input keyString.
    */
   static std::shared_ptr<ED25519PublicKey> fromString(const std::string& keyString);
 
@@ -63,6 +65,7 @@ public:
    *
    * @param keyBytes The vector of bytes from which to construct the ED25519PublicKey, which are a DER encoding.
    * @return A pointer to an ED25519PublicKey representing the input bytes.
+   * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input keyBytes.
    */
   static std::shared_ptr<ED25519PublicKey> fromBytes(const std::vector<unsigned char>& keyBytes);
 
@@ -80,7 +83,7 @@ public:
    * @param signatureBytes The byte vector representing the signature.
    * @param signedBytes    The bytes which were purportedly signed to create the signature.
    * @return \c TRUE if the signature is valid for this ED25519PublicKey's private key, otherwise \c FALSE.
-   * @throws std::runtime_error If OpenSSL signature verification experiences an error.
+   * @throws OpenSSLException If OpenSSL is unable to verify the signature.
    */
   [[nodiscard]] bool verifySignature(const std::vector<unsigned char>& signatureBytes,
                                      const std::vector<unsigned char>& signedBytes) const override;
@@ -89,7 +92,7 @@ public:
    * Derived from PublicKey. Construct a Key protobuf object from this ED25519PublicKey object.
    *
    * @return A pointer to a created Key protobuf object filled with this ED25519PublicKey object's data.
-   * @throws std::runtime_error If OpenSSL serialization fails.
+   * @throws OpenSSLException If OpenSSL is unable to serialize this ED25519PublicKey.
    */
   [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
@@ -97,7 +100,7 @@ public:
    * Derived from PublicKey. Get the string representation of this ED25519PublicKey, in DER format.
    *
    * @return The string representation of this ED25519PublicKey in DER format.
-   * @throws std::runtime_error If OpenSSL serialization fails.
+   * @throws OpenSSLException If OpenSSL is unable to encode this key to a DER-encoded string.
    */
   [[nodiscard]] std::string toString() const override;
 
@@ -105,6 +108,7 @@ public:
    * Derived from PublicKey. Get the byte representation of this ED25519PublicKey, in DER format.
    *
    * @return The byte representation of this ED25519PublicKey.
+   * @throws OpenSSLException If OpenSSL is unable to decode this key to a byte array.
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const override;
 
@@ -114,6 +118,8 @@ private:
    *
    * @param keyBytes The bytes representing a ED25519PublicKey.
    * @return The newly created wrapped OpenSSL keypair object.
+   * @throws std::invalid_argument If the input bytes are not the correct size.
+   * @throws OpenSSLException      If OpenSSL is unable to create a keypair from the input bytes.
    */
   static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 

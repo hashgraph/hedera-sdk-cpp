@@ -118,7 +118,7 @@ public:
    *
    * @param memo The desired memo for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set memo.
-   * @throws std::invalid_argument If the memo is more than 100 characters.
+   * @throws std::length_error If the memo is more than 100 characters.
    */
   AccountCreateTransaction& setAccountMemo(std::string_view memo);
 
@@ -268,6 +268,8 @@ private:
    * @param client The Client trying to construct this AccountCreateTransaction.
    * @param node   The Node to which this AccountCreateTransaction will be sent. This is unused.
    * @return A Transaction protobuf object filled with this AccountCreateTransaction object's data.
+   * @throws UninitializedException If the input client has no operator with which to sign this
+   *                                AccountCreateTransaction.
    */
   [[nodiscard]] proto::Transaction makeRequest(const Client& client,
                                                const std::shared_ptr<internal::Node>& /*node*/) const override;

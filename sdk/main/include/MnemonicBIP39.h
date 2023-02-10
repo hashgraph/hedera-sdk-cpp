@@ -43,8 +43,9 @@ public:
   /**
    * Initialize a MnemonicBIP39 from a vector of word indices.
    *
-   * @param wordIndices The indices of the words from the BIP32 word list to use to create a MnemonicBIP39.
+   * @param wordIndices The indices of the words from the BIP39 word list to use to create a MnemonicBIP39.
    * @return An initialized MnemonicBIP39.
+   * @throws BadMnemonicException If the input indices are not valid or there is an invalid checksum.
    */
   static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<uint16_t>& wordIndices);
 
@@ -53,6 +54,8 @@ public:
    *
    * @param words The words from which to create a MnemonicBIP39.
    * @return An initialized MnemonicBIP39.
+   * @throws BadMnemonicException If any of the input words are not part of the BIP39 standard word list or if the
+   *                              checksum is invalid.
    */
   static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<std::string>& words);
 
@@ -62,7 +65,8 @@ public:
    * @param fullMnemonic The string that contains all the words from which to create a MnemonicBIP39.
    * @param delimiter    The delimiting string for the mnemonic string.
    * @return An initialized MnemonicBIP39.
-   * @throws std::invalid_argument If the resulting checksum is invalid.
+   * @throws BadMnemonicException If any of the input words are not part of the BIP39 standard word list or if the
+   *                              checksum is invalid.
    */
   static MnemonicBIP39 initializeBIP39Mnemonic(const std::string& fullMnemonic, const std::string& delimiter = " ");
 
@@ -81,12 +85,13 @@ public:
   static MnemonicBIP39 generate24WordBIP39Mnemonic();
 
   /**
-   * Generate an ED25519PrivateKey from this Mnemonic using the input passphrase at the specified index.
+   * Generate an ED25519PrivateKey from this Mnemonic using the input passphrase at the specified unhardened index.
    *
    * @param passphrase The passphrase to use to generate the ED25519PrivateKey.
    * @param index      The unhardened index in the derivation path from which to derive the ED25519PrivateKey.
    * @return A pointer to the derived ED25519PrivateKey.
-   * @throws std::runtime_error If the index is already hardened.
+   * @throws OpenSSLException If OpenSSL is unable to generate a key from this MnemonicBIP39.
+   * @throws std::invalid_argument If the index is already hardened.
    */
   [[nodiscard]] std::unique_ptr<ED25519PrivateKey> toStandardEd25519PrivateKey(const std::string& passphrase = "",
                                                                                uint32_t index = 0) const;
@@ -97,6 +102,7 @@ public:
    * @param passphrase The passphrase to use to generate the ECDSAsecp256k1PrivateKey.
    * @param index      The index in the derivation path from which to derive the ECDSAsecp256k1PrivateKey.
    * @return A pointer to the derived ECDSAsecp256k1PrivateKey.
+   * @throws OpenSSLException If OpenSSL is unable to generate a key from this MnemonicBIP39.
    */
   [[nodiscard]] std::unique_ptr<ECDSAsecp256k1PrivateKey> toStandardECDSAsecp256k1PrivateKey(
     const std::string& passphrase = "",
@@ -107,7 +113,7 @@ public:
    *
    * @param passphrase The passphrase to use in seed generation.
    * @return This MnemonicBIP39's seed, given the input passphrase.
-   * @throws std::runtime_error If OpenSSL HMAC generation fails.
+   * @throws OpenSSLException If OpenSSL is unable to compute a seed.
    */
   [[nodiscard]] std::vector<unsigned char> toSeed(const std::string& passphrase = "") const;
 

@@ -92,6 +92,7 @@ private:
    * @param client The Client trying to construct this TransferTransaction.
    * @param node   The Node to which this TransferTransaction will be sent. This is unused.
    * @return A Transaction protobuf object filled with this TransferTransaction object's data.
+   * @throws UninitializedException If the input client has no operator with which to sign this TransferTransaction.
    */
   [[nodiscard]] proto::Transaction makeRequest(const Client& client,
                                                const std::shared_ptr<internal::Node>& /*node*/) const override;

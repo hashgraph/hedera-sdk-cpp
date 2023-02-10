@@ -60,6 +60,7 @@ public:
    *
    * @param address A pointer to the desired NodeAddress for this Node.
    * @param tls     The TLS behavior this Node should initially use.
+   * @throws UninitializedException If TLS is required and the input NodeAddress doesn't contain a certificate hash.
    */
   explicit Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls = TLSBehavior::REQUIRE);
 
@@ -108,6 +109,7 @@ public:
    * Set the TLS behavior this Node should utilize when communicating with its remote node.
    *
    * @param desiredBehavior The desired behavior.
+   * @throws UninitializedException If TLS is required and this Node's NodeAddress doesn't contain a certificate hash.
    */
   void setTLSBehavior(TLSBehavior desiredBehavior);
 

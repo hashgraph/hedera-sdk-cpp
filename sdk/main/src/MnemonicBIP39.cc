@@ -20,6 +20,8 @@
 #include "MnemonicBIP39.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
+#include "exceptions/BadMnemonicException.h"
+#include "exceptions/OpenSSLException.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/OpenSSLHasher.h"
 #include "impl/OpenSSLObjectWrapper.h"
@@ -37,7 +39,7 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<uint16_t>
 
   if (!outputMnemonic.verifyChecksum())
   {
-    throw std::invalid_argument("Invalid checksum");
+    throw BadMnemonicException("Invalid checksum");
   }
 
   return outputMnemonic;
@@ -51,7 +53,7 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<std::stri
 
   if (!outputMnemonic.verifyChecksum())
   {
-    throw std::invalid_argument("Invalid checksum");
+    throw BadMnemonicException("Invalid checksum");
   }
 
   return outputMnemonic;
@@ -65,7 +67,7 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::string& fullMnem
 
   if (!outputMnemonic.verifyChecksum())
   {
-    throw std::invalid_argument("Invalid checksum");
+    throw BadMnemonicException("Invalid checksum");
   }
 
   return outputMnemonic;
@@ -111,18 +113,18 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) 
   const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw std::runtime_error("Digest context construction failed");
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
   const internal::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
   if (!messageDigest)
   {
-    throw std::runtime_error("Digest construction failed");
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
   }
 
   if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
   {
-    throw std::runtime_error("Digest init failed");
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestInit"));
   }
 
   std::vector<unsigned char> seed(64);
@@ -142,7 +144,7 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) 
                         static_cast<int>(seed.size()),
                         &seed.front()) <= 0)
   {
-    throw std::runtime_error("PKCS5_PBKDF2_HMAC failed");
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("PKCS5_PBKDF2_HMAC"));
   }
 
   return seed;

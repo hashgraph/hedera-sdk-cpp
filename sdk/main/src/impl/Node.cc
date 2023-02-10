@@ -18,6 +18,7 @@
  *
  */
 #include "impl/Node.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/HederaCertificateVerifier.h"
 
 #include <algorithm>
@@ -33,7 +34,7 @@ Node::Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls)
   // In order to use TLS, a node certificate chain must be provided
   if (tls == TLSBehavior::REQUIRE && mAddress->getCertificateHash().empty())
   {
-    throw std::runtime_error("NodeAddress has empty certificate chain hash for TLS connection");
+    throw UninitializedException("NodeAddress has empty certificate chain hash for TLS connection");
   }
 
   grpc::experimental::TlsChannelCredentialsOptions tlsChannelCredentialsOptions;
@@ -163,7 +164,7 @@ void Node::setTLSBehavior(TLSBehavior desiredBehavior)
   // In order to use TLS, a node certificate chain must be provided
   if (desiredBehavior == TLSBehavior::REQUIRE && mAddress->getCertificateHash().empty())
   {
-    throw std::runtime_error("NodeAddress has empty certificate chain hash for TLS connection");
+    throw UninitializedException("NodeAddress has empty certificate chain hash for TLS connection");
   }
 
   mTLSBehavior = desiredBehavior;

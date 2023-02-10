@@ -28,6 +28,8 @@
 #include "TransactionRecordQuery.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "exceptions/MaxAttemptsExceededException.h"
+#include "exceptions/PrecheckStatusException.h"
 #include "impl/Node.h"
 
 #include <algorithm>
@@ -74,7 +76,8 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   {
     if (attempt > mCurrentMaxAttempts)
     {
-      throw std::runtime_error("Max number of attempts made");
+      throw MaxAttemptsExceededException("Max number of attempts made (max attempts allowed: " +
+                                         std::to_string(mCurrentMaxAttempts));
     }
 
     std::shared_ptr<internal::Node> node = getNodeForExecute(nodes);
@@ -111,7 +114,8 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     // Successful submission, so decrease backoff for this node.
     node->decreaseBackoff();
 
-    switch (determineStatus(mapResponseStatus(response), client, response))
+    const Status responseStatus = mapResponseStatus(response);
+    switch (determineStatus(responseStatus, client, response))
     {
       case ExecutionStatus::SERVER_ERROR:
       {
@@ -126,7 +130,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
       }
       case ExecutionStatus::REQUEST_ERROR:
       {
-        throw std::invalid_argument("Malformed request");
+        throw PrecheckStatusException(gStatusToString.at(responseStatus));
       }
       default:
       {

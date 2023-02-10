@@ -18,6 +18,7 @@
  *
  */
 #include "impl/OpenSSLObjectWrapper.h"
+#include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLHasher.h"
 
@@ -37,7 +38,7 @@ OpenSSL_BIGNUM OpenSSL_BIGNUM::fromHex(const std::string& hexString)
   BIGNUM* bigNum = nullptr;
   if (BN_hex2bn(&bigNum, hexString.c_str()) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_hex2bn"));
+    throw OpenSSLException(OpenSSLHasher::getOpenSSLErrorMessage("BN_hex2bn"));
   }
 
   return OpenSSL_BIGNUM(bigNum);
@@ -56,18 +57,18 @@ OpenSSL_BIGNUM OpenSSL_BIGNUM::modularAdd(const OpenSSL_BIGNUM& other, const Ope
   const OpenSSL_BN_CTX context(BN_CTX_secure_new());
   if (!context)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_secure_new"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_secure_new"));
   }
 
   OpenSSL_BIGNUM result(BN_secure_new());
   if (!result)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_secure_new"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_secure_new"));
   }
 
   if (BN_mod_add(result.get(), get(), other.get(), modulo.get(), context.get()) <= 0)
   {
-    throw std::runtime_error(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_mod_add"));
+    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_mod_add"));
   }
 
   return result;
