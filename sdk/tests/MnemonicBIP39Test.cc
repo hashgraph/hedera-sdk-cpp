@@ -32,6 +32,7 @@ class MnemonicBIP39TestVectors : public testing::TestWithParam<std::tuple<std::s
 {
 };
 
+//-----
 TEST_P(MnemonicBIP39TestVectors, TestVectors)
 {
   const auto& [inputEntropy, mnemonicString, seed] = GetParam();
@@ -45,6 +46,7 @@ TEST_P(MnemonicBIP39TestVectors, TestVectors)
   ASSERT_EQ(mnemonicFromEntropy.toSeed(PASSPHRASE), internal::HexConverter::hexToBase64(seed));
 }
 
+//-----
 INSTANTIATE_TEST_SUITE_P(
   BIP39TestVectors,
   MnemonicBIP39TestVectors,

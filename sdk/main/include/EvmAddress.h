@@ -37,7 +37,7 @@ public:
    *
    * @param address The hex-encoded string representing the EvmAddress.
    * @throws std::invalid_argument If the input string is malformed.
-   * @throws std::runtime_error If OpenSSL fails to convert the string to a byte array.
+   * @throws OpenSSLException If OpenSSL is unable to convert the string to a byte array.
    */
   static EvmAddress fromString(std::string_view address);
 

@@ -18,6 +18,7 @@
  *
  */
 #include "impl/OpenSSLHasher.h"
+#include "exceptions/OpenSSLException.h"
 #include "impl/OpenSSLObjectWrapper.h"
 
 #include <openssl/err.h>
@@ -54,18 +55,18 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
   const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw std::runtime_error("Digest context construction failed");
+    throw OpenSSLException(getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
   const internal::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
   if (!messageDigest)
   {
-    throw std::runtime_error("Digest construction failed");
+    throw OpenSSLException(getOpenSSLErrorMessage("EVP_MD_fetch"));
   }
 
   if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
   {
-    throw std::runtime_error("Digest init failed");
+    throw OpenSSLException(getOpenSSLErrorMessage("EVP_DigestInit"));
   }
 
   std::vector<unsigned char> digest(64);
@@ -81,7 +82,7 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
 
   if (!hmac)
   {
-    throw std::runtime_error("HMAC failed");
+    throw OpenSSLException(getOpenSSLErrorMessage("HMAC"));
   }
 
   return { hmac, hmac + 64 };

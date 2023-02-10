@@ -68,6 +68,8 @@ public:
    * Set the TLS behavior of all Nodes on this Network.
    *
    * @param desiredBehavior The desired behavior.
+   * @throws UninitializedException If TLS is required and a Node on this Network wasn't initialized with a certificate
+   *                                hash.
    */
   void setTLSBehavior(TLSBehavior desiredBehavior) const;
 
@@ -76,6 +78,8 @@ private:
    * Establish communications with all Nodes for this Network that are specified in the input address book.
    *
    * @param nodeAddressBook The address book that contains the Nodes with which this Network will be communicating.
+   * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
+   *                                hash.
    */
   void setNetwork(const NodeAddressBook& nodeAddressBook);
 

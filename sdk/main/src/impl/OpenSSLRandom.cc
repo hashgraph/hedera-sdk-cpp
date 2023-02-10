@@ -18,6 +18,8 @@
  *
  */
 #include "impl/OpenSSLRandom.h"
+#include "exceptions/OpenSSLException.h"
+#include "impl/OpenSSLHasher.h"
 
 #include <openssl/rand.h>
 
@@ -35,7 +37,7 @@ std::vector<unsigned char> getRandomBytes(int count)
 
   if (RAND_priv_bytes(&randomBytes.front(), count) <= 0)
   {
-    throw std::runtime_error("RAND_priv_bytes failure");
+    throw OpenSSLException(OpenSSLHasher::getOpenSSLErrorMessage("RAND_priv_bytes"));
   }
 
   return randomBytes;

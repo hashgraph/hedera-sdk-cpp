@@ -162,6 +162,7 @@ protected:
    * @param transaction The TransactionBody to sign.
    * @param client      The Client being used to sign the transaction.
    * @return A Transaction protobuf object containing the TransactionBody protobuf object signed by the Client.
+   * @throws UninitializedException If the input client has no operator with which to sign this Transaction.
    */
   [[nodiscard]] proto::Transaction signTransaction(const proto::TransactionBody& transaction,
                                                    const Client& client) const;
@@ -212,6 +213,7 @@ private:
    * Derived from Executable. Perform any needed actions for this Transaction when it is being submitted.
    *
    * @param client The Client being used to submit this Transaction.
+   * @throws UninitializedException If the client doesn't have an AccountId from which to generate a TransactionId.
    */
   void onExecute(const Client& client) override;
 

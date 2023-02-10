@@ -20,15 +20,15 @@
 #ifndef HEDERA_SDK_CPP_MNEMONIC_H_
 #define HEDERA_SDK_CPP_MNEMONIC_H_
 
+#include <algorithm>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <functional>
-#include <stdexcept>
-#include <algorithm>
 
 namespace Hedera
 {
@@ -80,7 +80,6 @@ protected:
    *
    * @param entropy The array of entropy of which to compute the checksum.
    * @return The checksum of the entropy.
-   * @throws std::runtime_error If the entropy bit size isn't a multiple of 32.
    */
   [[nodiscard]] static unsigned char computeChecksumFromEntropy(const std::vector<unsigned char>& entropy);
 
@@ -88,7 +87,7 @@ protected:
    * Initialize this Mnemonic with a vector of word indices.
    *
    * @param indices The indices with which to initialize this mnemonic.
-   * @throws std::invalid_argument If the provided indices aren't valid.
+   * @throws BadMnemonicException If the provided indices aren't valid.
    */
   void initialize(const std::vector<uint16_t>& indices);
 
@@ -151,7 +150,7 @@ private:
    *
    * @param word The word of which to get the index.
    * @return The index of the given word in this Mnemonic's word list.
-   * @throws std::invalid_argument If the input word is not in this Mnemonic's word list.
+   * @throws BadMnemonicException If the input word is not in this Mnemonic's word list.
    */
   [[nodiscard]] uint16_t getIndexFromWordString(const std::string& word) const;
 

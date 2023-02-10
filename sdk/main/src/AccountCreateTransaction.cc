@@ -79,7 +79,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_v
 {
   if (memo.size() > 100)
   {
-    throw std::invalid_argument("Account memo is too large. Must be smaller than 100 bytes");
+    throw std::length_error("Account memo is too large. Must be smaller than 100 bytes");
   }
 
   mAccountMemo = memo;

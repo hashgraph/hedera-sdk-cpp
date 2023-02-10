@@ -21,12 +21,7 @@
 #define HEDERA_SDK_CPP_IMPL_OPENSSL_RANDOM_H_
 
 #include <vector>
-#include <functional>
-#include <stdexcept>
 
-/**
- * Utility class wrapping around OpenSSL random functions
- */
 namespace Hedera::internal::OpenSSLRandom
 {
 /**
@@ -35,7 +30,7 @@ namespace Hedera::internal::OpenSSLRandom
  * @param count The number of random bytes to generate. Must be positive.
  * @return The vector of random bytes.
  * @throws std::invalid_argument If the input count is negative.
- * @throws std::runtime_error If OpenSSL fails to generate random bytes.
+ * @throws OpenSSLException If OpenSSL is unable to generate random bytes.
  */
 std::vector<unsigned char> getRandomBytes(int count);
 
