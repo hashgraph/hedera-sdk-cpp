@@ -25,15 +25,18 @@
 
 using namespace Hedera;
 
-// test vectors all have the same passphrase
-const static std::string PASSPHRASE = "TREZOR";
-
-class MnemonicBIP39TestVectors : public testing::TestWithParam<std::tuple<std::string, std::string, std::string>>
+class BIP39TestVectors : public testing::TestWithParam<std::tuple<std::string, std::string, std::string>>
 {
+protected:
+  [[nodiscard]] inline const std::string& getPassphrase() const { return mPassphrase; }
+
+private:
+  // BIP39 spec provided passphrase
+  const std::string mPassphrase = "TREZOR";
 };
 
 //-----
-TEST_P(MnemonicBIP39TestVectors, TestVectors)
+TEST_P(BIP39TestVectors, TestVectors)
 {
   const auto& [inputEntropy, mnemonicString, seed] = GetParam();
 
@@ -43,13 +46,13 @@ TEST_P(MnemonicBIP39TestVectors, TestVectors)
   MnemonicBIP39 mnemonicFromString = MnemonicBIP39::initializeBIP39Mnemonic(mnemonicString);
 
   ASSERT_EQ(mnemonicFromEntropy.toString(), mnemonicFromString.toString());
-  ASSERT_EQ(mnemonicFromEntropy.toSeed(PASSPHRASE), internal::HexConverter::hexToBase64(seed));
+  ASSERT_EQ(mnemonicFromEntropy.toSeed(getPassphrase()), internal::HexConverter::hexToBase64(seed));
 }
 
 //-----
 INSTANTIATE_TEST_SUITE_P(
+  MnemonicBIP39,
   BIP39TestVectors,
-  MnemonicBIP39TestVectors,
   ::testing::Values(
     std::make_tuple("00000000000000000000000000000000",
                     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",

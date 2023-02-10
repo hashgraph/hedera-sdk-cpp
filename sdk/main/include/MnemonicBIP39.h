@@ -94,7 +94,7 @@ public:
    * @throws std::invalid_argument If the index is already hardened.
    */
   [[nodiscard]] std::unique_ptr<ED25519PrivateKey> toStandardEd25519PrivateKey(const std::string& passphrase = "",
-                                                                               int index = 0) const;
+                                                                               uint32_t index = 0) const;
 
   /**
    * Generate an ECDSAsecp256k1PrivateKey from this Mnemonic using the input passphrase at the specified index.
@@ -106,7 +106,7 @@ public:
    */
   [[nodiscard]] std::unique_ptr<ECDSAsecp256k1PrivateKey> toStandardECDSAsecp256k1PrivateKey(
     const std::string& passphrase = "",
-    int index = 0) const;
+    uint32_t index = 0) const;
 
   /**
    * Compute a seed that results from this MnemonicBIP39.
