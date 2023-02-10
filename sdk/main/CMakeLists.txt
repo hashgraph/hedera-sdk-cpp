@@ -38,6 +38,7 @@ add_library(${PROJECT_NAME} STATIC
         src/MnemonicBIP39.cc
         src/PublicKey.cc
         src/Status.cc
+        src/TokenId.cc
         src/Transaction.cc
         src/TransactionId.cc
         src/TransactionReceipt.cc
