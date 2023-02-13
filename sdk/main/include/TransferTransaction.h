@@ -37,7 +37,7 @@ namespace Hedera
  * Transfers cryptocurrency among two or more accounts by making the desired adjustments to their balances. Each
  * transfer list can specify up to 10 adjustments. Each negative amount is withdrawn from the corresponding account (a
  * sender), and each positive one is added to the corresponding account (a receiver). The amounts list must sum to zero.
- * Each amount is a number of tinybars (there are 100,000,000 tinybars in one hbar).  If any sender account fails to
+ * Each amount is a number of tinybars (there are 100,000,000 tinybars in one hbar). If any sender account fails to
  * have sufficient hbars, then the entire transaction fails, and none of those transfers occur, though the transaction
  * fee is still charged. This transaction must be signed by the keys for all the sending accounts, and for any receiving
  * accounts that have mReceiverSigRequired == \c TRUE. The signatures are in the same order as the accounts, skipping

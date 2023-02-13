@@ -42,7 +42,7 @@ public:
   static Transfer fromProtobuf(const proto::AccountAmount& proto);
 
   /**
-   * Construct a AccountAmount protobuf object from this Transfer object.
+   * Construct an AccountAmount protobuf object from this Transfer object.
    *
    * @return A pointer to a created AccountAmount protobuf object filled with this Transfer object's data.
    */

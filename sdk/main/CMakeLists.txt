@@ -39,6 +39,7 @@ add_library(${PROJECT_NAME} STATIC
         src/PublicKey.cc
         src/Status.cc
         src/TokenId.cc
+        src/TokenNftTransfer.cc
         src/Transaction.cc
         src/TransactionId.cc
         src/TransactionReceipt.cc
