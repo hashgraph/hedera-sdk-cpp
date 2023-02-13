@@ -75,6 +75,7 @@ public:
    *
    * @param serialNumber The serial number of the NFT to transfer.
    * @return A reference to this TokenNftTransfer object with the newly-set NFT serial number.
+   * @throws std::invalid_argument If the serial number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   TokenNftTransfer& setNftSerialNumber(const uint64_t& serialNumber);
 

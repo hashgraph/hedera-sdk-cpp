@@ -36,6 +36,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileCreateTransaction.cc
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
+        src/NftId.cc
         src/PublicKey.cc
         src/Status.cc
         src/TokenId.cc

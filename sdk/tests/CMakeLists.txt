@@ -27,6 +27,7 @@ add_executable(${TEST_PROJECT_NAME}
         EvmAddressTest.cc
         ExchangeRateTest.cc
         HbarTest.cc
+        NftIdTest.cc
         TokenIdTest.cc
         TokenNftTransferTest.cc
         TransactionIdTest.cc

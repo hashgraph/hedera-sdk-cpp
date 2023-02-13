@@ -72,6 +72,7 @@ TEST_F(TokenNftTransferTest, SetGetNftSerialNumber)
   TokenNftTransfer tokenNftTransfer;
   tokenNftTransfer.setNftSerialNumber(getTestNftSerialNumber());
   EXPECT_EQ(tokenNftTransfer.getNftSerialNumber(), getTestNftSerialNumber());
+  EXPECT_THROW(tokenNftTransfer.setNftSerialNumber(std::numeric_limits<int64_t>::max() + 1ULL), std::invalid_argument);
 }
 
 //-----

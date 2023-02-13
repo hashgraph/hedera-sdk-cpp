@@ -19,6 +19,7 @@
  */
 #include "TokenNftTransfer.h"
 
+#include <limits>
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
@@ -71,6 +72,11 @@ TokenNftTransfer& TokenNftTransfer::setReceiverAccountId(const AccountId& accoun
 //-----
 TokenNftTransfer& TokenNftTransfer::setNftSerialNumber(const uint64_t& serialNumber)
 {
+  if (serialNumber > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input serial number is too large");
+  }
+
   mNftSerialNumber = serialNumber;
   return *this;
 }
