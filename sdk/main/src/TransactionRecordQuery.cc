@@ -61,8 +61,8 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client,
                              .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
                              .setNodeAccountIds({ node->getAccountId() })
                              .setMaxTransactionFee(Hbar(1ULL))
-                             .addUnapprovedHbarTransfer(*client.getOperatorAccountId(), Hbar(-1ULL))
-                             .addUnapprovedHbarTransfer(node->getAccountId(), Hbar(1ULL));
+                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1ULL))
+                             .addHbarTransfer(node->getAccountId(), Hbar(1ULL));
   tx.onSelectNode(node);
   header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
 

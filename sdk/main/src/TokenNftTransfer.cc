@@ -56,6 +56,13 @@ std::unique_ptr<proto::NftTransfer> TokenNftTransfer::toProtobuf() const
 }
 
 //-----
+TokenNftTransfer& TokenNftTransfer::setTokenId(const TokenId& tokenId)
+{
+  mTokenId = tokenId;
+  return *this;
+}
+
+//-----
 TokenNftTransfer& TokenNftTransfer::setSenderAccountId(const AccountId& accountId)
 {
   mSenderAccountID = accountId;

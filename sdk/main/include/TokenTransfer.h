@@ -127,7 +127,7 @@ private:
   /**
    * The expected decimals of transfer.
    */
-  uint32_t mExpectedDecimals = 0ULL;
+  uint32_t mExpectedDecimals = 0U;
 
   /**
    * If \c TRUE then the transfer is expected to be an approved allowance.

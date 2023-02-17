@@ -28,15 +28,17 @@ using namespace Hedera;
 class TokenNftTransferTest : public ::testing::Test
 {
 protected:
+  [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTokenId; }
   [[nodiscard]] inline const AccountId& getTestSenderAccountId() const { return mSenderAccountId; }
   [[nodiscard]] inline const AccountId& getTestReceiverAccountId() const { return mReceiverAccountId; }
   [[nodiscard]] inline const uint64_t& getTestNftSerialNumber() const { return mNftSerialNumber; }
   [[nodiscard]] inline bool getTestIsApproval() const { return mIsApproval; }
 
 private:
-  const AccountId mSenderAccountId = AccountId(10ULL);
-  const AccountId mReceiverAccountId = AccountId(200ULL);
-  const uint64_t mNftSerialNumber = 3000ULL;
+  const TokenId mTokenId = TokenId(1ULL);
+  const AccountId mSenderAccountId = AccountId(20ULL);
+  const AccountId mReceiverAccountId = AccountId(300ULL);
+  const uint64_t mNftSerialNumber = 4000ULL;
   const bool mIsApproval = true;
 };
 
@@ -44,10 +46,19 @@ private:
 TEST_F(TokenNftTransferTest, DefaultConstruction)
 {
   TokenNftTransfer tokenNftTransfer;
+  EXPECT_EQ(tokenNftTransfer.getTokenId(), TokenId());
   EXPECT_EQ(tokenNftTransfer.getSenderAccountId(), AccountId());
   EXPECT_EQ(tokenNftTransfer.getReceiverAccountId(), AccountId());
   EXPECT_EQ(tokenNftTransfer.getNftSerialNumber(), 0ULL);
   EXPECT_FALSE(tokenNftTransfer.getApproval());
+}
+
+//-----
+TEST_F(TokenNftTransferTest, SetGetTokenId)
+{
+  TokenNftTransfer tokenNftTransfer;
+  tokenNftTransfer.setTokenId(getTestTokenId());
+  EXPECT_EQ(tokenNftTransfer.getTokenId(), getTestTokenId());
 }
 
 //-----

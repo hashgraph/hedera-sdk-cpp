@@ -20,10 +20,16 @@
 #ifndef HEDERA_SDK_CPP_TRANSFER_TRANSACTION_H_
 #define HEDERA_SDK_CPP_TRANSFER_TRANSACTION_H_
 
+#include "AccountId.h"
+#include "NftId.h"
+#include "TokenId.h"
+#include "TokenNftTransfer.h"
+#include "TokenTransfer.h"
 #include "Transaction.h"
 #include "Transfer.h"
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace proto
@@ -46,8 +52,6 @@ namespace Hedera
 class TransferTransaction : public Transaction<TransferTransaction>
 {
 public:
-  ~TransferTransaction() override = default;
-
   /**
    * Derived from Executable. Create a clone of this TransferTransaction.
    *
@@ -56,29 +60,126 @@ public:
   [[nodiscard]] std::unique_ptr<Executable> clone() const override;
 
   /**
+   * Add an Hbar transfer to be submitted as part of this TransferTransaction.
+   *
+   * @param accountId The ID of the account associated with this transfer.
+   * @param amount    The amount of Hbar to transfer.
+   * @return A reference to this TransferTransaction object with the newly-added Hbar transfer.
+   */
+  TransferTransaction& addHbarTransfer(const AccountId& accountId, const Hbar& amount);
+
+  /**
+   * Add a token transfer to be submitted as part of this TransferTransaction.
+   *
+   * @param tokenId   The ID of the token associated with this transfer.
+   * @param accountId The ID of the account associated with this transfer.
+   * @param amount    The number of tokens to transfer.
+   * @return A reference to this TransferTransaction object with the newly-added token transfer.
+   */
+  TransferTransaction& addTokenTransfer(const TokenId& tokenId, const AccountId& accountId, const int64_t& amount);
+
+  /**
+   * Add an NFT transfer to be submitted as part of this TransferTransaction.
+   *
+   * @param nftId             The ID of the NFT associated with this transfer.
+   * @param senderAccountId   The ID of the account sending the NFT.
+   * @param receiverAccountId The ID of the receiving sending the NFT.
+   * @return A reference to this TransferTransaction object with the newly-added NFT transfer.
+   */
+  TransferTransaction& addNftTransfer(const NftId& nftId,
+                                      const AccountId& senderAccountId,
+                                      const AccountId& receiverAccountId);
+
+  /**
+   * Add a token transfer with decimals to be submitted as part of this TransferTransaction.
+   *
+   * @param tokenId   The ID of the token associated with this transfer.
+   * @param accountId The ID of the account associated with this transfer.
+   * @param amount    The number of tokens to transfer.
+   * @param decimals  The number of decimals in the transfer amount.
+   * @return A reference to this TransferTransaction object with the newly-added token transfer.
+   * @throws std::invalid_argument If decimals does not match previously set decimals for this token.
+   */
+  TransferTransaction& addTokenTransferWithDecimals(const TokenId& tokenId,
+                                                    const AccountId& accountId,
+                                                    const int64_t& amount,
+                                                    uint32_t decimals);
+
+  /**
    * Add an approved Hbar transfer to be submitted as part of this TransferTransaction.
    *
    * @param accountId The ID of the account associated with this transfer.
-   * @param amount    The amount to transfer.
-   * @return A reference to this TransferTransaction object with the newly-added approved transfer.
+   * @param amount    The amount of Hbar to transfer.
+   * @return A reference to this TransferTransaction object with the newly-added approved Hbar transfer.
    */
-  TransferTransaction& addApprovedHbarTransfer(const AccountId&, const Hbar& amount);
+  TransferTransaction& addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount);
 
   /**
-   * Add an unapproved Hbar transfer to be submitted as part of this TransferTransaction.
+   * Add an approved token transfer to be submitted as part of this TransferTransaction.
    *
+   * @param tokenId   The ID of the token associated with this transfer.
    * @param accountId The ID of the account associated with this transfer.
-   * @param amount    The amount to transfer.
-   * @return A reference to this TransferTransaction object with the newly-added unapproved transfer.
+   * @param amount    The number of tokens to transfer.
+   * @return A reference to this TransferTransaction object with the newly-added approved token transfer.
    */
-  TransferTransaction& addUnapprovedHbarTransfer(const AccountId& accountId, const Hbar& amount);
+  TransferTransaction& addApprovedTokenTransfer(const TokenId& tokenId,
+                                                const AccountId& accountId,
+                                                const int64_t& amount);
 
   /**
-   * Get the list of Hbar transfers that have been added to this TransferTransaction.
+   * Add an approved NFT transfer to be submitted as part of this TransferTransaction.
    *
-   * @return The list of Hbar transfers.
+   * @param nftId             The ID of the NFT associated with this transfer.
+   * @param senderAccountId   The ID of the account sending the NFT.
+   * @param receiverAccountId The ID of the receiving sending the NFT.
+   * @return A reference to this TransferTransaction object with the newly-added approved NFT transfer.
    */
-  [[nodiscard]] inline std::vector<Transfer> getHbarTransfers() const { return mHbarTransfers; }
+  TransferTransaction& addApprovedNftTransfer(const NftId& nftId,
+                                              const AccountId& senderAccountId,
+                                              const AccountId& receiverAccountId);
+
+  /**
+   * Add an approved token transfer with decimals to be submitted as part of this TransferTransaction.
+   *
+   * @param tokenId   The ID of the token associated with this transfer.
+   * @param accountId The ID of the account associated with this transfer.
+   * @param amount    The number of tokens to transfer.
+   * @param decimals  The number of decimals in the transfer amount.
+   * @return A reference to this TransferTransaction object with the newly-added approved token transfer.
+   * @throws std::invalid_argument If decimals does not match previously set decimals for this token.
+   */
+  TransferTransaction& addApprovedTokenTransferWithDecimals(const TokenId& tokenId,
+                                                            const AccountId& accountId,
+                                                            const int64_t& amount,
+                                                            uint32_t decimals);
+
+  /**
+   * Get all Hbar transfers that have been added to this TransferTransaction.
+   *
+   * @return The map of Hbar transfers.
+   */
+  [[nodiscard]] std::unordered_map<AccountId, Hbar> getHbarTransfers() const;
+
+  /**
+   * Get all token transfers that have been added to this TransferTransaction.
+   *
+   * @return The map of token transfers.
+   */
+  [[nodiscard]] std::unordered_map<TokenId, std::unordered_map<AccountId, int64_t>> getTokenTransfers() const;
+
+  /**
+   * Get all NFT transfers that have been added to this TransferTransaction.
+   *
+   * @return The map of NFT transfers.
+   */
+  [[nodiscard]] std::unordered_map<TokenId, std::vector<TokenNftTransfer>> getNftTransfers() const;
+
+  /**
+   * Get the expected decimals for token transfers that have been added to this TransferTransaction.
+   *
+   * @return The map of expected decimals.
+   */
+  [[nodiscard]] std::unordered_map<TokenId, uint32_t> getTokenIdDecimals() const;
 
 private:
   /**
@@ -125,12 +226,36 @@ private:
    *
    * @param transfer The Hbar transfer to add.
    */
-  void addHbarTransfer(const Transfer& transfer);
+  void doHbarTransfer(const Transfer& transfer);
+
+  /**
+   * Add a token transfer to the token transfers list.
+   *
+   * @param transfer The token transfer to add.
+   */
+  void doTokenTransfer(const TokenTransfer& transfer);
+
+  /**
+   * Add an NFT transfer to the NFT transfers list.
+   *
+   * @param transfer The NFT transfer to add.
+   */
+  void doNftTransfer(const TokenNftTransfer& transfer);
 
   /**
    * The desired Hbar balance adjustments.
    */
   std::vector<Transfer> mHbarTransfers;
+
+  /**
+   * The desired token adjustments.
+   */
+  std::vector<TokenTransfer> mTokenTransfers;
+
+  /**
+   * The desired NFT adjustments.
+   */
+  std::vector<TokenNftTransfer> mNftTransfers;
 };
 
 } // namespace Hedera

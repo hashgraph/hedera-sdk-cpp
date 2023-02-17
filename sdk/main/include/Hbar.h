@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HBAR_H_
-#define HBAR_H_
+#ifndef HEDERA_SDK_CPP_HBAR_H_
+#define HEDERA_SDK_CPP_HBAR_H_
 
 #include "HbarUnit.h"
 
@@ -70,6 +70,26 @@ public:
   bool operator==(const Hbar& other) const { return mValueInTinybar == other.mValueInTinybar; }
 
   /**
+   * Add another Hbar to this Hbar.
+   *
+   * @param other THe other Hbar to add to this Hbar.
+   * @return A new Hbar object with the new value.
+   */
+  Hbar operator+(const Hbar& other) const { return Hbar(mValueInTinybar + other.mValueInTinybar, HbarUnit::TINYBAR()); }
+
+  /**
+   * Add another Hbar to this Hbar and save the value.
+   *
+   * @param other The other Hbar to add to this Hbar.
+   * @return A reference to this Hbar with the new value.
+   */
+  Hbar& operator+=(const Hbar& other)
+  {
+    mValueInTinybar += other.mValueInTinybar;
+    return *this;
+  }
+
+  /**
    * Convert this Hbar value to tinybars.
    *
    * @return The amount this Hbar object represents in tinybars.
@@ -92,4 +112,4 @@ private:
 
 } // namespace Hedera
 
-#endif // HBAR_H_
+#endif // HEDERA_SDK_CPP_HBAR_H_

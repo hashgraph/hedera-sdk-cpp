@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_TOKEN_NFT_TRANSFER_H_
 
 #include "AccountId.h"
+#include "TokenId.h"
 
 #include <memory>
 
@@ -53,6 +54,14 @@ public:
    * @return A pointer to a created NftTransfer protobuf object filled with this TokenNftTransfer object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::NftTransfer> toProtobuf() const;
+
+  /**
+   * Set the ID of the NFT.
+   *
+   * @param tokenId The ID of the NFT.
+   * @param A reference to this TokenNftTransfer object with the newly-set token ID.
+   */
+  TokenNftTransfer& setTokenId(const TokenId& tokenId);
 
   /**
    * Set the ID of the account sending the NFT.
@@ -88,6 +97,13 @@ public:
   TokenNftTransfer& setApproval(bool approval);
 
   /**
+   * Get the token ID.
+   *
+   * @return The token ID.
+   */
+  [[nodiscard]] inline TokenId getTokenId() const { return mTokenId; }
+
+  /**
    * Get the sender account ID.
    *
    * @return The sender account ID.
@@ -116,6 +132,11 @@ public:
   [[nodiscard]] inline bool getApproval() const { return mIsApproval; }
 
 private:
+  /**
+   * The ID of the NFT.
+   */
+  TokenId mTokenId;
+
   /**
    * The account ID of the sender.
    */
