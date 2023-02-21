@@ -6,6 +6,7 @@
     "zlib",
     "protobuf",
     "grpc",
-    "upb"
+    "upb",
+    "nlohmann-json"
   ]
 }
