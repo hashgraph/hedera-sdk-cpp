@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_TOKEN_ID_H_
 #define HEDERA_SDK_CPP_TOKEN_ID_H_
 
+#include <memory>
 #include <string>
 #include <string_view>
 
