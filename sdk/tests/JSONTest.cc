@@ -48,11 +48,17 @@ TEST_F(JSONTest, ParseJSONConfig)
 
     // Then
     EXPECT_FALSE(jsonData.empty());
+    EXPECT_FALSE(jsonData["network"].empty());
+    EXPECT_FALSE(jsonData["network"]["0.0.3"].empty());
+    EXPECT_TRUE(jsonData["network"]["0.0.3"].is_string());
+    EXPECT_FALSE(jsonData["operator"].empty());
+    EXPECT_FALSE(jsonData["operator"]["accountId"].empty());
+    EXPECT_TRUE(jsonData["operator"]["accountId"].is_string());
+    EXPECT_FALSE(jsonData["operator"]["privateKey"].empty());
+    EXPECT_TRUE(jsonData["operator"]["privateKey"].is_string());
   }
   catch (json::parse_error& error)
   {
-    std::cout << error.what() << '\n';
-
     EXPECT_TRUE(false);
   }
 
