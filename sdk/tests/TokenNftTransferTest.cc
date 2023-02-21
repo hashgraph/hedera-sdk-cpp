@@ -28,17 +28,15 @@ using namespace Hedera;
 class TokenNftTransferTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTokenId; }
+  [[nodiscard]] inline const NftId& getTestNftId() const { return mNftId; }
   [[nodiscard]] inline const AccountId& getTestSenderAccountId() const { return mSenderAccountId; }
   [[nodiscard]] inline const AccountId& getTestReceiverAccountId() const { return mReceiverAccountId; }
-  [[nodiscard]] inline const uint64_t& getTestNftSerialNumber() const { return mNftSerialNumber; }
   [[nodiscard]] inline bool getTestIsApproval() const { return mIsApproval; }
 
 private:
-  const TokenId mTokenId = TokenId(1ULL);
-  const AccountId mSenderAccountId = AccountId(20ULL);
-  const AccountId mReceiverAccountId = AccountId(300ULL);
-  const uint64_t mNftSerialNumber = 4000ULL;
+  const NftId mNftId = NftId(TokenId(1ULL), 20ULL);
+  const AccountId mSenderAccountId = AccountId(300ULL);
+  const AccountId mReceiverAccountId = AccountId(4000ULL);
   const bool mIsApproval = true;
 };
 
@@ -46,19 +44,18 @@ private:
 TEST_F(TokenNftTransferTest, DefaultConstruction)
 {
   TokenNftTransfer tokenNftTransfer;
-  EXPECT_EQ(tokenNftTransfer.getTokenId(), TokenId());
+  EXPECT_EQ(tokenNftTransfer.getNftId(), NftId());
   EXPECT_EQ(tokenNftTransfer.getSenderAccountId(), AccountId());
   EXPECT_EQ(tokenNftTransfer.getReceiverAccountId(), AccountId());
-  EXPECT_EQ(tokenNftTransfer.getNftSerialNumber(), 0ULL);
   EXPECT_FALSE(tokenNftTransfer.getApproval());
 }
 
 //-----
-TEST_F(TokenNftTransferTest, SetGetTokenId)
+TEST_F(TokenNftTransferTest, SetGetNftId)
 {
   TokenNftTransfer tokenNftTransfer;
-  tokenNftTransfer.setTokenId(getTestTokenId());
-  EXPECT_EQ(tokenNftTransfer.getTokenId(), getTestTokenId());
+  tokenNftTransfer.setNftId(getTestNftId());
+  EXPECT_EQ(tokenNftTransfer.getNftId(), getTestNftId());
 }
 
 //-----
@@ -78,15 +75,6 @@ TEST_F(TokenNftTransferTest, SetGetReceiverAccountId)
 }
 
 //-----
-TEST_F(TokenNftTransferTest, SetGetNftSerialNumber)
-{
-  TokenNftTransfer tokenNftTransfer;
-  tokenNftTransfer.setNftSerialNumber(getTestNftSerialNumber());
-  EXPECT_EQ(tokenNftTransfer.getNftSerialNumber(), getTestNftSerialNumber());
-  EXPECT_THROW(tokenNftTransfer.setNftSerialNumber(std::numeric_limits<int64_t>::max() + 1ULL), std::invalid_argument);
-}
-
-//-----
 TEST_F(TokenNftTransferTest, SetGetApproval)
 {
   TokenNftTransfer tokenNftTransfer;
@@ -98,25 +86,25 @@ TEST_F(TokenNftTransferTest, SetGetApproval)
 TEST_F(TokenNftTransferTest, ProtobufTokenNftTransfer)
 {
   TokenNftTransfer tokenNftTransfer;
+  tokenNftTransfer.setNftId(getTestNftId());
   tokenNftTransfer.setSenderAccountId(getTestSenderAccountId());
   tokenNftTransfer.setReceiverAccountId(getTestReceiverAccountId());
-  tokenNftTransfer.setNftSerialNumber(getTestNftSerialNumber());
   tokenNftTransfer.setApproval(getTestIsApproval());
 
   std::unique_ptr<proto::NftTransfer> protoNftTransfer = tokenNftTransfer.toProtobuf();
   EXPECT_EQ(protoNftTransfer->senderaccountid().accountnum(), getTestSenderAccountId().getAccountNum());
   EXPECT_EQ(protoNftTransfer->receiveraccountid().accountnum(), getTestReceiverAccountId().getAccountNum());
-  EXPECT_EQ(protoNftTransfer->serialnumber(), getTestNftSerialNumber());
+  EXPECT_EQ(protoNftTransfer->serialnumber(), getTestNftId().getSerialNum());
   EXPECT_EQ(protoNftTransfer->is_approval(), getTestIsApproval());
 
   protoNftTransfer->set_allocated_senderaccountid(getTestReceiverAccountId().toProtobuf().release());
   protoNftTransfer->set_allocated_receiveraccountid(getTestSenderAccountId().toProtobuf().release());
-  protoNftTransfer->set_serialnumber(getTestNftSerialNumber() - 1ULL);
+  protoNftTransfer->set_serialnumber(static_cast<int64_t>(getTestNftId().getSerialNum()) - 1LL);
   protoNftTransfer->set_is_approval(!getTestIsApproval());
 
   tokenNftTransfer = TokenNftTransfer::fromProtobuf(*protoNftTransfer);
+  EXPECT_EQ(tokenNftTransfer.getNftId().getSerialNum(), getTestNftId().getSerialNum() - 1ULL);
   EXPECT_EQ(tokenNftTransfer.getSenderAccountId(), getTestReceiverAccountId());
   EXPECT_EQ(tokenNftTransfer.getReceiverAccountId(), getTestSenderAccountId());
-  EXPECT_EQ(tokenNftTransfer.getNftSerialNumber(), getTestNftSerialNumber() - 1ULL);
   EXPECT_EQ(tokenNftTransfer.getApproval(), !getTestIsApproval());
 }

@@ -56,10 +56,9 @@ TransferTransaction& TransferTransaction::addNftTransfer(const NftId& nftId,
                                                          const AccountId& receiverAccountId)
 {
   doNftTransfer(TokenNftTransfer()
-                  .setTokenId(nftId.getTokenId())
+                  .setNftId(nftId)
                   .setSenderAccountId(senderAccountId)
                   .setReceiverAccountId(receiverAccountId)
-                  .setNftSerialNumber(nftId.getSerialNum())
                   .setApproval(false));
   return *this;
 }
@@ -101,10 +100,9 @@ TransferTransaction& TransferTransaction::addApprovedNftTransfer(const NftId& nf
                                                                  const AccountId& receiverAccountId)
 {
   doNftTransfer(TokenNftTransfer()
-                  .setTokenId(nftId.getTokenId())
+                  .setNftId(nftId)
                   .setSenderAccountId(senderAccountId)
                   .setReceiverAccountId(receiverAccountId)
-                  .setNftSerialNumber(nftId.getSerialNum())
                   .setApproval(true));
   return *this;
 }
@@ -157,7 +155,7 @@ std::unordered_map<TokenId, std::vector<TokenNftTransfer>> TransferTransaction::
 
   for (const TokenNftTransfer& transfer : mNftTransfers)
   {
-    nftTransfers[transfer.getTokenId()].push_back(transfer);
+    nftTransfers[transfer.getNftId().getTokenId()].push_back(transfer);
   }
 
   return nftTransfers;
@@ -213,7 +211,21 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 
   for (const TokenTransfer& transfer : mTokenTransfers)
   {
-    proto::TokenTransferList* list = body->mutable_tokentransfers()->Add();
+    // If this token already has a transfer, grab that token's list. Otherwise, add this token
+    proto::TokenTransferList* list = nullptr;
+    for (int i = 0; i < body->mutable_tokentransfers()->size(); ++i)
+    {
+      if (TokenId::fromProtobuf(body->mutable_tokentransfers(i)->token()) == transfer.getTokenId())
+      {
+        list = body->mutable_tokentransfers(i);
+      }
+    }
+
+    if (!list)
+    {
+      list = body->mutable_tokentransfers()->Add();
+    }
+
     list->set_allocated_token(transfer.getTokenId().toProtobuf().release());
 
     proto::AccountAmount* amount = list->add_transfers();
@@ -221,20 +233,32 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
     amount->set_amount(transfer.getAmount());
     amount->set_is_approval(transfer.getApproval());
 
-    std::unique_ptr<google::protobuf::UInt32Value> decimals;
-    decimals->set_value(transfer.getExpectedDecimals());
-    list->set_allocated_expected_decimals(decimals.release());
+    // Shouldn't ever overwrite a different value here because it is checked when the transfer is added to this
+    // TransferTransaction
+    list->mutable_expected_decimals()->set_value(transfer.getExpectedDecimals());
   }
 
   for (const TokenNftTransfer& transfer : mNftTransfers)
   {
-    proto::TokenTransferList* list = body->mutable_tokentransfers()->Add();
-    list->set_allocated_token(transfer.getTokenId().toProtobuf().release());
+    // If this token already has a transfer, grab that token's list. Otherwise, add this token
+    proto::TokenTransferList* list = nullptr;
+    for (int i = 0; i < body->mutable_tokentransfers()->size(); ++i)
+    {
+      if (TokenId::fromProtobuf(body->mutable_tokentransfers(i)->token()) == transfer.getNftId().getTokenId())
+      {
+        list = body->mutable_tokentransfers(i);
+      }
+    }
+
+    if (!list)
+    {
+      list = body->mutable_tokentransfers()->Add();
+    }
 
     proto::NftTransfer* nft = list->add_nfttransfers();
     nft->set_allocated_senderaccountid(transfer.getSenderAccountId().toProtobuf().release());
     nft->set_allocated_receiveraccountid(transfer.getReceiverAccountId().toProtobuf().release());
-    nft->set_serialnumber(static_cast<int64_t>(transfer.getNftSerialNumber()));
+    nft->set_serialnumber(static_cast<int64_t>(transfer.getNftId().getSerialNum()));
     nft->set_is_approval(transfer.getApproval());
   }
 
@@ -302,7 +326,7 @@ void TransferTransaction::doNftTransfer(const TokenNftTransfer& transfer)
 {
   for (auto transferIter = mNftTransfers.begin(); transferIter != mNftTransfers.end(); ++transferIter)
   {
-    if (transferIter->getNftSerialNumber() == transfer.getNftSerialNumber() &&
+    if (transferIter->getNftId().getSerialNum() == transfer.getNftId().getSerialNum() &&
         transferIter->getSenderAccountId() == transfer.getReceiverAccountId() &&
         transferIter->getReceiverAccountId() == transfer.getSenderAccountId() &&
         transferIter->getApproval() == transfer.getApproval())

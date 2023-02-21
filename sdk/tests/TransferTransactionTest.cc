@@ -132,7 +132,8 @@ TEST_F(TransferTransactionTest, AddNftTransfer)
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->first, getTestTokenId());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getSenderAccountId(), getTestAccountId1());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getReceiverAccountId(), getTestAccountId2());
-  EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getNftSerialNumber(), getTestNftSerialNumber());
+  EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getNftId().getSerialNum(),
+            getTestNftSerialNumber());
 
   transaction.addNftTransfer(getTestNftId(), getTestAccountId2(), getTestAccountId1());
   EXPECT_TRUE(transaction.getNftTransfers().empty());

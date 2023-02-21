@@ -39,7 +39,7 @@ TokenNftTransfer TokenNftTransfer::fromProtobuf(const proto::NftTransfer& proto)
     tokenNftTransfer.mReceiverAccountID = AccountId::fromProtobuf(proto.receiveraccountid());
   }
 
-  tokenNftTransfer.mNftSerialNumber = static_cast<uint64_t>(proto.serialnumber());
+  tokenNftTransfer.mNftId.setSerialNum(static_cast<uint64_t>(proto.serialnumber()));
   tokenNftTransfer.mIsApproval = proto.is_approval();
   return tokenNftTransfer;
 }
@@ -50,15 +50,15 @@ std::unique_ptr<proto::NftTransfer> TokenNftTransfer::toProtobuf() const
   auto proto = std::make_unique<proto::NftTransfer>();
   proto->set_allocated_senderaccountid(mSenderAccountID.toProtobuf().release());
   proto->set_allocated_receiveraccountid(mReceiverAccountID.toProtobuf().release());
-  proto->set_serialnumber(static_cast<int64_t>(mNftSerialNumber));
+  proto->set_serialnumber(static_cast<int64_t>(mNftId.getSerialNum()));
   proto->set_is_approval(mIsApproval);
   return proto;
 }
 
 //-----
-TokenNftTransfer& TokenNftTransfer::setTokenId(const TokenId& tokenId)
+TokenNftTransfer& TokenNftTransfer::setNftId(const NftId& nftId)
 {
-  mTokenId = tokenId;
+  mNftId = nftId;
   return *this;
 }
 
@@ -73,18 +73,6 @@ TokenNftTransfer& TokenNftTransfer::setSenderAccountId(const AccountId& accountI
 TokenNftTransfer& TokenNftTransfer::setReceiverAccountId(const AccountId& accountId)
 {
   mReceiverAccountID = accountId;
-  return *this;
-}
-
-//-----
-TokenNftTransfer& TokenNftTransfer::setNftSerialNumber(const uint64_t& serialNumber)
-{
-  if (serialNumber > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input serial number is too large");
-  }
-
-  mNftSerialNumber = serialNumber;
   return *this;
 }
 

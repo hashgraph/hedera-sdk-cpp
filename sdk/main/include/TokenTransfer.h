@@ -122,7 +122,7 @@ private:
   /**
    * The amount of the token to transfer.
    */
-  int64_t mAmount = 0ULL;
+  int64_t mAmount = 0LL;
 
   /**
    * The expected decimals of transfer.

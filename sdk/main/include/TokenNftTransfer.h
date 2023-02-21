@@ -21,7 +21,7 @@
 #define HEDERA_SDK_CPP_TOKEN_NFT_TRANSFER_H_
 
 #include "AccountId.h"
-#include "TokenId.h"
+#include "NftId.h"
 
 #include <memory>
 
@@ -58,10 +58,10 @@ public:
   /**
    * Set the ID of the NFT.
    *
-   * @param tokenId The ID of the NFT.
-   * @param A reference to this TokenNftTransfer object with the newly-set token ID.
+   * @param nftId The ID of the NFT.
+   * @param A reference to this TokenNftTransfer object with the newly-set NFT ID.
    */
-  TokenNftTransfer& setTokenId(const TokenId& tokenId);
+  TokenNftTransfer& setNftId(const NftId& nftId);
 
   /**
    * Set the ID of the account sending the NFT.
@@ -80,15 +80,6 @@ public:
   TokenNftTransfer& setReceiverAccountId(const AccountId& accountId);
 
   /**
-   * Set the serial number of the NFT to transfer.
-   *
-   * @param serialNumber The serial number of the NFT to transfer.
-   * @return A reference to this TokenNftTransfer object with the newly-set NFT serial number.
-   * @throws std::invalid_argument If the serial number is too big (max value is std::numeric_limits<int64_t>::max()).
-   */
-  TokenNftTransfer& setNftSerialNumber(const uint64_t& serialNumber);
-
-  /**
    * Set if this TokenNftTransfer is approved.
    *
    * @param approval \c TRUE if this is an approved transfer, otherwise \c FALSE.
@@ -97,11 +88,11 @@ public:
   TokenNftTransfer& setApproval(bool approval);
 
   /**
-   * Get the token ID.
+   * Get the NFT ID.
    *
-   * @return The token ID.
+   * @return The NFT ID.
    */
-  [[nodiscard]] inline TokenId getTokenId() const { return mTokenId; }
+  [[nodiscard]] inline NftId getNftId() const { return mNftId; }
 
   /**
    * Get the sender account ID.
@@ -118,13 +109,6 @@ public:
   [[nodiscard]] inline AccountId getReceiverAccountId() const { return mReceiverAccountID; }
 
   /**
-   * Get the serial number of the NFT to be transferred.
-   *
-   * @return The NFT serial number.
-   */
-  [[nodiscard]] inline uint64_t getNftSerialNumber() const { return mNftSerialNumber; }
-
-  /**
    * Determine if this transfer is approved or not.
    *
    * @return \c TRUE if this is an approved transfer, otherwise \c FALSE.
@@ -135,7 +119,7 @@ private:
   /**
    * The ID of the NFT.
    */
-  TokenId mTokenId;
+  NftId mNftId;
 
   /**
    * The account ID of the sender.
@@ -146,11 +130,6 @@ private:
    * The account ID of the receiver.
    */
   AccountId mReceiverAccountID;
-
-  /**
-   * The serial number of the NFT.
-   */
-  uint64_t mNftSerialNumber = 0ULL;
 
   /**
    * If \c TRUE then the transfer is expected to be an approved allowance and the senderAccountID is expected to be the
