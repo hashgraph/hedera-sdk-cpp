@@ -59,8 +59,8 @@ int main(int argc, char** argv)
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
 
   TransactionResponse txResponse = TransferTransaction()
-                                     .addUnapprovedHbarTransfer(operatorId, amount.negated())
-                                     .addUnapprovedHbarTransfer(recipientId, amount)
+                                     .addHbarTransfer(operatorId, amount.negated())
+                                     .addHbarTransfer(recipientId, amount)
                                      .setTransactionMemo("transfer test")
                                      .execute(client);
 
