@@ -18,6 +18,7 @@ find_package(re2 CONFIG REQUIRED)
 find_package(absl CONFIG REQUIRED)
 find_package(upb CONFIG REQUIRED)
 find_package(Threads REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 include(FetchContent)
 include(SystemLibraries.cmake)
