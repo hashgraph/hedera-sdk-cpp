@@ -17,16 +17,16 @@
  * limitations under the License.
  *
  */
-#include "Transfer.h"
+#include "HbarTransfer.h"
 
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
 //-----
-Transfer Transfer::fromProtobuf(const proto::AccountAmount& proto)
+HbarTransfer HbarTransfer::fromProtobuf(const proto::AccountAmount& proto)
 {
-  Transfer transfer;
+  HbarTransfer transfer;
 
   if (proto.has_accountid())
   {
@@ -40,7 +40,7 @@ Transfer Transfer::fromProtobuf(const proto::AccountAmount& proto)
 }
 
 //-----
-std::unique_ptr<proto::AccountAmount> Transfer::toProtobuf() const
+std::unique_ptr<proto::AccountAmount> HbarTransfer::toProtobuf() const
 {
   auto proto = std::make_unique<proto::AccountAmount>();
   proto->set_allocated_accountid(mAccountId.toProtobuf().release());
@@ -51,21 +51,21 @@ std::unique_ptr<proto::AccountAmount> Transfer::toProtobuf() const
 }
 
 //-----
-Transfer& Transfer::setAccountId(const AccountId& accountId)
+HbarTransfer& HbarTransfer::setAccountId(const AccountId& accountId)
 {
   mAccountId = accountId;
   return *this;
 }
 
 //-----
-Transfer& Transfer::setAmount(const Hbar& amount)
+HbarTransfer& HbarTransfer::setAmount(const Hbar& amount)
 {
   mAmount = amount;
   return *this;
 }
 
 //-----
-Transfer& Transfer::setApproved(bool approved)
+HbarTransfer& HbarTransfer::setApproved(bool approved)
 {
   mIsApproved = approved;
   return *this;

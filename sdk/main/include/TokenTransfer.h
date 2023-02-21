@@ -68,7 +68,7 @@ public:
   /**
    * Set the approval status of this transfer.
    *
-   * @param approval \c TRUE if this transfer should be approved, otherwise \c FALSE.
+   * @param approval \c TRUE if this is an approved transfer, otherwise \c FALSE.
    * @return A reference to this TokenTransfer object with the newly-set approval.
    */
   TokenTransfer& setApproval(bool approval);
@@ -125,7 +125,7 @@ private:
   int64_t mAmount = 0LL;
 
   /**
-   * The expected decimals of transfer.
+   * The expected decimals of the transfer amount.
    */
   uint32_t mExpectedDecimals = 0U;
 

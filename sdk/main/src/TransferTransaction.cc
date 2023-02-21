@@ -37,7 +37,7 @@ TransferTransaction::clone() const
 //-----
 TransferTransaction& TransferTransaction::addHbarTransfer(const AccountId& accountId, const Hbar& amount)
 {
-  doHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(false));
+  doHbarTransfer(HbarTransfer().setAccountId(accountId).setAmount(amount).setApproved(false));
   return *this;
 }
 
@@ -81,7 +81,7 @@ TransferTransaction& TransferTransaction::addTokenTransferWithDecimals(const Tok
 //-----
 TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
 {
-  doHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(true));
+  doHbarTransfer(HbarTransfer().setAccountId(accountId).setAmount(amount).setApproved(true));
   return *this;
 }
 
@@ -127,7 +127,7 @@ std::unordered_map<AccountId, Hbar> TransferTransaction::getHbarTransfers() cons
 {
   std::unordered_map<AccountId, Hbar> hbarTransfers;
 
-  for (const Transfer& transfer : mHbarTransfers)
+  for (const HbarTransfer& transfer : mHbarTransfers)
   {
     hbarTransfers[transfer.getAccountId()] += transfer.getAmount();
   }
@@ -201,7 +201,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 {
   auto body = std::make_unique<proto::CryptoTransferTransactionBody>();
 
-  for (const Transfer& transfer : mHbarTransfers)
+  for (const HbarTransfer& transfer : mHbarTransfers)
   {
     proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
     amount->set_allocated_accountid(transfer.getAccountId().toProtobuf().release());
@@ -266,7 +266,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 }
 
 //----
-void TransferTransaction::doHbarTransfer(const Transfer& transfer)
+void TransferTransaction::doHbarTransfer(const HbarTransfer& transfer)
 {
   // If a transfer has already been added for an account, just update the amount if the approval status is the same
   for (auto transferIter = mHbarTransfers.begin(); transferIter != mHbarTransfers.end(); ++transferIter)

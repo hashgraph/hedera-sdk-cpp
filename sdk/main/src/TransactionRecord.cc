@@ -53,7 +53,7 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   {
     for (int i = 0; i < proto.transferlist().accountamounts_size(); ++i)
     {
-      Transfer transfer;
+      HbarTransfer transfer;
       transfer.setAccountId(AccountId::fromProtobuf(proto.transferlist().accountamounts(i).accountid()));
       transfer.setAmount(Hbar(proto.transferlist().accountamounts(i).amount(), HbarUnit::TINYBAR()));
       transactionRecord.mTransferList.push_back(transfer);

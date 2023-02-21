@@ -31,7 +31,7 @@ class TokenID;
 namespace Hedera
 {
 /**
- * The ID for token on Hedera.
+ * The ID for a token on Hedera.
  */
 class TokenId
 {
@@ -65,7 +65,7 @@ public:
   bool operator==(const TokenId& other) const;
 
   /**
-   * Create an TokenId object from a string of the form "<shard>.<realm>.<num>".
+   * Create a TokenId object from a string of the form "<shard>.<realm>.<num>".
    *
    * @param id The token ID string from which to construct.
    * @throws std::invalid_argument If the input string is malformed.

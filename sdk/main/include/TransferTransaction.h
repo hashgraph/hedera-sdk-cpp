@@ -21,12 +21,12 @@
 #define HEDERA_SDK_CPP_TRANSFER_TRANSACTION_H_
 
 #include "AccountId.h"
+#include "HbarTransfer.h"
 #include "NftId.h"
 #include "TokenId.h"
 #include "TokenNftTransfer.h"
 #include "TokenTransfer.h"
 #include "Transaction.h"
-#include "Transfer.h"
 
 #include <memory>
 #include <unordered_map>
@@ -226,7 +226,7 @@ private:
    *
    * @param transfer The Hbar transfer to add.
    */
-  void doHbarTransfer(const Transfer& transfer);
+  void doHbarTransfer(const HbarTransfer& transfer);
 
   /**
    * Add a token transfer to the token transfers list.
@@ -245,7 +245,7 @@ private:
   /**
    * The desired Hbar balance adjustments.
    */
-  std::vector<Transfer> mHbarTransfers;
+  std::vector<HbarTransfer> mHbarTransfers;
 
   /**
    * The desired token adjustments.

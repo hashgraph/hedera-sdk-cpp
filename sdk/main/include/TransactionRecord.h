@@ -23,9 +23,9 @@
 #include "AccountId.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
+#include "HbarTransfer.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
-#include "Transfer.h"
 
 #include <optional>
 #include <string>
@@ -107,7 +107,7 @@ public:
    * @return A list of IDs for accounts that sent/received a crypto transfer, as well as the amount that was
    *         transferred.
    */
-  [[nodiscard]] inline std::vector<Transfer> getTransferList() const { return mTransferList; }
+  [[nodiscard]] inline std::vector<HbarTransfer> getTransferList() const { return mTransferList; }
 
   /**
    * Get the EVM address of the account created by the transaction with which this TransactionRecord is associated.
@@ -153,7 +153,7 @@ private:
    * All Hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by
    * a smart contract it calls, or by the creation of threshold records that it triggers.
    */
-  std::vector<Transfer> mTransferList;
+  std::vector<HbarTransfer> mTransferList;
 
   /**
    * The new default EVM address of the account created by transaction with which this TransactionRecord is associated.

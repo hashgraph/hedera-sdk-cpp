@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "Transfer.h"
 #include "AccountId.h"
 #include "Hbar.h"
+#include "HbarTransfer.h"
 
 #include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>
@@ -37,7 +37,7 @@ private:
   const AccountId mAccountId = AccountId(10ULL);
 };
 
-// Tests serialization of Hedera::Transfer -> proto::AccountAmount.
+// Tests serialization of Hedera::HbarTransfer -> proto::AccountAmount.
 TEST_F(TransferTest, SerializeTransferToProtobuf)
 {
   // Given
@@ -45,7 +45,7 @@ TEST_F(TransferTest, SerializeTransferToProtobuf)
   const int64_t testAmount = getTestAmount();
   const auto testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
 
-  Transfer testTransfer;
+  HbarTransfer testTransfer;
   testTransfer.setAccountId(testAccountId);
   testTransfer.setAmount(testHbarAmount);
   testTransfer.setApproved(false);
@@ -59,7 +59,7 @@ TEST_F(TransferTest, SerializeTransferToProtobuf)
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }
 
-// Tests deserialization of proto::AccountAmount -> Hedera::Transfer.
+// Tests deserialization of proto::AccountAmount -> Hedera::HbarTransfer.
 TEST_F(TransferTest, DeserializeTransferFromProtobuf)
 {
   // Given
@@ -71,7 +71,7 @@ TEST_F(TransferTest, DeserializeTransferFromProtobuf)
   testProtoAccountAmount.set_is_approval(true);
 
   // When
-  const Transfer transfer = Transfer::fromProtobuf(testProtoAccountAmount);
+  const HbarTransfer transfer = HbarTransfer::fromProtobuf(testProtoAccountAmount);
 
   // Then
   EXPECT_EQ(transfer.getAccountId(), testAccountId);
@@ -79,7 +79,7 @@ TEST_F(TransferTest, DeserializeTransferFromProtobuf)
   EXPECT_TRUE(transfer.getApproval());
 }
 
-// Tests serialization & deserialization of Hedera::Transfer -> proto::AccountAmount -> Hedera::Transfer.
+// Tests serialization & deserialization of Hedera::HbarTransfer -> proto::AccountAmount -> Hedera::HbarTransfer.
 TEST_F(TransferTest, ProtoTransfer)
 {
   AccountId accountId(10ULL);
@@ -90,7 +90,7 @@ TEST_F(TransferTest, ProtoTransfer)
   protoAccountAmount.set_amount(amount);
   protoAccountAmount.set_is_approval(true);
 
-  Transfer transfer = Transfer::fromProtobuf(protoAccountAmount);
+  HbarTransfer transfer = HbarTransfer::fromProtobuf(protoAccountAmount);
   EXPECT_EQ(transfer.getAccountId(), accountId);
   EXPECT_EQ(transfer.getAmount().toTinybars(), amount);
   EXPECT_TRUE(transfer.getApproval());
