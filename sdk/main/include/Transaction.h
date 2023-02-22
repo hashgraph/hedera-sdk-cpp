@@ -28,10 +28,14 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <variant>
+#include <vector>
 
 namespace Hedera
 {
+class AccountCreateTransaction;
 class TransactionResponse;
+class TransferTransaction;
 }
 
 namespace proto
@@ -53,7 +57,15 @@ class Transaction
   : public Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>
 {
 public:
-  ~Transaction() override = default;
+  /**
+   * Construct a Transaction derived class from a byte array. The bytes can be a protobuf encoded TransactionBody,
+   * Transaction, or SignedTransaction.
+   *
+   * @param bytes The bytes from which to construct a Transaction.
+   * @return A variant from which to get the constructed Transaction.
+   * @throws std::invalid_argument If unable to construct a Transaction from the input bytes.
+   */
+  static std::variant<AccountCreateTransaction, TransferTransaction> fromBytes(const std::vector<unsigned char>& bytes);
 
   /**
    * Set the length of time that this Transaction will remain valid.
@@ -147,6 +159,13 @@ protected:
   Transaction& operator=(const Transaction&) = default;
   Transaction(Transaction&&) noexcept = default;
   Transaction& operator=(Transaction&&) noexcept = default;
+
+  /**
+   * Construct from a TransactionBody protobuf object.
+   *
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   */
+  explicit Transaction(const proto::TransactionBody& transactionBody);
 
   /**
    * Derived from Executable. Perform any needed actions for this Transaction when a Node has been selected to which to
