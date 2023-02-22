@@ -34,10 +34,15 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
         #    src/FileCreateTransaction.cc
+        src/HbarTransfer.cc
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
+        src/NftId.cc
         src/PublicKey.cc
         src/Status.cc
+        src/TokenId.cc
+        src/TokenNftTransfer.cc
+        src/TokenTransfer.cc
         src/Transaction.cc
         src/TransactionId.cc
         src/TransactionReceipt.cc
@@ -45,7 +50,6 @@ add_library(${PROJECT_NAME} STATIC
         src/TransactionRecord.cc
         src/TransactionRecordQuery.cc
         src/TransactionResponse.cc
-        src/Transfer.cc
         src/TransferTransaction.cc
 
         src/impl/DerivationPathUtils.cc

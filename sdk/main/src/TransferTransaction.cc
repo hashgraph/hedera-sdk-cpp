@@ -35,16 +35,146 @@ TransferTransaction::clone() const
 }
 
 //-----
-TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
+TransferTransaction& TransferTransaction::addHbarTransfer(const AccountId& accountId, const Hbar& amount)
 {
-  addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(true));
+  doHbarTransfer(HbarTransfer().setAccountId(accountId).setAmount(amount).setApproved(false));
   return *this;
 }
+
 //-----
-TransferTransaction& TransferTransaction::addUnapprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
+TransferTransaction& TransferTransaction::addTokenTransfer(const TokenId& tokenId,
+                                                           const AccountId& accountId,
+                                                           const int64_t& amount)
 {
-  addHbarTransfer(Transfer().setAccountId(accountId).setAmount(amount).setApproved(false));
+  doTokenTransfer(TokenTransfer().setTokenId(tokenId).setAccountId(accountId).setAmount(amount).setApproval(false));
   return *this;
+}
+
+//-----
+TransferTransaction& TransferTransaction::addNftTransfer(const NftId& nftId,
+                                                         const AccountId& senderAccountId,
+                                                         const AccountId& receiverAccountId)
+{
+  doNftTransfer(TokenNftTransfer()
+                  .setNftId(nftId)
+                  .setSenderAccountId(senderAccountId)
+                  .setReceiverAccountId(receiverAccountId)
+                  .setApproval(false));
+  return *this;
+}
+
+//-----
+TransferTransaction& TransferTransaction::addTokenTransferWithDecimals(const TokenId& tokenId,
+                                                                       const AccountId& accountId,
+                                                                       const int64_t& amount,
+                                                                       uint32_t decimals)
+{
+  doTokenTransfer(TokenTransfer()
+                    .setTokenId(tokenId)
+                    .setAccountId(accountId)
+                    .setAmount(amount)
+                    .setExpectedDecimals(decimals)
+                    .setApproval(false));
+  return *this;
+}
+
+//-----
+TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
+{
+  doHbarTransfer(HbarTransfer().setAccountId(accountId).setAmount(amount).setApproved(true));
+  return *this;
+}
+
+//-----
+TransferTransaction& TransferTransaction::addApprovedTokenTransfer(const TokenId& tokenId,
+                                                                   const AccountId& accountId,
+                                                                   const int64_t& amount)
+{
+  doTokenTransfer(TokenTransfer().setTokenId(tokenId).setAccountId(accountId).setAmount(amount).setApproval(true));
+  return *this;
+}
+
+//-----
+TransferTransaction& TransferTransaction::addApprovedNftTransfer(const NftId& nftId,
+                                                                 const AccountId& senderAccountId,
+                                                                 const AccountId& receiverAccountId)
+{
+  doNftTransfer(TokenNftTransfer()
+                  .setNftId(nftId)
+                  .setSenderAccountId(senderAccountId)
+                  .setReceiverAccountId(receiverAccountId)
+                  .setApproval(true));
+  return *this;
+}
+
+//-----
+TransferTransaction& TransferTransaction::addApprovedTokenTransferWithDecimals(const TokenId& tokenId,
+                                                                               const AccountId& accountId,
+                                                                               const int64_t& amount,
+                                                                               uint32_t decimals)
+{
+  doTokenTransfer(TokenTransfer()
+                    .setTokenId(tokenId)
+                    .setAccountId(accountId)
+                    .setAmount(amount)
+                    .setExpectedDecimals(decimals)
+                    .setApproval(true));
+  return *this;
+}
+
+//-----
+std::unordered_map<AccountId, Hbar> TransferTransaction::getHbarTransfers() const
+{
+  std::unordered_map<AccountId, Hbar> hbarTransfers;
+
+  for (const HbarTransfer& transfer : mHbarTransfers)
+  {
+    hbarTransfers[transfer.getAccountId()] += transfer.getAmount();
+  }
+
+  return hbarTransfers;
+}
+
+//-----
+std::unordered_map<TokenId, std::unordered_map<AccountId, int64_t>> TransferTransaction::getTokenTransfers() const
+{
+  std::unordered_map<TokenId, std::unordered_map<AccountId, int64_t>> tokenTransfers;
+
+  for (const TokenTransfer& transfer : mTokenTransfers)
+  {
+    tokenTransfers[transfer.getTokenId()][transfer.getAccountId()] += transfer.getAmount();
+  }
+
+  return tokenTransfers;
+}
+
+//-----
+std::unordered_map<TokenId, std::vector<TokenNftTransfer>> TransferTransaction::getNftTransfers() const
+{
+  std::unordered_map<TokenId, std::vector<TokenNftTransfer>> nftTransfers;
+
+  for (const TokenNftTransfer& transfer : mNftTransfers)
+  {
+    nftTransfers[transfer.getNftId().getTokenId()].push_back(transfer);
+  }
+
+  return nftTransfers;
+}
+
+//-----
+std::unordered_map<TokenId, uint32_t> TransferTransaction::getTokenIdDecimals() const
+{
+  std::unordered_map<TokenId, uint32_t> decimals;
+
+  for (const TokenTransfer& transfer : mTokenTransfers)
+  {
+    if (transfer.getExpectedDecimals() != 0)
+    {
+      decimals[transfer.getTokenId()] = transfer.getExpectedDecimals();
+    }
+  }
+
+  return decimals;
 }
 
 //-----
@@ -71,7 +201,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 {
   auto body = std::make_unique<proto::CryptoTransferTransactionBody>();
 
-  for (const Transfer& transfer : mHbarTransfers)
+  for (const HbarTransfer& transfer : mHbarTransfers)
   {
     proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
     amount->set_allocated_accountid(transfer.getAccountId().toProtobuf().release());
@@ -79,24 +209,134 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
     amount->set_is_approval(transfer.getApproval());
   }
 
+  for (const TokenTransfer& transfer : mTokenTransfers)
+  {
+    // If this token already has a transfer, grab that token's list. Otherwise, add this token
+    proto::TokenTransferList* list = nullptr;
+    for (int i = 0; i < body->mutable_tokentransfers()->size(); ++i)
+    {
+      if (TokenId::fromProtobuf(body->mutable_tokentransfers(i)->token()) == transfer.getTokenId())
+      {
+        list = body->mutable_tokentransfers(i);
+      }
+    }
+
+    if (!list)
+    {
+      list = body->mutable_tokentransfers()->Add();
+    }
+
+    list->set_allocated_token(transfer.getTokenId().toProtobuf().release());
+
+    proto::AccountAmount* amount = list->add_transfers();
+    amount->set_allocated_accountid(transfer.getAccountId().toProtobuf().release());
+    amount->set_amount(transfer.getAmount());
+    amount->set_is_approval(transfer.getApproval());
+
+    // Shouldn't ever overwrite a different value here because it is checked when the transfer is added to this
+    // TransferTransaction
+    list->mutable_expected_decimals()->set_value(transfer.getExpectedDecimals());
+  }
+
+  for (const TokenNftTransfer& transfer : mNftTransfers)
+  {
+    // If this token already has a transfer, grab that token's list. Otherwise, add this token
+    proto::TokenTransferList* list = nullptr;
+    for (int i = 0; i < body->mutable_tokentransfers()->size(); ++i)
+    {
+      if (TokenId::fromProtobuf(body->mutable_tokentransfers(i)->token()) == transfer.getNftId().getTokenId())
+      {
+        list = body->mutable_tokentransfers(i);
+      }
+    }
+
+    if (!list)
+    {
+      list = body->mutable_tokentransfers()->Add();
+    }
+
+    proto::NftTransfer* nft = list->add_nfttransfers();
+    nft->set_allocated_senderaccountid(transfer.getSenderAccountId().toProtobuf().release());
+    nft->set_allocated_receiveraccountid(transfer.getReceiverAccountId().toProtobuf().release());
+    nft->set_serialnumber(static_cast<int64_t>(transfer.getNftId().getSerialNum()));
+    nft->set_is_approval(transfer.getApproval());
+  }
+
   return body.release();
 }
 
 //----
-void TransferTransaction::addHbarTransfer(const Transfer& transfer)
+void TransferTransaction::doHbarTransfer(const HbarTransfer& transfer)
 {
   // If a transfer has already been added for an account, just update the amount if the approval status is the same
-  for (Transfer& hbarTransfer : mHbarTransfers)
+  for (auto transferIter = mHbarTransfers.begin(); transferIter != mHbarTransfers.end(); ++transferIter)
   {
-    if (hbarTransfer.getAccountId() == transfer.getAccountId() && hbarTransfer.getApproval() == transfer.getApproval())
+    if (transferIter->getAccountId() == transfer.getAccountId() &&
+        transferIter->getApproval() == transfer.getApproval())
     {
-      hbarTransfer.setAmount(
-        Hbar(hbarTransfer.getAmount().toTinybars() + transfer.getAmount().toTinybars(), HbarUnit::TINYBAR()));
+      if (const auto newValue =
+            Hbar(transferIter->getAmount().toTinybars() + transfer.getAmount().toTinybars(), HbarUnit::TINYBAR());
+          newValue.toTinybars() == 0LL)
+      {
+        mHbarTransfers.erase(transferIter);
+      }
+      else
+      {
+        transferIter->setAmount(newValue);
+      }
+
       return;
     }
   }
 
   mHbarTransfers.push_back(transfer);
+}
+
+//-----
+void TransferTransaction::doTokenTransfer(const TokenTransfer& transfer)
+{
+  for (auto transferIter = mTokenTransfers.begin(); transferIter != mTokenTransfers.end(); ++transferIter)
+  {
+    if (transferIter->getTokenId() == transfer.getTokenId() &&
+        transferIter->getAccountId() == transfer.getAccountId() &&
+        transferIter->getApproval() == transfer.getApproval())
+    {
+      if (transferIter->getExpectedDecimals() != transfer.getExpectedDecimals())
+      {
+        throw std::invalid_argument("Expected decimals for token do not match previously set decimals");
+      }
+      else if (const int64_t newAmount = transferIter->getAmount() + transfer.getAmount(); newAmount == 0LL)
+      {
+        mTokenTransfers.erase(transferIter);
+      }
+      else
+      {
+        transferIter->setAmount(newAmount);
+      }
+
+      return;
+    }
+  }
+
+  mTokenTransfers.push_back(transfer);
+}
+
+//-----
+void TransferTransaction::doNftTransfer(const TokenNftTransfer& transfer)
+{
+  for (auto transferIter = mNftTransfers.begin(); transferIter != mNftTransfers.end(); ++transferIter)
+  {
+    if (transferIter->getNftId().getSerialNum() == transfer.getNftId().getSerialNum() &&
+        transferIter->getSenderAccountId() == transfer.getReceiverAccountId() &&
+        transferIter->getReceiverAccountId() == transfer.getSenderAccountId() &&
+        transferIter->getApproval() == transfer.getApproval())
+    {
+      mNftTransfers.erase(transferIter);
+      return;
+    }
+  }
+
+  mNftTransfers.push_back(transfer);
 }
 
 } // namespace Hedera

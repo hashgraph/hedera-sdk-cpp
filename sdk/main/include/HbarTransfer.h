@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TRANSFER_H_
-#define HEDERA_SDK_CPP_TRANSFER_H_
+#ifndef HEDERA_SDK_CPP_HBAR_TRANSFER_H_
+#define HEDERA_SDK_CPP_HBAR_TRANSFER_H_
 
 #include "AccountId.h"
 #include "Hbar.h"
@@ -30,50 +30,50 @@ class AccountAmount;
 
 namespace Hedera
 {
-class Transfer
+class HbarTransfer
 {
 public:
   /**
-   * Create a Transfer object from a AccountAmount protobuf object.
+   * Create an HbarTransfer object from an AccountAmount protobuf object.
    *
-   * @param proto The AccountAmount protobuf object from which to create an Transfer object.
-   * @return The created Transfer object.
+   * @param proto The AccountAmount protobuf object from which to create an HbarTransfer object.
+   * @return The created HbarTransfer object.
    */
-  static Transfer fromProtobuf(const proto::AccountAmount& proto);
+  static HbarTransfer fromProtobuf(const proto::AccountAmount& proto);
 
   /**
-   * Construct a AccountAmount protobuf object from this Transfer object.
+   * Construct an AccountAmount protobuf object from this HbarTransfer object.
    *
-   * @return A pointer to a created AccountAmount protobuf object filled with this Transfer object's data.
+   * @return A pointer to a created AccountAmount protobuf object filled with this HbarTransfer object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::AccountAmount> toProtobuf() const;
 
   /**
-   * Set the ID of the account associated with this Transfer.
+   * Set the ID of the account associated with this HbarTransfer.
    *
-   * @param accountId The ID of the account sent, received, is sending, or is receiving Hbar.
-   * @return A reference to this Transfer object with the newly-set account ID.
+   * @param accountId The ID of the account associated with this HbarTransfer.
+   * @return A reference to this HbarTransfer object with the newly-set account ID.
    */
-  Transfer& setAccountId(const AccountId& accountId);
+  HbarTransfer& setAccountId(const AccountId& accountId);
 
   /**
    * Set the amount of Hbar that was transferred into (positive) or out of (negative) the account.
    *
    * @param amount The amount transferred.
-   * @return A reference to this Transfer object with the newly-set transfer amount.
+   * @return A reference to this HbarTransfer object with the newly-set transfer amount.
    */
-  Transfer& setAmount(const Hbar& amount);
+  HbarTransfer& setAmount(const Hbar& amount);
 
   /**
-   * Set if this transaction is approved.
+   * Set if this HbarTransfer is approved.
    *
-   * @param approved \c TRUE if this transfer is approved, otherwise \c FALSE.
-   * @return A reference to this Transfer object with the newly-set approval status.
+   * @param approved \c TRUE if this HbarTransfer is approved, otherwise \c FALSE.
+   * @return A reference to this HbarTransfer object with the newly-set approval status.
    */
-  Transfer& setApproved(bool approved);
+  HbarTransfer& setApproved(bool approved);
 
   /**
-   * Get the ID of the account associated with this Transfer.
+   * Get the ID of the account associated with this HbarTransfer.
    *
    * @return The account ID.
    */
@@ -87,7 +87,7 @@ public:
   [[nodiscard]] inline Hbar getAmount() const { return mAmount; }
 
   /**
-   * Determine if this Transfer is approved or not.
+   * Determine if this HbarTransfer is approved or not.
    *
    * @return \c TRUE if this transfer is approved, otherwise \c FALSE
    */
@@ -95,21 +95,21 @@ public:
 
 private:
   /**
-   * The ID of the account associated with this Transfer.
+   * The ID of the account associated with this HbarTransfer.
    */
   AccountId mAccountId;
 
   /**
-   * The amount of Hbar transferred or to be transferred. Defaults to 0.
+   * The amount of Hbar transferred or to be transferred.
    */
   Hbar mAmount = Hbar(0ULL);
 
   /**
-   * Is/Was this transfer approved or not? Defaults to \c FALSE.
+   * Is this transfer approved or not?
    */
   bool mIsApproved = false;
 };
 
 } // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_TRANSFER_H_
+#endif // HEDERA_SDK_CPP_HBAR_TRANSFER_H_

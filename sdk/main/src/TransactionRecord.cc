@@ -53,10 +53,45 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   {
     for (int i = 0; i < proto.transferlist().accountamounts_size(); ++i)
     {
-      Transfer transfer;
+      HbarTransfer transfer;
       transfer.setAccountId(AccountId::fromProtobuf(proto.transferlist().accountamounts(i).accountid()));
       transfer.setAmount(Hbar(proto.transferlist().accountamounts(i).amount(), HbarUnit::TINYBAR()));
-      transactionRecord.mTransferList.push_back(transfer);
+      transactionRecord.mHbarTransferList.push_back(transfer);
+    }
+  }
+
+  for (int i = 0; i < proto.tokentransferlists_size(); ++i)
+  {
+    const proto::TokenTransferList& list = proto.tokentransferlists(i);
+    const TokenId tokenId = TokenId::fromProtobuf(list.token());
+
+    // Fungible token
+    for (int j = 0; j < list.transfers_size(); ++j)
+    {
+      const proto::AccountAmount& accountAmount = list.transfers(j);
+
+      TokenTransfer transfer;
+      transfer.setTokenId(tokenId);
+      transfer.setAccountId(AccountId::fromProtobuf(accountAmount.accountid()));
+      transfer.setAmount(accountAmount.amount());
+      transfer.setApproval(accountAmount.is_approval());
+      transfer.setExpectedDecimals(list.expected_decimals().value());
+
+      transactionRecord.mTokenTransferList.push_back(transfer);
+    }
+
+    // NFT
+    for (int j = 0; j < list.nfttransfers_size(); ++j)
+    {
+      const proto::NftTransfer& nftTransfer = list.nfttransfers(j);
+
+      TokenNftTransfer transfer;
+      transfer.setNftId(NftId(tokenId, static_cast<uint64_t>(nftTransfer.serialnumber())));
+      transfer.setSenderAccountId(AccountId::fromProtobuf(nftTransfer.senderaccountid()));
+      transfer.setReceiverAccountId(AccountId::fromProtobuf(nftTransfer.receiveraccountid()));
+      transfer.setApproval(nftTransfer.is_approval());
+
+      transactionRecord.mNftTransferList.push_back(transfer);
     }
   }
 

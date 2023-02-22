@@ -23,9 +23,11 @@
 #include "AccountId.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
+#include "HbarTransfer.h"
+#include "TokenNftTransfer.h"
+#include "TokenTransfer.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
-#include "Transfer.h"
 
 #include <optional>
 #include <string>
@@ -107,7 +109,23 @@ public:
    * @return A list of IDs for accounts that sent/received a crypto transfer, as well as the amount that was
    *         transferred.
    */
-  [[nodiscard]] inline std::vector<Transfer> getTransferList() const { return mTransferList; }
+  [[nodiscard]] inline std::vector<HbarTransfer> getHbarTransferList() const { return mHbarTransferList; }
+
+  /**
+   * Get the list of all fungible token transfers that occurred during the execution of the transaction with which this
+   * TransactionRecord is associated.
+   *
+   * @return A list of token IDs, account IDs, and amounts for each transfer that occurred.
+   */
+  [[nodiscard]] inline std::vector<TokenTransfer> getTokenTransferList() const { return mTokenTransferList; }
+
+  /**
+   * Get the list of all NFT transfers that occurred during the execution of the transaction with which this
+   * TransactionRecord is associated.
+   *
+   * @return A list of NFT IDs and account IDs for each transfer that occurred.
+   */
+  [[nodiscard]] inline std::vector<TokenNftTransfer> getNftTransferList() const { return mNftTransferList; }
 
   /**
    * Get the EVM address of the account created by the transaction with which this TransactionRecord is associated.
@@ -153,11 +171,21 @@ private:
    * All Hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by
    * a smart contract it calls, or by the creation of threshold records that it triggers.
    */
-  std::vector<Transfer> mTransferList;
+  std::vector<HbarTransfer> mHbarTransferList;
 
   /**
-   * The new default EVM address of the account created by transaction with which this TransactionRecord is associated.
-   * This field is populated only when the EVM address is not specified in the related transaction body.
+   * All fungible token transfers as a result of this transaction.
+   */
+  std::vector<TokenTransfer> mTokenTransferList;
+
+  /**
+   * All NFT transfers as a result of this transaction.
+   */
+  std::vector<TokenNftTransfer> mNftTransferList;
+
+  /**
+   * The new default EVM address of the account created by transaction with which this TransactionRecord is
+   * associated. This field is populated only when the EVM address is not specified in the related transaction body.
    */
   std::optional<EvmAddress> mEvmAddress;
 };
