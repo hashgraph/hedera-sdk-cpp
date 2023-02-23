@@ -71,7 +71,7 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
 
   if (body.has_staked_node_id())
   {
-    mStakedNodeId = body.staked_node_id();
+    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
   }
 
   mDeclineStakingReward = body.decline_reward();

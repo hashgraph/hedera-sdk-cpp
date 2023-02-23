@@ -104,11 +104,12 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
   EXPECT_EQ(accountCreateTransaction.getAccountMemo(), getTestAccountMemo());
   EXPECT_EQ(accountCreateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
-  EXPECT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
-  EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
+  ASSERT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
   EXPECT_EQ(accountCreateTransaction.getStakedAccountId(), getTestAccountId());
+  EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
   EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
   EXPECT_EQ(accountCreateTransaction.getAlias()->toBytes(), testPublicKeyBytes);
+  ASSERT_TRUE(accountCreateTransaction.getEvmAddress().has_value());
   EXPECT_EQ(accountCreateTransaction.getEvmAddress()->toBytes(), testEvmAddressBytes);
 }
 

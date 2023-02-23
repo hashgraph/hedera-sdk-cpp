@@ -41,19 +41,25 @@ template<typename SdkRequestType>
 std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> Transaction<SdkRequestType>::fromBytes(
   const std::vector<unsigned char>& bytes)
 {
-  proto::Transaction tx;
   proto::TransactionBody txBody;
-  proto::SignedTransaction signedTx;
 
-  if (tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !tx.signedtransactionbytes().empty())
+  // Transaction protobuf object
+  if (proto::Transaction tx;
+      tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !tx.signedtransactionbytes().empty())
   {
+    proto::SignedTransaction signedTx;
     signedTx.ParseFromArray(tx.signedtransactionbytes().data(), static_cast<int>(tx.signedtransactionbytes().size()));
     txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
   }
-  else if (signedTx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !signedTx.bodybytes().empty())
+
+  // SignedTransaction protobuf object
+  else if (proto::SignedTransaction signedTx;
+           signedTx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !signedTx.bodybytes().empty())
   {
     txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
   }
+
+  // If not TransactionBody protobuf object, throw
   else if (!txBody.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) ||
            txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET)
   {

@@ -92,23 +92,24 @@ TEST_F(TransferTransactionTest, ConstructTransferTransactionFromTransactionBodyP
 
   // When
   TransferTransaction transferTransaction(txBody);
+
+  // Then
   const std::unordered_map<AccountId, Hbar> hbarTransfers = transferTransaction.getHbarTransfers();
   const std::unordered_map<TokenId, std::unordered_map<AccountId, int64_t>> tokenTransfers =
     transferTransaction.getTokenTransfers();
   const std::unordered_map<TokenId, std::vector<TokenNftTransfer>> nftTransfers = transferTransaction.getNftTransfers();
   const std::unordered_map<TokenId, uint32_t> tokenDecimals = transferTransaction.getTokenIdDecimals();
 
-  // Then
-  EXPECT_EQ(hbarTransfers.size(), 1);
+  ASSERT_EQ(hbarTransfers.size(), 1);
   EXPECT_EQ(hbarTransfers.cbegin()->first, getTestAccountId1());
   EXPECT_EQ(hbarTransfers.cbegin()->second, getTestAmount());
 
-  EXPECT_EQ(tokenTransfers.size(), 1);
+  ASSERT_EQ(tokenTransfers.size(), 1);
   EXPECT_EQ(tokenTransfers.cbegin()->first, getTestTokenId());
   EXPECT_EQ(tokenTransfers.cbegin()->second.cbegin()->first, getTestAccountId2());
   EXPECT_EQ(tokenTransfers.cbegin()->second.cbegin()->second, getTestAmount().toTinybars());
 
-  EXPECT_EQ(nftTransfers.size(), 1);
+  ASSERT_EQ(nftTransfers.size(), 1);
   EXPECT_EQ(nftTransfers.cbegin()->first, getTestNftId().getTokenId());
   EXPECT_EQ(nftTransfers.cbegin()->second.size(), 1);
   EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getNftId(), getTestNftId());

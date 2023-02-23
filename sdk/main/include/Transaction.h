@@ -67,19 +67,19 @@ public:
    * std::vector<unsigned char> bytes;
    *                                                 The Transaction type here doesn't matter and is an unfortunate,
    *                        vvvvvvvvvvvvvvvvvvvvvvvv ugly byproduct of this approach.
-   * auto ret = Transaction<AccountCreateTransaction>::fromBytes(bytes);
+   * auto [index, variant] = Transaction<AccountCreateTransaction>::fromBytes(bytes);
    *
-   * switch (ret.first)
+   * switch (index)
    * {
    *    case 0:
    *    {
-   *        AccountCreateTransaction tx = std::get<0>(ret.second);
+   *        AccountCreateTransaction tx = std::get<0>(variant);
    *        ** do stuff with tx here **
    *        break;
    *    }
    *    case 1:
    *    {
-   *        TransferTransaction tx = std::get<1>(ret.second);
+   *        TransferTransaction tx = std::get<1>(variant);
    *        ** do stuff with tx here **
    *        break;
    *    }
