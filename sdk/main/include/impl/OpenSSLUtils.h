@@ -88,7 +88,7 @@ private:
 /**
  * Wrapper class for the OpenSSL BIGNUM object.
  */
-class OpenSSL_BIGNUM : public OpenSSLObjectWrapper<BIGNUM, decltype(&BN_clear_free)>
+class BIGNUM : public OpenSSLObjectWrapper<::BIGNUM, decltype(&BN_clear_free)>
 {
 public:
   /**
@@ -96,37 +96,37 @@ public:
    *
    * @param bignum The BIGNUM OpenSSL object to wrap.
    */
-  explicit OpenSSL_BIGNUM(BIGNUM* bignum);
+  explicit BIGNUM(::BIGNUM* bignum);
 
   /**
-   * Create a new OpenSSL_BIGNUM from a hex string.
+   * Create a new BIGNUM from a hex string.
    *
-   * @param hexString A string representing the OpenSSL_BIGNUM.
-   * @return A newly constructed OpenSSL_BIGNUM.
+   * @param hexString A string representing the BIGNUM.
+   * @return A newly constructed BIGNUM.
    */
-  static OpenSSL_BIGNUM fromHex(const std::string& hexString);
+  static BIGNUM fromHex(const std::string& hexString);
 
   /**
-   * Create a new OpenSSL_BIGNUM from a bytes vector.
+   * Create a new BIGNUM from a bytes vector.
    *
-   * @param bytes The vector of bytes representing the OpenSSL_BIGNUM.
-   * @return A newly constructed OpenSSL_BIGNUM.
+   * @param bytes The vector of bytes representing the BIGNUM.
+   * @return A newly constructed BIGNUM.
    */
-  static OpenSSL_BIGNUM fromBytes(const std::vector<unsigned char>& bytes);
+  static BIGNUM fromBytes(const std::vector<unsigned char>& bytes);
 
   /**
-   * Add another OpenSSL_BIGNUM to this one, and take the modulo of the sum.
+   * Add another BIGNUM to this one, and take the modulo of the sum.
    *
-   * @param other  The other OpenSSL_BIGNUM to add to this one.
+   * @param other  The other BIGNUM to add to this one.
    * @param modulo The modulo to take the sum to.
    * @return The modular sum.
    */
-  [[nodiscard]] OpenSSL_BIGNUM modularAdd(const OpenSSL_BIGNUM& other, const OpenSSL_BIGNUM& modulo) const;
+  [[nodiscard]] BIGNUM modularAdd(const BIGNUM& other, const BIGNUM& modulo) const;
 
   /**
-   * Get a vector of bytes representing this OpenSSL_BIGNUM.
+   * Get a vector of bytes representing this BIGNUM.
    *
-   * @return The byte vector representing this OpenSSL_BIGNUM.
+   * @return The byte vector representing this BIGNUM.
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const;
 };
@@ -134,7 +134,7 @@ public:
 /**
  * Wrapper class for the OpenSSL BN_CTX object.
  */
-class OpenSSL_BN_CTX : public OpenSSLObjectWrapper<BN_CTX, decltype(&BN_CTX_free)>
+class BN_CTX : public OpenSSLObjectWrapper<::BN_CTX, decltype(&BN_CTX_free)>
 {
 public:
   /**
@@ -142,13 +142,13 @@ public:
    *
    * @param bnCtx The BN_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_BN_CTX(BN_CTX* bnCtx);
+  explicit BN_CTX(::BN_CTX* bnCtx);
 };
 
 /**
  * Wrapper class for the OpenSSL EC_GROUP object.
  */
-class OpenSSL_EC_GROUP : public OpenSSLObjectWrapper<EC_GROUP, decltype(&EC_GROUP_free)>
+class EC_GROUP : public OpenSSLObjectWrapper<::EC_GROUP, decltype(&EC_GROUP_free)>
 {
 public:
   /**
@@ -156,13 +156,13 @@ public:
    *
    * @param ecGroup The EC_GROUP OpenSSL object to wrap.
    */
-  explicit OpenSSL_EC_GROUP(EC_GROUP* ecGroup);
+  explicit EC_GROUP(::EC_GROUP* ecGroup);
 };
 
 /**
  * Wrapper class for the OpenSSL EC_POINT object.
  */
-class OpenSSL_EC_POINT : public OpenSSLObjectWrapper<EC_POINT, decltype(&EC_POINT_free)>
+class EC_POINT : public OpenSSLObjectWrapper<::EC_POINT, decltype(&EC_POINT_free)>
 {
 public:
   /**
@@ -170,13 +170,13 @@ public:
    *
    * @param ecPoint The EC_POINT OpenSSL object to wrap.
    */
-  explicit OpenSSL_EC_POINT(EC_POINT* ecPoint);
+  explicit EC_POINT(::EC_POINT* ecPoint);
 };
 
 /**
  * Wrapper class for the OpenSSL ECDSA_SIG object.
  */
-class OpenSSL_ECDSA_SIG : public OpenSSLObjectWrapper<ECDSA_SIG, decltype(&ECDSA_SIG_free)>
+class ECDSA_SIG : public OpenSSLObjectWrapper<::ECDSA_SIG, decltype(&ECDSA_SIG_free)>
 {
 public:
   /**
@@ -184,13 +184,13 @@ public:
    *
    * @param ecdsaSig The ECDSA_SIG OpenSSL object to wrap.
    */
-  explicit OpenSSL_ECDSA_SIG(ECDSA_SIG* ecdsaSig);
+  explicit ECDSA_SIG(::ECDSA_SIG* ecdsaSig);
 };
 
 /**
  * Wrapper class for the OpenSSL EVP_MD object.
  */
-class OpenSSL_EVP_MD : public OpenSSLObjectWrapper<EVP_MD, decltype(&EVP_MD_free)>
+class EVP_MD : public OpenSSLObjectWrapper<::EVP_MD, decltype(&EVP_MD_free)>
 {
 public:
   /**
@@ -198,13 +198,13 @@ public:
    *
    * @param evpMd The EVP_MD OpenSSL object to wrap.
    */
-  explicit OpenSSL_EVP_MD(EVP_MD* evpMd);
+  explicit EVP_MD(::EVP_MD* evpMd);
 };
 
 /**
  * Wrapper class for the OpenSSL EVP_MD_CTX object.
  */
-class OpenSSL_EVP_MD_CTX : public OpenSSLObjectWrapper<EVP_MD_CTX, decltype(&EVP_MD_CTX_free)>
+class EVP_MD_CTX : public OpenSSLObjectWrapper<::EVP_MD_CTX, decltype(&EVP_MD_CTX_free)>
 {
 public:
   /**
@@ -212,13 +212,13 @@ public:
    *
    * @param evpMdCtx The EVP_MD_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_EVP_MD_CTX(EVP_MD_CTX* evpMdCtx);
+  explicit EVP_MD_CTX(::EVP_MD_CTX* evpMdCtx);
 };
 
 /**
  * Wrapper class for the OpenSSL EVP_PKEY object.
  */
-class OpenSSL_EVP_PKEY : public OpenSSLObjectWrapper<EVP_PKEY, decltype(&EVP_PKEY_free)>
+class EVP_PKEY : public OpenSSLObjectWrapper<::EVP_PKEY, decltype(&EVP_PKEY_free)>
 {
 public:
   /**
@@ -226,13 +226,13 @@ public:
    *
    * @param evpPkey The EVP_PKEY OpenSSL object to wrap.
    */
-  explicit OpenSSL_EVP_PKEY(EVP_PKEY* evpPkey);
+  explicit EVP_PKEY(::EVP_PKEY* evpPkey);
 };
 
 /**
  * Wrapper class for the OpenSSL EVP_PKEY_CTX object.
  */
-class OpenSSL_EVP_PKEY_CTX : public OpenSSLObjectWrapper<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>
+class EVP_PKEY_CTX : public OpenSSLObjectWrapper<::EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>
 {
 public:
   /**
@@ -240,13 +240,13 @@ public:
    *
    * @param evpPkeyCtx The EVP_PKEY_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_EVP_PKEY_CTX(EVP_PKEY_CTX* evpPkeyCtx);
+  explicit EVP_PKEY_CTX(::EVP_PKEY_CTX* evpPkeyCtx);
 };
 
 /**
  * Wrapper class for the OpenSSL OSSL_LIB_CTX object.
  */
-class OpenSSL_OSSL_LIB_CTX : public OpenSSLObjectWrapper<OSSL_LIB_CTX, decltype(&OSSL_LIB_CTX_free)>
+class OSSL_LIB_CTX : public OpenSSLObjectWrapper<::OSSL_LIB_CTX, decltype(&OSSL_LIB_CTX_free)>
 {
 public:
   /**
@@ -254,13 +254,13 @@ public:
    *
    * @param osslLibCtx The OSSL_LIB_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_OSSL_LIB_CTX(OSSL_LIB_CTX* osslLibCtx);
+  explicit OSSL_LIB_CTX(::OSSL_LIB_CTX* osslLibCtx);
 };
 
 /**
  * Wrapper class for the OpenSSL OSSL_DECODER_CTX object.
  */
-class OpenSSL_OSSL_DECODER_CTX : public OpenSSLObjectWrapper<OSSL_DECODER_CTX, decltype(&OSSL_DECODER_CTX_free)>
+class OSSL_DECODER_CTX : public OpenSSLObjectWrapper<::OSSL_DECODER_CTX, decltype(&OSSL_DECODER_CTX_free)>
 {
 public:
   /**
@@ -268,7 +268,7 @@ public:
    *
    * @param osslDecoderCtx The OSSL_DECODER_CTX OpenSSL object to wrap.
    */
-  explicit OpenSSL_OSSL_DECODER_CTX(OSSL_DECODER_CTX* osslDecoderCtx);
+  explicit OSSL_DECODER_CTX(::OSSL_DECODER_CTX* osslDecoderCtx);
 };
 
 /**********************************************************************************************************************/
@@ -308,7 +308,7 @@ public:
  * @param functionName The name of the OpenSSL function which caused the error.
  * @return An error string.
  */
-[[nodiscard]] std::string getOpenSSLErrorMessage(const std::string& functionName);
+[[nodiscard]] std::string getErrorMessage(const std::string& functionName);
 
 /**
  * Get a vector of random bytes.

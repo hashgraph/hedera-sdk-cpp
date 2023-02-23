@@ -147,7 +147,7 @@ private:
    * @return The newly created wrapped OpenSSL keypair object.
    * @throws OpenSSLException If OpenSSL is unable to create a keypair from the input bytes.
    */
-  static internal::OpenSSLUtils::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
    * Construct from a wrapped OpenSSL keypair object.
@@ -156,7 +156,7 @@ private:
    * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PublicKey's
    *                          bytes.
    */
-  explicit ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& keypair);
+  explicit ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair);
 
   /**
    * Construct from a wrapped OpenSSL keypair object and a chaincode.
@@ -166,7 +166,7 @@ private:
    * @throws OpenSSLException If OpenSSL is unable to get this ECDSAsecp256k1PrivateKey's corresponding
    *                          ECDSAsecp256k1PublicKey's bytes.
    */
-  ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& keypair, std::vector<unsigned char> chainCode);
+  ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode);
 
   /**
    * Get the byte representation of the ECDSAsecp256k1PublicKey that corresponds to this ECDSAsecp256k1PrivateKey.
@@ -180,7 +180,7 @@ private:
   /**
    * The wrapped OpenSSL keypair.
    */
-  internal::OpenSSLUtils::OpenSSL_EVP_PKEY mKeypair;
+  internal::OpenSSLUtils::EVP_PKEY mKeypair;
 
   /**
    * A pointer to the ECDSAsecp256k1PublicKey object that corresponds to this ECDSAsecp256k1PrivateKey.

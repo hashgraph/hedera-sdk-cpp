@@ -79,10 +79,10 @@ ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(ECDSAsecp256k1Priv
 //-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::generatePrivateKey()
 {
-  internal::OpenSSLUtils::OpenSSL_EVP_PKEY key(EVP_EC_gen("secp256k1"));
+  internal::OpenSSLUtils::EVP_PKEY key(EVP_EC_gen("secp256k1"));
   if (!key)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_EC_gen"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_EC_gen"));
   }
 
   return std::make_unique<ECDSAsecp256k1PrivateKey>(ECDSAsecp256k1PrivateKey(std::move(key)));
@@ -141,27 +141,27 @@ std::shared_ptr<PublicKey> ECDSAsecp256k1PrivateKey::getPublicKey() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
-  const internal::OpenSSLUtils::OpenSSL_OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
+  const internal::OpenSSLUtils::OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
   if (!libraryContext)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("OSSL_LIB_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_LIB_CTX_new"));
   }
 
-  const internal::OpenSSLUtils::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr));
+  const internal::OpenSSLUtils::EVP_MD messageDigest(EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr));
   if (!messageDigest)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_MD_fetch"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_fetch"));
   }
 
-  const internal::OpenSSLUtils::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  const internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
   if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, mKeypair.get()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestSignInit"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSignInit"));
   }
 
   // 72 is the maximum required size. actual signature may be slightly smaller
@@ -174,29 +174,29 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
                      (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
                      bytesToSign.size()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestSign"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
   }
 
   // we have the signature complete, now we need to turn it into its raw form of (r,s)
 
   const unsigned char* signaturePointer = &signature.front();
-  const internal::OpenSSLUtils::OpenSSL_ECDSA_SIG signatureObject(
+  const internal::OpenSSLUtils::ECDSA_SIG signatureObject(
     d2i_ECDSA_SIG(nullptr, &signaturePointer, static_cast<long>(signatureLength)));
   if (!signatureObject)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("d2i_ECDSA_SIG"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_ECDSA_SIG"));
   }
 
   const BIGNUM* signatureR = ECDSA_SIG_get0_r(signatureObject.get());
   if (!signatureR)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("ECDSA_SIG_get0_r"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("ECDSA_SIG_get0_r"));
   }
 
   const BIGNUM* signatureS = ECDSA_SIG_get0_s(signatureObject.get());
   if (!signatureS)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("ECDSA_SIG_get0_s"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("ECDSA_SIG_get0_s"));
   }
 
   // signature is returned in the raw, 64 byte form (r, s)
@@ -204,12 +204,12 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
 
   if (BN_bn2binpad(signatureR, &outputArray.front(), 32) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("BN_bn2binpad"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bn2binpad"));
   }
 
   if (BN_bn2binpad(signatureS, &outputArray.front() + 32, 32) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("BN_bn2binpad"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bn2binpad"));
   }
 
   return outputArray;
@@ -255,14 +255,14 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::derive(const
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(mChainCode, data);
 
   // the first 32 bytes of the hmac are used to compute the key
-  const internal::OpenSSLUtils::OpenSSL_BIGNUM keyTerm1 =
-    internal::OpenSSLUtils::OpenSSL_BIGNUM::fromBytes({ hmacOutput.begin(), hmacOutput.begin() + PRIVATE_KEY_SIZE });
+  const internal::OpenSSLUtils::BIGNUM keyTerm1 =
+    internal::OpenSSLUtils::BIGNUM::fromBytes({ hmacOutput.begin(), hmacOutput.begin() + PRIVATE_KEY_SIZE });
   // first 32 bytes of hmac are added to existing private key
-  const internal::OpenSSLUtils::OpenSSL_BIGNUM keyTerm2 = internal::OpenSSLUtils::OpenSSL_BIGNUM::fromBytes(toBytes());
+  const internal::OpenSSLUtils::BIGNUM keyTerm2 = internal::OpenSSLUtils::BIGNUM::fromBytes(toBytes());
 
   // this is the order of the curve
-  static const internal::OpenSSLUtils::OpenSSL_BIGNUM modulo =
-    internal::OpenSSLUtils::OpenSSL_BIGNUM::fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
+  static const internal::OpenSSLUtils::BIGNUM modulo =
+    internal::OpenSSLUtils::BIGNUM::fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
 
   // chain code is the last 32 bytes of the computed hmac
   std::vector<unsigned char> chainCode(hmacOutput.begin() + CHAIN_CODE_SIZE, hmacOutput.end());
@@ -280,7 +280,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytes() const
 
   if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(mKeypair.get(), &rawBytes) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("i2d_PrivateKey"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }
 
   // only return the 32 private key bytes
@@ -297,8 +297,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::getChainCode() const
 }
 
 //-----
-internal::OpenSSLUtils::OpenSSL_EVP_PKEY ECDSAsecp256k1PrivateKey::bytesToPKEY(
-  const std::vector<unsigned char>& keyBytes)
+internal::OpenSSLUtils::EVP_PKEY ECDSAsecp256k1PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that we can correctly decode
@@ -320,18 +319,18 @@ internal::OpenSSLUtils::OpenSSL_EVP_PKEY ECDSAsecp256k1PrivateKey::bytesToPKEY(
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  internal::OpenSSLUtils::OpenSSL_EVP_PKEY key(
+  internal::OpenSSLUtils::EVP_PKEY key(
     d2i_PrivateKey(EVP_PKEY_EC, nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
   if (!key)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("d2i_PrivateKey"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PrivateKey"));
   }
 
   return key;
 }
 
 //-----
-ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& keypair)
+ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
   : PrivateKey()
   , mKeypair(std::move(keypair))
   , mPublicKey(ECDSAsecp256k1PublicKey::fromBytes(getPublicKeyBytes()))
@@ -339,7 +338,7 @@ ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::OpenS
 }
 
 //-----
-ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& keypair,
+ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
                                                    std::vector<unsigned char> chainCode)
   : mKeypair(std::move(keypair))
   , mPublicKey(ECDSAsecp256k1PublicKey::fromBytes(getPublicKeyBytes()))
@@ -356,7 +355,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::getPublicKeyBytes() const
 
   if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(mKeypair.get(), &rawPublicKeyBytes) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("i2d_PUBKEY"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
 
   // first 23 characters are the ASN.1 prefix, and the remaining 65 bytes are the uncompressed pubkey

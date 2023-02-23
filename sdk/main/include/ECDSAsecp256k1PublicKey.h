@@ -153,19 +153,19 @@ private:
    * @throws std::invalid_argument If the input bytes are not the correct size.
    * @throws OpenSSLException      If OpenSSL is unable to create a keypair from the input bytes.
    */
-  static internal::OpenSSLUtils::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
+  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
 
   /**
    * Construct from a wrapped OpenSSL keypair object.
    *
    * @param keypair The wrapped OpenSSL keypair object from which to construct this ECDSAsecp256k1PublicKey.
    */
-  explicit ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& publicKey);
+  explicit ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey);
 
   /**
    * The wrapped OpenSSL keypair object.
    */
-  internal::OpenSSLUtils::OpenSSL_EVP_PKEY mPublicKey;
+  internal::OpenSSLUtils::EVP_PKEY mPublicKey;
 };
 
 } // namespace Hedera

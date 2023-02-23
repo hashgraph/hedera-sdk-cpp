@@ -30,55 +30,55 @@
 namespace Hedera::internal::OpenSSLUtils
 {
 //-----
-OpenSSL_BIGNUM::OpenSSL_BIGNUM(BIGNUM* bignum)
+BIGNUM::BIGNUM(::BIGNUM* bignum)
   : OpenSSLObjectWrapper(bignum, &BN_clear_free)
 {
 }
 
 //-----
-OpenSSL_BIGNUM OpenSSL_BIGNUM::fromHex(const std::string& hexString)
+BIGNUM BIGNUM::fromHex(const std::string& hexString)
 {
-  BIGNUM* bigNum = nullptr;
+  ::BIGNUM* bigNum = nullptr;
   if (BN_hex2bn(&bigNum, hexString.c_str()) <= 0)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("BN_hex2bn"));
+    throw OpenSSLException(getErrorMessage("BN_hex2bn"));
   }
 
-  return OpenSSL_BIGNUM(bigNum);
+  return BIGNUM(bigNum);
 }
 
 //-----
-OpenSSL_BIGNUM OpenSSL_BIGNUM::fromBytes(const std::vector<unsigned char>& bytes)
+BIGNUM BIGNUM::fromBytes(const std::vector<unsigned char>& bytes)
 {
   // go through hex rather than using big-endian openssl functions
   return fromHex(HexConverter::base64ToHex(bytes));
 }
 
 //-----
-OpenSSL_BIGNUM OpenSSL_BIGNUM::modularAdd(const OpenSSL_BIGNUM& other, const OpenSSL_BIGNUM& modulo) const
+BIGNUM BIGNUM::modularAdd(const BIGNUM& other, const BIGNUM& modulo) const
 {
-  const OpenSSL_BN_CTX context(BN_CTX_secure_new());
+  const BN_CTX context(BN_CTX_secure_new());
   if (!context)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("BN_CTX_secure_new"));
+    throw OpenSSLException(getErrorMessage("BN_CTX_secure_new"));
   }
 
-  OpenSSL_BIGNUM result(BN_secure_new());
+  BIGNUM result(BN_secure_new());
   if (!result)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("BN_secure_new"));
+    throw OpenSSLException(getErrorMessage("BN_secure_new"));
   }
 
   if (BN_mod_add(result.get(), get(), other.get(), modulo.get(), context.get()) <= 0)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("BN_mod_add"));
+    throw OpenSSLException(getErrorMessage("BN_mod_add"));
   }
 
   return result;
 }
 
 //-----
-std::vector<unsigned char> OpenSSL_BIGNUM::toBytes() const
+std::vector<unsigned char> BIGNUM::toBytes() const
 {
   char* hex = BN_bn2hex(get());
   const std::string hexString(hex);
@@ -88,61 +88,61 @@ std::vector<unsigned char> OpenSSL_BIGNUM::toBytes() const
 }
 
 //-----
-OpenSSL_BN_CTX::OpenSSL_BN_CTX(BN_CTX* bnCtx)
+BN_CTX::BN_CTX(::BN_CTX* bnCtx)
   : OpenSSLObjectWrapper(bnCtx, &BN_CTX_free)
 {
 }
 
 //-----
-OpenSSL_EC_GROUP::OpenSSL_EC_GROUP(EC_GROUP* ecGroup)
+EC_GROUP::EC_GROUP(::EC_GROUP* ecGroup)
   : OpenSSLObjectWrapper(ecGroup, &EC_GROUP_free)
 {
 }
 
 //-----
-OpenSSL_EC_POINT::OpenSSL_EC_POINT(EC_POINT* ecPoint)
+EC_POINT::EC_POINT(::EC_POINT* ecPoint)
   : OpenSSLObjectWrapper(ecPoint, &EC_POINT_free)
 {
 }
 
 //-----
-OpenSSL_ECDSA_SIG::OpenSSL_ECDSA_SIG(ECDSA_SIG* ecdsaSig)
+ECDSA_SIG::ECDSA_SIG(::ECDSA_SIG* ecdsaSig)
   : OpenSSLObjectWrapper(ecdsaSig, &ECDSA_SIG_free)
 {
 }
 
 //-----
-OpenSSL_EVP_MD::OpenSSL_EVP_MD(EVP_MD* evpMd)
+EVP_MD::EVP_MD(::EVP_MD* evpMd)
   : OpenSSLObjectWrapper(evpMd, &EVP_MD_free)
 {
 }
 
 //-----
-OpenSSL_EVP_MD_CTX::OpenSSL_EVP_MD_CTX(EVP_MD_CTX* evpMdCtx)
+EVP_MD_CTX::EVP_MD_CTX(::EVP_MD_CTX* evpMdCtx)
   : OpenSSLObjectWrapper(evpMdCtx, &EVP_MD_CTX_free)
 {
 }
 
 //-----
-OpenSSL_EVP_PKEY::OpenSSL_EVP_PKEY(EVP_PKEY* evpPkey)
+EVP_PKEY::EVP_PKEY(::EVP_PKEY* evpPkey)
   : OpenSSLObjectWrapper(evpPkey, &EVP_PKEY_free)
 {
 }
 
 //-----
-OpenSSL_EVP_PKEY_CTX::OpenSSL_EVP_PKEY_CTX(EVP_PKEY_CTX* evpPkeyCtx)
+EVP_PKEY_CTX::EVP_PKEY_CTX(::EVP_PKEY_CTX* evpPkeyCtx)
   : OpenSSLObjectWrapper(evpPkeyCtx, &EVP_PKEY_CTX_free)
 {
 }
 
 //-----
-OpenSSL_OSSL_LIB_CTX::OpenSSL_OSSL_LIB_CTX(OSSL_LIB_CTX* osslLibCtx)
+OSSL_LIB_CTX::OSSL_LIB_CTX(::OSSL_LIB_CTX* osslLibCtx)
   : OpenSSLObjectWrapper(osslLibCtx, &OSSL_LIB_CTX_free)
 {
 }
 
 //-----
-OpenSSL_OSSL_DECODER_CTX::OpenSSL_OSSL_DECODER_CTX(OSSL_DECODER_CTX* osslDecoderCtx)
+OSSL_DECODER_CTX::OSSL_DECODER_CTX(::OSSL_DECODER_CTX* osslDecoderCtx)
   : OpenSSLObjectWrapper(osslDecoderCtx, &OSSL_DECODER_CTX_free)
 {
 }
@@ -172,21 +172,21 @@ std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
 std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
                                              const std::vector<unsigned char>& data)
 {
-  const OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  const EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+    throw OpenSSLException(getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  const OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
+  const EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
   if (!messageDigest)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("EVP_MD_fetch"));
+    throw OpenSSLException(getErrorMessage("EVP_MD_fetch"));
   }
 
   if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("EVP_DigestInit"));
+    throw OpenSSLException(getErrorMessage("EVP_DigestInit"));
   }
 
   std::vector<unsigned char> digest(64);
@@ -202,14 +202,14 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
 
   if (!hmac)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("HMAC"));
+    throw OpenSSLException(getErrorMessage("HMAC"));
   }
 
   return { hmac, hmac + 64 };
 }
 
 //-----
-std::string getOpenSSLErrorMessage(const std::string& functionName)
+std::string getErrorMessage(const std::string& functionName)
 {
   unsigned long errorCode = ERR_get_error();
 
@@ -238,7 +238,7 @@ std::vector<unsigned char> getRandomBytes(int count)
 
   if (RAND_priv_bytes(&randomBytes.front(), count) <= 0)
   {
-    throw OpenSSLException(getOpenSSLErrorMessage("RAND_priv_bytes"));
+    throw OpenSSLException(getErrorMessage("RAND_priv_bytes"));
   }
 
   return randomBytes;

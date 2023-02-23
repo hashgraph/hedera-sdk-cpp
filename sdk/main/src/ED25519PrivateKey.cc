@@ -77,25 +77,24 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexc
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 {
-  const internal::OpenSSLUtils::OpenSSL_EVP_PKEY_CTX keyAlgorithmContext(
-    EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr));
+  const internal::OpenSSLUtils::EVP_PKEY_CTX keyAlgorithmContext(EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr));
   if (!keyAlgorithmContext)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_PKEY_CTX_new_id"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_PKEY_CTX_new_id"));
   }
 
   if (EVP_PKEY_keygen_init(keyAlgorithmContext.get()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_PKEY_keygen_init"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_PKEY_keygen_init"));
   }
 
   EVP_PKEY* keypair = nullptr;
   if (EVP_PKEY_generate(keyAlgorithmContext.get(), &keypair) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_PKEY_generate"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_PKEY_generate"));
   }
 
-  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY(keypair)));
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY(keypair)));
 }
 
 //-----
@@ -141,15 +140,15 @@ std::shared_ptr<PublicKey> ED25519PrivateKey::getPublicKey() const
 //-----
 std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
-  const internal::OpenSSLUtils::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  const internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
   if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, nullptr, nullptr, mKeypair.get()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestSignInit"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSignInit"));
   }
 
   // Calculate the required size for the signature
@@ -160,7 +159,7 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
                      (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
                      bytesToSign.size()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestSign"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
   }
 
   auto signature = std::vector<unsigned char>(signatureLength);
@@ -170,7 +169,7 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
                      (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
                      bytesToSign.size()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestSign"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
   }
 
   return signature;
@@ -215,7 +214,7 @@ std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 
   if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(mKeypair.get(), &rawBytes) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("i2d_PrivateKey"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }
 
   // don't return the algorithm identification bytes
@@ -229,7 +228,7 @@ std::vector<unsigned char> ED25519PrivateKey::getChainCode() const
 }
 
 //-----
-internal::OpenSSLUtils::OpenSSL_EVP_PKEY ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly
@@ -244,11 +243,11 @@ internal::OpenSSLUtils::OpenSSL_EVP_PKEY ED25519PrivateKey::bytesToPKEY(const st
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  internal::OpenSSLUtils::OpenSSL_EVP_PKEY key(
+  internal::OpenSSLUtils::EVP_PKEY key(
     d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
   if (!key)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("d2i_PrivateKey"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PrivateKey"));
   }
 
   return key;
@@ -279,7 +278,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromHMACOutput(const std::
 }
 
 //-----
-ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& keypair)
+ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
   : PrivateKey()
   , mKeypair(std::move(keypair))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
@@ -287,8 +286,7 @@ ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& 
 }
 
 //-----
-ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& keypair,
-                                     std::vector<unsigned char> chainCode)
+ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode)
   : PrivateKey()
   , mKeypair(std::move(keypair))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
@@ -305,7 +303,7 @@ std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
 
   if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mKeypair.get(), &rawPublicKeyBytes) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("i2d_PUBKEY"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
 
   return publicKeyBytes;

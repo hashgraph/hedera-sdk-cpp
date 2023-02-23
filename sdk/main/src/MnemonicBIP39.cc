@@ -108,21 +108,21 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k
 //-----
 std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) const
 {
-  const internal::OpenSSLUtils::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  const internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  const internal::OpenSSLUtils::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
+  const internal::OpenSSLUtils::EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
   if (!messageDigest)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_MD_fetch"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_fetch"));
   }
 
   if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestInit"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestInit"));
   }
 
   std::vector<unsigned char> seed(64);
@@ -142,7 +142,7 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) 
                         static_cast<int>(seed.size()),
                         &seed.front()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("PKCS5_PBKDF2_HMAC"));
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("PKCS5_PBKDF2_HMAC"));
   }
 
   return seed;
