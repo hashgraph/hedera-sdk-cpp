@@ -272,7 +272,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 
     if (!list)
     {
-      list = body->mutable_tokentransfers()->Add();
+      list = body->add_tokentransfers();
     }
 
     list->set_allocated_token(transfer.getTokenId().toProtobuf().release());
@@ -301,7 +301,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 
     if (!list)
     {
-      list = body->mutable_tokentransfers()->Add();
+      list = body->add_tokentransfers();
     }
 
     proto::NftTransfer* nft = list->add_nfttransfers();

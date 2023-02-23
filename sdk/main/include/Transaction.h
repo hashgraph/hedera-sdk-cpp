@@ -28,6 +28,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -59,13 +60,38 @@ class Transaction
 public:
   /**
    * Construct a Transaction derived class from a byte array. The bytes can be a protobuf encoded TransactionBody,
-   * Transaction, or SignedTransaction.
+   * Transaction, or SignedTransaction. Since C++ return types must be known at compile time and the type of Transaction
+   * to create may not be known at compile time, a std::variant is used to encompass all possible Transactions. Usage of
+   * this return type would look like the following:
+   *
+   * std::vector<unsigned char> bytes;
+   *                                                 The Transaction type here doesn't matter and is an unfortunate,
+   *                        vvvvvvvvvvvvvvvvvvvvvvvv ugly byproduct of this approach.
+   * auto ret = Transaction<AccountCreateTransaction>::fromBytes(bytes);
+   *
+   * switch (ret.first)
+   * {
+   *    case 0:
+   *    {
+   *        AccountCreateTransaction tx = std::get<0>(ret.second);
+   *        ** do stuff with tx here **
+   *        break;
+   *    }
+   *    case 1:
+   *    {
+   *        TransferTransaction tx = std::get<1>(ret.second);
+   *        ** do stuff with tx here **
+   *        break;
+   *    }
+   *    ...
+   * }
    *
    * @param bytes The bytes from which to construct a Transaction.
-   * @return A variant from which to get the constructed Transaction.
+   * @return A pair which contains an index into the variant, as well as
    * @throws std::invalid_argument If unable to construct a Transaction from the input bytes.
    */
-  static std::variant<AccountCreateTransaction, TransferTransaction> fromBytes(const std::vector<unsigned char>& bytes);
+  static std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> fromBytes(
+    const std::vector<unsigned char>& bytes);
 
   /**
    * Set the length of time that this Transaction will remain valid.

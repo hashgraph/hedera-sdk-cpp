@@ -53,7 +53,7 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
     mKey = PublicKey::fromProtobuf(body.key());
   }
 
-  mInitialBalance = Hbar(static_cast<int64_t>(body.initialbalance()));
+  mInitialBalance = Hbar(static_cast<int64_t>(body.initialbalance()), HbarUnit::TINYBAR());
   mReceiverSignatureRequired = body.receiversigrequired();
 
   if (body.has_autorenewperiod())

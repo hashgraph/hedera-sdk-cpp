@@ -21,8 +21,10 @@
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 #include "PublicKey.h"
+#include "impl/DurationConverter.h"
 
 #include <gtest/gtest.h>
+#include <proto/transaction_body.pb.h>
 
 using namespace Hedera;
 
@@ -30,13 +32,27 @@ class AccountCreateTransactionTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
+  [[nodiscard]] inline const Hbar& getTestInitialBalance() const { return mInitialBalance; }
+  [[nodiscard]] inline bool getTestReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
+  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline const std::string& getTestAccountMemo() const { return mAccountMemo; }
+  [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const uint64_t& getTestNodeId() const { return mNodeId; }
+  [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
+  [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
 
 private:
   const std::shared_ptr<PublicKey> mPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-  const AccountId mAccountId = AccountId(10ULL);
-  const uint64_t mNodeId = 10ULL;
+  const Hbar mInitialBalance = Hbar(1LL);
+  const bool mReceiverSignatureRequired = true;
+  const std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(2);
+  const std::string mAccountMemo = "test account memo";
+  const uint32_t mMaxTokenAssociations = 3U;
+  const AccountId mAccountId = AccountId(4ULL);
+  const uint64_t mNodeId = 5ULL;
+  const bool mDeclineStakingReward = true;
+  const EvmAddress mEvmAddress = EvmAddress::fromString("303132333435363738396162636465666768696a");
 };
 
 //-----
@@ -54,6 +70,46 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransaction)
   EXPECT_FALSE(transaction.getDeclineStakingReward());
   EXPECT_EQ(transaction.getAlias(), nullptr);
   EXPECT_FALSE(transaction.getEvmAddress().has_value());
+}
+
+//-----
+TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransactionBodyProtobuf)
+{
+  // Given
+  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
+  body->set_allocated_key(getTestPublicKey()->toProtobuf().release());
+  body->set_initialbalance(static_cast<uint64_t>(getTestInitialBalance().toTinybars()));
+  body->set_receiversigrequired(getTestReceiverSignatureRequired());
+  body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
+  body->set_allocated_memo(new std::string{ getTestAccountMemo().cbegin(), getTestAccountMemo().cend() });
+  body->set_max_automatic_token_associations(static_cast<int32_t>(getTestMaximumTokenAssociations()));
+  body->set_allocated_staked_account_id(getTestAccountId().toProtobuf().release());
+  body->set_decline_reward(getTestDeclineStakingReward());
+
+  const std::vector<unsigned char> testPublicKeyBytes = getTestPublicKey()->toBytes();
+  const std::vector<unsigned char> testEvmAddressBytes = getTestEvmAddress().toBytes();
+  body->set_allocated_alias(new std::string{ testPublicKeyBytes.cbegin(), testPublicKeyBytes.cend() });
+  body->set_allocated_evm_address(new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
+
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptocreateaccount(body.release());
+
+  // When
+  AccountCreateTransaction accountCreateTransaction(txBody);
+
+  // Then
+  EXPECT_EQ(accountCreateTransaction.getKey()->toString(), getTestPublicKey()->toString());
+  EXPECT_EQ(accountCreateTransaction.getInitialBalance(), getTestInitialBalance());
+  EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
+  EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
+  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), getTestAccountMemo());
+  EXPECT_EQ(accountCreateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
+  EXPECT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
+  EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
+  EXPECT_EQ(accountCreateTransaction.getStakedAccountId(), getTestAccountId());
+  EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
+  EXPECT_EQ(accountCreateTransaction.getAlias()->toBytes(), testPublicKeyBytes);
+  EXPECT_EQ(accountCreateTransaction.getEvmAddress()->toBytes(), testEvmAddressBytes);
 }
 
 //-----
@@ -92,17 +148,15 @@ TEST_F(AccountCreateTransactionTest, SetKey)
 TEST_F(AccountCreateTransactionTest, SetInitialBalance)
 {
   AccountCreateTransaction transaction;
-  const auto initialBalance = Hbar(3ULL);
-  transaction.setInitialBalance(initialBalance);
-
-  EXPECT_EQ(transaction.getInitialBalance(), initialBalance);
+  transaction.setInitialBalance(getTestInitialBalance());
+  EXPECT_EQ(transaction.getInitialBalance(), getTestInitialBalance());
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequired)
 {
   AccountCreateTransaction transaction;
-  transaction.setReceiverSignatureRequired(true);
+  transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired());
   EXPECT_TRUE(transaction.getReceiverSignatureRequired());
 }
 
@@ -110,20 +164,17 @@ TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequired)
 TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriod)
 {
   AccountCreateTransaction transaction;
-  const auto duration = std::chrono::hours(240); // 10 days
-  transaction.setAutoRenewPeriod(duration);
-
-  EXPECT_EQ(transaction.getAutoRenewPeriod(), duration);
+  transaction.setAutoRenewPeriod(getTestAutoRenewPeriod());
+  EXPECT_EQ(transaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetAccountMemo)
 {
   AccountCreateTransaction transaction;
-  const std::string memo = "transaction test";
-  transaction.setAccountMemo(memo);
+  transaction.setAccountMemo(getTestAccountMemo());
+  EXPECT_EQ(transaction.getAccountMemo(), getTestAccountMemo());
 
-  EXPECT_EQ(transaction.getAccountMemo(), memo);
   // Throw if account memo is larger than 100 characters
   EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::length_error);
 }
@@ -132,10 +183,8 @@ TEST_F(AccountCreateTransactionTest, SetAccountMemo)
 TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
 {
   AccountCreateTransaction transaction;
-  const uint32_t associations = 5U;
-  transaction.setMaxAutomaticTokenAssociations(associations);
-
-  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), associations);
+  transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations());
+  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
 
   // Throw if over 5000
   EXPECT_NO_THROW(transaction.setMaxAutomaticTokenAssociations(5000U));
@@ -180,10 +229,9 @@ TEST_F(AccountCreateTransactionTest, SetAlias)
 TEST_F(AccountCreateTransactionTest, SetEvmAddress)
 {
   AccountCreateTransaction transaction;
-  const std::string testEvmString = "303132333435363738396162636465666768696a";
-  transaction.setEvmAddress(EvmAddress::fromString(testEvmString));
-  EXPECT_TRUE(transaction.getEvmAddress().has_value());
-  EXPECT_EQ(transaction.getEvmAddress()->toString(), testEvmString);
+  transaction.setEvmAddress(getTestEvmAddress());
+  ASSERT_TRUE(transaction.getEvmAddress().has_value());
+  EXPECT_EQ(transaction.getEvmAddress()->toString(), getTestEvmAddress().toString());
 }
 
 //-----
@@ -193,10 +241,10 @@ TEST_F(AccountCreateTransactionTest, ResetMutuallyExclusiveIds)
   transaction.setStakedAccountId(getTestAccountId());
   transaction.setStakedNodeId(getTestNodeId());
 
-  EXPECT_FALSE(transaction.getStakedAccountId());
-  EXPECT_TRUE(transaction.getStakedNodeId());
+  EXPECT_FALSE(transaction.getStakedAccountId().has_value());
+  EXPECT_TRUE(transaction.getStakedNodeId().has_value());
 
   transaction.setStakedAccountId(getTestAccountId());
-  EXPECT_TRUE(transaction.getStakedAccountId());
-  EXPECT_FALSE(transaction.getStakedNodeId());
+  EXPECT_TRUE(transaction.getStakedAccountId().has_value());
+  EXPECT_FALSE(transaction.getStakedNodeId().has_value());
 }
