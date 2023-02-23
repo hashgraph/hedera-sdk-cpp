@@ -62,9 +62,7 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/Node.cc
         src/impl/NodeAddress.cc
         src/impl/NodeAddressBook.cc
-        src/impl/OpenSSLHasher.cc
-        src/impl/OpenSSLObjectWrapper.cc
-        src/impl/OpenSSLRandom.cc
+        src/impl/OpenSSLUtils.cc
         src/impl/TimestampConverter.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)

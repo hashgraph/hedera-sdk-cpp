@@ -21,7 +21,7 @@
 #define HEDERA_SDK_CPP_ED25519_PUBLIC_KEY_H_
 
 #include "PublicKey.h"
-#include "impl/OpenSSLObjectWrapper.h"
+#include "impl/OpenSSLUtils.h"
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
@@ -121,7 +121,7 @@ private:
    * @throws std::invalid_argument If the input bytes are not the correct size.
    * @throws OpenSSLException      If OpenSSL is unable to create a keypair from the input bytes.
    */
-  static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
+  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
 
   /**
    * Prepend an ED25519PublicKey's algorithm identifier to an array of serialized ED25519PublicKey bytes.
@@ -137,12 +137,12 @@ private:
    *
    * @param keypair The wrapped OpenSSL keypair object from which to construct this ED25519PublicKey.
    */
-  explicit ED25519PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey);
+  explicit ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey);
 
   /**
    * The wrapped OpenSSL keypair object.
    */
-  internal::OpenSSL_EVP_PKEY mPublicKey;
+  internal::OpenSSLUtils::EVP_PKEY mPublicKey;
 };
 
 } // namespace Hedera

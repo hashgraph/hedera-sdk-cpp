@@ -19,7 +19,7 @@
  */
 #include "Mnemonic.h"
 #include "exceptions/BadMnemonicException.h"
-#include "impl/OpenSSLHasher.h"
+#include "impl/OpenSSLUtils.h"
 
 #include <sstream>
 
@@ -73,7 +73,7 @@ std::vector<std::string> Mnemonic::splitMnemonicString(const std::string& fullMn
 unsigned char Mnemonic::computeChecksumFromEntropy(const std::vector<unsigned char>& entropy)
 {
   unsigned char mask = ~(0xFF >> (entropy.size() * 8 / 32));
-  return internal::OpenSSLHasher::computeSHA256(entropy)[0] & mask;
+  return internal::OpenSSLUtils::computeSHA256(entropy)[0] & mask;
 }
 
 //-----

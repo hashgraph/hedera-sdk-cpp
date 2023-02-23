@@ -19,7 +19,7 @@
  */
 #include "impl/HederaCertificateVerifier.h"
 #include "impl/HexConverter.h"
-#include "impl/OpenSSLHasher.h"
+#include "impl/OpenSSLUtils.h"
 
 namespace Hedera::internal
 {
@@ -36,7 +36,7 @@ bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerification
 {
   if (auto grpcCertificateChain = request->peer_cert_full_chain();
       mExpectedHash != HexConverter::bytesToHex(
-                         OpenSSLHasher::computeSHA384({ grpcCertificateChain.cbegin(), grpcCertificateChain.cend() })))
+                         OpenSSLUtils::computeSHA384({ grpcCertificateChain.cbegin(), grpcCertificateChain.cend() })))
   {
     *sync_status = grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
                                 "Hash of node certificate chain doesn't match hash contained in address book");
