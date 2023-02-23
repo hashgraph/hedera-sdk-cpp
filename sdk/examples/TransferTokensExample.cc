@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   const TokenId tokenId = TokenId::fromString(argv[3]);
   const AccountId recipientId = AccountId::fromString(argv[4]);
 
-  const int64_t amount = 10000LL;
+  const int64_t amount = 10LL;
 
   TransactionResponse txResponse = TransferTransaction()
                                      .addTokenTransfer(tokenId, operatorId, -amount)
