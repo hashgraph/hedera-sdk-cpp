@@ -65,8 +65,8 @@ public:
    * this return type would look like the following:
    *
    * std::vector<unsigned char> bytes;
-   *                                                 The Transaction type here doesn't matter and is an unfortunate,
-   *                        vvvvvvvvvvvvvvvvvvvvvvvv ugly byproduct of this approach.
+   *                                                              The Transaction type here doesn't matter and is an
+   *                                     vvvvvvvvvvvvvvvvvvvvvvvv unfortunate, ugly byproduct of this approach.
    * auto [index, variant] = Transaction<AccountCreateTransaction>::fromBytes(bytes);
    *
    * switch (index)
