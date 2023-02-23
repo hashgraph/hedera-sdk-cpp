@@ -21,7 +21,7 @@
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
-#include "impl/OpenSSLHasher.h"
+#include "impl/OpenSSLUtils.h"
 
 #include <openssl/x509.h>
 #include <proto/basic_types.pb.h>
@@ -105,15 +105,15 @@ std::unique_ptr<PublicKey> ED25519PublicKey::clone() const
 bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
                                        const std::vector<unsigned char>& signedBytes) const
 {
-  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  const internal::OpenSSLUtils::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
   if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, nullptr, nullptr, mPublicKey.get()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerifyInit"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestVerifyInit"));
   }
 
   const int verificationResult = EVP_DigestVerify(messageDigestContext.get(),
@@ -125,7 +125,7 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
   // any value other than 0 or 1 means an error occurred
   if (verificationResult != 0 && verificationResult != 1)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestVerify"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestVerify"));
   }
 
   return verificationResult == 1;
@@ -155,7 +155,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 
   if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mPublicKey.get(), &rawPublicKeyBytes) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("i2d_PUBKEY"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("i2d_PUBKEY"));
   }
 
   // don't return the algorithm identification bytes
@@ -163,7 +163,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
 }
 
 //-----
-internal::OpenSSL_EVP_PKEY ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+internal::OpenSSLUtils::OpenSSL_EVP_PKEY ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
 {
   std::vector<unsigned char> fullKeyBytes;
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
@@ -182,10 +182,11 @@ internal::OpenSSL_EVP_PKEY ED25519PublicKey::bytesToPKEY(const std::vector<unsig
   }
 
   const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  internal::OpenSSL_EVP_PKEY key(d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
+  internal::OpenSSLUtils::OpenSSL_EVP_PKEY key(
+    d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
   if (!key)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("d2i_PUBKEY"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("d2i_PUBKEY"));
   }
 
   return key;
@@ -204,7 +205,7 @@ std::vector<unsigned char> ED25519PublicKey::prependAlgorithmIdentifier(const st
 }
 
 //-----
-ED25519PublicKey::ED25519PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey)
+ED25519PublicKey::ED25519PublicKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& publicKey)
   : mPublicKey(std::move(publicKey))
 {
 }

@@ -21,7 +21,7 @@
 #define HEDERA_SDK_CPP_ECDSA_SECP256K1_PUBLIC_KEY_H_
 
 #include "PublicKey.h"
-#include "impl/OpenSSLObjectWrapper.h"
+#include "impl/OpenSSLUtils.h"
 
 #include <memory>
 #include <string>
@@ -153,19 +153,19 @@ private:
    * @throws std::invalid_argument If the input bytes are not the correct size.
    * @throws OpenSSLException      If OpenSSL is unable to create a keypair from the input bytes.
    */
-  static internal::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
+  static internal::OpenSSLUtils::OpenSSL_EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& inputKeyBytes);
 
   /**
    * Construct from a wrapped OpenSSL keypair object.
    *
    * @param keypair The wrapped OpenSSL keypair object from which to construct this ECDSAsecp256k1PublicKey.
    */
-  explicit ECDSAsecp256k1PublicKey(internal::OpenSSL_EVP_PKEY&& publicKey);
+  explicit ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::OpenSSL_EVP_PKEY&& publicKey);
 
   /**
    * The wrapped OpenSSL keypair object.
    */
-  internal::OpenSSL_EVP_PKEY mPublicKey;
+  internal::OpenSSLUtils::OpenSSL_EVP_PKEY mPublicKey;
 };
 
 } // namespace Hedera

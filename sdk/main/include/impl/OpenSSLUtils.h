@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_OPENSSL_OBJECT_WRAPPER_H_
-#define HEDERA_SDK_CPP_IMPL_OPENSSL_OBJECT_WRAPPER_H_
+#ifndef HEDERA_SDK_CPP_IMPL_OPENSSL_UTILS_H_
+#define HEDERA_SDK_CPP_IMPL_OPENSSL_UTILS_H_
 
 #include <memory>
 #include <openssl/bn.h>
@@ -30,8 +30,12 @@
 #include <string>
 #include <vector>
 
-namespace Hedera::internal
+namespace Hedera::internal::OpenSSLUtils
 {
+/**********************************************************************************************************************/
+/*************************************************** CLASSES **********************************************************/
+/**********************************************************************************************************************/
+
 /**
  * Templated base wrapper class to be used for OpenSSL objects that require custom deleter functions.
  *
@@ -267,6 +271,55 @@ public:
   explicit OpenSSL_OSSL_DECODER_CTX(OSSL_DECODER_CTX* osslDecoderCtx);
 };
 
-} // namespace Hedera::internal
+/**********************************************************************************************************************/
+/***************************************************** FUNCTIONS ******************************************************/
+/**********************************************************************************************************************/
 
-#endif // HEDERA_SDK_CPP_IMPL_OPENSSL_OBJECT_WRAPPER_H_
+/**
+ * Compute the SHA384 hash of a string.
+ *
+ * @param data The string of which to compute the hash.
+ * @return The hash of the data.
+ */
+[[nodiscard]] std::vector<unsigned char> computeSHA384(const std::string& data);
+
+/**
+ * Computes the SHA256 hash of a byte array.
+ *
+ * @param data The data of which to compute the hash.
+ * @return The hash of the data.
+ */
+[[nodiscard]] std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
+
+/**
+ * Compute the HMAC-SHA512 hash of a key and data.
+ *
+ * @param key  The key input to the hash function.
+ * @param data The data input to the hash function.
+ * @return The hash of the data and key.
+ * @throws OpenSSLException If OpenSSL is unable to compute the HMAC-SHA512 hash of the given inputs.
+ */
+[[nodiscard]] std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
+                                                           const std::vector<unsigned char>& data);
+
+/**
+ * Gets an error message for an OpenSSL error. Includes as much detail as possible.
+ *
+ * @param functionName The name of the OpenSSL function which caused the error.
+ * @return An error string.
+ */
+[[nodiscard]] std::string getOpenSSLErrorMessage(const std::string& functionName);
+
+/**
+ * Get a vector of random bytes.
+ *
+ * @param count The number of random bytes to generate. Must be positive.
+ * @return The vector of random bytes.
+ * @throws std::invalid_argument If the input count is negative.
+ * @throws OpenSSLException If OpenSSL is unable to generate random bytes.
+ */
+std::vector<unsigned char> getRandomBytes(int count);
+
+} // namespace Hedera::internal::Utils
+
+#endif // HEDERA_SDK_CPP_IMPL_OPENSSL_UTILS_H_

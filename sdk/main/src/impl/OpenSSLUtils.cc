@@ -17,14 +17,17 @@
  * limitations under the License.
  *
  */
-#include "impl/OpenSSLObjectWrapper.h"
+#include "impl/OpenSSLUtils.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
-#include "impl/OpenSSLHasher.h"
 
+#include <openssl/err.h>
+#include <openssl/hmac.h>
+#include <openssl/rand.h>
+#include <openssl/sha.h>
 #include <stdexcept>
 
-namespace Hedera::internal
+namespace Hedera::internal::OpenSSLUtils
 {
 //-----
 OpenSSL_BIGNUM::OpenSSL_BIGNUM(BIGNUM* bignum)
@@ -38,7 +41,7 @@ OpenSSL_BIGNUM OpenSSL_BIGNUM::fromHex(const std::string& hexString)
   BIGNUM* bigNum = nullptr;
   if (BN_hex2bn(&bigNum, hexString.c_str()) <= 0)
   {
-    throw OpenSSLException(OpenSSLHasher::getOpenSSLErrorMessage("BN_hex2bn"));
+    throw OpenSSLException(getOpenSSLErrorMessage("BN_hex2bn"));
   }
 
   return OpenSSL_BIGNUM(bigNum);
@@ -57,18 +60,18 @@ OpenSSL_BIGNUM OpenSSL_BIGNUM::modularAdd(const OpenSSL_BIGNUM& other, const Ope
   const OpenSSL_BN_CTX context(BN_CTX_secure_new());
   if (!context)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_CTX_secure_new"));
+    throw OpenSSLException(getOpenSSLErrorMessage("BN_CTX_secure_new"));
   }
 
   OpenSSL_BIGNUM result(BN_secure_new());
   if (!result)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_secure_new"));
+    throw OpenSSLException(getOpenSSLErrorMessage("BN_secure_new"));
   }
 
   if (BN_mod_add(result.get(), get(), other.get(), modulo.get(), context.get()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("BN_mod_add"));
+    throw OpenSSLException(getOpenSSLErrorMessage("BN_mod_add"));
   }
 
   return result;
@@ -144,4 +147,101 @@ OpenSSL_OSSL_DECODER_CTX::OpenSSL_OSSL_DECODER_CTX(OSSL_DECODER_CTX* osslDecoder
 {
 }
 
-} // namespace Hedera::internal
+//-----
+std::vector<unsigned char> computeSHA384(const std::string& data)
+{
+  auto outputBytes = std::vector<unsigned char>(48);
+  auto rawData = reinterpret_cast<const unsigned char*>(data.c_str());
+  SHA384(rawData, data.size(), &outputBytes.front());
+
+  return outputBytes;
+}
+
+//-----
+std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
+{
+  auto outputBytes = std::vector<unsigned char>(32);
+
+  const unsigned char* rawData = &data.front();
+  SHA256(rawData, data.size(), &outputBytes.front());
+
+  return outputBytes;
+}
+
+//-----
+std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
+                                             const std::vector<unsigned char>& data)
+{
+  const OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  if (!messageDigestContext)
+  {
+    throw OpenSSLException(getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+  }
+
+  const OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
+  if (!messageDigest)
+  {
+    throw OpenSSLException(getOpenSSLErrorMessage("EVP_MD_fetch"));
+  }
+
+  if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
+  {
+    throw OpenSSLException(getOpenSSLErrorMessage("EVP_DigestInit"));
+  }
+
+  std::vector<unsigned char> digest(64);
+
+  unsigned int digestSize;
+  unsigned char* hmac = HMAC(messageDigest.get(),
+                             &key.front(),
+                             static_cast<int>(key.size()),
+                             &data.front(),
+                             static_cast<int>(data.size()),
+                             &digest.front(),
+                             &digestSize);
+
+  if (!hmac)
+  {
+    throw OpenSSLException(getOpenSSLErrorMessage("HMAC"));
+  }
+
+  return { hmac, hmac + 64 };
+}
+
+//-----
+std::string getOpenSSLErrorMessage(const std::string& functionName)
+{
+  unsigned long errorCode = ERR_get_error();
+
+  // no error was found
+  if (errorCode == 0)
+  {
+    return "Error occurred in [" + functionName + "]";
+  }
+
+  char errorStringRaw[256];
+
+  ERR_error_string_n(errorCode, errorStringRaw, 256);
+
+  return "Error occurred in [" + functionName + "]: " + std::string{ errorStringRaw };
+}
+
+//-----
+std::vector<unsigned char> getRandomBytes(int count)
+{
+  if (count <= 0)
+  {
+    throw std::invalid_argument("The number of random bytes to generate must be positive");
+  }
+
+  std::vector<unsigned char> randomBytes(count);
+
+  if (RAND_priv_bytes(&randomBytes.front(), count) <= 0)
+  {
+    throw OpenSSLException(getOpenSSLErrorMessage("RAND_priv_bytes"));
+  }
+
+  return randomBytes;
+}
+
+} // namespace Hedera::internal::OpenSSLUtils

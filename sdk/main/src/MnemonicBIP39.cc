@@ -23,9 +23,7 @@
 #include "exceptions/BadMnemonicException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/DerivationPathUtils.h"
-#include "impl/OpenSSLHasher.h"
-#include "impl/OpenSSLObjectWrapper.h"
-#include "impl/OpenSSLRandom.h"
+#include "impl/OpenSSLUtils.h"
 
 #include <openssl/evp.h>
 
@@ -77,14 +75,14 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::string& fullMnem
 MnemonicBIP39 MnemonicBIP39::generate12WordBIP39Mnemonic()
 {
   // BIP39 dictates 16 bytes of entropy for 12 words
-  return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLRandom::getRandomBytes(16)));
+  return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLUtils::getRandomBytes(16)));
 }
 
 //-----
 MnemonicBIP39 MnemonicBIP39::generate24WordBIP39Mnemonic()
 {
   // BIP39 dictates 32 bytes of entropy for 24 words
-  return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLRandom::getRandomBytes(32)));
+  return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLUtils::getRandomBytes(32)));
 }
 
 //-----
@@ -110,21 +108,21 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k
 //-----
 std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) const
 {
-  const internal::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  const internal::OpenSSLUtils::OpenSSL_EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_MD_CTX_new"));
   }
 
-  const internal::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
+  const internal::OpenSSLUtils::OpenSSL_EVP_MD messageDigest(EVP_MD_fetch(nullptr, "SHA512", nullptr));
   if (!messageDigest)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_MD_fetch"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_MD_fetch"));
   }
 
   if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("EVP_DigestInit"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("EVP_DigestInit"));
   }
 
   std::vector<unsigned char> seed(64);
@@ -144,7 +142,7 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) 
                         static_cast<int>(seed.size()),
                         &seed.front()) <= 0)
   {
-    throw OpenSSLException(internal::OpenSSLHasher::getOpenSSLErrorMessage("PKCS5_PBKDF2_HMAC"));
+    throw OpenSSLException(internal::OpenSSLUtils::getOpenSSLErrorMessage("PKCS5_PBKDF2_HMAC"));
   }
 
   return seed;
