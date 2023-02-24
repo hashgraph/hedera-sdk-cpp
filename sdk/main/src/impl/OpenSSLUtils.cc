@@ -29,6 +29,14 @@
 
 namespace Hedera::internal::OpenSSLUtils
 {
+namespace
+{
+constexpr const size_t SHA384_HASH_SIZE = 48;
+constexpr const size_t SHA256_HASH_SIZE = 32;
+constexpr const size_t SHA512_HMAC_HASH_SIZE = 64;
+constexpr const size_t ERROR_MSG_SIZE = 256;
+}
+
 //-----
 BIGNUM::BIGNUM(::BIGNUM* bignum)
   : OpenSSLObjectWrapper(bignum, &BN_clear_free)
@@ -36,10 +44,10 @@ BIGNUM::BIGNUM(::BIGNUM* bignum)
 }
 
 //-----
-BIGNUM BIGNUM::fromHex(const std::string& hexString)
+BIGNUM BIGNUM::fromHex(std::string_view hexString)
 {
   ::BIGNUM* bigNum = nullptr;
-  if (BN_hex2bn(&bigNum, hexString.c_str()) <= 0)
+  if (BN_hex2bn(&bigNum, hexString.data()) <= 0)
   {
     throw OpenSSLException(getErrorMessage("BN_hex2bn"));
   }
@@ -51,7 +59,7 @@ BIGNUM BIGNUM::fromHex(const std::string& hexString)
 BIGNUM BIGNUM::fromBytes(const std::vector<unsigned char>& bytes)
 {
   // go through hex rather than using big-endian openssl functions
-  return fromHex(HexConverter::base64ToHex(bytes));
+  return fromHex(HexConverter::bytesToHex(bytes));
 }
 
 //-----
@@ -84,7 +92,7 @@ std::vector<unsigned char> BIGNUM::toBytes() const
   const std::string hexString(hex);
   OPENSSL_free(hex);
 
-  return HexConverter::hexToBase64(hexString);
+  return HexConverter::hexToBytes(hexString);
 }
 
 //-----
@@ -148,23 +156,18 @@ OSSL_DECODER_CTX::OSSL_DECODER_CTX(::OSSL_DECODER_CTX* osslDecoderCtx)
 }
 
 //-----
-std::vector<unsigned char> computeSHA384(const std::string& data)
+std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
 {
-  auto outputBytes = std::vector<unsigned char>(48);
-  auto rawData = reinterpret_cast<const unsigned char*>(data.c_str());
-  SHA384(rawData, data.size(), &outputBytes.front());
-
+  auto outputBytes = std::vector<unsigned char>(SHA256_HASH_SIZE);
+  SHA256((!data.empty()) ? &data.front() : nullptr, data.size(), &outputBytes.front());
   return outputBytes;
 }
 
 //-----
-std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
+std::vector<unsigned char> computeSHA384(const std::vector<unsigned char>& data)
 {
-  auto outputBytes = std::vector<unsigned char>(32);
-
-  const unsigned char* rawData = &data.front();
-  SHA256(rawData, data.size(), &outputBytes.front());
-
+  auto outputBytes = std::vector<unsigned char>(SHA384_HASH_SIZE);
+  SHA384((!data.empty()) ? &data.front() : nullptr, data.size(), &outputBytes.front());
   return outputBytes;
 }
 
@@ -189,41 +192,36 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
     throw OpenSSLException(getErrorMessage("EVP_DigestInit"));
   }
 
-  std::vector<unsigned char> digest(64);
-
-  unsigned int digestSize;
-  unsigned char* hmac = HMAC(messageDigest.get(),
-                             &key.front(),
-                             static_cast<int>(key.size()),
-                             &data.front(),
-                             static_cast<int>(data.size()),
-                             &digest.front(),
-                             &digestSize);
-
-  if (!hmac)
+  std::vector<unsigned char> digest(SHA512_HMAC_HASH_SIZE);
+  if (!HMAC(messageDigest.get(),
+            &key.front(),
+            static_cast<int>(key.size()),
+            &data.front(),
+            static_cast<int>(data.size()),
+            &digest.front(),
+            nullptr))
   {
     throw OpenSSLException(getErrorMessage("HMAC"));
   }
 
-  return { hmac, hmac + 64 };
+  return digest;
 }
 
 //-----
-std::string getErrorMessage(const std::string& functionName)
+std::string getErrorMessage(std::string_view functionName)
 {
-  unsigned long errorCode = ERR_get_error();
+  const unsigned long errorCode = ERR_get_error();
 
   // no error was found
   if (errorCode == 0)
   {
-    return "Error occurred in [" + functionName + "]";
+    return std::string("Error occurred in [").append(functionName).append("]");
   }
 
-  char errorStringRaw[256];
+  std::string errorString(ERROR_MSG_SIZE, '\0');
+  ERR_error_string_n(errorCode, &errorString.front(), ERROR_MSG_SIZE);
 
-  ERR_error_string_n(errorCode, errorStringRaw, 256);
-
-  return "Error occurred in [" + functionName + "]: " + std::string{ errorStringRaw };
+  return std::string("Error occurred in [").append(functionName).append("]: ") + errorString;
 }
 
 //-----

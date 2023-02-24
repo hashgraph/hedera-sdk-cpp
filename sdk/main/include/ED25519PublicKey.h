@@ -25,6 +25,7 @@
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
+#include <string_view>
 #include <vector>
 
 namespace Hedera
@@ -58,7 +59,7 @@ public:
    * @return A pointer to an ED25519PublicKey representing the input string.
    * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input keyString.
    */
-  static std::shared_ptr<ED25519PublicKey> fromString(const std::string& keyString);
+  static std::shared_ptr<ED25519PublicKey> fromString(std::string_view keyString);
 
   /**
    * Construct an ED25519PublicKey object from a byte vector.

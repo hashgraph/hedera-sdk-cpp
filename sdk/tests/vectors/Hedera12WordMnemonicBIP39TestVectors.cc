@@ -19,6 +19,7 @@
  */
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
+#include "MnemonicBIP39.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 
@@ -54,9 +55,9 @@ TEST_P(Hedera12WordMnemonicBIP39ToECDSAsecp256k1PrivateKeyTestVectors, ECDSAsecp
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> ecdsaSecp256k1PrivateKey =
     getTestMnemonicBIP39().toStandardECDSAsecp256k1PrivateKey(passphrase, index);
 
-  ASSERT_EQ(ecdsaSecp256k1PrivateKey->getChainCode(), internal::HexConverter::hexToBase64(chainCode));
-  ASSERT_EQ(ecdsaSecp256k1PrivateKey->toBytes(), internal::HexConverter::hexToBase64(privateKeyBytes));
-  ASSERT_EQ(ecdsaSecp256k1PrivateKey->getPublicKey()->toBytes(), internal::HexConverter::hexToBase64(publicKeyBytes));
+  ASSERT_EQ(ecdsaSecp256k1PrivateKey->getChainCode(), internal::HexConverter::hexToBytes(chainCode));
+  ASSERT_EQ(ecdsaSecp256k1PrivateKey->toBytes(), internal::HexConverter::hexToBytes(privateKeyBytes));
+  ASSERT_EQ(ecdsaSecp256k1PrivateKey->getPublicKey()->toBytes(), internal::HexConverter::hexToBytes(publicKeyBytes));
 }
 
 //-----
@@ -67,9 +68,9 @@ TEST_P(Hedera12WordMnemonicBIP39ToED25519PrivateKeyTestVectors, ED25519PrivateKe
   const std::unique_ptr<ED25519PrivateKey> ed25519PrivateKey =
     getTestMnemonicBIP39().toStandardEd25519PrivateKey(passphrase, index);
 
-  ASSERT_EQ(ed25519PrivateKey->getChainCode(), internal::HexConverter::hexToBase64(chainCode));
-  ASSERT_EQ(ed25519PrivateKey->toBytes(), internal::HexConverter::hexToBase64(privateKeyBytes));
-  ASSERT_EQ(ed25519PrivateKey->getPublicKey()->toBytes(), internal::HexConverter::hexToBase64(publicKeyBytes));
+  ASSERT_EQ(ed25519PrivateKey->getChainCode(), internal::HexConverter::hexToBytes(chainCode));
+  ASSERT_EQ(ed25519PrivateKey->toBytes(), internal::HexConverter::hexToBytes(privateKeyBytes));
+  ASSERT_EQ(ed25519PrivateKey->getPublicKey()->toBytes(), internal::HexConverter::hexToBytes(publicKeyBytes));
 }
 
 //-----

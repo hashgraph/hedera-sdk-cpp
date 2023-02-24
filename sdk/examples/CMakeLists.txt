@@ -15,11 +15,6 @@ file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
-file(COPY ${PROJECT_SOURCE_DIR}/wordlists/bip39-english.txt
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-file(COPY ${PROJECT_SOURCE_DIR}/wordlists/legacy-english.txt
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-
 # Install gRPC's roots.pem file for Windows with the examples so that it can be easily referenced.
 if (WIN32)
     file(COPY ${PROJECT_SOURCE_DIR}/vcpkg/packages/grpc_x64-windows/share/grpc/roots.pem

@@ -18,8 +18,6 @@
  *
  */
 #include "MnemonicBIP39.h"
-#include "ECDSAsecp256k1PrivateKey.h"
-#include "ED25519PrivateKey.h"
 #include "exceptions/BadMnemonicException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/DerivationPathUtils.h"
@@ -29,6 +27,20 @@
 
 namespace Hedera
 {
+namespace
+{
+// The number of bytes of entropy to use to generate a 12-word MnemonicBIP39.
+constexpr const int NUMBER_OF_ENTROPY_BYTES_12_WORD = 16;
+// The number of bytes of entropy to use to generate a 24-word MnemonicBIP39.
+constexpr const int NUMBER_OF_ENTROPY_BYTES_24_WORD = 32;
+// The number of bytes in a MnemonicBIP39 seed.
+constexpr const size_t SEED_SIZE = 64;
+// The number of iterations to use when generating a MnemonicBIP39 seed.
+constexpr const int SEED_ITERATIONS = 2048;
+// The set of acceptable words counts for a MnemonicBIP39.
+const std::set<unsigned long> ACCEPTABLE_COUNTS = { 12U, 24U };
+}
+
 //-----
 MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<uint16_t>& wordIndices)
 {
@@ -58,7 +70,7 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::vector<std::stri
 }
 
 //-----
-MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::string& fullMnemonic, const std::string& delimiter)
+MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(std::string_view fullMnemonic, std::string_view delimiter)
 {
   MnemonicBIP39 outputMnemonic;
   outputMnemonic.initialize(outputMnemonic.wordsToIndices(splitMnemonicString(fullMnemonic, delimiter)));
@@ -75,27 +87,28 @@ MnemonicBIP39 MnemonicBIP39::initializeBIP39Mnemonic(const std::string& fullMnem
 MnemonicBIP39 MnemonicBIP39::generate12WordBIP39Mnemonic()
 {
   // BIP39 dictates 16 bytes of entropy for 12 words
-  return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLUtils::getRandomBytes(16)));
+  return initializeBIP39Mnemonic(
+    entropyToWordIndices(internal::OpenSSLUtils::getRandomBytes(NUMBER_OF_ENTROPY_BYTES_12_WORD)));
 }
 
 //-----
 MnemonicBIP39 MnemonicBIP39::generate24WordBIP39Mnemonic()
 {
   // BIP39 dictates 32 bytes of entropy for 24 words
-  return initializeBIP39Mnemonic(entropyToWordIndices(internal::OpenSSLUtils::getRandomBytes(32)));
+  return initializeBIP39Mnemonic(
+    entropyToWordIndices(internal::OpenSSLUtils::getRandomBytes(NUMBER_OF_ENTROPY_BYTES_24_WORD)));
 }
 
 //-----
-std::unique_ptr<ED25519PrivateKey> MnemonicBIP39::toStandardEd25519PrivateKey(const std::string& passphrase,
+std::unique_ptr<ED25519PrivateKey> MnemonicBIP39::toStandardEd25519PrivateKey(std::string_view passphrase,
                                                                               uint32_t index) const
 {
   return ED25519PrivateKey::fromSeed(toSeed(passphrase))->derive(44)->derive(3030)->derive(0)->derive(0)->derive(index);
 }
 
 //-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k1PrivateKey(
-  const std::string& passphrase,
-  uint32_t index) const
+std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k1PrivateKey(std::string_view passphrase,
+                                                                                            uint32_t index) const
 {
   return ECDSAsecp256k1PrivateKey::fromSeed(toSeed(passphrase))
     ->derive(internal::DerivationPathUtils::getHardenedIndex(44))
@@ -106,7 +119,7 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k
 }
 
 //-----
-std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) const
+std::vector<unsigned char> MnemonicBIP39::toSeed(std::string_view passphrase) const
 {
   const internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
@@ -125,19 +138,17 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(const std::string& passphrase) 
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestInit"));
   }
 
-  std::vector<unsigned char> seed(64);
+  std::vector<unsigned char> seed(SEED_SIZE);
 
   const std::string mnemonicString = toString();
-  const char* mnemonicStringAddress = mnemonicString.c_str();
+  const std::string saltStr = std::string("mnemonic").append(passphrase);
 
-  const std::string salt = "mnemonic" + passphrase;
-
-  if (auto saltAddress = reinterpret_cast<const unsigned char*>(salt.c_str());
-      PKCS5_PBKDF2_HMAC(mnemonicStringAddress,
+  if (const std::vector<unsigned char> salt = { saltStr.cbegin(), saltStr.cend() };
+      PKCS5_PBKDF2_HMAC(mnemonicString.c_str(),
                         static_cast<int>(mnemonicString.length()),
-                        saltAddress,
-                        static_cast<int>(salt.length()),
-                        2048,
+                        (!salt.empty()) ? &salt.front() : nullptr,
+                        static_cast<int>(salt.size()),
+                        SEED_ITERATIONS,
                         messageDigest.get(),
                         static_cast<int>(seed.size()),
                         &seed.front()) <= 0)
@@ -190,7 +201,7 @@ std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsi
   //
   // Repeat until all bytes have been handled
 
-  std::vector<uint16_t> wordIndicesOut = {};
+  std::vector<uint16_t> wordIndicesOut;
 
   unsigned int scratch = 0;
   unsigned int offset = 0;
@@ -213,7 +224,7 @@ std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsi
 }
 
 //-----
-const std::vector<std::string>& MnemonicBIP39::getWordList() const
+const std::vector<std::string_view>& MnemonicBIP39::getWordList() const
 {
   return Mnemonic::BIP39_WORD_LIST;
 }

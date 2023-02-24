@@ -21,7 +21,6 @@
 #define HEDERA_SDK_CPP_ED25519_PRIVATE_KEY_H_
 
 #include "ED25519PublicKey.h"
-#include "MnemonicBIP39.h"
 #include "PrivateKey.h"
 #include "impl/OpenSSLUtils.h"
 
@@ -29,6 +28,7 @@
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Hedera
@@ -70,7 +70,7 @@ public:
    * @return A pointer to an ED25519PrivateKey representing the input string.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input keyString.
    */
-  static std::unique_ptr<ED25519PrivateKey> fromString(const std::string& keyString);
+  static std::unique_ptr<ED25519PrivateKey> fromString(std::string_view keyString);
 
   /**
    * Derive an ED25519PrivateKey from a seed array.

@@ -26,6 +26,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Hedera
@@ -72,7 +73,7 @@ public:
    * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input string.
    * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input keyString.
    */
-  static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(const std::string& keyString);
+  static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(std::string_view keyString);
 
   /**
    * Derive an ECDSAsecp256k1PrivateKey from a seed array.

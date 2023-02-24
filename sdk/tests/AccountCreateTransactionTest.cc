@@ -180,7 +180,7 @@ TEST_F(AccountCreateTransactionTest, SetAlias)
 TEST_F(AccountCreateTransactionTest, SetEvmAddress)
 {
   AccountCreateTransaction transaction;
-  const std::string testEvmString = "303132333435363738396162636465666768696a";
+  const std::string testEvmString = "303132333435363738396162636465666768696A";
   transaction.setEvmAddress(EvmAddress::fromString(testEvmString));
   EXPECT_TRUE(transaction.getEvmAddress().has_value());
   EXPECT_EQ(transaction.getEvmAddress()->toString(), testEvmString);

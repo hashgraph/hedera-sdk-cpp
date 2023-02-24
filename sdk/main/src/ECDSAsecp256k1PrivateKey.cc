@@ -89,12 +89,12 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::generatePriv
 }
 
 //-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(const std::string& keyString)
+std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(std::string_view keyString)
 {
   try
   {
     return std::make_unique<ECDSAsecp256k1PrivateKey>(
-      ECDSAsecp256k1PrivateKey(bytesToPKEY(internal::HexConverter::hexToBase64(keyString))));
+      ECDSAsecp256k1PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(keyString))));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -218,7 +218,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
 //-----
 std::string ECDSAsecp256k1PrivateKey::toString() const
 {
-  return internal::HexConverter::base64ToHex(toBytes());
+  return internal::HexConverter::bytesToHex(toBytes());
 }
 
 //-----
@@ -304,13 +304,13 @@ internal::OpenSSLUtils::EVP_PKEY ECDSAsecp256k1PrivateKey::bytesToPKEY(const std
   if (keyBytes.size() == PRIVATE_KEY_SIZE)
   {
     // start key with ASN.1 prefix
-    fullKeyBytes = internal::HexConverter::hexToBase64("302e0201010420");
+    fullKeyBytes = internal::HexConverter::hexToBytes("302e0201010420");
 
     // add on actual key bytes
     fullKeyBytes.insert(fullKeyBytes.end(), keyBytes.begin(), keyBytes.end());
 
     // end key with ASN.1 suffix
-    const std::vector<unsigned char> suffix = internal::HexConverter::hexToBase64("a00706052b8104000a");
+    const std::vector<unsigned char> suffix = internal::HexConverter::hexToBytes("a00706052b8104000a");
     fullKeyBytes.insert(fullKeyBytes.end(), suffix.begin(), suffix.end());
   }
   else

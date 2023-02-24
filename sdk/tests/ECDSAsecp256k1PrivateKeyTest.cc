@@ -21,8 +21,6 @@
 #include "ECDSAsecp256k1PublicKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/UninitializedException.h"
-#include "impl/DerivationPathUtils.h"
-#include "impl/HexConverter.h"
 
 #include <gtest/gtest.h>
 #include <memory>
@@ -52,8 +50,8 @@ private:
 TEST_F(ECDSAsecp256k1PrivateKeyTest, GetPublicKey)
 {
   // get the public keys from the private keys
-  std::shared_ptr<PublicKey> publicFromGenerated = getTestPrivateKeyGenerated()->getPublicKey();
-  std::shared_ptr<PublicKey> publicFromLoaded = getTestPrivateKeyLoaded()->getPublicKey();
+  const std::shared_ptr<PublicKey> publicFromGenerated = getTestPrivateKeyGenerated()->getPublicKey();
+  const std::shared_ptr<PublicKey> publicFromLoaded = getTestPrivateKeyLoaded()->getPublicKey();
 
   EXPECT_NE(publicFromGenerated, nullptr);
   EXPECT_NE(publicFromLoaded, nullptr);
@@ -66,8 +64,8 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, GetPublicKey)
 TEST_F(ECDSAsecp256k1PrivateKeyTest, Sign)
 {
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
-  std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
-  std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign(bytesToSign);
+  const std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
+  const std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign(bytesToSign);
 
   // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality
   EXPECT_NE(signatureFromLoaded, signatureFromGenerated);
@@ -79,10 +77,8 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, Sign)
 //-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, SignEmptyBytes)
 {
-  std::vector<unsigned char> bytesToSign;
-
-  std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
-  std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign(bytesToSign);
+  const std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign({});
+  const std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign({});
 
   // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality
   EXPECT_NE(signatureFromLoaded, signatureFromGenerated);
@@ -107,14 +103,10 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
 {
   // these are 2 versions of the same private key. the first conforms to the full RFC 8410 standard, the second is just
   // the private key
-  std::string privateKeyStringExtended =
-    "302E0201010420E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35A00706052B8104000A";
-  std::string privateKeyStringShort = "E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35";
-
-  std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromExtended =
-    ECDSAsecp256k1PrivateKey::fromString(privateKeyStringExtended);
-  std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromShort =
-    ECDSAsecp256k1PrivateKey::fromString(privateKeyStringShort);
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromExtended = ECDSAsecp256k1PrivateKey::fromString(
+    "302E0201010420E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35A00706052B8104000A");
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromShort =
+    ECDSAsecp256k1PrivateKey::fromString("E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35");
 
   EXPECT_NE(privateKeyFromExtended, nullptr);
   EXPECT_NE(privateKeyFromShort, nullptr);

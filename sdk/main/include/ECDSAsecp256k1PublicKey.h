@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Hedera
@@ -69,7 +70,7 @@ public:
    * @return A pointer to an ECDSAsecp256k1PublicKey representing the input string.
    * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input keyString.
    */
-  static std::shared_ptr<ECDSAsecp256k1PublicKey> fromString(const std::string& keyString);
+  static std::shared_ptr<ECDSAsecp256k1PublicKey> fromString(std::string_view keyString);
 
   /**
    * Construct an ECDSAsecp256k1PublicKey object from a byte vector.

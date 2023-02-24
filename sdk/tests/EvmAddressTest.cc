@@ -32,7 +32,7 @@ protected:
   [[nodiscard]] inline const std::vector<unsigned char>& getTestBytes() const { return mTestBytes; }
 
 private:
-  const std::string mTestString = "303132333435363738396162636465666768696a";
+  const std::string mTestString = "303132333435363738396162636465666768696A";
   const std::vector<unsigned char> mTestBytes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                                   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' };
 };

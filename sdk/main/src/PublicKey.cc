@@ -47,7 +47,7 @@ std::shared_ptr<PublicKey> PublicKey::fromString(std::string_view key)
 {
   try
   {
-    return ED25519PublicKey::fromString(std::string(key));
+    return ED25519PublicKey::fromString(key);
   }
   catch (...)
   {
@@ -55,7 +55,7 @@ std::shared_ptr<PublicKey> PublicKey::fromString(std::string_view key)
 
   try
   {
-    return ECDSAsecp256k1PublicKey::fromString(std::string(key));
+    return ECDSAsecp256k1PublicKey::fromString(key);
   }
   catch (...)
   {

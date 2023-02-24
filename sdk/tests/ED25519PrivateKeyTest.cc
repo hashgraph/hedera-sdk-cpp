@@ -131,7 +131,7 @@ TEST_F(ED25519PrivateKeyTest, FromString)
 TEST_F(ED25519PrivateKeyTest, Derive)
 {
   std::unique_ptr<ED25519PrivateKey> privateKey =
-    ED25519PrivateKey::fromSeed(internal::HexConverter::hexToBase64("000102030405060708090a0b0c0d0e0f"));
+    ED25519PrivateKey::fromSeed(internal::HexConverter::hexToBytes("000102030405060708090a0b0c0d0e0f"));
 
   // Throw when not initialized with a chain code
   EXPECT_THROW(privateKey = getTestPrivateKeyLoaded()->derive(0), UninitializedException);

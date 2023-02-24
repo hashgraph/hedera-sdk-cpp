@@ -31,7 +31,7 @@ namespace Hedera
 namespace
 {
 const inline std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
-  internal::HexConverter::hexToBase64("302A300506032B6570032100");
+  internal::HexConverter::hexToBytes("302A300506032B6570032100");
 }
 
 //-----
@@ -65,11 +65,11 @@ ED25519PublicKey& ED25519PublicKey::operator=(ED25519PublicKey&& other) noexcept
 }
 
 //-----
-std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(const std::string& keyString)
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view keyString)
 {
   try
   {
-    return fromBytes(internal::HexConverter::hexToBase64(keyString));
+    return fromBytes(internal::HexConverter::hexToBytes(keyString));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -143,7 +143,7 @@ std::unique_ptr<proto::Key> ED25519PublicKey::toProtobuf() const
 //-----
 std::string ED25519PublicKey::toString() const
 {
-  return internal::HexConverter::base64ToHex(toBytes());
+  return internal::HexConverter::bytesToHex(toBytes());
 }
 
 //-----

@@ -66,11 +66,11 @@ ECDSAsecp256k1PublicKey& ECDSAsecp256k1PublicKey::operator=(ECDSAsecp256k1Public
 }
 
 //-----
-std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(const std::string& keyString)
+std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std::string_view keyString)
 {
   try
   {
-    return fromBytes(internal::HexConverter::hexToBase64(keyString));
+    return fromBytes(internal::HexConverter::hexToBytes(keyString));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -199,7 +199,7 @@ std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobuf() const
 //-----
 std::string ECDSAsecp256k1PublicKey::toString() const
 {
-  return internal::HexConverter::base64ToHex(toBytes());
+  return internal::HexConverter::bytesToHex(toBytes());
 }
 
 //-----
@@ -238,7 +238,7 @@ internal::OpenSSLUtils::EVP_PKEY ECDSAsecp256k1PublicKey::bytesToPKEY(const std:
   }
 
   // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN1 prefix
-  std::vector<unsigned char> uncompressedKeyBytes = internal::HexConverter::hexToBase64(UNCOMPRESSED_KEY_ASN1_PREFIX);
+  std::vector<unsigned char> uncompressedKeyBytes = internal::HexConverter::hexToBytes(UNCOMPRESSED_KEY_ASN1_PREFIX);
 
   if (inputKeySize == COMPRESSED_KEY_SIZE)
   {

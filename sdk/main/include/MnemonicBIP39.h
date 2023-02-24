@@ -20,17 +20,16 @@
 #ifndef HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
 #define HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
 
+#include "ECDSAsecp256k1PrivateKey.h"
+#include "ED25519PrivateKey.h"
 #include "Mnemonic.h"
 
+#include <cstdint>
 #include <memory>
+#include <set>
 #include <string>
+#include <string_view>
 #include <vector>
-
-namespace Hedera
-{
-class ECDSAsecp256k1PrivateKey;
-class ED25519PrivateKey;
-}
 
 namespace Hedera
 {
@@ -68,7 +67,7 @@ public:
    * @throws BadMnemonicException If any of the input words are not part of the BIP39 standard word list or if the
    *                              checksum is invalid.
    */
-  static MnemonicBIP39 initializeBIP39Mnemonic(const std::string& fullMnemonic, const std::string& delimiter = " ");
+  static MnemonicBIP39 initializeBIP39Mnemonic(std::string_view fullMnemonic, std::string_view delimiter = " ");
 
   /**
    * Generate a MnemonicBIP39 phrase with 12 words.
@@ -85,7 +84,8 @@ public:
   static MnemonicBIP39 generate24WordBIP39Mnemonic();
 
   /**
-   * Generate an ED25519PrivateKey from this Mnemonic using the input passphrase at the specified unhardened index.
+   * Generate a SLIP44-standard ED25519PrivateKey from this Mnemonic using the input passphrase at the specified
+   * unhardened index.
    *
    * @param passphrase The passphrase to use to generate the ED25519PrivateKey.
    * @param index      The unhardened index in the derivation path from which to derive the ED25519PrivateKey.
@@ -93,11 +93,12 @@ public:
    * @throws OpenSSLException If OpenSSL is unable to generate a key from this MnemonicBIP39.
    * @throws std::invalid_argument If the index is already hardened.
    */
-  [[nodiscard]] std::unique_ptr<ED25519PrivateKey> toStandardEd25519PrivateKey(const std::string& passphrase = "",
+  [[nodiscard]] std::unique_ptr<ED25519PrivateKey> toStandardEd25519PrivateKey(std::string_view passphrase = "",
                                                                                uint32_t index = 0) const;
 
   /**
-   * Generate an ECDSAsecp256k1PrivateKey from this Mnemonic using the input passphrase at the specified index.
+   * Generate a SLIP44-standard ECDSAsecp256k1PrivateKey from this Mnemonic using the input passphrase at the specified
+   * index.
    *
    * @param passphrase The passphrase to use to generate the ECDSAsecp256k1PrivateKey.
    * @param index      The index in the derivation path from which to derive the ECDSAsecp256k1PrivateKey.
@@ -105,7 +106,7 @@ public:
    * @throws OpenSSLException If OpenSSL is unable to generate a key from this MnemonicBIP39.
    */
   [[nodiscard]] std::unique_ptr<ECDSAsecp256k1PrivateKey> toStandardECDSAsecp256k1PrivateKey(
-    const std::string& passphrase = "",
+    std::string_view passphrase = "",
     uint32_t index = 0) const;
 
   /**
@@ -115,7 +116,7 @@ public:
    * @return This MnemonicBIP39's seed, given the input passphrase.
    * @throws OpenSSLException If OpenSSL is unable to compute a seed.
    */
-  [[nodiscard]] std::vector<unsigned char> toSeed(const std::string& passphrase = "") const;
+  [[nodiscard]] std::vector<unsigned char> toSeed(std::string_view passphrase = "") const;
 
   /**
    * Compute the word indices that result from the input entropy.
@@ -125,21 +126,6 @@ public:
    */
   static std::vector<uint16_t> entropyToWordIndices(const std::vector<unsigned char>& entropy);
 
-protected:
-  /**
-   * Derived from Mnemonic. Get a reference to the BIP39 word list.
-   *
-   * @return The BIP39 word list.
-   */
-  [[nodiscard]] const std::vector<std::string>& getWordList() const override;
-
-  /**
-   * Get the set of acceptable word counts. In the case of a BIP39 passphrase, this set will include 12 and 24.
-   *
-   * @return The set of acceptable word counts.
-   */
-  [[nodiscard]] const std::set<unsigned long>& getAcceptableWordCounts() const override;
-
 private:
   /**
    * Hidden constructor. Static initialization/generation functions should be used to create MnemonicBIP39 objects.
@@ -147,9 +133,18 @@ private:
   MnemonicBIP39() = default;
 
   /**
-   * Set of acceptable words counts for a MnemonicBIP39.
+   * Derived from Mnemonic. Get a reference to the BIP39 word list.
+   *
+   * @return The BIP39 word list.
    */
-  inline static const std::set<unsigned long> ACCEPTABLE_COUNTS = { 12U, 24U };
+  [[nodiscard]] const std::vector<std::string_view>& getWordList() const override;
+
+  /**
+   * Get the set of acceptable word counts. In the case of a BIP39 passphrase, this set will include 12 and 24.
+   *
+   * @return The set of acceptable word counts.
+   */
+  [[nodiscard]] const std::set<unsigned long>& getAcceptableWordCounts() const override;
 };
 
 } // namespace Hedera

@@ -28,6 +28,7 @@
 #include <openssl/ecdsa.h>
 #include <openssl/evp.h>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Hedera::internal::OpenSSLUtils
@@ -104,7 +105,7 @@ public:
    * @param hexString A string representing the BIGNUM.
    * @return A newly constructed BIGNUM.
    */
-  static BIGNUM fromHex(const std::string& hexString);
+  static BIGNUM fromHex(std::string_view hexString);
 
   /**
    * Create a new BIGNUM from a bytes vector.
@@ -276,20 +277,20 @@ public:
 /**********************************************************************************************************************/
 
 /**
- * Compute the SHA384 hash of a string.
- *
- * @param data The string of which to compute the hash.
- * @return The hash of the data.
- */
-[[nodiscard]] std::vector<unsigned char> computeSHA384(const std::string& data);
-
-/**
  * Computes the SHA256 hash of a byte array.
  *
- * @param data The data of which to compute the hash.
- * @return The hash of the data.
+ * @param data The byte array from which to compute the hash.
+ * @return The SHA256 hash of the data.
  */
 [[nodiscard]] std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
+
+/**
+ * Compute the SHA384 hash of a byte array.
+ *
+ * @param data The byte array from which to compute the hash.
+ * @return The SHA384 hash of the data.
+ */
+[[nodiscard]] std::vector<unsigned char> computeSHA384(const std::vector<unsigned char>& data);
 
 /**
  * Compute the HMAC-SHA512 hash of a key and data.
@@ -308,7 +309,7 @@ public:
  * @param functionName The name of the OpenSSL function which caused the error.
  * @return An error string.
  */
-[[nodiscard]] std::string getErrorMessage(const std::string& functionName);
+[[nodiscard]] std::string getErrorMessage(std::string_view functionName);
 
 /**
  * Get a vector of random bytes.
