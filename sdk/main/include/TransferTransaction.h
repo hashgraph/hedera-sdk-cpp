@@ -52,6 +52,16 @@ namespace Hedera
 class TransferTransaction : public Transaction<TransferTransaction>
 {
 public:
+  TransferTransaction() = default;
+
+  /**
+   * Construct from a TransactionBody protobuf object.
+   *
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a CryptoTransfer transaction.
+   */
+  explicit TransferTransaction(const proto::TransactionBody& transactionBody);
+
   /**
    * Derived from Executable. Create a clone of this TransferTransaction.
    *

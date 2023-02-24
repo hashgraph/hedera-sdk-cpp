@@ -38,6 +38,56 @@ AccountCreateTransaction::AccountCreateTransaction()
 }
 
 //-----
+AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<AccountCreateTransaction>(transactionBody)
+{
+  if (!transactionBody.has_cryptocreateaccount())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain CryptoCreateAccount data");
+  }
+
+  const proto::CryptoCreateTransactionBody& body = transactionBody.cryptocreateaccount();
+
+  if (body.has_key())
+  {
+    mKey = PublicKey::fromProtobuf(body.key());
+  }
+
+  mInitialBalance = Hbar(static_cast<int64_t>(body.initialbalance()), HbarUnit::TINYBAR());
+  mReceiverSignatureRequired = body.receiversigrequired();
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  mAccountMemo = body.memo();
+  mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations());
+
+  if (body.has_staked_account_id())
+  {
+    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
+  }
+
+  if (body.has_staked_node_id())
+  {
+    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
+  }
+
+  mDeclineStakingReward = body.decline_reward();
+
+  if (!body.alias().empty())
+  {
+    mAlias = PublicKey::fromBytes({ body.alias().cbegin(), body.alias().cend() });
+  }
+
+  if (!body.evm_address().empty())
+  {
+    mEvmAddress = EvmAddress::fromBytes({ body.evm_address().cbegin(), body.evm_address().cend() });
+  }
+}
+
+//-----
 std::unique_ptr<
   Executable<AccountCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>>
 AccountCreateTransaction::clone() const

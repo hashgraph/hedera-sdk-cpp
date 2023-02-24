@@ -27,6 +27,55 @@
 
 namespace Hedera
 {
+
+//-----
+TransferTransaction::TransferTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<TransferTransaction>(transactionBody)
+{
+  if (!transactionBody.has_cryptotransfer())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain CryptoTransfer data");
+  }
+
+  const proto::CryptoTransferTransactionBody& body = transactionBody.cryptotransfer();
+
+  for (int i = 0; i < body.transfers().accountamounts_size(); ++i)
+  {
+    const proto::AccountAmount& accountAmount = body.transfers().accountamounts(i);
+    mHbarTransfers.push_back(HbarTransfer()
+                               .setAccountId(AccountId::fromProtobuf(accountAmount.accountid()))
+                               .setAmount(Hbar(accountAmount.amount(), HbarUnit::TINYBAR()))
+                               .setApproved(accountAmount.is_approval()));
+  }
+
+  for (int i = 0; i < body.tokentransfers_size(); ++i)
+  {
+    const proto::TokenTransferList& transfer = body.tokentransfers(i);
+    const TokenId tokenId = TokenId::fromProtobuf(transfer.token());
+
+    for (int j = 0; j < transfer.transfers_size(); ++j)
+    {
+      const proto::AccountAmount& accountAmount = transfer.transfers(j);
+      mTokenTransfers.push_back(TokenTransfer()
+                                  .setTokenId(tokenId)
+                                  .setAccountId(AccountId::fromProtobuf(accountAmount.accountid()))
+                                  .setAmount(accountAmount.amount())
+                                  .setApproval(accountAmount.is_approval())
+                                  .setExpectedDecimals(transfer.expected_decimals().value()));
+    }
+
+    for (int j = 0; j < transfer.nfttransfers_size(); ++j)
+    {
+      const proto::NftTransfer& nftTransfer = transfer.nfttransfers(j);
+      mNftTransfers.push_back(TokenNftTransfer()
+                                .setNftId(NftId(tokenId, static_cast<uint64_t>(nftTransfer.serialnumber())))
+                                .setSenderAccountId(AccountId::fromProtobuf(nftTransfer.senderaccountid()))
+                                .setReceiverAccountId(AccountId::fromProtobuf(nftTransfer.receiveraccountid()))
+                                .setApproval(nftTransfer.is_approval()));
+    }
+  }
+}
+
 //-----
 std::unique_ptr<Executable<TransferTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>>
 TransferTransaction::clone() const
@@ -223,7 +272,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 
     if (!list)
     {
-      list = body->mutable_tokentransfers()->Add();
+      list = body->add_tokentransfers();
     }
 
     list->set_allocated_token(transfer.getTokenId().toProtobuf().release());
@@ -252,7 +301,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 
     if (!list)
     {
-      list = body->mutable_tokentransfers()->Add();
+      list = body->add_tokentransfers();
     }
 
     proto::NftTransfer* nft = list->add_nfttransfers();
