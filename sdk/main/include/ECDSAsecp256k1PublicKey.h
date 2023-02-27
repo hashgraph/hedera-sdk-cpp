@@ -39,12 +39,20 @@ public:
   /**
    * The number of bytes in an uncompressed ECDSAsecp256k1PublicKey.
    */
-  static constexpr const size_t UNCOMPRESSED_KEY_SIZE = 65;
+  static constexpr const size_t UNCOMPRESSED_KEY_SIZE = 65ULL;
 
   /**
    * The number of bytes in a compressed ECDSAsecp256k1PublicKey.
    */
-  static constexpr const size_t COMPRESSED_KEY_SIZE = 33;
+  static constexpr const size_t COMPRESSED_KEY_SIZE = 33ULL;
+
+  /**
+   * The ASN.1 prefix bytes of an uncompressed ECDSAsecp256k1PublicKey.
+   */
+  static inline const std::vector<unsigned char> UNCOMPRESSED_KEY_ASN1_PREFIX_BYTES = {
+    0x30, 0x56, 0x30, 0x10, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02,
+    0x01, 0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x0A, 0x03, 0x42, 0x00
+  };
 
   /**
    * Disallow default construction of an ECDSAsecp256k1PublicKey, as an uninitialized ECDSAsecp256k1PublicKey provides

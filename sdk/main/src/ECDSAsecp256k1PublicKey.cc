@@ -30,11 +30,6 @@
 
 namespace Hedera
 {
-namespace
-{
-const inline std::string UNCOMPRESSED_KEY_ASN1_PREFIX = "3056301006072A8648CE3D020106052B8104000A034200";
-}
-
 //-----
 ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(const ECDSAsecp256k1PublicKey& other)
   : mPublicKey(bytesToPKEY(other.toBytes()))
@@ -214,7 +209,7 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytes() const
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
 
-  static const size_t asn1PrefixSize = UNCOMPRESSED_KEY_ASN1_PREFIX.size() / 2; // string has 2 chars per byte
+  static const size_t asn1PrefixSize = UNCOMPRESSED_KEY_ASN1_PREFIX_BYTES.size();
 
   if (publicKeyBytes.size() != UNCOMPRESSED_KEY_SIZE + asn1PrefixSize)
   {
@@ -238,7 +233,7 @@ internal::OpenSSLUtils::EVP_PKEY ECDSAsecp256k1PublicKey::bytesToPKEY(const std:
   }
 
   // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN1 prefix
-  std::vector<unsigned char> uncompressedKeyBytes = internal::HexConverter::hexToBytes(UNCOMPRESSED_KEY_ASN1_PREFIX);
+  std::vector<unsigned char> uncompressedKeyBytes = UNCOMPRESSED_KEY_ASN1_PREFIX_BYTES;
 
   if (inputKeySize == COMPRESSED_KEY_SIZE)
   {
