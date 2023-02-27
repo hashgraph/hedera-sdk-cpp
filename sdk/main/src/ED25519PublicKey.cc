@@ -30,8 +30,11 @@ namespace Hedera
 {
 namespace
 {
-const inline std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
-  internal::HexConverter::hexToBytes("302A300506032B6570032100");
+// The number of bytes in an ED25519PublicKey.
+constexpr const size_t PUBLIC_KEY_SIZE = 32;
+// The algorithm identifier bytes for an ED25519PublicKey.
+const std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES = { 0x30, 0x2A, 0x30, 0x05, 0x06, 0x03,
+                                                                0x2B, 0x65, 0x70, 0x03, 0x21, 0x00 };
 }
 
 //-----
@@ -159,48 +162,31 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
   }
 
   // don't return the algorithm identification bytes
-  return { publicKeyBytes.begin() + 12, publicKeyBytes.end() };
+  return { publicKeyBytes.begin() + static_cast<long>(ALGORITHM_IDENTIFIER_BYTES.size()), publicKeyBytes.end() };
 }
 
 //-----
-internal::OpenSSLUtils::EVP_PKEY ED25519PublicKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+internal::OpenSSLUtils::EVP_PKEY ED25519PublicKey::bytesToPKEY(std::vector<unsigned char> keyBytes)
 {
-  std::vector<unsigned char> fullKeyBytes;
-  // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly decode
-  if (keyBytes.size() == 32)
+  if (keyBytes.size() == PUBLIC_KEY_SIZE)
   {
-    fullKeyBytes = prependAlgorithmIdentifier(keyBytes);
+    keyBytes.insert(keyBytes.begin(), ALGORITHM_IDENTIFIER_BYTES.cbegin(), ALGORITHM_IDENTIFIER_BYTES.cend());
   }
-  else if (keyBytes.size() == 44)
-  {
-    fullKeyBytes = keyBytes;
-  }
-  else
+  else if (keyBytes.size() != PUBLIC_KEY_SIZE + ALGORITHM_IDENTIFIER_BYTES.size())
   {
     throw std::invalid_argument("bytesToPKEY input bytes size [" + std::to_string(keyBytes.size()) +
-                                "] is invalid: must be either [32] or [44]");
+                                "] is invalid: must be either [" + std::to_string(PUBLIC_KEY_SIZE) + "] or [" +
+                                std::to_string(PUBLIC_KEY_SIZE + ALGORITHM_IDENTIFIER_BYTES.size()) + "]");
   }
 
-  const unsigned char* rawKeyBytes = &fullKeyBytes.front();
-  internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
+  const unsigned char* rawKeyBytes = &keyBytes.front();
+  internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(keyBytes.size())));
   if (!key)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PUBKEY"));
   }
 
   return key;
-}
-
-//-----
-std::vector<unsigned char> ED25519PublicKey::prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes)
-{
-  // full key will begin with the algorithm identifier bytes
-  std::vector<unsigned char> fullKey = ALGORITHM_IDENTIFIER_BYTES;
-
-  // insert the raw key bytes onto the end of the full key
-  fullKey.insert(fullKey.end(), keyBytes.begin(), keyBytes.end());
-
-  return fullKey;
 }
 
 //-----

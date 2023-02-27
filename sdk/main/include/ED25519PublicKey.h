@@ -122,16 +122,7 @@ private:
    * @throws std::invalid_argument If the input bytes are not the correct size.
    * @throws OpenSSLException      If OpenSSL is unable to create a keypair from the input bytes.
    */
-  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
-
-  /**
-   * Prepend an ED25519PublicKey's algorithm identifier to an array of serialized ED25519PublicKey bytes.
-   *
-   * @param keyBytes The bytes representing an ED25519PublicKey.
-   * @return An array of bytes that contains the ED25519PublicKey's algorithm identifier bytes, followed by the input
-   *         ED25519PublicKey bytes.
-   */
-  static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
+  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> keyBytes);
 
   /**
    * Construct from a wrapped OpenSSL key object.
