@@ -30,8 +30,15 @@ namespace Hedera
 {
 namespace
 {
-const inline std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES =
-  internal::HexConverter::hexToBytes("302E020100300506032B657004220420");
+// The number of bytes in an ED25519PrivateKey.
+constexpr const size_t PRIVATE_KEY_SIZE = 32;
+// The number of bytes in an ED25519PrivateKey chain code.
+constexpr const size_t CHAIN_CODE_SIZE = 32;
+// The seed to use to compute the SHA512 HMAC, as defined in SLIP 10.
+const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '9', ' ', 's', 'e', 'e', 'd' };
+// The algorithm identifier bytes for an ED25519PrivateKey.
+const std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06,
+                                                                0x03, 0x2B, 0x65, 0x70, 0x04, 0x22, 0x04, 0x20 };
 }
 
 //-----
@@ -114,10 +121,14 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_vie
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector<unsigned char>& seed)
 {
-  static const std::string keyString = "ed25519 seed"; // as defined by SLIP 0010
   try
   {
-    return fromHMACOutput(internal::OpenSSLUtils::computeSHA512HMAC({ keyString.begin(), keyString.end() }, seed));
+    const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(SLIP10_SEED, seed);
+
+    // The hmac is the key bytes followed by the chain code bytes
+    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(
+      bytesToPKEY({ hmacOutput.begin(), hmacOutput.begin() + PRIVATE_KEY_SIZE }),
+      { hmacOutput.begin() + PRIVATE_KEY_SIZE, hmacOutput.begin() + PRIVATE_KEY_SIZE + CHAIN_CODE_SIZE }));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -162,7 +173,7 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
   }
 
-  auto signature = std::vector<unsigned char>(signatureLength);
+  std::vector<unsigned char> signature(signatureLength);
   if (EVP_DigestSign(messageDigestContext.get(),
                      &signature.front(),
                      &signatureLength,
@@ -182,27 +193,36 @@ std::string ED25519PrivateKey::toString() const
 }
 
 //-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(const uint32_t childIndex) const
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
 {
-  if (mChainCode.size() != 32)
+  if (mChainCode.empty())
   {
     throw UninitializedException("Key not initialized with chain code, unable to derive keys");
   }
 
-  // Throws std::invalid_argument if childIndex is already hardened
-  const uint32_t hardenedIndex = internal::DerivationPathUtils::getHardenedIndex(childIndex);
+  if (mChainCode.size() != CHAIN_CODE_SIZE)
+  {
+    throw BadKeyException("Key chain code malformed");
+  }
 
   // as per SLIP0010, private key must be padded to 33 bytes
   std::vector<unsigned char> data = { 0x0 };
+  data.reserve(37); // 37 bytes in byte data
 
   const std::vector<unsigned char> keyBytes = toBytes();
-  data.insert(data.end(), keyBytes.begin(), keyBytes.end());
+  data.insert(data.end(), keyBytes.cbegin(), keyBytes.cend());
 
-  // converts unsigned 32 bit int index into big endian byte array (ser32 function from BIP 32)
-  std::vector<unsigned char> indexVector = internal::DerivationPathUtils::indexToBigEndianArray(hardenedIndex);
-  data.insert(data.end(), indexVector.begin(), indexVector.end());
+  // Throws std::invalid_argument if childIndex is already hardened
+  const std::vector<unsigned char> indexVector =
+    internal::DerivationPathUtils::indexToBigEndianArray(internal::DerivationPathUtils::getHardenedIndex(childIndex));
+  data.insert(data.end(), indexVector.cbegin(), indexVector.cend());
 
-  return fromHMACOutput(internal::OpenSSLUtils::computeSHA512HMAC(mChainCode, data));
+  const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(mChainCode, data);
+
+  // The hmac is the key bytes followed by the chain code bytes
+  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(
+    bytesToPKEY({ hmacOutput.begin(), hmacOutput.begin() + PRIVATE_KEY_SIZE }),
+    { hmacOutput.begin() + PRIVATE_KEY_SIZE, hmacOutput.begin() + PRIVATE_KEY_SIZE + CHAIN_CODE_SIZE }));
 }
 
 //-----
@@ -218,7 +238,7 @@ std::vector<unsigned char> ED25519PrivateKey::toBytes() const
   }
 
   // don't return the algorithm identification bytes
-  return { outputBytes.begin() + 16, outputBytes.end() };
+  return { outputBytes.cbegin() + static_cast<long>(ALGORITHM_IDENTIFIER_BYTES.size()), outputBytes.cend() };
 }
 
 //-----
@@ -228,53 +248,23 @@ std::vector<unsigned char> ED25519PrivateKey::getChainCode() const
 }
 
 //-----
-internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(const std::vector<unsigned char>& keyBytes)
+internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(std::vector<unsigned char> keyBytes)
 {
-  std::vector<unsigned char> fullKeyBytes;
-  // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that OpenSSL can correctly
-  // decode
-  if (keyBytes.size() == 32)
+  // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that we can correctly decode
+  if (keyBytes.size() == PRIVATE_KEY_SIZE)
   {
-    fullKeyBytes = prependAlgorithmIdentifier(keyBytes);
-  }
-  else
-  {
-    fullKeyBytes = keyBytes;
+    keyBytes.insert(keyBytes.begin(), ALGORITHM_IDENTIFIER_BYTES.cbegin(), ALGORITHM_IDENTIFIER_BYTES.cend());
   }
 
-  const unsigned char* rawKeyBytes = &fullKeyBytes.front();
+  const unsigned char* rawKeyBytes = &keyBytes.front();
   internal::OpenSSLUtils::EVP_PKEY key(
-    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(fullKeyBytes.size())));
+    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(keyBytes.size())));
   if (!key)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PrivateKey"));
   }
 
   return key;
-}
-
-//-----
-std::vector<unsigned char> ED25519PrivateKey::prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes)
-{
-  // full key will begin with the algorithm identifier bytes
-  std::vector<unsigned char> fullKey = ALGORITHM_IDENTIFIER_BYTES;
-
-  // insert the raw key bytes onto the end of the full key
-  fullKey.insert(fullKey.end(), keyBytes.begin(), keyBytes.end());
-
-  return fullKey;
-}
-
-//-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromHMACOutput(const std::vector<unsigned char>& hmacOutput)
-{
-  // the first 32 bytes of the hmac are the new key material. the algorithm identifier must come first, though
-  std::vector<unsigned char> key(hmacOutput.begin(), hmacOutput.begin() + 32);
-
-  // chain code is the next 32 bytes of the computed hmac
-  std::vector<unsigned char> chainCode(hmacOutput.begin() + 32, hmacOutput.end());
-
-  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(key), chainCode));
 }
 
 //-----

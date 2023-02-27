@@ -36,13 +36,13 @@ namespace
 constexpr const size_t PRIVATE_KEY_SIZE = 32;
 // The number of bytes in an ECDSAsecp256k1PrivateKey chain code.
 constexpr const size_t CHAIN_CODE_SIZE = 32;
-// The number of bytes in the algorithm identifier for an ECDSAsecp256k1PrivateKey.
-constexpr const size_t ALGORITHM_IDENTIFIER_SIZE = 7;
-// The ASN.1 prefix bytes
+// The seed to use to compute the SHA512 HMAC, as defined in BIP32.
+const std::vector<unsigned char> BIP32_SEED = { 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' };
+// The algorithm identifier prefix bytes for an ECDSAsecp256k1PrivateKey.
 const std::vector<unsigned char> ASN1_PREFIX_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x01, 0x04, 0x20 };
-// The ASN.1 suffix bytes
+// The algorithm identifier suffix bytes for an ECDSAsecp256k1PrivateKey.
 const std::vector<unsigned char> ASN1_SUFFIX_BYTES = { 0xA0, 0x07, 0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x0A };
-// The order of the secp256k1 curve
+// The order of the secp256k1 curve.
 const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
   internal::OpenSSLUtils::BIGNUM::fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
 }
@@ -118,9 +118,7 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromSeed(con
 {
   try
   {
-    // "Bitcoin seed" is the seed to use to compute the SHA512 HMAC, as defined in BIP32.
-    const std::vector<unsigned char> hmacOutput =
-      internal::OpenSSLUtils::computeSHA512HMAC({ 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' }, seed);
+    const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(BIP32_SEED, seed);
 
     // The hmac is the key bytes followed by the chain code bytes
     return std::make_unique<ECDSAsecp256k1PrivateKey>(ECDSAsecp256k1PrivateKey(
@@ -291,8 +289,8 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytes() const
   // the return value of i2d_PrivateKey can be either 48 or 118 bytes, depending on how the private key was constructed
   // this difference doesn't change anything with the return here: the first 7 bytes of each are algorithm identifiers,
   // the next 32 are private key bytes, and the rest are for other purposes
-  return { outputBytes.begin() + ALGORITHM_IDENTIFIER_SIZE,
-           outputBytes.begin() + ALGORITHM_IDENTIFIER_SIZE + PRIVATE_KEY_SIZE };
+  return { outputBytes.begin() + static_cast<long>(ASN1_PREFIX_BYTES.size()),
+           outputBytes.begin() + static_cast<long>(ASN1_PREFIX_BYTES.size()) + PRIVATE_KEY_SIZE };
 }
 
 //-----

@@ -146,25 +146,7 @@ private:
    * @return The newly created wrapped OpenSSL keypair object.
    * @throws OpenSSLException If OpenSSL is unable to generate an ED25519 keypair from the input bytes.
    */
-  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& keyBytes);
-
-  /**
-   * Prepend an ED25519PrivateKey's algorithm identifier to an array of serialized ED25519PrivateKey bytes.
-   *
-   * @param keyBytes The bytes representing an ED25519PrivateKey.
-   * @return An array of bytes that contains the ED25519PrivateKey's algorithm identifier bytes, followed by the input
-   *         ED25519PrivateKey bytes.
-   */
-  static std::vector<unsigned char> prependAlgorithmIdentifier(const std::vector<unsigned char>& keyBytes);
-
-  /**
-   * Create an ED25519PrivateKey from the output of an HMAC hash function.
-   *
-   * @param hmacOutput The output of the HMAC hash function from which to create an ED25519PrivateKey.
-   * @return A pointer to the new ED25519PrivateKey, with key material and chain code set from the hash output.
-   * @throws OpenSSLException If OpenSSL is unable to generate an ED25519 keypair from the input hash bytes.
-   */
-  static std::unique_ptr<ED25519PrivateKey> fromHMACOutput(const std::vector<unsigned char>& hmacOutput);
+  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> keyBytes);
 
   /**
    * Construct from a wrapped OpenSSL keypair object.
