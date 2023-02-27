@@ -18,6 +18,7 @@
  *
  */
 #include "ECDSAsecp256k1PublicKey.h"
+#include "ECDSAsecp256k1PrivateKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
@@ -27,6 +28,7 @@
 #include <openssl/ec.h>
 #include <openssl/x509.h>
 #include <proto/basic_types.pb.h>
+#include <set>
 
 namespace Hedera
 {
@@ -103,19 +105,21 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
                                               const std::vector<unsigned char>& signedBytes) const
 {
   // incoming signatures are in the raw form (r, s), where r and s are each 32 bytes long
-  if (signatureBytes.size() != 64)
+  if (signatureBytes.size() != ECDSAsecp256k1PrivateKey::RAW_SIGNATURE_SIZE)
   {
     return false;
   }
 
   // First, convert the incoming signature to DER format, so that it can be verified
-  internal::OpenSSLUtils::BIGNUM signatureR(BN_bin2bn(&signatureBytes.front(), 32, nullptr));
+  internal::OpenSSLUtils::BIGNUM signatureR(
+    BN_bin2bn(&signatureBytes.front(), ECDSAsecp256k1PrivateKey::R_SIZE, nullptr));
   if (!signatureR)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bin2bn"));
   }
 
-  internal::OpenSSLUtils::BIGNUM signatureS(BN_bin2bn(&signatureBytes.front() + 32, 32, nullptr));
+  internal::OpenSSLUtils::BIGNUM signatureS(
+    BN_bin2bn(&signatureBytes.front() + ECDSAsecp256k1PrivateKey::R_SIZE, ECDSAsecp256k1PrivateKey::S_SIZE, nullptr));
   if (!signatureS)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bin2bn"));
@@ -133,12 +137,12 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
   signatureS.release();
 
   // maximum length of DER encoded signature is 72
-  std::vector<unsigned char> derEncodedSignature(72);
-  unsigned char* encodedSignaturePointer = &derEncodedSignature.front();
+  std::vector<unsigned char> derEncodedSignature(ECDSAsecp256k1PrivateKey::DER_ENCODED_SIGNATURE_SIZE);
 
   // keep track of how long the DER encoding actually is, since we'll need to tell the verification function
-  int actualSignatureLength = i2d_ECDSA_SIG(signatureObject.get(), &encodedSignaturePointer);
-  if (actualSignatureLength <= 0)
+  int derEncodedSignatureLength;
+  if (unsigned char* encodedSignaturePointer = &derEncodedSignature.front();
+      (derEncodedSignatureLength = i2d_ECDSA_SIG(signatureObject.get(), &encodedSignaturePointer)) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_ECDSA_SIG"));
   }
@@ -168,7 +172,7 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
 
   const int verificationResult = EVP_DigestVerify(messageDigestContext.get(),
                                                   &derEncodedSignature.front(),
-                                                  actualSignatureLength,
+                                                  static_cast<size_t>(derEncodedSignatureLength),
                                                   (!signedBytes.empty()) ? &signedBytes.front() : nullptr,
                                                   signedBytes.size());
 
@@ -209,16 +213,16 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytes() const
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
 
-  static const size_t asn1PrefixSize = UNCOMPRESSED_KEY_ASN1_PREFIX_BYTES.size();
-
-  if (publicKeyBytes.size() != UNCOMPRESSED_KEY_SIZE + asn1PrefixSize)
+  if (publicKeyBytes.size() != UNCOMPRESSED_KEY_SIZE + UNCOMPRESSED_KEY_ASN1_PREFIX_BYTES.size())
   {
-    throw OpenSSLException("Expected public key size [" + std::to_string(UNCOMPRESSED_KEY_SIZE + asn1PrefixSize) +
+    throw OpenSSLException("Expected public key size [" +
+                           std::to_string(UNCOMPRESSED_KEY_SIZE + UNCOMPRESSED_KEY_ASN1_PREFIX_BYTES.size()) +
                            "]. Actual size was [" + std::to_string(publicKeyBytes.size()) + "]");
   }
 
   // don't return the algorithm identification bytes, and compress
-  return compressBytes({ publicKeyBytes.begin() + (long)asn1PrefixSize, publicKeyBytes.end() });
+  return compressBytes(
+    { publicKeyBytes.begin() + static_cast<long>(UNCOMPRESSED_KEY_ASN1_PREFIX_BYTES.size()), publicKeyBytes.end() });
 }
 
 //-----
@@ -281,7 +285,7 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::compressBytes(const std::vec
                                 "] is invalid: must be [" + std::to_string(UNCOMPRESSED_KEY_SIZE) + "]");
   }
 
-  if (uncompressedBytes[0] != 0x4)
+  if (uncompressedBytes.at(0) != 0x04)
   {
     throw std::invalid_argument("Uncompressed bytes should begin with 0x04");
   }
@@ -337,7 +341,7 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::uncompressBytes(const std::v
                                 "] is invalid: must be [" + std::to_string(COMPRESSED_KEY_SIZE) + "]");
   }
 
-  if (compressedBytes[0] != 0x2 && compressedBytes[0] != 0x3)
+  if (compressedBytes.at(0) != 0x02 && compressedBytes.at(0) != 0x03)
   {
     throw std::invalid_argument("Compressed bytes should begin with 0x02 or 0x03");
   }

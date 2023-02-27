@@ -36,20 +36,8 @@ namespace
 constexpr const size_t PRIVATE_KEY_SIZE = 32;
 // The number of bytes in an ECDSAsecp256k1PrivateKey chain code.
 constexpr const size_t CHAIN_CODE_SIZE = 32;
-// The maximum number of bytes needed to create an ECDSAsecp256k1PrivateKey signature.
-constexpr const size_t MAX_SIGNATURE_SIZE = 72;
-// The number of bytes needed to create a raw ECDSAsecp256k1PrivateKey signature.
-constexpr const size_t RAW_SIGNATURE_SIZE = 64;
-// The number of bytes in the r value for an ECDSAsecp256k1PrivateKey signature.
-constexpr const size_t R_SIZE = 32;
-// The number of bytes in the s value for an ECDSAsecp256k1PrivateKey signature.
-constexpr const size_t S_SIZE = 32;
-// The number of bytes in the data used to derive an ECDSAsecp256k1PrivateKey signature.
-constexpr const size_t DERIVE_SIZE = 37;
 // The number of bytes in the algorithm identifier for an ECDSAsecp256k1PrivateKey.
 constexpr const size_t ALGORITHM_IDENTIFIER_SIZE = 7;
-// The seed to use to compute the SHA512 HMAC to use to construct an ECDSAsecp256k1PrivateKey, as defined in BIP32.
-const std::vector<unsigned char> SHA512_HMAC_SEED = { 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' };
 // The ASN.1 prefix bytes
 const std::vector<unsigned char> ASN1_PREFIX_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x01, 0x04, 0x20 };
 // The ASN.1 suffix bytes
@@ -130,7 +118,9 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromSeed(con
 {
   try
   {
-    const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(SHA512_HMAC_SEED, seed);
+    // "Bitcoin seed" is the seed to use to compute the SHA512 HMAC, as defined in BIP32.
+    const std::vector<unsigned char> hmacOutput =
+      internal::OpenSSLUtils::computeSHA512HMAC({ 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' }, seed);
 
     // The hmac is the key bytes followed by the chain code bytes
     return std::make_unique<ECDSAsecp256k1PrivateKey>(ECDSAsecp256k1PrivateKey(
@@ -182,7 +172,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
   }
 
   // 72 is the maximum required size. actual signature may be slightly smaller
-  size_t signatureLength = MAX_SIGNATURE_SIZE;
+  size_t signatureLength = DER_ENCODED_SIGNATURE_SIZE;
   std::vector<unsigned char> signature(signatureLength);
 
   if (EVP_DigestSign(messageDigestContext.get(),
@@ -255,7 +245,7 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint3
   const std::vector<unsigned char> indexBytes = internal::DerivationPathUtils::indexToBigEndianArray(childIndex);
 
   std::vector<unsigned char> data;
-  data.reserve(DERIVE_SIZE);
+  data.reserve(37); // 37 bytes in byte data
 
   if (internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
   {

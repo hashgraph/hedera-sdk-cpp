@@ -43,6 +43,26 @@ class ECDSAsecp256k1PrivateKey : public PrivateKey
 {
 public:
   /**
+   * The number of bytes in a DER-encoded ECDSAsecp256k1PrivateKey signature.
+   */
+  static constexpr const size_t DER_ENCODED_SIGNATURE_SIZE = 72;
+
+  /**
+   * The number of bytes in a raw ECDSAsecp256k1PrivateKey signature ((r,s) form).
+   */
+  static constexpr const size_t RAW_SIGNATURE_SIZE = 64;
+
+  /**
+   * The number of bytes in the r value of an ECDSAsecp256k1PrivateKey signature.
+   */
+  static constexpr const size_t R_SIZE = 32;
+
+  /**
+   * The number of bytes in the s value of an ECDSAsecp256k1PrivateKey signature.
+   */
+  static constexpr const size_t S_SIZE = 32;
+
+  /**
    * Disallow default construction of an ECDSAsecp256k1PrivateKey, as an uninitialized ECDSAsecp256k1PrivateKey provides
    * no functionality. Instead, the 'fromString()' or 'fromBytes()' functions should be used.
    */
