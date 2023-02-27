@@ -37,14 +37,7 @@ namespace Hedera
 class PrivateKey
 {
 public:
-  /**
-   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
-   */
   virtual ~PrivateKey() = default;
-  PrivateKey(const PrivateKey&) = delete;
-  PrivateKey& operator=(const PrivateKey&) = delete;
-  PrivateKey(PrivateKey&&) noexcept = delete;
-  PrivateKey& operator=(PrivateKey&&) noexcept = delete;
 
   /**
    * Create a clone of this PrivateKey object.
@@ -75,8 +68,37 @@ public:
    */
   [[nodiscard]] virtual std::string toString() const = 0;
 
+  /**
+   * Get this PrivateKey's chain code. It is possible that the chain code could be empty.
+   *
+   * @return This PrivateKey's chaincode if it exists, otherwise an empty vector.
+   */
+  [[nodiscard]] inline std::vector<unsigned char> getChainCode() const { return mChainCode; }
+
 protected:
   PrivateKey() = default;
+
+  /**
+   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
+   */
+  PrivateKey(const PrivateKey&) = default;
+  PrivateKey& operator=(const PrivateKey&) = default;
+  PrivateKey(PrivateKey&&) noexcept = default;
+  PrivateKey& operator=(PrivateKey&&) noexcept = default;
+
+  /**
+   * Construct with chain code.
+   */
+  explicit PrivateKey(std::vector<unsigned char> chainCode)
+    : mChainCode(std::move(chainCode))
+  {
+  }
+
+private:
+  /**
+   * This PrivateKey's chain code. If this is empty, then this PrivateKey will not support derivation.
+   */
+  std::vector<unsigned char> mChainCode;
 };
 
 } // namespace Hedera

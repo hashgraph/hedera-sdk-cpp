@@ -131,13 +131,6 @@ public:
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const;
 
-  /**
-   * Get this ED25519PrivateKey's chain code. It is possible that the chain code could be empty.
-   *
-   * @return This ED25519PrivateKey's chaincode if it exists, otherwise an empty vector.
-   */
-  [[nodiscard]] std::vector<unsigned char> getChainCode() const;
-
 private:
   /**
    * Create a wrapped OpenSSL keypair object from a byte vector representing an ED25519PrivateKey.
@@ -165,7 +158,7 @@ private:
    * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PublicKey's
    *                          bytes.
    */
-  ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode);
+  ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char>&& chainCode);
 
   /**
    * Get the byte representation of the ED25519PublicKey that corresponds to this ED25519PrivateKey.
@@ -185,11 +178,6 @@ private:
    * A pointer to the ED25519PublicKey object that corresponds to this ED25519PrivateKey.
    */
   std::shared_ptr<ED25519PublicKey> mPublicKey = nullptr;
-
-  /**
-   * This ED25519PrivateKey's chain code. If this is empty, then this ED25519PrivateKey will not support derivation.
-   */
-  std::vector<unsigned char> mChainCode;
 };
 
 } // namespace Hedera

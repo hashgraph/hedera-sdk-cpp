@@ -43,10 +43,9 @@ const std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES = { 0x30, 0x2E, 0x02
 
 //-----
 ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
-  : PrivateKey()
+  : PrivateKey(other)
   , mKeypair(bytesToPKEY(other.toBytes()))
   , mPublicKey(other.mPublicKey)
-  , mChainCode(other.mChainCode)
 {
 }
 
@@ -55,9 +54,9 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 {
   if (this != &other)
   {
+    PrivateKey::operator=(other);
     mKeypair = bytesToPKEY(other.toBytes());
     mPublicKey = other.mPublicKey;
-    mChainCode = other.mChainCode;
   }
 
   return *this;
@@ -65,19 +64,18 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 
 //-----
 ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
-  : PrivateKey()
+  : PrivateKey(std::move(other))
   , mKeypair(std::move(other.mKeypair))
   , mPublicKey(std::move(other.mPublicKey))
-  , mChainCode(std::move(other.mChainCode))
 {
 }
 
 //-----
 ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexcept
 {
+  PrivateKey::operator=(other);
   mKeypair = std::move(other.mKeypair);
   mPublicKey = std::move(other.mPublicKey);
-  mChainCode = std::move(other.mChainCode);
   return *this;
 }
 
@@ -195,12 +193,12 @@ std::string ED25519PrivateKey::toString() const
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
 {
-  if (mChainCode.empty())
+  if (getChainCode().empty())
   {
     throw UninitializedException("Key not initialized with chain code, unable to derive keys");
   }
 
-  if (mChainCode.size() != CHAIN_CODE_SIZE)
+  if (getChainCode().size() != CHAIN_CODE_SIZE)
   {
     throw BadKeyException("Key chain code malformed");
   }
@@ -217,7 +215,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex
     internal::DerivationPathUtils::indexToBigEndianArray(internal::DerivationPathUtils::getHardenedIndex(childIndex));
   data.insert(data.end(), indexVector.cbegin(), indexVector.cend());
 
-  const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(mChainCode, data);
+  const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(getChainCode(), data);
 
   // The hmac is the key bytes followed by the chain code bytes
   return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(
@@ -239,12 +237,6 @@ std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 
   // don't return the algorithm identification bytes
   return { outputBytes.cbegin() + static_cast<long>(ALGORITHM_IDENTIFIER_BYTES.size()), outputBytes.cend() };
-}
-
-//-----
-std::vector<unsigned char> ED25519PrivateKey::getChainCode() const
-{
-  return mChainCode;
 }
 
 //-----
@@ -276,11 +268,10 @@ ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
 }
 
 //-----
-ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode)
-  : PrivateKey()
+ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char>&& chainCode)
+  : PrivateKey(std::move(chainCode))
   , mKeypair(std::move(keypair))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
-  , mChainCode(std::move(chainCode))
 {
 }
 

@@ -49,10 +49,9 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
 
 //-----
 ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(const ECDSAsecp256k1PrivateKey& other)
-  : PrivateKey()
+  : PrivateKey(other)
   , mKeypair(bytesToPKEY(other.toBytes()))
   , mPublicKey(other.mPublicKey)
-  , mChainCode(other.mChainCode)
 {
 }
 
@@ -61,9 +60,9 @@ ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(const ECDSAsecp256
 {
   if (this != &other)
   {
+    PrivateKey::operator=(other);
     mKeypair = bytesToPKEY(other.toBytes());
     mPublicKey = other.mPublicKey;
-    mChainCode = other.mChainCode;
   }
 
   return *this;
@@ -71,19 +70,18 @@ ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(const ECDSAsecp256
 
 //-----
 ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(ECDSAsecp256k1PrivateKey&& other) noexcept
-  : PrivateKey()
+  : PrivateKey(std::move(other))
   , mKeypair(std::move(other.mKeypair))
   , mPublicKey(std::move(other.mPublicKey))
-  , mChainCode(std::move(other.mChainCode))
 {
 }
 
 //-----
 ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(ECDSAsecp256k1PrivateKey&& other) noexcept
 {
+  PrivateKey::operator=(other);
   mKeypair = std::move(other.mKeypair);
   mPublicKey = std::move(other.mPublicKey);
-  mChainCode = std::move(other.mChainCode);
   return *this;
 }
 
@@ -229,12 +227,12 @@ std::string ECDSAsecp256k1PrivateKey::toString() const
 //-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint32_t childIndex) const
 {
-  if (mChainCode.empty())
+  if (getChainCode().empty())
   {
     throw UninitializedException("Key not initialized with chain code, unable to derive keys");
   }
 
-  if (mChainCode.size() != CHAIN_CODE_SIZE)
+  if (getChainCode().size() != CHAIN_CODE_SIZE)
   {
     throw BadKeyException("Key chain code malformed");
   }
@@ -262,7 +260,7 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint3
     data.insert(data.end(), indexBytes.cbegin(), indexBytes.cend());
   }
 
-  const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(mChainCode, data);
+  const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(getChainCode(), data);
 
   // Modular add the private key bytes computed from the HMAC to the existing private key (using the secp256k1 curve
   // order as the modulo), and compute the new chain code from the HMAC
@@ -291,12 +289,6 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytes() const
   // the next 32 are private key bytes, and the rest are for other purposes
   return { outputBytes.begin() + static_cast<long>(ASN1_PREFIX_BYTES.size()),
            outputBytes.begin() + static_cast<long>(ASN1_PREFIX_BYTES.size()) + PRIVATE_KEY_SIZE };
-}
-
-//-----
-std::vector<unsigned char> ECDSAsecp256k1PrivateKey::getChainCode() const
-{
-  return mChainCode;
 }
 
 //-----
@@ -331,9 +323,9 @@ ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_P
 //-----
 ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
                                                    std::vector<unsigned char>&& chainCode)
-  : mKeypair(std::move(keypair))
+  : PrivateKey(std::move(chainCode))
+  , mKeypair(std::move(keypair))
   , mPublicKey(ECDSAsecp256k1PublicKey::fromBytes(getPublicKeyBytes()))
-  , mChainCode(std::move(chainCode))
 {
 }
 

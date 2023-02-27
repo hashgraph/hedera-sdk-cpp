@@ -153,13 +153,6 @@ public:
    */
   [[nodiscard]] std::vector<unsigned char> toBytes() const;
 
-  /**
-   * Get this ECDSAsecp256k1PrivateKey's chain code. It is possible that the chain code could be empty.
-   *
-   * @return This ECDSAsecp256k1PrivateKey's chaincode if it exists, otherwise an empty vector.
-   */
-  [[nodiscard]] std::vector<unsigned char> getChainCode() const;
-
 private:
   /**
    * Create a wrapped OpenSSL key object from a byte vector representing an ECDSAsecp256k1PrivateKey.
@@ -207,12 +200,6 @@ private:
    * A pointer to the ECDSAsecp256k1PublicKey object that corresponds to this ECDSAsecp256k1PrivateKey.
    */
   std::shared_ptr<ECDSAsecp256k1PublicKey> mPublicKey = nullptr;
-
-  /**
-   * This ECDSAsecp256k1PrivateKey's chain code. If this is empty, then this ECDSAsecp256k1PrivateKey will not support
-   * derivation.
-   */
-  std::vector<unsigned char> mChainCode;
 };
 
 } // namespace Hedera
