@@ -39,7 +39,7 @@ constexpr const size_t ERROR_MSG_SIZE = 256;
 
 //-----
 BIGNUM::BIGNUM(::BIGNUM* bignum)
-  : OpenSSLObjectWrapper(bignum, &BN_clear_free)
+  : OpenSSLObjectWrapper(bignum, &BN_clear_free, &BN_dup)
 {
 }
 
@@ -103,7 +103,7 @@ BN_CTX::BN_CTX(::BN_CTX* bnCtx)
 
 //-----
 EC_GROUP::EC_GROUP(::EC_GROUP* ecGroup)
-  : OpenSSLObjectWrapper(ecGroup, &EC_GROUP_free)
+  : OpenSSLObjectWrapper(ecGroup, &EC_GROUP_free, &EC_GROUP_dup)
 {
 }
 
@@ -133,13 +133,13 @@ EVP_MD_CTX::EVP_MD_CTX(::EVP_MD_CTX* evpMdCtx)
 
 //-----
 EVP_PKEY::EVP_PKEY(::EVP_PKEY* evpPkey)
-  : OpenSSLObjectWrapper(evpPkey, &EVP_PKEY_free)
+  : OpenSSLObjectWrapper(evpPkey, &EVP_PKEY_free, &EVP_PKEY_dup)
 {
 }
 
 //-----
 EVP_PKEY_CTX::EVP_PKEY_CTX(::EVP_PKEY_CTX* evpPkeyCtx)
-  : OpenSSLObjectWrapper(evpPkeyCtx, &EVP_PKEY_CTX_free)
+  : OpenSSLObjectWrapper(evpPkeyCtx, &EVP_PKEY_CTX_free, &EVP_PKEY_CTX_dup)
 {
 }
 

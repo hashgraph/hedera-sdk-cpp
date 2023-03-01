@@ -20,6 +20,8 @@
 #ifndef HEDERA_SDK_CPP_PRIVATE_KEY_H_
 #define HEDERA_SDK_CPP_PRIVATE_KEY_H_
 
+#include "impl/OpenSSLUtils.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -89,12 +91,26 @@ protected:
   /**
    * Construct with chain code.
    */
-  explicit PrivateKey(std::vector<unsigned char> chainCode)
-    : mChainCode(std::move(chainCode))
+  explicit PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
+                      std::vector<unsigned char> chainCode = std::vector<unsigned char>())
+    : mKeypair(std::move(keypair))
+    , mChainCode(std::move(chainCode))
   {
   }
 
+  /**
+   * Get this PrivateKey's wrapped OpenSSL keypair object.
+   *
+   * @return This PrivateKey's wrapped OpenSSL keypair object.
+   */
+  [[nodiscard]] inline internal::OpenSSLUtils::EVP_PKEY getKeypair() const { return mKeypair; }
+
 private:
+  /**
+   * The wrapped OpenSSL keypair.
+   */
+  internal::OpenSSLUtils::EVP_PKEY mKeypair;
+
   /**
    * This PrivateKey's chain code. If this is empty, then this PrivateKey will not support derivation.
    */

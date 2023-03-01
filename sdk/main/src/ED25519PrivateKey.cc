@@ -44,7 +44,6 @@ const std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES = { 0x30, 0x2E, 0x02
 //-----
 ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
   : PrivateKey(other)
-  , mKeypair(bytesToPKEY(other.toBytes()))
   , mPublicKey(other.mPublicKey)
 {
 }
@@ -55,7 +54,6 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
   if (this != &other)
   {
     PrivateKey::operator=(other);
-    mKeypair = bytesToPKEY(other.toBytes());
     mPublicKey = other.mPublicKey;
   }
 
@@ -65,7 +63,6 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 //-----
 ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
   : PrivateKey(std::move(other))
-  , mKeypair(std::move(other.mKeypair))
   , mPublicKey(std::move(other.mPublicKey))
 {
 }
@@ -73,8 +70,7 @@ ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
 //-----
 ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexcept
 {
-  PrivateKey::operator=(other);
-  mKeypair = std::move(other.mKeypair);
+  PrivateKey::operator=(std::move(other));
   mPublicKey = std::move(other.mPublicKey);
   return *this;
 }
@@ -155,7 +151,7 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, nullptr, nullptr, mKeypair.get()) <= 0)
+  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, nullptr, nullptr, getKeypair().get()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSignInit"));
   }
@@ -226,11 +222,11 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex
 //-----
 std::vector<unsigned char> ED25519PrivateKey::toBytes() const
 {
-  int bytesLength = i2d_PrivateKey(mKeypair.get(), nullptr);
+  int bytesLength = i2d_PrivateKey(getKeypair().get(), nullptr);
 
   std::vector<unsigned char> outputBytes(bytesLength);
 
-  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(mKeypair.get(), &rawBytes) <= 0)
+  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getKeypair().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }
@@ -261,16 +257,14 @@ internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(std::vector<unsi
 
 //-----
 ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
-  : PrivateKey()
-  , mKeypair(std::move(keypair))
+  : PrivateKey(std::move(keypair))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
 {
 }
 
 //-----
 ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char>&& chainCode)
-  : PrivateKey(std::move(chainCode))
-  , mKeypair(std::move(keypair))
+  : PrivateKey(std::move(keypair), std::move(chainCode))
   , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
 {
 }
@@ -278,11 +272,12 @@ ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
 //-----
 std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
 {
-  int bytesLength = i2d_PUBKEY(mKeypair.get(), nullptr);
+  int bytesLength = i2d_PUBKEY(getKeypair().get(), nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mKeypair.get(), &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
+      i2d_PUBKEY(getKeypair().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }

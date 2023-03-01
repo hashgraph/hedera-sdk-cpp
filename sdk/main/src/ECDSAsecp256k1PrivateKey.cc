@@ -50,7 +50,6 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
 //-----
 ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(const ECDSAsecp256k1PrivateKey& other)
   : PrivateKey(other)
-  , mKeypair(bytesToPKEY(other.toBytes()))
   , mPublicKey(other.mPublicKey)
 {
 }
@@ -61,7 +60,6 @@ ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(const ECDSAsecp256
   if (this != &other)
   {
     PrivateKey::operator=(other);
-    mKeypair = bytesToPKEY(other.toBytes());
     mPublicKey = other.mPublicKey;
   }
 
@@ -71,7 +69,6 @@ ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(const ECDSAsecp256
 //-----
 ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(ECDSAsecp256k1PrivateKey&& other) noexcept
   : PrivateKey(std::move(other))
-  , mKeypair(std::move(other.mKeypair))
   , mPublicKey(std::move(other.mPublicKey))
 {
 }
@@ -80,7 +77,6 @@ ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(ECDSAsecp256k1PrivateKey&& ot
 ECDSAsecp256k1PrivateKey& ECDSAsecp256k1PrivateKey::operator=(ECDSAsecp256k1PrivateKey&& other) noexcept
 {
   PrivateKey::operator=(other);
-  mKeypair = std::move(other.mKeypair);
   mPublicKey = std::move(other.mPublicKey);
   return *this;
 }
@@ -162,7 +158,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, mKeypair.get()) <= 0)
+  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, getKeypair().get()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSignInit"));
   }
@@ -274,11 +270,11 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint3
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytes() const
 {
-  int bytesLength = i2d_PrivateKey(mKeypair.get(), nullptr);
+  int bytesLength = i2d_PrivateKey(getKeypair().get(), nullptr);
 
   std::vector<unsigned char> outputBytes(bytesLength);
 
-  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(mKeypair.get(), &rawBytes) <= 0)
+  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getKeypair().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }
@@ -314,8 +310,7 @@ internal::OpenSSLUtils::EVP_PKEY ECDSAsecp256k1PrivateKey::bytesToPKEY(std::vect
 
 //-----
 ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
-  : PrivateKey()
-  , mKeypair(std::move(keypair))
+  : PrivateKey(std::move(keypair))
   , mPublicKey(ECDSAsecp256k1PublicKey::fromBytes(getPublicKeyBytes()))
 {
 }
@@ -323,8 +318,7 @@ ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_P
 //-----
 ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
                                                    std::vector<unsigned char>&& chainCode)
-  : PrivateKey(std::move(chainCode))
-  , mKeypair(std::move(keypair))
+  : PrivateKey(std::move(keypair), std::move(chainCode))
   , mPublicKey(ECDSAsecp256k1PublicKey::fromBytes(getPublicKeyBytes()))
 {
 }
@@ -332,11 +326,11 @@ ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_P
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PrivateKey::getPublicKeyBytes() const
 {
-  int bytesLength = i2d_PUBKEY(mKeypair.get(), nullptr);
+  int bytesLength = i2d_PUBKEY(getKeypair().get(), nullptr);
 
   std::vector<unsigned char> keyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(mKeypair.get(), &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(getKeypair().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }

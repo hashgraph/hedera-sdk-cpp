@@ -192,11 +192,6 @@ private:
   [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
 
   /**
-   * The wrapped OpenSSL keypair.
-   */
-  internal::OpenSSLUtils::EVP_PKEY mKeypair;
-
-  /**
    * A pointer to the ECDSAsecp256k1PublicKey object that corresponds to this ECDSAsecp256k1PrivateKey.
    */
   std::shared_ptr<ECDSAsecp256k1PublicKey> mPublicKey = nullptr;

@@ -170,11 +170,6 @@ private:
   [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
 
   /**
-   * The wrapped OpenSSL keypair object.
-   */
-  internal::OpenSSLUtils::EVP_PKEY mKeypair;
-
-  /**
    * A pointer to the ED25519PublicKey object that corresponds to this ED25519PrivateKey.
    */
   std::shared_ptr<ED25519PublicKey> mPublicKey = nullptr;
