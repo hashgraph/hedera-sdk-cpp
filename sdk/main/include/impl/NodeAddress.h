@@ -75,7 +75,7 @@ public:
    *
    * @return The account ID associated with the node at this address.
    */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline AccountId getNodeAccountId() const { return mNodeAccountId; }
 
   /**
    * Get a vector of endpoints associated with the node.
@@ -89,7 +89,7 @@ public:
    *
    * @return The certificate chain hash.
    */
-  [[nodiscard]] inline std::string getCertificateHash() const { return mCertificateHash; }
+  [[nodiscard]] inline std::string getNodeCertHash() const { return mNodeCertHash; }
 
 private:
   /**
@@ -116,9 +116,14 @@ private:
   int64_t mNodeId = -1;
 
   /**
+   * The account ID associated with the node.
+   */
+  AccountId mNodeAccountId;
+
+  /**
    * The SHA-384 hash of the node's certificate chain.
    */
-  std::string mCertificateHash;
+  std::string mNodeCertHash;
 
   /**
    * A string description of the node.
@@ -126,9 +131,9 @@ private:
   std::string mDescription;
 
   /**
-   * The account ID associated with the node.
+   * The amount of tinybars staked to the node
    */
-  AccountId mAccountId;
+  int64_t mStake = 0;
 };
 
 } // namespace Hedera::internal

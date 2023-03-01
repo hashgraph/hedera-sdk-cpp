@@ -43,9 +43,10 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 
   outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
   outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
-  outputNodeAddress.mCertificateHash = protoNodeAddress.nodecerthash();
+  outputNodeAddress.mNodeAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
+  outputNodeAddress.mNodeCertHash = protoNodeAddress.nodecerthash();
   outputNodeAddress.mDescription = protoNodeAddress.description();
-  outputNodeAddress.mAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
+  outputNodeAddress.mStake = protoNodeAddress.stake();
 
   return outputNodeAddress;
 }
@@ -56,12 +57,13 @@ std::string NodeAddress::toString() const
 
   int columnWidth = 20;
   outputStream << std::setw(columnWidth) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mAccountId.toString()
+  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mNodeAccountId.toString()
                << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left << mCertificateHash
+  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left << mNodeCertHash
                << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Stake: " << std::left << mStake << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
 
   if (size_t endpointCount = mEndpoints.size(); !endpointCount)
