@@ -48,6 +48,38 @@ public:
   static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
   /**
+   * Set a new node ID associated with the node at this address.
+   *
+   * @param accountId The account ID to be associated with the node
+   * @return A reference to this NodeAddress with the newly-set account ID.
+   */
+  NodeAddress& setNodeId(const int64_t nodeId);
+
+  /**
+   * Set a new account ID associated with the node at this address.
+   *
+   * @param accountId The account ID to be associated with the node
+   * @return A reference to this NodeAddress with the newly-set account ID.
+   */
+  NodeAddress& setNodeAccountId(const AccountId& accountId);
+
+  /**
+   * Set a new certificate hash for the node.
+   *
+   * @param certHash The certificate hash to be assigned to the node
+   * @return A reference to this NodeAddress with the newly-set certificate hash.
+   */
+  NodeAddress& setNodeCertHash(const std::string& certHash);
+
+  /**
+   * Assign а new description text for the node.
+   *
+   * @param description The description text to be assigned with the node
+   * @return A reference to this NodeAddress with the newly-set description.
+   */
+  NodeAddress& setDescription(const std::string& description);
+
+  /**
    * Determine if a particular port number corresponds to a TLS port.
    *
    * @param port The port number.
@@ -71,6 +103,13 @@ public:
   [[nodiscard]] std::string toString() const;
 
   /**
+   * Get the node ID
+   *
+   * @return A int64 value representing the node ID.
+   */
+  [[nodiscard]] inline int64_t getNodeId() const { return mNodeId; }
+
+  /**
    * Get the account ID associated with the node at this address.
    *
    * @return The account ID associated with the node at this address.
@@ -90,6 +129,13 @@ public:
    * @return The certificate chain hash.
    */
   [[nodiscard]] inline std::string getNodeCertHash() const { return mNodeCertHash; }
+
+  /**
+   * Get the description text associated with the node.
+   *
+   * @return The description text.
+   */
+  [[nodiscard]] inline std::string getDescription() const { return mDescription; }
 
 private:
   /**

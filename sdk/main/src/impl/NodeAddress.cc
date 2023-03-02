@@ -26,6 +26,7 @@
 
 namespace Hedera::internal
 {
+//-----
 NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
 {
   NodeAddress outputNodeAddress;
@@ -51,6 +52,28 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
   return outputNodeAddress;
 }
 
+//-----
+NodeAddress& NodeAddress::setNodeId(const int64_t nodeId)
+{
+  mNodeId = nodeId;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setNodeAccountId(const AccountId& accountId)
+{
+  mNodeAccountId = accountId;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setNodeCertHash(const std::string& certHash)
+{
+  mNodeCertHash = certHash;
+  return *this;
+}
+
+//-----
 std::string NodeAddress::toString() const
 {
   std::stringstream outputStream;
