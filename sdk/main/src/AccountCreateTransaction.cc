@@ -186,7 +186,7 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   if (mAlias)
   {
-    const std::vector<unsigned char> aliasBytes = mAlias->toBytes();
+    const std::vector<unsigned char> aliasBytes = mAlias->toBytesDer();
     body->set_allocated_alias(new std::string{ aliasBytes.cbegin(), aliasBytes.cend() });
   }
 

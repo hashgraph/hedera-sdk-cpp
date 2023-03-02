@@ -53,23 +53,25 @@ public:
    * @param proto The Key protobuf object from which to create a PublicKey object.
    * @return A pointer to the created PublicKey object. Nullptr if the key type is not recognized.
    */
-  static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
+  [[nodiscard]] static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
 
   /**
-   * Create a PublicKey object from a string.
+   * Create a PublicKey object from a hex-encoded string of DER-encoded bytes.
    *
-   * @param key The string from which to create a PublicKey object.
-   * @return A pointer to the created PublicKey object. Nullptr if unable to create a PublicKey object.
+   * @param key The hex string from which to create a PublicKey object.
+   * @return A pointer to the created PublicKey object.
+   * @throws std::invalid_argument If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined.
    */
-  static std::shared_ptr<PublicKey> fromString(std::string_view key);
+  [[nodiscard]] static std::shared_ptr<PublicKey> fromStringDer(std::string_view key);
 
   /**
-   * Create a PublicKey object from a byte array.
+   * Create a PublicKey object from a DER-encoded byte array.
    *
    * @param bytes The byte array from which to create a PublicKey object.
-   * @return A pointer to the created PublicKey object. Nullptr if unable to create a PublicKey object.
+   * @return A pointer to the created PublicKey object.
+   * @throws std::invalid_argument If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined.
    */
-  static std::shared_ptr<PublicKey> fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static std::shared_ptr<PublicKey> fromBytesDer(const std::vector<unsigned char>& bytes);
 
   /**
    * Create a clone of this PublicKey object.
@@ -96,18 +98,32 @@ public:
                                              const std::vector<unsigned char>& signedBytes) const = 0;
 
   /**
-   * Get the string representation of this PublicKey.
+   * Get the hex-encoded string of the DER-encoded bytes of this PublicKey.
    *
-   * @return The string representation of this PublicKey.
+   * @return The hex-encoded string of the DER-encoded bytes of this PublicKey.
    */
-  [[nodiscard]] virtual std::string toString() const = 0;
+  [[nodiscard]] virtual std::string toStringDer() const = 0;
 
   /**
-   * Get the byte representation of this PublicKey.
+   * Get the hex-encoded string of the raw bytes of this PublicKey.
    *
-   * @return The byte representation of this PublicKey.
+   * @return The hex-encoded string of the raw bytes of this PublicKey.
    */
-  [[nodiscard]] virtual std::vector<unsigned char> toBytes() const = 0;
+  [[nodiscard]] virtual std::string toStringRaw() const = 0;
+
+  /**
+   * Get the DER-encoded bytes of this PublicKey.
+   *
+   * @return The DER-encoded bytes of this PublicKey.
+   */
+  [[nodiscard]] virtual std::vector<unsigned char> toBytesDer() const = 0;
+
+  /**
+   * Get the raw bytes of this PublicKey.
+   *
+   * @return The raw bytes of this PublicKey.
+   */
+  [[nodiscard]] virtual std::vector<unsigned char> toBytesRaw() const = 0;
 
 protected:
   PublicKey() = default;

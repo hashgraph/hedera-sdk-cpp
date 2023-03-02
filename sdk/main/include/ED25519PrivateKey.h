@@ -89,13 +89,6 @@ public:
   [[nodiscard]] std::unique_ptr<PrivateKey> clone() const override;
 
   /**
-   * Derived from PrivateKey. Get the ED25519PublicKey that corresponds to this ED25519PrivateKey.
-   *
-   * @return A pointer to the ED25519PublicKey that corresponds to this ED25519PrivateKey.
-   */
-  [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const override;
-
-  /**
    * Derived from PrivateKey. Sign an arbitrary byte array.
    *
    * @param bytesToSign The bytes to sign.
@@ -159,20 +152,6 @@ private:
    *                          bytes.
    */
   ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char>&& chainCode);
-
-  /**
-   * Get the byte representation of the ED25519PublicKey that corresponds to this ED25519PrivateKey.
-   *
-   * @return The byte representation of the corresponding ED25519PublicKey.
-   * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PublicKey's
-   *                          bytes.
-   */
-  [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
-
-  /**
-   * A pointer to the ED25519PublicKey object that corresponds to this ED25519PrivateKey.
-   */
-  std::shared_ptr<ED25519PublicKey> mPublicKey = nullptr;
 };
 
 } // namespace Hedera

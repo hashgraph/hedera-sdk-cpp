@@ -57,7 +57,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, GetPublicKey)
   EXPECT_NE(publicFromLoaded, nullptr);
 
   // make sure returned public keys are the same for generated or loaded private keys
-  EXPECT_EQ(publicFromGenerated->toString(), publicFromLoaded->toString());
+  EXPECT_EQ(publicFromGenerated->toStringDer(), publicFromLoaded->toStringDer());
 }
 
 //-----

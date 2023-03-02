@@ -28,18 +28,9 @@
 
 namespace Hedera
 {
-namespace
-{
-// The number of bytes in an ED25519PublicKey.
-constexpr const size_t PUBLIC_KEY_SIZE = 32;
-// The algorithm identifier bytes for an ED25519PublicKey.
-const std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES = { 0x30, 0x2A, 0x30, 0x05, 0x06, 0x03,
-                                                                0x2B, 0x65, 0x70, 0x03, 0x21, 0x00 };
-}
-
 //-----
 ED25519PublicKey::ED25519PublicKey(const ED25519PublicKey& other)
-  : mPublicKey(bytesToPKEY(other.toBytes()))
+  : mPublicKey(rawBytesToPKEY(other.toBytesRaw()))
 {
 }
 
@@ -48,7 +39,7 @@ ED25519PublicKey& ED25519PublicKey::operator=(const ED25519PublicKey& other)
 {
   if (this != &other)
   {
-    mPublicKey = bytesToPKEY(other.toBytes());
+    mPublicKey = rawBytesToPKEY(other.toBytesRaw());
   }
 
   return *this;
@@ -68,33 +59,122 @@ ED25519PublicKey& ED25519PublicKey::operator=(ED25519PublicKey&& other) noexcept
 }
 
 //-----
-std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view keyString)
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view key)
 {
-  try
+  if (key.size() == PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
   {
-    return fromBytes(internal::HexConverter::hexToBytes(keyString));
+    return fromStringDer(key);
   }
-  catch (const OpenSSLException& openSSLException)
+  else if (key.size() == PUBLIC_KEY_SIZE * 2)
   {
-    throw BadKeyException(openSSLException.what());
+    return fromStringRaw(key);
+  }
+  else
+  {
+    throw BadKeyException("ECDSAsecp256k1PublicKey cannot be realized from input string: input string size should be " +
+                          std::to_string(PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
+                          std::to_string(PUBLIC_KEY_SIZE * 2));
   }
 }
 
 //-----
-std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& keyBytes)
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromStringDer(std::string_view key)
 {
+  if (key.size() != PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
+  {
+    throw BadKeyException(
+      "ED25519PublicKey cannot be realized from input string: DER encoded ED25519PublicKey hex string size should be " +
+      std::to_string(PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
+  }
+
+  // Remove the DER-encoded header
+  key.remove_prefix(DER_ENCODED_PREFIX_HEX.size());
+  return fromStringRaw(key);
+}
+
+//-----
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromStringRaw(std::string_view key)
+{
+  if (key.size() != PUBLIC_KEY_SIZE * 2)
+  {
+    throw BadKeyException(
+      "ED25519PublicKey cannot be realized from input string: raw ED25519PublicKey string size should be " +
+      std::to_string(PUBLIC_KEY_SIZE * 2));
+  }
+
   try
   {
-    const ED25519PublicKey ed25519PublicKey(bytesToPKEY(keyBytes));
-    return (ed25519PublicKey.mPublicKey) ? std::make_shared<ED25519PublicKey>(ed25519PublicKey) : nullptr;
+    return std::make_shared<ED25519PublicKey>(
+      ED25519PublicKey(rawBytesToPKEY(internal::HexConverter::hexToBytes(key))));
   }
   catch (const OpenSSLException& openSSLException)
   {
-    throw BadKeyException(openSSLException.what());
+    throw BadKeyException(std::string("ED25519PublicKey cannot be realized from input string: ") +
+                          openSSLException.what());
   }
   catch (const std::invalid_argument& invalidArgument)
   {
-    throw BadKeyException(invalidArgument.what());
+    throw BadKeyException(std::string("ED25519PublicKey cannot be realized from input string: ") +
+                          invalidArgument.what());
+  }
+}
+
+//-----
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& bytes)
+{
+  if (bytes.size() == PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
+  {
+    return fromBytesDer(bytes);
+  }
+  else if (bytes.size() == PUBLIC_KEY_SIZE)
+  {
+    return fromBytesRaw(bytes);
+  }
+  else
+  {
+    throw BadKeyException("ED25519PublicKey cannot be realized from input bytes: input byte array size should be " +
+                          std::to_string(PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
+                          std::to_string(PUBLIC_KEY_SIZE));
+  }
+}
+
+//-----
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytesDer(const std::vector<unsigned char>& bytes)
+{
+  if (bytes.size() != PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
+  {
+    throw BadKeyException(
+      "ED25519PublicKey cannot be realized from input bytes: DER encoded ED25519PublicKey byte array should contain " +
+      std::to_string(PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
+  }
+
+  // Remove the DER-encoded header
+  return fromBytesRaw({ bytes.cbegin() + static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()), bytes.cend() });
+}
+
+//-----
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytesRaw(const std::vector<unsigned char>& bytes)
+{
+  if (bytes.size() != PUBLIC_KEY_SIZE)
+  {
+    throw BadKeyException(
+      "ED25519PublicKey cannot be realized from input bytes: raw ED25519PublicKey byte array should contain " +
+      std::to_string(PUBLIC_KEY_SIZE) + " bytes");
+  }
+
+  try
+  {
+    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(rawBytesToPKEY(bytes)));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(std::string("ED25519PublicKey cannot be realized from input bytes: ") +
+                          openSSLException.what());
+  }
+  catch (const std::invalid_argument& invalidArgument)
+  {
+    throw BadKeyException(std::string("ED25519PublicKey cannot be realized from input bytes: ") +
+                          invalidArgument.what());
   }
 }
 
@@ -134,23 +214,20 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
   return verificationResult == 1;
 }
 
-//----
-std::unique_ptr<proto::Key> ED25519PublicKey::toProtobuf() const
+//-----
+std::string ED25519PublicKey::toStringDer() const
 {
-  auto keyProtobuf = std::make_unique<proto::Key>();
-  const std::vector<unsigned char> rawBytes = toBytes();
-  keyProtobuf->set_allocated_ed25519(new std::string({ rawBytes.cbegin(), rawBytes.cend() }));
-  return keyProtobuf;
+  return internal::HexConverter::bytesToHex(toBytesDer());
 }
 
 //-----
-std::string ED25519PublicKey::toString() const
+std::string ED25519PublicKey::toStringRaw() const
 {
-  return internal::HexConverter::bytesToHex(toBytes());
+  return internal::HexConverter::bytesToHex(toBytesRaw());
 }
 
 //-----
-std::vector<unsigned char> ED25519PublicKey::toBytes() const
+std::vector<unsigned char> ED25519PublicKey::toBytesDer() const
 {
   int bytesLength = i2d_PUBKEY(mPublicKey.get(), nullptr);
 
@@ -161,26 +238,41 @@ std::vector<unsigned char> ED25519PublicKey::toBytes() const
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
 
-  // don't return the algorithm identification bytes
-  return { publicKeyBytes.begin() + static_cast<long>(ALGORITHM_IDENTIFIER_BYTES.size()), publicKeyBytes.end() };
+  return publicKeyBytes;
 }
 
 //-----
-internal::OpenSSLUtils::EVP_PKEY ED25519PublicKey::bytesToPKEY(std::vector<unsigned char> keyBytes)
+std::vector<unsigned char> ED25519PublicKey::toBytesRaw() const
 {
-  if (keyBytes.size() == PUBLIC_KEY_SIZE)
+  std::vector<unsigned char> bytes = toBytesDer();
+  return { bytes.cbegin() + static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()), bytes.cend() };
+}
+
+//----
+std::unique_ptr<proto::Key> ED25519PublicKey::toProtobuf() const
+{
+  auto keyProtobuf = std::make_unique<proto::Key>();
+  const std::vector<unsigned char> rawBytes = toBytesRaw();
+  keyProtobuf->set_allocated_ed25519(new std::string({ rawBytes.cbegin(), rawBytes.cend() }));
+  return keyProtobuf;
+}
+
+//-----
+internal::OpenSSLUtils::EVP_PKEY ED25519PublicKey::rawBytesToPKEY(std::vector<unsigned char> bytes)
+{
+  if (bytes.size() == PUBLIC_KEY_SIZE)
   {
-    keyBytes.insert(keyBytes.begin(), ALGORITHM_IDENTIFIER_BYTES.cbegin(), ALGORITHM_IDENTIFIER_BYTES.cend());
+    bytes.insert(bytes.begin(), DER_ENCODED_PREFIX_BYTES.cbegin(), DER_ENCODED_PREFIX_BYTES.cend());
   }
-  else if (keyBytes.size() != PUBLIC_KEY_SIZE + ALGORITHM_IDENTIFIER_BYTES.size())
+  else if (bytes.size() != PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
   {
-    throw std::invalid_argument("bytesToPKEY input bytes size [" + std::to_string(keyBytes.size()) +
-                                "] is invalid: must be either [" + std::to_string(PUBLIC_KEY_SIZE) + "] or [" +
-                                std::to_string(PUBLIC_KEY_SIZE + ALGORITHM_IDENTIFIER_BYTES.size()) + "]");
+    throw std::invalid_argument("Input bytes size [" + std::to_string(bytes.size()) + "] is invalid: must be either [" +
+                                std::to_string(PUBLIC_KEY_SIZE) + "] or [" +
+                                std::to_string(PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + "]");
   }
 
-  const unsigned char* rawKeyBytes = &keyBytes.front();
-  internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &rawKeyBytes, static_cast<long>(keyBytes.size())));
+  const unsigned char* bytesPtr = &bytes.front();
+  internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &bytesPtr, static_cast<long>(bytes.size())));
   if (!key)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PUBKEY"));

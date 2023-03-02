@@ -20,16 +20,12 @@
 #ifndef HEDERA_SDK_CPP_PRIVATE_KEY_H_
 #define HEDERA_SDK_CPP_PRIVATE_KEY_H_
 
+#include "PublicKey.h"
 #include "impl/OpenSSLUtils.h"
 
 #include <memory>
 #include <string>
 #include <vector>
-
-namespace Hedera
-{
-class PublicKey;
-}
 
 namespace Hedera
 {
@@ -47,13 +43,6 @@ public:
    * @return A pointer to the created clone of this PrivateKey.
    */
   [[nodiscard]] virtual std::unique_ptr<PrivateKey> clone() const = 0;
-
-  /**
-   * Get the PublicKey that corresponds to this PrivateKey.
-   *
-   * @return A pointer to the PublicKey that corresponds to this PrivateKey.
-   */
-  [[nodiscard]] virtual std::shared_ptr<PublicKey> getPublicKey() const = 0;
 
   /**
    * Sign an arbitrary byte array.
@@ -77,6 +66,13 @@ public:
    */
   [[nodiscard]] inline std::vector<unsigned char> getChainCode() const { return mChainCode; }
 
+  /**
+   * Get the PublicKey that corresponds to this PrivateKey.
+   *
+   * @return A pointer to the PublicKey that corresponds to this PrivateKey.
+   */
+  [[nodiscard]] inline std::shared_ptr<PublicKey> getPublicKey() const { return mPublicKey; }
+
 protected:
   PrivateKey() = default;
 
@@ -89,14 +85,18 @@ protected:
   PrivateKey& operator=(PrivateKey&&) noexcept = default;
 
   /**
-   * Construct with chain code.
+   * Construct with wrapped OpenSSL keypair and optionally a chain code.
    */
   explicit PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
-                      std::vector<unsigned char> chainCode = std::vector<unsigned char>())
-    : mKeypair(std::move(keypair))
-    , mChainCode(std::move(chainCode))
-  {
-  }
+                      std::vector<unsigned char> chainCode = std::vector<unsigned char>());
+
+  /**
+   * Get the DER-encoded bytes of the PublicKey that corresponds to this PrivateKey.
+   *
+   * @return The DER-encoded bytes of this PrivateKey's corresponding PublicKey.
+   * @throws OpenSSLException If OpenSSL is unable to get this PrivateKey's corresponding PublicKey's bytes.
+   */
+  [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
 
   /**
    * Get this PrivateKey's wrapped OpenSSL keypair object.
@@ -115,6 +115,11 @@ private:
    * This PrivateKey's chain code. If this is empty, then this PrivateKey will not support derivation.
    */
   std::vector<unsigned char> mChainCode;
+
+  /**
+   * A pointer to the PublicKey object that corresponds to this PrivateKey.
+   */
+  std::shared_ptr<PublicKey> mPublicKey = nullptr;
 };
 
 } // namespace Hedera

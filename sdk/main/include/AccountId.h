@@ -106,7 +106,7 @@ public:
 
   /**
    * Create an AccountId object from a string of the form "<shard>.<realm>.<num>". <num> can be the account number, the
-   * stringified PublicKey alias, or the stringified EVM address.
+   * stringified PublicKey alias (DER-encoded), or the stringified EVM address.
    *
    * @param id The account ID string from which to construct.
    * @throws std::invalid_argument If the input string is malformed or the type of <num> cannot be determined.

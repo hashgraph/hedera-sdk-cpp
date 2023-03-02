@@ -23,6 +23,7 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <openssl/x509.h>
 
@@ -44,7 +45,6 @@ const std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES = { 0x30, 0x2E, 0x02
 //-----
 ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
   : PrivateKey(other)
-  , mPublicKey(other.mPublicKey)
 {
 }
 
@@ -54,7 +54,6 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
   if (this != &other)
   {
     PrivateKey::operator=(other);
-    mPublicKey = other.mPublicKey;
   }
 
   return *this;
@@ -63,7 +62,6 @@ ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
 //-----
 ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
   : PrivateKey(std::move(other))
-  , mPublicKey(std::move(other.mPublicKey))
 {
 }
 
@@ -71,7 +69,6 @@ ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
 ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexcept
 {
   PrivateKey::operator=(std::move(other));
-  mPublicKey = std::move(other.mPublicKey);
   return *this;
 }
 
@@ -121,8 +118,8 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector
 
     // The hmac is the key bytes followed by the chain code bytes
     return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(
-      bytesToPKEY({ hmacOutput.begin(), hmacOutput.begin() + PRIVATE_KEY_SIZE }),
-      { hmacOutput.begin() + PRIVATE_KEY_SIZE, hmacOutput.begin() + PRIVATE_KEY_SIZE + CHAIN_CODE_SIZE }));
+      bytesToPKEY({ hmacOutput.cbegin(), hmacOutput.cbegin() + PRIVATE_KEY_SIZE }),
+      { hmacOutput.cbegin() + PRIVATE_KEY_SIZE, hmacOutput.cbegin() + PRIVATE_KEY_SIZE + CHAIN_CODE_SIZE }));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -134,12 +131,6 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector
 std::unique_ptr<PrivateKey> ED25519PrivateKey::clone() const
 {
   return std::make_unique<ED25519PrivateKey>(*this);
-}
-
-//-----
-std::shared_ptr<PublicKey> ED25519PrivateKey::getPublicKey() const
-{
-  return mPublicKey;
 }
 
 //-----
@@ -199,24 +190,17 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex
     throw BadKeyException("Key chain code malformed");
   }
 
-  // as per SLIP0010, private key must be padded to 33 bytes
-  std::vector<unsigned char> data = { 0x0 };
-  data.reserve(37); // 37 bytes in byte data
-
-  const std::vector<unsigned char> keyBytes = toBytes();
-  data.insert(data.end(), keyBytes.cbegin(), keyBytes.cend());
-
-  // Throws std::invalid_argument if childIndex is already hardened
-  const std::vector<unsigned char> indexVector =
-    internal::DerivationPathUtils::indexToBigEndianArray(internal::DerivationPathUtils::getHardenedIndex(childIndex));
-  data.insert(data.end(), indexVector.cbegin(), indexVector.cend());
-
-  const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(getChainCode(), data);
+  // As per SLIP0010, private key must be padded to 33 bytes
+  const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
+    getChainCode(),
+    internal::Utilities::appendVector(internal::Utilities::appendVector({ 0x0 }, toBytes()),
+                                      internal::DerivationPathUtils::indexToBigEndianArray(
+                                        internal::DerivationPathUtils::getHardenedIndex(childIndex))));
 
   // The hmac is the key bytes followed by the chain code bytes
   return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(
-    bytesToPKEY({ hmacOutput.begin(), hmacOutput.begin() + PRIVATE_KEY_SIZE }),
-    { hmacOutput.begin() + PRIVATE_KEY_SIZE, hmacOutput.begin() + PRIVATE_KEY_SIZE + CHAIN_CODE_SIZE }));
+    bytesToPKEY({ hmacOutput.cbegin(), hmacOutput.cbegin() + PRIVATE_KEY_SIZE }),
+    { hmacOutput.cbegin() + PRIVATE_KEY_SIZE, hmacOutput.cbegin() + PRIVATE_KEY_SIZE + CHAIN_CODE_SIZE }));
 }
 
 //-----
@@ -258,31 +242,13 @@ internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(std::vector<unsi
 //-----
 ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
   : PrivateKey(std::move(keypair))
-  , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
 {
 }
 
 //-----
 ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char>&& chainCode)
   : PrivateKey(std::move(keypair), std::move(chainCode))
-  , mPublicKey(ED25519PublicKey::fromBytes(getPublicKeyBytes()))
 {
-}
-
-//-----
-std::vector<unsigned char> ED25519PrivateKey::getPublicKeyBytes() const
-{
-  int bytesLength = i2d_PUBKEY(getKeypair().get(), nullptr);
-
-  std::vector<unsigned char> publicKeyBytes(bytesLength);
-
-  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
-      i2d_PUBKEY(getKeypair().get(), &rawPublicKeyBytes) <= 0)
-  {
-    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
-  }
-
-  return publicKeyBytes;
 }
 
 } // namespace Hedera

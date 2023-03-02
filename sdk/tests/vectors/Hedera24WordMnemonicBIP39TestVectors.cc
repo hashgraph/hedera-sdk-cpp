@@ -58,7 +58,7 @@ TEST_P(Hedera24WordMnemonicBIP39ToECDSAsecp256k1PrivateKeyTestVectors, ECDSAsecp
 
   ASSERT_EQ(ecdsaSecp256k1PrivateKey->getChainCode(), internal::HexConverter::hexToBytes(chainCode));
   ASSERT_EQ(ecdsaSecp256k1PrivateKey->toBytes(), internal::HexConverter::hexToBytes(privateKeyBytes));
-  ASSERT_EQ(ecdsaSecp256k1PrivateKey->getPublicKey()->toBytes(), internal::HexConverter::hexToBytes(publicKeyBytes));
+  ASSERT_EQ(ecdsaSecp256k1PrivateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(publicKeyBytes));
 }
 
 //-----
@@ -71,7 +71,7 @@ TEST_P(Hedera24WordMnemonicBIP39ToED25519PrivateKeyTestVectors, ED25519PrivateKe
 
   ASSERT_EQ(ed25519PrivateKey->getChainCode(), internal::HexConverter::hexToBytes(chainCode));
   ASSERT_EQ(ed25519PrivateKey->toBytes(), internal::HexConverter::hexToBytes(privateKeyBytes));
-  ASSERT_EQ(ed25519PrivateKey->getPublicKey()->toBytes(), internal::HexConverter::hexToBytes(publicKeyBytes));
+  ASSERT_EQ(ed25519PrivateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(publicKeyBytes));
 }
 
 //-----

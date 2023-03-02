@@ -85,7 +85,7 @@ TEST_F(AccountCreateTransactionTest, SetKey)
 {
   AccountCreateTransaction transaction;
   transaction.setKey(getTestPublicKey());
-  EXPECT_EQ(transaction.getKey()->toString(), getTestPublicKey()->toString());
+  EXPECT_EQ(transaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
 }
 
 //-----
@@ -173,7 +173,7 @@ TEST_F(AccountCreateTransactionTest, SetAlias)
 {
   AccountCreateTransaction transaction;
   transaction.setAlias(getTestPublicKey());
-  EXPECT_EQ(transaction.getAlias()->toString(), getTestPublicKey()->toString());
+  EXPECT_EQ(transaction.getAlias()->toStringDer(), getTestPublicKey()->toStringDer());
 }
 
 //-----

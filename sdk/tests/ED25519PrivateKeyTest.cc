@@ -72,7 +72,7 @@ TEST_F(ED25519PrivateKeyTest, GetPublicKey)
 
   EXPECT_NE(publicFromGenerated, nullptr);
   EXPECT_NE(publicFromLoaded, nullptr);
-  EXPECT_EQ(publicFromGenerated->toString(), publicFromLoaded->toString());
+  EXPECT_EQ(publicFromGenerated->toStringDer(), publicFromLoaded->toStringDer());
 }
 
 TEST_F(ED25519PrivateKeyTest, Sign)

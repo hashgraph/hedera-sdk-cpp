@@ -56,7 +56,7 @@ TEST_F(ClientTest, MoveClient)
 
   Client client2 = std::move(client);
   EXPECT_EQ(*client2.getOperatorAccountId(), getTestAccountId());
-  EXPECT_EQ(client2.getOperatorPublicKey()->toString(), getTestPrivateKey()->getPublicKey()->toString());
+  EXPECT_EQ(client2.getOperatorPublicKey()->toStringDer(), getTestPrivateKey()->getPublicKey()->toStringDer());
 }
 
 //-----
@@ -66,12 +66,12 @@ TEST_F(ClientTest, SetOperator)
   client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
 
   EXPECT_EQ(*client.getOperatorAccountId(), getTestAccountId());
-  EXPECT_EQ(client.getOperatorPublicKey()->toString(), getTestPrivateKey()->getPublicKey()->toString());
+  EXPECT_EQ(client.getOperatorPublicKey()->toStringDer(), getTestPrivateKey()->getPublicKey()->toStringDer());
 
   client.setOperator(getTestAccountId(), ED25519PrivateKey::generatePrivateKey());
 
   // No way to grab the string value of the rvalue, just make it's not empty
-  EXPECT_FALSE(client.getOperatorPublicKey()->toString().empty());
+  EXPECT_FALSE(client.getOperatorPublicKey()->toStringDer().empty());
 }
 
 //-----
