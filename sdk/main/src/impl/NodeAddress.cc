@@ -53,6 +53,13 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 }
 
 //-----
+static NodeAddress fromString(const std::string addressString)
+{
+  NodeAddress outputNodeAddress;
+  return outputNodeAddress;
+}
+
+//-----
 NodeAddress& NodeAddress::setNodeId(const int64_t nodeId)
 {
   mNodeId = nodeId;

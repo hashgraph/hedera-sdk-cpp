@@ -48,6 +48,14 @@ public:
   static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
   /**
+   * Create a NodeAddress object from a given string.
+   *
+   * @param addressString The string representation from which to create a new NodeAddress object.
+   * @return The created NodeAddress object.
+   */
+  static NodeAddress fromString(const std::string addressString);
+
+  /**
    * Set a new node ID associated with the node at this address.
    *
    * @param accountId The account ID to be associated with the node
