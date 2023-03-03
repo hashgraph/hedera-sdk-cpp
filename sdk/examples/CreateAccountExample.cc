@@ -45,7 +45,7 @@ int main(int argc, char** argv)
   const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
 
-  std::cout << "Generated private key: " << privateKey->toString() << std::endl;
+  std::cout << "Generated private key: " << privateKey->toStringRaw() << std::endl;
   std::cout << "Generated public key: " << publicKey->toStringRaw() << std::endl;
 
   // Create a new account with an initial balance of 1000 tinybars. The only required field here is the key.

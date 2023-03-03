@@ -53,11 +53,11 @@ TEST_P(Hedera24WordMnemonicBIP39ToECDSAsecp256k1PrivateKeyTestVectors, ECDSAsecp
 {
   const auto& [index, passphrase, chainCode, privateKeyBytes, publicKeyBytes] = GetParam();
 
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> ecdsaSecp256k1PrivateKey =
+  const std::unique_ptr<PrivateKey> ecdsaSecp256k1PrivateKey =
     getTestMnemonicBIP39().toStandardECDSAsecp256k1PrivateKey(passphrase, index);
 
   ASSERT_EQ(ecdsaSecp256k1PrivateKey->getChainCode(), internal::HexConverter::hexToBytes(chainCode));
-  ASSERT_EQ(ecdsaSecp256k1PrivateKey->toBytes(), internal::HexConverter::hexToBytes(privateKeyBytes));
+  ASSERT_EQ(ecdsaSecp256k1PrivateKey->toBytesRaw(), internal::HexConverter::hexToBytes(privateKeyBytes));
   ASSERT_EQ(ecdsaSecp256k1PrivateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(publicKeyBytes));
 }
 
@@ -66,11 +66,11 @@ TEST_P(Hedera24WordMnemonicBIP39ToED25519PrivateKeyTestVectors, ED25519PrivateKe
 {
   const auto& [index, passphrase, chainCode, privateKeyBytes, publicKeyBytes] = GetParam();
 
-  const std::unique_ptr<ED25519PrivateKey> ed25519PrivateKey =
+  const std::unique_ptr<PrivateKey> ed25519PrivateKey =
     getTestMnemonicBIP39().toStandardEd25519PrivateKey(passphrase, index);
 
   ASSERT_EQ(ed25519PrivateKey->getChainCode(), internal::HexConverter::hexToBytes(chainCode));
-  ASSERT_EQ(ed25519PrivateKey->toBytes(), internal::HexConverter::hexToBytes(privateKeyBytes));
+  ASSERT_EQ(ed25519PrivateKey->toBytesRaw(), internal::HexConverter::hexToBytes(privateKeyBytes));
   ASSERT_EQ(ed25519PrivateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(publicKeyBytes));
 }
 

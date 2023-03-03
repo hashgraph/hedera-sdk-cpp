@@ -43,8 +43,27 @@ protected:
 private:
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> mPrivateKeyGenerated = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> mPrivateKeyLoaded =
-    ECDSAsecp256k1PrivateKey::fromString(mPrivateKeyGenerated->toString());
+    ECDSAsecp256k1PrivateKey::fromString(mPrivateKeyGenerated->toStringRaw());
 };
+
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
+{
+  // these are 2 versions of the same private key. the first conforms to the full RFC 8410 standard, the second is just
+  // the private key
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromExtended = ECDSAsecp256k1PrivateKey::fromString(
+    "302E0201010420E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35A00706052B8104000A");
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromShort =
+    ECDSAsecp256k1PrivateKey::fromString("E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35");
+
+  EXPECT_NE(privateKeyFromExtended, nullptr);
+  EXPECT_NE(privateKeyFromShort, nullptr);
+  EXPECT_EQ(privateKeyFromExtended->toStringDer(), privateKeyFromShort->toStringDer());
+  EXPECT_EQ(privateKeyFromExtended->toStringRaw(), privateKeyFromShort->toStringRaw());
+
+  // Throw on garbage data
+  EXPECT_THROW(ECDSAsecp256k1PrivateKey::fromString("asdfdsafds"), BadKeyException);
+}
 
 //-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, GetPublicKey)
@@ -90,30 +109,12 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, SignEmptyBytes)
 //-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, ToString)
 {
-  std::string stringFromGenerated = getTestPrivateKeyGenerated()->toString();
-  std::string stringFromLoaded = getTestPrivateKeyLoaded()->toString();
+  std::string stringFromGenerated = getTestPrivateKeyGenerated()->toStringRaw();
+  std::string stringFromLoaded = getTestPrivateKeyLoaded()->toStringRaw();
 
   EXPECT_EQ(stringFromGenerated.size(), 64);
   EXPECT_EQ(stringFromLoaded.size(), 64);
   EXPECT_EQ(stringFromGenerated, stringFromLoaded);
-}
-
-//-----
-TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
-{
-  // these are 2 versions of the same private key. the first conforms to the full RFC 8410 standard, the second is just
-  // the private key
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromExtended = ECDSAsecp256k1PrivateKey::fromString(
-    "302E0201010420E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35A00706052B8104000A");
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromShort =
-    ECDSAsecp256k1PrivateKey::fromString("E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35");
-
-  EXPECT_NE(privateKeyFromExtended, nullptr);
-  EXPECT_NE(privateKeyFromShort, nullptr);
-  EXPECT_EQ(privateKeyFromExtended->toString(), privateKeyFromShort->toString());
-
-  // Throw on garbage data
-  EXPECT_THROW(ECDSAsecp256k1PrivateKey::fromString("asdfdsafds"), BadKeyException);
 }
 
 //-----

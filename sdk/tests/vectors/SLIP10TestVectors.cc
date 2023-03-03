@@ -43,7 +43,7 @@ private:
 //-----
 TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector1)
 {
-  std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+  std::unique_ptr<PrivateKey> privateKey =
     ECDSAsecp256k1PrivateKey::fromSeed(internal::HexConverter::hexToBytes(getTestVector1Seed()));
 
   std::string expectedChainCode = "873dff81c02f525623fd1fe5167eac3a55a049de3d314bb42ee227ffed37d508";
@@ -51,7 +51,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector1)
   std::string expectedPublic = "0339a36013301597daef41fbe593a02cc513d0b55527ec2df1050e2e8ff49c85c2";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(internal::DerivationPathUtils::getHardenedIndex(0));
@@ -60,7 +60,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector1)
   expectedPublic = "035a784662a4a20a65bf6aab9ae98a6c068a81c52e4b032c0fb5400c706cfccc56";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(1);
@@ -69,7 +69,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector1)
   expectedPublic = "03501e454bf00751f24b1b489aa925215d66af2234e3891c3b21a52bedb3cd711c";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(internal::DerivationPathUtils::getHardenedIndex(2));
@@ -78,7 +78,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector1)
   expectedPublic = "0357bfe1e341d01c69fe5654309956cbea516822fba8a601743a012a7896ee8dc2";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(2);
@@ -87,7 +87,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector1)
   expectedPublic = "02e8445082a72f29b75ca48748a914df60622a609cacfce8ed0e35804560741d29";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(1000000000);
@@ -96,14 +96,14 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector1)
   expectedPublic = "022a471424da5e657499d1ff51cb43c47481a03b1e77f951fe64cec9f5a48f7011";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 }
 
 //-----
 TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector2)
 {
-  std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+  std::unique_ptr<PrivateKey> privateKey =
     ECDSAsecp256k1PrivateKey::fromSeed(internal::HexConverter::hexToBytes(getTestVector2Seed()));
 
   std::string expectedChainCode = "60499f801b896d83179a4374aeb7822aaeaceaa0db1f85ee3e904c4defbd9689";
@@ -111,7 +111,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector2)
   std::string expectedPublic = "03cbcaa9c98c877a26977d00825c956a238e8dddfbd322cce4f74b0b5bd6ace4a7";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(0);
@@ -120,7 +120,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector2)
   expectedPublic = "02fc9e5af0ac8d9b3cecfe2a888e2117ba3d089d8585886c9c826b6b22a98d12ea";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(internal::DerivationPathUtils::getHardenedIndex(2147483647));
@@ -129,7 +129,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector2)
   expectedPublic = "03c01e7425647bdefa82b12d9bad5e3e6865bee0502694b94ca58b666abc0a5c3b";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(1);
@@ -138,7 +138,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector2)
   expectedPublic = "03a7d1d856deb74c508e05031f9895dab54626251b3806e16b4bd12e781a7df5b9";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(internal::DerivationPathUtils::getHardenedIndex(2147483646));
@@ -147,7 +147,7 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector2)
   expectedPublic = "02d2b36900396c9282fa14628566582f206a5dd0bcc8d5e892611806cafb0301f0";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(2);
@@ -156,14 +156,14 @@ TEST_F(SLIP10TestVectors, ECDSAsecp256k1PrivateKeyTestVector2)
   expectedPublic = "024d902e1a2fc7a8755ab5b694c575fce742c48d9ff192e63df5193e4c7afe1f9c";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 }
 
 //-----
 TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector1)
 {
-  std::unique_ptr<ED25519PrivateKey> privateKey =
+  std::unique_ptr<PrivateKey> privateKey =
     ED25519PrivateKey::fromSeed(internal::HexConverter::hexToBytes(getTestVector1Seed()));
 
   std::string expectedChainCode = "90046a93de5380a72b5e45010748567d5ea02bbf6522f979e05c0d8d8ca9fffb";
@@ -171,7 +171,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector1)
   std::string expectedPublic = "a4b2856bfec510abab89753fac1ac0e1112364e7d250545963f135f2a33188ed";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(0);
@@ -180,7 +180,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector1)
   expectedPublic = "8c8a13df77a28f3445213a0f432fde644acaa215fc72dcdf300d5efaa85d350c";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(1);
@@ -189,7 +189,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector1)
   expectedPublic = "1932a5270f335bed617d5b935c80aedb1a35bd9fc1e31acafd5372c30f5c1187";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(2);
@@ -198,7 +198,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector1)
   expectedPublic = "ae98736566d30ed0e9d2f4486a64bc95740d89c7db33f52121f8ea8f76ff0fc1";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(2);
@@ -207,7 +207,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector1)
   expectedPublic = "8abae2d66361c879b900d204ad2cc4984fa2aa344dd7ddc46007329ac76c429c";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(1000000000);
@@ -216,14 +216,14 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector1)
   expectedPublic = "3c24da049451555d51a7014a37337aa4e12d41e485abccfa46b47dfb2af54b7a";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 }
 
 //-----
 TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector2)
 {
-  std::unique_ptr<ED25519PrivateKey> privateKey =
+  std::unique_ptr<PrivateKey> privateKey =
     ED25519PrivateKey::fromSeed(internal::HexConverter::hexToBytes(getTestVector2Seed()));
 
   std::string expectedChainCode = "ef70a74db9c3a5af931b5fe73ed8e1a53464133654fd55e7a66f8570b8e33c3b";
@@ -231,7 +231,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector2)
   std::string expectedPublic = "8fe9693f8fa62a4305a140b9764c5ee01e455963744fe18204b4fb948249308a";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(0);
@@ -240,7 +240,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector2)
   expectedPublic = "86fab68dcb57aa196c77c5f264f215a112c22a912c10d123b0d03c3c28ef1037";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(2147483647);
@@ -249,7 +249,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector2)
   expectedPublic = "5ba3b9ac6e90e83effcd25ac4e58a1365a9e35a3d3ae5eb07b9e4d90bcf7506d";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(1);
@@ -258,7 +258,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector2)
   expectedPublic = "2e66aa57069c86cc18249aecf5cb5a9cebbfd6fadeab056254763874a9352b45";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(2147483646);
@@ -267,7 +267,7 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector2)
   expectedPublic = "e33c0f7d81d843c572275f287498e8d408654fdf0d1e065b84e2e6f157aab09b";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 
   privateKey = privateKey->derive(2);
@@ -276,6 +276,6 @@ TEST_F(SLIP10TestVectors, ED25519PrivateKeyTestVector2)
   expectedPublic = "47150c75db263559a70d5778bf36abbab30fb061ad69f69ece61a72b0cfa4fc0";
 
   EXPECT_EQ(privateKey->getChainCode(), internal::HexConverter::hexToBytes(expectedChainCode));
-  EXPECT_EQ(privateKey->toBytes(), internal::HexConverter::hexToBytes(expectedPrivate));
+  EXPECT_EQ(privateKey->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPrivate));
   EXPECT_EQ(privateKey->getPublicKey()->toBytesRaw(), internal::HexConverter::hexToBytes(expectedPublic));
 }

@@ -46,22 +46,22 @@ protected:
 private:
   const std::unique_ptr<ED25519PrivateKey> mPrivateKeyGenerated = ED25519PrivateKey::generatePrivateKey();
   const std::unique_ptr<ED25519PrivateKey> mPrivateKeyLoaded =
-    ED25519PrivateKey::fromString(mPrivateKeyGenerated->toString());
+    ED25519PrivateKey::fromString(mPrivateKeyGenerated->toStringDer());
 };
 
 TEST_F(ED25519PrivateKeyTest, CopyAndMoveConstructors)
 {
   ED25519PrivateKey copiedPrivateKey(*getTestPrivateKeyGenerated());
-  EXPECT_EQ(copiedPrivateKey.toString(), getTestPrivateKeyGenerated()->toString());
+  EXPECT_EQ(copiedPrivateKey.toStringDer(), getTestPrivateKeyGenerated()->toStringDer());
 
   copiedPrivateKey = *getTestPrivateKeyLoaded();
-  EXPECT_EQ(copiedPrivateKey.toString(), getTestPrivateKeyLoaded()->toString());
+  EXPECT_EQ(copiedPrivateKey.toStringDer(), getTestPrivateKeyLoaded()->toStringDer());
 
   ED25519PrivateKey movedPrivateKey(std::move(copiedPrivateKey));
-  EXPECT_EQ(movedPrivateKey.toString(), getTestPrivateKeyLoaded()->toString());
+  EXPECT_EQ(movedPrivateKey.toStringDer(), getTestPrivateKeyLoaded()->toStringDer());
 
   copiedPrivateKey = std::move(movedPrivateKey);
-  EXPECT_EQ(copiedPrivateKey.toString(), getTestPrivateKeyLoaded()->toString());
+  EXPECT_EQ(copiedPrivateKey.toStringDer(), getTestPrivateKeyLoaded()->toStringDer());
 }
 
 TEST_F(ED25519PrivateKeyTest, GetPublicKey)
@@ -99,8 +99,8 @@ TEST_F(ED25519PrivateKeyTest, SignEmptyBytes)
 
 TEST_F(ED25519PrivateKeyTest, ToString)
 {
-  const std::string stringFromGenerated = getTestPrivateKeyGenerated()->toString();
-  const std::string stringFromLoaded = getTestPrivateKeyLoaded()->toString();
+  const std::string stringFromGenerated = getTestPrivateKeyGenerated()->toStringRaw();
+  const std::string stringFromLoaded = getTestPrivateKeyLoaded()->toStringRaw();
 
   EXPECT_EQ(stringFromGenerated.size(), 64);
   EXPECT_EQ(stringFromLoaded.size(), 64);
@@ -121,7 +121,8 @@ TEST_F(ED25519PrivateKeyTest, FromString)
 
   EXPECT_NE(privateKeyFromExtended, nullptr);
   EXPECT_NE(privateKeyFromShort, nullptr);
-  EXPECT_EQ(privateKeyFromExtended->toString(), privateKeyFromShort->toString());
+  EXPECT_EQ(privateKeyFromExtended->toStringDer(), privateKeyFromShort->toStringDer());
+  EXPECT_EQ(privateKeyFromExtended->toStringRaw(), privateKeyFromShort->toStringRaw());
 
   // Throw on garbage data
   EXPECT_THROW(ED25519PrivateKey::fromString("asdfdsafds"), BadKeyException);
@@ -130,7 +131,7 @@ TEST_F(ED25519PrivateKeyTest, FromString)
 //-----
 TEST_F(ED25519PrivateKeyTest, Derive)
 {
-  std::unique_ptr<ED25519PrivateKey> privateKey =
+  std::unique_ptr<PrivateKey> privateKey =
     ED25519PrivateKey::fromSeed(internal::HexConverter::hexToBytes("000102030405060708090a0b0c0d0e0f"));
 
   // Throw when not initialized with a chain code

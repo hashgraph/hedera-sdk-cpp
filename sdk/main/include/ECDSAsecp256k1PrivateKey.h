@@ -43,6 +43,13 @@ class ECDSAsecp256k1PrivateKey : public PrivateKey
 {
 public:
   /**
+   * The prefix bytes of a DER-encoded ECDSAsecp256k1PrivateKey.
+   */
+  static inline const std::vector<unsigned char> DER_ENCODED_PREFIX_BYTES = { 0x30, 0x30, 0x02, 0x01, 0x00, 0x30,
+                                                                              0x07, 0x06, 0x05, 0x2B, 0x81, 0x04,
+                                                                              0x00, 0x0A, 0x04, 0x22, 0x04, 0x20 };
+
+  /**
    * The number of bytes in a DER-encoded ECDSAsecp256k1PrivateKey signature.
    */
   static constexpr const size_t DER_ENCODED_SIGNATURE_SIZE = 72;
@@ -64,19 +71,9 @@ public:
 
   /**
    * Disallow default construction of an ECDSAsecp256k1PrivateKey, as an uninitialized ECDSAsecp256k1PrivateKey provides
-   * no functionality. Instead, the 'fromString()' or 'fromBytes()' functions should be used.
+   * no functionality. Instead, the 'generatePrivateKey()', 'fromString()' or 'fromSeed()' functions should be used.
    */
   ECDSAsecp256k1PrivateKey() = delete;
-
-  /**
-   * Copy constructor and copy assignment operator can throw OpenSSLException if OpenSSL is unable to serialize the
-   * input key to copy.
-   */
-  ~ECDSAsecp256k1PrivateKey() override = default;
-  ECDSAsecp256k1PrivateKey(const ECDSAsecp256k1PrivateKey& other);
-  ECDSAsecp256k1PrivateKey& operator=(const ECDSAsecp256k1PrivateKey& other);
-  ECDSAsecp256k1PrivateKey(ECDSAsecp256k1PrivateKey&& other) noexcept;
-  ECDSAsecp256k1PrivateKey& operator=(ECDSAsecp256k1PrivateKey&& other) noexcept;
 
   /**
    * Generate a new ECDSAsecp256k1PrivateKey.
@@ -87,20 +84,20 @@ public:
   static std::unique_ptr<ECDSAsecp256k1PrivateKey> generatePrivateKey();
 
   /**
-   * Construct an ECDSAsecp256k1PrivateKey object from the raw string representation.
+   * Construct an ECDSAsecp256k1PrivateKey object from a hex-encoded string (DER-encoded or raw).
    *
-   * @param keyString The string from which to create an ECDSAsecp256k1PrivateKey.
+   * @param key The hex-encoded string from which to construct an ECDSAsecp256k1PrivateKey.
    * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input string.
    * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input keyString.
    */
-  static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(std::string_view keyString);
+  static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(std::string_view key);
 
   /**
-   * Derive an ECDSAsecp256k1PrivateKey from a seed array.
+   * Construct an ECDSAsecp256k1PrivateKey from a seed array.
    *
-   * @param seed The array seed from which to derive the ECDSAsecp256k1PrivateKey.
-   * @return A pointer to the derived ECDSAsecp256k1PrivateKey.
-   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input keyString.
+   * @param seed The seed array from which to construct an ECDSAsecp256k1PrivateKey.
+   * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input seed bytes.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input seed bytes.
    */
   static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
 
@@ -112,6 +109,16 @@ public:
   [[nodiscard]] std::unique_ptr<PrivateKey> clone() const override;
 
   /**
+   * Derived from PrivateKey. Derive a child ECDSAsecp256k1PrivateKey from this ECDSAsecp256k1PrivateKey.
+   *
+   * @param childIndex The index of the child to derive.
+   * @return A pointer to the derived ECDSAsecp256k1PrivateKey child.
+   * @throws OpenSSLException       If OpenSSL is unable to derive a key with the given childIndex.
+   * @throws UninitializedException If this ECDSAsecp256k1PrivateKey was not initialized with a chain code.
+   */
+  [[nodiscard]] std::unique_ptr<PrivateKey> derive(uint32_t childIndex) const override;
+
+  /**
    * Derived from PrivateKey. Sign an arbitrary byte array.
    *
    * @param bytesToSign The bytes to sign.
@@ -121,30 +128,32 @@ public:
   [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
 
   /**
-   * Derived from PrivateKey. Get the raw string representation of this ECDSAsecp256k1PrivateKey.
+   * Derived from PrivateKey. Get the hex-encoded string of the DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
    *
-   * @return The string representation of this ECDSAsecp256k1PrivateKey.
-   * @throws OpenSSLException If OpenSSL is unable to encode this key to a DER-encoded string.
+   * @return The hex-encoded string of the DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
    */
-  [[nodiscard]] std::string toString() const override;
+  [[nodiscard]] std::string toStringDer() const override;
 
   /**
-   * Derive a child ECDSAsecp256k1PrivateKey from this ECDSAsecp256k1PrivateKey.
+   * Derived from PrivateKey. Get the hex-encoded string of the raw bytes of this ECDSAsecp256k1PrivateKey.
    *
-   * @param childIndex The index of the child to derive.
-   * @return A pointer to the derived ECDSAsecp256k1PrivateKey child.
-   * @throws OpenSSLException       If OpenSSL is unable to derive a key with the given childIndex.
-   * @throws UninitializedException If this ECDSAsecp256k1PrivateKey was not initialized with a chain code.
+   * @return The hex-encoded string of the raw bytes of this ECDSAsecp256k1PrivateKey.
    */
-  [[nodiscard]] std::unique_ptr<ECDSAsecp256k1PrivateKey> derive(uint32_t childIndex) const;
+  [[nodiscard]] std::string toStringRaw() const override;
 
   /**
-   * Get the raw byte representation of this ECDSAsecp256k1PrivateKey.
+   * Derived from PrivateKey. Get the DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
    *
-   * @return The byte representation of this ECDSAsecp256k1PrivateKey.
-   * @throws OpenSSLException If OpenSSL is unable to decode this key to a byte array.
+   * @return The DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytes() const;
+  [[nodiscard]] std::vector<unsigned char> toBytesDer() const override;
+
+  /**
+   * Derived from PrivateKey. Get the raw bytes of this ECDSAsecp256k1PrivateKey.
+   *
+   * @return The raw bytes of this ECDSAsecp256k1PrivateKey.
+   */
+  [[nodiscard]] std::vector<unsigned char> toBytesRaw() const override;
 
 private:
   /**

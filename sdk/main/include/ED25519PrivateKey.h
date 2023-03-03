@@ -40,20 +40,17 @@ class ED25519PrivateKey : public PrivateKey
 {
 public:
   /**
-   * Disallow default construction of an ED25519PrivateKey, as an uninitialized ED25519PrivateKey provides no
-   * functionality. Instead, the 'fromString()' or 'fromBytes()' functions should be used.
+   * The prefix bytes of a DER-encoded ECDSAsecp256k1PrivateKey.
    */
-  ED25519PrivateKey() = delete;
+  static inline const std::vector<unsigned char> DER_ENCODED_PREFIX_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x00, 0x30,
+                                                                              0x05, 0x06, 0x03, 0x2B, 0x65, 0x70,
+                                                                              0x04, 0x22, 0x04, 0x20 };
 
   /**
-   * Copy constructor and copy assignment operator can throw OpenSSLException if OpenSSL is unable to serialize the
-   * input key to copy.
+   * Disallow default construction of an ED25519PrivateKey, as an uninitialized ED25519PrivateKey provides no
+   * functionality. Instead, the 'generatePrivateKey()', 'fromString()' or 'fromSeed()' functions should be used.
    */
-  ~ED25519PrivateKey() override = default;
-  ED25519PrivateKey(const ED25519PrivateKey& other);
-  ED25519PrivateKey& operator=(const ED25519PrivateKey& other);
-  ED25519PrivateKey(ED25519PrivateKey&& other) noexcept;
-  ED25519PrivateKey& operator=(ED25519PrivateKey&& other) noexcept;
+  ED25519PrivateKey() = delete;
 
   /**
    * Generate a new ED25519PrivateKey.
@@ -64,19 +61,19 @@ public:
   static std::unique_ptr<ED25519PrivateKey> generatePrivateKey();
 
   /**
-   * Construct an ED25519PrivateKey object from the DER string representation.
+   * Construct an ED25519PrivateKey object from a hex-encoded string (DER-encoded or raw).
    *
-   * @param keyString The string from which to create an ED25519PrivateKey.
+   * @param key The hex-encoded string from which to construct an ED25519PrivateKey.
    * @return A pointer to an ED25519PrivateKey representing the input string.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input keyString.
    */
-  static std::unique_ptr<ED25519PrivateKey> fromString(std::string_view keyString);
+  static std::unique_ptr<ED25519PrivateKey> fromString(std::string_view key);
 
   /**
-   * Derive an ED25519PrivateKey from a seed array.
+   * Construct an ED25519PrivateKey from a seed array.
    *
-   * @param seed The array seed from which to derive the ED25519PrivateKey.
-   * @return A pointer to the derived ED25519PrivateKey.
+   * @param seed The seed array from which to construct an ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input seed bytes.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input seed bytes.
    */
   static std::unique_ptr<ED25519PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
@@ -89,6 +86,17 @@ public:
   [[nodiscard]] std::unique_ptr<PrivateKey> clone() const override;
 
   /**
+   * Derived from PrivateKey. Derive a child ED25519PrivateKey from this ED25519PrivateKey.
+   *
+   * @param childIndex The unhardened index of the child to derive.
+   * @return A pointer to the derived ED25519PrivateKey child.
+   * @throws OpenSSLException       If OpenSSL is unable to derive a key with the given childIndex.
+   * @throws UninitializedException If this ED25519PrivateKey was not initialized with a chain code.
+   * @throws std::invalid_argument  If the input index is hardened.
+   */
+  [[nodiscard]] std::unique_ptr<PrivateKey> derive(uint32_t childIndex) const override;
+
+  /**
    * Derived from PrivateKey. Sign an arbitrary byte array.
    *
    * @param bytesToSign The bytes to sign.
@@ -98,31 +106,32 @@ public:
   [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
 
   /**
-   * Derived from PrivateKey. Get the string representation of this ED25519PrivateKey, in DER format.
+   * Derived from PrivateKey. Get the hex-encoded string of the DER-encoded bytes of this ED25519PrivateKey.
    *
-   * @return The string representation of this ED25519PrivateKey.
-   * @throws OpenSSLException If OpenSSL is unable to encode this key to a DER-encoded string.
+   * @return The hex-encoded string of the DER-encoded bytes of this ED25519PrivateKey.
    */
-  [[nodiscard]] std::string toString() const override;
+  [[nodiscard]] std::string toStringDer() const override;
 
   /**
-   * Derive a child ED25519PrivateKey from this ED25519PrivateKey.
+   * Derived from PrivateKey. Get the hex-encoded string of the raw bytes of this ED25519PrivateKey.
    *
-   * @param childIndex The unhardened index of the child to derive.
-   * @return A pointer to the derived ED25519PrivateKey child.
-   * @throws OpenSSLException       If OpenSSL is unable to derive a key with the given childIndex.
-   * @throws UninitializedException If this ED25519PrivateKey was not initialized with a chain code.
-   * @throws std::invalid_argument  If the input index is hardened.
+   * @return The hex-encoded string of the raw bytes of this ED25519PrivateKey.
    */
-  [[nodiscard]] std::unique_ptr<ED25519PrivateKey> derive(uint32_t childIndex) const;
+  [[nodiscard]] std::string toStringRaw() const override;
 
   /**
-   * Get the byte representation of this ED25519PrivateKey.
+   * Derived from PrivateKey. Get the DER-encoded bytes of this ED25519PrivateKey.
    *
-   * @return The byte representation of this ED25519PrivateKey.
-   * @throws OpenSSLException If OpenSSL is unable to decode this key to a byte array.
+   * @return The DER-encoded bytes of this ED25519PrivateKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytes() const;
+  [[nodiscard]] std::vector<unsigned char> toBytesDer() const override;
+
+  /**
+   * Derived from PrivateKey. Get the raw bytes of this ED25519PrivateKey.
+   *
+   * @return The raw bytes of this ED25519PrivateKey.
+   */
+  [[nodiscard]] std::vector<unsigned char> toBytesRaw() const override;
 
 private:
   /**

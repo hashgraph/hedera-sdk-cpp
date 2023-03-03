@@ -20,9 +20,8 @@
 #ifndef HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
 #define HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
 
-#include "ECDSAsecp256k1PrivateKey.h"
-#include "ED25519PrivateKey.h"
 #include "Mnemonic.h"
+#include "PrivateKey.h"
 
 #include <cstdint>
 #include <memory>
@@ -93,8 +92,8 @@ public:
    * @throws OpenSSLException If OpenSSL is unable to generate a key from this MnemonicBIP39.
    * @throws std::invalid_argument If the index is already hardened.
    */
-  [[nodiscard]] std::unique_ptr<ED25519PrivateKey> toStandardEd25519PrivateKey(std::string_view passphrase = "",
-                                                                               uint32_t index = 0) const;
+  [[nodiscard]] std::unique_ptr<PrivateKey> toStandardEd25519PrivateKey(std::string_view passphrase = "",
+                                                                        uint32_t index = 0) const;
 
   /**
    * Generate a SLIP44-standard ECDSAsecp256k1PrivateKey from this Mnemonic using the input passphrase at the specified
@@ -105,9 +104,8 @@ public:
    * @return A pointer to the derived ECDSAsecp256k1PrivateKey.
    * @throws OpenSSLException If OpenSSL is unable to generate a key from this MnemonicBIP39.
    */
-  [[nodiscard]] std::unique_ptr<ECDSAsecp256k1PrivateKey> toStandardECDSAsecp256k1PrivateKey(
-    std::string_view passphrase = "",
-    uint32_t index = 0) const;
+  [[nodiscard]] std::unique_ptr<PrivateKey> toStandardECDSAsecp256k1PrivateKey(std::string_view passphrase = "",
+                                                                               uint32_t index = 0) const;
 
   /**
    * Compute a seed that results from this MnemonicBIP39.

@@ -45,6 +45,14 @@ public:
   [[nodiscard]] virtual std::unique_ptr<PrivateKey> clone() const = 0;
 
   /**
+   * Derive a child PrivateKey from this PrivateKey.
+   *
+   * @param childIndex The index of the child to derive.
+   * @return A pointer to the derived PrivateKey child.
+   */
+  [[nodiscard]] virtual std::unique_ptr<PrivateKey> derive(uint32_t childIndex) const = 0;
+
+  /**
    * Sign an arbitrary byte array.
    *
    * @param bytesToSign The bytes to sign.
@@ -53,11 +61,32 @@ public:
   [[nodiscard]] virtual std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const = 0;
 
   /**
-   * Get the string representation of this PrivateKey.
+   * Get the hex-encoded string of the DER-encoded bytes of this PrivateKey.
    *
-   * @return The string representation of this PrivateKey.
+   * @return The hex-encoded string of the DER-encoded bytes of this PrivateKey.
    */
-  [[nodiscard]] virtual std::string toString() const = 0;
+  [[nodiscard]] virtual std::string toStringDer() const = 0;
+
+  /**
+   * Get the hex-encoded string of the raw bytes of this PrivateKey.
+   *
+   * @return The hex-encoded string of the raw bytes of this PrivateKey.
+   */
+  [[nodiscard]] virtual std::string toStringRaw() const = 0;
+
+  /**
+   * Get the DER-encoded bytes of this PrivateKey.
+   *
+   * @return The DER-encoded bytes of this PrivateKey.
+   */
+  [[nodiscard]] virtual std::vector<unsigned char> toBytesDer() const = 0;
+
+  /**
+   * Get the raw bytes of this PrivateKey.
+   *
+   * @return The raw bytes of this PrivateKey.
+   */
+  [[nodiscard]] virtual std::vector<unsigned char> toBytesRaw() const = 0;
 
   /**
    * Get this PrivateKey's chain code. It is possible that the chain code could be empty.

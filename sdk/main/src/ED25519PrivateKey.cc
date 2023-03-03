@@ -37,39 +37,6 @@ constexpr const size_t PRIVATE_KEY_SIZE = 32;
 constexpr const size_t CHAIN_CODE_SIZE = 32;
 // The seed to use to compute the SHA512 HMAC, as defined in SLIP 10.
 const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '9', ' ', 's', 'e', 'e', 'd' };
-// The algorithm identifier bytes for an ED25519PrivateKey.
-const std::vector<unsigned char> ALGORITHM_IDENTIFIER_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06,
-                                                                0x03, 0x2B, 0x65, 0x70, 0x04, 0x22, 0x04, 0x20 };
-}
-
-//-----
-ED25519PrivateKey::ED25519PrivateKey(const ED25519PrivateKey& other)
-  : PrivateKey(other)
-{
-}
-
-//-----
-ED25519PrivateKey& ED25519PrivateKey::operator=(const ED25519PrivateKey& other)
-{
-  if (this != &other)
-  {
-    PrivateKey::operator=(other);
-  }
-
-  return *this;
-}
-
-//-----
-ED25519PrivateKey::ED25519PrivateKey(ED25519PrivateKey&& other) noexcept
-  : PrivateKey(std::move(other))
-{
-}
-
-//-----
-ED25519PrivateKey& ED25519PrivateKey::operator=(ED25519PrivateKey&& other) noexcept
-{
-  PrivateKey::operator=(std::move(other));
-  return *this;
 }
 
 //-----
@@ -96,12 +63,11 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 }
 
 //-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_view keyString)
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_view key)
 {
   try
   {
-    return std::make_unique<ED25519PrivateKey>(
-      ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(keyString))));
+    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -172,13 +138,41 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
 }
 
 //-----
-std::string ED25519PrivateKey::toString() const
+std::string ED25519PrivateKey::toStringDer() const
 {
-  return internal::HexConverter::bytesToHex(toBytes());
+  return internal::HexConverter::bytesToHex(toBytesDer());
 }
 
 //-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
+std::string ED25519PrivateKey::toStringRaw() const
+{
+  return internal::HexConverter::bytesToHex(toBytesRaw());
+}
+
+//-----
+std::vector<unsigned char> ED25519PrivateKey::toBytesDer() const
+{
+  int bytesLength = i2d_PrivateKey(getKeypair().get(), nullptr);
+
+  std::vector<unsigned char> outputBytes(bytesLength);
+
+  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getKeypair().get(), &rawBytes) <= 0)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
+  }
+
+  return outputBytes;
+}
+
+//-----
+std::vector<unsigned char> ED25519PrivateKey::toBytesRaw() const
+{
+  const std::vector<unsigned char> bytes = toBytesDer();
+  return { bytes.cbegin() + static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()), bytes.cend() };
+}
+
+//-----
+std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
 {
   if (getChainCode().empty())
   {
@@ -193,7 +187,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex
   // As per SLIP0010, private key must be padded to 33 bytes
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
     getChainCode(),
-    internal::Utilities::appendVector(internal::Utilities::appendVector({ 0x0 }, toBytes()),
+    internal::Utilities::appendVector(internal::Utilities::appendVector({ 0x0 }, toBytesRaw()),
                                       internal::DerivationPathUtils::indexToBigEndianArray(
                                         internal::DerivationPathUtils::getHardenedIndex(childIndex))));
 
@@ -204,28 +198,12 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex
 }
 
 //-----
-std::vector<unsigned char> ED25519PrivateKey::toBytes() const
-{
-  int bytesLength = i2d_PrivateKey(getKeypair().get(), nullptr);
-
-  std::vector<unsigned char> outputBytes(bytesLength);
-
-  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getKeypair().get(), &rawBytes) <= 0)
-  {
-    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
-  }
-
-  // don't return the algorithm identification bytes
-  return { outputBytes.cbegin() + static_cast<long>(ALGORITHM_IDENTIFIER_BYTES.size()), outputBytes.cend() };
-}
-
-//-----
 internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(std::vector<unsigned char> keyBytes)
 {
   // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that we can correctly decode
   if (keyBytes.size() == PRIVATE_KEY_SIZE)
   {
-    keyBytes.insert(keyBytes.begin(), ALGORITHM_IDENTIFIER_BYTES.cbegin(), ALGORITHM_IDENTIFIER_BYTES.cend());
+    keyBytes.insert(keyBytes.begin(), DER_ENCODED_PREFIX_BYTES.cbegin(), DER_ENCODED_PREFIX_BYTES.cend());
   }
 
   const unsigned char* rawKeyBytes = &keyBytes.front();

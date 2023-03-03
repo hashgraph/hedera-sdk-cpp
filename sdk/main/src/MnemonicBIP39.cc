@@ -18,6 +18,8 @@
  *
  */
 #include "MnemonicBIP39.h"
+#include "ECDSAsecp256k1PrivateKey.h"
+#include "ED25519PrivateKey.h"
 #include "exceptions/BadMnemonicException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/DerivationPathUtils.h"
@@ -100,15 +102,15 @@ MnemonicBIP39 MnemonicBIP39::generate24WordBIP39Mnemonic()
 }
 
 //-----
-std::unique_ptr<ED25519PrivateKey> MnemonicBIP39::toStandardEd25519PrivateKey(std::string_view passphrase,
-                                                                              uint32_t index) const
+std::unique_ptr<PrivateKey> MnemonicBIP39::toStandardEd25519PrivateKey(std::string_view passphrase,
+                                                                       uint32_t index) const
 {
   return ED25519PrivateKey::fromSeed(toSeed(passphrase))->derive(44)->derive(3030)->derive(0)->derive(0)->derive(index);
 }
 
 //-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k1PrivateKey(std::string_view passphrase,
-                                                                                            uint32_t index) const
+std::unique_ptr<PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k1PrivateKey(std::string_view passphrase,
+                                                                              uint32_t index) const
 {
   return ECDSAsecp256k1PrivateKey::fromSeed(toSeed(passphrase))
     ->derive(internal::DerivationPathUtils::getHardenedIndex(44))
