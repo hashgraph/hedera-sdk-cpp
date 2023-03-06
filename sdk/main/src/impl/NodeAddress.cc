@@ -53,7 +53,7 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 }
 
 //-----
-static NodeAddress fromString(const std::string addressString)
+NodeAddress NodeAddress::fromString(const std::string addressString)
 {
   NodeAddress outputNodeAddress;
   return outputNodeAddress;

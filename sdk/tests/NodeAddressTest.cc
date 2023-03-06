@@ -26,11 +26,36 @@ using namespace Hedera::internal;
 class NodeAddressTest : public ::testing::Test
 {
 protected:
+  [[nodiscard]] inline const int getTestPort() const { return mTestPort; }
   [[nodiscard]] inline const std::string& getTestAddress() const { return mTestAddress; }
 
 private:
+  const int mTestPort = 50211;
   const std::string mTestAddress = "35.237.200.180:50211";
 };
+
+//-----
+TEST_F(NodeAddressTest, DefaultConstructNodeAddress)
+{
+  // Given
+  const int testPort = getTestPort();
+
+  // When
+  const NodeAddress nodeAddress;
+
+  // Then
+  EXPECT_FALSE(nodeAddress.isTlsPort(testPort));
+  EXPECT_TRUE(nodeAddress.isNonTlsPort(testPort));
+  EXPECT_EQ(nodeAddress.getNodeId(), -1);
+  EXPECT_EQ(nodeAddress.getNodeAccountId().getShardNum(), 0ULL);
+  EXPECT_EQ(nodeAddress.getNodeAccountId().getRealmNum(), 0ULL);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().getAccountNum().has_value());
+  EXPECT_EQ(nodeAddress.getNodeAccountId().getAlias(), nullptr);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddress().has_value());
+  EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
+  EXPECT_TRUE(nodeAddress.getDescription().empty());
+  EXPECT_TRUE(nodeAddress.getEndpoints().empty());
+}
 
 //-----
 TEST_F(NodeAddressTest, ConstructFromString)
