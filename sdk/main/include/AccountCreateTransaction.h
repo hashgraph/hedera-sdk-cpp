@@ -35,6 +35,7 @@
 namespace proto
 {
 class CryptoCreateTransactionBody;
+class TransactionBody;
 }
 
 namespace Hedera
@@ -88,7 +89,7 @@ public:
   [[nodiscard]] std::unique_ptr<Executable> clone() const override;
 
   /**
-   * Set the public key for the new account. The key that must sign each transfer out of the account. If
+   * Set the public key for the new account. The key must sign each transfer out of the account. If
    * mReceiverSignatureRequired is true, then it must also sign any transfer into the account.
    *
    * @param publicKey The desired public key for the new account.

@@ -19,6 +19,7 @@
  */
 #include "Transaction.h"
 #include "AccountCreateTransaction.h"
+#include "AccountUpdateTransaction.h"
 #include "Client.h"
 #include "Status.h"
 #include "TransactionId.h"
@@ -38,8 +39,8 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
-std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> Transaction<SdkRequestType>::fromBytes(
-  const std::vector<unsigned char>& bytes)
+std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction>>
+Transaction<SdkRequestType>::fromBytes(const std::vector<unsigned char>& bytes)
 {
   proto::TransactionBody txBody;
 
@@ -72,6 +73,8 @@ std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> Tran
       return { 0, AccountCreateTransaction(txBody) };
     case proto::TransactionBody::kCryptoTransfer:
       return { 1, TransferTransaction(txBody) };
+    case proto::TransactionBody::kCryptoUpdateAccount:
+      return { 2, AccountUpdateTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -284,6 +287,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
  * Explicit template instantiation.
  */
 template class Transaction<AccountCreateTransaction>;
+template class Transaction<AccountUpdateTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera

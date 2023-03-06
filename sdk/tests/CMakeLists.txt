@@ -18,6 +18,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountBalanceTest.cc
         AccountCreateTransactionTest.cc
         AccountIdTest.cc
+        AccountUpdateTransactionTest.cc
         ClientTest.cc
         ContractIdTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
