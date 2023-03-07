@@ -23,6 +23,7 @@
 #include "TokenId.h"
 
 #include <gtest/gtest.h>
+#include <proto/transaction_body.pb.h>
 
 using namespace Hedera;
 
@@ -32,19 +33,19 @@ protected:
   [[nodiscard]] inline const AccountId& getTestAccountId1() const { return mAccountId1; }
   [[nodiscard]] inline const AccountId& getTestAccountId2() const { return mAccountId2; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTokenId; }
-  [[nodiscard]] inline const uint64_t& getTestNftSerialNumber() const { return mSerialNumber; }
   [[nodiscard]] inline const NftId& getTestNftId() const { return mNftId; }
   [[nodiscard]] inline const Hbar& getTestAmount() const { return mAmount; }
   [[nodiscard]] inline uint32_t getTestExpectedDecimals() const { return mExpectedDecimals; }
+  [[nodiscard]] inline bool getTestApproval() const { return mApproval; }
 
 private:
   const AccountId mAccountId1 = AccountId(10ULL);
   const AccountId mAccountId2 = AccountId(20ULL);
   const TokenId mTokenId = TokenId(30ULL);
-  const uint64_t mSerialNumber = 40ULL;
-  const NftId mNftId = NftId(mTokenId, mSerialNumber);
+  const NftId mNftId = NftId(mTokenId, 40ULL);
   const Hbar mAmount = Hbar(50ULL);
   const uint32_t mExpectedDecimals = 6U;
+  const bool mApproval = true;
 };
 
 //-----
@@ -58,27 +59,63 @@ TEST_F(TransferTransactionTest, ConstructTransferTransaction)
 }
 
 //-----
-TEST_F(TransferTransactionTest, CloneTransferTransaction)
+TEST_F(TransferTransactionTest, ConstructTransferTransactionFromTransactionBodyProtobuf)
 {
-  TransferTransaction transaction;
-  const std::string memo = "this is a test memo";
-  transaction.setNodeAccountIds({ getTestAccountId1() });
-  transaction.setTransactionMemo(memo);
-  transaction.addHbarTransfer(getTestAccountId1(), getTestAmount());
+  // Given
+  auto body = std::make_unique<proto::CryptoTransferTransactionBody>();
 
-  auto clonedExecutableTransactionPtr = transaction.clone();
-  EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().size(), transaction.getNodeAccountIds().size());
-  EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().at(0), getTestAccountId1());
+  proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
+  amount->set_allocated_accountid(getTestAccountId1().toProtobuf().release());
+  amount->set_amount(getTestAmount().toTinybars());
+  amount->set_is_approval(getTestApproval());
 
-  auto clonedTransactionPtr = dynamic_cast<Transaction<TransferTransaction>*>(clonedExecutableTransactionPtr.get());
-  EXPECT_NE(clonedTransactionPtr, nullptr);
-  EXPECT_EQ(clonedTransactionPtr->getTransactionMemo(), memo);
+  proto::TokenTransferList* list = body->add_tokentransfers();
+  list->set_allocated_token(getTestTokenId().toProtobuf().release());
+  list->mutable_expected_decimals()->set_value(getTestExpectedDecimals());
 
-  auto clonedAccountCreateTransactionPtr = dynamic_cast<TransferTransaction*>(clonedTransactionPtr);
-  EXPECT_NE(clonedAccountCreateTransactionPtr, nullptr);
-  EXPECT_FALSE(clonedAccountCreateTransactionPtr->getHbarTransfers().empty());
-  EXPECT_EQ(clonedAccountCreateTransactionPtr->getHbarTransfers().begin()->first, getTestAccountId1());
-  EXPECT_EQ(clonedAccountCreateTransactionPtr->getHbarTransfers().begin()->second, getTestAmount());
+  amount = list->add_transfers();
+  amount->set_allocated_accountid(getTestAccountId2().toProtobuf().release());
+  amount->set_amount(getTestAmount().toTinybars());
+  amount->set_is_approval(getTestApproval());
+
+  list = body->add_tokentransfers();
+  list->set_allocated_token(getTestNftId().getTokenId().toProtobuf().release());
+
+  proto::NftTransfer* nft = list->add_nfttransfers();
+  nft->set_allocated_senderaccountid(getTestAccountId1().toProtobuf().release());
+  nft->set_allocated_receiveraccountid(getTestAccountId2().toProtobuf().release());
+  nft->set_serialnumber(static_cast<int64_t>(getTestNftId().getSerialNum()));
+  nft->set_is_approval(getTestApproval());
+
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptotransfer(body.release());
+
+  // When
+  TransferTransaction transferTransaction(txBody);
+
+  // Then
+  const std::unordered_map<AccountId, Hbar> hbarTransfers = transferTransaction.getHbarTransfers();
+  const std::unordered_map<TokenId, std::unordered_map<AccountId, int64_t>> tokenTransfers =
+    transferTransaction.getTokenTransfers();
+  const std::unordered_map<TokenId, std::vector<TokenNftTransfer>> nftTransfers = transferTransaction.getNftTransfers();
+  const std::unordered_map<TokenId, uint32_t> tokenDecimals = transferTransaction.getTokenIdDecimals();
+
+  ASSERT_EQ(hbarTransfers.size(), 1);
+  EXPECT_EQ(hbarTransfers.cbegin()->first, getTestAccountId1());
+  EXPECT_EQ(hbarTransfers.cbegin()->second, getTestAmount());
+
+  ASSERT_EQ(tokenTransfers.size(), 1);
+  EXPECT_EQ(tokenTransfers.cbegin()->first, getTestTokenId());
+  EXPECT_EQ(tokenTransfers.cbegin()->second.cbegin()->first, getTestAccountId2());
+  EXPECT_EQ(tokenTransfers.cbegin()->second.cbegin()->second, getTestAmount().toTinybars());
+
+  ASSERT_EQ(nftTransfers.size(), 1);
+  EXPECT_EQ(nftTransfers.cbegin()->first, getTestNftId().getTokenId());
+  EXPECT_EQ(nftTransfers.cbegin()->second.size(), 1);
+  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getNftId(), getTestNftId());
+  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getSenderAccountId(), getTestAccountId1());
+  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getReceiverAccountId(), getTestAccountId2());
+  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getApproval(), getTestApproval());
 }
 
 //-----
@@ -133,7 +170,7 @@ TEST_F(TransferTransactionTest, AddNftTransfer)
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getSenderAccountId(), getTestAccountId1());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getReceiverAccountId(), getTestAccountId2());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getNftId().getSerialNum(),
-            getTestNftSerialNumber());
+            getTestNftId().getSerialNum());
 
   transaction.addNftTransfer(getTestNftId(), getTestAccountId2(), getTestAccountId1());
   EXPECT_TRUE(transaction.getNftTransfers().empty());

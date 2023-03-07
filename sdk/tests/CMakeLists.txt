@@ -38,6 +38,7 @@ add_executable(${TEST_PROJECT_NAME}
         TransactionRecordQueryTest.cc
         TransactionRecordTest.cc
         TransactionResponseTest.cc
+        TransactionTest.cc
         TransferTest.cc
         TransferTransactionTest.cc
 

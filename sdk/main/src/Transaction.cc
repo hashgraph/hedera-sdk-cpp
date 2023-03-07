@@ -38,6 +38,47 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
+std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> Transaction<SdkRequestType>::fromBytes(
+  const std::vector<unsigned char>& bytes)
+{
+  proto::TransactionBody txBody;
+
+  // Transaction protobuf object
+  if (proto::Transaction tx;
+      tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !tx.signedtransactionbytes().empty())
+  {
+    proto::SignedTransaction signedTx;
+    signedTx.ParseFromArray(tx.signedtransactionbytes().data(), static_cast<int>(tx.signedtransactionbytes().size()));
+    txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
+  }
+
+  // SignedTransaction protobuf object
+  else if (proto::SignedTransaction signedTx;
+           signedTx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !signedTx.bodybytes().empty())
+  {
+    txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
+  }
+
+  // If not TransactionBody protobuf object, throw
+  else if (!txBody.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) ||
+           txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET)
+  {
+    throw std::invalid_argument("Unable to construct Transaction from input bytes");
+  }
+
+  switch (txBody.data_case())
+  {
+    case proto::TransactionBody::kCryptoCreateAccount:
+      return { 0, AccountCreateTransaction(txBody) };
+    case proto::TransactionBody::kCryptoTransfer:
+      return { 1, TransferTransaction(txBody) };
+    default:
+      throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
+  }
+}
+
+//-----
+template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
 {
   mTransactionValidDuration = duration;
@@ -74,6 +115,33 @@ SdkRequestType& Transaction<SdkRequestType>::setRegenerateTransactionIdPolicy(bo
 {
   mTransactionIdRegenerationPolicy = regenerate;
   return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
+Transaction<SdkRequestType>::Transaction(const proto::TransactionBody& transactionBody)
+{
+  if (transactionBody.has_nodeaccountid())
+  {
+    mNodeAccountId = AccountId::fromProtobuf(transactionBody.nodeaccountid());
+  }
+
+  mTransactionMemo = transactionBody.memo();
+
+  if (transactionBody.has_transactionvalidduration())
+  {
+    mTransactionValidDuration = internal::DurationConverter::fromProtobuf(transactionBody.transactionvalidduration());
+  }
+
+  if (transactionBody.has_transactionid())
+  {
+    mTransactionId = TransactionId::fromProtobuf(transactionBody.transactionid());
+  }
+
+  if (transactionBody.transactionfee() != static_cast<uint64_t>(DEFAULT_MAX_TRANSACTION_FEE.toTinybars()))
+  {
+    mMaxTransactionFee = Hbar(static_cast<int64_t>(transactionBody.transactionfee()), HbarUnit::TINYBAR());
+  }
 }
 
 //-----

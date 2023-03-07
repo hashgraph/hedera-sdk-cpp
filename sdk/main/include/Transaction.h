@@ -28,10 +28,15 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace Hedera
 {
+class AccountCreateTransaction;
 class TransactionResponse;
+class TransferTransaction;
 }
 
 namespace proto
@@ -53,7 +58,40 @@ class Transaction
   : public Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>
 {
 public:
-  ~Transaction() override = default;
+  /**
+   * Construct a Transaction derived class from a byte array. The bytes can be a protobuf encoded TransactionBody,
+   * Transaction, or SignedTransaction. Since C++ return types must be known at compile time and the type of Transaction
+   * to create may not be known at compile time, a std::variant is used to encompass all possible Transactions. Usage of
+   * this return type would look like the following:
+   *
+   * std::vector<unsigned char> bytes;
+   *                                                              The Transaction type here doesn't matter and is an
+   *                                     vvvvvvvvvvvvvvvvvvvvvvvv unfortunate, ugly byproduct of this approach.
+   * auto [index, variant] = Transaction<AccountCreateTransaction>::fromBytes(bytes);
+   *
+   * switch (index)
+   * {
+   *    case 0:
+   *    {
+   *        AccountCreateTransaction tx = std::get<0>(variant);
+   *        ** do stuff with tx here **
+   *        break;
+   *    }
+   *    case 1:
+   *    {
+   *        TransferTransaction tx = std::get<1>(variant);
+   *        ** do stuff with tx here **
+   *        break;
+   *    }
+   *    ...
+   * }
+   *
+   * @param bytes The bytes from which to construct a Transaction.
+   * @return A pair which contains an index into the variant, as well as
+   * @throws std::invalid_argument If unable to construct a Transaction from the input bytes.
+   */
+  static std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> fromBytes(
+    const std::vector<unsigned char>& bytes);
 
   /**
    * Set the length of time that this Transaction will remain valid.
@@ -147,6 +185,13 @@ protected:
   Transaction& operator=(const Transaction&) = default;
   Transaction(Transaction&&) noexcept = default;
   Transaction& operator=(Transaction&&) noexcept = default;
+
+  /**
+   * Construct from a TransactionBody protobuf object.
+   *
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   */
+  explicit Transaction(const proto::TransactionBody& transactionBody);
 
   /**
    * Derived from Executable. Perform any needed actions for this Transaction when a Node has been selected to which to

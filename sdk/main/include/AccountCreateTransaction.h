@@ -67,15 +67,18 @@ namespace Hedera
 class AccountCreateTransaction : public Transaction<AccountCreateTransaction>
 {
 public:
+  /**
+   * Default constructor. Sets the maximum transaction fee to 5 Hbars.
+   */
   AccountCreateTransaction();
-  ~AccountCreateTransaction() override = default;
 
   /**
-   * Derived from Executable. Create a clone of this AccountCreateTransaction.
+   * Construct from a TransactionBody protobuf object.
    *
-   * @return A pointer to the created clone.
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a CryptoCreateAccount transaction.
    */
-  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
+  explicit AccountCreateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
    * Set the public key for the new account. The key that must sign each transfer out of the account. If
