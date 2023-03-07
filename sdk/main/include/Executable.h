@@ -61,13 +61,6 @@ public:
   virtual ~Executable() = default;
 
   /**
-   * Create a clone of this Executable object.
-   *
-   * @return A pointer to the created clone of this Executable.
-   */
-  virtual std::unique_ptr<Executable> clone() const = 0;
-
-  /**
    * Submit this Executable to a Hedera network.
    *
    * @param client The Client to use to submit this Executable.

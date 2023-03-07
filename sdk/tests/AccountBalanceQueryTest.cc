@@ -42,23 +42,6 @@ TEST_F(AccountBalanceQueryTest, ConstructAccountBalanceQuery)
   EXPECT_FALSE(query.getContractId());
 }
 
-TEST_F(AccountBalanceQueryTest, CloneAccountBalanceQuery)
-{
-  AccountBalanceQuery accountBalanceQuery;
-  accountBalanceQuery.setNodeAccountIds({ getTestAccountId() });
-  accountBalanceQuery.setAccountId(getTestAccountId());
-
-  auto clonedExecutablePtr = accountBalanceQuery.clone();
-  EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().size(), accountBalanceQuery.getNodeAccountIds().size());
-  EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().at(0), getTestAccountId());
-
-  // TODO: get and test Query derived class members when they're added
-
-  auto clonedAccountBalanceQueryPtr = dynamic_cast<AccountBalanceQuery*>(clonedExecutablePtr.get());
-  EXPECT_TRUE(clonedAccountBalanceQueryPtr->getAccountId());
-  EXPECT_EQ(*clonedAccountBalanceQueryPtr->getAccountId(), getTestAccountId());
-}
-
 TEST_F(AccountBalanceQueryTest, SetAccountId)
 {
   AccountBalanceQuery query;

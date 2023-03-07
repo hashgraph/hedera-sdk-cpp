@@ -30,13 +30,6 @@
 namespace Hedera
 {
 //-----
-std::unique_ptr<Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>>
-AccountBalanceQuery::clone() const
-{
-  return std::make_unique<AccountBalanceQuery>(*this);
-}
-
-//-----
 AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountId)
 {
   mAccountId = accountId;

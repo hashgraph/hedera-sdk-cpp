@@ -63,13 +63,6 @@ public:
   explicit TransferTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Derived from Executable. Create a clone of this TransferTransaction.
-   *
-   * @return A pointer to the created clone.
-   */
-  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
-
-  /**
    * Add an Hbar transfer to be submitted as part of this TransferTransaction.
    *
    * @param accountId The ID of the account associated with this transfer.

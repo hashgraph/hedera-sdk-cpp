@@ -39,13 +39,6 @@ public:
   ~TransactionReceiptQuery() override = default;
 
   /**
-   * Derived from Executable. Create a clone of this TransactionReceiptQuery.
-   *
-   * @return A pointer to the created clone.
-   */
-  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
-
-  /**
    * Set the ID of the transaction of which to request the receipt.
    *
    * @param transactionId The ID of the desired transaction of which to request the receipt.
