@@ -53,7 +53,15 @@ public:
    * @param addressString The string representation from which to create a new NodeAddress object.
    * @return The created NodeAddress object.
    */
-  static NodeAddress fromString(const std::string addressString);
+  static NodeAddress fromString(const std::string& addressString);
+
+  /**
+   * Set a new public key for the node.
+   *
+   * @param publicKey The public key to be assigned to the node.
+   * @return A reference to this NodeAddress with the newly-set public key.
+   */
+  NodeAddress& setRSAPublicKey(const std::string& publicKey);
 
   /**
    * Set a new node ID associated with the node at this address.
@@ -80,12 +88,28 @@ public:
   NodeAddress& setNodeCertHash(const std::string& certHash);
 
   /**
+   * Set a vector of endpoints for the node.
+   *
+   * @param endpoints The endpoints to be assigned to the node
+   * @return A reference to this NodeAddress with the newsly-set endpoints.
+   */
+  NodeAddress& setEndpoints(const std::vector<Endpoint>& endpoints);
+
+  /**
    * Assign а new description text for the node.
    *
    * @param description The description text to be assigned with the node
    * @return A reference to this NodeAddress with the newly-set description.
    */
   NodeAddress& setDescription(const std::string& description);
+
+  /**
+   * Set new amount of tinybars staked to the node.
+   *
+   * @param stake The new amount of tinybars staked to the node
+   * @return A reference to this NodeAddress with the newly-set staked tinybars.
+   */
+  NodeAddress& setStake(const int64_t stake);
 
   /**
    * Determine if a particular port number corresponds to a TLS port.
@@ -118,18 +142,18 @@ public:
   [[nodiscard]] inline int64_t getNodeId() const { return mNodeId; }
 
   /**
+   * Get the public key of the node.
+   *
+   * @return A hash value representing the public key of the node.
+   */
+  [[nodiscard]] inline std::string getPublicKey() const { return mRSAPublicKey; }
+
+  /**
    * Get the account ID associated with the node at this address.
    *
    * @return The account ID associated with the node at this address.
    */
   [[nodiscard]] inline AccountId getNodeAccountId() const { return mNodeAccountId; }
-
-  /**
-   * Get a vector of endpoints associated with the node.
-   *
-   * @return The node endpoints.
-   */
-  [[nodiscard]] inline const std::vector<Endpoint>& getEndpoints() const { return mEndpoints; }
 
   /**
    * Get the SHA-384 hash of the node certificate chain.
@@ -139,11 +163,25 @@ public:
   [[nodiscard]] inline std::string getNodeCertHash() const { return mNodeCertHash; }
 
   /**
+   * Get a vector of endpoints associated with the node.
+   *
+   * @return The node endpoints.
+   */
+  [[nodiscard]] inline const std::vector<Endpoint>& getEndpoints() const { return mEndpoints; }
+
+  /**
    * Get the description text associated with the node.
    *
    * @return The description text.
    */
   [[nodiscard]] inline std::string getDescription() const { return mDescription; }
+
+  /**
+   * Get the amount of tinybars staked to the node.
+   *
+   * @return A int64 value representing the amount.
+   */
+  [[nodiscard]] inline int64_t getStake() const { return mStake; }
 
 private:
   /**

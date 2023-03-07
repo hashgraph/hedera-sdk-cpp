@@ -53,10 +53,17 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 }
 
 //-----
-NodeAddress NodeAddress::fromString(const std::string addressString)
+NodeAddress NodeAddress::fromString(const std::string& addressString)
 {
   NodeAddress outputNodeAddress;
   return outputNodeAddress;
+}
+
+//-----
+NodeAddress& NodeAddress::setRSAPublicKey(const std::string& publicKey)
+{
+  mRSAPublicKey = publicKey;
+  return *this;
 }
 
 //-----
@@ -77,6 +84,28 @@ NodeAddress& NodeAddress::setNodeAccountId(const AccountId& accountId)
 NodeAddress& NodeAddress::setNodeCertHash(const std::string& certHash)
 {
   mNodeCertHash = certHash;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setEndpoints(const std::vector<Endpoint>& endpoints)
+{
+  mEndpoints.clear();
+  mEndpoints.assign(endpoints.begin(), endpoints.end());
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setDescription(const std::string& description)
+{
+  mDescription = description;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setStake(const int64_t stake)
+{
+  mStake = stake;
   return *this;
 }
 
