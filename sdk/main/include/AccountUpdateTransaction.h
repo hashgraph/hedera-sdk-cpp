@@ -69,6 +69,7 @@ public:
    *
    * @param accountId The ID of the account this transaction should update.
    * @return A reference to this AccountUpdateTransaction object with the newly-set account ID.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setAccountId(const AccountId& accountId);
 
@@ -78,6 +79,7 @@ public:
    *
    * @param publicKey The desired new public key for the account.
    * @return A reference to this AccountUpdateTransaction object with the newly-set public key.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setKey(const std::shared_ptr<PublicKey>& publicKey);
 
@@ -87,6 +89,7 @@ public:
    * @param receiveSignatureRequired \c TRUE to require the account to now sign any Hbar transfer transactions that
    *                                 involve transferring Hbars into itself, otherwise \c FALSE.
    * @return A reference to this AccountUpdateTransaction object with the newly-set receiver signature policy.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setReceiverSignatureRequired(bool receiveSignatureRequired);
 
@@ -97,6 +100,7 @@ public:
    *
    * @param autoRenewPeriod The desired new auto renew period for the account.
    * @return A reference to this AccountUpdateTransaction object with the newly-set auto renew period.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
 
@@ -105,6 +109,7 @@ public:
    *
    * @param expiration The desired new expiration time for the account.
    * @return A reference to this AccountUpdateTransaction object with the newly-set expiration time.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setExpirationTime(const std::chrono::system_clock::time_point& expiration);
 
@@ -113,6 +118,7 @@ public:
    *
    * @param memo The desired new memo for the account.
    * @return A reference to this AccountUpdateTransaction object with the newly-set memo.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    * @throws std::length_error If the memo is more than 100 characters.
    */
   AccountUpdateTransaction& setAccountMemo(std::string_view memo);
@@ -123,6 +129,7 @@ public:
    * @param associations The desired new maximum amount of token associations for the account.
    * @return A reference to this AccountUpdateTransaction object with the newly-set maximum automatic token
    *         associations.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    * @throws std::invalid_argument If the desired maximum number of associations is over 5000.
    */
   AccountUpdateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
@@ -133,6 +140,7 @@ public:
    *
    * @param stakedAccountId The ID of the desired new account to which the account will stake.
    * @return A reference to this AccountUpdateTransaction object with the newly-set staked account ID.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
@@ -142,6 +150,7 @@ public:
    *
    * @param stakedNodeId The ID of the desired new node to which the account will stake.
    * @return A reference to this AccountUpdateTransaction object with the newly-set staked node ID.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setStakedNodeId(const uint64_t& stakedNodeId);
 
@@ -150,6 +159,7 @@ public:
    *
    * @param declineReward \c TRUE if the account should decline receiving staking rewards, otherwise \c FALSE.
    * @return A reference to this AccountUpdateTransaction object with the newly-set staking rewards reception policy.
+   * @throws IllegalStateException If This AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setDeclineStakingReward(bool declineReward);
 

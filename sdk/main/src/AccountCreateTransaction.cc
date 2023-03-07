@@ -98,6 +98,8 @@ AccountCreateTransaction::clone() const
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
 {
+  requireNotFrozen();
+
   mKey = key;
   return *this;
 }
@@ -105,6 +107,8 @@ AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setInitialBalance(const Hbar& initialBalance)
 {
+  requireNotFrozen();
+
   mInitialBalance = initialBalance;
   return *this;
 }
@@ -112,6 +116,8 @@ AccountCreateTransaction& AccountCreateTransaction::setInitialBalance(const Hbar
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setReceiverSignatureRequired(bool receiveSignatureRequired)
 {
+  requireNotFrozen();
+
   mReceiverSignatureRequired = receiveSignatureRequired;
   return *this;
 }
@@ -120,6 +126,8 @@ AccountCreateTransaction& AccountCreateTransaction::setReceiverSignatureRequired
 AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
   const std::chrono::duration<double>& autoRenewPeriod)
 {
+  requireNotFrozen();
+
   mAutoRenewPeriod = autoRenewPeriod;
   return *this;
 }
@@ -127,6 +135,8 @@ AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_view memo)
 {
+  requireNotFrozen();
+
   if (memo.size() > 100)
   {
     throw std::length_error("Account memo is too large. Must be smaller than 100 bytes");
@@ -139,6 +149,8 @@ AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_v
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
 {
+  requireNotFrozen();
+
   if (associations > 5000U)
   {
     throw std::invalid_argument("Too many maximum number of token associations. Maximum can't be over 5000");
@@ -151,6 +163,8 @@ AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociat
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 {
+  requireNotFrozen();
+
   mStakedAccountId = stakedAccountId;
   mStakedNodeId.reset();
   return *this;
@@ -159,6 +173,8 @@ AccountCreateTransaction& AccountCreateTransaction::setStakedAccountId(const Acc
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setStakedNodeId(const uint64_t& stakedNodeId)
 {
+  requireNotFrozen();
+
   mStakedNodeId = stakedNodeId;
   mStakedAccountId.reset();
   return *this;
@@ -167,6 +183,8 @@ AccountCreateTransaction& AccountCreateTransaction::setStakedNodeId(const uint64
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setDeclineStakingReward(bool declineReward)
 {
+  requireNotFrozen();
+
   mDeclineStakingReward = declineReward;
   return *this;
 }
@@ -174,6 +192,8 @@ AccountCreateTransaction& AccountCreateTransaction::setDeclineStakingReward(bool
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_ptr<PublicKey>& alias)
 {
+  requireNotFrozen();
+
   mAlias = alias;
   return *this;
 }
@@ -181,6 +201,8 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_p
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setEvmAddress(const EvmAddress& address)
 {
+  requireNotFrozen();
+
   mEvmAddress = address;
   return *this;
 }

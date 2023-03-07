@@ -26,6 +26,7 @@
 #include "TransactionId.h"
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
@@ -36,6 +37,7 @@ namespace Hedera
 {
 class AccountCreateTransaction;
 class AccountUpdateTransaction;
+class PrivateKey;
 class TransactionResponse;
 class TransferTransaction;
 }
@@ -93,6 +95,38 @@ public:
    */
   static std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction>>
   fromBytes(const std::vector<unsigned char>& bytes);
+
+  /**
+   * Sign this Transaction with the given PrivateKey. Signing a Transaction with a key that has already been used to
+   * sign will be ignored.
+   *
+   * @param key The PrivateKey with which to sign this Transaction.
+   * @return A reference to this derived Transaction object with the signature.
+   * @throws IllegalStateException If Transaction object is not frozen.
+   */
+  SdkRequestType& sign(const PrivateKey* key);
+
+  /**
+   * Sign this Transaction with a given PublicKey and a signing callback. Signing a Transaction with a key that has
+   * already been used to sign will be ignored.
+   *
+   * @param key    The PublicKey with which to sign this Transaction.
+   * @param signer The callback function to use to sign this Transaction.
+   * @return A reference to this derived Transaction object with the signature.
+   * @throws
+   */
+  SdkRequestType& signWith(const std::shared_ptr<PublicKey>& key,
+                           const std::function<std::vector<unsigned char>(const std::vector<unsigned char>&)>& signer);
+
+  /**
+   * Freeze this transaction with a Client. The Client's operator will be used to generate a transaction ID, and the
+   * client's network will be used to generate a list of node account IDs.
+   *
+   * @param client The Client with which to freeze this Transaction.
+   * @return A reference to this derived Transaction object, now frozen.
+   * @throws UninitializedException If Client operator has not been initialized.
+   */
+  SdkRequestType& freezeWith(const Client& client);
 
   /**
    * Set the length of time that this Transaction will remain valid.
@@ -221,6 +255,13 @@ protected:
    */
   [[nodiscard]] proto::TransactionBody generateTransactionBody(const Client& client) const;
 
+  /**
+   * Check and make sure this Transaction isn't frozen.
+   *
+   * @throws IllegalStateException If this Transaction is frozen.
+   */
+  void requireNotFrozen() const;
+
 private:
   /**
    * Derived from Executable. Construct a TransactionResponse object from a TransactionResponse protobuf object.
@@ -274,6 +315,18 @@ private:
    * @return The proper maximum transaction fee to set for this Transaction.
    */
   [[nodiscard]] Hbar getMaxTransactionFee(const Client& client) const;
+
+  /**
+   * Container of PublicKey and signer function pairs to use to sign this Transaction.
+   */
+  std::vector<
+    std::pair<std::shared_ptr<PublicKey>, std::function<std::vector<unsigned char>(const std::vector<unsigned char>&)>>>
+    mSignatures;
+
+  /**
+   * Is this Transaction frozen? \c TRUE if yes, otherwise \c FALSE.
+   */
+  bool mIsFrozen = false;
 
   /**
    * The length of time this Transaction will remain valid.

@@ -101,6 +101,8 @@ AccountUpdateTransaction::clone() const
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setAccountId(const AccountId& accountId)
 {
+  requireNotFrozen();
+
   mAccountId = accountId;
   return *this;
 }
@@ -108,6 +110,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAccountId(const AccountId
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setKey(const std::shared_ptr<PublicKey>& publicKey)
 {
+  requireNotFrozen();
+
   mKey = publicKey;
   return *this;
 }
@@ -115,6 +119,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setKey(const std::shared_ptr
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setReceiverSignatureRequired(bool receiveSignatureRequired)
 {
+  requireNotFrozen();
+
   mReceiverSignatureRequired = receiveSignatureRequired;
   return *this;
 }
@@ -123,6 +129,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setReceiverSignatureRequired
 AccountUpdateTransaction& AccountUpdateTransaction::setAutoRenewPeriod(
   const std::chrono::duration<double>& autoRenewPeriod)
 {
+  requireNotFrozen();
+
   mAutoRenewPeriod = autoRenewPeriod;
   return *this;
 }
@@ -131,6 +139,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAutoRenewPeriod(
 AccountUpdateTransaction& AccountUpdateTransaction::setExpirationTime(
   const std::chrono::system_clock::time_point& expiration)
 {
+  requireNotFrozen();
+
   mExpirationTime = expiration;
   return *this;
 }
@@ -138,6 +148,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setExpirationTime(
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setAccountMemo(std::string_view memo)
 {
+  requireNotFrozen();
+
   if (memo.size() > 100)
   {
     throw std::length_error("Account memo is too large. Must be smaller than 100 bytes");
@@ -150,6 +162,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAccountMemo(std::string_v
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
 {
+  requireNotFrozen();
+
   if (associations > 5000U)
   {
     throw std::invalid_argument("Too many maximum number of token associations. Maximum can't be over 5000");
@@ -162,6 +176,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setMaxAutomaticTokenAssociat
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setStakedAccountId(const AccountId& stakedAccountId)
 {
+  requireNotFrozen();
+
   mStakedAccountId = stakedAccountId;
   mStakedNodeId.reset();
   return *this;
@@ -170,6 +186,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setStakedAccountId(const Acc
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setStakedNodeId(const uint64_t& stakedNodeId)
 {
+  requireNotFrozen();
+
   mStakedNodeId = stakedNodeId;
   mStakedAccountId.reset();
   return *this;
@@ -178,6 +196,8 @@ AccountUpdateTransaction& AccountUpdateTransaction::setStakedNodeId(const uint64
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setDeclineStakingReward(bool declineReward)
 {
+  requireNotFrozen();
+
   mDeclineStakingReward = declineReward;
   return *this;
 }

@@ -19,8 +19,11 @@
  */
 #include "TransferTransaction.h"
 #include "AccountId.h"
+#include "Client.h"
+#include "ECDSAsecp256k1PrivateKey.h"
 #include "Hbar.h"
 #include "TokenId.h"
+#include "exceptions/IllegalStateException.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_body.pb.h>
@@ -30,6 +33,9 @@ using namespace Hedera;
 class TransferTransactionTest : public ::testing::Test
 {
 protected:
+  void SetUp() override { mClient.setOperator(getTestAccountId1(), ECDSAsecp256k1PrivateKey::generatePrivateKey()); }
+
+  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestAccountId1() const { return mAccountId1; }
   [[nodiscard]] inline const AccountId& getTestAccountId2() const { return mAccountId2; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTokenId; }
@@ -39,6 +45,7 @@ protected:
   [[nodiscard]] inline bool getTestApproval() const { return mApproval; }
 
 private:
+  Client mClient;
   const AccountId mAccountId1 = AccountId(10ULL);
   const AccountId mAccountId2 = AccountId(20ULL);
   const TokenId mTokenId = TokenId(30ULL);
@@ -158,6 +165,9 @@ TEST_F(TransferTransactionTest, AddHbarTransfer)
 
   transaction.addHbarTransfer(getTestAccountId1(), (getTestAmount() + getTestAmount()).negated());
   EXPECT_TRUE(transaction.getHbarTransfers().empty());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.addHbarTransfer(getTestAccountId1(), getTestAmount()), IllegalStateException);
 }
 
 //-----
@@ -182,6 +192,10 @@ TEST_F(TransferTransactionTest, AddTokenTransfer)
   transaction.addTokenTransfer(
     getTestTokenId(), getTestAccountId2(), (getTestAmount() + getTestAmount()).negated().toTinybars());
   EXPECT_TRUE(transaction.getTokenTransfers().empty());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.addTokenTransfer(getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars()),
+               IllegalStateException);
 }
 
 //-----
@@ -198,6 +212,10 @@ TEST_F(TransferTransactionTest, AddNftTransfer)
 
   transaction.addNftTransfer(getTestNftId(), getTestAccountId2(), getTestAccountId1());
   EXPECT_TRUE(transaction.getNftTransfers().empty());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId2(), getTestAccountId1()),
+               IllegalStateException);
 }
 
 //-----
@@ -235,4 +253,11 @@ TEST_F(TransferTransactionTest, AddTokenTransferWithDecimals)
                                            getTestExpectedDecimals());
   EXPECT_TRUE(transaction.getTokenTransfers().empty());
   EXPECT_TRUE(transaction.getTokenIdDecimals().empty());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.addTokenTransferWithDecimals(getTestTokenId(),
+                                                        getTestAccountId2(),
+                                                        (getTestAmount() + getTestAmount()).negated().toTinybars(),
+                                                        getTestExpectedDecimals()),
+               IllegalStateException);
 }
