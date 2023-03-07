@@ -222,27 +222,34 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
     auto signatureMap = std::make_unique<proto::SignatureMap>();
+    proto::SignaturePair* signaturePair = signatureMap->add_sigpair();
+    std::vector<unsigned char> publicKeyBytes = client.getOperatorPublicKey()->toBytes();
+    signaturePair->set_allocated_pubkeyprefix(new std::string(publicKeyBytes.cbegin(), publicKeyBytes.cend()));
+
     if (dynamic_cast<ED25519PublicKey*>(client.getOperatorPublicKey().get()))
     {
-      signatureMap->add_sigpair()->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
+      signaturePair->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
     }
     else
     {
-      signatureMap->add_sigpair()->set_allocated_ecdsa_secp256k1(new std::string(signature.cbegin(), signature.cend()));
+      signaturePair->set_allocated_ecdsa_secp256k1(new std::string(signature.cbegin(), signature.cend()));
     }
 
     // Add other signatures
     for (const auto& [publicKey, signer] : mSignatures)
     {
       signature = signer({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
+      signaturePair = signatureMap->add_sigpair();
+      publicKeyBytes = publicKey->toBytes();
+      signaturePair->set_allocated_pubkeyprefix(new std::string(publicKeyBytes.cbegin(), publicKeyBytes.cend()));
+
       if (dynamic_cast<ED25519PublicKey*>(publicKey.get()))
       {
-        signatureMap->add_sigpair()->set_allocated_ed25519(new std::string({ signature.cbegin(), signature.cend() }));
+        signaturePair->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
       }
       else
       {
-        signatureMap->add_sigpair()->set_allocated_ecdsa_secp256k1(
-          new std::string({ signature.cbegin(), signature.cend() }));
+        signaturePair->set_allocated_ecdsa_secp256k1(new std::string({ signature.cbegin(), signature.cend() }));
       }
     }
 
