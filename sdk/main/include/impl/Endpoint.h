@@ -59,11 +59,18 @@ public:
   [[nodiscard]] std::string toString() const;
 
   /**
+   * Get the IP address of the node.
+   *
+   * @return The IP address (v4) of the node.
+   */
+  [[nodiscard]] inline IPv4Address getAddress() const { return mAddress; }
+
+  /**
    * Get the port of the Endpoint.
    *
    * @return The port of the Endpoint.
    */
-  [[nodiscard]] int getPort() const;
+  [[nodiscard]] inline int getPort() const { return mPort; }
 
 private:
   /**

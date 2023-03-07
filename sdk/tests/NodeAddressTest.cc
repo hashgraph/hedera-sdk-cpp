@@ -18,6 +18,7 @@
  *
  */
 #include "impl/NodeAddress.h"
+#include "impl/IPv4Address.h"
 
 #include <gtest/gtest.h>
 
@@ -27,11 +28,11 @@ class NodeAddressTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const int getTestPort() const { return mTestPort; }
-  [[nodiscard]] inline const std::string& getTestAddress() const { return mTestAddress; }
+  [[nodiscard]] inline const std::string& getTestIpAddress() const { return mTestIpAddress; }
 
 private:
   const int mTestPort = 50211;
-  const std::string mTestAddress = "35.237.200.180:50211";
+  const std::string mTestIpAddress = "35.237.200.180:50211";
 };
 
 //-----
@@ -60,7 +61,13 @@ TEST_F(NodeAddressTest, DefaultConstructNodeAddress)
 //-----
 TEST_F(NodeAddressTest, ConstructFromString)
 {
-  NodeAddress nodeAddres = NodeAddress::fromString(getTestAddress());
+  // Given
+  const std::string testIpAddress = getTestIpAddress();
 
-  EXPECT_TRUE(true);
+  // When
+  NodeAddress nodeAddress = NodeAddress::fromString(testIpAddress);
+
+  // Then
+  EXPECT_EQ(nodeAddress.getAddress().toString(), "35.237.200.180");
+  EXPECT_EQ(nodeAddress.getAddress().toString(), "35.237.200.180");
 }

@@ -135,6 +135,13 @@ public:
   [[nodiscard]] std::string toString() const;
 
   /**
+   * Get the IP address of the node.
+   *
+   * @return An instance of IPv4Address containing the IP address of the node.
+   */
+  [[nodiscard]] IPv4Address& getAddress() const;
+
+  /**
    * Get the node ID
    *
    * @return A int64 value representing the node ID.

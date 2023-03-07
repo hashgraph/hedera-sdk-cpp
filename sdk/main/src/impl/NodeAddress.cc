@@ -18,6 +18,7 @@
  *
  */
 #include "impl/NodeAddress.h"
+#include "impl/IPv4Address.h"
 
 #include <iomanip>
 #include <memory>
@@ -153,6 +154,12 @@ std::string NodeAddress::toString() const
   }
 
   return outputStream.str();
+}
+
+IPv4Address& NodeAddress::getAddress() const
+{
+  auto ipAddress = mEndpoints.front().getAddress();
+  return ipAddress;
 }
 
 } // namespace Hedera::internal
