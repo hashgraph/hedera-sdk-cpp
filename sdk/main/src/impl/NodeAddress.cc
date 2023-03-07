@@ -18,6 +18,7 @@
  *
  */
 #include "impl/NodeAddress.h"
+#include "impl/Endpoint.h"
 #include "impl/IPv4Address.h"
 
 #include <iomanip>
@@ -27,6 +28,20 @@
 
 namespace Hedera::internal
 {
+//-----
+NodeAddress::NodeAddress(const std::string address, const int port)
+{
+  unsigned char octet1 = 1;
+  unsigned char octet2 = 2;
+  unsigned char octet3 = 3;
+  unsigned char octet4 = 4;
+
+  IPv4Address ipAddress_v4 = IPv4Address(octet1, octet2, octet3, octet4);
+  Endpoint endpoint = Endpoint(ipAddress_v4, port);
+
+  mEndpoints.push_back(endpoint);
+}
+
 //-----
 NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
 {

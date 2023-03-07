@@ -40,9 +40,10 @@ TEST_F(NodeAddressTest, DefaultConstructNodeAddress)
 {
   // Given
   const int testPort = getTestPort();
+  const std::string testIpAddress = getTestIpAddress();
 
   // When
-  const NodeAddress nodeAddress;
+  const NodeAddress nodeAddress = NodeAddress::fromString(testIpAddress);
 
   // Then
   EXPECT_FALSE(nodeAddress.isTlsPort(testPort));

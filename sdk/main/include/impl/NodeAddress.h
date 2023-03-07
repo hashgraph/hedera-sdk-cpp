@@ -40,6 +40,19 @@ class NodeAddress
 {
 public:
   /**
+   * Default constructor
+   */
+  NodeAddress() = default;
+
+  /**
+   * Construct a NodeAddress instance with a given address and port.
+   *
+   * @param address The IP address of the Node with separator and octets.
+   * @param port    The port number of the server for the node.
+   */
+  NodeAddress(const std::string address, int port);
+
+  /**
    * Create a NodeAddress object from a NodeAddress protobuf object.
    *
    * @param proto The NodeAddress protobuf object from which to create a NodeAddress object.
