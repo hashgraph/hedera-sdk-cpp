@@ -94,7 +94,7 @@ public:
    *
    * @param publicKey The desired public key for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set public key.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setKey(const std::shared_ptr<PublicKey>& publicKey);
 
@@ -103,7 +103,7 @@ public:
    *
    * @param initialBalance The desired balance to transfer into the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set initial balance.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setInitialBalance(const Hbar& initialBalance);
 
@@ -113,7 +113,7 @@ public:
    * @param receiveSignatureRequired \c TRUE to require the new account to sign any Hbar transfer transactions that
    *                                 involve transferring Hbars into itself, otherwise \c FALSE.
    * @return A reference to this AccountCreateTransaction object with the newly-set receiver signature policy.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setReceiverSignatureRequired(bool receiveSignatureRequired);
 
@@ -124,7 +124,7 @@ public:
    *
    * @param autoRenewPeriod The desired auto renew period for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set auto renew period.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
 
@@ -134,7 +134,7 @@ public:
    * @param memo The desired memo for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set memo.
    * @throws std::length_error If the memo is more than 100 characters.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setAccountMemo(std::string_view memo);
 
@@ -144,7 +144,7 @@ public:
    * @param associations The desired maximum amount of token associations for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set maximum automatic token
    *         associations.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    * @throws std::invalid_argument If the desired maximum number of associations is over 5000.
    */
   AccountCreateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
@@ -155,7 +155,7 @@ public:
    *
    * @param stakedAccountId The ID of the desired account to which the new account will stake.
    * @return A reference to this AccountCreateTransaction object with the newly-set staked account ID.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
@@ -165,7 +165,7 @@ public:
    *
    * @param stakedNodeId The ID of the desired node to which the new account will stake.
    * @return A reference to this AccountCreateTransaction object with the newly-set staked node ID.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setStakedNodeId(const uint64_t& stakedNodeId);
 
@@ -174,7 +174,7 @@ public:
    *
    * @param declineReward \c TRUE if the new account should decline receiving staking rewards, otherwise \c FALSE.
    * @return A reference to this AccountCreateTransaction object with the newly-set staking rewards reception policy.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setDeclineStakingReward(bool declineReward);
 
@@ -190,7 +190,7 @@ public:
    *
    * @param alias The desired key to be used as the account's alias.
    * @return A reference to this AccountCreateTransaction object with the newly-set account alias.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setAlias(const std::shared_ptr<PublicKey>& alias);
 
@@ -200,7 +200,7 @@ public:
    *
    * @param address The desired EVM address for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set EVM address.
-   * @throws IllegalStateException If This AccountCreateTransaction is frozen.
+   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setEvmAddress(const EvmAddress& address);
 

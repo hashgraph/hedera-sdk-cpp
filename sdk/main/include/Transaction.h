@@ -102,7 +102,7 @@ public:
    *
    * @param key The PrivateKey with which to sign this Transaction.
    * @return A reference to this derived Transaction object with the signature.
-   * @throws IllegalStateException If Transaction object is not frozen.
+   * @throws IllegalStateException If this Transaction object is not frozen.
    */
   SdkRequestType& sign(const PrivateKey* key);
 
@@ -113,7 +113,7 @@ public:
    * @param key    The PublicKey with which to sign this Transaction.
    * @param signer The callback function to use to sign this Transaction.
    * @return A reference to this derived Transaction object with the signature.
-   * @throws
+   * @throws IllegalStateException If this Transaction object is not frozen.
    */
   SdkRequestType& signWith(const std::shared_ptr<PublicKey>& key,
                            const std::function<std::vector<unsigned char>(const std::vector<unsigned char>&)>& signer);
