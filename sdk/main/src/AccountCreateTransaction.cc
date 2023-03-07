@@ -88,14 +88,6 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
 }
 
 //-----
-std::unique_ptr<
-  Executable<AccountCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>>
-AccountCreateTransaction::clone() const
-{
-  return std::make_unique<AccountCreateTransaction>(*this);
-}
-
-//-----
 AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
 {
   mKey = key;

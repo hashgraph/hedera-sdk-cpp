@@ -35,23 +35,6 @@ private:
   const TransactionId mTestTransactionId = TransactionId::generate(mTestAccountId);
 };
 
-TEST_F(TransactionRecordQueryTest, CloneTransactionReceiptQuery)
-{
-  TransactionRecordQuery transactionRecordQuery;
-  transactionRecordQuery.setNodeAccountIds({ getTestAccountId() });
-  transactionRecordQuery.setTransactionId(getTestTransactionId());
-
-  auto clonedExecutablePtr = transactionRecordQuery.clone();
-  EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().size(), transactionRecordQuery.getNodeAccountIds().size());
-  EXPECT_EQ(clonedExecutablePtr->getNodeAccountIds().at(0), getTestAccountId());
-
-  // TODO: get and test Query derived class members when they're added
-
-  auto clonedTransactionReceiptQueryPtr = dynamic_cast<TransactionRecordQuery*>(clonedExecutablePtr.get());
-  EXPECT_TRUE(clonedTransactionReceiptQueryPtr->getTransactionId());
-  EXPECT_EQ(*clonedTransactionReceiptQueryPtr->getTransactionId(), getTestTransactionId());
-}
-
 TEST_F(TransactionRecordQueryTest, SetTransactionId)
 {
   TransactionRecordQuery query;

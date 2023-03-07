@@ -81,13 +81,6 @@ public:
   explicit AccountCreateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Derived from Executable. Create a clone of this AccountCreateTransaction.
-   *
-   * @return A pointer to the created clone.
-   */
-  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
-
-  /**
    * Set the public key for the new account. The key that must sign each transfer out of the account. If
    * mReceiverSignatureRequired is true, then it must also sign any transfer into the account.
    *
