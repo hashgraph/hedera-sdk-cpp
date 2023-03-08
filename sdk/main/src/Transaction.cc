@@ -19,11 +19,16 @@
  */
 #include "Transaction.h"
 #include "AccountCreateTransaction.h"
+#include "AccountUpdateTransaction.h"
 #include "Client.h"
+#include "ECDSAsecp256k1PublicKey.h"
+#include "ED25519PublicKey.h"
+#include "PrivateKey.h"
 #include "Status.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "exceptions/IllegalStateException.h"
 #include "exceptions/UninitializedException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
@@ -38,8 +43,8 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
-std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> Transaction<SdkRequestType>::fromBytes(
-  const std::vector<unsigned char>& bytes)
+std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction>>
+Transaction<SdkRequestType>::fromBytes(const std::vector<unsigned char>& bytes)
 {
   proto::TransactionBody txBody;
 
@@ -72,6 +77,8 @@ std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> Tran
       return { 0, AccountCreateTransaction(txBody) };
     case proto::TransactionBody::kCryptoTransfer:
       return { 1, TransferTransaction(txBody) };
+    case proto::TransactionBody::kCryptoUpdateAccount:
+      return { 2, AccountUpdateTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -79,8 +86,48 @@ std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction>> Tran
 
 //-----
 template<typename SdkRequestType>
+SdkRequestType& Transaction<SdkRequestType>::sign(const PrivateKey* key)
+{
+  return signWith(key->getPublicKey(), [key](const std::vector<unsigned char>& vec) { return key->sign(vec); });
+}
+
+//-----
+template<typename SdkRequestType>
+SdkRequestType& Transaction<SdkRequestType>::signWith(
+  const std::shared_ptr<PublicKey>& key,
+  const std::function<std::vector<unsigned char>(const std::vector<unsigned char>&)>& signer)
+{
+  if (!mIsFrozen)
+  {
+    throw IllegalStateException("Transaction must be frozen in order to sign");
+  }
+
+  mSignatures.emplace_back(key, signer);
+
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
+SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client& client)
+{
+  if (!client.getOperatorAccountId().has_value())
+  {
+    throw UninitializedException("Client operator has not been initialized and cannot freeze transaction");
+  }
+
+  mTransactionId = TransactionId::generate(*client.getOperatorAccountId());
+
+  mIsFrozen = true;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
 {
+  requireNotFrozen();
+
   mTransactionValidDuration = duration;
   return static_cast<SdkRequestType&>(*this);
 }
@@ -89,6 +136,8 @@ SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const s
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::setMaxTransactionFee(const Hbar& fee)
 {
+  requireNotFrozen();
+
   mMaxTransactionFee = fee;
   return static_cast<SdkRequestType&>(*this);
 }
@@ -97,6 +146,8 @@ SdkRequestType& Transaction<SdkRequestType>::setMaxTransactionFee(const Hbar& fe
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::setTransactionMemo(const std::string& memo)
 {
+  requireNotFrozen();
+
   mTransactionMemo = memo;
   return static_cast<SdkRequestType&>(*this);
 }
@@ -105,6 +156,8 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionMemo(const std::strin
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionId& id)
 {
+  requireNotFrozen();
+
   mTransactionId = id;
   return static_cast<SdkRequestType&>(*this);
 }
@@ -113,6 +166,8 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::setRegenerateTransactionIdPolicy(bool regenerate)
 {
+  requireNotFrozen();
+
   mTransactionIdRegenerationPolicy = regenerate;
   return static_cast<SdkRequestType&>(*this);
 }
@@ -162,12 +217,41 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
   {
     // Generate a signature from the TransactionBody
     auto transactionBodySerialized = std::make_unique<std::string>(transaction.SerializeAsString());
-    const std::vector<unsigned char> signature =
+    std::vector<unsigned char> signature =
       client.sign({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
     auto signatureMap = std::make_unique<proto::SignatureMap>();
-    signatureMap->add_sigpair()->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
+    proto::SignaturePair* signaturePair = signatureMap->add_sigpair();
+    std::vector<unsigned char> publicKeyBytes = client.getOperatorPublicKey()->toBytes();
+    signaturePair->set_allocated_pubkeyprefix(new std::string(publicKeyBytes.cbegin(), publicKeyBytes.cend()));
+
+    if (dynamic_cast<ED25519PublicKey*>(client.getOperatorPublicKey().get()))
+    {
+      signaturePair->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
+    }
+    else
+    {
+      signaturePair->set_allocated_ecdsa_secp256k1(new std::string(signature.cbegin(), signature.cend()));
+    }
+
+    // Add other signatures
+    for (const auto& [publicKey, signer] : mSignatures)
+    {
+      signature = signer({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
+      signaturePair = signatureMap->add_sigpair();
+      publicKeyBytes = publicKey->toBytes();
+      signaturePair->set_allocated_pubkeyprefix(new std::string(publicKeyBytes.cbegin(), publicKeyBytes.cend()));
+
+      if (dynamic_cast<ED25519PublicKey*>(publicKey.get()))
+      {
+        signaturePair->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
+      }
+      else
+      {
+        signaturePair->set_allocated_ecdsa_secp256k1(new std::string({ signature.cbegin(), signature.cend() }));
+      }
+    }
 
     // Create a protobuf SignedTransaction from the TransactionBody and SignatureMap
     proto::SignedTransaction signedTransaction;
@@ -195,6 +279,16 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
   body.set_allocated_transactionvalidduration(internal::DurationConverter::toProtobuf(mTransactionValidDuration));
   body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf().release());
   return body;
+}
+
+//-----
+template<typename SdkRequestType>
+void Transaction<SdkRequestType>::requireNotFrozen() const
+{
+  if (mIsFrozen)
+  {
+    throw IllegalStateException("Transaction is immutable and cannot be edited");
+  }
 }
 
 //-----
@@ -284,6 +378,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
  * Explicit template instantiation.
  */
 template class Transaction<AccountCreateTransaction>;
+template class Transaction<AccountUpdateTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera

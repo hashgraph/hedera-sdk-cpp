@@ -214,9 +214,9 @@ std::optional<AccountId> Client::getOperatorAccountId() const
 }
 
 //-----
-std::unique_ptr<PublicKey> Client::getOperatorPublicKey() const
+std::shared_ptr<PublicKey> Client::getOperatorPublicKey() const
 {
-  return mImpl->mOperatorPrivateKey ? mImpl->mOperatorPrivateKey->getPublicKey()->clone() : nullptr;
+  return mImpl->mOperatorPrivateKey ? mImpl->mOperatorPrivateKey->getPublicKey() : nullptr;
 }
 
 //-----

@@ -18,9 +18,12 @@
  *
  */
 #include "AccountCreateTransaction.h"
+#include "Client.h"
+#include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 #include "PublicKey.h"
+#include "exceptions/IllegalStateException.h"
 #include "impl/DurationConverter.h"
 
 #include <gtest/gtest.h>
@@ -31,6 +34,9 @@ using namespace Hedera;
 class AccountCreateTransactionTest : public ::testing::Test
 {
 protected:
+  void SetUp() override { mClient.setOperator(getTestAccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey()); }
+
+  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
   [[nodiscard]] inline const Hbar& getTestInitialBalance() const { return mInitialBalance; }
   [[nodiscard]] inline bool getTestReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
@@ -43,6 +49,7 @@ protected:
   [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
 
 private:
+  Client mClient;
   const std::shared_ptr<PublicKey> mPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
   const Hbar mInitialBalance = Hbar(1LL);
   const bool mReceiverSignatureRequired = true;
@@ -119,6 +126,9 @@ TEST_F(AccountCreateTransactionTest, SetKey)
   AccountCreateTransaction transaction;
   transaction.setKey(getTestPublicKey());
   EXPECT_EQ(transaction.getKey()->toString(), getTestPublicKey()->toString());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
 }
 
 //-----
@@ -127,6 +137,9 @@ TEST_F(AccountCreateTransactionTest, SetInitialBalance)
   AccountCreateTransaction transaction;
   transaction.setInitialBalance(getTestInitialBalance());
   EXPECT_EQ(transaction.getInitialBalance(), getTestInitialBalance());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
 }
 
 //-----
@@ -135,6 +148,9 @@ TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequired)
   AccountCreateTransaction transaction;
   transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired());
   EXPECT_TRUE(transaction.getReceiverSignatureRequired());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired()), IllegalStateException);
 }
 
 //-----
@@ -143,6 +159,9 @@ TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriod)
   AccountCreateTransaction transaction;
   transaction.setAutoRenewPeriod(getTestAutoRenewPeriod());
   EXPECT_EQ(transaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
 }
 
 //-----
@@ -154,6 +173,9 @@ TEST_F(AccountCreateTransactionTest, SetAccountMemo)
 
   // Throw if account memo is larger than 100 characters
   EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::length_error);
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setAccountMemo(getTestAccountMemo()), IllegalStateException);
 }
 
 //-----
@@ -168,6 +190,9 @@ TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(5001U), std::invalid_argument);
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(std::numeric_limits<uint32_t>::max()),
                std::invalid_argument);
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()), IllegalStateException);
 }
 
 //-----
@@ -176,6 +201,9 @@ TEST_F(AccountCreateTransactionTest, SetStakedAccountId)
   AccountCreateTransaction transaction;
   transaction.setStakedAccountId(getTestAccountId());
   EXPECT_EQ(*transaction.getStakedAccountId(), getTestAccountId());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setStakedAccountId(getTestAccountId()), IllegalStateException);
 }
 
 //-----
@@ -184,6 +212,9 @@ TEST_F(AccountCreateTransactionTest, SetStakedNodeId)
   AccountCreateTransaction transaction;
   transaction.setStakedNodeId(getTestNodeId());
   EXPECT_EQ(*transaction.getStakedNodeId(), getTestNodeId());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setStakedNodeId(getTestNodeId()), IllegalStateException);
 }
 
 //-----
@@ -192,6 +223,9 @@ TEST_F(AccountCreateTransactionTest, SetStakingRewardPolicy)
   AccountCreateTransaction transaction;
   transaction.setDeclineStakingReward(true);
   EXPECT_TRUE(transaction.getDeclineStakingReward());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setDeclineStakingReward(true), IllegalStateException);
 }
 
 //-----
@@ -200,6 +234,9 @@ TEST_F(AccountCreateTransactionTest, SetAlias)
   AccountCreateTransaction transaction;
   transaction.setAlias(getTestPublicKey());
   EXPECT_EQ(transaction.getAlias()->toString(), getTestPublicKey()->toString());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setAlias(getTestPublicKey()), IllegalStateException);
 }
 
 //-----
@@ -209,6 +246,9 @@ TEST_F(AccountCreateTransactionTest, SetEvmAddress)
   transaction.setEvmAddress(getTestEvmAddress());
   ASSERT_TRUE(transaction.getEvmAddress().has_value());
   EXPECT_EQ(transaction.getEvmAddress()->toString(), getTestEvmAddress().toString());
+
+  transaction.freezeWith(getTestClient());
+  EXPECT_THROW(transaction.setEvmAddress(getTestEvmAddress()), IllegalStateException);
 }
 
 //-----

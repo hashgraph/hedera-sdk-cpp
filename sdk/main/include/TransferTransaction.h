@@ -68,6 +68,7 @@ public:
    * @param accountId The ID of the account associated with this transfer.
    * @param amount    The amount of Hbar to transfer.
    * @return A reference to this TransferTransaction object with the newly-added Hbar transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
    */
   TransferTransaction& addHbarTransfer(const AccountId& accountId, const Hbar& amount);
 
@@ -78,6 +79,7 @@ public:
    * @param accountId The ID of the account associated with this transfer.
    * @param amount    The number of tokens to transfer.
    * @return A reference to this TransferTransaction object with the newly-added token transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
    */
   TransferTransaction& addTokenTransfer(const TokenId& tokenId, const AccountId& accountId, const int64_t& amount);
 
@@ -88,6 +90,7 @@ public:
    * @param senderAccountId   The ID of the account sending the NFT.
    * @param receiverAccountId The ID of the receiving sending the NFT.
    * @return A reference to this TransferTransaction object with the newly-added NFT transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
    */
   TransferTransaction& addNftTransfer(const NftId& nftId,
                                       const AccountId& senderAccountId,
@@ -101,6 +104,7 @@ public:
    * @param amount    The number of tokens to transfer.
    * @param decimals  The number of decimals in the transfer amount.
    * @return A reference to this TransferTransaction object with the newly-added token transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
    * @throws std::invalid_argument If decimals does not match previously set decimals for this token.
    */
   TransferTransaction& addTokenTransferWithDecimals(const TokenId& tokenId,
@@ -114,6 +118,7 @@ public:
    * @param accountId The ID of the account associated with this transfer.
    * @param amount    The amount of Hbar to transfer.
    * @return A reference to this TransferTransaction object with the newly-added approved Hbar transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
    */
   TransferTransaction& addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount);
 
@@ -124,6 +129,7 @@ public:
    * @param accountId The ID of the account associated with this transfer.
    * @param amount    The number of tokens to transfer.
    * @return A reference to this TransferTransaction object with the newly-added approved token transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
    */
   TransferTransaction& addApprovedTokenTransfer(const TokenId& tokenId,
                                                 const AccountId& accountId,
@@ -136,6 +142,7 @@ public:
    * @param senderAccountId   The ID of the account sending the NFT.
    * @param receiverAccountId The ID of the receiving sending the NFT.
    * @return A reference to this TransferTransaction object with the newly-added approved NFT transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
    */
   TransferTransaction& addApprovedNftTransfer(const NftId& nftId,
                                               const AccountId& senderAccountId,
@@ -149,6 +156,7 @@ public:
    * @param amount    The number of tokens to transfer.
    * @param decimals  The number of decimals in the transfer amount.
    * @return A reference to this TransferTransaction object with the newly-added approved token transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
    * @throws std::invalid_argument If decimals does not match previously set decimals for this token.
    */
   TransferTransaction& addApprovedTokenTransferWithDecimals(const TokenId& tokenId,
