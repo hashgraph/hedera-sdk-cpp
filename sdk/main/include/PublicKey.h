@@ -20,6 +20,8 @@
 #ifndef HEDERA_SDK_CPP_PUBLIC_KEY_H_
 #define HEDERA_SDK_CPP_PUBLIC_KEY_H_
 
+#include "impl/OpenSSLUtils.h"
+
 #include <memory>
 #include <string>
 #include <string_view>
@@ -38,14 +40,7 @@ namespace Hedera
 class PublicKey
 {
 public:
-  /**
-   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
-   */
   virtual ~PublicKey() = default;
-  PublicKey(const PublicKey&) = delete;
-  PublicKey& operator=(const PublicKey&) = delete;
-  PublicKey(PublicKey&&) noexcept = delete;
-  PublicKey& operator=(PublicKey&&) noexcept = delete;
 
   /**
    * Create a PublicKey object from a Key protobuf object.
@@ -127,6 +122,32 @@ public:
 
 protected:
   PublicKey() = default;
+
+  /**
+   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
+   */
+  PublicKey(const PublicKey&) = default;
+  PublicKey& operator=(const PublicKey&) = default;
+  PublicKey(PublicKey&&) noexcept = default;
+  PublicKey& operator=(PublicKey&&) noexcept = default;
+
+  /**
+   * Construct with wrapped OpenSSL keypair.
+   */
+  explicit PublicKey(internal::OpenSSLUtils::EVP_PKEY&& keypair);
+
+  /**
+   * Get this PublicKey's wrapped OpenSSL keypair object.
+   *
+   * @return This PublicKey's wrapped OpenSSL keypair object.
+   */
+  [[nodiscard]] inline internal::OpenSSLUtils::EVP_PKEY getKeypair() const { return mKeypair; }
+
+private:
+  /**
+   * The wrapped OpenSSL keypair.
+   */
+  internal::OpenSSLUtils::EVP_PKEY mKeypair;
 };
 
 } // namespace Hedera

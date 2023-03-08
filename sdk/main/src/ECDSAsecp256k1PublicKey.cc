@@ -86,36 +86,6 @@ namespace
 } // namespace
 
 //-----
-ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(const ECDSAsecp256k1PublicKey& other)
-  : mPublicKey(bytesToPKEY(other.toBytesRaw()))
-{
-}
-
-//-----
-ECDSAsecp256k1PublicKey& ECDSAsecp256k1PublicKey::operator=(const ECDSAsecp256k1PublicKey& other)
-{
-  if (this != &other)
-  {
-    mPublicKey = bytesToPKEY(other.toBytesRaw());
-  }
-
-  return *this;
-}
-
-//-----
-ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(ECDSAsecp256k1PublicKey&& other) noexcept
-  : mPublicKey(std::move(other.mPublicKey))
-{
-}
-
-//-----
-ECDSAsecp256k1PublicKey& ECDSAsecp256k1PublicKey::operator=(ECDSAsecp256k1PublicKey&& other) noexcept
-{
-  mPublicKey = std::move(other.mPublicKey);
-  return *this;
-}
-
-//-----
 std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std::string_view key)
 {
   if (key.size() != COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size() &&
@@ -412,7 +382,7 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_fetch"));
   }
 
-  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, mPublicKey.get()) <= 0)
+  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, getKeypair().get()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestVerifyInit"));
   }
@@ -453,11 +423,12 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytesDer() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytesRaw() const
 {
-  int bytesLength = i2d_PUBKEY(mPublicKey.get(), nullptr);
+  int bytesLength = i2d_PUBKEY(getKeypair().get(), nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mPublicKey.get(), &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
+      i2d_PUBKEY(getKeypair().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
@@ -478,7 +449,7 @@ std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobuf() const
 
 //-----
 ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey)
-  : mPublicKey(std::move(publicKey))
+  : PublicKey(std::move(publicKey))
 {
 }
 

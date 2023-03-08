@@ -59,22 +59,6 @@ private:
 };
 
 //-----
-TEST_F(ECDSAsecp256k1PublicKeyTest, CopyAndMoveConstructors)
-{
-  ECDSAsecp256k1PublicKey copiedPublicKey(*dynamic_cast<ECDSAsecp256k1PublicKey*>(getTestPublicKeyFromPrivate().get()));
-  EXPECT_EQ(copiedPublicKey.toStringDer(), getTestPublicKeyFromPrivate()->toStringDer());
-
-  copiedPublicKey = *dynamic_cast<ECDSAsecp256k1PublicKey*>(getTestPublicKeyFromString().get());
-  EXPECT_EQ(copiedPublicKey.toStringDer(), getTestPublicKeyFromString()->toStringDer());
-
-  ECDSAsecp256k1PublicKey movedPublicKey(std::move(copiedPublicKey));
-  EXPECT_EQ(movedPublicKey.toStringDer(), getTestPublicKeyFromString()->toStringDer());
-
-  copiedPublicKey = std::move(movedPublicKey);
-  EXPECT_EQ(copiedPublicKey.toStringDer(), getTestPublicKeyFromString()->toStringDer());
-}
-
-//-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
 {
   const std::string publicKeyUncompressed = "045B36E22D710E79646F1A86D633EB38343BFE9DF39185EC730B1E7DFA79EE92CFD8C980"

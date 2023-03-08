@@ -59,16 +59,6 @@ public:
   ED25519PublicKey() = delete;
 
   /**
-   * Copy constructor and copy assignment operator can throw OpenSSLException if OpenSSL is unable to serialize the
-   * input key to copy.
-   */
-  ~ED25519PublicKey() override = default;
-  ED25519PublicKey(const ED25519PublicKey& other);
-  ED25519PublicKey& operator=(const ED25519PublicKey& other);
-  ED25519PublicKey(ED25519PublicKey&& other) noexcept;
-  ED25519PublicKey& operator=(ED25519PublicKey&& other) noexcept;
-
-  /**
    * Construct an ED25519PublicKey object from a hex-encoded string (DER-encoded or raw).
    *
    * @param key The string from which to create an ED25519PublicKey.
@@ -184,11 +174,6 @@ private:
    * @param keypair The wrapped OpenSSL keypair object from which to construct this ED25519PublicKey.
    */
   explicit ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey);
-
-  /**
-   * The wrapped OpenSSL keypair object.
-   */
-  internal::OpenSSLUtils::EVP_PKEY mPublicKey;
 };
 
 } // namespace Hedera

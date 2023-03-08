@@ -57,22 +57,6 @@ private:
 };
 
 //-----
-TEST_F(ED25519PublicKeyTest, CopyAndMoveConstructors)
-{
-  ED25519PublicKey copiedPublicKey(*dynamic_cast<ED25519PublicKey*>(getTestPublicKeyFromPrivate().get()));
-  EXPECT_EQ(copiedPublicKey.toStringDer(), getTestPublicKeyFromPrivate()->toStringDer());
-
-  copiedPublicKey = *dynamic_cast<ED25519PublicKey*>(getTestPublicKeyFromString().get());
-  EXPECT_EQ(copiedPublicKey.toStringDer(), getTestPublicKeyFromString()->toStringDer());
-
-  ED25519PublicKey movedPublicKey(std::move(copiedPublicKey));
-  EXPECT_EQ(movedPublicKey.toStringDer(), getTestPublicKeyFromString()->toStringDer());
-
-  copiedPublicKey = std::move(movedPublicKey);
-  EXPECT_EQ(copiedPublicKey.toStringDer(), getTestPublicKeyFromString()->toStringDer());
-}
-
-//-----
 TEST_F(ED25519PublicKeyTest, FromString)
 {
   const std::string publicKeyString = "F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";

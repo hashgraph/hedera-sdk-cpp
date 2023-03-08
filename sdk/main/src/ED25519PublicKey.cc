@@ -58,36 +58,6 @@ namespace
 } // namespace
 
 //-----
-ED25519PublicKey::ED25519PublicKey(const ED25519PublicKey& other)
-  : mPublicKey(bytesToPKEY(other.toBytesRaw()))
-{
-}
-
-//-----
-ED25519PublicKey& ED25519PublicKey::operator=(const ED25519PublicKey& other)
-{
-  if (this != &other)
-  {
-    mPublicKey = bytesToPKEY(other.toBytesRaw());
-  }
-
-  return *this;
-}
-
-//-----
-ED25519PublicKey::ED25519PublicKey(ED25519PublicKey&& other) noexcept
-  : mPublicKey(std::move(other.mPublicKey))
-{
-}
-
-//-----
-ED25519PublicKey& ED25519PublicKey::operator=(ED25519PublicKey&& other) noexcept
-{
-  mPublicKey = std::move(other.mPublicKey);
-  return *this;
-}
-
-//-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view key)
 {
   if (key.size() != PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != PUBLIC_KEY_SIZE * 2)
@@ -197,7 +167,7 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, nullptr, nullptr, mPublicKey.get()) <= 0)
+  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, nullptr, nullptr, getKeypair().get()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestVerifyInit"));
   }
@@ -232,11 +202,12 @@ std::string ED25519PublicKey::toStringRaw() const
 //-----
 std::vector<unsigned char> ED25519PublicKey::toBytesDer() const
 {
-  int bytesLength = i2d_PUBKEY(mPublicKey.get(), nullptr);
+  int bytesLength = i2d_PUBKEY(getKeypair().get(), nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front(); i2d_PUBKEY(mPublicKey.get(), &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
+      i2d_PUBKEY(getKeypair().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
@@ -261,7 +232,7 @@ std::unique_ptr<proto::Key> ED25519PublicKey::toProtobuf() const
 
 //-----
 ED25519PublicKey::ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey)
-  : mPublicKey(std::move(publicKey))
+  : PublicKey(std::move(publicKey))
 {
 }
 

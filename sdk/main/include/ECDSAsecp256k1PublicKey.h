@@ -79,16 +79,6 @@ public:
   ECDSAsecp256k1PublicKey() = delete;
 
   /**
-   * Copy constructor and copy assignment operator can throw OpenSSLException if OpenSSL is unable to serialize the
-   * input key to copy.
-   */
-  ~ECDSAsecp256k1PublicKey() override = default;
-  ECDSAsecp256k1PublicKey(const ECDSAsecp256k1PublicKey& other);
-  ECDSAsecp256k1PublicKey& operator=(const ECDSAsecp256k1PublicKey& other);
-  ECDSAsecp256k1PublicKey(ECDSAsecp256k1PublicKey&& other) noexcept;
-  ECDSAsecp256k1PublicKey& operator=(ECDSAsecp256k1PublicKey&& other) noexcept;
-
-  /**
    * Construct an ECDSAsecp256k1PublicKey object from a hex-encoded string (DER-encoded or raw).
    *
    * @param key The string from which to create an ECDSAsecp256k1PublicKey. May be either compressed or uncompressed.
@@ -224,11 +214,6 @@ private:
    * @param keypair The wrapped OpenSSL keypair object from which to construct this ECDSAsecp256k1PublicKey.
    */
   explicit ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey);
-
-  /**
-   * The wrapped OpenSSL keypair object.
-   */
-  internal::OpenSSLUtils::EVP_PKEY mPublicKey;
 };
 
 } // namespace Hedera

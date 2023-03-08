@@ -77,4 +77,10 @@ std::shared_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<unsigned ch
   throw BadKeyException("Key type cannot be determined from input DER-encoded byte array");
 }
 
+//-----
+PublicKey::PublicKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
+  : mKeypair(std::move(keypair))
+{
+}
+
 } // namespace Hedera
