@@ -57,22 +57,22 @@ public:
   /**
    * The number of bytes in a DER-encoded ECDSAsecp256k1PrivateKey signature.
    */
-  static constexpr const size_t DER_ENCODED_SIGNATURE_SIZE = 72;
+  static constexpr const size_t DER_ENCODED_SIGNATURE_SIZE = 72ULL;
 
   /**
    * The number of bytes in a raw ECDSAsecp256k1PrivateKey signature ((r,s) form).
    */
-  static constexpr const size_t RAW_SIGNATURE_SIZE = 64;
+  static constexpr const size_t RAW_SIGNATURE_SIZE = 64ULL;
 
   /**
    * The number of bytes in the r value of an ECDSAsecp256k1PrivateKey signature.
    */
-  static constexpr const size_t R_SIZE = 32;
+  static constexpr const size_t R_SIZE = 32ULL;
 
   /**
    * The number of bytes in the s value of an ECDSAsecp256k1PrivateKey signature.
    */
-  static constexpr const size_t S_SIZE = 32;
+  static constexpr const size_t S_SIZE = 32ULL;
 
   /**
    * Disallow default construction of an ECDSAsecp256k1PrivateKey, as an uninitialized ECDSAsecp256k1PrivateKey provides
@@ -207,24 +207,6 @@ public:
 
 private:
   /**
-   * Create a wrapped OpenSSL key object from a byte vector representing an ECDSAsecp256k1PrivateKey.
-   *
-   * @param keyBytes The bytes representing a ECDSAsecp256k1PrivateKey.
-   * @return The newly created wrapped OpenSSL keypair object.
-   * @throws OpenSSLException If OpenSSL is unable to create a keypair from the input bytes.
-   */
-  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> keyBytes);
-
-  /**
-   * Construct from a wrapped OpenSSL keypair object.
-   *
-   * @param keypair The wrapped OpenSSL keypair object from which to construct this ECDSAsecp256k1PrivateKey.
-   * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PublicKey's
-   *                          bytes.
-   */
-  explicit ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair);
-
-  /**
    * Construct from a wrapped OpenSSL keypair object and a chaincode.
    *
    * @param keypair   The wrapped OpenSSL keypair.
@@ -232,7 +214,8 @@ private:
    * @throws OpenSSLException If OpenSSL is unable to get this ECDSAsecp256k1PrivateKey's corresponding
    *                          ECDSAsecp256k1PublicKey's bytes.
    */
-  ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char>&& chainCode);
+  explicit ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
+                                    std::vector<unsigned char> chainCode = std::vector<unsigned char>());
 };
 
 } // namespace Hedera

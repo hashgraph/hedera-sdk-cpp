@@ -179,16 +179,6 @@ public:
 
 private:
   /**
-   * Create a wrapped OpenSSL keypair object from a raw byte vector representing an ED25519PublicKey.
-   *
-   * @param bytes The raw bytes representing a ED25519PublicKey.
-   * @return The newly created wrapped OpenSSL keypair object.
-   * @throws std::invalid_argument If the input bytes are not the correct size.
-   * @throws OpenSSLException      If OpenSSL is unable to create a keypair from the input bytes.
-   */
-  [[nodiscard]] static internal::OpenSSLUtils::EVP_PKEY rawBytesToPKEY(std::vector<unsigned char> bytes);
-
-  /**
    * Construct from a wrapped OpenSSL key object.
    *
    * @param keypair The wrapped OpenSSL keypair object from which to construct this ED25519PublicKey.

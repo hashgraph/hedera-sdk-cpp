@@ -37,7 +37,33 @@ constexpr const size_t PRIVATE_KEY_SIZE = 32;
 constexpr const size_t CHAIN_CODE_SIZE = 32;
 // The seed to use to compute the SHA512 HMAC, as defined in SLIP 10.
 const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '9', ' ', 's', 'e', 'e', 'd' };
+
+/**
+ * Create a wrapped OpenSSL key object from a byte vector (raw or DER-encoded) representing an ED25519PrivateKey.
+ *
+ * @param bytes The bytes representing a ED25519PrivateKey.
+ * @return The newly created wrapped OpenSSL keypair object.
+ * @throws OpenSSLException If OpenSSL is unable to create a keypair from the input bytes.
+ */
+[[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> bytes)
+{
+  if (bytes.size() == PRIVATE_KEY_SIZE)
+  {
+    bytes = internal::Utilities::concatenateVectors(ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, bytes);
+  }
+
+  const unsigned char* rawKeyBytes = &bytes.front();
+  internal::OpenSSLUtils::EVP_PKEY key(
+    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(bytes.size())));
+  if (!key)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PrivateKey"));
+  }
+
+  return key;
 }
+
+} // namespace
 
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
@@ -65,13 +91,18 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_view key)
 {
-  if (key.size() == PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
+  if (key.size() == PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() || key.size() == PRIVATE_KEY_SIZE * 2)
   {
-    return fromStringDer(key);
-  }
-  else if (key.size() == PRIVATE_KEY_SIZE * 2)
-  {
-    return fromStringRaw(key);
+    try
+    {
+      return std::make_unique<ED25519PrivateKey>(
+        ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
+    }
+    catch (const OpenSSLException& openSSLException)
+    {
+      throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input string: ") +
+                            openSSLException.what());
+    }
   }
   else
   {
@@ -86,14 +117,12 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringDer(std::string_
 {
   if (key.size() != PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
   {
-    throw BadKeyException("ED25519PrivateKey cannot be realized from input string: DER encoded ED25519PrivateKey hex "
+    throw BadKeyException("ED25519PrivateKey cannot be realized from input string: DER-encoded ED25519PrivateKey hex "
                           "string size should be " +
                           std::to_string(PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
   }
 
-  // Remove the DER-encoded header
-  key.remove_prefix(DER_ENCODED_PREFIX_HEX.size());
-  return fromStringRaw(key);
+  return fromString(key);
 }
 
 //-----
@@ -102,36 +131,27 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringRaw(std::string_
   if (key.size() != PRIVATE_KEY_SIZE * 2)
   {
     throw BadKeyException(
-      "ED25519PrivateKey cannot be realized from input string: raw ED25519PrivateKey string size should be " +
+      "ED25519PrivateKey cannot be realized from input string: raw ED25519PrivateKey hex string size should be " +
       std::to_string(PRIVATE_KEY_SIZE * 2));
   }
 
-  try
-  {
-    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
-  }
-  catch (const OpenSSLException& openSSLException)
-  {
-    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input string: ") +
-                          openSSLException.what());
-  }
-  catch (const std::invalid_argument& invalidArgument)
-  {
-    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input string: ") +
-                          invalidArgument.what());
-  }
+  return fromString(key);
 }
 
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytes(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() == PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
+  if (bytes.size() == PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() || bytes.size() == PRIVATE_KEY_SIZE)
   {
-    return fromBytesDer(bytes);
-  }
-  else if (bytes.size() == PRIVATE_KEY_SIZE)
-  {
-    return fromBytesRaw(bytes);
+    try
+    {
+      return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(bytes)));
+    }
+    catch (const OpenSSLException& openSSLException)
+    {
+      throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input bytes: ") +
+                            openSSLException.what());
+    }
   }
   else
   {
@@ -146,13 +166,12 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesDer(const std::ve
 {
   if (bytes.size() != PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
   {
-    throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: DER encoded ED25519PrivateKey byte "
+    throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: DER-encoded ED25519PrivateKey byte "
                           "array should contain " +
                           std::to_string(PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
   }
 
-  // Remove the DER-encoded header
-  return fromBytesRaw({ bytes.cbegin() + static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()), bytes.cend() });
+  return fromBytes(bytes);
 }
 
 //-----
@@ -165,20 +184,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesRaw(const std::ve
       std::to_string(PRIVATE_KEY_SIZE) + " bytes");
   }
 
-  try
-  {
-    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(bytes)));
-  }
-  catch (const OpenSSLException& openSSLException)
-  {
-    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input bytes: ") +
-                          openSSLException.what());
-  }
-  catch (const std::invalid_argument& invalidArgument)
-  {
-    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input bytes: ") +
-                          invalidArgument.what());
-  }
+  return fromBytes(bytes);
 }
 
 //-----
@@ -304,38 +310,7 @@ std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
 }
 
 //-----
-internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(std::vector<unsigned char> bytes)
-{
-  if (bytes.size() == PRIVATE_KEY_SIZE)
-  {
-    bytes.insert(bytes.begin(), DER_ENCODED_PREFIX_BYTES.cbegin(), DER_ENCODED_PREFIX_BYTES.cend());
-  }
-  else if (bytes.size() != PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
-  {
-    throw std::invalid_argument("Input bytes size [" + std::to_string(bytes.size()) + "] is invalid: must be either [" +
-                                std::to_string(PRIVATE_KEY_SIZE) + "] or [" +
-                                std::to_string(PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + "]");
-  }
-
-  const unsigned char* rawKeyBytes = &bytes.front();
-  internal::OpenSSLUtils::EVP_PKEY key(
-    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(bytes.size())));
-  if (!key)
-  {
-    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PrivateKey"));
-  }
-
-  return key;
-}
-
-//-----
-ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
-  : PrivateKey(std::move(keypair))
-{
-}
-
-//-----
-ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char>&& chainCode)
+ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode)
   : PrivateKey(std::move(keypair), std::move(chainCode))
 {
 }

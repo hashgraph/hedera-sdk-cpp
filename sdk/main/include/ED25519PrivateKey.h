@@ -185,32 +185,15 @@ public:
 
 private:
   /**
-   * Create a wrapped OpenSSL keypair object from a byte vector representing an ED25519PrivateKey.
-   *
-   * @param bytes The bytes representing a ED25519PrivateKey.
-   * @return The newly created wrapped OpenSSL keypair object.
-   * @throws OpenSSLException If OpenSSL is unable to generate an ED25519 keypair from the input bytes.
-   */
-  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> bytes);
-
-  /**
-   * Construct from a wrapped OpenSSL keypair object.
-   *
-   * @param keypair The wrapped OpenSSL keypair object from which to construct this ED25519PrivateKey.
-   * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PublicKey's
-   *                          bytes.
-   */
-  explicit ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair);
-
-  /**
    * Construct from a wrapped OpenSSL keypair object and a chaincode.
    *
-   * @param keypair   The wrapped OpenSSL keypair object.
+   * @param keypair   The wrapped OpenSSL keypair.
    * @param chainCode The new ED25519PrivateKey's chain code.
    * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PublicKey's
    *                          bytes.
    */
-  ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char>&& chainCode);
+  explicit ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
+                             std::vector<unsigned char> chainCode = std::vector<unsigned char>());
 };
 
 } // namespace Hedera

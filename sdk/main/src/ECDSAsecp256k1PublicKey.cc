@@ -32,9 +32,62 @@
 
 namespace Hedera
 {
+namespace
+{
+/**
+ * Create a wrapped OpenSSL keypair object from a byte vector (raw or DER-encoded) representing an
+ * ECDSAsecp256k1PublicKey (compressed or uncompressed).
+ *
+ * @param bytes The bytes representing a ECDSAsecp256k1PublicKey.
+ * @return The newly created wrapped OpenSSL keypair object.
+ * @throws OpenSSLException If OpenSSL is unable to create a keypair from the input bytes.
+ */
+[[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& bytes)
+{
+  // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN1 prefix.
+  std::vector<unsigned char> uncompressedKeyBytes = bytes;
+  if (bytes.size() == ECDSAsecp256k1PublicKey::UNCOMPRESSED_KEY_SIZE)
+  {
+    uncompressedKeyBytes =
+      internal::Utilities::concatenateVectors(ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, bytes);
+  }
+  else if (bytes.size() == ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE +
+                             ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES.size())
+  {
+    uncompressedKeyBytes = internal::Utilities::concatenateVectors(
+      ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES,
+      ECDSAsecp256k1PublicKey::uncompressBytes(internal::Utilities::removePrefix(
+        bytes, static_cast<long>(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()))));
+  }
+  else if (bytes.size() == ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE)
+  {
+    uncompressedKeyBytes = internal::Utilities::concatenateVectors(
+      ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, ECDSAsecp256k1PublicKey::uncompressBytes(bytes));
+  }
+
+  EVP_PKEY* pkey = nullptr;
+  const internal::OpenSSLUtils::OSSL_DECODER_CTX context(
+    OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr));
+  if (!context)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_DECODER_CTX_new_for_pkey"));
+  }
+
+  size_t dataLength = uncompressedKeyBytes.size();
+  if (const unsigned char* rawKeyBytes = uncompressedKeyBytes.data();
+      OSSL_DECODER_from_data(context.get(), &rawKeyBytes, &dataLength) <= 0)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_DECODER_from_data"));
+  }
+
+  return internal::OpenSSLUtils::EVP_PKEY(pkey);
+}
+
+} // namespace
+
 //-----
 ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(const ECDSAsecp256k1PublicKey& other)
-  : mPublicKey(rawBytesToPKEY(other.toBytesRaw()))
+  : mPublicKey(bytesToPKEY(other.toBytesRaw()))
 {
 }
 
@@ -43,7 +96,7 @@ ECDSAsecp256k1PublicKey& ECDSAsecp256k1PublicKey::operator=(const ECDSAsecp256k1
 {
   if (this != &other)
   {
-    mPublicKey = rawBytesToPKEY(other.toBytesRaw());
+    mPublicKey = bytesToPKEY(other.toBytesRaw());
   }
 
   return *this;
@@ -65,16 +118,9 @@ ECDSAsecp256k1PublicKey& ECDSAsecp256k1PublicKey::operator=(ECDSAsecp256k1Public
 //-----
 std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std::string_view key)
 {
-  if (key.size() == COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size() ||
-      key.size() == UNCOMPRESSED_KEY_SIZE * 2 + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size())
-  {
-    return fromStringDer(key);
-  }
-  else if (key.size() == COMPRESSED_KEY_SIZE * 2 || key.size() == UNCOMPRESSED_KEY_SIZE * 2)
-  {
-    return fromStringRaw(key);
-  }
-  else
+  if (key.size() != COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size() &&
+      key.size() != UNCOMPRESSED_KEY_SIZE * 2 + DER_ENCODED_UNCOMPRESSED_PREFIX_HEX.size() &&
+      key.size() != COMPRESSED_KEY_SIZE * 2 && key.size() != UNCOMPRESSED_KEY_SIZE * 2)
   {
     throw BadKeyException("ECDSAsecp256k1PublicKey cannot be realized from input string: input string size should be " +
                           std::to_string(UNCOMPRESSED_KEY_SIZE * 2 + DER_ENCODED_UNCOMPRESSED_PREFIX_HEX.size()) +
@@ -82,24 +128,24 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std
                           std::to_string(COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size()) + " or " +
                           std::to_string(COMPRESSED_KEY_SIZE * 2) + " for compressed keys");
   }
+
+  try
+  {
+    return std::make_shared<ECDSAsecp256k1PublicKey>(
+      ECDSAsecp256k1PublicKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(std::string("ECDSAsecp256k1PublicKey cannot be realized from input string: ") +
+                          openSSLException.what());
+  }
 }
 
 //-----
 std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromStringDer(std::string_view key)
 {
-  if (key.size() == COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size())
-  {
-    // Remove the DER-encoded header
-    key.remove_prefix(DER_ENCODED_COMPRESSED_PREFIX_HEX.size());
-    return fromStringRaw(key);
-  }
-  else if (key.size() == UNCOMPRESSED_KEY_SIZE * 2 + DER_ENCODED_UNCOMPRESSED_PREFIX_HEX.size())
-  {
-    // Remove the DER-encoded header
-    key.remove_prefix(DER_ENCODED_UNCOMPRESSED_PREFIX_HEX.size());
-    return fromStringRaw(key);
-  }
-  else
+  if (key.size() != COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size() &&
+      key.size() != UNCOMPRESSED_KEY_SIZE * 2 + DER_ENCODED_UNCOMPRESSED_PREFIX_HEX.size())
   {
     throw BadKeyException(
       "ECDSAsecp256k1PublicKey cannot be realized from input string: DER encoded "
@@ -107,6 +153,8 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromStringDer(
       std::to_string(COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size()) + " if compressed, or " +
       std::to_string(UNCOMPRESSED_KEY_SIZE * 2 + DER_ENCODED_UNCOMPRESSED_PREFIX_HEX.size()) + " if uncompressed");
   }
+
+  return fromString(key);
 }
 
 //-----
@@ -120,36 +168,15 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromStringRaw(
                           std::to_string(UNCOMPRESSED_KEY_SIZE * 2) + " if uncompressed");
   }
 
-  try
-  {
-    return std::make_shared<ECDSAsecp256k1PublicKey>(
-      ECDSAsecp256k1PublicKey(rawBytesToPKEY(internal::HexConverter::hexToBytes(key))));
-  }
-  catch (const OpenSSLException& openSSLException)
-  {
-    throw BadKeyException(std::string("ECDSAsecp256k1PublicKey cannot be realized from input string: ") +
-                          openSSLException.what());
-  }
-  catch (const std::invalid_argument& invalidArgument)
-  {
-    throw BadKeyException(std::string("ECDSAsecp256k1PublicKey cannot be realized from input string: ") +
-                          invalidArgument.what());
-  }
+  return fromString(key);
 }
 
 //-----
 std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytes(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() == COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size() ||
-      bytes.size() == UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size())
-  {
-    return fromBytesDer(bytes);
-  }
-  else if (bytes.size() == COMPRESSED_KEY_SIZE || bytes.size() == UNCOMPRESSED_KEY_SIZE)
-  {
-    return fromBytesRaw(bytes);
-  }
-  else
+  if (bytes.size() != COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size() &&
+      bytes.size() != UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size() &&
+      bytes.size() != COMPRESSED_KEY_SIZE && bytes.size() != UNCOMPRESSED_KEY_SIZE)
   {
     throw BadKeyException(
       "ECDSAsecp256k1PublicKey cannot be realized from input bytes: input byte array size should be " +
@@ -158,24 +185,23 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytes(cons
       std::to_string(COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()) + " or " +
       std::to_string(COMPRESSED_KEY_SIZE) + " for compressed keys");
   }
+
+  try
+  {
+    return std::make_shared<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PublicKey(bytesToPKEY(bytes)));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(std::string("ECDSAsecp256k1PublicKey cannot be realized from input bytes: ") +
+                          openSSLException.what());
+  }
 }
 
 //-----
 std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytesDer(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() == COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size())
-  {
-    // Remove the DER-encoded header
-    return fromBytesRaw(
-      { bytes.cbegin() + static_cast<long>(DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()), bytes.cend() });
-  }
-  else if (bytes.size() == UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size())
-  {
-    // Remove the DER-encoded header
-    return fromBytesRaw(
-      { bytes.cbegin() + static_cast<long>(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()), bytes.cend() });
-  }
-  else
+  if (bytes.size() != COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size() &&
+      bytes.size() != UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size())
   {
     throw BadKeyException(
       "ECDSAsecp256k1PublicKey cannot be realized from input bytes: DER encoded "
@@ -183,6 +209,8 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytesDer(c
       std::to_string(COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()) + " bytes if compressed, or " +
       std::to_string(UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()) + " bytes if uncompressed");
   }
+
+  return fromBytes(bytes);
 }
 
 //-----
@@ -196,20 +224,7 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytesRaw(c
                           std::to_string(UNCOMPRESSED_KEY_SIZE) + " bytes if uncompressed");
   }
 
-  try
-  {
-    return std::make_shared<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PublicKey(rawBytesToPKEY(bytes)));
-  }
-  catch (const OpenSSLException& openSSLException)
-  {
-    throw BadKeyException(std::string("ECDSAsecp256k1PublicKey cannot be realized from input bytes: ") +
-                          openSSLException.what());
-  }
-  catch (const std::invalid_argument& invalidArgument)
-  {
-    throw BadKeyException(std::string("ECDSAsecp256k1PublicKey cannot be realized from input bytes: ") +
-                          invalidArgument.what());
-  }
+  return fromBytes(bytes);
 }
 
 //-----
@@ -447,16 +462,9 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytesRaw() const
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
 
-  if (publicKeyBytes.size() != UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size())
-  {
-    throw OpenSSLException("Expected public key size [" +
-                           std::to_string(UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()) +
-                           "]. Actual size was [" + std::to_string(publicKeyBytes.size()) + "]");
-  }
-
-  // don't return the algorithm identification bytes, and compress
-  return compressBytes(
-    { publicKeyBytes.begin() + static_cast<long>(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()), publicKeyBytes.end() });
+  // Don't return the algorithm identification bytes, and compress
+  return compressBytes({ publicKeyBytes.cbegin() + static_cast<long>(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()),
+                         publicKeyBytes.cend() });
 }
 
 //----
@@ -466,40 +474,6 @@ std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobuf() const
   const std::vector<unsigned char> rawBytes = toBytesRaw();
   keyProtobuf->set_allocated_ecdsa_secp256k1(new std::string({ rawBytes.cbegin(), rawBytes.cend() }));
   return keyProtobuf;
-}
-
-//-----
-internal::OpenSSLUtils::EVP_PKEY ECDSAsecp256k1PublicKey::rawBytesToPKEY(const std::vector<unsigned char>& bytes)
-{
-  if (bytes.size() != COMPRESSED_KEY_SIZE && bytes.size() != UNCOMPRESSED_KEY_SIZE)
-  {
-    throw std::invalid_argument("Input bytes size [" + std::to_string(bytes.size()) + "] is invalid: must be either [" +
-                                std::to_string(UNCOMPRESSED_KEY_SIZE) + "] or [" + std::to_string(COMPRESSED_KEY_SIZE) +
-                                "]");
-  }
-
-  // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN1 prefix
-  const std::vector<unsigned char> uncompressedKeyBytes =
-    (bytes.size() == COMPRESSED_KEY_SIZE)
-      ? internal::Utilities::concatenateVectors(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, uncompressBytes(bytes))
-      : internal::Utilities::concatenateVectors(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, bytes);
-
-  EVP_PKEY* pkey = nullptr;
-  const internal::OpenSSLUtils::OSSL_DECODER_CTX context(
-    OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr));
-  if (!context)
-  {
-    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_DECODER_CTX_new_for_pkey"));
-  }
-
-  size_t dataLength = uncompressedKeyBytes.size();
-  if (const unsigned char* rawKeyBytes = &uncompressedKeyBytes.front();
-      OSSL_DECODER_from_data(context.get(), &rawKeyBytes, &dataLength) <= 0)
-  {
-    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_DECODER_from_data"));
-  }
-
-  return internal::OpenSSLUtils::EVP_PKEY(pkey);
 }
 
 //-----

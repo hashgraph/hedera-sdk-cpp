@@ -219,16 +219,6 @@ public:
 
 private:
   /**
-   * Create a wrapped OpenSSL keypair object from a byte vector representing an ECDSAsecp256k1PublicKey.
-   *
-   * @param bytes The bytes representing a ECDSAsecp256k1PublicKey.
-   * @return The newly created wrapped OpenSSL keypair object.
-   * @throws std::invalid_argument If the input bytes are not the correct size.
-   * @throws OpenSSLException      If OpenSSL is unable to create a keypair from the input bytes.
-   */
-  [[nodiscard]] static internal::OpenSSLUtils::EVP_PKEY rawBytesToPKEY(const std::vector<unsigned char>& bytes);
-
-  /**
    * Construct from a wrapped OpenSSL keypair object.
    *
    * @param keypair The wrapped OpenSSL keypair object from which to construct this ECDSAsecp256k1PublicKey.
