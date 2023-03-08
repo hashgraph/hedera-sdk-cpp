@@ -91,14 +91,6 @@ AccountUpdateTransaction::AccountUpdateTransaction(const proto::TransactionBody&
 }
 
 //-----
-std::unique_ptr<
-  Executable<AccountUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>>
-AccountUpdateTransaction::clone() const
-{
-  return std::make_unique<AccountUpdateTransaction>(*this);
-}
-
-//-----
 AccountUpdateTransaction& AccountUpdateTransaction::setAccountId(const AccountId& accountId)
 {
   requireNotFrozen();

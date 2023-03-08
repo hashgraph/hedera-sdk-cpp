@@ -39,14 +39,7 @@ class TransactionRecordQuery : public Query<TransactionRecordQuery, TransactionR
 {
 public:
   ~TransactionRecordQuery() override = default;
-
-  /**
-   * Derived from Executable. Create a clone of this TransactionRecordQuery.
-   *
-   * @return A pointer to the created clone.
-   */
-  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
-
+  
   /**
    * Set the ID of the transaction of which to request the record.
    *

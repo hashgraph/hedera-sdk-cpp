@@ -40,13 +40,6 @@ public:
   ~AccountBalanceQuery() override = default;
 
   /**
-   * Derived from Executable. Create a clone of this AccountBalanceQuery.
-   *
-   * @return A pointer to the created clone.
-   */
-  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
-
-  /**
    * Set the ID of the account of which to request the balance. This is mutually exclusive with setContractId() and will
    * clear the contract ID if one is already set.
    *

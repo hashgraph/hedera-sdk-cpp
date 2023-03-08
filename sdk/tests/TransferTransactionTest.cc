@@ -126,30 +126,6 @@ TEST_F(TransferTransactionTest, ConstructTransferTransactionFromTransactionBodyP
 }
 
 //-----
-TEST_F(TransferTransactionTest, CloneTransferTransaction)
-{
-  TransferTransaction transaction;
-  const std::string memo = "this is a test memo";
-  transaction.setNodeAccountIds({ getTestAccountId1() });
-  transaction.setTransactionMemo(memo);
-  transaction.addHbarTransfer(getTestAccountId1(), getTestAmount());
-
-  auto clonedExecutableTransactionPtr = transaction.clone();
-  EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().size(), transaction.getNodeAccountIds().size());
-  EXPECT_EQ(clonedExecutableTransactionPtr->getNodeAccountIds().at(0), getTestAccountId1());
-
-  auto clonedTransactionPtr = dynamic_cast<Transaction<TransferTransaction>*>(clonedExecutableTransactionPtr.get());
-  EXPECT_NE(clonedTransactionPtr, nullptr);
-  EXPECT_EQ(clonedTransactionPtr->getTransactionMemo(), memo);
-
-  auto clonedAccountCreateTransactionPtr = dynamic_cast<TransferTransaction*>(clonedTransactionPtr);
-  EXPECT_NE(clonedAccountCreateTransactionPtr, nullptr);
-  EXPECT_FALSE(clonedAccountCreateTransactionPtr->getHbarTransfers().empty());
-  EXPECT_EQ(clonedAccountCreateTransactionPtr->getHbarTransfers().begin()->first, getTestAccountId1());
-  EXPECT_EQ(clonedAccountCreateTransactionPtr->getHbarTransfers().begin()->second, getTestAmount());
-}
-
-//-----
 TEST_F(TransferTransactionTest, AddHbarTransfer)
 {
   TransferTransaction transaction;

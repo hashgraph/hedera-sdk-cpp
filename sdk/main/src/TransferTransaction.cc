@@ -77,13 +77,6 @@ TransferTransaction::TransferTransaction(const proto::TransactionBody& transacti
 }
 
 //-----
-std::unique_ptr<Executable<TransferTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>>
-TransferTransaction::clone() const
-{
-  return std::make_unique<TransferTransaction>(*this);
-}
-
-//-----
 TransferTransaction& TransferTransaction::addHbarTransfer(const AccountId& accountId, const Hbar& amount)
 {
   requireNotFrozen();

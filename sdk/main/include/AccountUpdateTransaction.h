@@ -58,13 +58,6 @@ public:
   explicit AccountUpdateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Derived from Executable. Create a clone of this AccountUpdateTransaction.
-   *
-   * @return A pointer to the created clone.
-   */
-  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
-
-  /**
    * Set the ID of the account to update.
    *
    * @param accountId The ID of the account this transaction should update.

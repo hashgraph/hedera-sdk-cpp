@@ -34,13 +34,6 @@
 namespace Hedera
 {
 //-----
-std::unique_ptr<Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>>
-TransactionRecordQuery::clone() const
-{
-  return std::make_unique<TransactionRecordQuery>(*this);
-}
-
-//-----
 TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const TransactionId& transactionId)
 {
   mTransactionId = transactionId;
