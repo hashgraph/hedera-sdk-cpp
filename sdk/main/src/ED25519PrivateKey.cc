@@ -65,13 +65,119 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_view key)
 {
+  if (key.size() == PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
+  {
+    return fromStringDer(key);
+  }
+  else if (key.size() == PRIVATE_KEY_SIZE * 2)
+  {
+    return fromStringRaw(key);
+  }
+  else
+  {
+    throw BadKeyException("ED25519PrivateKey cannot be realized from input string: input string size should be " +
+                          std::to_string(PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
+                          std::to_string(PRIVATE_KEY_SIZE * 2));
+  }
+}
+
+//-----
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringDer(std::string_view key)
+{
+  if (key.size() != PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
+  {
+    throw BadKeyException("ED25519PrivateKey cannot be realized from input string: DER encoded ED25519PrivateKey hex "
+                          "string size should be " +
+                          std::to_string(PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
+  }
+
+  // Remove the DER-encoded header
+  key.remove_prefix(DER_ENCODED_PREFIX_HEX.size());
+  return fromStringRaw(key);
+}
+
+//-----
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringRaw(std::string_view key)
+{
+  if (key.size() != PRIVATE_KEY_SIZE * 2)
+  {
+    throw BadKeyException(
+      "ED25519PrivateKey cannot be realized from input string: raw ED25519PrivateKey string size should be " +
+      std::to_string(PRIVATE_KEY_SIZE * 2));
+  }
+
   try
   {
     return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
   }
   catch (const OpenSSLException& openSSLException)
   {
-    throw BadKeyException(openSSLException.what());
+    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input string: ") +
+                          openSSLException.what());
+  }
+  catch (const std::invalid_argument& invalidArgument)
+  {
+    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input string: ") +
+                          invalidArgument.what());
+  }
+}
+
+//-----
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytes(const std::vector<unsigned char>& bytes)
+{
+  if (bytes.size() == PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
+  {
+    return fromBytesDer(bytes);
+  }
+  else if (bytes.size() == PRIVATE_KEY_SIZE)
+  {
+    return fromBytesRaw(bytes);
+  }
+  else
+  {
+    throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: input byte array size should be " +
+                          std::to_string(PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
+                          std::to_string(PRIVATE_KEY_SIZE));
+  }
+}
+
+//-----
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesDer(const std::vector<unsigned char>& bytes)
+{
+  if (bytes.size() != PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
+  {
+    throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: DER encoded ED25519PrivateKey byte "
+                          "array should contain " +
+                          std::to_string(PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
+  }
+
+  // Remove the DER-encoded header
+  return fromBytesRaw({ bytes.cbegin() + static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()), bytes.cend() });
+}
+
+//-----
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesRaw(const std::vector<unsigned char>& bytes)
+{
+  if (bytes.size() != PRIVATE_KEY_SIZE)
+  {
+    throw BadKeyException(
+      "ED25519PrivateKey cannot be realized from input bytes: raw ED25519PrivateKey byte array should contain " +
+      std::to_string(PRIVATE_KEY_SIZE) + " bytes");
+  }
+
+  try
+  {
+    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(bytes)));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input bytes: ") +
+                          openSSLException.what());
+  }
+  catch (const std::invalid_argument& invalidArgument)
+  {
+    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input bytes: ") +
+                          invalidArgument.what());
   }
 }
 
@@ -167,8 +273,7 @@ std::vector<unsigned char> ED25519PrivateKey::toBytesDer() const
 //-----
 std::vector<unsigned char> ED25519PrivateKey::toBytesRaw() const
 {
-  const std::vector<unsigned char> bytes = toBytesDer();
-  return { bytes.cbegin() + static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()), bytes.cend() };
+  return internal::Utilities::removePrefix(toBytesDer(), static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()));
 }
 
 //-----
@@ -187,9 +292,10 @@ std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
   // As per SLIP0010, private key must be padded to 33 bytes
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
     getChainCode(),
-    internal::Utilities::appendVector(internal::Utilities::appendVector({ 0x0 }, toBytesRaw()),
-                                      internal::DerivationPathUtils::indexToBigEndianArray(
-                                        internal::DerivationPathUtils::getHardenedIndex(childIndex))));
+    internal::Utilities::concatenateVectors({ 0x0 },
+                                            toBytesRaw(),
+                                            internal::DerivationPathUtils::indexToBigEndianArray(
+                                              internal::DerivationPathUtils::getHardenedIndex(childIndex))));
 
   // The hmac is the key bytes followed by the chain code bytes
   return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(
@@ -198,17 +304,22 @@ std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
 }
 
 //-----
-internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(std::vector<unsigned char> keyBytes)
+internal::OpenSSLUtils::EVP_PKEY ED25519PrivateKey::bytesToPKEY(std::vector<unsigned char> bytes)
 {
-  // If there are only 32 key bytes, we need to add the algorithm identifier bytes, so that we can correctly decode
-  if (keyBytes.size() == PRIVATE_KEY_SIZE)
+  if (bytes.size() == PRIVATE_KEY_SIZE)
   {
-    keyBytes.insert(keyBytes.begin(), DER_ENCODED_PREFIX_BYTES.cbegin(), DER_ENCODED_PREFIX_BYTES.cend());
+    bytes.insert(bytes.begin(), DER_ENCODED_PREFIX_BYTES.cbegin(), DER_ENCODED_PREFIX_BYTES.cend());
+  }
+  else if (bytes.size() != PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
+  {
+    throw std::invalid_argument("Input bytes size [" + std::to_string(bytes.size()) + "] is invalid: must be either [" +
+                                std::to_string(PRIVATE_KEY_SIZE) + "] or [" +
+                                std::to_string(PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + "]");
   }
 
-  const unsigned char* rawKeyBytes = &keyBytes.front();
+  const unsigned char* rawKeyBytes = &bytes.front();
   internal::OpenSSLUtils::EVP_PKEY key(
-    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(keyBytes.size())));
+    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(bytes.size())));
   if (!key)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PrivateKey"));

@@ -129,7 +129,7 @@ TEST_F(ED25519PublicKeyTest, FromBytes)
                                                       0xEA, 0xE9, 0x31, 0x1C, 0x56, 0xF6, 0x61, 0x25, 0x57, 0xF3, 0x49,
                                                       0xF3, 0x41, 0x2D, 0xBD, 0x95, 0xC9, 0xFE, 0x8B, 0x02, 0x65 };
   const std::vector<unsigned char> publicKeyBytesDer =
-    internal::Utilities::appendVector(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, publicKeyBytes);
+    internal::Utilities::concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, publicKeyBytes);
 
   const std::shared_ptr<ED25519PublicKey> publicKeyFromBytes = ED25519PublicKey::fromBytes(publicKeyBytes);
 
@@ -162,17 +162,6 @@ TEST_F(ED25519PublicKeyTest, FromBytes)
   EXPECT_EQ(publicKeyFromBytesRaw->toStringRaw(), publicKeyFromBytesDer->toStringRaw());
   EXPECT_EQ(publicKeyFromBytesRaw->toBytesDer(), publicKeyFromBytesDer->toBytesDer());
   EXPECT_EQ(publicKeyFromBytesRaw->toBytesRaw(), publicKeyFromBytesDer->toBytesRaw());
-
-  // Throw if input garbage
-  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromString("fdsakfdsalf"),
-               BadKeyException);
-  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =
-                 ED25519PublicKey::fromString(ED25519PublicKey::DER_ENCODED_PREFIX_HEX + "fjdskaf;"),
-               BadKeyException);
-  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =
-                 ED25519PublicKey::fromString(ED25519PublicKey::DER_ENCODED_PREFIX_HEX +
-                                              "F83DEF42411E046461D5AEEAE9S11C56F661 557F349F3412DBD95C9FE8B026X"),
-               BadKeyException);
 }
 
 //-----

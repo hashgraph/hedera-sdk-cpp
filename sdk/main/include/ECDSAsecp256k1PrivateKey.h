@@ -50,6 +50,11 @@ public:
                                                                               0x00, 0x0A, 0x04, 0x22, 0x04, 0x20 };
 
   /**
+   * The hex-encoded string of the DER-encoded prefix bytes of an ECDSAsecp256k1PrivateKey.
+   */
+  static inline const std::string DER_ENCODED_PREFIX_HEX = "3030020100300706052B8104000A04220420";
+
+  /**
    * The number of bytes in a DER-encoded ECDSAsecp256k1PrivateKey signature.
    */
   static constexpr const size_t DER_ENCODED_SIGNATURE_SIZE = 72;
@@ -81,7 +86,7 @@ public:
    * @return A pointer to the generated ECDSAsecp256k1PrivateKey.
    * @throws OpenSSLException If OpenSSL fails to generate a key.
    */
-  static std::unique_ptr<ECDSAsecp256k1PrivateKey> generatePrivateKey();
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> generatePrivateKey();
 
   /**
    * Construct an ECDSAsecp256k1PrivateKey object from a hex-encoded string (DER-encoded or raw).
@@ -90,7 +95,52 @@ public:
    * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input string.
    * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input keyString.
    */
-  static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(std::string_view key);
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(std::string_view key);
+
+  /**
+   * Construct an ECDSAsecp256k1PrivateKey object from a hex-encoded, DER-encoded key string.
+   *
+   * @param key The string from which to create an ECDSAsecp256k1PrivateKey.
+   * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input hex string.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input key.
+   */
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromStringDer(std::string_view key);
+
+  /**
+   * Construct an ECDSAsecp256k1PrivateKey object from a raw hex-encoded string.
+   *
+   * @param key The string from which to create an ECDSAsecp256k1PrivateKey.
+   * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input raw hex string.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input key.
+   */
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromStringRaw(std::string_view key);
+
+  /**
+   * Construct an ECDSAsecp256k1PrivateKey object from a byte vector (DER-encoded or raw).
+   *
+   * @param bytes The vector of bytes from which to construct the ECDSAsecp256k1PrivateKey.
+   * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input bytes.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input bytes.
+   */
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromBytes(const std::vector<unsigned char>& bytes);
+
+  /**
+   * Construct an ECDSAsecp256k1PrivateKey object from a DER-encoded byte vector.
+   *
+   * @param bytes The vector of DER-encoded bytes from which to construct the ECDSAsecp256k1PrivateKey.
+   * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input DER-encoded bytes.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input bytes.
+   */
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromBytesDer(const std::vector<unsigned char>& bytes);
+
+  /**
+   * Construct an ECDSAsecp256k1PrivateKey object from a raw byte vector.
+   *
+   * @param bytes The vector of raw bytes from which to construct the ECDSAsecp256k1PrivateKey.
+   * @return A pointer to an ECDSAsecp256k1PrivateKey representing the raw input bytes.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input bytes.
+   */
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromBytesRaw(const std::vector<unsigned char>& bytes);
 
   /**
    * Construct an ECDSAsecp256k1PrivateKey from a seed array.

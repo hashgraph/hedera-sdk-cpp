@@ -71,7 +71,7 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view 
   }
   else
   {
-    throw BadKeyException("ECDSAsecp256k1PublicKey cannot be realized from input string: input string size should be " +
+    throw BadKeyException("ED25519PublicKey cannot be realized from input string: input string size should be " +
                           std::to_string(PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
                           std::to_string(PUBLIC_KEY_SIZE * 2));
   }

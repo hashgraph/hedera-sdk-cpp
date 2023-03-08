@@ -25,7 +25,7 @@
 namespace Hedera::internal::Utilities
 {
 //-----
-[[nodiscard]] bool isPrefixOf(const std::vector<unsigned char>& bytes, const std::vector<unsigned char>& prefix)
+bool isPrefixOf(const std::vector<unsigned char>& bytes, const std::vector<unsigned char>& prefix)
 {
   if (prefix.size() > bytes.size())
   {
@@ -44,12 +44,26 @@ namespace Hedera::internal::Utilities
 }
 
 //-----
-[[nodiscard]] std::vector<unsigned char> appendVector(const std::vector<unsigned char>& appendee,
-                                                      const std::vector<unsigned char>& appender)
+std::vector<unsigned char> removePrefix(const std::vector<unsigned char>& bytes, long num)
 {
-  std::vector<unsigned char> bytes = appendee;
-  bytes.insert(bytes.end(), appender.cbegin(), appender.cend());
+  return { bytes.cbegin() + num, bytes.cend() };
+}
+
+//-----
+std::vector<unsigned char> concatenateVectors(const std::vector<unsigned char>& first,
+                                              const std::vector<unsigned char>& second)
+{
+  std::vector<unsigned char> bytes = first;
+  bytes.insert(bytes.end(), second.cbegin(), second.cend());
   return bytes;
+}
+
+//-----
+std::vector<unsigned char> concatenateVectors(const std::vector<unsigned char>& first,
+                                              const std::vector<unsigned char>& second,
+                                              const std::vector<unsigned char>& third)
+{
+  return concatenateVectors(concatenateVectors(first, second), third);
 }
 
 } // namespace Hedera::internal::Utilities

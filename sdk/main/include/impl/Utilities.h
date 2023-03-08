@@ -29,19 +29,40 @@ namespace Hedera::internal::Utilities
  *
  * @param bytes  The bytes for which to look for the prefix.
  * @param prefix The prefix bytes to find in the byte array.
- * @param \c TRUE If prefix is a prefix of bytes, otherwise \c FALSE.
+ * @return \c TRUE If prefix is a prefix of bytes, otherwise \c FALSE.
  */
 [[nodiscard]] bool isPrefixOf(const std::vector<unsigned char>& bytes, const std::vector<unsigned char>& prefix);
 
 /**
- * Append a byte vector onto another.
+ * Remove a certain number of bytes from the beginning of a byte vector.
  *
- * @param appendee The byte vector onto which to append the vector.
- * @param appender The byte vector to append.
- * @return The byte vector with the appended byte vector.
+ * @param bytes The bytes from which to remove the prefix.
+ * @param num   The number of bytes to remove.
+ * @return The byte vector with the removed prefix bytes.
  */
-[[nodiscard]] std::vector<unsigned char> appendVector(const std::vector<unsigned char>& appendee,
-                                                      const std::vector<unsigned char>& appender);
+[[nodiscard]] std::vector<unsigned char> removePrefix(const std::vector<unsigned char>& bytes, long num);
+
+/**
+ * Concatenate two bytes vectors together (in the order of the arguments).
+ *
+ * @param first  The first byte vector.
+ * @param second The second byte vector.
+ * @return A byte vector containing the two input byte vectors concatenated into one.
+ */
+[[nodiscard]] std::vector<unsigned char> concatenateVectors(const std::vector<unsigned char>& first,
+                                                            const std::vector<unsigned char>& second);
+
+/**
+ * Concatenate three bytes vectors together (in the order of the arguments).
+ *
+ * @param first  The first byte vector.
+ * @param second The second byte vector.
+ * @param third  The third byte vector.
+ * @return A byte vector containing all three input byte vectors concatenated into one.
+ */
+[[nodiscard]] std::vector<unsigned char> concatenateVectors(const std::vector<unsigned char>& first,
+                                                            const std::vector<unsigned char>& second,
+                                                            const std::vector<unsigned char>& third);
 
 } // namespace Hedera::internal::Utilities
 

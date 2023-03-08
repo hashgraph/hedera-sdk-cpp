@@ -29,7 +29,6 @@
 #include <openssl/ec.h>
 #include <openssl/x509.h>
 #include <proto/basic_types.pb.h>
-#include <set>
 
 namespace Hedera
 {
@@ -433,7 +432,7 @@ std::string ECDSAsecp256k1PublicKey::toStringRaw() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytesDer() const
 {
-  return internal::Utilities::appendVector(DER_ENCODED_COMPRESSED_PREFIX_BYTES, toBytesRaw());
+  return internal::Utilities::concatenateVectors(DER_ENCODED_COMPRESSED_PREFIX_BYTES, toBytesRaw());
 }
 
 //-----
@@ -482,8 +481,8 @@ internal::OpenSSLUtils::EVP_PKEY ECDSAsecp256k1PublicKey::rawBytesToPKEY(const s
   // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN1 prefix
   const std::vector<unsigned char> uncompressedKeyBytes =
     (bytes.size() == COMPRESSED_KEY_SIZE)
-      ? internal::Utilities::appendVector(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, uncompressBytes(bytes))
-      : internal::Utilities::appendVector(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, bytes);
+      ? internal::Utilities::concatenateVectors(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, uncompressBytes(bytes))
+      : internal::Utilities::concatenateVectors(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, bytes);
 
   EVP_PKEY* pkey = nullptr;
   const internal::OpenSSLUtils::OSSL_DECODER_CTX context(

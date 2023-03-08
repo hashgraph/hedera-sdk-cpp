@@ -40,11 +40,16 @@ class ED25519PrivateKey : public PrivateKey
 {
 public:
   /**
-   * The prefix bytes of a DER-encoded ECDSAsecp256k1PrivateKey.
+   * The prefix bytes of a DER-encoded ED25519PrivateKey.
    */
   static inline const std::vector<unsigned char> DER_ENCODED_PREFIX_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x00, 0x30,
                                                                               0x05, 0x06, 0x03, 0x2B, 0x65, 0x70,
                                                                               0x04, 0x22, 0x04, 0x20 };
+
+  /**
+   * The hex-encoded string of the DER-encoded prefix bytes of an ED25519PrivateKey.
+   */
+  static inline const std::string DER_ENCODED_PREFIX_HEX = "302E020100300506032B657004220420";
 
   /**
    * Disallow default construction of an ED25519PrivateKey, as an uninitialized ED25519PrivateKey provides no
@@ -67,7 +72,52 @@ public:
    * @return A pointer to an ED25519PrivateKey representing the input string.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input keyString.
    */
-  static std::unique_ptr<ED25519PrivateKey> fromString(std::string_view key);
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromString(std::string_view key);
+
+  /**
+   * Construct an ED25519PrivateKey object from a hex-encoded, DER-encoded key string.
+   *
+   * @param key The string from which to create an ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input hex string.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input key.
+   */
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromStringDer(std::string_view key);
+
+  /**
+   * Construct an ED25519PrivateKey object from a raw hex-encoded string.
+   *
+   * @param key The string from which to create an ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input raw hex string.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input key.
+   */
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromStringRaw(std::string_view key);
+
+  /**
+   * Construct an ED25519PrivateKey object from a byte vector (DER-encoded or raw).
+   *
+   * @param bytes The vector of bytes from which to construct the ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input bytes.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
+   */
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytes(const std::vector<unsigned char>& bytes);
+
+  /**
+   * Construct an ED25519PrivateKey object from a DER-encoded byte vector.
+   *
+   * @param bytes The vector of DER-encoded bytes from which to construct the ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input DER-encoded bytes.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
+   */
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytesDer(const std::vector<unsigned char>& bytes);
+
+  /**
+   * Construct an ED25519PrivateKey object from a raw byte vector.
+   *
+   * @param bytes The vector of raw bytes from which to construct the ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the raw input bytes.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
+   */
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytesRaw(const std::vector<unsigned char>& bytes);
 
   /**
    * Construct an ED25519PrivateKey from a seed array.
@@ -137,11 +187,11 @@ private:
   /**
    * Create a wrapped OpenSSL keypair object from a byte vector representing an ED25519PrivateKey.
    *
-   * @param keyBytes The bytes representing a ED25519PrivateKey.
+   * @param bytes The bytes representing a ED25519PrivateKey.
    * @return The newly created wrapped OpenSSL keypair object.
    * @throws OpenSSLException If OpenSSL is unable to generate an ED25519 keypair from the input bytes.
    */
-  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> keyBytes);
+  static internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> bytes);
 
   /**
    * Construct from a wrapped OpenSSL keypair object.
