@@ -79,6 +79,8 @@ TransferTransaction::TransferTransaction(const proto::TransactionBody& transacti
 //-----
 TransferTransaction& TransferTransaction::addHbarTransfer(const AccountId& accountId, const Hbar& amount)
 {
+  requireNotFrozen();
+
   doHbarTransfer(HbarTransfer().setAccountId(accountId).setAmount(amount).setApproved(false));
   return *this;
 }
@@ -88,6 +90,8 @@ TransferTransaction& TransferTransaction::addTokenTransfer(const TokenId& tokenI
                                                            const AccountId& accountId,
                                                            const int64_t& amount)
 {
+  requireNotFrozen();
+
   doTokenTransfer(TokenTransfer().setTokenId(tokenId).setAccountId(accountId).setAmount(amount).setApproval(false));
   return *this;
 }
@@ -97,6 +101,8 @@ TransferTransaction& TransferTransaction::addNftTransfer(const NftId& nftId,
                                                          const AccountId& senderAccountId,
                                                          const AccountId& receiverAccountId)
 {
+  requireNotFrozen();
+
   doNftTransfer(TokenNftTransfer()
                   .setNftId(nftId)
                   .setSenderAccountId(senderAccountId)
@@ -111,6 +117,8 @@ TransferTransaction& TransferTransaction::addTokenTransferWithDecimals(const Tok
                                                                        const int64_t& amount,
                                                                        uint32_t decimals)
 {
+  requireNotFrozen();
+
   doTokenTransfer(TokenTransfer()
                     .setTokenId(tokenId)
                     .setAccountId(accountId)
@@ -123,6 +131,8 @@ TransferTransaction& TransferTransaction::addTokenTransferWithDecimals(const Tok
 //-----
 TransferTransaction& TransferTransaction::addApprovedHbarTransfer(const AccountId& accountId, const Hbar& amount)
 {
+  requireNotFrozen();
+
   doHbarTransfer(HbarTransfer().setAccountId(accountId).setAmount(amount).setApproved(true));
   return *this;
 }
@@ -132,6 +142,8 @@ TransferTransaction& TransferTransaction::addApprovedTokenTransfer(const TokenId
                                                                    const AccountId& accountId,
                                                                    const int64_t& amount)
 {
+  requireNotFrozen();
+
   doTokenTransfer(TokenTransfer().setTokenId(tokenId).setAccountId(accountId).setAmount(amount).setApproval(true));
   return *this;
 }
@@ -141,6 +153,8 @@ TransferTransaction& TransferTransaction::addApprovedNftTransfer(const NftId& nf
                                                                  const AccountId& senderAccountId,
                                                                  const AccountId& receiverAccountId)
 {
+  requireNotFrozen();
+
   doNftTransfer(TokenNftTransfer()
                   .setNftId(nftId)
                   .setSenderAccountId(senderAccountId)
@@ -155,6 +169,8 @@ TransferTransaction& TransferTransaction::addApprovedTokenTransferWithDecimals(c
                                                                                const int64_t& amount,
                                                                                uint32_t decimals)
 {
+  requireNotFrozen();
+
   doTokenTransfer(TokenTransfer()
                     .setTokenId(tokenId)
                     .setAccountId(accountId)

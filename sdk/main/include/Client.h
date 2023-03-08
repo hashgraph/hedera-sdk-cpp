@@ -187,7 +187,7 @@ public:
    *
    * @return A pointer to the public key of this Client's operator. Nullptr if the operator has not yet been set.
    */
-  [[nodiscard]] std::unique_ptr<PublicKey> getOperatorPublicKey() const;
+  [[nodiscard]] std::shared_ptr<PublicKey> getOperatorPublicKey() const;
 
   /**
    * Get the length of time a request sent by this Client can be processed before it times out.
