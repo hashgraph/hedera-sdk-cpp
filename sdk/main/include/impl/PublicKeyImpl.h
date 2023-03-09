@@ -30,8 +30,10 @@ namespace Hedera
  */
 struct PublicKey::PublicKeyImpl
 {
-  // The wrapped OpenSSL keypair object.
-  internal::OpenSSLUtils::EVP_PKEY mKeypair;
+  /**
+   * The wrapped OpenSSL key object.
+   */
+  internal::OpenSSLUtils::EVP_PKEY mKey;
 };
 } // namespace Hedera
 

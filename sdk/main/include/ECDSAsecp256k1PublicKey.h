@@ -164,8 +164,8 @@ public:
    * ECDSAsecp256k1PublicKey.
    *
    * @param signatureBytes The byte vector representing the signature.
-   * @param signedBytes    The bytes which were purportedly signed to create the signature.
-   * @return \c TRUE if the signature is valid for this ECDSAsecp256k1PublicKey's private key, otherwise \c FALSE.
+   * @param signedBytes    The bytes which were signed to create the signature.
+   * @return \c TRUE if the signature is valid, otherwise \c FALSE.
    * @throws OpenSSLException If OpenSSL is unable to verify the signature.
    */
   [[nodiscard]] bool verifySignature(const std::vector<unsigned char>& signatureBytes,

@@ -82,16 +82,16 @@ std::shared_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<unsigned ch
 }
 
 //-----
-PublicKey::PublicKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
+PublicKey::PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key)
   : mImpl(PublicKeyImpl())
 {
-  mImpl->mKeypair = std::move(keypair);
+  mImpl->mKey = std::move(key);
 }
 
 //-----
-internal::OpenSSLUtils::EVP_PKEY PublicKey::getKeypair() const
+internal::OpenSSLUtils::EVP_PKEY PublicKey::getInternalKey() const
 {
-  return mImpl->mKeypair;
+  return mImpl->mKey;
 }
 
 } // namespace Hedera

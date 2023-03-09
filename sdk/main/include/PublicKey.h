@@ -50,7 +50,7 @@ public:
   virtual ~PublicKey();
 
   /**
-   * Create a PublicKey object from a Key protobuf object.
+   * Construct a PublicKey object from a Key protobuf object.
    *
    * @param proto The Key protobuf object from which to create a PublicKey object.
    * @return A pointer to the created PublicKey object. Nullptr if the key type is not recognized.
@@ -58,20 +58,22 @@ public:
   [[nodiscard]] static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
 
   /**
-   * Create a PublicKey object from a hex-encoded string of DER-encoded bytes.
+   * Construct a PublicKey object from a hex-encoded string of DER-encoded bytes.
    *
    * @param key The hex string from which to create a PublicKey object.
    * @return A pointer to the created PublicKey object.
-   * @throws std::invalid_argument If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined.
+   * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
+   *                         from the input hex-string.
    */
   [[nodiscard]] static std::shared_ptr<PublicKey> fromStringDer(std::string_view key);
 
   /**
-   * Create a PublicKey object from a DER-encoded byte array.
+   * Construct a PublicKey object from a DER-encoded byte array.
    *
    * @param bytes The byte array from which to create a PublicKey object.
    * @return A pointer to the created PublicKey object.
-   * @throws std::invalid_argument If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined.
+   * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
+   *                         from the input byte array.
    */
   [[nodiscard]] static std::shared_ptr<PublicKey> fromBytesDer(const std::vector<unsigned char>& bytes);
 
@@ -93,7 +95,7 @@ public:
    * Verify that a signature was made by the PrivateKey which corresponds to this PublicKey.
    *
    * @param signatureBytes The byte vector representing the signature.
-   * @param signedBytes    The bytes which were purportedly signed to create the signature.
+   * @param signedBytes    The bytes which were signed to create the signature.
    * @return \c TRUE if the signature is valid, otherwise \c FALSE.
    */
   [[nodiscard]] virtual bool verifySignature(const std::vector<unsigned char>& signatureBytes,
@@ -137,16 +139,18 @@ protected:
   PublicKey& operator=(PublicKey&&) noexcept = default;
 
   /**
-   * Construct with wrapped OpenSSL keypair.
+   * Construct with a wrapped OpenSSL key object.
+   *
+   * @param key The wrapped OpenSSL key object.
    */
-  explicit PublicKey(internal::OpenSSLUtils::EVP_PKEY&& keypair);
+  explicit PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key);
 
   /**
-   * Get this PublicKey's wrapped OpenSSL keypair object.
+   * Get this PublicKey's wrapped OpenSSL key object.
    *
-   * @return This PublicKey's wrapped OpenSSL keypair object.
+   * @return This PublicKey's wrapped OpenSSL key object.
    */
-  [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY getKeypair() const;
+  [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY getInternalKey() const;
 
 private:
   /**

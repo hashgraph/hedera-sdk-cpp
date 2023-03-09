@@ -383,7 +383,8 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_fetch"));
   }
 
-  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, getKeypair().get()) <= 0)
+  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, getInternalKey().get()) <=
+      0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestVerifyInit"));
   }
@@ -424,12 +425,12 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytesDer() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytesRaw() const
 {
-  int bytesLength = i2d_PUBKEY(getKeypair().get(), nullptr);
+  int bytesLength = i2d_PUBKEY(getInternalKey().get(), nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
 
   if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
-      i2d_PUBKEY(getKeypair().get(), &rawPublicKeyBytes) <= 0)
+      i2d_PUBKEY(getInternalKey().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }

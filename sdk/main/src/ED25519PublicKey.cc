@@ -168,7 +168,7 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, nullptr, nullptr, getKeypair().get()) <= 0)
+  if (EVP_DigestVerifyInit(messageDigestContext.get(), nullptr, nullptr, nullptr, getInternalKey().get()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestVerifyInit"));
   }
@@ -203,12 +203,12 @@ std::string ED25519PublicKey::toStringRaw() const
 //-----
 std::vector<unsigned char> ED25519PublicKey::toBytesDer() const
 {
-  int bytesLength = i2d_PUBKEY(getKeypair().get(), nullptr);
+  int bytesLength = i2d_PUBKEY(getInternalKey().get(), nullptr);
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
 
   if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
-      i2d_PUBKEY(getKeypair().get(), &rawPublicKeyBytes) <= 0)
+      i2d_PUBKEY(getInternalKey().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
