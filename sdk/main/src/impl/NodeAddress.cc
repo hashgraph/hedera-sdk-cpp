@@ -18,7 +18,6 @@
  *
  */
 #include "impl/NodeAddress.h"
-#include "impl/Endpoint.h"
 #include "impl/IPv4Address.h"
 
 #include <iomanip>
@@ -26,19 +25,28 @@
 #include <proto/basic_types.pb.h>
 #include <sstream>
 
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
 namespace Hedera::internal
 {
 //-----
 NodeAddress::NodeAddress(const std::string address, const int port)
 {
-  unsigned char octet1 = 1;
-  unsigned char octet2 = 2;
-  unsigned char octet3 = 3;
-  unsigned char octet4 = 4;
+  std::vector<unsigned char> octets;
+  std::stringstream strStream(address);
+  std::string temp;
 
-  IPv4Address ipAddress_v4 = IPv4Address(octet1, octet2, octet3, octet4);
-  Endpoint endpoint = Endpoint(ipAddress_v4, port);
+  while (getline(strStream, temp, '.'))
+  {
+    int octet = atoi(temp.c_str());
+    octets.push_back((unsigned char)octet);
+  }
 
+  IPv4Address ipAddress_v4 = IPv4Address(octets[0], octets[1], octets[2], octets[3]);
+  std::shared_ptr<Endpoint> endpoint = std::make_shared<Endpoint>(ipAddress_v4, port);
   mEndpoints.push_back(endpoint);
 }
 
@@ -49,13 +57,14 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 
   for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
   {
-    outputNodeAddress.mEndpoints.push_back(internal::Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
+    Endpoint endpoint = Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i));
+    outputNodeAddress.mEndpoints.push_back(std::make_shared<Endpoint>(endpoint));
   }
 
   if (protoNodeAddress.ipaddress().length() != 0)
   {
-    outputNodeAddress.mEndpoints.emplace_back(internal::IPv4Address::fromString(protoNodeAddress.ipaddress()),
-                                              protoNodeAddress.portno());
+    // outputNodeAddress.mEndpoints.emplace_back(internal::IPv4Address::fromString(protoNodeAddress.ipaddress()),
+    //                                           protoNodeAddress.portno());
   }
 
   outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
@@ -69,10 +78,18 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 }
 
 //-----
-NodeAddress NodeAddress::fromString(const std::string& addressString)
+NodeAddress NodeAddress::fromString(const std::string& nodeAddress)
 {
-  NodeAddress outputNodeAddress;
-  return outputNodeAddress;
+  std::vector<std::string> parts;
+  std::stringstream strStream(nodeAddress);
+  std::string temp;
+
+  while (getline(strStream, temp, ':'))
+  {
+    parts.push_back(temp.c_str());
+  }
+
+  return NodeAddress(parts[0].c_str(), atoi(parts[1].c_str()));
 }
 
 //-----
@@ -104,7 +121,7 @@ NodeAddress& NodeAddress::setNodeCertHash(const std::string& certHash)
 }
 
 //-----
-NodeAddress& NodeAddress::setEndpoints(const std::vector<Endpoint>& endpoints)
+NodeAddress& NodeAddress::setEndpoints(const std::vector<std::shared_ptr<Endpoint>>& endpoints)
 {
   mEndpoints.clear();
   mEndpoints.assign(endpoints.begin(), endpoints.end());
@@ -152,11 +169,11 @@ std::string NodeAddress::toString() const
     {
       if (counter == 0)
       {
-        outputStream << endpoint.toString();
+        outputStream << endpoint.get()->toString();
       }
       else
       {
-        outputStream << std::setw(columnWidth) << "" << endpoint.toString();
+        outputStream << std::setw(columnWidth) << "" << endpoint.get()->toString();
       }
 
       ++counter;
@@ -169,12 +186,6 @@ std::string NodeAddress::toString() const
   }
 
   return outputStream.str();
-}
-
-IPv4Address& NodeAddress::getAddress() const
-{
-  auto ipAddress = mEndpoints.front().getAddress();
-  return ipAddress;
 }
 
 } // namespace Hedera::internal

@@ -213,7 +213,7 @@ std::chrono::duration<double> Node::getRemainingTimeForBackoff() const
 //-----
 bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadline)
 {
-  const std::vector<Endpoint> endpoints = mAddress->getEndpoints();
+  const std::vector<std::shared_ptr<Endpoint>> endpoints = mAddress->getEndpoints();
 
   std::shared_ptr<grpc::ChannelCredentials> channelCredentials = nullptr;
   for (const auto& endpoint : endpoints)
@@ -222,7 +222,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
     {
       case TLSBehavior::REQUIRE:
       {
-        if (NodeAddress::isTlsPort(endpoint.getPort()))
+        if (NodeAddress::isTlsPort(endpoint.get()->getPort()))
         {
           channelCredentials = mTlsChannelCredentials;
         }
@@ -232,7 +232,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
 
       case TLSBehavior::DISABLE:
       {
-        if (NodeAddress::isNonTlsPort(endpoint.getPort()))
+        if (NodeAddress::isNonTlsPort(endpoint.get()->getPort()))
         {
           channelCredentials = grpc::InsecureChannelCredentials();
         }
@@ -250,7 +250,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
     {
       shutdown();
 
-      mChannel = grpc::CreateChannel(endpoint.toString(), channelCredentials);
+      mChannel = grpc::CreateChannel(endpoint.get()->toString(), channelCredentials);
 
       if (mChannel->WaitForConnected(deadline))
       {

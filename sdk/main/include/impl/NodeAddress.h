@@ -50,7 +50,7 @@ public:
    * @param address The IP address of the Node with separator and octets.
    * @param port    The port number of the server for the node.
    */
-  NodeAddress(const std::string address, int port);
+  NodeAddress(const std::string ipAddress, int port);
 
   /**
    * Create a NodeAddress object from a NodeAddress protobuf object.
@@ -63,10 +63,10 @@ public:
   /**
    * Create a NodeAddress object from a given string.
    *
-   * @param addressString The string representation from which to create a new NodeAddress object.
+   * @param nodeAddress The string representation from which to create a new NodeAddress object.
    * @return The created NodeAddress object.
    */
-  static NodeAddress fromString(const std::string& addressString);
+  static NodeAddress fromString(const std::string& nodeAddress);
 
   /**
    * Set a new public key for the node.
@@ -106,7 +106,7 @@ public:
    * @param endpoints The endpoints to be assigned to the node
    * @return A reference to this NodeAddress with the newsly-set endpoints.
    */
-  NodeAddress& setEndpoints(const std::vector<Endpoint>& endpoints);
+  NodeAddress& setEndpoints(const std::vector<std::shared_ptr<Endpoint>>& endpoints);
 
   /**
    * Assign а new description text for the node.
@@ -141,9 +141,9 @@ public:
   static inline bool isNonTlsPort(int port) { return (port == PORT_NODE_PLAIN) || (port == PORT_MIRROR_PLAIN); }
 
   /**
-   * Get a string representation of the address.
+   * Get a string representation of the node address.
    *
-   * @return A string representing the address.
+   * @return A string representing the node address.
    */
   [[nodiscard]] std::string toString() const;
 
@@ -152,7 +152,12 @@ public:
    *
    * @return An instance of IPv4Address containing the IP address of the node.
    */
-  [[nodiscard]] IPv4Address& getAddress() const;
+  [[nodiscard]] inline const IPv4Address getDefaultIpAddress() const
+  {
+    return getDefaultEndpoint().get()->getAddress();
+  }
+
+  [[nodiscard]] inline const int getDefaultPort() const { return getDefaultEndpoint().get()->getPort(); }
 
   /**
    * Get the node ID
@@ -183,11 +188,18 @@ public:
   [[nodiscard]] inline std::string getNodeCertHash() const { return mNodeCertHash; }
 
   /**
+   * Get the default endpoint associated with the node.
+   *
+   * @return The default node endpoint.
+   */
+  [[nodiscard]] inline const std::shared_ptr<Endpoint> getDefaultEndpoint() const { return mEndpoints.front(); }
+
+  /**
    * Get a vector of endpoints associated with the node.
    *
    * @return The node endpoints.
    */
-  [[nodiscard]] inline const std::vector<Endpoint>& getEndpoints() const { return mEndpoints; }
+  [[nodiscard]] inline const std::vector<std::shared_ptr<Endpoint>>& getEndpoints() const { return mEndpoints; }
 
   /**
    * Get the description text associated with the node.
@@ -215,7 +227,7 @@ private:
   /**
    * The endpoints associated with the node.
    */
-  std::vector<Endpoint> mEndpoints;
+  std::vector<std::shared_ptr<Endpoint>> mEndpoints;
 
   /**
    * The node's public key.
