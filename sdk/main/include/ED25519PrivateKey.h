@@ -20,16 +20,17 @@
 #ifndef HEDERA_SDK_CPP_ED25519_PRIVATE_KEY_H_
 #define HEDERA_SDK_CPP_ED25519_PRIVATE_KEY_H_
 
-#include "ED25519PublicKey.h"
 #include "PrivateKey.h"
-#include "impl/OpenSSLUtils.h"
 
 #include <memory>
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
 #include <string>
 #include <string_view>
 #include <vector>
+
+namespace Hedera::internal::OpenSSLUtils
+{
+class EVP_PKEY;
+}
 
 namespace Hedera
 {
@@ -63,7 +64,7 @@ public:
    * @return A pointer to the generated ED25519PrivateKey.
    * @throws OpenSSLException If OpenSSL fails to generate a key.
    */
-  static std::unique_ptr<ED25519PrivateKey> generatePrivateKey();
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> generatePrivateKey();
 
   /**
    * Construct an ED25519PrivateKey object from a hex-encoded string (DER-encoded or raw).
@@ -126,7 +127,7 @@ public:
    * @return A pointer to an ED25519PrivateKey representing the input seed bytes.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input seed bytes.
    */
-  static std::unique_ptr<ED25519PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
 
   /**
    * Derived from PrivateKey. Create a clone of this ED25519PrivateKey object.

@@ -18,12 +18,14 @@
  *
  */
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "ECDSAsecp256k1PublicKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "exceptions/UninitializedException.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLUtils.h"
+#include "impl/PrivateKeyImpl.h"
 #include "impl/Utilities.h"
 
 #include <openssl/ec.h>
@@ -78,7 +80,6 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
 
   return key;
 }
-
 } // namespace
 
 //-----

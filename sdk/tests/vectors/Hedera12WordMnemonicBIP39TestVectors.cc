@@ -17,9 +17,8 @@
  * limitations under the License.
  *
  */
-#include "ECDSAsecp256k1PrivateKey.h"
-#include "ED25519PrivateKey.h"
 #include "MnemonicBIP39.h"
+#include "PublicKey.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 

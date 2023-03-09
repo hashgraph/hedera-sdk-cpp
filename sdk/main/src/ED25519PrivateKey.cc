@@ -23,6 +23,8 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
+#include "impl/OpenSSLUtils.h"
+#include "impl/PrivateKeyImpl.h"
 #include "impl/Utilities.h"
 
 #include <openssl/x509.h>
@@ -62,7 +64,6 @@ const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '
 
   return key;
 }
-
 } // namespace
 
 //-----

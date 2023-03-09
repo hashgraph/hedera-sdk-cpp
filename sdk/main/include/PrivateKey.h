@@ -20,12 +20,21 @@
 #ifndef HEDERA_SDK_CPP_PRIVATE_KEY_H_
 #define HEDERA_SDK_CPP_PRIVATE_KEY_H_
 
-#include "PublicKey.h"
-#include "impl/OpenSSLUtils.h"
-
+#include <cstdint>
 #include <memory>
 #include <string>
+#include <valuable/value-ptr.hpp>
 #include <vector>
+
+namespace Hedera
+{
+class PublicKey;
+}
+
+namespace Hedera::internal::OpenSSLUtils
+{
+class EVP_PKEY;
+}
 
 namespace Hedera
 {
@@ -35,7 +44,10 @@ namespace Hedera
 class PrivateKey
 {
 public:
-  virtual ~PrivateKey() = default;
+  /**
+   * Default destructor, but must define after PrivateKeyImpl is defined (in source file).
+   */
+  virtual ~PrivateKey();
 
   /**
    * Create a clone of this PrivateKey object.
@@ -93,14 +105,14 @@ public:
    *
    * @return This PrivateKey's chaincode if it exists, otherwise an empty vector.
    */
-  [[nodiscard]] inline std::vector<unsigned char> getChainCode() const { return mChainCode; }
+  [[nodiscard]] std::vector<unsigned char> getChainCode() const;
 
   /**
    * Get the PublicKey that corresponds to this PrivateKey.
    *
    * @return A pointer to the PublicKey that corresponds to this PrivateKey.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getPublicKey() const { return mPublicKey; }
+  [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const;
 
 protected:
   PrivateKey() = default;
@@ -132,23 +144,14 @@ protected:
    *
    * @return This PrivateKey's wrapped OpenSSL keypair object.
    */
-  [[nodiscard]] inline internal::OpenSSLUtils::EVP_PKEY getKeypair() const { return mKeypair; }
+  [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY getKeypair() const;
 
 private:
   /**
-   * The wrapped OpenSSL keypair.
+   * Implementation object used to hide implementation details and internal headers.
    */
-  internal::OpenSSLUtils::EVP_PKEY mKeypair;
-
-  /**
-   * This PrivateKey's chain code. If this is empty, then this PrivateKey will not support derivation.
-   */
-  std::vector<unsigned char> mChainCode;
-
-  /**
-   * A pointer to the PublicKey object that corresponds to this PrivateKey.
-   */
-  std::shared_ptr<PublicKey> mPublicKey = nullptr;
+  struct PrivateKeyImpl;
+  valuable::value_ptr<PrivateKeyImpl> mImpl;
 };
 
 } // namespace Hedera

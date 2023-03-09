@@ -20,18 +20,16 @@
 #ifndef HEDERA_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_
 #define HEDERA_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_
 
-#include "ECDSAsecp256k1PublicKey.h"
 #include "PrivateKey.h"
-#include "impl/OpenSSLUtils.h"
 
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
-namespace Hedera
+namespace Hedera::internal::OpenSSLUtils
 {
-class MnemonicBIP39;
+class EVP_PKEY;
 }
 
 namespace Hedera
@@ -149,7 +147,7 @@ public:
    * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input seed bytes.
    * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input seed bytes.
    */
-  static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
 
   /**
    * Derived from PrivateKey. Create a clone of this ECDSAsecp256k1PrivateKey object.

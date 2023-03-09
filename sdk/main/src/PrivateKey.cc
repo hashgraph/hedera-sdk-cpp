@@ -20,32 +20,55 @@
 #include "PrivateKey.h"
 #include "PublicKey.h"
 #include "exceptions/OpenSSLException.h"
+#include "impl/PrivateKeyImpl.h"
 
 #include <openssl/x509.h>
 
 namespace Hedera
 {
 //-----
-PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode)
-  : mKeypair(std::move(keypair))
-  , mChainCode(std::move(chainCode))
-  , mPublicKey(PublicKey::fromBytesDer(getPublicKeyBytes()))
+PrivateKey::~PrivateKey() = default;
+
+//-----
+std::vector<unsigned char> PrivateKey::getChainCode() const
 {
+  return mImpl->mChainCode;
+}
+
+//-----
+std::shared_ptr<PublicKey> PrivateKey::getPublicKey() const
+{
+  return mImpl->mPublicKey;
+}
+
+//-----
+PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode)
+  : mImpl(PrivateKeyImpl())
+{
+  mImpl->mKeypair = std::move(keypair);
+  mImpl->mChainCode = std::move(chainCode);
+  mImpl->mPublicKey = PublicKey::fromBytesDer(getPublicKeyBytes());
 }
 
 //-----
 std::vector<unsigned char> PrivateKey::getPublicKeyBytes() const
 {
-  int bytesLength = i2d_PUBKEY(mKeypair.get(), nullptr);
+  int bytesLength = i2d_PUBKEY(mImpl->mKeypair.get(), nullptr);
 
   std::vector<unsigned char> keyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(mKeypair.get(), &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(mImpl->mKeypair.get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
 
   return keyBytes;
+}
+
+//-----
+internal::OpenSSLUtils::EVP_PKEY PrivateKey::getKeypair() const
+{
+  return mImpl->mKeypair;
 }
 
 } // namespace Hedera
