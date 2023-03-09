@@ -124,7 +124,7 @@ protected:
   PrivateKey& operator=(PrivateKey&&) noexcept = default;
 
   /**
-   * Construct with a wrapped OpenSSL key object and optionally a chain code.
+   * Construct from a wrapped OpenSSL key object and optionally a chain code.
    *
    * @param key       The wrapped OpenSSL key object.
    * @param chainCode The chain code.

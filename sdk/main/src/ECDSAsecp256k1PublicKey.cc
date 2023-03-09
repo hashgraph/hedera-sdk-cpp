@@ -355,7 +355,7 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
   signatureS.release();
 
   // maximum length of DER encoded signature is 72
-  std::vector<unsigned char> derEncodedSignature(ECDSAsecp256k1PrivateKey::DER_ENCODED_SIGNATURE_SIZE);
+  std::vector<unsigned char> derEncodedSignature(ECDSAsecp256k1PrivateKey::MAX_SIGNATURE_SIZE);
 
   // keep track of how long the DER encoding actually is, since we'll need to tell the verification function
   int derEncodedSignatureLength;

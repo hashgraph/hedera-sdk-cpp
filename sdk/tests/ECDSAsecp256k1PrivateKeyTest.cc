@@ -33,42 +33,49 @@ using namespace Hedera;
 class ECDSAsecp256k1PrivateKeyTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const std::unique_ptr<ECDSAsecp256k1PrivateKey>& getTestPrivateKeyGenerated() const
-  {
-    return mPrivateKeyGenerated;
-  }
-  [[nodiscard]] inline const std::unique_ptr<ECDSAsecp256k1PrivateKey>& getTestPrivateKeyLoaded() const
-  {
-    return mPrivateKeyLoaded;
-  }
+  [[nodiscard]] inline const std::string& getTestPrivateKeyHexString() const { return mPrivateKeyHexString; }
 
 private:
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> mPrivateKeyGenerated = ECDSAsecp256k1PrivateKey::generatePrivateKey();
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> mPrivateKeyLoaded =
-    ECDSAsecp256k1PrivateKey::fromString(mPrivateKeyGenerated->toStringRaw());
+  const std::string mPrivateKeyHexString = "E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35";
 };
+
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, GeneratePrivateKey)
+{
+  // When
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyGenerated = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+
+  // Then
+  ASSERT_NE(privateKeyGenerated, nullptr);
+  EXPECT_EQ(privateKeyGenerated->toStringRaw().size(), ECDSAsecp256k1PrivateKey::KEY_SIZE * 2);
+  EXPECT_EQ(privateKeyGenerated->toStringDer().size(),
+            ECDSAsecp256k1PrivateKey::KEY_SIZE * 2 + ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX.size());
+  EXPECT_EQ(privateKeyGenerated->toBytesRaw().size(), ECDSAsecp256k1PrivateKey::KEY_SIZE);
+  EXPECT_EQ(privateKeyGenerated->toBytesDer().size(),
+            ECDSAsecp256k1PrivateKey::KEY_SIZE + ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size());
+}
 
 //-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
 {
-  const std::string privateKeyString = "E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35";
-  const std::string privateKeyStringDer = ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + privateKeyString;
-
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromString =
-    ECDSAsecp256k1PrivateKey::fromString(privateKeyString);
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
 
   ASSERT_NE(privateKeyFromString, nullptr);
-  EXPECT_EQ(privateKeyFromString->toStringDer(), privateKeyStringDer);
-  EXPECT_EQ(privateKeyFromString->toStringRaw(), privateKeyString);
-  EXPECT_EQ(privateKeyFromString->toBytesDer(), internal::HexConverter::hexToBytes(privateKeyStringDer));
-  EXPECT_EQ(privateKeyFromString->toBytesRaw(), internal::HexConverter::hexToBytes(privateKeyString));
+  EXPECT_EQ(privateKeyFromString->toStringDer(),
+            ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString());
+  EXPECT_EQ(privateKeyFromString->toStringRaw(), getTestPrivateKeyHexString());
+  EXPECT_EQ(privateKeyFromString->toBytesDer(),
+            internal::HexConverter::hexToBytes(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX +
+                                               getTestPrivateKeyHexString()));
+  EXPECT_EQ(privateKeyFromString->toBytesRaw(), internal::HexConverter::hexToBytes(getTestPrivateKeyHexString()));
 
   EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringDer =
-                 ECDSAsecp256k1PrivateKey::fromStringDer(privateKeyString),
+                 ECDSAsecp256k1PrivateKey::fromStringDer(getTestPrivateKeyHexString()),
                BadKeyException);
 
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringDer =
-    ECDSAsecp256k1PrivateKey::fromStringDer(privateKeyStringDer);
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringDer = ECDSAsecp256k1PrivateKey::fromStringDer(
+    ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString());
 
   ASSERT_NE(privateKeyFromStringDer, nullptr);
   EXPECT_EQ(privateKeyFromStringDer->toStringDer(), privateKeyFromString->toStringDer());
@@ -77,11 +84,12 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
   EXPECT_EQ(privateKeyFromStringDer->toBytesRaw(), privateKeyFromString->toBytesRaw());
 
   EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringRaw =
-                 ECDSAsecp256k1PrivateKey::fromStringRaw(privateKeyStringDer),
+                 ECDSAsecp256k1PrivateKey::fromStringRaw(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX +
+                                                         getTestPrivateKeyHexString()),
                BadKeyException);
 
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringRaw =
-    ECDSAsecp256k1PrivateKey::fromStringRaw(privateKeyString);
+    ECDSAsecp256k1PrivateKey::fromStringRaw(getTestPrivateKeyHexString());
 
   ASSERT_NE(privateKeyFromStringRaw, nullptr);
   EXPECT_EQ(privateKeyFromStringRaw->toStringDer(), privateKeyFromStringDer->toStringDer());
@@ -148,61 +156,121 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromBytes)
 }
 
 //-----
-TEST_F(ECDSAsecp256k1PrivateKeyTest, GetPublicKey)
+TEST_F(ECDSAsecp256k1PrivateKeyTest, Clone)
 {
-  // get the public keys from the private keys
-  const std::shared_ptr<PublicKey> publicFromGenerated = getTestPrivateKeyGenerated()->getPublicKey();
-  const std::shared_ptr<PublicKey> publicFromLoaded = getTestPrivateKeyLoaded()->getPublicKey();
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
 
-  EXPECT_NE(publicFromGenerated, nullptr);
-  EXPECT_NE(publicFromLoaded, nullptr);
+  // When
+  const std::unique_ptr<PrivateKey> clonedPrivateKey = privateKey->clone();
 
-  // make sure returned public keys are the same for generated or loaded private keys
-  EXPECT_EQ(publicFromGenerated->toStringDer(), publicFromLoaded->toStringDer());
-}
-
-//-----
-TEST_F(ECDSAsecp256k1PrivateKeyTest, Sign)
-{
-  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
-  const std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign(bytesToSign);
-  const std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign(bytesToSign);
-
-  // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality
-  EXPECT_NE(signatureFromLoaded, signatureFromGenerated);
-  // output size should be <= 72
-  EXPECT_LE(signatureFromGenerated.size(), 72);
-  EXPECT_LE(signatureFromLoaded.size(), 72);
-}
-
-//-----
-TEST_F(ECDSAsecp256k1PrivateKeyTest, SignEmptyBytes)
-{
-  const std::vector<unsigned char> signatureFromGenerated = getTestPrivateKeyGenerated()->sign({});
-  const std::vector<unsigned char> signatureFromLoaded = getTestPrivateKeyLoaded()->sign({});
-
-  // ECDSA signing includes random elements, so we cannot compare the 2 signatures for equality
-  EXPECT_NE(signatureFromLoaded, signatureFromGenerated);
-  // output size should be <= 72
-  EXPECT_LE(signatureFromGenerated.size(), 72);
-  EXPECT_LE(signatureFromLoaded.size(), 72);
-}
-
-//-----
-TEST_F(ECDSAsecp256k1PrivateKeyTest, ToString)
-{
-  std::string stringFromGenerated = getTestPrivateKeyGenerated()->toStringRaw();
-  std::string stringFromLoaded = getTestPrivateKeyLoaded()->toStringRaw();
-
-  EXPECT_EQ(stringFromGenerated.size(), 64);
-  EXPECT_EQ(stringFromLoaded.size(), 64);
-  EXPECT_EQ(stringFromGenerated, stringFromLoaded);
+  // Then
+  ASSERT_NE(clonedPrivateKey, nullptr);
+  EXPECT_EQ(privateKey->toStringRaw(), getTestPrivateKeyHexString());
 }
 
 //-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, Derive)
 {
-  // Throw when not initialized with a chain code
-  EXPECT_THROW(auto key = getTestPrivateKeyLoaded()->derive(0), UninitializedException);
-  EXPECT_THROW(auto key = getTestPrivateKeyGenerated()->derive(0), UninitializedException);
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
+
+  // When / Then
+  // The privateKey was not initialized with a chain code, so derivation shouldn't be supported.
+  EXPECT_THROW(auto key = privateKey->derive(0), UninitializedException);
+
+  // Derivation functionality is further tested in SLIP10 test vectors
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, Sign)
+{
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
+  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+
+  // When
+  const std::vector<unsigned char> signatureFromGenerated = privateKey->sign(bytesToSign);
+
+  // Then
+  // ECDSA signatures incorporate random elements, so equality can't be tested. Just make sure its size makes sense.
+  EXPECT_LE(signatureFromGenerated.size(), ECDSAsecp256k1PrivateKey::MAX_SIGNATURE_SIZE);
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, SignEmptyBytes)
+{
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
+
+  // When
+  const std::vector<unsigned char> signatureFromGenerated = privateKey->sign({});
+
+  // Then
+  EXPECT_LE(signatureFromGenerated.size(), ECDSAsecp256k1PrivateKey::MAX_SIGNATURE_SIZE);
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, ToString)
+{
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
+
+  // When
+  const std::string stringDer = privateKey->toStringDer();
+  const std::string stringRaw = privateKey->toStringRaw();
+
+  // Then
+  EXPECT_EQ(stringDer, ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString());
+  EXPECT_EQ(stringRaw, getTestPrivateKeyHexString());
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, ToBytes)
+{
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
+
+  // When
+  const std::vector<unsigned char> bytesDer = privateKey->toBytesDer();
+  const std::vector<unsigned char> bytesRaw = privateKey->toBytesRaw();
+
+  // Then
+  EXPECT_EQ(bytesDer,
+            internal::Utilities::concatenateVectors(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES,
+                                                    internal::HexConverter::hexToBytes(getTestPrivateKeyHexString())));
+  EXPECT_EQ(bytesRaw, internal::HexConverter::hexToBytes(getTestPrivateKeyHexString()));
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, GetChainCode)
+{
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
+
+  // When
+  const std::vector<unsigned char> chainCode = privateKey->getChainCode();
+
+  // Then
+  EXPECT_TRUE(chainCode.empty());
+
+  // Chain code functionality is further tested in SLIP10 test vectors
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PrivateKeyTest, GetPublicKey)
+{
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
+
+  // When
+  const std::vector<unsigned char> chainCode = privateKey->getChainCode();
 }

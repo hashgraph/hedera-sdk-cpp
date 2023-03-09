@@ -41,6 +41,11 @@ class ECDSAsecp256k1PrivateKey : public PrivateKey
 {
 public:
   /**
+   * The number of bytes in an ECDSAsecp256k1PrivateKey.
+   */
+  static constexpr const size_t KEY_SIZE = 32ULL;
+
+  /**
    * The prefix bytes of a DER-encoded ECDSAsecp256k1PrivateKey.
    */
   static inline const std::vector<unsigned char> DER_ENCODED_PREFIX_BYTES = { 0x30, 0x30, 0x02, 0x01, 0x00, 0x30,
@@ -53,9 +58,9 @@ public:
   static inline const std::string DER_ENCODED_PREFIX_HEX = "3030020100300706052B8104000A04220420";
 
   /**
-   * The number of bytes in a DER-encoded ECDSAsecp256k1PrivateKey signature.
+   * The maximum number of bytes in a ECDSAsecp256k1PrivateKey signature.
    */
-  static constexpr const size_t DER_ENCODED_SIGNATURE_SIZE = 72ULL;
+  static constexpr const size_t MAX_SIGNATURE_SIZE = 72ULL;
 
   /**
    * The number of bytes in a raw ECDSAsecp256k1PrivateKey signature ((r,s) form).
@@ -74,7 +79,7 @@ public:
 
   /**
    * Disallow default construction of an ECDSAsecp256k1PrivateKey, as an uninitialized ECDSAsecp256k1PrivateKey provides
-   * no functionality. Instead, the 'generatePrivateKey()', 'fromString()' or 'fromSeed()' functions should be used.
+   * no functionality. Instead, a factory function should be used.
    */
   ECDSAsecp256k1PrivateKey() = delete;
 
@@ -87,11 +92,11 @@ public:
   [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> generatePrivateKey();
 
   /**
-   * Construct an ECDSAsecp256k1PrivateKey object from a hex-encoded string (DER-encoded or raw).
+   * Construct an ECDSAsecp256k1PrivateKey object from a hex-encoded key string (DER-encoded or raw).
    *
    * @param key The hex-encoded string from which to construct an ECDSAsecp256k1PrivateKey.
-   * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input string.
-   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input keyString.
+   * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input hex string.
+   * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input key.
    */
   [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromString(std::string_view key);
 
@@ -205,14 +210,14 @@ public:
 
 private:
   /**
-   * Construct from a wrapped OpenSSL keypair object and a chaincode.
+   * Construct from a wrapped OpenSSL key object and optionally a chain code.
    *
-   * @param keypair   The wrapped OpenSSL keypair.
-   * @param chainCode The new ECDSAsecp256k1PrivateKey's chain code.
+   * @param key       The wrapped OpenSSL key object.
+   * @param chainCode The chain code.
    * @throws OpenSSLException If OpenSSL is unable to get this ECDSAsecp256k1PrivateKey's corresponding
    *                          ECDSAsecp256k1PublicKey's bytes.
    */
-  explicit ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
+  explicit ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key,
                                     std::vector<unsigned char> chainCode = std::vector<unsigned char>());
 };
 
