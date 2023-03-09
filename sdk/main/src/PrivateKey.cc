@@ -42,10 +42,10 @@ std::shared_ptr<PublicKey> PrivateKey::getPublicKey() const
 }
 
 //-----
-PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode)
+PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<unsigned char> chainCode)
   : mImpl(PrivateKeyImpl())
 {
-  mImpl->mKeypair = std::move(keypair);
+  mImpl->mKey = std::move(key);
   mImpl->mChainCode = std::move(chainCode);
   mImpl->mPublicKey = PublicKey::fromBytesDer(getPublicKeyBytes());
 }
@@ -53,11 +53,11 @@ PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<u
 //-----
 std::vector<unsigned char> PrivateKey::getPublicKeyBytes() const
 {
-  int bytesLength = i2d_PUBKEY(mImpl->mKeypair.get(), nullptr);
+  int bytesLength = i2d_PUBKEY(mImpl->mKey.get(), nullptr);
 
   std::vector<unsigned char> keyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(mImpl->mKeypair.get(), &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(mImpl->mKey.get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
@@ -66,9 +66,9 @@ std::vector<unsigned char> PrivateKey::getPublicKeyBytes() const
 }
 
 //-----
-internal::OpenSSLUtils::EVP_PKEY PrivateKey::getKeypair() const
+internal::OpenSSLUtils::EVP_PKEY PrivateKey::getInternalKey() const
 {
-  return mImpl->mKeypair;
+  return mImpl->mKey;
 }
 
 } // namespace Hedera

@@ -221,7 +221,7 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, nullptr, nullptr, getKeypair().get()) <= 0)
+  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, nullptr, nullptr, getInternalKey().get()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSignInit"));
   }
@@ -265,11 +265,11 @@ std::string ED25519PrivateKey::toStringRaw() const
 //-----
 std::vector<unsigned char> ED25519PrivateKey::toBytesDer() const
 {
-  int bytesLength = i2d_PrivateKey(getKeypair().get(), nullptr);
+  int bytesLength = i2d_PrivateKey(getInternalKey().get(), nullptr);
 
   std::vector<unsigned char> outputBytes(bytesLength);
 
-  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getKeypair().get(), &rawBytes) <= 0)
+  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }

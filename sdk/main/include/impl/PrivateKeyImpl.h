@@ -34,9 +34,9 @@ namespace Hedera
 struct PrivateKey::PrivateKeyImpl
 {
   /**
-   * The wrapped OpenSSL keypair.
+   * The wrapped OpenSSL key object.
    */
-  internal::OpenSSLUtils::EVP_PKEY mKeypair;
+  internal::OpenSSLUtils::EVP_PKEY mKey;
 
   /**
    * This PrivateKey's chain code. If this is empty, then this PrivateKey will not support derivation.

@@ -115,8 +115,6 @@ public:
   [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const;
 
 protected:
-  PrivateKey() = default;
-
   /**
    * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
    */
@@ -126,9 +124,12 @@ protected:
   PrivateKey& operator=(PrivateKey&&) noexcept = default;
 
   /**
-   * Construct with wrapped OpenSSL keypair and optionally a chain code.
+   * Construct with a wrapped OpenSSL key object and optionally a chain code.
+   *
+   * @param key       The wrapped OpenSSL key object.
+   * @param chainCode The chain code.
    */
-  explicit PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
+  explicit PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key,
                       std::vector<unsigned char> chainCode = std::vector<unsigned char>());
 
   /**
@@ -140,11 +141,11 @@ protected:
   [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
 
   /**
-   * Get this PrivateKey's wrapped OpenSSL keypair object.
+   * Get this PrivateKey's wrapped OpenSSL key object.
    *
-   * @return This PrivateKey's wrapped OpenSSL keypair object.
+   * @return This PrivateKey's wrapped OpenSSL key object.
    */
-  [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY getKeypair() const;
+  [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY getInternalKey() const;
 
 private:
   /**

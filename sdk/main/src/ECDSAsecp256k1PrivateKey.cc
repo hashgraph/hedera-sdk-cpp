@@ -275,7 +275,8 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, getKeypair().get()) <= 0)
+  if (EVP_DigestSignInit(messageDigestContext.get(), nullptr, messageDigest.get(), nullptr, getInternalKey().get()) <=
+      0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSignInit"));
   }
@@ -352,11 +353,11 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesDer() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesRaw() const
 {
-  int bytesLength = i2d_PrivateKey(getKeypair().get(), nullptr);
+  int bytesLength = i2d_PrivateKey(getInternalKey().get(), nullptr);
 
   std::vector<unsigned char> outputBytes(bytesLength);
 
-  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getKeypair().get(), &rawBytes) <= 0)
+  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }
