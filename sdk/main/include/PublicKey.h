@@ -20,16 +20,20 @@
 #ifndef HEDERA_SDK_CPP_PUBLIC_KEY_H_
 #define HEDERA_SDK_CPP_PUBLIC_KEY_H_
 
-#include "impl/OpenSSLUtils.h"
-
 #include <memory>
 #include <string>
 #include <string_view>
+#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace proto
 {
 class Key;
+}
+
+namespace Hedera::internal::OpenSSLUtils
+{
+class EVP_PKEY;
 }
 
 namespace Hedera
@@ -40,7 +44,10 @@ namespace Hedera
 class PublicKey
 {
 public:
-  virtual ~PublicKey() = default;
+  /**
+   * Default destructor, but must define after PublicKeyImpl is defined (in source file).
+   */
+  virtual ~PublicKey();
 
   /**
    * Create a PublicKey object from a Key protobuf object.
@@ -121,8 +128,6 @@ public:
   [[nodiscard]] virtual std::vector<unsigned char> toBytesRaw() const = 0;
 
 protected:
-  PublicKey() = default;
-
   /**
    * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
    */
@@ -141,13 +146,14 @@ protected:
    *
    * @return This PublicKey's wrapped OpenSSL keypair object.
    */
-  [[nodiscard]] inline internal::OpenSSLUtils::EVP_PKEY getKeypair() const { return mKeypair; }
+  [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY getKeypair() const;
 
 private:
   /**
-   * The wrapped OpenSSL keypair.
+   * Implementation object used to hide implementation details and internal headers.
    */
-  internal::OpenSSLUtils::EVP_PKEY mKeypair;
+  struct PublicKeyImpl;
+  valuable::value_ptr<PublicKeyImpl> mImpl;
 };
 
 } // namespace Hedera

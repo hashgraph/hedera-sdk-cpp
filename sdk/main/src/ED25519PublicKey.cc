@@ -22,6 +22,7 @@
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLUtils.h"
+#include "impl/PublicKeyImpl.h"
 #include "impl/Utilities.h"
 
 #include <openssl/x509.h>

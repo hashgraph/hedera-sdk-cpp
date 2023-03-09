@@ -23,6 +23,7 @@
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
 #include "impl/OpenSSLUtils.h"
+#include "impl/PublicKeyImpl.h"
 #include "impl/Utilities.h"
 
 #include <openssl/decoder.h>
@@ -44,7 +45,7 @@ namespace
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& bytes)
 {
-  // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN1 prefix.
+  // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN.1 prefix.
   std::vector<unsigned char> uncompressedKeyBytes = bytes;
   if (bytes.size() == ECDSAsecp256k1PublicKey::UNCOMPRESSED_KEY_SIZE)
   {

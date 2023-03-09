@@ -21,12 +21,16 @@
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
 #include "exceptions/BadKeyException.h"
+#include "impl/PublicKeyImpl.h"
 #include "impl/Utilities.h"
 
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
+//-----
+PublicKey::~PublicKey() = default;
+
 //-----
 std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
 {
@@ -79,8 +83,15 @@ std::shared_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<unsigned ch
 
 //-----
 PublicKey::PublicKey(internal::OpenSSLUtils::EVP_PKEY&& keypair)
-  : mKeypair(std::move(keypair))
+  : mImpl(PublicKeyImpl())
 {
+  mImpl->mKeypair = std::move(keypair);
+}
+
+//-----
+internal::OpenSSLUtils::EVP_PKEY PublicKey::getKeypair() const
+{
+  return mImpl->mKeypair;
 }
 
 } // namespace Hedera

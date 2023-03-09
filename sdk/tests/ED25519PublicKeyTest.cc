@@ -154,7 +154,7 @@ TEST_F(ED25519PublicKeyTest, Clone)
   const std::shared_ptr<PublicKey> publicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
   ASSERT_NE(publicKey, nullptr);
 
-  const std::shared_ptr<PublicKey> clonedPublicKey = publicKey->clone();
+  const std::unique_ptr<PublicKey> clonedPublicKey = publicKey->clone();
   ASSERT_NE(clonedPublicKey, nullptr);
 
   EXPECT_EQ(publicKey->toStringDer(), clonedPublicKey->toStringDer());
