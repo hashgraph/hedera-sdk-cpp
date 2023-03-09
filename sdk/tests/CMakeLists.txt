@@ -46,6 +46,7 @@ add_executable(${TEST_PROJECT_NAME}
         vectors/BIP39TestVectors.cc
         vectors/Hedera12WordMnemonicBIP39TestVectors.cc
         vectors/Hedera24WordMnemonicBIP39TestVectors.cc
+        vectors/RFC8032TestVectors.cc
         vectors/SLIP10TestVectors.cc)
 
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE gtest_main gtest ${PROJECT_NAME})

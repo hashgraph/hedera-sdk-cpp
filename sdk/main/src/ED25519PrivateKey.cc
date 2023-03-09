@@ -33,8 +33,6 @@ namespace Hedera
 {
 namespace
 {
-// The number of bytes in an ED25519PrivateKey.
-constexpr const size_t PRIVATE_KEY_SIZE = 32;
 // The number of bytes in an ED25519PrivateKey chain code.
 constexpr const size_t CHAIN_CODE_SIZE = 32;
 // The seed to use to compute the SHA512 HMAC, as defined in SLIP 10.
@@ -49,7 +47,7 @@ const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> bytes)
 {
-  if (bytes.size() == PRIVATE_KEY_SIZE)
+  if (bytes.size() == ED25519PrivateKey::KEY_SIZE)
   {
     bytes = internal::Utilities::concatenateVectors(ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, bytes);
   }
@@ -92,7 +90,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_view key)
 {
-  if (key.size() == PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() || key.size() == PRIVATE_KEY_SIZE * 2)
+  if (key.size() == KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() || key.size() == KEY_SIZE * 2)
   {
     try
     {
@@ -108,19 +106,19 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_vie
   else
   {
     throw BadKeyException("ED25519PrivateKey cannot be realized from input string: input string size should be " +
-                          std::to_string(PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
-                          std::to_string(PRIVATE_KEY_SIZE * 2));
+                          std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
+                          std::to_string(KEY_SIZE * 2));
   }
 }
 
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringDer(std::string_view key)
 {
-  if (key.size() != PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
+  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
   {
     throw BadKeyException("ED25519PrivateKey cannot be realized from input string: DER-encoded ED25519PrivateKey hex "
                           "string size should be " +
-                          std::to_string(PRIVATE_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
+                          std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
   }
 
   return fromString(key);
@@ -129,11 +127,11 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringDer(std::string_
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringRaw(std::string_view key)
 {
-  if (key.size() != PRIVATE_KEY_SIZE * 2)
+  if (key.size() != KEY_SIZE * 2)
   {
     throw BadKeyException(
       "ED25519PrivateKey cannot be realized from input string: raw ED25519PrivateKey hex string size should be " +
-      std::to_string(PRIVATE_KEY_SIZE * 2));
+      std::to_string(KEY_SIZE * 2));
   }
 
   return fromString(key);
@@ -142,7 +140,7 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringRaw(std::string_
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytes(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() == PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() || bytes.size() == PRIVATE_KEY_SIZE)
+  if (bytes.size() == KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() || bytes.size() == KEY_SIZE)
   {
     try
     {
@@ -157,19 +155,19 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytes(const std::vecto
   else
   {
     throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: input byte array size should be " +
-                          std::to_string(PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
-                          std::to_string(PRIVATE_KEY_SIZE));
+                          std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
+                          std::to_string(KEY_SIZE));
   }
 }
 
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesDer(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() != PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
+  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
   {
     throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: DER-encoded ED25519PrivateKey byte "
                           "array should contain " +
-                          std::to_string(PRIVATE_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
+                          std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
   }
 
   return fromBytes(bytes);
@@ -178,11 +176,11 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesDer(const std::ve
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesRaw(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() != PRIVATE_KEY_SIZE)
+  if (bytes.size() != KEY_SIZE)
   {
     throw BadKeyException(
       "ED25519PrivateKey cannot be realized from input bytes: raw ED25519PrivateKey byte array should contain " +
-      std::to_string(PRIVATE_KEY_SIZE) + " bytes");
+      std::to_string(KEY_SIZE) + " bytes");
   }
 
   return fromBytes(bytes);
@@ -196,9 +194,9 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector
     const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(SLIP10_SEED, seed);
 
     // The hmac is the key bytes followed by the chain code bytes
-    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(
-      bytesToPKEY({ hmacOutput.cbegin(), hmacOutput.cbegin() + PRIVATE_KEY_SIZE }),
-      { hmacOutput.cbegin() + PRIVATE_KEY_SIZE, hmacOutput.cbegin() + PRIVATE_KEY_SIZE + CHAIN_CODE_SIZE }));
+    return std::make_unique<ED25519PrivateKey>(
+      ED25519PrivateKey(bytesToPKEY({ hmacOutput.cbegin(), hmacOutput.cbegin() + KEY_SIZE }),
+                        { hmacOutput.cbegin() + KEY_SIZE, hmacOutput.cbegin() + KEY_SIZE + CHAIN_CODE_SIZE }));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -305,9 +303,9 @@ std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
                                               internal::DerivationPathUtils::getHardenedIndex(childIndex))));
 
   // The hmac is the key bytes followed by the chain code bytes
-  return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(
-    bytesToPKEY({ hmacOutput.cbegin(), hmacOutput.cbegin() + PRIVATE_KEY_SIZE }),
-    { hmacOutput.cbegin() + PRIVATE_KEY_SIZE, hmacOutput.cbegin() + PRIVATE_KEY_SIZE + CHAIN_CODE_SIZE }));
+  return std::make_unique<ED25519PrivateKey>(
+    ED25519PrivateKey(bytesToPKEY({ hmacOutput.cbegin(), hmacOutput.cbegin() + KEY_SIZE }),
+                      { hmacOutput.cbegin() + KEY_SIZE, hmacOutput.cbegin() + KEY_SIZE + CHAIN_CODE_SIZE }));
 }
 
 //-----

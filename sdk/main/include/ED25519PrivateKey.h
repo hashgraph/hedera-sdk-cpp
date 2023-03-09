@@ -41,6 +41,11 @@ class ED25519PrivateKey : public PrivateKey
 {
 public:
   /**
+   * The number of bytes in an ED25519PrivateKey.
+   */
+  static constexpr const size_t KEY_SIZE = 32ULL;
+
+  /**
    * The prefix bytes of a DER-encoded ED25519PrivateKey.
    */
   static inline const std::vector<unsigned char> DER_ENCODED_PREFIX_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x00, 0x30,
