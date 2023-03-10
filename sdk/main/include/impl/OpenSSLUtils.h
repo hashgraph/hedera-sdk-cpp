@@ -44,7 +44,7 @@ namespace Hedera::internal::OpenSSLUtils
  *
  * @tparam ObjectType  The type of OpenSSL object this class should wrap.
  * @tparam DeleterType The deleter type for the OpenSSL object.
- * @tparam CopierType The copier type for the OpenSSL object.
+ * @tparam CopierType  The copier type for the OpenSSL object.
  */
 template<class ObjectType, class DeleterType, class CopierType = std::function<ObjectType*(const ObjectType*)>>
 class OpenSSLObjectWrapper
