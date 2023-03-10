@@ -39,9 +39,6 @@ namespace Hedera::internal
 class NodeAddress
 {
 public:
-  /**
-   * Default constructor
-   */
   NodeAddress() = default;
 
   /**
@@ -49,9 +46,9 @@ public:
    *
    * @param ipAddressV4 The IPv4 address of the Node with separator and octets.
    * @param port        The port number of the server for the node.
-   * @throws IllegalStateException If the given IP address is incorrect.
+   * @throws IllegalStateException If the given IP address is malformed.
    */
-  NodeAddress(const std::string ipAddressV4, const int port);
+  NodeAddress(const std::string& ipAddressV4, const int port);
 
   /**
    * Create a NodeAddress object from a NodeAddress protobuf object.
@@ -59,7 +56,7 @@ public:
    * @param proto The NodeAddress protobuf object from which to create a NodeAddress object.
    * @return The created NodeAddress object.
    */
-  static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
+  [[nodiscard]] static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
   /**
    * Create a NodeAddress object from a given string.
@@ -68,7 +65,7 @@ public:
    * @return The created NodeAddress object.
    * @throws IllegalStateException If the given node address is incorrect.
    */
-  static NodeAddress fromString(const std::string& nodeAddress);
+  [[nodiscard]] static NodeAddress fromString(const std::string& nodeAddress);
 
   /**
    * Set a new public key for the node.
@@ -84,7 +81,7 @@ public:
    * @param accountId The account ID to be associated with the node
    * @return A reference to this NodeAddress with the newly-set account ID.
    */
-  NodeAddress& setNodeId(const int64_t nodeId);
+  NodeAddress& setNodeId(const int64_t& nodeId);
 
   /**
    * Set a new account ID associated with the node at this address.
@@ -124,7 +121,7 @@ public:
    * @param stake The new amount of tinybars staked to the node
    * @return A reference to this NodeAddress with the newly-set staked tinybars.
    */
-  NodeAddress& setStake(const int64_t stake);
+  NodeAddress& setStake(const int64_t& stake);
 
   /**
    * Determine if a particular port number corresponds to a TLS port.

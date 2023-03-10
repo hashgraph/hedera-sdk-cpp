@@ -29,7 +29,7 @@
 namespace Hedera::internal
 {
 //-----
-NodeAddress::NodeAddress(const std::string ipAddressV4, const int port)
+NodeAddress::NodeAddress(const std::string& ipAddressV4, const int port)
 {
   std::vector<unsigned char> octets;
   std::stringstream strStream(ipAddressV4);
@@ -125,7 +125,7 @@ NodeAddress& NodeAddress::setRSAPublicKey(const std::string& publicKey)
 }
 
 //-----
-NodeAddress& NodeAddress::setNodeId(const int64_t nodeId)
+NodeAddress& NodeAddress::setNodeId(const int64_t& nodeId)
 {
   mNodeId = nodeId;
   return *this;
@@ -161,7 +161,7 @@ NodeAddress& NodeAddress::setDescription(const std::string& description)
 }
 
 //-----
-NodeAddress& NodeAddress::setStake(const int64_t stake)
+NodeAddress& NodeAddress::setStake(const int64_t& stake)
 {
   mStake = stake;
   return *this;
