@@ -74,34 +74,34 @@ public:
   /**
    * Construct an ED25519PrivateKey object from a hex-encoded string (DER-encoded or raw).
    *
-   * @param key The hex-encoded string from which to construct an ED25519PrivateKey.
-   * @return A pointer to an ED25519PrivateKey representing the input string.
-   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input keyString.
+   * @param key The hex string from which to construct an ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input hex string.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input hex string.
    */
   [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromString(std::string_view key);
 
   /**
    * Construct an ED25519PrivateKey object from a hex-encoded, DER-encoded key string.
    *
-   * @param key The string from which to create an ED25519PrivateKey.
-   * @return A pointer to an ED25519PrivateKey representing the input hex string.
-   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input key.
+   * @param key The DER-encoded hex string from which to construct an ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input DER-encoded hex string.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input hex string.
    */
   [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromStringDer(std::string_view key);
 
   /**
    * Construct an ED25519PrivateKey object from a raw hex-encoded string.
    *
-   * @param key The string from which to create an ED25519PrivateKey.
+   * @param key The raw hex string from which to construct an ED25519PrivateKey.
    * @return A pointer to an ED25519PrivateKey representing the input raw hex string.
-   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input key.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input hex string.
    */
   [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromStringRaw(std::string_view key);
 
   /**
    * Construct an ED25519PrivateKey object from a byte vector (DER-encoded or raw).
    *
-   * @param bytes The vector of bytes from which to construct the ED25519PrivateKey.
+   * @param bytes The vector of bytes from which to construct an ED25519PrivateKey.
    * @return A pointer to an ED25519PrivateKey representing the input bytes.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
    */
@@ -110,7 +110,7 @@ public:
   /**
    * Construct an ED25519PrivateKey object from a DER-encoded byte vector.
    *
-   * @param bytes The vector of DER-encoded bytes from which to construct the ED25519PrivateKey.
+   * @param bytes The vector of DER-encoded bytes from which to construct an ED25519PrivateKey.
    * @return A pointer to an ED25519PrivateKey representing the input DER-encoded bytes.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
    */
@@ -119,8 +119,8 @@ public:
   /**
    * Construct an ED25519PrivateKey object from a raw byte vector.
    *
-   * @param bytes The vector of raw bytes from which to construct the ED25519PrivateKey.
-   * @return A pointer to an ED25519PrivateKey representing the raw input bytes.
+   * @param bytes The vector of raw bytes from which to construct an ED25519PrivateKey.
+   * @return A pointer to an ED25519PrivateKey representing the input raw bytes.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
    */
   [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytesRaw(const std::vector<unsigned char>& bytes);
@@ -128,7 +128,7 @@ public:
   /**
    * Construct an ED25519PrivateKey from a seed array.
    *
-   * @param seed The seed array from which to construct an ED25519PrivateKey.
+   * @param seed The seed byte array from which to construct an ED25519PrivateKey.
    * @return A pointer to an ED25519PrivateKey representing the input seed bytes.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input seed bytes.
    */
@@ -191,14 +191,15 @@ public:
 
 private:
   /**
-   * Construct from a wrapped OpenSSL keypair object and a chaincode.
+   * Construct from a wrapped OpenSSL key object and optionally a chain code.
    *
-   * @param keypair   The wrapped OpenSSL keypair.
-   * @param chainCode The new ED25519PrivateKey's chain code.
-   * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PublicKey's
+   * @param key       The wrapped OpenSSL key object.
+   * @param chainCode The chain code.
+   * @throws OpenSSLException If OpenSSL is unable to get this ED25519PrivateKey's corresponding ED25519PrivateKey's
    *                          bytes.
+   * @throws BadKeyException  If the chain code is malformed.
    */
-  explicit ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair,
+  explicit ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key,
                              std::vector<unsigned char> chainCode = std::vector<unsigned char>());
 };
 

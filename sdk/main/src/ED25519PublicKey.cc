@@ -232,8 +232,8 @@ std::unique_ptr<proto::Key> ED25519PublicKey::toProtobuf() const
 }
 
 //-----
-ED25519PublicKey::ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey)
-  : PublicKey(std::move(publicKey))
+ED25519PublicKey::ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key)
+  : PublicKey(std::move(key))
 {
 }
 

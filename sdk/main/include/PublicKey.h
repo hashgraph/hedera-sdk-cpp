@@ -58,20 +58,20 @@ public:
   [[nodiscard]] static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
 
   /**
-   * Construct a PublicKey object from a hex-encoded string of DER-encoded bytes.
+   * Construct a PublicKey object from a hex-encoded, DER-encoded key string.
    *
-   * @param key The hex string from which to create a PublicKey object.
-   * @return A pointer to the created PublicKey object.
+   * @param key The DER-encoded hex string from which to construct a PublicKey.
+   * @return A pointer to an PublicKey representing the input DER-encoded hex string.
    * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
-   *                         from the input hex-string.
+   *                         from the input hex string.
    */
   [[nodiscard]] static std::shared_ptr<PublicKey> fromStringDer(std::string_view key);
 
   /**
-   * Construct a PublicKey object from a DER-encoded byte array.
+   * Construct a PublicKey object from a DER-encoded byte vector.
    *
-   * @param bytes The byte array from which to create a PublicKey object.
-   * @return A pointer to the created PublicKey object.
+   * @param bytes The vector of DER-encoded bytes from which to construct a PublicKey.
+   * @return A pointer to a PublicKey representing the input DER-encoded bytes.
    * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
    *                         from the input byte array.
    */

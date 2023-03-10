@@ -19,6 +19,7 @@
  */
 #include "PrivateKey.h"
 #include "PublicKey.h"
+#include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/PrivateKeyImpl.h"
 
@@ -48,6 +49,11 @@ PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<unsig
   mImpl->mKey = std::move(key);
   mImpl->mChainCode = std::move(chainCode);
   mImpl->mPublicKey = PublicKey::fromBytesDer(getPublicKeyBytes());
+
+  if (!mImpl->mChainCode.empty() && mImpl->mChainCode.size() != CHAIN_CODE_SIZE)
+  {
+    throw BadKeyException("Key chain code malformed");
+  }
 }
 
 //-----

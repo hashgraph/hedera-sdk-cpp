@@ -45,6 +45,11 @@ class PrivateKey
 {
 public:
   /**
+   * The number of bytes in a PrivateKey chain code.
+   */
+  static constexpr const size_t CHAIN_CODE_SIZE = 32ULL;
+
+  /**
    * Default destructor, but must define after PrivateKeyImpl is defined (in source file).
    */
   virtual ~PrivateKey();
@@ -128,6 +133,8 @@ protected:
    *
    * @param key       The wrapped OpenSSL key object.
    * @param chainCode The chain code.
+   * @throws OpenSSLException If OpenSSL is unable to get this PrivateKey's corresponding PrivateKey's bytes.
+   * @throws BadKeyException  If the chain code is malformed.
    */
   explicit PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key,
                       std::vector<unsigned char> chainCode = std::vector<unsigned char>());

@@ -450,8 +450,8 @@ std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobuf() const
 }
 
 //-----
-ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey)
-  : PublicKey(std::move(publicKey))
+ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key)
+  : PublicKey(std::move(key))
 {
 }
 

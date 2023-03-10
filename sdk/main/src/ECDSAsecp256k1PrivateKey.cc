@@ -35,8 +35,6 @@ namespace Hedera
 {
 namespace
 {
-// The number of bytes in an ECDSAsecp256k1PrivateKey chain code.
-constexpr const size_t CHAIN_CODE_SIZE = 32;
 // The seed to use to compute the SHA512 HMAC, as defined in BIP32.
 const std::vector<unsigned char> BIP32_SEED = { 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' };
 // The ASN.1 algorithm identifier prefix bytes for an ECDSAsecp256k1PrivateKey.
@@ -219,11 +217,6 @@ std::unique_ptr<PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint32_t childIndex
   if (getChainCode().empty())
   {
     throw UninitializedException("Key not initialized with chain code, unable to derive keys");
-  }
-
-  if (getChainCode().size() != CHAIN_CODE_SIZE)
-  {
-    throw BadKeyException("Key chain code malformed");
   }
 
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(

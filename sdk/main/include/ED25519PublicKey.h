@@ -61,34 +61,34 @@ public:
   /**
    * Construct an ED25519PublicKey object from a hex-encoded string (DER-encoded or raw).
    *
-   * @param key The string from which to create an ED25519PublicKey.
+   * @param key The hex string from which to construct an ED25519PublicKey.
    * @return A pointer to an ED25519PublicKey representing the input hex string.
-   * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input key.
+   * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input hex string.
    */
   [[nodiscard]] static std::shared_ptr<ED25519PublicKey> fromString(std::string_view key);
 
   /**
    * Construct an ED25519PublicKey object from a hex-encoded, DER-encoded key string.
    *
-   * @param key The string from which to create an ED25519PublicKey.
-   * @return A pointer to an ED25519PublicKey representing the input hex string.
-   * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input key.
+   * @param key The DER-encoded hex string from which to construct an ED25519PublicKey.
+   * @return A pointer to an ED25519PublicKey representing the input DER-encoded hex string.
+   * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input hex string.
    */
   [[nodiscard]] static std::shared_ptr<ED25519PublicKey> fromStringDer(std::string_view key);
 
   /**
    * Construct an ED25519PublicKey object from a raw hex-encoded string.
    *
-   * @param key The string from which to create an ED25519PublicKey.
+   * @param key The raw hex string from which to construct an ED25519PublicKey.
    * @return A pointer to an ED25519PublicKey representing the input raw hex string.
-   * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input key.
+   * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input hex string.
    */
   [[nodiscard]] static std::shared_ptr<ED25519PublicKey> fromStringRaw(std::string_view key);
 
   /**
    * Construct an ED25519PublicKey object from a byte vector (DER-encoded or raw).
    *
-   * @param bytes The vector of bytes from which to construct the ED25519PublicKey.
+   * @param bytes The vector of bytes from which to construct an ED25519PublicKey.
    * @return A pointer to an ED25519PublicKey representing the input bytes.
    * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input bytes.
    */
@@ -97,7 +97,7 @@ public:
   /**
    * Construct an ED25519PublicKey object from a DER-encoded byte vector.
    *
-   * @param bytes The vector of DER-encoded bytes from which to construct the ED25519PublicKey.
+   * @param bytes The vector of DER-encoded bytes from which to construct an ED25519PublicKey.
    * @return A pointer to an ED25519PublicKey representing the input DER-encoded bytes.
    * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input bytes.
    */
@@ -106,8 +106,8 @@ public:
   /**
    * Construct an ED25519PublicKey object from a raw byte vector.
    *
-   * @param bytes The vector of raw bytes from which to construct the ED25519PublicKey.
-   * @return A pointer to an ED25519PublicKey representing the raw input bytes.
+   * @param bytes The vector of raw bytes from which to construct an ED25519PublicKey.
+   * @return A pointer to an ED25519PublicKey representing the input raw bytes.
    * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input bytes.
    */
   [[nodiscard]] static std::shared_ptr<ED25519PublicKey> fromBytesRaw(const std::vector<unsigned char>& bytes);
@@ -171,9 +171,9 @@ private:
   /**
    * Construct from a wrapped OpenSSL key object.
    *
-   * @param keypair The wrapped OpenSSL keypair object from which to construct this ED25519PublicKey.
+   * @param key The wrapped OpenSSL key object from which to construct this ED25519PublicKey.
    */
-  explicit ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& publicKey);
+  explicit ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key);
 };
 
 } // namespace Hedera

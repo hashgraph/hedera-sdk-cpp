@@ -52,7 +52,7 @@ const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '
     bytes = internal::Utilities::concatenateVectors(ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, bytes);
   }
 
-  const unsigned char* rawKeyBytes = &bytes.front();
+  const unsigned char* rawKeyBytes = bytes.data();
   internal::OpenSSLUtils::EVP_PKEY key(
     d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(bytes.size())));
   if (!key)
@@ -200,7 +200,8 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector
   }
   catch (const OpenSSLException& openSSLException)
   {
-    throw BadKeyException(openSSLException.what());
+    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input seed bytes: ") +
+                          openSSLException.what());
   }
 }
 
@@ -226,21 +227,15 @@ std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned ch
 
   // Calculate the required size for the signature
   size_t signatureLength;
-  if (EVP_DigestSign(messageDigestContext.get(),
-                     nullptr,
-                     &signatureLength,
-                     (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
-                     bytesToSign.size()) <= 0)
+  if (EVP_DigestSign(messageDigestContext.get(), nullptr, &signatureLength, bytesToSign.data(), bytesToSign.size()) <=
+      0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
   }
 
   std::vector<unsigned char> signature(signatureLength);
-  if (EVP_DigestSign(messageDigestContext.get(),
-                     &signature.front(),
-                     &signatureLength,
-                     (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
-                     bytesToSign.size()) <= 0)
+  if (EVP_DigestSign(
+        messageDigestContext.get(), signature.data(), &signatureLength, bytesToSign.data(), bytesToSign.size()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
   }
@@ -267,7 +262,7 @@ std::vector<unsigned char> ED25519PrivateKey::toBytesDer() const
 
   std::vector<unsigned char> outputBytes(bytesLength);
 
-  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
+  if (unsigned char* rawBytes = outputBytes.data(); i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }
@@ -289,11 +284,6 @@ std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
     throw UninitializedException("Key not initialized with chain code, unable to derive keys");
   }
 
-  if (getChainCode().size() != CHAIN_CODE_SIZE)
-  {
-    throw BadKeyException("Key chain code malformed");
-  }
-
   // As per SLIP0010, private key must be padded to 33 bytes
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
     getChainCode(),
@@ -309,8 +299,8 @@ std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
 }
 
 //-----
-ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& keypair, std::vector<unsigned char> chainCode)
-  : PrivateKey(std::move(keypair), std::move(chainCode))
+ED25519PrivateKey::ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<unsigned char> chainCode)
+  : PrivateKey(std::move(key), std::move(chainCode))
 {
 }
 
