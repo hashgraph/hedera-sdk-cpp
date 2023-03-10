@@ -26,11 +26,6 @@
 #include <proto/basic_types.pb.h>
 #include <sstream>
 
-#include <iostream>
-
-using std::cout;
-using std::endl;
-
 namespace Hedera::internal
 {
 //-----
@@ -99,14 +94,27 @@ NodeAddress NodeAddress::fromString(const std::string& nodeAddress)
 {
   std::vector<std::string> parts;
   std::stringstream strStream(nodeAddress);
-  std::string temp;
+  std::string ipAddressV4;
+  int port;
 
-  while (getline(strStream, temp, ':'))
+  try
   {
-    parts.push_back(temp.c_str());
+    std::string temp;
+
+    while (getline(strStream, temp, ':'))
+    {
+      parts.push_back(temp.c_str());
+    }
+
+    ipAddressV4 = parts[0].c_str();
+    port = atoi(parts[1].c_str());
+  }
+  catch (const std::exception& e)
+  {
+    throw IllegalStateException("Failed to parse the node address.");
   }
 
-  return NodeAddress(parts[0].c_str(), atoi(parts[1].c_str()));
+  return NodeAddress(ipAddressV4, port);
 }
 
 //-----

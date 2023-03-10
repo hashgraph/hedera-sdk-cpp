@@ -66,6 +66,7 @@ public:
    *
    * @param nodeAddress The string representation from which to create a new NodeAddress object.
    * @return The created NodeAddress object.
+   * @throws IllegalStateException If the given node address is incorrect.
    */
   static NodeAddress fromString(const std::string& nodeAddress);
 
