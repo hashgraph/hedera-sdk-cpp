@@ -59,7 +59,7 @@ public:
 
   /**
    * Disallow default construction of an ED25519PrivateKey, as an uninitialized ED25519PrivateKey provides no
-   * functionality. Instead, the 'generatePrivateKey()', 'fromString()' or 'fromSeed()' functions should be used.
+   * functionality. Instead, a factory function should be used.
    */
   ED25519PrivateKey() = delete;
 

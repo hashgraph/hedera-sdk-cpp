@@ -221,14 +221,10 @@ std::unique_ptr<PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint32_t childIndex
 
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
     getChainCode(),
-    (internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
-      ? internal::Utilities::concatenateVectors(
-          { 0x0 }, toBytesRaw(), internal::DerivationPathUtils::indexToBigEndianArray(childIndex))
-      : internal::Utilities::concatenateVectors(
-          ECDSAsecp256k1PublicKey::compressBytes(internal::Utilities::removePrefix(
-            getPublicKeyBytes(),
-            static_cast<long>(ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()))),
-          internal::DerivationPathUtils::indexToBigEndianArray(childIndex)));
+    internal::Utilities::concatenateVectors((internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
+                                              ? internal::Utilities::concatenateVectors({ 0x0 }, toBytesRaw())
+                                              : getPublicKey()->toBytesRaw(),
+                                            internal::DerivationPathUtils::indexToBigEndianArray(childIndex)));
 
   // Modular add the private key bytes computed from the HMAC to the existing private key (using the secp256k1 curve
   // order as the modulo), and compute the new chain code from the HMAC
@@ -270,18 +266,15 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
   size_t signatureLength = MAX_SIGNATURE_SIZE;
   std::vector<unsigned char> signature(signatureLength);
 
-  if (EVP_DigestSign(messageDigestContext.get(),
-                     &signature.front(),
-                     &signatureLength,
-                     (!bytesToSign.empty()) ? &bytesToSign.front() : nullptr,
-                     bytesToSign.size()) <= 0)
+  if (EVP_DigestSign(
+        messageDigestContext.get(), signature.data(), &signatureLength, bytesToSign.data(), bytesToSign.size()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
   }
 
   // we have the signature complete, now we need to turn it into its raw form of (r,s)
 
-  const unsigned char* signaturePointer = &signature.front();
+  const unsigned char* signaturePointer = signature.data();
   const internal::OpenSSLUtils::ECDSA_SIG signatureObject(
     d2i_ECDSA_SIG(nullptr, &signaturePointer, static_cast<long>(signatureLength)));
   if (!signatureObject)
@@ -304,12 +297,12 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
   // signature is returned in the raw, 64 byte form (r, s)
   std::vector<unsigned char> outputArray(RAW_SIGNATURE_SIZE);
 
-  if (BN_bn2binpad(signatureR, &outputArray.front(), R_SIZE) <= 0)
+  if (BN_bn2binpad(signatureR, outputArray.data(), R_SIZE) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bn2binpad"));
   }
 
-  if (BN_bn2binpad(signatureS, &outputArray.front() + R_SIZE, S_SIZE) <= 0)
+  if (BN_bn2binpad(signatureS, outputArray.data() + R_SIZE, S_SIZE) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bn2binpad"));
   }
@@ -342,7 +335,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesRaw() const
 
   std::vector<unsigned char> outputBytes(bytesLength);
 
-  if (unsigned char* rawBytes = &outputBytes.front(); i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
+  if (unsigned char* rawBytes = outputBytes.data(); i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }

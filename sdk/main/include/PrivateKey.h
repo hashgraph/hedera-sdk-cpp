@@ -140,14 +140,6 @@ protected:
                       std::vector<unsigned char> chainCode = std::vector<unsigned char>());
 
   /**
-   * Get the DER-encoded bytes of the PublicKey that corresponds to this PrivateKey.
-   *
-   * @return The DER-encoded bytes of this PrivateKey's corresponding PublicKey.
-   * @throws OpenSSLException If OpenSSL is unable to get this PrivateKey's corresponding PublicKey's bytes.
-   */
-  [[nodiscard]] std::vector<unsigned char> getPublicKeyBytes() const;
-
-  /**
    * Get this PrivateKey's wrapped OpenSSL key object.
    *
    * @return This PrivateKey's wrapped OpenSSL key object.

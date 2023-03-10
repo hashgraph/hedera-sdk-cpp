@@ -95,7 +95,7 @@ public:
    * Verify that a signature was made by the PrivateKey which corresponds to this PublicKey.
    *
    * @param signatureBytes The byte vector representing the signature.
-   * @param signedBytes    The bytes which were signed to create the signature.
+   * @param signedBytes    The bytes which were purportedly signed to create the signature.
    * @return \c TRUE if the signature is valid, otherwise \c FALSE.
    */
   [[nodiscard]] virtual bool verifySignature(const std::vector<unsigned char>& signatureBytes,

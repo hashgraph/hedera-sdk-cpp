@@ -148,12 +148,12 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(std::string_view passphrase) co
   if (const std::vector<unsigned char> salt = { saltStr.cbegin(), saltStr.cend() };
       PKCS5_PBKDF2_HMAC(mnemonicString.c_str(),
                         static_cast<int>(mnemonicString.length()),
-                        (!salt.empty()) ? &salt.front() : nullptr,
+                        salt.data(),
                         static_cast<int>(salt.size()),
                         SEED_ITERATIONS,
                         messageDigest.get(),
                         static_cast<int>(seed.size()),
-                        &seed.front()) <= 0)
+                        seed.data()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("PKCS5_PBKDF2_HMAC"));
   }

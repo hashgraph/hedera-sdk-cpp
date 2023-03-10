@@ -41,12 +41,12 @@ namespace
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> bytes)
 {
-  if (bytes.size() == ED25519PublicKey::PUBLIC_KEY_SIZE)
+  if (bytes.size() == ED25519PublicKey::KEY_SIZE)
   {
     bytes = internal::Utilities::concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, bytes);
   }
 
-  const unsigned char* bytesPtr = &bytes.front();
+  const unsigned char* bytesPtr = bytes.data();
   internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &bytesPtr, static_cast<long>(bytes.size())));
   if (!key)
   {
@@ -61,11 +61,11 @@ namespace
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view key)
 {
-  if (key.size() != PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != PUBLIC_KEY_SIZE * 2)
+  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != KEY_SIZE * 2)
   {
     throw BadKeyException("ED25519PublicKey cannot be realized from input string: input string size should be " +
-                          std::to_string(PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
-                          std::to_string(PUBLIC_KEY_SIZE * 2));
+                          std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
+                          std::to_string(KEY_SIZE * 2));
   }
 
   try
@@ -82,11 +82,11 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view 
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromStringDer(std::string_view key)
 {
-  if (key.size() != PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
+  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
   {
     throw BadKeyException(
       "ED25519PublicKey cannot be realized from input string: DER encoded ED25519PublicKey hex string size should be " +
-      std::to_string(PUBLIC_KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
+      std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
   }
 
   return fromString(key);
@@ -95,11 +95,11 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromStringDer(std::string_vi
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromStringRaw(std::string_view key)
 {
-  if (key.size() != PUBLIC_KEY_SIZE * 2)
+  if (key.size() != KEY_SIZE * 2)
   {
     throw BadKeyException(
       "ED25519PublicKey cannot be realized from input string: raw ED25519PublicKey string size should be " +
-      std::to_string(PUBLIC_KEY_SIZE * 2));
+      std::to_string(KEY_SIZE * 2));
   }
 
   return fromString(key);
@@ -108,11 +108,11 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromStringRaw(std::string_vi
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() != PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != PUBLIC_KEY_SIZE)
+  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != KEY_SIZE)
   {
     throw BadKeyException("ED25519PublicKey cannot be realized from input bytes: input byte array size should be " +
-                          std::to_string(PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
-                          std::to_string(PUBLIC_KEY_SIZE));
+                          std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
+                          std::to_string(KEY_SIZE));
   }
 
   try
@@ -129,11 +129,11 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytesDer(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() != PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
+  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
   {
     throw BadKeyException(
       "ED25519PublicKey cannot be realized from input bytes: DER encoded ED25519PublicKey byte array should contain " +
-      std::to_string(PUBLIC_KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
+      std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
   }
 
   return fromBytes(bytes);
@@ -142,11 +142,11 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytesDer(const std::vect
 //-----
 std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytesRaw(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() != PUBLIC_KEY_SIZE)
+  if (bytes.size() != KEY_SIZE)
   {
     throw BadKeyException(
       "ED25519PublicKey cannot be realized from input bytes: raw ED25519PublicKey byte array should contain " +
-      std::to_string(PUBLIC_KEY_SIZE) + " bytes");
+      std::to_string(KEY_SIZE) + " bytes");
   }
 
   return fromBytes(bytes);
@@ -173,11 +173,8 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestVerifyInit"));
   }
 
-  const int verificationResult = EVP_DigestVerify(messageDigestContext.get(),
-                                                  (!signatureBytes.empty()) ? &signatureBytes.front() : nullptr,
-                                                  signatureBytes.size(),
-                                                  (!signedBytes.empty()) ? &signedBytes.front() : nullptr,
-                                                  signedBytes.size());
+  const int verificationResult = EVP_DigestVerify(
+    messageDigestContext.get(), signatureBytes.data(), signatureBytes.size(), signedBytes.data(), signedBytes.size());
 
   // Any value other than 0 or 1 means an error occurred
   if (verificationResult != 0 && verificationResult != 1)
@@ -207,7 +204,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytesDer() const
 
   std::vector<unsigned char> publicKeyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = &publicKeyBytes.front();
+  if (unsigned char* rawPublicKeyBytes = publicKeyBytes.data();
       i2d_PUBKEY(getInternalKey().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));

@@ -48,27 +48,20 @@ PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<unsig
 {
   mImpl->mKey = std::move(key);
   mImpl->mChainCode = std::move(chainCode);
-  mImpl->mPublicKey = PublicKey::fromBytesDer(getPublicKeyBytes());
 
   if (!mImpl->mChainCode.empty() && mImpl->mChainCode.size() != CHAIN_CODE_SIZE)
   {
     throw BadKeyException("Key chain code malformed");
   }
-}
 
-//-----
-std::vector<unsigned char> PrivateKey::getPublicKeyBytes() const
-{
-  int bytesLength = i2d_PUBKEY(mImpl->mKey.get(), nullptr);
+  std::vector<unsigned char> keyBytes(i2d_PUBKEY(mImpl->mKey.get(), nullptr));
 
-  std::vector<unsigned char> keyBytes(bytesLength);
-
-  if (unsigned char* rawPublicKeyBytes = &keyBytes.front(); i2d_PUBKEY(mImpl->mKey.get(), &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = keyBytes.data(); i2d_PUBKEY(mImpl->mKey.get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }
 
-  return keyBytes;
+  mImpl->mPublicKey = PublicKey::fromBytesDer(keyBytes);
 }
 
 //-----

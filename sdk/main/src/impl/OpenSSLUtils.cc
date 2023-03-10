@@ -31,10 +31,14 @@ namespace Hedera::internal::OpenSSLUtils
 {
 namespace
 {
-constexpr const size_t SHA384_HASH_SIZE = 48;
-constexpr const size_t SHA256_HASH_SIZE = 32;
-constexpr const size_t SHA512_HMAC_HASH_SIZE = 64;
-constexpr const size_t ERROR_MSG_SIZE = 256;
+// The size of a SHA256 hash (in bytes).
+constexpr const size_t SHA256_HASH_SIZE = 32ULL;
+// The size of a SHA384 hash (in bytes).
+constexpr const size_t SHA384_HASH_SIZE = 48ULL;
+// The size of a SHA512 hash (in bytes).
+constexpr const size_t SHA512_HMAC_HASH_SIZE = 64ULL;
+// The size of an OpenSSL error message.
+constexpr const size_t ERROR_MSG_SIZE = 256ULL;
 }
 
 //-----
@@ -159,7 +163,7 @@ OSSL_DECODER_CTX::OSSL_DECODER_CTX(::OSSL_DECODER_CTX* osslDecoderCtx)
 std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
 {
   auto outputBytes = std::vector<unsigned char>(SHA256_HASH_SIZE);
-  SHA256((!data.empty()) ? &data.front() : nullptr, data.size(), &outputBytes.front());
+  SHA256(data.data(), data.size(), outputBytes.data());
   return outputBytes;
 }
 
@@ -167,7 +171,7 @@ std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
 std::vector<unsigned char> computeSHA384(const std::vector<unsigned char>& data)
 {
   auto outputBytes = std::vector<unsigned char>(SHA384_HASH_SIZE);
-  SHA384((!data.empty()) ? &data.front() : nullptr, data.size(), &outputBytes.front());
+  SHA384(data.data(), data.size(), outputBytes.data());
   return outputBytes;
 }
 
@@ -194,11 +198,11 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
 
   std::vector<unsigned char> digest(SHA512_HMAC_HASH_SIZE);
   if (!HMAC(messageDigest.get(),
-            &key.front(),
+            key.data(),
             static_cast<int>(key.size()),
-            &data.front(),
+            data.data(),
             static_cast<int>(data.size()),
-            &digest.front(),
+            digest.data(),
             nullptr))
   {
     throw OpenSSLException(getErrorMessage("HMAC"));
@@ -219,7 +223,7 @@ std::string getErrorMessage(std::string_view functionName)
   }
 
   std::string errorString(ERROR_MSG_SIZE, '\0');
-  ERR_error_string_n(errorCode, &errorString.front(), ERROR_MSG_SIZE);
+  ERR_error_string_n(errorCode, errorString.data(), ERROR_MSG_SIZE);
 
   return std::string("Error occurred in [").append(functionName).append("]: ") + errorString;
 }
@@ -234,7 +238,7 @@ std::vector<unsigned char> getRandomBytes(int count)
 
   std::vector<unsigned char> randomBytes(count);
 
-  if (RAND_priv_bytes(&randomBytes.front(), count) <= 0)
+  if (RAND_priv_bytes(randomBytes.data(), count) <= 0)
   {
     throw OpenSSLException(getErrorMessage("RAND_priv_bytes"));
   }

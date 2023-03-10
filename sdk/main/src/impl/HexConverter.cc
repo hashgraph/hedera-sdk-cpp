@@ -30,13 +30,13 @@ namespace Hedera::internal::HexConverter
 std::string bytesToHex(const std::vector<unsigned char>& bytes)
 {
   size_t stringLength;
-  if (OPENSSL_buf2hexstr_ex(nullptr, 0, &stringLength, &bytes.front(), bytes.size(), '\0') <= 0)
+  if (OPENSSL_buf2hexstr_ex(nullptr, 0, &stringLength, bytes.data(), bytes.size(), '\0') <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
 
   std::string charString(stringLength, '\0');
-  if (OPENSSL_buf2hexstr_ex(&charString.front(), stringLength, nullptr, &bytes.front(), bytes.size(), '\0') <= 0)
+  if (OPENSSL_buf2hexstr_ex(charString.data(), stringLength, nullptr, bytes.data(), bytes.size(), '\0') <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
@@ -55,8 +55,7 @@ std::vector<unsigned char> hexToBytes(std::string_view hex)
   }
 
   std::vector<unsigned char> outputBytes(bufferLength);
-  if (OPENSSL_hexstr2buf_ex(
-        (bufferLength > 0ULL) ? &outputBytes.front() : nullptr, bufferLength, nullptr, hex.data(), '\0') <= 0)
+  if (OPENSSL_hexstr2buf_ex(outputBytes.data(), bufferLength, nullptr, hex.data(), '\0') <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OPENSSL_hexstr2buf_ex"));
   }

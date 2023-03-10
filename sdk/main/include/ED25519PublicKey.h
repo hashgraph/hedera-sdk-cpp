@@ -39,7 +39,7 @@ public:
   /**
    * The number of raw bytes in an ED25519PublicKey.
    */
-  static constexpr const size_t PUBLIC_KEY_SIZE = 32ULL;
+  static constexpr const size_t KEY_SIZE = 32ULL;
 
   /**
    * The prefix bytes of a DER-encoded ED25519PublicKey.
@@ -54,7 +54,7 @@ public:
 
   /**
    * Disallow default construction of an ED25519PublicKey, as an uninitialized ED25519PublicKey provides no
-   * functionality. Instead, the 'fromString()' or 'fromBytes()' functions should be used.
+   * functionality. Instead, a factory function should be used.
    */
   ED25519PublicKey() = delete;
 
