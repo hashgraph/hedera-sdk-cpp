@@ -32,7 +32,7 @@ bool isPrefixOf(const std::vector<unsigned char>& bytes, const std::vector<unsig
     return false;
   }
 
-  for (size_t i = 0; i < prefix.size(); ++i)
+  for (std::size_t i = 0; i < prefix.size(); ++i)
   {
     if (bytes.at(i) != prefix.at(i))
     {
