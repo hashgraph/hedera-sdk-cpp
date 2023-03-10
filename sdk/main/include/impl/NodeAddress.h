@@ -89,7 +89,7 @@ public:
    *
    * @return The certificate chain hash.
    */
-  [[nodiscard]] inline std::string getCertificateHash() const { return mCertificateHash; }
+  [[nodiscard]] inline std::vector<unsigned char> getCertificateHash() const { return mCertificateHash; }
 
 private:
   /**
@@ -118,7 +118,7 @@ private:
   /**
    * The SHA-384 hash of the node's certificate chain.
    */
-  std::string mCertificateHash;
+  std::vector<unsigned char> mCertificateHash;
 
   /**
    * A string description of the node.

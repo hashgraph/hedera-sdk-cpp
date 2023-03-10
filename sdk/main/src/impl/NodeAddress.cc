@@ -18,6 +18,7 @@
  *
  */
 #include "impl/NodeAddress.h"
+#include "impl/HexConverter.h"
 
 #include <iomanip>
 #include <memory>
@@ -43,7 +44,8 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 
   outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
   outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
-  outputNodeAddress.mCertificateHash = protoNodeAddress.nodecerthash();
+  outputNodeAddress.mCertificateHash = { protoNodeAddress.nodecerthash().cbegin(),
+                                         protoNodeAddress.nodecerthash().cend() };
   outputNodeAddress.mDescription = protoNodeAddress.description();
   outputNodeAddress.mAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
 
@@ -60,8 +62,8 @@ std::string NodeAddress::toString() const
                << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left << mCertificateHash
-               << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left
+               << HexConverter::bytesToHex(mCertificateHash) << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
 
   if (size_t endpointCount = mEndpoints.size(); !endpointCount)

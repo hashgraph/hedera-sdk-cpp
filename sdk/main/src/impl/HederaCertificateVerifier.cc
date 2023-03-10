@@ -26,7 +26,7 @@
 namespace Hedera::internal
 {
 //-----
-HederaCertificateVerifier::HederaCertificateVerifier(std::string certificateHash)
+HederaCertificateVerifier::HederaCertificateVerifier(std::vector<unsigned char> certificateHash)
   : mExpectedHash(std::move(certificateHash))
 {
 }
@@ -36,16 +36,8 @@ bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerification
                                        std::function<void(grpc::Status)>,
                                        grpc::Status* sync_status)
 {
-  // Do case-insensitive compare, since the protobuf certificate hash has its hex chars lowercase, but computeSHA384
-  // outputs uppercase
-  const grpc::string_ref grpcCertificateChain = request->peer_cert_full_chain();
-  if (const std::string certificateChainHash = HexConverter::bytesToHex(
-        OpenSSLUtils::computeSHA384({ grpcCertificateChain.cbegin(), grpcCertificateChain.cend() }));
-      !std::equal(mExpectedHash.cbegin(),
-                  mExpectedHash.cend(),
-                  certificateChainHash.cbegin(),
-                  certificateChainHash.cend(),
-                  [](char a, char b) { return std::tolower(a) == std::tolower(b); }))
+  if (const grpc::string_ref grpcCertificateChain = request->peer_cert_full_chain();
+      mExpectedHash == OpenSSLUtils::computeSHA384({ grpcCertificateChain.cbegin(), grpcCertificateChain.cend() }))
   {
     *sync_status = grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
                                 "Hash of node certificate chain doesn't match hash contained in address book");

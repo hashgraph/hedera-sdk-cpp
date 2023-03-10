@@ -331,9 +331,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesDer() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesRaw() const
 {
-  int bytesLength = i2d_PrivateKey(getInternalKey().get(), nullptr);
-
-  std::vector<unsigned char> outputBytes(bytesLength);
+  std::vector<unsigned char> outputBytes(i2d_PrivateKey(getInternalKey().get(), nullptr));
 
   if (unsigned char* rawBytes = outputBytes.data(); i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
   {
