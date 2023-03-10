@@ -18,6 +18,7 @@
  *
  */
 #include "ED25519PublicKey.h"
+#include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
 #include "exceptions/BadKeyException.h"
 #include "impl/HexConverter.h"
@@ -29,52 +30,41 @@
 #include <vector>
 
 using namespace Hedera;
+using namespace Hedera::internal::Utilities;
 
 class ED25519PublicKeyTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
-  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKeyFromPrivate() const
-  {
-    return mPublicKeyFromPrivate;
-  }
-  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKeyFromString() const
-  {
-    return mPublicKeyFromString;
-  }
-  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKeyFromProtobuf() const
-  {
-    return mPublicKeyFromProtobuf;
-  }
+  [[nodiscard]] inline const std::string& getTestPublicKeyHex() const { return mPublicKeyHexString; }
+  [[nodiscard]] inline const std::vector<unsigned char>& getTestPublicKeyBytes() const { return mPublicKeyBytes; }
 
 private:
-  const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
-  const std::shared_ptr<PublicKey> mPublicKeyFromPrivate = mPrivateKey->getPublicKey();
-  const std::shared_ptr<PublicKey> mPublicKeyFromString =
-    ED25519PublicKey::fromString(mPublicKeyFromPrivate->toStringDer());
-  const std::shared_ptr<PublicKey> mPublicKeyFromProtobuf =
-    PublicKey::fromProtobuf(*mPublicKeyFromString->toProtobuf());
+  const std::string mPublicKeyHexString = "F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";
+  const std::vector<unsigned char> mPublicKeyBytes = { 0xF8, 0x3D, 0xEF, 0x42, 0x41, 0x1E, 0x04, 0x64, 0x61, 0xD5, 0xAE,
+                                                       0xEA, 0xE9, 0x31, 0x1C, 0x56, 0xF6, 0x61, 0x25, 0x57, 0xF3, 0x49,
+                                                       0xF3, 0x41, 0x2D, 0xBD, 0x95, 0xC9, 0xFE, 0x8B, 0x02, 0x65 };
 };
 
 //-----
 TEST_F(ED25519PublicKeyTest, FromString)
 {
-  const std::string publicKeyString = "F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";
-  const std::string publicKeyStringDer = ED25519PublicKey::DER_ENCODED_PREFIX_HEX + publicKeyString;
+  const std::string derEncodedPublicKeyHexString = ED25519PublicKey::DER_ENCODED_PREFIX_HEX + getTestPublicKeyHex();
 
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromString = ED25519PublicKey::fromString(publicKeyString);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromString = ED25519PublicKey::fromString(getTestPublicKeyHex());
 
   ASSERT_NE(publicKeyFromString, nullptr);
-  EXPECT_EQ(publicKeyFromString->toStringDer(), publicKeyStringDer);
-  EXPECT_EQ(publicKeyFromString->toStringRaw(), publicKeyString);
-  EXPECT_EQ(publicKeyFromString->toBytesDer(), internal::HexConverter::hexToBytes(publicKeyStringDer));
-  EXPECT_EQ(publicKeyFromString->toBytesRaw(), internal::HexConverter::hexToBytes(publicKeyString));
+  EXPECT_EQ(publicKeyFromString->toStringDer(), derEncodedPublicKeyHexString);
+  EXPECT_EQ(publicKeyFromString->toStringRaw(), getTestPublicKeyHex());
+  EXPECT_EQ(publicKeyFromString->toBytesDer(),
+            concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes()));
+  EXPECT_EQ(publicKeyFromString->toBytesRaw(), getTestPublicKeyBytes());
 
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromStringDer =
-                 ED25519PublicKey::fromStringDer(publicKeyString),
+                 ED25519PublicKey::fromStringDer(getTestPublicKeyHex()),
                BadKeyException);
 
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromStringDer = ED25519PublicKey::fromStringDer(publicKeyStringDer);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromStringDer =
+    ED25519PublicKey::fromStringDer(derEncodedPublicKeyHexString);
 
   ASSERT_NE(publicKeyFromStringDer, nullptr);
   EXPECT_EQ(publicKeyFromStringDer->toStringDer(), publicKeyFromString->toStringDer());
@@ -83,10 +73,11 @@ TEST_F(ED25519PublicKeyTest, FromString)
   EXPECT_EQ(publicKeyFromStringDer->toBytesRaw(), publicKeyFromString->toBytesRaw());
 
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromStringRaw =
-                 ED25519PublicKey::fromStringRaw(publicKeyStringDer),
+                 ED25519PublicKey::fromStringRaw(derEncodedPublicKeyHexString),
                BadKeyException);
 
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromStringRaw = ED25519PublicKey::fromStringRaw(publicKeyString);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromStringRaw =
+    ED25519PublicKey::fromStringRaw(getTestPublicKeyHex());
 
   ASSERT_NE(publicKeyFromStringRaw, nullptr);
   EXPECT_EQ(publicKeyFromStringRaw->toStringDer(), publicKeyFromStringDer->toStringDer());
@@ -109,25 +100,23 @@ TEST_F(ED25519PublicKeyTest, FromString)
 //-----
 TEST_F(ED25519PublicKeyTest, FromBytes)
 {
-  const std::vector<unsigned char> publicKeyBytes = { 0xF8, 0x3D, 0xEF, 0x42, 0x41, 0x1E, 0x04, 0x64, 0x61, 0xD5, 0xAE,
-                                                      0xEA, 0xE9, 0x31, 0x1C, 0x56, 0xF6, 0x61, 0x25, 0x57, 0xF3, 0x49,
-                                                      0xF3, 0x41, 0x2D, 0xBD, 0x95, 0xC9, 0xFE, 0x8B, 0x02, 0x65 };
-  const std::vector<unsigned char> publicKeyBytesDer =
-    internal::Utilities::concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, publicKeyBytes);
+  const std::vector<unsigned char> derEncodedPublicKeyBytes =
+    concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes());
 
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytes = ED25519PublicKey::fromBytes(publicKeyBytes);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytes = ED25519PublicKey::fromBytes(getTestPublicKeyBytes());
 
   ASSERT_NE(publicKeyFromBytes, nullptr);
-  EXPECT_EQ(publicKeyFromBytes->toStringDer(), internal::HexConverter::bytesToHex(publicKeyBytesDer));
-  EXPECT_EQ(publicKeyFromBytes->toStringRaw(), internal::HexConverter::bytesToHex(publicKeyBytes));
-  EXPECT_EQ(publicKeyFromBytes->toBytesDer(), publicKeyBytesDer);
-  EXPECT_EQ(publicKeyFromBytes->toBytesRaw(), publicKeyBytes);
+  EXPECT_EQ(publicKeyFromBytes->toStringDer(), ED25519PublicKey::DER_ENCODED_PREFIX_HEX + getTestPublicKeyHex());
+  EXPECT_EQ(publicKeyFromBytes->toStringRaw(), getTestPublicKeyHex());
+  EXPECT_EQ(publicKeyFromBytes->toBytesDer(), derEncodedPublicKeyBytes);
+  EXPECT_EQ(publicKeyFromBytes->toBytesRaw(), getTestPublicKeyBytes());
 
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesDer =
-                 ED25519PublicKey::fromBytesDer(publicKeyBytes),
+                 ED25519PublicKey::fromBytesDer(getTestPublicKeyBytes()),
                BadKeyException);
 
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesDer = ED25519PublicKey::fromBytesDer(publicKeyBytesDer);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesDer =
+    ED25519PublicKey::fromBytesDer(derEncodedPublicKeyBytes);
 
   ASSERT_NE(publicKeyFromBytesDer, nullptr);
   EXPECT_EQ(publicKeyFromBytesDer->toStringDer(), publicKeyFromBytes->toStringDer());
@@ -136,27 +125,40 @@ TEST_F(ED25519PublicKeyTest, FromBytes)
   EXPECT_EQ(publicKeyFromBytesDer->toBytesRaw(), publicKeyFromBytes->toBytesRaw());
 
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesRaw =
-                 ED25519PublicKey::fromBytesRaw(publicKeyBytesDer),
+                 ED25519PublicKey::fromBytesRaw(derEncodedPublicKeyBytes),
                BadKeyException);
 
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesRaw = ED25519PublicKey::fromBytesRaw(publicKeyBytes);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesRaw =
+    ED25519PublicKey::fromBytesRaw(getTestPublicKeyBytes());
 
   ASSERT_NE(publicKeyFromBytesRaw, nullptr);
   EXPECT_EQ(publicKeyFromBytesRaw->toStringDer(), publicKeyFromBytesDer->toStringDer());
   EXPECT_EQ(publicKeyFromBytesRaw->toStringRaw(), publicKeyFromBytesDer->toStringRaw());
   EXPECT_EQ(publicKeyFromBytesRaw->toBytesDer(), publicKeyFromBytesDer->toBytesDer());
   EXPECT_EQ(publicKeyFromBytesRaw->toBytesRaw(), publicKeyFromBytesDer->toBytesRaw());
+
+  // Throw if input garbage
+  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =
+                 ED25519PublicKey::fromBytes({ 0x65, 0x4D, 0x58, 0x13, 0x47, 0x21, 0x04, 0x76 }),
+               BadKeyException);
+  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromBytes(concatenateVectors(
+                 ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, { 0x76, 0x47, 0x85, 0x47, 0x15, 0xd4 })),
+               BadKeyException);
+  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =
+                 ED25519PublicKey::fromBytes(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES),
+               BadKeyException);
 }
 
 //-----
 TEST_F(ED25519PublicKeyTest, Clone)
 {
-  const std::shared_ptr<PublicKey> publicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-  ASSERT_NE(publicKey, nullptr);
+  // Given
+  const std::shared_ptr<ED25519PublicKey> publicKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes());
 
+  // When
   const std::unique_ptr<PublicKey> clonedPublicKey = publicKey->clone();
-  ASSERT_NE(clonedPublicKey, nullptr);
 
+  // Then
   EXPECT_EQ(publicKey->toStringDer(), clonedPublicKey->toStringDer());
   EXPECT_EQ(publicKey->toStringRaw(), clonedPublicKey->toStringRaw());
   EXPECT_EQ(publicKey->toBytesDer(), clonedPublicKey->toBytesDer());
@@ -164,126 +166,108 @@ TEST_F(ED25519PublicKeyTest, Clone)
 }
 
 //-----
-TEST_F(ED25519PublicKeyTest, VerifyValidSignature)
-{
-  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
-  const std::vector<unsigned char> signature = getTestPrivateKey()->sign(bytesToSign);
-
-  EXPECT_TRUE(getTestPublicKeyFromPrivate()->verifySignature(signature, bytesToSign));
-  EXPECT_TRUE(getTestPublicKeyFromString()->verifySignature(signature, bytesToSign));
-  EXPECT_TRUE(getTestPublicKeyFromProtobuf()->verifySignature(signature, bytesToSign));
-}
-
-//-----
-TEST_F(ED25519PublicKeyTest, VerifyValidSignatureOfEmptyMessage)
-{
-  const std::vector<unsigned char> signature = getTestPrivateKey()->sign({});
-
-  EXPECT_TRUE(getTestPublicKeyFromPrivate()->verifySignature(signature, {}));
-  EXPECT_TRUE(getTestPublicKeyFromString()->verifySignature(signature, {}));
-  EXPECT_TRUE(getTestPublicKeyFromProtobuf()->verifySignature(signature, {}));
-}
-
-//-----
 TEST_F(ED25519PublicKeyTest, VerifySignatureAgainstModifiedBytes)
 {
-  const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
-  const std::vector<unsigned char> modifiedBytes = { 0x1, 0x2, 0x3, 0x4 };
+  // Given
+  const std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::fromBytes(getTestPublicKeyBytes());
+  const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
+  std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
 
-  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(signature, modifiedBytes));
-  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(signature, modifiedBytes));
-  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(signature, modifiedBytes));
+  // When
+  const std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
+  bytesToSign.push_back(0x4);
+
+  // Then
+  EXPECT_FALSE(publicKey->verifySignature(signature, bytesToSign));
+
+  // Signature verification is further tested in RFV8032 test vectors
 }
 
 //-----
 TEST_F(ED25519PublicKeyTest, VerifyArbitrarySignature)
 {
+  // Given
+  const std::shared_ptr<ED25519PublicKey> publicKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes());
   const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
   const std::vector<unsigned char> arbitrarySignature = { 0x1, 0x2, 0x3, 0x4 };
 
-  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(arbitrarySignature, bytesToSign));
-  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(arbitrarySignature, bytesToSign));
+  // When / Then
+  EXPECT_FALSE(publicKey->verifySignature(arbitrarySignature, bytesToSign));
+
+  // Signature verification is further tested in RFV8032 test vectors
 }
 
 //-----
 TEST_F(ED25519PublicKeyTest, VerifyEmptySignature)
 {
-  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  // Given / When / Then
+  EXPECT_FALSE(ED25519PublicKey::fromBytes(getTestPublicKeyBytes())->verifySignature({}, { 0x1, 0x2, 0x3 }));
 
-  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature({}, bytesToSign));
-  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature({}, bytesToSign));
-  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature({}, bytesToSign));
-}
-
-//-----
-TEST_F(ED25519PublicKeyTest, VerifyEmptyMessage)
-{
-  const std::vector<unsigned char> signature = getTestPrivateKey()->sign({ 0x1, 0x2, 0x3 });
-
-  EXPECT_FALSE(getTestPublicKeyFromPrivate()->verifySignature(signature, {}));
-  EXPECT_FALSE(getTestPublicKeyFromString()->verifySignature(signature, {}));
-  EXPECT_FALSE(getTestPublicKeyFromProtobuf()->verifySignature(signature, {}));
+  // Signature verification is further tested in RFV8032 test vectors
 }
 
 //-----
 TEST_F(ED25519PublicKeyTest, ToString)
 {
-  const std::string derEncodingFromPrivate = getTestPublicKeyFromPrivate()->toStringDer();
-  const std::string derEncodingFromLoaded = getTestPublicKeyFromString()->toStringDer();
-  const std::string derEncodingFromProtobuf = getTestPublicKeyFromProtobuf()->toStringDer();
+  // Given
+  const std::shared_ptr<ED25519PublicKey> publicKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes());
 
-  EXPECT_EQ(derEncodingFromPrivate.size(),
-            ED25519PublicKey::PUBLIC_KEY_SIZE * 2 + ED25519PublicKey::DER_ENCODED_PREFIX_HEX.size());
-  EXPECT_EQ(derEncodingFromLoaded.size(),
-            ED25519PublicKey::PUBLIC_KEY_SIZE * 2 + ED25519PublicKey::DER_ENCODED_PREFIX_HEX.size());
-  EXPECT_EQ(derEncodingFromProtobuf.size(),
-            ED25519PublicKey::PUBLIC_KEY_SIZE * 2 + ED25519PublicKey::DER_ENCODED_PREFIX_HEX.size());
+  // When
+  const std::string stringDer = publicKey->toStringDer();
+  const std::string stringRaw = publicKey->toStringRaw();
 
-  EXPECT_EQ(derEncodingFromPrivate, derEncodingFromLoaded);
-  EXPECT_EQ(derEncodingFromPrivate, derEncodingFromProtobuf);
+  // Then
+  EXPECT_EQ(stringDer, ED25519PublicKey::DER_ENCODED_PREFIX_HEX + getTestPublicKeyHex());
+  EXPECT_EQ(stringRaw, getTestPublicKeyHex());
+}
 
-  const std::string rawEncodingFromPrivate = getTestPublicKeyFromPrivate()->toStringRaw();
-  const std::string rawEncodingFromLoaded = getTestPublicKeyFromString()->toStringRaw();
-  const std::string rawEncodingFromProtobuf = getTestPublicKeyFromProtobuf()->toStringRaw();
+//-----
+TEST_F(ED25519PublicKeyTest, ToBytes)
+{
+  // Given
+  const std::shared_ptr<ED25519PublicKey> publicKey = ED25519PublicKey::fromString(getTestPublicKeyHex());
 
-  EXPECT_EQ(rawEncodingFromPrivate.size(), ED25519PublicKey::PUBLIC_KEY_SIZE * 2);
-  EXPECT_EQ(rawEncodingFromLoaded.size(), ED25519PublicKey::PUBLIC_KEY_SIZE * 2);
-  EXPECT_EQ(rawEncodingFromProtobuf.size(), ED25519PublicKey::PUBLIC_KEY_SIZE * 2);
+  // When
+  const std::vector<unsigned char> bytesDer = publicKey->toBytesDer();
+  const std::vector<unsigned char> bytesRaw = publicKey->toBytesRaw();
 
-  EXPECT_EQ(rawEncodingFromPrivate, rawEncodingFromLoaded);
-  EXPECT_EQ(rawEncodingFromPrivate, rawEncodingFromProtobuf);
+  // Then
+  EXPECT_EQ(bytesDer, concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes()));
+  EXPECT_EQ(bytesRaw, getTestPublicKeyBytes());
 }
 
 //-----
 TEST_F(ED25519PublicKeyTest, PublicKeyToProtobuf)
 {
   // Given
-  const std::shared_ptr<PublicKey> testPublicKey = getTestPublicKeyFromString();
+  const std::shared_ptr<ED25519PublicKey> publicKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes());
 
   // When
-  const std::unique_ptr<proto::Key> protobufEd25519PublicKey = testPublicKey->toProtobuf();
-  const std::vector<unsigned char> protobufEd25519PublicKeyBytes = { protobufEd25519PublicKey->ed25519().cbegin(),
-                                                                     protobufEd25519PublicKey->ed25519().cend() };
+  const std::unique_ptr<proto::Key> protobufKey = publicKey->toProtobuf();
 
   // Then
-  ASSERT_NE(protobufEd25519PublicKey, nullptr);
-  EXPECT_TRUE(protobufEd25519PublicKey->has_ed25519());
-  EXPECT_EQ(testPublicKey->toBytesRaw(), protobufEd25519PublicKeyBytes);
+  ASSERT_NE(protobufKey, nullptr);
+  EXPECT_TRUE(protobufKey->has_ed25519());
+
+  const std::vector<unsigned char> protobufEd25519PublicKeyBytes = { protobufKey->ed25519().cbegin(),
+                                                                     protobufKey->ed25519().cend() };
+  EXPECT_EQ(protobufEd25519PublicKeyBytes, getTestPublicKeyBytes());
 }
 
 //-----
 TEST_F(ED25519PublicKeyTest, PublicKeyFromProtobuf)
 {
   // Given
-  const std::shared_ptr<PublicKey> testPublicKey = getTestPublicKeyFromString();
-  const std::string testPublicKeyAsString = testPublicKey->toStringDer();
-  const std::unique_ptr<proto::Key> testProtobufPublicKey = testPublicKey->toProtobuf();
+  const std::unique_ptr<proto::Key> protobufKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes())->toProtobuf();
 
   // When
-  std::shared_ptr<PublicKey> publicKey = PublicKey::fromProtobuf(*testProtobufPublicKey);
+  const std::shared_ptr<PublicKey> publicKey = PublicKey::fromProtobuf(*protobufKey);
 
   // Then
   ASSERT_NE(publicKey, nullptr);
-  EXPECT_EQ(publicKey->toStringDer(), testPublicKeyAsString);
+  EXPECT_EQ(publicKey->toStringDer(), ED25519PublicKey::DER_ENCODED_PREFIX_HEX + getTestPublicKeyHex());
+  EXPECT_EQ(publicKey->toStringRaw(), getTestPublicKeyHex());
+  EXPECT_EQ(publicKey->toBytesDer(),
+            concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes()));
+  EXPECT_EQ(publicKey->toBytesRaw(), getTestPublicKeyBytes());
 }

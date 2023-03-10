@@ -63,6 +63,11 @@ private:
 //-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
 {
+  const std::string derEncodedUncompressedPublicKeyHexString =
+    ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_HEX + getTestUncompressedPublicKeyHex();
+  const std::string derEncodedCompressedPublicKeyHexString =
+    ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX + getTestCompressedPublicKeyHex();
+
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressed =
     ECDSAsecp256k1PublicKey::fromString(getTestUncompressedPublicKeyHex());
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromCompressed =
@@ -82,10 +87,10 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
                  ECDSAsecp256k1PublicKey::fromStringDer(getTestCompressedPublicKeyHex()),
                BadKeyException);
 
-  const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressedDer = ECDSAsecp256k1PublicKey::fromStringDer(
-    ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_HEX + getTestUncompressedPublicKeyHex());
-  const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromCompressedDer = ECDSAsecp256k1PublicKey::fromStringDer(
-    ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX + getTestCompressedPublicKeyHex());
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressedDer =
+    ECDSAsecp256k1PublicKey::fromStringDer(derEncodedUncompressedPublicKeyHexString);
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromCompressedDer =
+    ECDSAsecp256k1PublicKey::fromStringDer(derEncodedCompressedPublicKeyHexString);
 
   ASSERT_NE(publicKeyFromUncompressedDer, nullptr);
   ASSERT_NE(publicKeyFromCompressedDer, nullptr);
@@ -100,12 +105,10 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
   EXPECT_EQ(publicKeyFromUncompressedDer->toBytesDer(), publicKeyFromCompressed->toBytesDer());
 
   EXPECT_THROW(const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressedRaw =
-                 ECDSAsecp256k1PublicKey::fromStringRaw(ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_HEX +
-                                                        getTestUncompressedPublicKeyHex()),
+                 ECDSAsecp256k1PublicKey::fromStringRaw(derEncodedUncompressedPublicKeyHexString),
                BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromCompressedRaw =
-                 ECDSAsecp256k1PublicKey::fromStringRaw(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX +
-                                                        getTestCompressedPublicKeyHex()),
+                 ECDSAsecp256k1PublicKey::fromStringRaw(derEncodedCompressedPublicKeyHexString),
                BadKeyException);
 
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressedRaw =
@@ -140,14 +143,15 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
 //-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, FromBytes)
 {
-  std::vector<unsigned char> publicKeyCompressed = { 0x02, 0x5B, 0x36, 0xE2, 0x2D, 0x71, 0x0E, 0x79, 0x64, 0x6F, 0x1A,
-                                                     0x86, 0xD6, 0x33, 0xEB, 0x38, 0x34, 0x3B, 0xFE, 0x9D, 0xF3, 0x91,
-                                                     0x85, 0xEC, 0x73, 0x0B, 0x1E, 0x7D, 0xFA, 0x79, 0xEE, 0x92, 0xCF };
+  const std::vector<unsigned char> derEncodedUncompressedPublicKeyBytes = concatenateVectors(
+    ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, getTestUncompressedPublicKeyBytes());
+  const std::vector<unsigned char> derEncodedCompressedPublicKeyBytes =
+    concatenateVectors(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes());
 
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressed =
     ECDSAsecp256k1PublicKey::fromBytes(getTestUncompressedPublicKeyBytes());
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromCompressed =
-    ECDSAsecp256k1PublicKey::fromBytes(publicKeyCompressed);
+    ECDSAsecp256k1PublicKey::fromBytes(getTestCompressedPublicKeyBytes());
 
   ASSERT_NE(publicKeyFromUncompressed, nullptr);
   ASSERT_NE(publicKeyFromCompressed, nullptr);
@@ -160,15 +164,13 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromBytes)
                  ECDSAsecp256k1PublicKey::fromBytesDer(getTestUncompressedPublicKeyBytes()),
                BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromCompressedDer =
-                 ECDSAsecp256k1PublicKey::fromBytesDer(publicKeyCompressed),
+                 ECDSAsecp256k1PublicKey::fromBytesDer(getTestCompressedPublicKeyBytes()),
                BadKeyException);
 
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressedDer =
-    ECDSAsecp256k1PublicKey::fromBytesDer(concatenateVectors(
-      ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, getTestUncompressedPublicKeyBytes()));
+    ECDSAsecp256k1PublicKey::fromBytesDer(derEncodedUncompressedPublicKeyBytes);
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromCompressedDer =
-    ECDSAsecp256k1PublicKey::fromBytesDer(concatenateVectors(
-      ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes()));
+    ECDSAsecp256k1PublicKey::fromBytesDer(derEncodedCompressedPublicKeyBytes);
 
   ASSERT_NE(publicKeyFromUncompressedDer, nullptr);
   ASSERT_NE(publicKeyFromCompressedDer, nullptr);
@@ -182,14 +184,11 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromBytes)
   EXPECT_EQ(publicKeyFromUncompressedDer->toBytesRaw(), publicKeyFromCompressed->toBytesRaw());
   EXPECT_EQ(publicKeyFromUncompressedDer->toBytesDer(), publicKeyFromCompressed->toBytesDer());
 
-  EXPECT_THROW(
-    const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressedRaw =
-      ECDSAsecp256k1PublicKey::fromBytesRaw(concatenateVectors(
-        ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, getTestUncompressedPublicKeyBytes())),
-    BadKeyException);
+  EXPECT_THROW(const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressedRaw =
+                 ECDSAsecp256k1PublicKey::fromBytesRaw(derEncodedUncompressedPublicKeyBytes),
+               BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromCompressedRaw =
-                 ECDSAsecp256k1PublicKey::fromBytesRaw(concatenateVectors(
-                   ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes())),
+                 ECDSAsecp256k1PublicKey::fromBytesRaw(derEncodedCompressedPublicKeyBytes),
                BadKeyException);
 
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressedRaw =

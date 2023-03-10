@@ -65,12 +65,14 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, GeneratePrivateKey)
 //-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
 {
+  const std::string derEncodedPrivateKeyHexString =
+    ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString();
+
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromString =
     ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
 
   ASSERT_NE(privateKeyFromString, nullptr);
-  EXPECT_EQ(privateKeyFromString->toStringDer(),
-            ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString());
+  EXPECT_EQ(privateKeyFromString->toStringDer(), derEncodedPrivateKeyHexString);
   EXPECT_EQ(privateKeyFromString->toStringRaw(), getTestPrivateKeyHexString());
   EXPECT_EQ(privateKeyFromString->toBytesDer(),
             concatenateVectors(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes()));
@@ -80,8 +82,8 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
                  ECDSAsecp256k1PrivateKey::fromStringDer(getTestPrivateKeyHexString()),
                BadKeyException);
 
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringDer = ECDSAsecp256k1PrivateKey::fromStringDer(
-    ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString());
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringDer =
+    ECDSAsecp256k1PrivateKey::fromStringDer(derEncodedPrivateKeyHexString);
 
   ASSERT_NE(privateKeyFromStringDer, nullptr);
   EXPECT_EQ(privateKeyFromStringDer->toStringDer(), privateKeyFromString->toStringDer());
@@ -90,8 +92,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
   EXPECT_EQ(privateKeyFromStringDer->toBytesRaw(), privateKeyFromString->toBytesRaw());
 
   EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringRaw =
-                 ECDSAsecp256k1PrivateKey::fromStringRaw(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX +
-                                                         getTestPrivateKeyHexString()),
+                 ECDSAsecp256k1PrivateKey::fromStringRaw(derEncodedPrivateKeyHexString),
                BadKeyException);
 
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringRaw =
@@ -122,6 +123,9 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
 //-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, FromBytes)
 {
+  const std::vector<unsigned char> derEncodedPrivateKeyBytes =
+    concatenateVectors(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes());
+
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytes =
     ECDSAsecp256k1PrivateKey::fromBytes(getTestPrivateKeyBytes());
 
@@ -129,16 +133,15 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromBytes)
   EXPECT_EQ(privateKeyFromBytes->toStringDer(),
             ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString());
   EXPECT_EQ(privateKeyFromBytes->toStringRaw(), getTestPrivateKeyHexString());
-  EXPECT_EQ(privateKeyFromBytes->toBytesDer(),
-            concatenateVectors(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes()));
+  EXPECT_EQ(privateKeyFromBytes->toBytesDer(), derEncodedPrivateKeyBytes);
   EXPECT_EQ(privateKeyFromBytes->toBytesRaw(), getTestPrivateKeyBytes());
 
   EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesDer =
                  ECDSAsecp256k1PrivateKey::fromBytesDer(getTestPrivateKeyBytes()),
                BadKeyException);
 
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesDer = ECDSAsecp256k1PrivateKey::fromBytesDer(
-    concatenateVectors(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes()));
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesDer =
+    ECDSAsecp256k1PrivateKey::fromBytesDer(derEncodedPrivateKeyBytes);
 
   ASSERT_NE(privateKeyFromBytesDer, nullptr);
   EXPECT_EQ(privateKeyFromBytesDer->toStringDer(), privateKeyFromBytes->toStringDer());
@@ -147,8 +150,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromBytes)
   EXPECT_EQ(privateKeyFromBytesDer->toBytesRaw(), privateKeyFromBytes->toBytesRaw());
 
   EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesRaw =
-                 ECDSAsecp256k1PrivateKey::fromBytesRaw(
-                   concatenateVectors(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes())),
+                 ECDSAsecp256k1PrivateKey::fromBytesRaw(derEncodedPrivateKeyBytes),
                BadKeyException);
 
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesRaw =
