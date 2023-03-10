@@ -21,6 +21,8 @@
 #include "exceptions/BadMnemonicException.h"
 #include "impl/OpenSSLUtils.h"
 
+#include <algorithm>
+
 namespace Hedera
 {
 //-----
