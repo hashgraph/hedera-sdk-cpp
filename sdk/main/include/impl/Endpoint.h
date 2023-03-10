@@ -38,10 +38,10 @@ public:
   /**
    * Construct from an address and a port number.
    *
-   * @param address The IPv4 address of the endpoint.
-   * @param port    The port of the endpoint.
+   * @param ipAddressV4 The IPv4 address of the endpoint.
+   * @param port        The port of the endpoint.
    */
-  Endpoint(const IPv4Address& address, int port);
+  Endpoint(const IPv4Address& ipAddressV4, int port);
 
   /**
    * Create an Endpoint object from a ServiceEndpoint protobuf object.

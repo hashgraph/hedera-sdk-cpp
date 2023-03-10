@@ -18,6 +18,7 @@
  *
  */
 #include "impl/NodeAddress.h"
+#include "exceptions/IllegalStateException.h"
 #include "impl/IPv4Address.h"
 
 #include <iomanip>
@@ -33,20 +34,36 @@ using std::endl;
 namespace Hedera::internal
 {
 //-----
-NodeAddress::NodeAddress(const std::string address, const int port)
+NodeAddress::NodeAddress(const std::string ipAddressV4, const int port)
 {
   std::vector<unsigned char> octets;
-  std::stringstream strStream(address);
+  std::stringstream strStream(ipAddressV4);
   std::string temp;
 
-  while (getline(strStream, temp, '.'))
+  try
   {
-    int octet = atoi(temp.c_str());
-    octets.push_back((unsigned char)octet);
+    while (getline(strStream, temp, '.'))
+    {
+      int octet = atoi(temp.c_str());
+
+      if (octet > 0)
+      {
+        octets.push_back((unsigned char)octet);
+      }
+    }
+  }
+  catch (const std::exception& e)
+  {
+    throw IllegalStateException("Failed to parse the IP address.");
   }
 
-  IPv4Address ipAddress_v4 = IPv4Address(octets[0], octets[1], octets[2], octets[3]);
-  std::shared_ptr<Endpoint> endpoint = std::make_shared<Endpoint>(ipAddress_v4, port);
+  if (octets.size() != 4)
+  {
+    throw IllegalStateException("The IP address is missing or has wrong format.");
+  }
+
+  IPv4Address ipAddress = IPv4Address(octets[0], octets[1], octets[2], octets[3]);
+  std::shared_ptr<Endpoint> endpoint = std::make_shared<Endpoint>(ipAddress, port);
   mEndpoints.push_back(endpoint);
 }
 
@@ -63,8 +80,8 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 
   if (protoNodeAddress.ipaddress().length() != 0)
   {
-    // outputNodeAddress.mEndpoints.emplace_back(internal::IPv4Address::fromString(protoNodeAddress.ipaddress()),
-    //                                           protoNodeAddress.portno());
+    Endpoint endpoint = Endpoint(IPv4Address::fromString(protoNodeAddress.ipaddress()), protoNodeAddress.portno());
+    outputNodeAddress.mEndpoints.emplace_back(std::make_shared<Endpoint>(endpoint));
   }
 
   outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();

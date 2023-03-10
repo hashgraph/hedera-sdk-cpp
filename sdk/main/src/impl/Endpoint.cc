@@ -32,8 +32,8 @@ Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint)
 }
 
 //-----
-Endpoint::Endpoint(const IPv4Address& address, int port)
-  : mAddress(address)
+Endpoint::Endpoint(const IPv4Address& ipAddressV4, int port)
+  : mAddress(ipAddressV4)
   , mPort(port)
 {
   // TODO: here we change the port to the TLS port, since the existing serialization of the testnet address book doesn't

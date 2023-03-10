@@ -47,10 +47,11 @@ public:
   /**
    * Construct a NodeAddress instance with a given address and port.
    *
-   * @param address The IP address of the Node with separator and octets.
-   * @param port    The port number of the server for the node.
+   * @param ipAddressV4 The IPv4 address of the Node with separator and octets.
+   * @param port        The port number of the server for the node.
+   * @throws IllegalStateException If the given IP address is incorrect.
    */
-  NodeAddress(const std::string ipAddress, int port);
+  NodeAddress(const std::string ipAddressV4, const int port);
 
   /**
    * Create a NodeAddress object from a NodeAddress protobuf object.

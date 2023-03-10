@@ -18,6 +18,7 @@
  *
  */
 #include "impl/NodeAddress.h"
+#include "exceptions/IllegalStateException.h"
 #include "impl/IPv4Address.h"
 
 #include <gtest/gtest.h>
@@ -73,6 +74,18 @@ TEST_F(NodeAddressTest, DefaultConstructNodeAddress)
   EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
   EXPECT_TRUE(nodeAddress.getDescription().empty());
   EXPECT_TRUE(nodeAddress.getEndpoints().empty());
+}
+
+// Test creation of NodeAddress instance using the default constructor.
+TEST_F(NodeAddressTest, ConstructFromStringAndThrowException)
+{
+  // Given
+  const std::string testNodeAddress_1 = "1";
+  const std::string testNodeAddress_2 = "aaa.bbb.ccc.ddd";
+
+  // When & Then
+  EXPECT_THROW(NodeAddress::fromString(testNodeAddress_1), Hedera::IllegalStateException);
+  EXPECT_THROW(NodeAddress::fromString(testNodeAddress_2), Hedera::IllegalStateException);
 }
 
 // Test creation of NodeAddress instance using a protobuf object.
