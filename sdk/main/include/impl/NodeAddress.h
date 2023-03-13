@@ -188,7 +188,15 @@ public:
    *
    * @return The default node endpoint.
    */
-  [[nodiscard]] inline const std::shared_ptr<Endpoint> getDefaultEndpoint() const { return mEndpoints.front(); }
+  [[nodiscard]] inline const std::shared_ptr<Endpoint> getDefaultEndpoint() const
+  {
+    if (mEndpoints.empty())
+    {
+      return nullptr;
+    }
+
+    return mEndpoints.front();
+  }
 
   /**
    * Get a vector of endpoints associated with the node.
