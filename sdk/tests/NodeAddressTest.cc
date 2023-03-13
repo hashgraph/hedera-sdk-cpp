@@ -36,18 +36,21 @@ protected:
   [[nodiscard]] inline const std::string& getTestRSAPublicKey() const { return mTestRSAPublicKey; }
   [[nodiscard]] inline const std::string& getTestIpAddress() const { return mTestIpAddress; }
   [[nodiscard]] inline const std::string& getTestDescription() const { return mDescription; }
-  [[nodiscard]] const std::string getTestNodeAddress() const
+  [[nodiscard]] const std::string getTestNodeAddress() const { return mTestNodeAddress; }
+
+  void SetUp() override
   {
     const int testPortTLS = getTestPortTLS();
     std::stringstream outputStream;
     outputStream << getTestIpAddress() << ":" << std::to_string(testPortTLS);
-    return outputStream.str();
+    mTestNodeAddress = outputStream.str();
   }
 
 private:
   const int64_t mTestNodeId = 9;
   const int mTestPortTLS = 50212;
   const int mTestPortPlain = 50211;
+  std::string mTestNodeAddress;
   const std::string mTestRSAPublicKey = "TestPublicKey";
   const std::string mTestIpAddress = "35.237.200.180";
   const std::string mDescription = "Test Description";
