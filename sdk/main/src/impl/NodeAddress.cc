@@ -43,7 +43,7 @@ NodeAddress::NodeAddress(std::string_view ipAddressV4, const int port)
 
       if (octet > 0)
       {
-        octets.push_back((unsigned char)octet);
+        octets.push_back(static_cast<unsigned char>(octet));
       }
     }
   }
