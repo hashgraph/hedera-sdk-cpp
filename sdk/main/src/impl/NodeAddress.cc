@@ -194,11 +194,11 @@ std::string NodeAddress::toString() const
     {
       if (counter == 0)
       {
-        outputStream << endpoint.get()->toString();
+        outputStream << endpoint->toString();
       }
       else
       {
-        outputStream << std::setw(columnWidth) << "" << endpoint.get()->toString();
+        outputStream << std::setw(columnWidth) << "" << endpoint->toString();
       }
 
       ++counter;

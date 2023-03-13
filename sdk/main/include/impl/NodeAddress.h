@@ -151,12 +151,9 @@ public:
    *
    * @return An instance of IPv4Address containing the IP address of the node.
    */
-  [[nodiscard]] inline const IPv4Address getDefaultIpAddress() const
-  {
-    return getDefaultEndpoint().get()->getAddress();
-  }
+  [[nodiscard]] inline const IPv4Address getDefaultIpAddress() const { return getDefaultEndpoint()->getAddress(); }
 
-  [[nodiscard]] inline const int getDefaultPort() const { return getDefaultEndpoint().get()->getPort(); }
+  [[nodiscard]] inline const int getDefaultPort() const { return getDefaultEndpoint()->getPort(); }
 
   /**
    * Get the node ID
