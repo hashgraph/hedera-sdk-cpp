@@ -29,10 +29,10 @@
 namespace Hedera::internal
 {
 //-----
-NodeAddress::NodeAddress(const std::string& ipAddressV4, const int port)
+NodeAddress::NodeAddress(std::string_view ipAddressV4, const int port)
 {
   std::vector<unsigned char> octets;
-  std::stringstream strStream(ipAddressV4);
+  std::stringstream strStream({ ipAddressV4.begin(), ipAddressV4.end() });
   std::string temp;
 
   try
@@ -90,10 +90,10 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 }
 
 //-----
-NodeAddress NodeAddress::fromString(const std::string& nodeAddress)
+NodeAddress NodeAddress::fromString(std::string_view nodeAddress)
 {
   std::vector<std::string> parts;
-  std::stringstream strStream(nodeAddress);
+  std::stringstream strStream({ nodeAddress.begin(), nodeAddress.end() });
   std::string ipAddressV4;
   int port;
 
@@ -118,7 +118,7 @@ NodeAddress NodeAddress::fromString(const std::string& nodeAddress)
 }
 
 //-----
-NodeAddress& NodeAddress::setRSAPublicKey(const std::string& publicKey)
+NodeAddress& NodeAddress::setRSAPublicKey(std::string_view publicKey)
 {
   mRSAPublicKey = publicKey;
   return *this;
@@ -139,7 +139,7 @@ NodeAddress& NodeAddress::setNodeAccountId(const AccountId& accountId)
 }
 
 //-----
-NodeAddress& NodeAddress::setNodeCertHash(const std::string& certHash)
+NodeAddress& NodeAddress::setNodeCertHash(std::string_view certHash)
 {
   mNodeCertHash = certHash;
   return *this;
@@ -154,7 +154,7 @@ NodeAddress& NodeAddress::setEndpoints(const std::vector<std::shared_ptr<Endpoin
 }
 
 //-----
-NodeAddress& NodeAddress::setDescription(const std::string& description)
+NodeAddress& NodeAddress::setDescription(std::string_view description)
 {
   mDescription = description;
   return *this;

@@ -48,7 +48,7 @@ public:
    * @param port        The port number of the server for the node.
    * @throws IllegalStateException If the given IP address is malformed.
    */
-  NodeAddress(const std::string& ipAddressV4, const int port);
+  NodeAddress(std::string_view ipAddressV4, const int port);
 
   /**
    * Create a NodeAddress object from a NodeAddress protobuf object.
@@ -65,7 +65,7 @@ public:
    * @return The created NodeAddress object.
    * @throws IllegalStateException If the given node address is incorrect.
    */
-  [[nodiscard]] static NodeAddress fromString(const std::string& nodeAddress);
+  [[nodiscard]] static NodeAddress fromString(std::string_view nodeAddress);
 
   /**
    * Set a new public key for the node.
@@ -73,7 +73,7 @@ public:
    * @param publicKey The public key to be assigned to the node.
    * @return A reference to this NodeAddress with the newly-set public key.
    */
-  NodeAddress& setRSAPublicKey(const std::string& publicKey);
+  NodeAddress& setRSAPublicKey(std::string_view publicKey);
 
   /**
    * Set a new node ID associated with the node at this address.
@@ -97,7 +97,7 @@ public:
    * @param certHash The certificate hash to be assigned to the node
    * @return A reference to this NodeAddress with the newly-set certificate hash.
    */
-  NodeAddress& setNodeCertHash(const std::string& certHash);
+  NodeAddress& setNodeCertHash(std::string_view certHash);
 
   /**
    * Set a vector of endpoints for the node.
@@ -113,7 +113,7 @@ public:
    * @param description The description text to be assigned with the node
    * @return A reference to this NodeAddress with the newly-set description.
    */
-  NodeAddress& setDescription(const std::string& description);
+  NodeAddress& setDescription(std::string_view description);
 
   /**
    * Set new amount of tinybars staked to the node.
