@@ -148,8 +148,7 @@ NodeAddress& NodeAddress::setNodeCertHash(std::string_view certHash)
 //-----
 NodeAddress& NodeAddress::setEndpoints(const std::vector<std::shared_ptr<Endpoint>>& endpoints)
 {
-  mEndpoints.clear();
-  mEndpoints.assign(endpoints.begin(), endpoints.end());
+  mEndpoints = endpoints;
   return *this;
 }
 
