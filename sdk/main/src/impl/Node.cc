@@ -222,7 +222,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
     {
       case TLSBehavior::REQUIRE:
       {
-        if (NodeAddress::isTlsPort(endpoint.get()->getPort()))
+        if (NodeAddress::isTlsPort(endpoint->getPort()))
         {
           channelCredentials = mTlsChannelCredentials;
         }
@@ -232,7 +232,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
 
       case TLSBehavior::DISABLE:
       {
-        if (NodeAddress::isNonTlsPort(endpoint.get()->getPort()))
+        if (NodeAddress::isNonTlsPort(endpoint->getPort()))
         {
           channelCredentials = grpc::InsecureChannelCredentials();
         }
@@ -250,7 +250,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
     {
       shutdown();
 
-      mChannel = grpc::CreateChannel(endpoint.get()->toString(), channelCredentials);
+      mChannel = grpc::CreateChannel(endpoint->toString(), channelCredentials);
 
       if (mChannel->WaitForConnected(deadline))
       {
