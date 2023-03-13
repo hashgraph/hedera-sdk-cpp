@@ -121,7 +121,7 @@ public:
    * @param stake The new amount of tinybars staked to the node
    * @return A reference to this NodeAddress with the newly-set staked tinybars.
    */
-  NodeAddress& setStake(const int64_t& stake);
+  NodeAddress& setStake(const uint64_t& stake);
 
   /**
    * Determine if a particular port number corresponds to a TLS port.
@@ -217,7 +217,7 @@ public:
    *
    * @return A int64 value representing the amount.
    */
-  [[nodiscard]] inline int64_t getStake() const { return mStake; }
+  [[nodiscard]] inline uint64_t getStake() const { return mStake; }
 
 private:
   /**
@@ -261,7 +261,7 @@ private:
   /**
    * The amount of tinybars staked to the node
    */
-  int64_t mStake = 0;
+  uint64_t mStake = 0;
 };
 
 } // namespace Hedera::internal

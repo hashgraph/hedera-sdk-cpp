@@ -160,7 +160,7 @@ NodeAddress& NodeAddress::setDescription(std::string_view description)
 }
 
 //-----
-NodeAddress& NodeAddress::setStake(const int64_t& stake)
+NodeAddress& NodeAddress::setStake(const uint64_t& stake)
 {
   mStake = stake;
   return *this;
