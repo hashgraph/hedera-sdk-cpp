@@ -59,31 +59,14 @@ TEST_F(ED25519PublicKeyTest, FromString)
             concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes() }));
   EXPECT_EQ(publicKeyFromString->toBytesRaw(), getTestPublicKeyBytes());
 
-  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromStringDer =
-                 ED25519PublicKey::fromStringDer(getTestPublicKeyHex()),
-               BadKeyException);
-
   const std::shared_ptr<ED25519PublicKey> publicKeyFromStringDer =
-    ED25519PublicKey::fromStringDer(derEncodedPublicKeyHexString);
+    ED25519PublicKey::fromString(derEncodedPublicKeyHexString);
 
   ASSERT_NE(publicKeyFromStringDer, nullptr);
   EXPECT_EQ(publicKeyFromStringDer->toStringDer(), publicKeyFromString->toStringDer());
   EXPECT_EQ(publicKeyFromStringDer->toStringRaw(), publicKeyFromString->toStringRaw());
   EXPECT_EQ(publicKeyFromStringDer->toBytesDer(), publicKeyFromString->toBytesDer());
   EXPECT_EQ(publicKeyFromStringDer->toBytesRaw(), publicKeyFromString->toBytesRaw());
-
-  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromStringRaw =
-                 ED25519PublicKey::fromStringRaw(derEncodedPublicKeyHexString),
-               BadKeyException);
-
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromStringRaw =
-    ED25519PublicKey::fromStringRaw(getTestPublicKeyHex());
-
-  ASSERT_NE(publicKeyFromStringRaw, nullptr);
-  EXPECT_EQ(publicKeyFromStringRaw->toStringDer(), publicKeyFromStringDer->toStringDer());
-  EXPECT_EQ(publicKeyFromStringRaw->toStringRaw(), publicKeyFromStringDer->toStringRaw());
-  EXPECT_EQ(publicKeyFromStringRaw->toBytesDer(), publicKeyFromStringDer->toBytesDer());
-  EXPECT_EQ(publicKeyFromStringRaw->toBytesRaw(), publicKeyFromStringDer->toBytesRaw());
 
   // Throw if input garbage
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromString("fdsakfdsalf"),
@@ -94,6 +77,9 @@ TEST_F(ED25519PublicKeyTest, FromString)
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =
                  ED25519PublicKey::fromString(ED25519PublicKey::DER_ENCODED_PREFIX_HEX +
                                               "F83DEF42411E046461D5AEEAE9S11C56F661 557F349F3412DBD95C9FE8B026X"),
+               BadKeyException);
+  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromString(
+                 std::string(ED25519PublicKey::DER_ENCODED_PREFIX_HEX.size(), 'A') + getTestPublicKeyHex()),
                BadKeyException);
 }
 
@@ -111,12 +97,7 @@ TEST_F(ED25519PublicKeyTest, FromBytes)
   EXPECT_EQ(publicKeyFromBytes->toBytesDer(), derEncodedPublicKeyBytes);
   EXPECT_EQ(publicKeyFromBytes->toBytesRaw(), getTestPublicKeyBytes());
 
-  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesDer =
-                 ED25519PublicKey::fromBytesDer(getTestPublicKeyBytes()),
-               BadKeyException);
-
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesDer =
-    ED25519PublicKey::fromBytesDer(derEncodedPublicKeyBytes);
+  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesDer = ED25519PublicKey::fromBytes(derEncodedPublicKeyBytes);
 
   ASSERT_NE(publicKeyFromBytesDer, nullptr);
   EXPECT_EQ(publicKeyFromBytesDer->toStringDer(), publicKeyFromBytes->toStringDer());
@@ -124,25 +105,12 @@ TEST_F(ED25519PublicKeyTest, FromBytes)
   EXPECT_EQ(publicKeyFromBytesDer->toBytesDer(), publicKeyFromBytes->toBytesDer());
   EXPECT_EQ(publicKeyFromBytesDer->toBytesRaw(), publicKeyFromBytes->toBytesRaw());
 
-  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesRaw =
-                 ED25519PublicKey::fromBytesRaw(derEncodedPublicKeyBytes),
-               BadKeyException);
-
-  const std::shared_ptr<ED25519PublicKey> publicKeyFromBytesRaw =
-    ED25519PublicKey::fromBytesRaw(getTestPublicKeyBytes());
-
-  ASSERT_NE(publicKeyFromBytesRaw, nullptr);
-  EXPECT_EQ(publicKeyFromBytesRaw->toStringDer(), publicKeyFromBytesDer->toStringDer());
-  EXPECT_EQ(publicKeyFromBytesRaw->toStringRaw(), publicKeyFromBytesDer->toStringRaw());
-  EXPECT_EQ(publicKeyFromBytesRaw->toBytesDer(), publicKeyFromBytesDer->toBytesDer());
-  EXPECT_EQ(publicKeyFromBytesRaw->toBytesRaw(), publicKeyFromBytesDer->toBytesRaw());
-
   // Throw if input garbage
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =
                  ED25519PublicKey::fromBytes({ 0x65, 0x4D, 0x58, 0x13, 0x47, 0x21, 0x04, 0x76 }),
                BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromBytes(concatenateVectors({
-                 ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, {0x76, 0x47, 0x85, 0x47, 0x15, 0xd4}
+                 ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, {0x76, 0x47, 0x85, 0x47, 0x15, 0xD4}
   })),
                BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =

@@ -78,31 +78,14 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
             concatenateVectors({ ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes() }));
   EXPECT_EQ(privateKeyFromString->toBytesRaw(), getTestPrivateKeyBytes());
 
-  EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringDer =
-                 ECDSAsecp256k1PrivateKey::fromStringDer(getTestPrivateKeyHexString()),
-               BadKeyException);
-
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringDer =
-    ECDSAsecp256k1PrivateKey::fromStringDer(derEncodedPrivateKeyHexString);
+    ECDSAsecp256k1PrivateKey::fromString(derEncodedPrivateKeyHexString);
 
   ASSERT_NE(privateKeyFromStringDer, nullptr);
   EXPECT_EQ(privateKeyFromStringDer->toStringDer(), privateKeyFromString->toStringDer());
   EXPECT_EQ(privateKeyFromStringDer->toStringRaw(), privateKeyFromString->toStringRaw());
   EXPECT_EQ(privateKeyFromStringDer->toBytesDer(), privateKeyFromString->toBytesDer());
   EXPECT_EQ(privateKeyFromStringDer->toBytesRaw(), privateKeyFromString->toBytesRaw());
-
-  EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringRaw =
-                 ECDSAsecp256k1PrivateKey::fromStringRaw(derEncodedPrivateKeyHexString),
-               BadKeyException);
-
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromStringRaw =
-    ECDSAsecp256k1PrivateKey::fromStringRaw(getTestPrivateKeyHexString());
-
-  ASSERT_NE(privateKeyFromStringRaw, nullptr);
-  EXPECT_EQ(privateKeyFromStringRaw->toStringDer(), privateKeyFromStringDer->toStringDer());
-  EXPECT_EQ(privateKeyFromStringRaw->toStringRaw(), privateKeyFromStringDer->toStringRaw());
-  EXPECT_EQ(privateKeyFromStringRaw->toBytesDer(), privateKeyFromStringDer->toBytesDer());
-  EXPECT_EQ(privateKeyFromStringRaw->toBytesRaw(), privateKeyFromStringDer->toBytesRaw());
 
   // Throw if input garbage
   EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> key =
@@ -118,6 +101,10 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
   EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> key = ECDSAsecp256k1PrivateKey::fromString(
                  ED25519PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString()),
                BadKeyException);
+  EXPECT_THROW(
+    const std::unique_ptr<ECDSAsecp256k1PrivateKey> key = ECDSAsecp256k1PrivateKey::fromString(
+      std::string(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX.size(), 'A') + getTestPrivateKeyHexString()),
+    BadKeyException);
 }
 
 //-----
@@ -136,31 +123,14 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromBytes)
   EXPECT_EQ(privateKeyFromBytes->toBytesDer(), derEncodedPrivateKeyBytes);
   EXPECT_EQ(privateKeyFromBytes->toBytesRaw(), getTestPrivateKeyBytes());
 
-  EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesDer =
-                 ECDSAsecp256k1PrivateKey::fromBytesDer(getTestPrivateKeyBytes()),
-               BadKeyException);
-
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesDer =
-    ECDSAsecp256k1PrivateKey::fromBytesDer(derEncodedPrivateKeyBytes);
+    ECDSAsecp256k1PrivateKey::fromBytes(derEncodedPrivateKeyBytes);
 
   ASSERT_NE(privateKeyFromBytesDer, nullptr);
   EXPECT_EQ(privateKeyFromBytesDer->toStringDer(), privateKeyFromBytes->toStringDer());
   EXPECT_EQ(privateKeyFromBytesDer->toStringRaw(), privateKeyFromBytes->toStringRaw());
   EXPECT_EQ(privateKeyFromBytesDer->toBytesDer(), privateKeyFromBytes->toBytesDer());
   EXPECT_EQ(privateKeyFromBytesDer->toBytesRaw(), privateKeyFromBytes->toBytesRaw());
-
-  EXPECT_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesRaw =
-                 ECDSAsecp256k1PrivateKey::fromBytesRaw(derEncodedPrivateKeyBytes),
-               BadKeyException);
-
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytesRaw =
-    ECDSAsecp256k1PrivateKey::fromBytesRaw(getTestPrivateKeyBytes());
-
-  ASSERT_NE(privateKeyFromBytesRaw, nullptr);
-  EXPECT_EQ(privateKeyFromBytesRaw->toStringDer(), privateKeyFromBytesDer->toStringDer());
-  EXPECT_EQ(privateKeyFromBytesRaw->toStringRaw(), privateKeyFromBytesDer->toStringRaw());
-  EXPECT_EQ(privateKeyFromBytesRaw->toBytesDer(), privateKeyFromBytesDer->toBytesDer());
-  EXPECT_EQ(privateKeyFromBytesRaw->toBytesRaw(), privateKeyFromBytesDer->toBytesRaw());
 }
 
 //-----

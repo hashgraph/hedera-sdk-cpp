@@ -81,24 +81,6 @@ public:
   [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromString(std::string_view key);
 
   /**
-   * Construct an ED25519PrivateKey object from a hex-encoded, DER-encoded key string.
-   *
-   * @param key The DER-encoded hex string from which to construct an ED25519PrivateKey.
-   * @return A pointer to an ED25519PrivateKey representing the input DER-encoded hex string.
-   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input hex string.
-   */
-  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromStringDer(std::string_view key);
-
-  /**
-   * Construct an ED25519PrivateKey object from a raw hex-encoded string.
-   *
-   * @param key The raw hex string from which to construct an ED25519PrivateKey.
-   * @return A pointer to an ED25519PrivateKey representing the input raw hex string.
-   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input hex string.
-   */
-  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromStringRaw(std::string_view key);
-
-  /**
    * Construct an ED25519PrivateKey object from a byte vector (DER-encoded or raw).
    *
    * @param bytes The vector of bytes from which to construct an ED25519PrivateKey.
@@ -106,24 +88,6 @@ public:
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
    */
   [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytes(const std::vector<unsigned char>& bytes);
-
-  /**
-   * Construct an ED25519PrivateKey object from a DER-encoded byte vector.
-   *
-   * @param bytes The vector of DER-encoded bytes from which to construct an ED25519PrivateKey.
-   * @return A pointer to an ED25519PrivateKey representing the input DER-encoded bytes.
-   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
-   */
-  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytesDer(const std::vector<unsigned char>& bytes);
-
-  /**
-   * Construct an ED25519PrivateKey object from a raw byte vector.
-   *
-   * @param bytes The vector of raw bytes from which to construct an ED25519PrivateKey.
-   * @return A pointer to an ED25519PrivateKey representing the input raw bytes.
-   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
-   */
-  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytesRaw(const std::vector<unsigned char>& bytes);
 
   /**
    * Construct an ED25519PrivateKey from a seed array.

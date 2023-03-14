@@ -112,32 +112,6 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_vie
 }
 
 //-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringDer(std::string_view key)
-{
-  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
-  {
-    throw BadKeyException("ED25519PrivateKey cannot be realized from input string: DER-encoded ED25519PrivateKey hex "
-                          "string size should be " +
-                          std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
-  }
-
-  return fromString(key);
-}
-
-//-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromStringRaw(std::string_view key)
-{
-  if (key.size() != KEY_SIZE * 2)
-  {
-    throw BadKeyException(
-      "ED25519PrivateKey cannot be realized from input string: raw ED25519PrivateKey hex string size should be " +
-      std::to_string(KEY_SIZE * 2));
-  }
-
-  return fromString(key);
-}
-
-//-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytes(const std::vector<unsigned char>& bytes)
 {
   if (bytes.size() == KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() || bytes.size() == KEY_SIZE)
@@ -158,32 +132,6 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytes(const std::vecto
                           std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
                           std::to_string(KEY_SIZE));
   }
-}
-
-//-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesDer(const std::vector<unsigned char>& bytes)
-{
-  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
-  {
-    throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: DER-encoded ED25519PrivateKey byte "
-                          "array should contain " +
-                          std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
-  }
-
-  return fromBytes(bytes);
-}
-
-//-----
-std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytesRaw(const std::vector<unsigned char>& bytes)
-{
-  if (bytes.size() != KEY_SIZE)
-  {
-    throw BadKeyException(
-      "ED25519PrivateKey cannot be realized from input bytes: raw ED25519PrivateKey byte array should contain " +
-      std::to_string(KEY_SIZE) + " bytes");
-  }
-
-  return fromBytes(bytes);
 }
 
 //-----

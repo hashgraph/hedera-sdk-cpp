@@ -89,26 +89,6 @@ public:
   [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromString(std::string_view key);
 
   /**
-   * Construct an ECDSAsecp256k1PublicKey object from a hex-encoded, DER-encoded key string.
-   *
-   * @param key The DER-encoded hex string from which to construct an ECDSAsecp256k1PublicKey. May be either compressed
-   *            or uncompressed.
-   * @return A pointer to an ECDSAsecp256k1PublicKey representing the input DER-encoded hex string.
-   * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input hex string.
-   */
-  [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromStringDer(std::string_view key);
-
-  /**
-   * Construct an ECDSAsecp256k1PublicKey object from a raw hex-encoded string.
-   *
-   * @param key The raw hex string from which to construct an ECDSAsecp256k1PublicKey. May be either compressed or
-   *            uncompressed.
-   * @return A pointer to an ECDSAsecp256k1PublicKey representing the input raw hex string.
-   * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input hex string.
-   */
-  [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromStringRaw(std::string_view key);
-
-  /**
    * Construct an ECDSAsecp256k1PublicKey object from a byte vector (DER-encoded or raw).
    *
    * @param bytes The vector of bytes from which to construct an ECDSAsecp256k1PublicKey.
@@ -116,24 +96,6 @@ public:
    * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input bytes.
    */
   [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromBytes(const std::vector<unsigned char>& bytes);
-
-  /**
-   * Construct an ECDSAsecp256k1PublicKey object from a DER-encoded byte vector.
-   *
-   * @param bytes The vector of DER-encoded bytes from which to construct an ECDSAsecp256k1PublicKey.
-   * @return A pointer to an ECDSAsecp256k1PublicKey representing the input DER-encoded bytes.
-   * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input bytes.
-   */
-  [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromBytesDer(const std::vector<unsigned char>& bytes);
-
-  /**
-   * Construct an ECDSAsecp256k1PublicKey object from a raw byte vector.
-   *
-   * @param bytes The vector of raw bytes from which to construct an ECDSAsecp256k1PublicKey.
-   * @return A pointer to an ECDSAsecp256k1PublicKey representing the input raw bytes.
-   * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input bytes.
-   */
-  [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromBytesRaw(const std::vector<unsigned char>& bytes);
 
   /**
    * Converts an uncompressed ECDSAsecp256k1PublicKey byte vector to a compressed ECDSAsecp256k1PublicKey byte vector.

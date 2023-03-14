@@ -53,12 +53,12 @@ std::shared_ptr<PublicKey> PublicKey::fromStringDer(std::string_view key)
 {
   if (key.find(ED25519PublicKey::DER_ENCODED_PREFIX_HEX) == 0UL)
   {
-    return ED25519PublicKey::fromStringDer(key);
+    return ED25519PublicKey::fromString(key);
   }
 
   else if (key.find(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX) == 0UL)
   {
-    return ECDSAsecp256k1PublicKey::fromStringDer(key);
+    return ECDSAsecp256k1PublicKey::fromString(key);
   }
 
   throw BadKeyException("Key type cannot be determined from input DER-encoded hex string");
@@ -69,13 +69,13 @@ std::shared_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<unsigned ch
 {
   if (internal::Utilities::isPrefixOf(bytes, ED25519PublicKey::DER_ENCODED_PREFIX_BYTES))
   {
-    return ED25519PublicKey::fromBytesDer(bytes);
+    return ED25519PublicKey::fromBytes(bytes);
   }
 
   else if (internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES) ||
            internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES))
   {
-    return ECDSAsecp256k1PublicKey::fromBytesDer(bytes);
+    return ECDSAsecp256k1PublicKey::fromBytes(bytes);
   }
 
   throw BadKeyException("Key type cannot be determined from input DER-encoded byte array");

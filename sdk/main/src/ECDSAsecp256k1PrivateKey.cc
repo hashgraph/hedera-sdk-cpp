@@ -89,7 +89,8 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::generatePriv
 //-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(std::string_view key)
 {
-  if (key.size() == KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() || key.size() == KEY_SIZE * 2)
+  if ((key.size() == KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.find(DER_ENCODED_PREFIX_HEX) == 0UL) ||
+      key.size() == KEY_SIZE * 2)
   {
     try
     {
@@ -111,35 +112,11 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(s
 }
 
 //-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromStringDer(std::string_view key)
-{
-  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size())
-  {
-    throw BadKeyException("ECDSAsecp256k1PrivateKey cannot be realized from input string: DER encoded "
-                          "ECDSAsecp256k1PrivateKey hex string size should be " +
-                          std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()));
-  }
-
-  return fromString(key);
-}
-
-//-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromStringRaw(std::string_view key)
-{
-  if (key.size() != KEY_SIZE * 2)
-  {
-    throw BadKeyException("ECDSAsecp256k1PrivateKey cannot be realized from input string: raw ECDSAsecp256k1PrivateKey "
-                          "string size should be " +
-                          std::to_string(KEY_SIZE * 2));
-  }
-
-  return fromString(key);
-}
-
-//-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytes(const std::vector<unsigned char>& bytes)
 {
-  if (bytes.size() == KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() || bytes.size() == KEY_SIZE)
+  if ((bytes.size() == KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() &&
+       internal::Utilities::isPrefixOf(bytes, DER_ENCODED_PREFIX_BYTES)) ||
+      bytes.size() == KEY_SIZE)
   {
     try
     {
@@ -157,34 +134,6 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytes(co
       "ECDSAsecp256k1PrivateKey cannot be realized from input bytes: input byte array size should be " +
       std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " + std::to_string(KEY_SIZE));
   }
-}
-
-//-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytesDer(
-  const std::vector<unsigned char>& bytes)
-{
-  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size())
-  {
-    throw BadKeyException("ECDSAsecp256k1PrivateKey cannot be realized from input bytes: DER encoded "
-                          "ECDSAsecp256k1PrivateKey byte array should contain " +
-                          std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " bytes");
-  }
-
-  return fromBytes(bytes);
-}
-
-//-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytesRaw(
-  const std::vector<unsigned char>& bytes)
-{
-  if (bytes.size() != KEY_SIZE)
-  {
-    throw BadKeyException("ECDSAsecp256k1PrivateKey cannot be realized from input bytes: raw ECDSAsecp256k1PrivateKey "
-                          "byte array should contain " +
-                          std::to_string(KEY_SIZE) + " bytes");
-  }
-
-  return fromBytes(bytes);
 }
 
 //-----
