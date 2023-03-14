@@ -153,6 +153,11 @@ public:
    */
   [[nodiscard]] inline const IPv4Address getDefaultIpAddress() const { return getDefaultEndpoint()->getAddress(); }
 
+  /**
+   * Get the port number of the gRPC server for the node.
+   *
+   * @return An int value containing the port number.
+   */
   [[nodiscard]] inline const int getDefaultPort() const { return getDefaultEndpoint()->getPort(); }
 
   /**
