@@ -29,7 +29,7 @@
 namespace Hedera::internal
 {
 //-----
-NodeAddress::NodeAddress(std::string_view ipAddressV4, const int port)
+NodeAddress::NodeAddress(std::string_view ipAddressV4, int port)
 {
   std::vector<unsigned char> octets;
   std::stringstream strStream({ ipAddressV4.begin(), ipAddressV4.end() });

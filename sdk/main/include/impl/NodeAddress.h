@@ -48,7 +48,7 @@ public:
    * @param port        The port number of the server for the node.
    * @throws IllegalStateException If the given IP address is malformed.
    */
-  NodeAddress(std::string_view ipAddressV4, const int port);
+  NodeAddress(std::string_view ipAddressV4, int port);
 
   /**
    * Create a NodeAddress object from a NodeAddress protobuf object.
@@ -63,7 +63,7 @@ public:
    *
    * @param nodeAddress The string representation from which to create a new NodeAddress object.
    * @return The created NodeAddress object.
-   * @throws IllegalStateException If the given node address is incorrect.
+   * @throws IllegalStateException If the given node address is malformed.
    */
   [[nodiscard]] static NodeAddress fromString(std::string_view nodeAddress);
 
@@ -158,7 +158,7 @@ public:
    *
    * @return An int value containing the port number.
    */
-  [[nodiscard]] inline const int getDefaultPort() const { return getDefaultEndpoint()->getPort(); }
+  [[nodiscard]] inline int getDefaultPort() const { return getDefaultEndpoint()->getPort(); }
 
   /**
    * Get the node ID
@@ -220,7 +220,7 @@ public:
   /**
    * Get the amount of tinybars staked to the node.
    *
-   * @return A int64 value representing the amount.
+   * @return A uint64_t value representing the amount.
    */
   [[nodiscard]] inline uint64_t getStake() const { return mStake; }
 
