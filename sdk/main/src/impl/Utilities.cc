@@ -50,20 +50,15 @@ std::vector<unsigned char> removePrefix(const std::vector<unsigned char>& bytes,
 }
 
 //-----
-std::vector<unsigned char> concatenateVectors(const std::vector<unsigned char>& first,
-                                              const std::vector<unsigned char>& second)
+std::vector<unsigned char> concatenateVectors(const std::vector<std::vector<unsigned char>>& vectors)
 {
-  std::vector<unsigned char> bytes = first;
-  bytes.insert(bytes.end(), second.cbegin(), second.cend());
-  return bytes;
-}
+  std::vector<unsigned char> bytes;
+  for (const std::vector<unsigned char>& vec : vectors)
+  {
+    bytes.insert(bytes.end(), vec.cbegin(), vec.cend());
+  }
 
-//-----
-std::vector<unsigned char> concatenateVectors(const std::vector<unsigned char>& first,
-                                              const std::vector<unsigned char>& second,
-                                              const std::vector<unsigned char>& third)
-{
-  return concatenateVectors(concatenateVectors(first, second), third);
+  return bytes;
 }
 
 } // namespace Hedera::internal::Utilities

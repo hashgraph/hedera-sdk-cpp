@@ -43,7 +43,7 @@ namespace
 {
   if (bytes.size() == ED25519PublicKey::KEY_SIZE)
   {
-    bytes = internal::Utilities::concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, bytes);
+    bytes = internal::Utilities::concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, bytes });
   }
 
   const unsigned char* bytesPtr = bytes.data();

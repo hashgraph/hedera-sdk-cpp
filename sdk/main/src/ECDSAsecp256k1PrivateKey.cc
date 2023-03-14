@@ -55,12 +55,12 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& bytes)
 {
   const std::vector<unsigned char> formattedBytes = internal::Utilities::concatenateVectors(
-    ASN1_PREFIX_BYTES,
-    (bytes.size() == ECDSAsecp256k1PrivateKey::KEY_SIZE + ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size())
-      ? internal::Utilities::removePrefix(bytes,
-                                          static_cast<long>(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size()))
-      : bytes,
-    ASN1_SUFFIX_BYTES);
+    { ASN1_PREFIX_BYTES,
+      (bytes.size() == ECDSAsecp256k1PrivateKey::KEY_SIZE + ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size())
+        ? internal::Utilities::removePrefix(
+            bytes, static_cast<long>(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size()))
+        : bytes,
+      ASN1_SUFFIX_BYTES });
 
   const unsigned char* rawKeyBytes = formattedBytes.data();
   internal::OpenSSLUtils::EVP_PKEY key(
@@ -221,10 +221,10 @@ std::unique_ptr<PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint32_t childIndex
 
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
     getChainCode(),
-    internal::Utilities::concatenateVectors((internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
-                                              ? internal::Utilities::concatenateVectors({ 0x0 }, toBytesRaw())
-                                              : getPublicKey()->toBytesRaw(),
-                                            internal::DerivationPathUtils::indexToBigEndianArray(childIndex)));
+    internal::Utilities::concatenateVectors({ (internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
+                                                ? internal::Utilities::concatenateVectors({ { 0x0 }, toBytesRaw() })
+                                                : getPublicKey()->toBytesRaw(),
+                                              internal::DerivationPathUtils::indexToBigEndianArray(childIndex) }));
 
   // Modular add the private key bytes computed from the HMAC to the existing private key (using the secp256k1 curve
   // order as the modulo), and compute the new chain code from the HMAC
@@ -325,7 +325,7 @@ std::string ECDSAsecp256k1PrivateKey::toStringRaw() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesDer() const
 {
-  return internal::Utilities::concatenateVectors(DER_ENCODED_PREFIX_BYTES, toBytesRaw());
+  return internal::Utilities::concatenateVectors({ DER_ENCODED_PREFIX_BYTES, toBytesRaw() });
 }
 
 //-----

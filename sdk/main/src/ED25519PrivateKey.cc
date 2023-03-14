@@ -49,7 +49,7 @@ const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '
 {
   if (bytes.size() == ED25519PrivateKey::KEY_SIZE)
   {
-    bytes = internal::Utilities::concatenateVectors(ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, bytes);
+    bytes = internal::Utilities::concatenateVectors({ ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, bytes });
   }
 
   const unsigned char* rawKeyBytes = bytes.data();
@@ -287,10 +287,10 @@ std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
   // As per SLIP0010, private key must be padded to 33 bytes
   const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
     getChainCode(),
-    internal::Utilities::concatenateVectors({ 0x0 },
-                                            toBytesRaw(),
-                                            internal::DerivationPathUtils::indexToBigEndianArray(
-                                              internal::DerivationPathUtils::getHardenedIndex(childIndex))));
+    internal::Utilities::concatenateVectors({ { 0x0 },
+                                              toBytesRaw(),
+                                              internal::DerivationPathUtils::indexToBigEndianArray(
+                                                internal::DerivationPathUtils::getHardenedIndex(childIndex)) }));
 
   // The hmac is the key bytes followed by the chain code bytes
   return std::make_unique<ED25519PrivateKey>(

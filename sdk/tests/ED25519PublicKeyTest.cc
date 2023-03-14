@@ -56,7 +56,7 @@ TEST_F(ED25519PublicKeyTest, FromString)
   EXPECT_EQ(publicKeyFromString->toStringDer(), derEncodedPublicKeyHexString);
   EXPECT_EQ(publicKeyFromString->toStringRaw(), getTestPublicKeyHex());
   EXPECT_EQ(publicKeyFromString->toBytesDer(),
-            concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes()));
+            concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes() }));
   EXPECT_EQ(publicKeyFromString->toBytesRaw(), getTestPublicKeyBytes());
 
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> publicKeyFromStringDer =
@@ -101,7 +101,7 @@ TEST_F(ED25519PublicKeyTest, FromString)
 TEST_F(ED25519PublicKeyTest, FromBytes)
 {
   const std::vector<unsigned char> derEncodedPublicKeyBytes =
-    concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes());
+    concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes() });
 
   const std::shared_ptr<ED25519PublicKey> publicKeyFromBytes = ED25519PublicKey::fromBytes(getTestPublicKeyBytes());
 
@@ -141,8 +141,9 @@ TEST_F(ED25519PublicKeyTest, FromBytes)
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =
                  ED25519PublicKey::fromBytes({ 0x65, 0x4D, 0x58, 0x13, 0x47, 0x21, 0x04, 0x76 }),
                BadKeyException);
-  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromBytes(concatenateVectors(
-                 ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, { 0x76, 0x47, 0x85, 0x47, 0x15, 0xd4 })),
+  EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromBytes(concatenateVectors({
+                 ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, {0x76, 0x47, 0x85, 0x47, 0x15, 0xd4}
+  })),
                BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =
                  ED25519PublicKey::fromBytes(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES),
@@ -232,7 +233,7 @@ TEST_F(ED25519PublicKeyTest, ToBytes)
   const std::vector<unsigned char> bytesRaw = publicKey->toBytesRaw();
 
   // Then
-  EXPECT_EQ(bytesDer, concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes()));
+  EXPECT_EQ(bytesDer, concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes() }));
   EXPECT_EQ(bytesRaw, getTestPublicKeyBytes());
 }
 
@@ -268,6 +269,6 @@ TEST_F(ED25519PublicKeyTest, PublicKeyFromProtobuf)
   EXPECT_EQ(publicKey->toStringDer(), ED25519PublicKey::DER_ENCODED_PREFIX_HEX + getTestPublicKeyHex());
   EXPECT_EQ(publicKey->toStringRaw(), getTestPublicKeyHex());
   EXPECT_EQ(publicKey->toBytesDer(),
-            concatenateVectors(ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes()));
+            concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes() }));
   EXPECT_EQ(publicKey->toBytesRaw(), getTestPublicKeyBytes());
 }

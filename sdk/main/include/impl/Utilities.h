@@ -43,26 +43,12 @@ namespace Hedera::internal::Utilities
 [[nodiscard]] std::vector<unsigned char> removePrefix(const std::vector<unsigned char>& bytes, long num);
 
 /**
- * Concatenate two bytes vectors together (in the order of the arguments).
+ * Concatenate bytes vectors together (in the order of the arguments).
  *
- * @param first  The first byte vector.
- * @param second The second byte vector.
- * @return A byte vector containing the two input byte vectors concatenated into one.
+ * @param vectors  The bytes vectors to concatenate together.
+ * @return A byte vector containing the input byte vectors concatenated into one.
  */
-[[nodiscard]] std::vector<unsigned char> concatenateVectors(const std::vector<unsigned char>& first,
-                                                            const std::vector<unsigned char>& second);
-
-/**
- * Concatenate three bytes vectors together (in the order of the arguments).
- *
- * @param first  The first byte vector.
- * @param second The second byte vector.
- * @param third  The third byte vector.
- * @return A byte vector containing all three input byte vectors concatenated into one.
- */
-[[nodiscard]] std::vector<unsigned char> concatenateVectors(const std::vector<unsigned char>& first,
-                                                            const std::vector<unsigned char>& second,
-                                                            const std::vector<unsigned char>& third);
+[[nodiscard]] std::vector<unsigned char> concatenateVectors(const std::vector<std::vector<unsigned char>>& vectors);
 
 } // namespace Hedera::internal::Utilities
 

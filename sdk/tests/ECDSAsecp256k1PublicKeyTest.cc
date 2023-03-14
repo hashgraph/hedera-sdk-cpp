@@ -144,9 +144,9 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
 TEST_F(ECDSAsecp256k1PublicKeyTest, FromBytes)
 {
   const std::vector<unsigned char> derEncodedUncompressedPublicKeyBytes = concatenateVectors(
-    ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, getTestUncompressedPublicKeyBytes());
-  const std::vector<unsigned char> derEncodedCompressedPublicKeyBytes =
-    concatenateVectors(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes());
+    { ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, getTestUncompressedPublicKeyBytes() });
+  const std::vector<unsigned char> derEncodedCompressedPublicKeyBytes = concatenateVectors(
+    { ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes() });
 
   const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKeyFromUncompressed =
     ECDSAsecp256k1PublicKey::fromBytes(getTestUncompressedPublicKeyBytes());
@@ -213,8 +213,9 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromBytes)
                  ECDSAsecp256k1PublicKey::fromBytes({ 0x65, 0x4D, 0x58, 0x13, 0x47, 0x21, 0x04, 0x76 }),
                BadKeyException);
   EXPECT_THROW(
-    const std::shared_ptr<ECDSAsecp256k1PublicKey> key = ECDSAsecp256k1PublicKey::fromBytes(concatenateVectors(
-      ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, { 0x76, 0x47, 0x85, 0x47, 0x15, 0xd4 })),
+    const std::shared_ptr<ECDSAsecp256k1PublicKey> key = ECDSAsecp256k1PublicKey::fromBytes(concatenateVectors({
+      ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, {0x76, 0x47, 0x85, 0x47, 0x15, 0xd4}
+  })),
     BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ECDSAsecp256k1PublicKey> key =
                  ECDSAsecp256k1PublicKey::fromBytes(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES),
@@ -389,8 +390,8 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, ToBytes)
 
   // Then
   EXPECT_EQ(bytesDer,
-            concatenateVectors(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES,
-                               getTestCompressedPublicKeyBytes()));
+            concatenateVectors(
+              { ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes() }));
   EXPECT_EQ(bytesRaw, getTestCompressedPublicKeyBytes());
 }
 
@@ -429,7 +430,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, PublicKeyFromProtobuf)
             ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX + getTestCompressedPublicKeyHex());
   EXPECT_EQ(publicKey->toStringRaw(), getTestCompressedPublicKeyHex());
   EXPECT_EQ(publicKey->toBytesDer(),
-            concatenateVectors(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES,
-                               getTestCompressedPublicKeyBytes()));
+            concatenateVectors(
+              { ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes() }));
   EXPECT_EQ(publicKey->toBytesRaw(), getTestCompressedPublicKeyBytes());
 }

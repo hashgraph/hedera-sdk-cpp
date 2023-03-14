@@ -74,7 +74,7 @@ TEST_F(ED25519PrivateKeyTest, FromString)
   EXPECT_EQ(privateKeyFromString->toStringDer(), derEncodedPrivateKeyHexString);
   EXPECT_EQ(privateKeyFromString->toStringRaw(), getTestPrivateKeyHexString());
   EXPECT_EQ(privateKeyFromString->toBytesDer(),
-            concatenateVectors(ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes()));
+            concatenateVectors({ ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes() }));
   EXPECT_EQ(privateKeyFromString->toBytesRaw(), getTestPrivateKeyBytes());
 
   EXPECT_THROW(const std::unique_ptr<ED25519PrivateKey> privateKeyFromStringDer =
@@ -122,7 +122,7 @@ TEST_F(ED25519PrivateKeyTest, FromString)
 TEST_F(ED25519PrivateKeyTest, FromBytes)
 {
   const std::vector<unsigned char> derEncodedPrivateKeyBytes =
-    concatenateVectors(ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes());
+    concatenateVectors({ ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes() });
 
   const std::unique_ptr<ED25519PrivateKey> privateKeyFromBytes = ED25519PrivateKey::fromBytes(getTestPrivateKeyBytes());
 
@@ -238,7 +238,7 @@ TEST_F(ED25519PrivateKeyTest, ToBytes)
   const std::vector<unsigned char> bytesRaw = privateKey->toBytesRaw();
 
   // Then
-  EXPECT_EQ(bytesDer, concatenateVectors(ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes()));
+  EXPECT_EQ(bytesDer, concatenateVectors({ ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes() }));
   EXPECT_EQ(bytesRaw, getTestPrivateKeyBytes());
 }
 

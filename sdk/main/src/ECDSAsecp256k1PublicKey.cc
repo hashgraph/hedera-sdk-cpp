@@ -49,21 +49,22 @@ namespace
   std::vector<unsigned char> uncompressedKeyBytes = bytes;
   if (bytes.size() == ECDSAsecp256k1PublicKey::UNCOMPRESSED_KEY_SIZE)
   {
-    uncompressedKeyBytes =
-      internal::Utilities::concatenateVectors(ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, bytes);
+    uncompressedKeyBytes = internal::Utilities::concatenateVectors(
+      { ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, bytes });
   }
   else if (bytes.size() == ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE +
                              ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES.size())
   {
     uncompressedKeyBytes = internal::Utilities::concatenateVectors(
-      ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES,
-      ECDSAsecp256k1PublicKey::uncompressBytes(internal::Utilities::removePrefix(
-        bytes, static_cast<long>(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()))));
+      { ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES,
+        ECDSAsecp256k1PublicKey::uncompressBytes(internal::Utilities::removePrefix(
+          bytes, static_cast<long>(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()))) });
   }
   else if (bytes.size() == ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE)
   {
-    uncompressedKeyBytes = internal::Utilities::concatenateVectors(
-      ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, ECDSAsecp256k1PublicKey::uncompressBytes(bytes));
+    uncompressedKeyBytes =
+      internal::Utilities::concatenateVectors({ ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES,
+                                                ECDSAsecp256k1PublicKey::uncompressBytes(bytes) });
   }
 
   EVP_PKEY* pkey = nullptr;
@@ -419,7 +420,7 @@ std::string ECDSAsecp256k1PublicKey::toStringRaw() const
 //-----
 std::vector<unsigned char> ECDSAsecp256k1PublicKey::toBytesDer() const
 {
-  return internal::Utilities::concatenateVectors(DER_ENCODED_COMPRESSED_PREFIX_BYTES, toBytesRaw());
+  return internal::Utilities::concatenateVectors({ DER_ENCODED_COMPRESSED_PREFIX_BYTES, toBytesRaw() });
 }
 
 //-----
