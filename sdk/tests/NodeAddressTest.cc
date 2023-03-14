@@ -19,11 +19,13 @@
  */
 #include "impl/NodeAddress.h"
 #include "exceptions/IllegalStateException.h"
+#include "impl/Endpoint.h"
 #include "impl/IPv4Address.h"
 
 #include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>
 #include <string>
+#include <vector>
 
 using namespace Hedera::internal;
 
@@ -35,8 +37,9 @@ protected:
   [[nodiscard]] inline const int& getTestPortPlain() const { return mTestPortPlain; }
   [[nodiscard]] inline const std::string& getTestRSAPublicKey() const { return mTestRSAPublicKey; }
   [[nodiscard]] inline const std::string& getTestIpAddress() const { return mTestIpAddress; }
-  [[nodiscard]] inline const std::string& getTestDescription() const { return mDescription; }
-  [[nodiscard]] const std::string getTestNodeAddress() const { return mTestNodeAddress; }
+  [[nodiscard]] inline const std::string& getTestDescription() const { return mTestDescription; }
+  [[nodiscard]] inline const std::string& getTestNodeCertHash() const { return mTestNodeCertHash; }
+  [[nodiscard]] inline const std::string& getTestNodeAddress() const { return mTestNodeAddress; }
 
   void SetUp() override
   {
@@ -50,10 +53,11 @@ private:
   const int64_t mTestNodeId = 9;
   const int mTestPortTLS = 50212;
   const int mTestPortPlain = 50211;
-  std::string mTestNodeAddress;
   const std::string mTestRSAPublicKey = "TestPublicKey";
   const std::string mTestIpAddress = "35.237.200.180";
-  const std::string mDescription = "Test Description";
+  const std::string mTestDescription = "Test Description";
+  const std::string mTestNodeCertHash = "Certificate Hash Value";
+  std::string mTestNodeAddress;
 };
 
 // Test creation of NodeAddress instance using the default constructor.
@@ -79,16 +83,41 @@ TEST_F(NodeAddressTest, DefaultConstructNodeAddress)
   EXPECT_TRUE(nodeAddress.getEndpoints().empty());
 }
 
-// Test creation of NodeAddress instance using the default constructor.
-TEST_F(NodeAddressTest, ConstructFromStringAndThrowException)
+// Test setters & getters of NodeAddress.
+TEST_F(NodeAddressTest, GettersAndSettersNodeAddress)
 {
   // Given
-  const std::string testNodeAddress_1 = "1";
-  const std::string testNodeAddress_2 = "aaa.bbb.ccc.ddd";
+  NodeAddress testNodeAddress;
+  const int64_t testNodeId = getTestNodeId();
+  const int testPortTLS = getTestPortTLS();
+  const std::string& testRSAPublicKey = getTestRSAPublicKey();
+  const std::string& testStringForIpAddressV4_1 = getTestIpAddress();
+  const std::string& testStringForIpAddressV4_2 = "127.0.0.1";
+  const IPv4Address& testIpAddressV4_1 = IPv4Address::fromString(testStringForIpAddressV4_1);
+  const IPv4Address& testIpAddressV4_2 = IPv4Address::fromString(testStringForIpAddressV4_2);
+  const std::string& testDescription = getTestDescription();
+  const std::string& testNodeCertHash = getTestNodeCertHash();
+  const std::shared_ptr<Endpoint> testEndpointPtr_1 = std::make_shared<Endpoint>(testIpAddressV4_1, testPortTLS);
+  const std::shared_ptr<Endpoint> testEndpointPtr_2 = std::make_shared<Endpoint>(testIpAddressV4_2, testPortTLS);
+  std::vector<std::shared_ptr<Endpoint>> testEndpoints;
+  testEndpoints.push_back(testEndpointPtr_1);
+  testEndpoints.push_back(testEndpointPtr_2);
+  const std::vector<std::shared_ptr<Endpoint>> testConstEndpoints(testEndpoints);
 
-  // When & Then
-  EXPECT_THROW(NodeAddress::fromString(testNodeAddress_1), Hedera::IllegalStateException);
-  EXPECT_THROW(NodeAddress::fromString(testNodeAddress_2), Hedera::IllegalStateException);
+  // When
+  testNodeAddress.setNodeId(testNodeId);
+  testNodeAddress.setRSAPublicKey(testRSAPublicKey);
+  testNodeAddress.setDescription(testDescription);
+  testNodeAddress.setNodeCertHash(testNodeCertHash);
+  testNodeAddress.setEndpoints(testConstEndpoints);
+
+  // Then
+  EXPECT_EQ(testNodeAddress.getNodeId(), testNodeId);
+  EXPECT_EQ(testNodeAddress.getPublicKey(), testRSAPublicKey);
+  EXPECT_EQ(testNodeAddress.getDescription(), testDescription);
+  EXPECT_EQ(testNodeAddress.getNodeCertHash(), testNodeCertHash);
+  EXPECT_EQ(testNodeAddress.getDefaultIpAddress().toString(), testStringForIpAddressV4_1);
+  EXPECT_EQ(testNodeAddress.getDefaultPort(), testPortTLS);
 }
 
 // Test creation of NodeAddress instance using a protobuf object.
@@ -127,7 +156,7 @@ TEST_F(NodeAddressTest, ConstructFromProtobuf)
   EXPECT_FALSE(nodeAddress.getEndpoints().empty());
 }
 
-// Test creation of NodeAddress instance using a given string node address.
+// Test creation of NodeAddress instance using a node address represented as a string.
 TEST_F(NodeAddressTest, ConstructFromString)
 {
   // Given
@@ -151,4 +180,16 @@ TEST_F(NodeAddressTest, ConstructFromString)
   EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
   EXPECT_TRUE(nodeAddress.getDescription().empty());
   EXPECT_FALSE(nodeAddress.getEndpoints().empty());
+}
+
+// Test throwing an exception when trying to create a NodeAddress from malformed string.
+TEST_F(NodeAddressTest, ConstructFromMalformedStringAndThrowException)
+{
+  // Given
+  const std::string testNodeAddress_1 = "1";
+  const std::string testNodeAddress_2 = "aaa.bbb.ccc.ddd";
+
+  // When & Then
+  EXPECT_THROW(NodeAddress::fromString(testNodeAddress_1), Hedera::IllegalStateException);
+  EXPECT_THROW(NodeAddress::fromString(testNodeAddress_2), Hedera::IllegalStateException);
 }
