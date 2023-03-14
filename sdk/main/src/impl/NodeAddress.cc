@@ -197,7 +197,7 @@ std::string NodeAddress::toString() const
       }
       else
       {
-        outputStream << std::setw(columnWidth) << "" << endpoint->toString();
+        outputStream << std::setw(columnWidth) << endpoint->toString();
       }
 
       ++counter;
