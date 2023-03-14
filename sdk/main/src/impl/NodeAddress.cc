@@ -18,6 +18,8 @@
  *
  */
 #include "impl/NodeAddress.h"
+#include "exceptions/IllegalStateException.h"
+#include "impl/IPv4Address.h"
 
 #include <iomanip>
 #include <memory>
@@ -26,42 +28,158 @@
 
 namespace Hedera::internal
 {
+//-----
+NodeAddress::NodeAddress(std::string_view ipAddressV4, int port)
+{
+  std::vector<unsigned char> octets;
+  std::stringstream strStream({ ipAddressV4.begin(), ipAddressV4.end() });
+  std::string temp;
+
+  try
+  {
+    while (getline(strStream, temp, '.'))
+    {
+      int octet = atoi(temp.c_str());
+
+      if (octet > 0)
+      {
+        octets.push_back(static_cast<unsigned char>(octet));
+      }
+    }
+  }
+  catch (const std::exception& e)
+  {
+    throw IllegalStateException("Failed to parse the IP address.");
+  }
+
+  if (octets.size() != 4)
+  {
+    throw IllegalStateException("The IP address is missing or has wrong format.");
+  }
+
+  IPv4Address ipAddress = IPv4Address(octets[0], octets[1], octets[2], octets[3]);
+  std::shared_ptr<Endpoint> endpoint = std::make_shared<Endpoint>(ipAddress, port);
+  mEndpoints.push_back(endpoint);
+}
+
+//-----
 NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
 {
   NodeAddress outputNodeAddress;
 
   for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
   {
-    outputNodeAddress.mEndpoints.push_back(internal::Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
+    Endpoint endpoint = Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i));
+    outputNodeAddress.mEndpoints.push_back(std::make_shared<Endpoint>(endpoint));
   }
 
   if (protoNodeAddress.ipaddress().length() != 0)
   {
-    outputNodeAddress.mEndpoints.emplace_back(internal::IPv4Address::fromString(protoNodeAddress.ipaddress()),
-                                              protoNodeAddress.portno());
+    Endpoint endpoint = Endpoint(IPv4Address::fromString(protoNodeAddress.ipaddress()), protoNodeAddress.portno());
+    outputNodeAddress.mEndpoints.emplace_back(std::make_shared<Endpoint>(endpoint));
   }
 
   outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
   outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
-  outputNodeAddress.mCertificateHash = protoNodeAddress.nodecerthash();
+  outputNodeAddress.mNodeAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
+  outputNodeAddress.mNodeCertHash = protoNodeAddress.nodecerthash();
   outputNodeAddress.mDescription = protoNodeAddress.description();
-  outputNodeAddress.mAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
+  outputNodeAddress.mStake = protoNodeAddress.stake();
 
   return outputNodeAddress;
 }
 
+//-----
+NodeAddress NodeAddress::fromString(std::string_view nodeAddress)
+{
+  std::vector<std::string> parts;
+  std::stringstream strStream({ nodeAddress.begin(), nodeAddress.end() });
+  std::string ipAddressV4;
+  int port;
+
+  try
+  {
+    std::string temp;
+
+    while (getline(strStream, temp, ':'))
+    {
+      parts.push_back(temp.c_str());
+    }
+
+    ipAddressV4 = parts[0].c_str();
+    port = atoi(parts[1].c_str());
+  }
+  catch (const std::exception& e)
+  {
+    throw IllegalStateException("Failed to parse the node address.");
+  }
+
+  return NodeAddress(ipAddressV4, port);
+}
+
+//-----
+NodeAddress& NodeAddress::setRSAPublicKey(std::string_view publicKey)
+{
+  mRSAPublicKey = publicKey;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setNodeId(const int64_t& nodeId)
+{
+  mNodeId = nodeId;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setNodeAccountId(const AccountId& accountId)
+{
+  mNodeAccountId = accountId;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setNodeCertHash(std::string_view certHash)
+{
+  mNodeCertHash = certHash;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setEndpoints(const std::vector<std::shared_ptr<Endpoint>>& endpoints)
+{
+  mEndpoints = endpoints;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setDescription(std::string_view description)
+{
+  mDescription = description;
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setStake(const uint64_t& stake)
+{
+  mStake = stake;
+  return *this;
+}
+
+//-----
 std::string NodeAddress::toString() const
 {
   std::stringstream outputStream;
 
   int columnWidth = 20;
   outputStream << std::setw(columnWidth) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mAccountId.toString()
+  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mNodeAccountId.toString()
                << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left << mCertificateHash
+  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left << mNodeCertHash
                << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Stake: " << std::left << mStake << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
 
   if (size_t endpointCount = mEndpoints.size(); !endpointCount)
@@ -75,11 +193,11 @@ std::string NodeAddress::toString() const
     {
       if (counter == 0)
       {
-        outputStream << endpoint.toString();
+        outputStream << endpoint->toString();
       }
       else
       {
-        outputStream << std::setw(columnWidth) << "" << endpoint.toString();
+        outputStream << std::setw(columnWidth) << endpoint->toString();
       }
 
       ++counter;

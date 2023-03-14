@@ -32,7 +32,7 @@ Node::Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls)
   : mAddress(std::move(address))
 {
   // In order to use TLS, a node certificate chain must be provided
-  if (tls == TLSBehavior::REQUIRE && mAddress->getCertificateHash().empty())
+  if (tls == TLSBehavior::REQUIRE && mAddress->getNodeCertHash().empty())
   {
     throw UninitializedException("NodeAddress has empty certificate chain hash for TLS connection");
   }
@@ -43,7 +43,7 @@ Node::Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls)
   tlsChannelCredentialsOptions.set_verify_server_certs(false);
   tlsChannelCredentialsOptions.set_check_call_host(false);
   tlsChannelCredentialsOptions.set_certificate_verifier(
-    grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>(mAddress->getCertificateHash()));
+    grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>(mAddress->getNodeCertHash()));
 
   // Feed in the root CA's file manually for Windows (this is a bug in the gRPC implementation and says here
   // https://deploy-preview-763--grpc-io.netlify.app/docs/guides/auth/#using-client-side-ssltls that this needs to be
@@ -162,7 +162,7 @@ void Node::setTLSBehavior(TLSBehavior desiredBehavior)
   }
 
   // In order to use TLS, a node certificate chain must be provided
-  if (desiredBehavior == TLSBehavior::REQUIRE && mAddress->getCertificateHash().empty())
+  if (desiredBehavior == TLSBehavior::REQUIRE && mAddress->getNodeCertHash().empty())
   {
     throw UninitializedException("NodeAddress has empty certificate chain hash for TLS connection");
   }
@@ -213,7 +213,7 @@ std::chrono::duration<double> Node::getRemainingTimeForBackoff() const
 //-----
 bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadline)
 {
-  const std::vector<Endpoint> endpoints = mAddress->getEndpoints();
+  const std::vector<std::shared_ptr<Endpoint>> endpoints = mAddress->getEndpoints();
 
   std::shared_ptr<grpc::ChannelCredentials> channelCredentials = nullptr;
   for (const auto& endpoint : endpoints)
@@ -222,7 +222,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
     {
       case TLSBehavior::REQUIRE:
       {
-        if (NodeAddress::isTlsPort(endpoint.getPort()))
+        if (NodeAddress::isTlsPort(endpoint->getPort()))
         {
           channelCredentials = mTlsChannelCredentials;
         }
@@ -232,7 +232,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
 
       case TLSBehavior::DISABLE:
       {
-        if (NodeAddress::isNonTlsPort(endpoint.getPort()))
+        if (NodeAddress::isNonTlsPort(endpoint->getPort()))
         {
           channelCredentials = grpc::InsecureChannelCredentials();
         }
@@ -250,7 +250,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
     {
       shutdown();
 
-      mChannel = grpc::CreateChannel(endpoint.toString(), channelCredentials);
+      mChannel = grpc::CreateChannel(endpoint->toString(), channelCredentials);
 
       if (mChannel->WaitForConnected(deadline))
       {

@@ -30,6 +30,7 @@ add_executable(${TEST_PROJECT_NAME}
         HbarTest.cc
         JSONTest.cc
         NftIdTest.cc
+        NodeAddressTest.cc
         TokenIdTest.cc
         TokenNftTransferTest.cc
         TokenTransferTest.cc
