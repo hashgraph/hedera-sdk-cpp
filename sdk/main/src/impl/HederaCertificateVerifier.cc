@@ -19,7 +19,7 @@
  */
 #include "impl/HederaCertificateVerifier.h"
 #include "impl/HexConverter.h"
-#include "impl/OpenSSLUtils.h"
+#include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <algorithm>
 

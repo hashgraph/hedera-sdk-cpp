@@ -22,6 +22,7 @@
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/PrivateKeyImpl.h"
+#include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/x509.h>
 

@@ -23,9 +23,11 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
-#include "impl/OpenSSLUtils.h"
 #include "impl/PrivateKeyImpl.h"
 #include "impl/Utilities.h"
+#include "impl/openssl_utils/EVP_MD_CTX.h"
+#include "impl/openssl_utils/EVP_PKEY_CTX.h"
+#include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/x509.h>
 
@@ -65,7 +67,7 @@ const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 {
-  const internal::OpenSSLUtils::EVP_PKEY_CTX keyAlgorithmContext(EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr));
+  internal::OpenSSLUtils::EVP_PKEY_CTX keyAlgorithmContext(EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, nullptr));
   if (!keyAlgorithmContext)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_PKEY_CTX_new_id"));
@@ -160,7 +162,7 @@ std::unique_ptr<PrivateKey> ED25519PrivateKey::clone() const
 //-----
 std::vector<unsigned char> ED25519PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
 {
-  const internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));

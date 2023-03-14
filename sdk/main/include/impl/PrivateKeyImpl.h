@@ -21,7 +21,7 @@
 #define HEDERA_SDK_CPP_IMPL_PRIVATE_KEY_IMPL_H_
 
 #include "PrivateKey.h"
-#include "impl/OpenSSLUtils.h"
+#include "impl/openssl_utils/EVP_PKEY.h"
 
 #include <memory>
 #include <vector>
@@ -48,6 +48,7 @@ struct PrivateKey::PrivateKeyImpl
    */
   std::shared_ptr<PublicKey> mPublicKey = nullptr;
 };
+
 } // namespace Hedera
 
 #endif // HEDERA_SDK_CPP_IMPL_PRIVATE_KEY_IMPL_H_

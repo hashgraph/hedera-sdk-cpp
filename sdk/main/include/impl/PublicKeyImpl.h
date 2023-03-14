@@ -21,7 +21,7 @@
 #define HEDERA_SDK_CPP_IMPL_PUBLIC_KEY_IMPL_H_
 
 #include "PublicKey.h"
-#include "impl/OpenSSLUtils.h"
+#include "impl/openssl_utils/EVP_PKEY.h"
 
 namespace Hedera
 {

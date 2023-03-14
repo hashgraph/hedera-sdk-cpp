@@ -19,7 +19,7 @@
  */
 #include "impl/HexConverter.h"
 #include "exceptions/OpenSSLException.h"
-#include "impl/OpenSSLUtils.h"
+#include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/crypto.h>
 #include <stdexcept>

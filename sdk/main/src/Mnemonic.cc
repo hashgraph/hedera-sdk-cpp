@@ -19,7 +19,7 @@
  */
 #include "Mnemonic.h"
 #include "exceptions/BadMnemonicException.h"
-#include "impl/OpenSSLUtils.h"
+#include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <algorithm>
 

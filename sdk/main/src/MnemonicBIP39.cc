@@ -23,7 +23,9 @@
 #include "exceptions/BadMnemonicException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/DerivationPathUtils.h"
-#include "impl/OpenSSLUtils.h"
+#include "impl/openssl_utils/EVP_MD.h"
+#include "impl/openssl_utils/EVP_MD_CTX.h"
+#include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/evp.h>
 
@@ -123,7 +125,7 @@ std::unique_ptr<PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k1PrivateKey(st
 //-----
 std::vector<unsigned char> MnemonicBIP39::toSeed(std::string_view passphrase) const
 {
-  const internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));

@@ -22,9 +22,18 @@
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
-#include "impl/OpenSSLUtils.h"
 #include "impl/PublicKeyImpl.h"
 #include "impl/Utilities.h"
+#include "impl/openssl_utils/BIGNUM.h"
+#include "impl/openssl_utils/BN_CTX.h"
+#include "impl/openssl_utils/ECDSA_SIG.h"
+#include "impl/openssl_utils/EC_GROUP.h"
+#include "impl/openssl_utils/EC_POINT.h"
+#include "impl/openssl_utils/EVP_MD.h"
+#include "impl/openssl_utils/EVP_MD_CTX.h"
+#include "impl/openssl_utils/OSSL_DECODER_CTX.h"
+#include "impl/openssl_utils/OSSL_LIB_CTX.h"
+#include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/decoder.h>
 #include <openssl/ec.h>
@@ -68,7 +77,7 @@ namespace
   }
 
   EVP_PKEY* pkey = nullptr;
-  const internal::OpenSSLUtils::OSSL_DECODER_CTX context(
+  internal::OpenSSLUtils::OSSL_DECODER_CTX context(
     OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr));
   if (!context)
   {
@@ -165,13 +174,13 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::compressBytes(const std::vec
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EC_GROUP_new_by_curve_name"));
   }
 
-  const internal::OpenSSLUtils::EC_POINT uncompressedPoint(EC_POINT_new(group.get()));
+  internal::OpenSSLUtils::EC_POINT uncompressedPoint(EC_POINT_new(group.get()));
   if (!uncompressedPoint)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EC_POINT_new"));
   }
 
-  const internal::OpenSSLUtils::BN_CTX context(BN_CTX_new());
+  internal::OpenSSLUtils::BN_CTX context(BN_CTX_new());
   if (!context)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_CTX_new"));
@@ -222,13 +231,13 @@ std::vector<unsigned char> ECDSAsecp256k1PublicKey::uncompressBytes(const std::v
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EC_GROUP_new_by_curve_name"));
   }
 
-  const internal::OpenSSLUtils::EC_POINT compressedPoint(EC_POINT_new(group.get()));
+  internal::OpenSSLUtils::EC_POINT compressedPoint(EC_POINT_new(group.get()));
   if (!compressedPoint)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EC_POINT_new"));
   }
 
-  const internal::OpenSSLUtils::BN_CTX context(BN_CTX_new());
+  internal::OpenSSLUtils::BN_CTX context(BN_CTX_new());
   if (!context)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_CTX_new"));
@@ -288,7 +297,7 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bin2bn"));
   }
 
-  const internal::OpenSSLUtils::ECDSA_SIG signatureObject(ECDSA_SIG_new());
+  internal::OpenSSLUtils::ECDSA_SIG signatureObject(ECDSA_SIG_new());
   if (ECDSA_SIG_set0(signatureObject.get(), signatureR.get(), signatureS.get()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("ECDSA_SIG_set0"));
@@ -310,13 +319,13 @@ bool ECDSAsecp256k1PublicKey::verifySignature(const std::vector<unsigned char>& 
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_ECDSA_SIG"));
   }
 
-  const internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
   }
 
-  const internal::OpenSSLUtils::OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
+  internal::OpenSSLUtils::OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
   if (!libraryContext)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_LIB_CTX_new"));

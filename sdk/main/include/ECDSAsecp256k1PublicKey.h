@@ -21,7 +21,6 @@
 #define HEDERA_SDK_CPP_ECDSA_SECP256K1_PUBLIC_KEY_H_
 
 #include "PublicKey.h"
-#include "impl/OpenSSLUtils.h"
 
 #include <memory>
 #include <string>

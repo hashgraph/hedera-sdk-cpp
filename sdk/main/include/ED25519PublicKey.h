@@ -21,10 +21,9 @@
 #define HEDERA_SDK_CPP_ED25519_PUBLIC_KEY_H_
 
 #include "PublicKey.h"
-#include "impl/OpenSSLUtils.h"
 
-#include <openssl/crypto.h>
-#include <openssl/evp.h>
+#include <memory>
+#include <string>
 #include <string_view>
 #include <vector>
 

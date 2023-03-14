@@ -21,9 +21,10 @@
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
-#include "impl/OpenSSLUtils.h"
 #include "impl/PublicKeyImpl.h"
 #include "impl/Utilities.h"
+#include "impl/openssl_utils/EVP_MD_CTX.h"
+#include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/x509.h>
 #include <proto/basic_types.pb.h>
@@ -110,7 +111,7 @@ std::unique_ptr<PublicKey> ED25519PublicKey::clone() const
 bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
                                        const std::vector<unsigned char>& signedBytes) const
 {
-  const internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
