@@ -142,7 +142,7 @@ public:
    * @param hexString A string representing the BIGNUM.
    * @return A newly constructed BIGNUM.
    */
-  static BIGNUM fromHex(std::string_view hexString);
+  [[nodiscard]] static BIGNUM fromHex(std::string_view hexString);
 
   /**
    * Create a new BIGNUM from a bytes vector.
@@ -150,7 +150,7 @@ public:
    * @param bytes The vector of bytes representing the BIGNUM.
    * @return A newly constructed BIGNUM.
    */
-  static BIGNUM fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static BIGNUM fromBytes(const std::vector<unsigned char>& bytes);
 
   /**
    * Add another BIGNUM to this one, and take the modulo of the sum.
@@ -422,7 +422,7 @@ public:
  * @throws std::invalid_argument If the input count is negative.
  * @throws OpenSSLException If OpenSSL is unable to generate random bytes.
  */
-std::vector<unsigned char> getRandomBytes(int count);
+[[nodiscard]] std::vector<unsigned char> getRandomBytes(int count);
 
 } // namespace Hedera::internal::Utils
 

@@ -133,7 +133,7 @@ public:
   [[nodiscard]] std::string toStringDer() const override;
 
   /**
-   * Derived from PrivateKey. Get the hex-encoded string of the raw bytes of this ED25519PrivateKey.
+   * Derived from PrivateKey. Get the hex-encoded string of the raw, non-DER-encoded bytes of this ED25519PrivateKey.
    *
    * @return The hex-encoded string of the raw bytes of this ED25519PrivateKey.
    */
@@ -147,7 +147,7 @@ public:
   [[nodiscard]] std::vector<unsigned char> toBytesDer() const override;
 
   /**
-   * Derived from PrivateKey. Get the raw bytes of this ED25519PrivateKey.
+   * Derived from PrivateKey. Get the raw, non-DER-encoded bytes of this ED25519PrivateKey.
    *
    * @return The raw bytes of this ED25519PrivateKey.
    */

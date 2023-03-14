@@ -152,7 +152,8 @@ public:
   [[nodiscard]] std::string toStringDer() const override;
 
   /**
-   * Derived from PrivateKey. Get the hex-encoded string of the raw bytes of this ECDSAsecp256k1PrivateKey.
+   * Derived from PrivateKey. Get the hex-encoded string of the raw, non-DER-encoded bytes of this
+   * ECDSAsecp256k1PrivateKey.
    *
    * @return The hex-encoded string of the raw bytes of this ECDSAsecp256k1PrivateKey.
    */
@@ -166,7 +167,7 @@ public:
   [[nodiscard]] std::vector<unsigned char> toBytesDer() const override;
 
   /**
-   * Derived from PrivateKey. Get the raw bytes of this ECDSAsecp256k1PrivateKey.
+   * Derived from PrivateKey. Get the raw, non-DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
    *
    * @return The raw bytes of this ECDSAsecp256k1PrivateKey.
    */

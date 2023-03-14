@@ -85,7 +85,7 @@ public:
   [[nodiscard]] virtual std::string toStringDer() const = 0;
 
   /**
-   * Get the hex-encoded string of the raw bytes of this PrivateKey.
+   * Get the hex-encoded string of the raw, non-DER-encoded bytes of this PrivateKey.
    *
    * @return The hex-encoded string of the raw bytes of this PrivateKey.
    */
@@ -99,7 +99,7 @@ public:
   [[nodiscard]] virtual std::vector<unsigned char> toBytesDer() const = 0;
 
   /**
-   * Get the raw bytes of this PrivateKey.
+   * Get the raw, non-DER-encoded bytes of this PrivateKey.
    *
    * @return The raw bytes of this PrivateKey.
    */

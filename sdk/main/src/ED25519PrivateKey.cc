@@ -33,8 +33,6 @@ namespace Hedera
 {
 namespace
 {
-// The number of bytes in an ED25519PrivateKey chain code.
-constexpr const size_t CHAIN_CODE_SIZE = 32;
 // The seed to use to compute the SHA512 HMAC, as defined in SLIP 10.
 const std::vector<unsigned char> SLIP10_SEED = { 'e', 'd', '2', '5', '5', '1', '9', ' ', 's', 'e', 'e', 'd' };
 
