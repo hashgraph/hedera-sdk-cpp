@@ -17,10 +17,7 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_UTILITIES_H_
-#define HEDERA_SDK_CPP_IMPL_UTILITIES_H_
-
-#include <vector>
+#include "impl/Utilities.h"
 
 namespace Hedera::internal::Utilities
 {
@@ -62,5 +59,3 @@ std::vector<unsigned char> concatenateVectors(const std::vector<std::vector<unsi
 }
 
 } // namespace Hedera::internal::Utilities
-
-#endif // HEDERA_SDK_CPP_IMPL_UTILITIES_H_

@@ -22,6 +22,7 @@
 #include "impl/HexConverter.h"
 #include "impl/IPv4Address.h"
 
+#include <charconv>
 #include <iomanip>
 #include <memory>
 #include <proto/basic_types.pb.h>
@@ -92,26 +93,19 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
 //-----
 NodeAddress NodeAddress::fromString(std::string_view nodeAddress)
 {
-  std::vector<std::string> parts;
-  std::stringstream strStream({ nodeAddress.begin(), nodeAddress.end() });
-  std::string ipAddressV4;
-  int port;
-
-  try
+  const size_t colonIndex = nodeAddress.find(':');
+  if (colonIndex == std::string::npos)
   {
-    std::string temp;
-
-    while (getline(strStream, temp, ':'))
-    {
-      parts.emplace_back(temp.c_str());
-    }
-
-    ipAddressV4 = parts[0];
-    port = std::stoi(parts[1]);
+    throw std::invalid_argument("Input node address is malformed");
   }
-  catch (const std::exception&)
+
+  const std::string_view ipAddressV4 = nodeAddress.substr(0, colonIndex);
+  const std::string_view portStr = nodeAddress.substr(colonIndex + 1, nodeAddress.size() - colonIndex - 1);
+  int port;
+  if (const auto result = std::from_chars(portStr.data(), portStr.data() + portStr.size(), port);
+      result.ptr != portStr.data() + portStr.size() || result.ec != std::errc{})
   {
-    throw IllegalStateException("Failed to parse the node address.");
+    throw std::invalid_argument("Input node address is malformed");
   }
 
   return { ipAddressV4, port };

@@ -192,6 +192,6 @@ TEST_F(NodeAddressTest, ConstructFromMalformedStringAndThrowException)
   const std::string testNodeAddress_2 = "aaa.bbb.ccc.ddd";
 
   // When & Then
-  EXPECT_THROW(auto nodeAddress = NodeAddress::fromString(testNodeAddress_1), Hedera::IllegalStateException);
-  EXPECT_THROW(auto nodeAddress = NodeAddress::fromString(testNodeAddress_2), Hedera::IllegalStateException);
+  EXPECT_THROW(auto nodeAddress = NodeAddress::fromString(testNodeAddress_1), std::invalid_argument);
+  EXPECT_THROW(auto nodeAddress = NodeAddress::fromString(testNodeAddress_2), std::invalid_argument);
 }
