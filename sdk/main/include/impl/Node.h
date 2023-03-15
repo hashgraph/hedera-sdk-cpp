@@ -162,7 +162,7 @@ public:
    *
    * @return The account ID.
    */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAddress->getAccountId(); }
+  [[nodiscard]] inline AccountId getAccountId() const { return mAddress->getNodeAccountId(); }
 
 private:
   /**
