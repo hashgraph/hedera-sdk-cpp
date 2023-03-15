@@ -78,12 +78,14 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
 
   if (!body.alias().empty())
   {
-    mAlias = PublicKey::fromBytesDer({ body.alias().cbegin(), body.alias().cend() });
-  }
-
-  if (!body.evm_address().empty())
-  {
-    mEvmAddress = EvmAddress::fromBytes({ body.evm_address().cbegin(), body.evm_address().cend() });
+    if (body.alias().size() == EvmAddress::NUM_BYTES)
+    {
+      mEvmAddressAlias = EvmAddress::fromBytes({ body.alias().cbegin(), body.alias().cend() });
+    }
+    else
+    {
+      mPublicKeyAlias = PublicKey::fromBytesDer({ body.alias().cbegin(), body.alias().cend() });
+    }
   }
 }
 
@@ -182,20 +184,20 @@ AccountCreateTransaction& AccountCreateTransaction::setDeclineStakingReward(bool
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_ptr<PublicKey>& alias)
+AccountCreateTransaction& AccountCreateTransaction::setPublicKeyAlias(const std::shared_ptr<PublicKey>& alias)
 {
   requireNotFrozen();
 
-  mAlias = alias;
+  mPublicKeyAlias = alias;
   return *this;
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setEvmAddress(const EvmAddress& address)
+AccountCreateTransaction& AccountCreateTransaction::setEvmAddressAlias(const EvmAddress& address)
 {
   requireNotFrozen();
 
-  mEvmAddress = address;
+  mEvmAddressAlias = address;
   return *this;
 }
 
@@ -248,16 +250,16 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   body->set_decline_reward(mDeclineStakingReward);
 
-  if (mAlias)
+  if (mPublicKeyAlias)
   {
-    const std::vector<unsigned char> aliasBytes = mAlias->toBytesDer();
+    const std::vector<unsigned char> aliasBytes = mPublicKeyAlias->toBytesDer();
     body->set_allocated_alias(new std::string{ aliasBytes.cbegin(), aliasBytes.cend() });
   }
 
-  if (mEvmAddress)
+  if (mEvmAddressAlias)
   {
-    const std::vector<unsigned char> addressBytes = mEvmAddress->toBytes();
-    body->set_allocated_evm_address(new std::string{ addressBytes.cbegin(), addressBytes.cend() });
+    const std::vector<unsigned char> addressBytes = mEvmAddressAlias->toBytes();
+    body->set_allocated_alias(new std::string{ addressBytes.cbegin(), addressBytes.cend() });
   }
 
   return body.release();

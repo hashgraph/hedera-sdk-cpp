@@ -185,7 +185,7 @@ public:
    * @return A reference to this AccountCreateTransaction object with the newly-set account alias.
    * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
-  AccountCreateTransaction& setAlias(const std::shared_ptr<PublicKey>& alias);
+  AccountCreateTransaction& setPublicKeyAlias(const std::shared_ptr<PublicKey>& alias);
 
   /**
    * Set the EOA 20-byte address to create for the new account. This EVM address may be either the encoded form of the
@@ -195,7 +195,7 @@ public:
    * @return A reference to this AccountCreateTransaction object with the newly-set EVM address.
    * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
-  AccountCreateTransaction& setEvmAddress(const EvmAddress& address);
+  AccountCreateTransaction& setEvmAddressAlias(const EvmAddress& address);
 
   /**
    * Get the public key to be used for the new account.
@@ -267,14 +267,14 @@ public:
    *
    * @return The key to be used as the new account's alias. Nullptr if the alias has not yet been set.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getAlias() const { return mAlias; }
+  [[nodiscard]] inline std::shared_ptr<PublicKey> getPublicKeyAlias() const { return mPublicKeyAlias; }
 
   /**
    * Get the EVM address of the new account.
    *
    * @return The EVM address of the new account. Returns uninitialized if a value has not yet been set.
    */
-  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddress() const { return mEvmAddress; }
+  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddressAlias() const { return mEvmAddressAlias; }
 
 private:
   /**
@@ -373,12 +373,12 @@ private:
    * If a transaction creates an account using an alias, any further crypto transfers to that alias will
    * simply be deposited in that account, without creating anything, and with no creation fee being charged.
    */
-  std::shared_ptr<PublicKey> mAlias = nullptr;
+  std::shared_ptr<PublicKey> mPublicKeyAlias = nullptr;
 
   /**
    * The EOA 20-byte address to create that is derived from the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
    */
-  std::optional<EvmAddress> mEvmAddress;
+  std::optional<EvmAddress> mEvmAddressAlias;
 };
 
 } // namespace Hedera

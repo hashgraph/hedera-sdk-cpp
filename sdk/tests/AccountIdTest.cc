@@ -40,7 +40,7 @@ protected:
   {
     return mEcdsaSecp256k1Alias;
   }
-  [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
+  [[nodiscard]] inline const EvmAddress& getTestEvmAddressAlias() const { return mEvmAddressAlias; }
 
 private:
   const uint64_t mShardNum = 8ULL;
@@ -50,7 +50,7 @@ private:
   const std::shared_ptr<PublicKey> mEd25519Alias = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
   const std::shared_ptr<PublicKey> mEcdsaSecp256k1Alias =
     ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
-  const EvmAddress mEvmAddress = EvmAddress::fromString("0x0123456789abcdef0123456789abcdef01234567");
+  const EvmAddress mEvmAddressAlias = EvmAddress::fromString("0x0123456789abcdef0123456789abcdef01234567");
 };
 
 //-----
@@ -60,8 +60,8 @@ TEST_F(AccountIdTest, DefaultConstructAccountId)
   EXPECT_EQ(accountId.getShardNum(), 0ULL);
   EXPECT_EQ(accountId.getRealmNum(), 0ULL);
   EXPECT_FALSE(accountId.getAccountNum().has_value());
-  EXPECT_EQ(accountId.getAlias(), nullptr);
-  EXPECT_FALSE(accountId.getEvmAddress().has_value());
+  EXPECT_EQ(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_FALSE(accountId.getEvmAddressAlias().has_value());
 }
 
 //-----
@@ -72,8 +72,8 @@ TEST_F(AccountIdTest, ConstructWithAccountNum)
   EXPECT_EQ(accountId.getRealmNum(), 0ULL);
   EXPECT_TRUE(accountId.getAccountNum().has_value());
   EXPECT_EQ(*accountId.getAccountNum(), getTestAccountNum());
-  EXPECT_EQ(accountId.getAlias(), nullptr);
-  EXPECT_FALSE(accountId.getEvmAddress().has_value());
+  EXPECT_EQ(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_FALSE(accountId.getEvmAddressAlias().has_value());
 
   EXPECT_THROW(AccountId{ getTestNumTooBig() }, std::invalid_argument);
 }
@@ -85,29 +85,29 @@ TEST_F(AccountIdTest, ConstructWithAccountAlias)
   EXPECT_EQ(ed25519AliasAccountId.getShardNum(), 0ULL);
   EXPECT_EQ(ed25519AliasAccountId.getRealmNum(), 0ULL);
   EXPECT_FALSE(ed25519AliasAccountId.getAccountNum().has_value());
-  EXPECT_NE(ed25519AliasAccountId.getAlias(), nullptr);
-  EXPECT_EQ(ed25519AliasAccountId.getAlias()->toStringDer(), getTestEd25519Alias()->toStringDer());
-  EXPECT_FALSE(ed25519AliasAccountId.getEvmAddress().has_value());
+  EXPECT_NE(ed25519AliasAccountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(ed25519AliasAccountId.getPublicKeyAlias()->toStringDer(), getTestEd25519Alias()->toStringDer());
+  EXPECT_FALSE(ed25519AliasAccountId.getEvmAddressAlias().has_value());
 
   const AccountId ecdsaAliasAccountId(getTestEcdsaSecp256k1Alias());
   EXPECT_EQ(ecdsaAliasAccountId.getShardNum(), 0ULL);
   EXPECT_EQ(ecdsaAliasAccountId.getRealmNum(), 0ULL);
   EXPECT_FALSE(ecdsaAliasAccountId.getAccountNum().has_value());
-  EXPECT_NE(ecdsaAliasAccountId.getAlias(), nullptr);
-  EXPECT_EQ(ecdsaAliasAccountId.getAlias()->toStringDer(), getTestEcdsaSecp256k1Alias()->toStringDer());
-  EXPECT_FALSE(ecdsaAliasAccountId.getEvmAddress().has_value());
+  EXPECT_NE(ecdsaAliasAccountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(ecdsaAliasAccountId.getPublicKeyAlias()->toStringDer(), getTestEcdsaSecp256k1Alias()->toStringDer());
+  EXPECT_FALSE(ecdsaAliasAccountId.getEvmAddressAlias().has_value());
 }
 
 //-----
 TEST_F(AccountIdTest, ConstructWithEvmAddress)
 {
-  const AccountId accountId(getTestEvmAddress());
+  const AccountId accountId(getTestEvmAddressAlias());
   EXPECT_EQ(accountId.getShardNum(), 0ULL);
   EXPECT_EQ(accountId.getRealmNum(), 0ULL);
   EXPECT_FALSE(accountId.getAccountNum().has_value());
-  EXPECT_EQ(accountId.getAlias(), nullptr);
-  EXPECT_TRUE(accountId.getEvmAddress().has_value());
-  EXPECT_EQ(accountId.getEvmAddress()->toString(), getTestEvmAddress().toString());
+  EXPECT_EQ(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_TRUE(accountId.getEvmAddressAlias().has_value());
+  EXPECT_EQ(accountId.getEvmAddressAlias()->toString(), getTestEvmAddressAlias().toString());
 }
 
 //-----
@@ -118,8 +118,8 @@ TEST_F(AccountIdTest, ConstructWithShardRealmAccountNum)
   EXPECT_EQ(accountId.getRealmNum(), getTestRealmNum());
   EXPECT_TRUE(accountId.getAccountNum().has_value());
   EXPECT_EQ(*accountId.getAccountNum(), getTestAccountNum());
-  EXPECT_EQ(accountId.getAlias(), nullptr);
-  EXPECT_FALSE(accountId.getEvmAddress().has_value());
+  EXPECT_EQ(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_FALSE(accountId.getEvmAddressAlias().has_value());
 
   EXPECT_THROW((AccountId{ getTestNumTooBig(), getTestRealmNum(), getTestAccountNum() }), std::invalid_argument);
   EXPECT_THROW((AccountId{ getTestShardNum(), getTestNumTooBig(), getTestAccountNum() }), std::invalid_argument);
@@ -133,9 +133,9 @@ TEST_F(AccountIdTest, ConstructWithShardRealmAccountAlias)
   EXPECT_EQ(ed25519AliasAccountId.getShardNum(), getTestShardNum());
   EXPECT_EQ(ed25519AliasAccountId.getRealmNum(), getTestRealmNum());
   EXPECT_FALSE(ed25519AliasAccountId.getAccountNum().has_value());
-  EXPECT_NE(ed25519AliasAccountId.getAlias(), nullptr);
-  EXPECT_EQ(ed25519AliasAccountId.getAlias()->toStringDer(), getTestEd25519Alias()->toStringDer());
-  EXPECT_FALSE(ed25519AliasAccountId.getEvmAddress().has_value());
+  EXPECT_NE(ed25519AliasAccountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(ed25519AliasAccountId.getPublicKeyAlias()->toStringDer(), getTestEd25519Alias()->toStringDer());
+  EXPECT_FALSE(ed25519AliasAccountId.getEvmAddressAlias().has_value());
 
   EXPECT_THROW((AccountId{ getTestNumTooBig(), getTestRealmNum(), getTestEd25519Alias() }), std::invalid_argument);
   EXPECT_THROW((AccountId{ getTestShardNum(), getTestNumTooBig(), getTestEd25519Alias() }), std::invalid_argument);
@@ -144,9 +144,9 @@ TEST_F(AccountIdTest, ConstructWithShardRealmAccountAlias)
   EXPECT_EQ(ecdsaAliasAccountId.getShardNum(), getTestShardNum());
   EXPECT_EQ(ecdsaAliasAccountId.getRealmNum(), getTestRealmNum());
   EXPECT_FALSE(ecdsaAliasAccountId.getAccountNum().has_value());
-  EXPECT_NE(ecdsaAliasAccountId.getAlias(), nullptr);
-  EXPECT_EQ(ecdsaAliasAccountId.getAlias()->toStringDer(), getTestEcdsaSecp256k1Alias()->toStringDer());
-  EXPECT_FALSE(ecdsaAliasAccountId.getEvmAddress().has_value());
+  EXPECT_NE(ecdsaAliasAccountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(ecdsaAliasAccountId.getPublicKeyAlias()->toStringDer(), getTestEcdsaSecp256k1Alias()->toStringDer());
+  EXPECT_FALSE(ecdsaAliasAccountId.getEvmAddressAlias().has_value());
 
   EXPECT_THROW((AccountId{ getTestNumTooBig(), getTestRealmNum(), getTestEcdsaSecp256k1Alias() }),
                std::invalid_argument);
@@ -157,13 +157,13 @@ TEST_F(AccountIdTest, ConstructWithShardRealmAccountAlias)
 //-----
 TEST_F(AccountIdTest, ConstructWithShardRealmEvmAddress)
 {
-  const AccountId accountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddress());
+  const AccountId accountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddressAlias());
   EXPECT_EQ(accountId.getShardNum(), getTestShardNum());
   EXPECT_EQ(accountId.getRealmNum(), getTestRealmNum());
   EXPECT_FALSE(accountId.getAccountNum().has_value());
-  EXPECT_EQ(accountId.getAlias(), nullptr);
-  EXPECT_TRUE(accountId.getEvmAddress().has_value());
-  EXPECT_EQ(accountId.getEvmAddress()->toString(), getTestEvmAddress().toString());
+  EXPECT_EQ(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_TRUE(accountId.getEvmAddressAlias().has_value());
+  EXPECT_EQ(accountId.getEvmAddressAlias()->toString(), getTestEvmAddressAlias().toString());
 
   EXPECT_THROW((AccountId{ getTestNumTooBig(), getTestRealmNum(), getTestAccountNum() }), std::invalid_argument);
   EXPECT_THROW((AccountId{ getTestShardNum(), getTestNumTooBig(), getTestAccountNum() }), std::invalid_argument);
@@ -176,21 +176,21 @@ TEST_F(AccountIdTest, CompareAccountIds)
   EXPECT_TRUE(AccountId(getTestAccountNum()) == AccountId(getTestAccountNum()));
   EXPECT_TRUE(AccountId(getTestEd25519Alias()) == AccountId(getTestEd25519Alias()));
   EXPECT_TRUE(AccountId(getTestEcdsaSecp256k1Alias()) == AccountId(getTestEcdsaSecp256k1Alias()));
-  EXPECT_TRUE(AccountId(getTestEvmAddress()) == AccountId(getTestEvmAddress()));
+  EXPECT_TRUE(AccountId(getTestEvmAddressAlias()) == AccountId(getTestEvmAddressAlias()));
   EXPECT_TRUE(AccountId(getTestShardNum(), getTestRealmNum(), getTestAccountNum()) ==
               AccountId(getTestShardNum(), getTestRealmNum(), getTestAccountNum()));
   EXPECT_TRUE(AccountId(getTestShardNum(), getTestRealmNum(), getTestEd25519Alias()) ==
               AccountId(getTestShardNum(), getTestRealmNum(), getTestEd25519Alias()));
   EXPECT_TRUE(AccountId(getTestShardNum(), getTestRealmNum(), getTestEcdsaSecp256k1Alias()) ==
               AccountId(getTestShardNum(), getTestRealmNum(), getTestEcdsaSecp256k1Alias()));
-  EXPECT_TRUE(AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddress()) ==
-              AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddress()));
+  EXPECT_TRUE(AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddressAlias()) ==
+              AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddressAlias()));
 
   EXPECT_FALSE(AccountId(getTestAccountNum()) == AccountId(getTestAccountNum() - 1ULL));
   EXPECT_FALSE(AccountId(getTestEd25519Alias()) == AccountId(ED25519PrivateKey::generatePrivateKey()->getPublicKey()));
   EXPECT_FALSE(AccountId(getTestEcdsaSecp256k1Alias()) ==
                AccountId(ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey()));
-  EXPECT_FALSE(AccountId(getTestEvmAddress()) ==
+  EXPECT_FALSE(AccountId(getTestEvmAddressAlias()) ==
                AccountId(EvmAddress::fromString("abcdef1234567890abcdef1234567890abcdef12")));
 
   EXPECT_FALSE(AccountId(getTestShardNum(), getTestRealmNum(), getTestAccountNum()) ==
@@ -203,13 +203,13 @@ TEST_F(AccountIdTest, CompareAccountIds)
   EXPECT_FALSE(AccountId(getTestShardNum(), getTestRealmNum(), getTestAccountNum()) ==
                AccountId(getTestShardNum(), getTestRealmNum(), getTestEcdsaSecp256k1Alias()));
   EXPECT_FALSE(AccountId(getTestShardNum(), getTestRealmNum(), getTestAccountNum()) ==
-               AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddress()));
+               AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddressAlias()));
   EXPECT_FALSE(AccountId(getTestShardNum(), getTestRealmNum(), getTestEd25519Alias()) ==
                AccountId(getTestShardNum(), getTestRealmNum(), getTestEcdsaSecp256k1Alias()));
   EXPECT_FALSE(AccountId(getTestShardNum(), getTestRealmNum(), getTestEd25519Alias()) ==
-               AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddress()));
+               AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddressAlias()));
   EXPECT_FALSE(AccountId(getTestShardNum(), getTestRealmNum(), getTestEcdsaSecp256k1Alias()) ==
-               AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddress()));
+               AccountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddressAlias()));
 }
 
 //-----
@@ -269,8 +269,8 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_NO_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + ed25519AliasStr));
   EXPECT_EQ(accountId.getShardNum(), getTestShardNum());
   EXPECT_EQ(accountId.getRealmNum(), getTestRealmNum());
-  EXPECT_NE(accountId.getAlias(), nullptr);
-  EXPECT_EQ(accountId.getAlias()->toStringDer(), ed25519AliasStr);
+  EXPECT_NE(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(accountId.getPublicKeyAlias()->toStringDer(), ed25519AliasStr);
 
   EXPECT_THROW(AccountId::fromString(ed25519AliasStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
@@ -281,20 +281,20 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_NO_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + ecdsaAliasStr));
   EXPECT_EQ(accountId.getShardNum(), getTestShardNum());
   EXPECT_EQ(accountId.getRealmNum(), getTestRealmNum());
-  EXPECT_NE(accountId.getAlias(), nullptr);
-  EXPECT_EQ(accountId.getAlias()->toStringDer(), ecdsaAliasStr);
+  EXPECT_NE(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(accountId.getPublicKeyAlias()->toStringDer(), ecdsaAliasStr);
 
   EXPECT_THROW(AccountId::fromString(ecdsaAliasStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
   EXPECT_THROW(AccountId::fromString(testShardNumStr + '.' + ecdsaAliasStr + '.' + testAccountNumStr),
                std::invalid_argument);
 
-  const std::string evmAddressStr = getTestEvmAddress().toString();
+  const std::string evmAddressStr = getTestEvmAddressAlias().toString();
   EXPECT_NO_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + evmAddressStr));
   EXPECT_EQ(accountId.getShardNum(), getTestShardNum());
   EXPECT_EQ(accountId.getRealmNum(), getTestRealmNum());
-  EXPECT_TRUE(accountId.getEvmAddress());
-  EXPECT_EQ(accountId.getEvmAddress()->toString(), evmAddressStr);
+  EXPECT_TRUE(accountId.getEvmAddressAlias());
+  EXPECT_EQ(accountId.getEvmAddressAlias()->toString(), evmAddressStr);
 
   EXPECT_THROW(AccountId::fromString(evmAddressStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
@@ -334,28 +334,28 @@ TEST_F(AccountIdTest, SetGetAccountNum)
 }
 
 //-----
-TEST_F(AccountIdTest, SetGetAlias)
+TEST_F(AccountIdTest, SetGetPublicKeyAlias)
 {
   AccountId accountId;
-  accountId.setAlias(getTestEd25519Alias());
+  accountId.setPublicKeyAlias(getTestEd25519Alias());
 
-  EXPECT_NE(accountId.getAlias(), nullptr);
-  EXPECT_EQ(accountId.getAlias()->toStringDer(), getTestEd25519Alias()->toStringDer());
+  EXPECT_NE(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(accountId.getPublicKeyAlias()->toStringDer(), getTestEd25519Alias()->toStringDer());
 
-  accountId.setAlias(getTestEcdsaSecp256k1Alias());
+  accountId.setPublicKeyAlias(getTestEcdsaSecp256k1Alias());
 
-  EXPECT_NE(accountId.getAlias(), nullptr);
-  EXPECT_EQ(accountId.getAlias()->toStringDer(), getTestEcdsaSecp256k1Alias()->toStringDer());
+  EXPECT_NE(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(accountId.getPublicKeyAlias()->toStringDer(), getTestEcdsaSecp256k1Alias()->toStringDer());
 }
 
 //-----
-TEST_F(AccountIdTest, SetGetEvmAddress)
+TEST_F(AccountIdTest, SetGetEvmAddressAlias)
 {
   AccountId accountId;
-  accountId.setEvmAddress(getTestEvmAddress());
+  accountId.setEvmAddressAlias(getTestEvmAddressAlias());
 
-  EXPECT_TRUE(accountId.getEvmAddress().has_value());
-  EXPECT_EQ(accountId.getEvmAddress()->toString(), getTestEvmAddress().toString());
+  EXPECT_TRUE(accountId.getEvmAddressAlias().has_value());
+  EXPECT_EQ(accountId.getEvmAddressAlias()->toString(), getTestEvmAddressAlias().toString());
 }
 
 //-----
@@ -363,18 +363,18 @@ TEST_F(AccountIdTest, ResetMutuallyExclusiveAccountNumbers)
 {
   AccountId accountId;
 
-  accountId.setEvmAddress(getTestEvmAddress());
+  accountId.setEvmAddressAlias(getTestEvmAddressAlias());
   accountId.setAccountNum(getTestAccountNum());
-  EXPECT_EQ(accountId.getAlias(), nullptr);
-  EXPECT_FALSE(accountId.getEvmAddress().has_value());
+  EXPECT_EQ(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_FALSE(accountId.getEvmAddressAlias().has_value());
 
-  accountId.setAlias(getTestEcdsaSecp256k1Alias());
+  accountId.setPublicKeyAlias(getTestEcdsaSecp256k1Alias());
   EXPECT_FALSE(accountId.getAccountNum().has_value());
-  EXPECT_FALSE(accountId.getEvmAddress().has_value());
+  EXPECT_FALSE(accountId.getEvmAddressAlias().has_value());
 
-  accountId.setEvmAddress(getTestEvmAddress());
+  accountId.setEvmAddressAlias(getTestEvmAddressAlias());
   EXPECT_FALSE(accountId.getAccountNum().has_value());
-  EXPECT_EQ(accountId.getAlias(), nullptr);
+  EXPECT_EQ(accountId.getPublicKeyAlias(), nullptr);
 }
 
 //-----
@@ -410,7 +410,7 @@ TEST_F(AccountIdTest, ProtobufAccountId)
   EXPECT_EQ(*accountId.getAccountNum(), newAccount);
 
   // Serialize ED25519 alias
-  accountId.setAlias(getTestEd25519Alias());
+  accountId.setPublicKeyAlias(getTestEd25519Alias());
   protoAccountId = accountId.toProtobuf();
   EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kAlias);
 
@@ -420,11 +420,11 @@ TEST_F(AccountIdTest, ProtobufAccountId)
 
   // Deserialize ED25519 alias
   accountId = AccountId::fromProtobuf(*protoAccountId);
-  EXPECT_NE(accountId.getAlias(), nullptr);
-  EXPECT_EQ(accountId.getAlias()->toBytesDer(), testBytes);
+  EXPECT_NE(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(accountId.getPublicKeyAlias()->toBytesDer(), testBytes);
 
   // Serialize ECDSA alias
-  accountId.setAlias(getTestEcdsaSecp256k1Alias());
+  accountId.setPublicKeyAlias(getTestEcdsaSecp256k1Alias());
   protoAccountId = accountId.toProtobuf();
   EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kAlias);
 
@@ -434,22 +434,22 @@ TEST_F(AccountIdTest, ProtobufAccountId)
 
   // Deserialize ECDSA alias
   accountId = AccountId::fromProtobuf(*protoAccountId);
-  EXPECT_NE(accountId.getAlias(), nullptr);
-  EXPECT_EQ(accountId.getAlias()->toBytesDer(), testBytes);
+  EXPECT_NE(accountId.getPublicKeyAlias(), nullptr);
+  EXPECT_EQ(accountId.getPublicKeyAlias()->toBytesDer(), testBytes);
 
   // Serialize EVM address
-  accountId.setEvmAddress(getTestEvmAddress());
+  accountId.setEvmAddressAlias(getTestEvmAddressAlias());
   protoAccountId = accountId.toProtobuf();
-  EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kEvmAddress);
+  EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kAlias);
 
   // Adjust protobuf fields
   testBytes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' };
-  protoAccountId->set_allocated_evm_address(new std::string{ testBytes.cbegin(), testBytes.cend() });
+  protoAccountId->set_allocated_alias(new std::string{ testBytes.cbegin(), testBytes.cend() });
 
   // Deserialize EVM address
   accountId = AccountId::fromProtobuf(*protoAccountId);
-  EXPECT_TRUE(accountId.getEvmAddress().has_value());
-  EXPECT_EQ(accountId.getEvmAddress()->toBytes(), testBytes);
+  EXPECT_TRUE(accountId.getEvmAddressAlias().has_value());
+  EXPECT_EQ(accountId.getEvmAddressAlias()->toBytes(), testBytes);
 }
 
 //-----
@@ -465,18 +465,18 @@ TEST_F(AccountIdTest, ToString)
             std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
               std::to_string(getTestAccountNum()));
 
-  accountId.setAlias(getTestEd25519Alias());
+  accountId.setPublicKeyAlias(getTestEd25519Alias());
   EXPECT_EQ(accountId.toString(),
             std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
               getTestEd25519Alias()->toStringDer());
 
-  accountId.setAlias(getTestEcdsaSecp256k1Alias());
+  accountId.setPublicKeyAlias(getTestEcdsaSecp256k1Alias());
   EXPECT_EQ(accountId.toString(),
             std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
               getTestEcdsaSecp256k1Alias()->toStringDer());
 
-  accountId.setEvmAddress(getTestEvmAddress());
+  accountId.setEvmAddressAlias(getTestEvmAddressAlias());
   EXPECT_EQ(accountId.toString(),
             std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
-              getTestEvmAddress().toString());
+              getTestEvmAddressAlias().toString());
 }

@@ -77,8 +77,8 @@ TEST_F(NodeAddressTest, DefaultConstructNodeAddress)
   EXPECT_EQ(nodeAddress.getNodeAccountId().getShardNum(), 0ULL);
   EXPECT_EQ(nodeAddress.getNodeAccountId().getRealmNum(), 0ULL);
   EXPECT_FALSE(nodeAddress.getNodeAccountId().getAccountNum().has_value());
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getAlias(), nullptr);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddress().has_value());
+  EXPECT_EQ(nodeAddress.getNodeAccountId().getPublicKeyAlias(), nullptr);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddressAlias().has_value());
   EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
   EXPECT_TRUE(nodeAddress.getDescription().empty());
   EXPECT_TRUE(nodeAddress.getEndpoints().empty());
@@ -150,8 +150,8 @@ TEST_F(NodeAddressTest, ConstructFromProtobuf)
   EXPECT_EQ(nodeAddress.getNodeAccountId().getShardNum(), 0ULL);
   EXPECT_EQ(nodeAddress.getNodeAccountId().getRealmNum(), 0ULL);
   EXPECT_FALSE(nodeAddress.getNodeAccountId().getAccountNum().has_value());
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getAlias(), nullptr);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddress().has_value());
+  EXPECT_EQ(nodeAddress.getNodeAccountId().getPublicKeyAlias(), nullptr);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddressAlias().has_value());
   EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
   EXPECT_FALSE(nodeAddress.getDescription().empty());
   EXPECT_EQ(nodeAddress.getDescription(), testDescription);
@@ -173,12 +173,12 @@ TEST_F(NodeAddressTest, ConstructFromString)
   EXPECT_EQ(nodeAddress.getDefaultIpAddress().toString(), testIpAddressV4);
   EXPECT_EQ(nodeAddress.getDefaultPort(), testPort);
   EXPECT_EQ(nodeAddress.getNodeId(), -1);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddress().has_value());
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddressAlias().has_value());
   EXPECT_EQ(nodeAddress.getNodeAccountId().getShardNum(), 0ULL);
   EXPECT_EQ(nodeAddress.getNodeAccountId().getRealmNum(), 0ULL);
   EXPECT_FALSE(nodeAddress.getNodeAccountId().getAccountNum().has_value());
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getAlias(), nullptr);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddress().has_value());
+  EXPECT_EQ(nodeAddress.getNodeAccountId().getPublicKeyAlias(), nullptr);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddressAlias().has_value());
   EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
   EXPECT_TRUE(nodeAddress.getDescription().empty());
   EXPECT_FALSE(nodeAddress.getEndpoints().empty());

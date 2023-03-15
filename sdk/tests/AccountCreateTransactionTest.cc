@@ -75,8 +75,8 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransaction)
   EXPECT_FALSE(transaction.getStakedAccountId().has_value());
   EXPECT_FALSE(transaction.getStakedNodeId().has_value());
   EXPECT_FALSE(transaction.getDeclineStakingReward());
-  EXPECT_EQ(transaction.getAlias(), nullptr);
-  EXPECT_FALSE(transaction.getEvmAddress().has_value());
+  EXPECT_EQ(transaction.getPublicKeyAlias(), nullptr);
+  EXPECT_FALSE(transaction.getEvmAddressAlias().has_value());
 }
 
 //-----
@@ -94,9 +94,7 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   body->set_decline_reward(getTestDeclineStakingReward());
 
   const std::vector<unsigned char> testPublicKeyBytes = getTestPublicKey()->toBytesDer();
-  const std::vector<unsigned char> testEvmAddressBytes = getTestEvmAddress().toBytes();
   body->set_allocated_alias(new std::string{ testPublicKeyBytes.cbegin(), testPublicKeyBytes.cend() });
-  body->set_allocated_evm_address(new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
 
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptocreateaccount(body.release());
@@ -115,9 +113,15 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   EXPECT_EQ(accountCreateTransaction.getStakedAccountId(), getTestAccountId());
   EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
   EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
-  EXPECT_EQ(accountCreateTransaction.getAlias()->toBytesDer(), testPublicKeyBytes);
-  ASSERT_TRUE(accountCreateTransaction.getEvmAddress().has_value());
-  EXPECT_EQ(accountCreateTransaction.getEvmAddress()->toBytes(), testEvmAddressBytes);
+  EXPECT_EQ(accountCreateTransaction.getPublicKeyAlias()->toBytesDer(), testPublicKeyBytes);
+  EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
+
+  const std::vector<unsigned char> testEvmAddressBytes = getTestEvmAddress().toBytes();
+  txBody.mutable_cryptocreateaccount()->set_allocated_alias(
+    new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
+  AccountCreateTransaction test2(txBody);
+  ASSERT_TRUE(test2.getEvmAddressAlias().has_value());
+  EXPECT_EQ(test2.getEvmAddressAlias()->toBytes(), testEvmAddressBytes);
 }
 
 //-----
@@ -232,23 +236,23 @@ TEST_F(AccountCreateTransactionTest, SetStakingRewardPolicy)
 TEST_F(AccountCreateTransactionTest, SetAlias)
 {
   AccountCreateTransaction transaction;
-  transaction.setAlias(getTestPublicKey());
-  EXPECT_EQ(transaction.getAlias()->toStringDer(), getTestPublicKey()->toStringDer());
+  transaction.setPublicKeyAlias(getTestPublicKey());
+  EXPECT_EQ(transaction.getPublicKeyAlias()->toStringDer(), getTestPublicKey()->toStringDer());
 
   transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.setAlias(getTestPublicKey()), IllegalStateException);
+  EXPECT_THROW(transaction.setPublicKeyAlias(getTestPublicKey()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetEvmAddress)
 {
   AccountCreateTransaction transaction;
-  transaction.setEvmAddress(getTestEvmAddress());
-  ASSERT_TRUE(transaction.getEvmAddress().has_value());
-  EXPECT_EQ(transaction.getEvmAddress()->toString(), getTestEvmAddress().toString());
+  transaction.setEvmAddressAlias(getTestEvmAddress());
+  ASSERT_TRUE(transaction.getEvmAddressAlias().has_value());
+  EXPECT_EQ(transaction.getEvmAddressAlias()->toString(), getTestEvmAddress().toString());
 
   transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.setEvmAddress(getTestEvmAddress()), IllegalStateException);
+  EXPECT_THROW(transaction.setEvmAddressAlias(getTestEvmAddress()), IllegalStateException);
 }
 
 //-----

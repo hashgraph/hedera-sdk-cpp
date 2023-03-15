@@ -51,8 +51,6 @@ protected:
     const std::vector<unsigned char> testEvmAddressBytes = mEvmAddress.toBytes();
     mCryptoCreateTransactionBody->set_allocated_alias(
       new std::string{ testPublicKeyBytes.cbegin(), testPublicKeyBytes.cend() });
-    mCryptoCreateTransactionBody->set_allocated_evm_address(
-      new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
 
     // Initialize the CryptoTransfer unique_ptr
     proto::AccountAmount* amount = mCryptoTransferTransactionBody->mutable_transfers()->add_accountamounts();
@@ -156,9 +154,8 @@ TEST_F(TransactionTest, AccountCreateTransactionFromTransactionBodyBytes)
   EXPECT_EQ(*accountCreateTransaction.getStakedAccountId(), getTestAccountId());
   EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
   EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
-  EXPECT_EQ(accountCreateTransaction.getAlias()->toBytesDer(), getTestPublicKey()->toBytesDer());
-  ASSERT_TRUE(accountCreateTransaction.getEvmAddress().has_value());
-  EXPECT_EQ(accountCreateTransaction.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+  EXPECT_EQ(accountCreateTransaction.getPublicKeyAlias()->toBytesDer(), getTestPublicKey()->toBytesDer());
+  EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
 }
 
 //-----
@@ -193,9 +190,8 @@ TEST_F(TransactionTest, AccountCreateTransactionFromSignedTransactionBytes)
   EXPECT_EQ(*accountCreateTransaction.getStakedAccountId(), getTestAccountId());
   EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
   EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
-  EXPECT_EQ(accountCreateTransaction.getAlias()->toBytesDer(), getTestPublicKey()->toBytesDer());
-  ASSERT_TRUE(accountCreateTransaction.getEvmAddress().has_value());
-  EXPECT_EQ(accountCreateTransaction.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+  EXPECT_EQ(accountCreateTransaction.getPublicKeyAlias()->toBytesDer(), getTestPublicKey()->toBytesDer());
+  EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
 }
 
 //-----
@@ -233,9 +229,8 @@ TEST_F(TransactionTest, AccountCreateTransactionFromTransactionBytes)
   EXPECT_EQ(*accountCreateTransaction.getStakedAccountId(), getTestAccountId());
   EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
   EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
-  EXPECT_EQ(accountCreateTransaction.getAlias()->toBytesDer(), getTestPublicKey()->toBytesDer());
-  ASSERT_TRUE(accountCreateTransaction.getEvmAddress().has_value());
-  EXPECT_EQ(accountCreateTransaction.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+  EXPECT_EQ(accountCreateTransaction.getPublicKeyAlias()->toBytesDer(), getTestPublicKey()->toBytesDer());
+  EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
 }
 
 //-----

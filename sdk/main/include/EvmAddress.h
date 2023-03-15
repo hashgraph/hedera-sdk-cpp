@@ -33,13 +33,18 @@ class EvmAddress
 {
 public:
   /**
+   * The number of bytes an EVM address should be.
+   */
+  static constexpr const size_t NUM_BYTES = 20ULL;
+
+  /**
    * Construct an EvmAddress from a hex-encoded string that represents the 20-byte EVM address.
    *
    * @param address The hex-encoded string representing the EvmAddress.
    * @throws std::invalid_argument If the input string is malformed.
    * @throws OpenSSLException If OpenSSL is unable to convert the string to a byte array.
    */
-  static EvmAddress fromString(std::string_view address);
+  [[nodiscard]] static EvmAddress fromString(std::string_view address);
 
   /**
    * Construct an EvmAddress from a 20-byte buffer.
@@ -47,7 +52,7 @@ public:
    * @param bytes The bytes of the EvmAddress.
    * @throws std::invalid_argument If the input byte buffer is not 20 bytes long.
    */
-  static EvmAddress fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static EvmAddress fromBytes(const std::vector<unsigned char>& bytes);
 
   /**
    * Get the hex-encoded string representation of this EVM address.
@@ -65,11 +70,6 @@ public:
 
 private:
   EvmAddress() = default;
-
-  /**
-   * The number of bytes an EVM address should be.
-   */
-  static constexpr const size_t NUM_BYTES = 20ULL;
 
   /**
    * Helper function for making sure this EVM address is correctly formed.

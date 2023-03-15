@@ -154,8 +154,8 @@ public:
   AccountId& setRealmNum(const uint64_t& num);
 
   /**
-   * Set the account number. This is mutually exclusive with mAlias and mEvmAddress, and will reset the value of the
-   * mAlias or mEvmAddress if either is set.
+   * Set the account number. This is mutually exclusive with mPublicKeyAlias and mEvmAddressAlias, and will reset the
+   * value of the mPublicKeyAlias or mEvmAddressAlias if either is set.
    *
    * @param num The account number to set.
    * @return A reference to this AccountId object with the newly-set account number.
@@ -164,22 +164,22 @@ public:
   AccountId& setAccountNum(const uint64_t& num);
 
   /**
-   * Set the account alias. This is mutually exclusive with mAccountNum and mEvmAddress, and will reset the value of the
-   * mAccountNum or mEvmAddress if either is set.
+   * Set the account public key alias. This is mutually exclusive with mAccountNum and mEvmAddressAlias, and will reset
+   * the value of the mAccountNum or mEvmAddressAlias if either is set.
    *
    * @param alias The public key alias to set.
    * @return A reference to this AccountId object with the newly-set account alias.
    */
-  AccountId& setAlias(const std::shared_ptr<PublicKey>& alias);
+  AccountId& setPublicKeyAlias(const std::shared_ptr<PublicKey>& alias);
 
   /**
-   * Set the account EVM address. This is mutually exclusive with mAccountNum and mAlias, and will reset the value of
-   * the mAccountNum or mAlias if either is set.
+   * Set the account EVM address alias. This is mutually exclusive with mAccountNum and mPublicKeyAlias, and will reset
+   * the value of the mAccountNum or mPublicKeyAlias if either is set.
    *
-   * @param address The EVM address to set.
+   * @param address The EVM address alias to set.
    * @return A reference to this AccountId object with the newly-set account EVM address.
    */
-  AccountId& setEvmAddress(const EvmAddress& address);
+  AccountId& setEvmAddressAlias(const EvmAddress& address);
 
   /**
    * Get the shard number.
@@ -203,18 +203,18 @@ public:
   [[nodiscard]] inline std::optional<uint64_t> getAccountNum() const { return mAccountNum; }
 
   /**
-   * Get the account alias.
+   * Get the account public key alias.
    *
-   * @return The account alias.
+   * @return The account public key alias.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getAlias() const { return mAlias; }
+  [[nodiscard]] inline std::shared_ptr<PublicKey> getPublicKeyAlias() const { return mPublicKeyAlias; }
 
   /**
-   * Get the account EVM address.
+   * Get the account EVM address alias.
    *
-   * @return The account EVM address.
+   * @return The account EVM address alias.
    */
-  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddress() const { return mEvmAddress; }
+  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddressAlias() const { return mEvmAddressAlias; }
 
 private:
   /**
@@ -252,17 +252,17 @@ private:
    * If a transaction auto-creates the account, any further transfers to that alias will simply be deposited in that
    * account, without creating anything, and with no creation fee being charged.
    */
-  std::shared_ptr<PublicKey> mAlias = nullptr;
+  std::shared_ptr<PublicKey> mPublicKeyAlias = nullptr;
 
   /**
-   * The ethereum account 20-byte EVM address to be used initially in place of a PublicKey. This EVM address may be
-   * either the encoded form of the shard.realm.num or the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
+   * The ethereum account 20-byte EVM address to be used initially in place of the public key bytes. This EVM address
+   * may be either the encoded form of the shard.realm.num or the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
    *
    * If a transaction lazily-creates this account, a subsequent transaction will be required containing the public key
    * bytes that map to the EVM address bytes. Lazy account creates will only support the keccak-256 hash of a
    * ECDSA_SECP256K1 primitive key form.
    */
-  std::optional<EvmAddress> mEvmAddress;
+  std::optional<EvmAddress> mEvmAddressAlias;
 };
 
 } // namespace Hedera
