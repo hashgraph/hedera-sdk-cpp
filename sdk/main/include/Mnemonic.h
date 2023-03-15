@@ -20,12 +20,8 @@
 #ifndef HEDERA_SDK_CPP_MNEMONIC_H_
 #define HEDERA_SDK_CPP_MNEMONIC_H_
 
-#include <algorithm>
-#include <fstream>
-#include <functional>
-#include <iostream>
+#include <cstdint>
 #include <set>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -59,12 +55,7 @@ protected:
   /**
    * The standard BIP39 word list.
    */
-  static const std::vector<std::string> BIP39_WORD_LIST;
-
-  /**
-   * The legacy Hedera word list, which was in use prior to the switch to the standard word list.
-   */
-  static const std::vector<std::string> LEGACY_WORD_LIST;
+  static const std::vector<std::string_view> BIP39_WORD_LIST;
 
   /**
    * Splits a mnemonic string into individual words.
@@ -73,7 +64,7 @@ protected:
    * @param delimiter The delimiter with which to separate the words.
    * @return A vector containing the individual words of the mnemonic.
    */
-  static std::vector<std::string> splitMnemonicString(const std::string& fullMnemonic, std::string_view delimiter);
+  static std::vector<std::string> splitMnemonicString(std::string_view fullMnemonic, std::string_view delimiter);
 
   /**
    * Computes the checksum byte from an array of entropy.
@@ -113,21 +104,12 @@ protected:
    */
   [[nodiscard]] std::vector<unsigned char> computeEntropyAndChecksum() const;
 
-private:
-  /**
-   * Read in a word list file, line by line.
-   *
-   * @param fileName The name of the file that contains the word list.
-   * @return The words in the input file.
-   */
-  static std::vector<std::string> readWordListFromFile(const std::string& fileName);
-
   /**
    * Get the word list for this Mnemonic.
    *
    * @return The words that make up this Mnemonic.
    */
-  [[nodiscard]] virtual const std::vector<std::string>& getWordList() const = 0;
+  [[nodiscard]] virtual const std::vector<std::string_view>& getWordList() const = 0;
 
   /**
    * Get the values which represent acceptable word counts for this Mnemonic. Some mnemonic types have only 1 acceptable
@@ -137,6 +119,7 @@ private:
    */
   [[nodiscard]] virtual const std::set<unsigned long>& getAcceptableWordCounts() const = 0;
 
+private:
   /**
    * Check a vector of indices to determine if they are all valid in the applicable word list.
    *
@@ -152,7 +135,7 @@ private:
    * @return The index of the given word in this Mnemonic's word list.
    * @throws BadMnemonicException If the input word is not in this Mnemonic's word list.
    */
-  [[nodiscard]] uint16_t getIndexFromWordString(const std::string& word) const;
+  [[nodiscard]] uint16_t getIndexFromWordString(std::string_view word) const;
 
   /**
    * Get the word at the given index in this Mnemonic's word list.
@@ -165,9 +148,9 @@ private:
 
   /**
    * The indices of the words that make up this Mnemonic. Each index in this vector represents a word of the Mnemonic.
-   * 16 bit unsigned values are used, since BIP39 indices need 11 bits, and legacy word list indices need 12
+   * 16 bit unsigned values are used, since BIP39 indices need 11 bits, and legacy word list indices need 12.
    */
-  std::vector<uint16_t> wordIndices;
+  std::vector<uint16_t> mWordIndices;
 };
 
 } // namespace Hedera

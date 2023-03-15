@@ -116,7 +116,7 @@ TEST_F(AccountUpdateTransactionTest, ConstructAccountUpdateTransactionFromTransa
 
   // Then
   EXPECT_EQ(accountUpdateTransaction.getAccountId(), getTestAccountId());
-  EXPECT_EQ(accountUpdateTransaction.getKey()->toString(), getTestPublicKey()->toString());
+  EXPECT_EQ(accountUpdateTransaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
   ASSERT_TRUE(accountUpdateTransaction.getReceiverSignatureRequired().has_value());
   EXPECT_EQ(accountUpdateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   ASSERT_TRUE(accountUpdateTransaction.getAutoRenewPeriod().has_value());
@@ -150,7 +150,7 @@ TEST_F(AccountUpdateTransactionTest, SetKey)
 {
   AccountUpdateTransaction transaction;
   transaction.setKey(getTestPublicKey());
-  EXPECT_EQ(transaction.getKey()->toString(), getTestPublicKey()->toString());
+  EXPECT_EQ(transaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
 
   transaction.freezeWith(getTestClient());
   EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);

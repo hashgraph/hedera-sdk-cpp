@@ -20,6 +20,7 @@
 #include "impl/NodeAddress.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/Endpoint.h"
+#include "impl/HexConverter.h"
 #include "impl/IPv4Address.h"
 
 #include <gtest/gtest.h>
@@ -97,8 +98,9 @@ TEST_F(NodeAddressTest, GettersAndSettersNodeAddress)
   const IPv4Address& testIpAddressV4_2 = IPv4Address::fromString(testStringForIpAddressV4_2);
   const std::string& testDescription = getTestDescription();
   const std::string& testNodeCertHash = getTestNodeCertHash();
-  const std::shared_ptr<Endpoint> testEndpointPtr_1 = std::make_shared<Endpoint>(testIpAddressV4_1, testPortTLS);
-  const std::shared_ptr<Endpoint> testEndpointPtr_2 = std::make_shared<Endpoint>(testIpAddressV4_2, testPortTLS);
+  const std::vector<unsigned char> nodeCertHashVec = { testNodeCertHash.cbegin(), testNodeCertHash.cend() };
+  const auto testEndpointPtr_1 = std::make_shared<Endpoint>(testIpAddressV4_1, testPortTLS);
+  const auto testEndpointPtr_2 = std::make_shared<Endpoint>(testIpAddressV4_2, testPortTLS);
   std::vector<std::shared_ptr<Endpoint>> testEndpoints;
   testEndpoints.push_back(testEndpointPtr_1);
   testEndpoints.push_back(testEndpointPtr_2);
@@ -115,7 +117,7 @@ TEST_F(NodeAddressTest, GettersAndSettersNodeAddress)
   EXPECT_EQ(testNodeAddress.getNodeId(), testNodeId);
   EXPECT_EQ(testNodeAddress.getPublicKey(), testRSAPublicKey);
   EXPECT_EQ(testNodeAddress.getDescription(), testDescription);
-  EXPECT_EQ(testNodeAddress.getNodeCertHash(), testNodeCertHash);
+  EXPECT_EQ(testNodeAddress.getNodeCertHash(), nodeCertHashVec);
   EXPECT_EQ(testNodeAddress.getDefaultIpAddress().toString(), testStringForIpAddressV4_1);
   EXPECT_EQ(testNodeAddress.getDefaultPort(), testPortTLS);
 }
@@ -129,7 +131,7 @@ TEST_F(NodeAddressTest, ConstructFromProtobuf)
   const std::string& testRSAPublicKey = getTestRSAPublicKey();
   const std::string& testIpAddressV4 = getTestIpAddress();
   const std::string& testDescription = getTestDescription();
-  proto::NodeAddress testProtoNodeAddress = proto::NodeAddress();
+  auto testProtoNodeAddress = proto::NodeAddress();
   testProtoNodeAddress.set_nodeid(testNodeId);
   testProtoNodeAddress.set_description(testDescription);
   testProtoNodeAddress.set_rsa_pubkey(testRSAPublicKey);
@@ -190,6 +192,6 @@ TEST_F(NodeAddressTest, ConstructFromMalformedStringAndThrowException)
   const std::string testNodeAddress_2 = "aaa.bbb.ccc.ddd";
 
   // When & Then
-  EXPECT_THROW(NodeAddress::fromString(testNodeAddress_1), Hedera::IllegalStateException);
-  EXPECT_THROW(NodeAddress::fromString(testNodeAddress_2), Hedera::IllegalStateException);
+  EXPECT_THROW(auto nodeAddress = NodeAddress::fromString(testNodeAddress_1), std::invalid_argument);
+  EXPECT_THROW(auto nodeAddress = NodeAddress::fromString(testNodeAddress_2), std::invalid_argument);
 }

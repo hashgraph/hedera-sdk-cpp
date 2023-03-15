@@ -41,12 +41,12 @@ TEST_P(BIP39TestVectors, TestVectors)
   const auto& [inputEntropy, mnemonicString, seed] = GetParam();
 
   MnemonicBIP39 mnemonicFromEntropy = MnemonicBIP39::initializeBIP39Mnemonic(
-    MnemonicBIP39::entropyToWordIndices(internal::HexConverter::hexToBase64(inputEntropy)));
+    MnemonicBIP39::entropyToWordIndices(internal::HexConverter::hexToBytes(inputEntropy)));
 
   MnemonicBIP39 mnemonicFromString = MnemonicBIP39::initializeBIP39Mnemonic(mnemonicString);
 
   ASSERT_EQ(mnemonicFromEntropy.toString(), mnemonicFromString.toString());
-  ASSERT_EQ(mnemonicFromEntropy.toSeed(getPassphrase()), internal::HexConverter::hexToBase64(seed));
+  ASSERT_EQ(mnemonicFromEntropy.toSeed(getPassphrase()), internal::HexConverter::hexToBytes(seed));
 }
 
 //-----

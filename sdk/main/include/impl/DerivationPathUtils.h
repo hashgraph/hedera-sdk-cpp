@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_DERIVATION_IMPL_PATH_UTILS_H_
-#define HEDERA_SDK_CPP_DERIVATION_IMPL_PATH_UTILS_H_
+#ifndef HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
+#define HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
 
 #include <cstdint>
 #include <vector>
@@ -56,4 +56,4 @@ std::vector<unsigned char> indexToBigEndianArray(uint32_t childIndex);
 
 }; // namespace Hedera::internal::DerivationPathUtils
 
-#endif // HEDERA_SDK_CPP_DERIVATION_IMPL_PATH_UTILS_H_
+#endif // HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_

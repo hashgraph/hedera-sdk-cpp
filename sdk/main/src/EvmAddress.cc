@@ -52,7 +52,7 @@ EvmAddress EvmAddress::fromString(std::string_view address)
     throw std::invalid_argument("Input EVM address is not a hex-encoded string");
   }
 
-  evmAddress.mEvmAddress = internal::HexConverter::hexToBase64(std::string(address));
+  evmAddress.mEvmAddress = internal::HexConverter::hexToBytes(address);
   evmAddress.checkEvmAddress();
 
   return evmAddress;

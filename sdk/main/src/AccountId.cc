@@ -18,6 +18,8 @@
  *
  */
 #include "AccountId.h"
+#include "PublicKey.h"
+#include "exceptions/BadKeyException.h"
 
 #include <charconv>
 #include <limits>
@@ -112,29 +114,31 @@ AccountId AccountId::fromString(std::string_view id)
   }
   accountId.checkRealmNum();
 
-  // Determine what the input account number is. First determine if it is an alias (stringified PublicKey)
-  if (const std::shared_ptr<PublicKey> alias = PublicKey::fromString(accountNumStr); alias)
-  {
-    accountId.mAlias = alias;
-    return accountId;
-  }
-
-  // If not an alias, determine if it is an EVM address
+  // Determine what the input account number is. First determine if it is an alias (stringified DER-encoded PublicKey)
   try
   {
-    accountId.mEvmAddress = EvmAddress::fromString(accountNumStr);
+    accountId.mAlias = PublicKey::fromStringDer(accountNumStr);
+    return accountId;
   }
-  catch (const std::invalid_argument&)
+  catch (const BadKeyException&)
   {
-    // If not an EVM address, then treat as a normal account number
-    uint64_t accountNum;
-    result = std::from_chars(accountNumStr.data(), accountNumStr.data() + accountNumStr.size(), accountNum);
-    if (result.ec != std::errc() || result.ptr != accountNumStr.data() + accountNumStr.size())
+    // If not an alias, determine if it is an EVM address
+    try
     {
-      throw std::invalid_argument("Input account ID string is malformed");
+      accountId.mEvmAddress = EvmAddress::fromString(accountNumStr);
     }
-    accountId.mAccountNum = accountNum;
-    accountId.checkAccountNum();
+    catch (const std::invalid_argument&)
+    {
+      // If not an EVM address, then treat as a normal account number
+      uint64_t accountNum;
+      result = std::from_chars(accountNumStr.data(), accountNumStr.data() + accountNumStr.size(), accountNum);
+      if (result.ec != std::errc() || result.ptr != accountNumStr.data() + accountNumStr.size())
+      {
+        throw std::invalid_argument("Input account ID string is malformed");
+      }
+      accountId.mAccountNum = accountNum;
+      accountId.checkAccountNum();
+    }
   }
 
   return accountId;
@@ -145,7 +149,7 @@ bool AccountId::operator==(const AccountId& other) const
 {
   return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) &&
          ((mAccountNum && other.mAccountNum && mAccountNum == other.mAccountNum) ||
-          (mAlias && other.mAlias && mAlias->toString() == other.mAlias->toString()) ||
+          (mAlias && other.mAlias && mAlias->toStringDer() == other.mAlias->toStringDer()) ||
           (mEvmAddress && other.mEvmAddress && mEvmAddress->toString() == other.mEvmAddress->toString()) ||
           (!mAccountNum && !other.mAccountNum && !mAlias && !other.mAlias && !mEvmAddress && !other.mEvmAddress));
 }
@@ -160,14 +164,27 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
   switch (proto.account_case())
   {
     case proto::AccountID::kAccountNum:
+    {
       accountId.mAccountNum = static_cast<uint64_t>(proto.accountnum());
       break;
+    }
     case proto::AccountID::kAlias:
-      accountId.mAlias = PublicKey::fromBytes({ proto.alias().cbegin(), proto.alias().cend() });
+    {
+      try
+      {
+        accountId.mAlias = PublicKey::fromBytesDer({ proto.alias().cbegin(), proto.alias().cend() });
+      }
+      catch (const BadKeyException& ex)
+      {
+        std::cout << "Cannot decode AccountID protobuf alias: " << ex.what() << std::endl;
+      }
       break;
+    }
     case proto::AccountID::kEvmAddress:
+    {
       accountId.mEvmAddress = EvmAddress::fromBytes({ proto.evm_address().cbegin(), proto.evm_address().cend() });
       break;
+    }
     default:
       break;
   }
@@ -188,7 +205,7 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
   }
   else if (mAlias)
   {
-    const std::vector<unsigned char> bytes = mAlias->toBytes();
+    const std::vector<unsigned char> bytes = mAlias->toBytesDer();
     proto->set_allocated_alias(new std::string{ bytes.cbegin(), bytes.cend() });
   }
   else if (mEvmAddress)
@@ -211,7 +228,7 @@ std::string AccountId::toString() const
   }
   else if (mAlias)
   {
-    return str + mAlias->toString();
+    return str + mAlias->toStringDer();
   }
   else if (mEvmAddress)
   {

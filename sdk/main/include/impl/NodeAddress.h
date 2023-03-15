@@ -151,7 +151,7 @@ public:
    *
    * @return An instance of IPv4Address containing the IP address of the node.
    */
-  [[nodiscard]] inline const IPv4Address getDefaultIpAddress() const { return getDefaultEndpoint()->getAddress(); }
+  [[nodiscard]] inline IPv4Address getDefaultIpAddress() const { return getDefaultEndpoint()->getAddress(); }
 
   /**
    * Get the port number of the gRPC server for the node.
@@ -186,14 +186,14 @@ public:
    *
    * @return The certificate chain hash.
    */
-  [[nodiscard]] inline std::string getNodeCertHash() const { return mNodeCertHash; }
+  [[nodiscard]] inline std::vector<unsigned char> getNodeCertHash() const { return mNodeCertHash; }
 
   /**
    * Get the default endpoint associated with the node.
    *
    * @return The default node endpoint.
    */
-  [[nodiscard]] inline const std::shared_ptr<Endpoint> getDefaultEndpoint() const
+  [[nodiscard]] inline std::shared_ptr<Endpoint> getDefaultEndpoint() const
   {
     if (mEndpoints.empty())
     {
@@ -256,7 +256,7 @@ private:
   /**
    * The SHA-384 hash of the node's certificate chain.
    */
-  std::string mNodeCertHash;
+  std::vector<unsigned char> mNodeCertHash;
 
   /**
    * A string description of the node.

@@ -41,8 +41,9 @@ uint32_t getHardenedIndex(uint32_t index)
 }
 
 //-----
-std::vector<unsigned char> indexToBigEndianArray(const uint32_t childIndex) {
-  std::vector<unsigned char> indexVector = {};
+std::vector<unsigned char> indexToBigEndianArray(uint32_t childIndex)
+{
+  std::vector<unsigned char> indexVector;
   for (int byteIndex = 3; byteIndex >= 0; --byteIndex)
   {
     indexVector.push_back((childIndex >> (byteIndex << 3)) & 0xFF);

@@ -93,7 +93,7 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   body->set_allocated_staked_account_id(getTestAccountId().toProtobuf().release());
   body->set_decline_reward(getTestDeclineStakingReward());
 
-  const std::vector<unsigned char> testPublicKeyBytes = getTestPublicKey()->toBytes();
+  const std::vector<unsigned char> testPublicKeyBytes = getTestPublicKey()->toBytesDer();
   const std::vector<unsigned char> testEvmAddressBytes = getTestEvmAddress().toBytes();
   body->set_allocated_alias(new std::string{ testPublicKeyBytes.cbegin(), testPublicKeyBytes.cend() });
   body->set_allocated_evm_address(new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
@@ -105,7 +105,7 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   AccountCreateTransaction accountCreateTransaction(txBody);
 
   // Then
-  EXPECT_EQ(accountCreateTransaction.getKey()->toString(), getTestPublicKey()->toString());
+  EXPECT_EQ(accountCreateTransaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
   EXPECT_EQ(accountCreateTransaction.getInitialBalance(), getTestInitialBalance());
   EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
@@ -115,7 +115,7 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   EXPECT_EQ(accountCreateTransaction.getStakedAccountId(), getTestAccountId());
   EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
   EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
-  EXPECT_EQ(accountCreateTransaction.getAlias()->toBytes(), testPublicKeyBytes);
+  EXPECT_EQ(accountCreateTransaction.getAlias()->toBytesDer(), testPublicKeyBytes);
   ASSERT_TRUE(accountCreateTransaction.getEvmAddress().has_value());
   EXPECT_EQ(accountCreateTransaction.getEvmAddress()->toBytes(), testEvmAddressBytes);
 }
@@ -125,7 +125,7 @@ TEST_F(AccountCreateTransactionTest, SetKey)
 {
   AccountCreateTransaction transaction;
   transaction.setKey(getTestPublicKey());
-  EXPECT_EQ(transaction.getKey()->toString(), getTestPublicKey()->toString());
+  EXPECT_EQ(transaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
 
   transaction.freezeWith(getTestClient());
   EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
@@ -233,7 +233,7 @@ TEST_F(AccountCreateTransactionTest, SetAlias)
 {
   AccountCreateTransaction transaction;
   transaction.setAlias(getTestPublicKey());
-  EXPECT_EQ(transaction.getAlias()->toString(), getTestPublicKey()->toString());
+  EXPECT_EQ(transaction.getAlias()->toStringDer(), getTestPublicKey()->toStringDer());
 
   transaction.freezeWith(getTestClient());
   EXPECT_THROW(transaction.setAlias(getTestPublicKey()), IllegalStateException);

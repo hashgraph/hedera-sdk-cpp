@@ -1,3 +1,8 @@
+include(FetchContent)
+FetchContent_Declare(valuable
+        GIT_REPOSITORY https://github.com/LoopPerfect/valuable.git)
+FetchContent_MakeAvailable(valuable)
+
 add_library(${PROJECT_NAME} STATIC
         #    src/AccountAllowanceApproveTransaction.cc
         #    src/AccountAllowanceDeleteTransaction.cc
@@ -38,6 +43,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
         src/NftId.cc
+        src/PrivateKey.cc
         src/PublicKey.cc
         src/Status.cc
         src/TokenId.cc
@@ -63,12 +69,14 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/NodeAddress.cc
         src/impl/NodeAddressBook.cc
         src/impl/OpenSSLUtils.cc
-        src/impl/TimestampConverter.cc)
+        src/impl/TimestampConverter.cc
+        src/impl/Utilities.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${valuable_SOURCE_DIR}/include)
 
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})

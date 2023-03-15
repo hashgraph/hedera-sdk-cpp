@@ -20,11 +20,17 @@
 #include "PublicKey.h"
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
+#include "exceptions/BadKeyException.h"
+#include "impl/PublicKeyImpl.h"
+#include "impl/Utilities.h"
 
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
+//-----
+PublicKey::~PublicKey() = default;
+
 //-----
 std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
 {
@@ -43,47 +49,49 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
 }
 
 //-----
-std::shared_ptr<PublicKey> PublicKey::fromString(std::string_view key)
+std::shared_ptr<PublicKey> PublicKey::fromStringDer(std::string_view key)
 {
-  try
+  if (key.find(ED25519PublicKey::DER_ENCODED_PREFIX_HEX) == 0UL)
   {
-    return ED25519PublicKey::fromString(std::string(key));
-  }
-  catch (...)
-  {
+    return ED25519PublicKey::fromString(key);
   }
 
-  try
+  else if (key.find(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX) == 0UL)
   {
-    return ECDSAsecp256k1PublicKey::fromString(std::string(key));
-  }
-  catch (...)
-  {
+    return ECDSAsecp256k1PublicKey::fromString(key);
   }
 
-  return nullptr;
+  throw BadKeyException("Key type cannot be determined from input DER-encoded hex string");
 }
 
 //-----
-std::shared_ptr<PublicKey> PublicKey::fromBytes(const std::vector<unsigned char>& bytes)
+std::shared_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<unsigned char>& bytes)
 {
-  try
+  if (internal::Utilities::isPrefixOf(bytes, ED25519PublicKey::DER_ENCODED_PREFIX_BYTES))
   {
     return ED25519PublicKey::fromBytes(bytes);
   }
-  catch (...)
-  {
-  }
 
-  try
+  else if (internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES) ||
+           internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES))
   {
     return ECDSAsecp256k1PublicKey::fromBytes(bytes);
   }
-  catch (...)
-  {
-  }
 
-  return nullptr;
+  throw BadKeyException("Key type cannot be determined from input DER-encoded byte array");
+}
+
+//-----
+PublicKey::PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key)
+  : mImpl(PublicKeyImpl())
+{
+  mImpl->mKey = std::move(key);
+}
+
+//-----
+internal::OpenSSLUtils::EVP_PKEY PublicKey::getInternalKey() const
+{
+  return mImpl->mKey;
 }
 
 } // namespace Hedera

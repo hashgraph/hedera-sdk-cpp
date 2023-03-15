@@ -23,11 +23,17 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace proto
 {
 class Key;
+}
+
+namespace Hedera::internal::OpenSSLUtils
+{
+class EVP_PKEY;
 }
 
 namespace Hedera
@@ -39,37 +45,37 @@ class PublicKey
 {
 public:
   /**
-   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
+   * Default destructor, but must define after PublicKeyImpl is defined (in source file).
    */
-  virtual ~PublicKey() = default;
-  PublicKey(const PublicKey&) = delete;
-  PublicKey& operator=(const PublicKey&) = delete;
-  PublicKey(PublicKey&&) noexcept = delete;
-  PublicKey& operator=(PublicKey&&) noexcept = delete;
+  virtual ~PublicKey();
 
   /**
-   * Create a PublicKey object from a Key protobuf object.
+   * Construct a PublicKey object from a Key protobuf object.
    *
    * @param proto The Key protobuf object from which to create a PublicKey object.
    * @return A pointer to the created PublicKey object. Nullptr if the key type is not recognized.
    */
-  static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
+  [[nodiscard]] static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
 
   /**
-   * Create a PublicKey object from a string.
+   * Construct a PublicKey object from a hex-encoded, DER-encoded key string.
    *
-   * @param key The string from which to create a PublicKey object.
-   * @return A pointer to the created PublicKey object. Nullptr if unable to create a PublicKey object.
+   * @param key The DER-encoded hex string from which to construct a PublicKey.
+   * @return A pointer to an PublicKey representing the input DER-encoded hex string.
+   * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
+   *                         from the input hex string.
    */
-  static std::shared_ptr<PublicKey> fromString(std::string_view key);
+  [[nodiscard]] static std::shared_ptr<PublicKey> fromStringDer(std::string_view key);
 
   /**
-   * Create a PublicKey object from a byte array.
+   * Construct a PublicKey object from a DER-encoded byte vector.
    *
-   * @param bytes The byte array from which to create a PublicKey object.
-   * @return A pointer to the created PublicKey object. Nullptr if unable to create a PublicKey object.
+   * @param bytes The vector of DER-encoded bytes from which to construct a PublicKey.
+   * @return A pointer to a PublicKey representing the input DER-encoded bytes.
+   * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
+   *                         from the input byte array.
    */
-  static std::shared_ptr<PublicKey> fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static std::shared_ptr<PublicKey> fromBytesDer(const std::vector<unsigned char>& bytes);
 
   /**
    * Create a clone of this PublicKey object.
@@ -96,21 +102,62 @@ public:
                                              const std::vector<unsigned char>& signedBytes) const = 0;
 
   /**
-   * Get the string representation of this PublicKey.
+   * Get the hex-encoded string of the DER-encoded bytes of this PublicKey.
    *
-   * @return The string representation of this PublicKey.
+   * @return The hex-encoded string of the DER-encoded bytes of this PublicKey.
    */
-  [[nodiscard]] virtual std::string toString() const = 0;
+  [[nodiscard]] virtual std::string toStringDer() const = 0;
 
   /**
-   * Get the byte representation of this PublicKey.
+   * Get the hex-encoded string of the raw bytes of this PublicKey.
    *
-   * @return The byte representation of this PublicKey.
+   * @return The hex-encoded string of the raw bytes of this PublicKey.
    */
-  [[nodiscard]] virtual std::vector<unsigned char> toBytes() const = 0;
+  [[nodiscard]] virtual std::string toStringRaw() const = 0;
+
+  /**
+   * Get the DER-encoded bytes of this PublicKey.
+   *
+   * @return The DER-encoded bytes of this PublicKey.
+   */
+  [[nodiscard]] virtual std::vector<unsigned char> toBytesDer() const = 0;
+
+  /**
+   * Get the raw bytes of this PublicKey.
+   *
+   * @return The raw bytes of this PublicKey.
+   */
+  [[nodiscard]] virtual std::vector<unsigned char> toBytesRaw() const = 0;
 
 protected:
-  PublicKey() = default;
+  /**
+   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
+   */
+  PublicKey(const PublicKey&) = default;
+  PublicKey& operator=(const PublicKey&) = default;
+  PublicKey(PublicKey&&) noexcept = default;
+  PublicKey& operator=(PublicKey&&) noexcept = default;
+
+  /**
+   * Construct with a wrapped OpenSSL key object.
+   *
+   * @param key The wrapped OpenSSL key object.
+   */
+  explicit PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key);
+
+  /**
+   * Get this PublicKey's wrapped OpenSSL key object.
+   *
+   * @return This PublicKey's wrapped OpenSSL key object.
+   */
+  [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY getInternalKey() const;
+
+private:
+  /**
+   * Implementation object used to hide implementation details and internal headers.
+   */
+  struct PublicKeyImpl;
+  valuable::value_ptr<PublicKeyImpl> mImpl;
 };
 
 } // namespace Hedera

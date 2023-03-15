@@ -223,7 +223,7 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
     auto signatureMap = std::make_unique<proto::SignatureMap>();
     proto::SignaturePair* signaturePair = signatureMap->add_sigpair();
-    std::vector<unsigned char> publicKeyBytes = client.getOperatorPublicKey()->toBytes();
+    std::vector<unsigned char> publicKeyBytes = client.getOperatorPublicKey()->toBytesRaw();
     signaturePair->set_allocated_pubkeyprefix(new std::string(publicKeyBytes.cbegin(), publicKeyBytes.cend()));
 
     if (dynamic_cast<ED25519PublicKey*>(client.getOperatorPublicKey().get()))
@@ -240,7 +240,7 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
     {
       signature = signer({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
       signaturePair = signatureMap->add_sigpair();
-      publicKeyBytes = publicKey->toBytes();
+      publicKeyBytes = publicKey->toBytesRaw();
       signaturePair->set_allocated_pubkeyprefix(new std::string(publicKeyBytes.cbegin(), publicKeyBytes.cend()));
 
       if (dynamic_cast<ED25519PublicKey*>(publicKey.get()))

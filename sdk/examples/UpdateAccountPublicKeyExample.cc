@@ -55,15 +55,15 @@ int main(int argc, char** argv)
   TransactionReceipt txReceipt = txResp.getReceipt(client);
 
   const AccountId newAccountId = txReceipt.getAccountId().value();
-  std::cout << "Created new account with ID " << newAccountId.toString() << " and public key " << publicKey->toString()
-            << std::endl;
+  std::cout << "Created new account with ID " << newAccountId.toString() << " and public key "
+            << publicKey->toStringDer() << std::endl;
 
   // Generate a new ED25519PrivateKey public key with which to update the account.
   const std::unique_ptr<PrivateKey> newPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> newPublicKey = newPrivateKey->getPublicKey();
 
   // Update the account
-  std::cout << "Updating account to use new public key: " << newPublicKey->toString() << std::endl;
+  std::cout << "Updating account to use new public key: " << newPublicKey->toStringDer() << std::endl;
   txResp = AccountUpdateTransaction()
              .setAccountId(newAccountId)
              .setKey(newPublicKey)

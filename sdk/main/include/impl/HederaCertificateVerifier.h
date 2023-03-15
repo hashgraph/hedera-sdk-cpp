@@ -36,13 +36,13 @@ public:
    *
    * @param certificateHash The claimed hash of the node certificate chain.
    */
-  explicit HederaCertificateVerifier(std::string certificateHash);
+  explicit HederaCertificateVerifier(std::vector<unsigned char> certificateHash);
 
 private:
   /**
    * The hash of the certificate chain for the node, from the address book.
    */
-  std::string mExpectedHash;
+  std::vector<unsigned char> mExpectedHash;
 
   /**
    * The verification logic that will be performed after the TLS handshake completes.
