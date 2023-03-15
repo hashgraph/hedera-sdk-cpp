@@ -22,6 +22,7 @@
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace Hedera
 {
