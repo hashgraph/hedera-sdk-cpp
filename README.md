@@ -105,6 +105,9 @@ This project is governed by the
 [Contributor Covenant Code of Conduct](https://github.com/hashgraph/.github/blob/main/CODE_OF_CONDUCT.md). By
 participating, you are expected to uphold this code of conduct.
 
+If you need to prepare a new SDK release, then see the Step-by-Step guide how to do it.
+
+
 ## License
 
 [Apache License 2.0](LICENSE)
