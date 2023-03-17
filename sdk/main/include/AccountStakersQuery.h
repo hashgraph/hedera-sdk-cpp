@@ -49,8 +49,7 @@ namespace Hedera
  *
  * This is not yet implemented, but will be in a future version of the API.
  */
-class AccountStakersQuery
-  : public Query<std::vector<ProxyStaker>, AccountStakersQuery>
+class AccountStakersQuery : public Query<std::vector<ProxyStaker>, AccountStakersQuery>
 {
 public:
   /**
@@ -72,8 +71,7 @@ public:
    * @param query  The query object to fill out.
    * @param header The header for the query.
    */
-  virtual void onMakeRequest(proto::Query* query,
-                             proto::QueryHeader* header) const override;
+  virtual void onMakeRequest(proto::Query* query, proto::QueryHeader* header) const override;
 
   /**
    * Derived from Query. Get the account stakers header from the response.
@@ -81,8 +79,7 @@ public:
    * @param response The associated response to this query.
    * @return         The response header for the derived class's query.
    */
-  virtual proto::ResponseHeader mapResponseHeader(
-    proto::Response* response) const override;
+  virtual proto::ResponseHeader mapResponseHeader(proto::Response* response) const override;
 
   /**
    * Derived from Query. Grab the account stakers query header.
@@ -90,8 +87,7 @@ public:
    * @param query  The query of which to extract the header.
    * @return       The account stakers query header.
    */
-  virtual proto::QueryHeader mapRequestHeader(
-    const proto::Query& query) const override;
+  virtual proto::QueryHeader mapRequestHeader(const proto::Query& query) const override;
 
   /**
    * Derived from Query. Extract the account stakers data from the response
@@ -102,16 +98,15 @@ public:
    * @param query     The original query.
    * @return          The account stakers data.
    */
-  virtual std::vector<ProxyStaker> mapResponse(
-    const proto::Response& response,
-    const AccountId& accountId,
-    const proto::Query& query) const override;
+  virtual std::vector<ProxyStaker> mapResponse(const proto::Response& response,
+                                               const AccountId& accountId,
+                                               const proto::Query& query) const override;
 
   /**
    * Sets the account ID for which information is requested.
    *
    * @param accountId The AccountId to be set
-   * @return {@code this}
+   * @return          The account stakers query.
    */
   AccountStakersQuery& setAccountId(const AccountId& accountId);
 
