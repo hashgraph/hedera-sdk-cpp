@@ -37,8 +37,6 @@ namespace Hedera
 class AccountBalanceQuery : public Query<AccountBalanceQuery, AccountBalance>
 {
 public:
-  ~AccountBalanceQuery() override = default;
-
   /**
    * Set the ID of the account of which to request the balance. This is mutually exclusive with setContractId() and will
    * clear the contract ID if one is already set.
@@ -81,8 +79,8 @@ private:
    * @param node   The Node to which this AccountBalanceQuery will be sent. This is unused.
    * @return A Query protobuf object filled with this AccountBalanceQuery object's data.
    */
-  [[nodiscard]] proto::Query makeRequest(const Client& client,
-                                         const std::shared_ptr<internal::Node>& node) const override;
+  [[nodiscard]] proto::Query makeRequest(const Client& /*client*/,
+                                         const std::shared_ptr<internal::Node>& /*node*/) const override;
 
   /**
    * Derived from Executable. Construct an AccountBalance object from a Response protobuf object.

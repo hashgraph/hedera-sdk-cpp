@@ -25,7 +25,7 @@
 namespace Hedera::internal
 {
 //-----
-NodeAddressBook NodeAddressBook::fromFile(const std::string& fileName)
+NodeAddressBook NodeAddressBook::fromFile(std::string_view fileName)
 {
   std::ifstream infile(fileName, std::ios_base::binary);
 

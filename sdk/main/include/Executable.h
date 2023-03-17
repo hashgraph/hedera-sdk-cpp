@@ -160,15 +160,6 @@ public:
 
 protected:
   /**
-   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
-   */
-  Executable() = default;
-  Executable(const Executable&) = default;
-  Executable& operator=(const Executable&) = default;
-  Executable(Executable&&) noexcept = default;
-  Executable& operator=(Executable&&) noexcept = default;
-
-  /**
    * Enumeration describing the status of a submitted Executable.
    */
   enum class ExecutionStatus

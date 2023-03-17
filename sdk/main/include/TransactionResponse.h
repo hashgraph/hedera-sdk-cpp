@@ -51,12 +51,12 @@ class TransactionResponse
 {
 public:
   /**
-   * Create a TransactionResponse object from a TransactionResponse protobuf object.
+   * Construct a TransactionResponse object from a TransactionResponse protobuf object.
    *
-   * @param proto The TransactionResponse protobuf object from which to create a TransactionResponse object.
-   * @return The created TransactionResponse object.
+   * @param proto The TransactionResponse protobuf object from which to construct a TransactionResponse object.
+   * @return The constructed TransactionResponse object.
    */
-  static TransactionResponse fromProtobuf(const proto::TransactionResponse& proto);
+  [[nodiscard]] static TransactionResponse fromProtobuf(const proto::TransactionResponse& proto);
 
   /**
    * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction.

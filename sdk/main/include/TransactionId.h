@@ -57,15 +57,15 @@ public:
    *                  be associated.
    * @return A generated TransactionId to be used for any transaction submitted by the account with the input ID.
    */
-  static TransactionId generate(const AccountId& accountId);
+  [[nodiscard]] static TransactionId generate(const AccountId& accountId);
 
   /**
-   * Create a TransactionId object from a TransactionID protobuf object.
+   * Construct a TransactionId object from a TransactionID protobuf object.
    *
-   * @param proto The TransactionID protobuf object from which to create a TransactionId object.
-   * @return The created TransactionId object.
+   * @param proto The TransactionID protobuf object from which to construct a TransactionId object.
+   * @return The constructed TransactionId object.
    */
-  static TransactionId fromProtobuf(const proto::TransactionID& proto);
+  [[nodiscard]] static TransactionId fromProtobuf(const proto::TransactionID& proto);
 
   /**
    * Compare this TransactionId to another TransactionId and determine if they represent the same Transaction.

@@ -36,8 +36,6 @@ namespace Hedera
 class TransactionReceiptQuery : public Query<TransactionReceiptQuery, TransactionReceipt>
 {
 public:
-  ~TransactionReceiptQuery() override = default;
-
   /**
    * Set the ID of the transaction of which to request the receipt.
    *

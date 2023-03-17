@@ -24,6 +24,7 @@
 #include "impl/NodeAddress.h"
 
 #include <memory>
+#include <string_view>
 #include <unordered_map>
 
 namespace proto
@@ -41,39 +42,40 @@ class NodeAddressBook
 {
 public:
   /**
-   * Create a NodeAddressBook object from a file that contains the serialization of a NodeAddressBook protobuf object.
+   * Construct a NodeAddressBook object from a file that contains the serialization of a NodeAddressBook protobuf
+   * object.
    *
    * @param fileName The name of the file where the NodeAddressBook protobuf object is encoded.
-   * @return The created NodeAddressBook object.
+   * @return The constructed NodeAddressBook object.
    */
-  static NodeAddressBook fromFile(const std::string& fileName);
+  [[nodiscard]] static NodeAddressBook fromFile(std::string_view fileName);
 
   /**
-   * Create a NodeAddressBook object from the byte serialization of a NodeAddressBook protobuf object.
+   * Construct a NodeAddressBook object from the byte serialization of a NodeAddressBook protobuf object.
    *
    * @param bytes The byte serialization of the NodeAddressBook protobuf object to decode.
-   * @return The created NodeAddressBook object.
+   * @return The constructed NodeAddressBook object.
    */
-  static NodeAddressBook fromBytes(const std::vector<char>& bytes);
+  [[nodiscard]] static NodeAddressBook fromBytes(const std::vector<char>& bytes);
 
   /**
-   * Create a NodeAddressBook object from a NodeAddressBook protobuf object.
+   * Construct a NodeAddressBook object from a NodeAddressBook protobuf object.
    *
    * @param protoAddressBook The NodeAddressBook protobuf object from which to create a NodeAddressBook object.
-   * @return The created NodeAddressBook object.
+   * @return The constructed NodeAddressBook object.
    */
-  static NodeAddressBook fromProtobuf(const proto::NodeAddressBook& protoAddressBook);
+  [[nodiscard]] static NodeAddressBook fromProtobuf(const proto::NodeAddressBook& protoAddressBook);
 
   /**
-   * Gets the map of all nodes, where the key is the associated account ID, and the value is the NodeAddress
+   * Get a map of AccountIds to NodeAddresses contained in this NodeAddressBook.
    *
-   * @return a map representing the nodes in the address book
+   * @return A map of AccountIds to NodeAddresses contained in this NodeAddressBook.
    */
   [[nodiscard]] const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& getAddressMap() const;
 
 private:
   /**
-   * A map from node account ID to node address.
+   * A map from AccountId's to NodeAddresses.
    */
   std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>> mAddressMap;
 };

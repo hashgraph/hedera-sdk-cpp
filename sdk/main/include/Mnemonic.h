@@ -64,7 +64,8 @@ protected:
    * @param delimiter The delimiter with which to separate the words.
    * @return A vector containing the individual words of the mnemonic.
    */
-  static std::vector<std::string> splitMnemonicString(std::string_view fullMnemonic, std::string_view delimiter);
+  [[nodiscard]] static std::vector<std::string> splitMnemonicString(std::string_view fullMnemonic,
+                                                                    std::string_view delimiter);
 
   /**
    * Computes the checksum byte from an array of entropy.

@@ -25,9 +25,9 @@
 namespace Hedera::internal::Utilities
 {
 /**
- * Helper function used to determine if a byte array is the prefix of another.
+ * Determine if a byte array is the prefix of another.
  *
- * @param bytes  The bytes for which to look for the prefix.
+ * @param bytes  The bytes in which to look for the prefix.
  * @param prefix The prefix bytes to find in the byte array.
  * @return \c TRUE If prefix is a prefix of bytes, otherwise \c FALSE.
  */
@@ -43,9 +43,9 @@ namespace Hedera::internal::Utilities
 [[nodiscard]] std::vector<unsigned char> removePrefix(const std::vector<unsigned char>& bytes, long num);
 
 /**
- * Concatenate bytes vectors together (in the order of the arguments).
+ * Concatenate byte vectors together (in the order of the arguments).
  *
- * @param vectors  The bytes vectors to concatenate together.
+ * @param vectors The byte vectors to concatenate together.
  * @return A byte vector containing the input byte vectors concatenated into one.
  */
 [[nodiscard]] std::vector<unsigned char> concatenateVectors(const std::vector<std::vector<unsigned char>>& vectors);

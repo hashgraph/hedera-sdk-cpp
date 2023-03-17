@@ -93,7 +93,8 @@ public:
    * @return A pair which contains an index into the variant, as well as
    * @throws std::invalid_argument If unable to construct a Transaction from the input bytes.
    */
-  static std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction>>
+  [[nodiscard]] static std::pair<int,
+                                 std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction>>
   fromBytes(const std::vector<unsigned char>& bytes);
 
   /**

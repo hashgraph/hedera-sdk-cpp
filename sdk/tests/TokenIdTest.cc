@@ -96,35 +96,44 @@ TEST_F(TokenIdTest, ConstructFromString)
   EXPECT_EQ(tokenId.getRealmNum(), getTestRealmNum());
   EXPECT_EQ(tokenId.getTokenNum(), getTestTokenNum());
 
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + testRealmNumStr + testTokenNumStr), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString('.' + testShardNumStr + testRealmNumStr + testTokenNumStr), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + '.' + testRealmNumStr + testTokenNumStr), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + testRealmNumStr + '.' + testTokenNumStr), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + testRealmNumStr + testTokenNumStr + '.'), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(".." + testShardNumStr + testRealmNumStr + testTokenNumStr), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString('.' + testShardNumStr + '.' + testRealmNumStr + testTokenNumStr),
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + testRealmNumStr + testTokenNumStr),
                std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString('.' + testShardNumStr + testRealmNumStr + '.' + testTokenNumStr),
+  EXPECT_THROW(tokenId = TokenId::fromString('.' + testShardNumStr + testRealmNumStr + testTokenNumStr),
                std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString('.' + testShardNumStr + testRealmNumStr + testTokenNumStr + '.'),
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + '.' + testRealmNumStr + testTokenNumStr),
                std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + ".." + testRealmNumStr + testTokenNumStr), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + '.' + testRealmNumStr + testTokenNumStr + '.'),
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + testRealmNumStr + '.' + testTokenNumStr),
                std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + testRealmNumStr + ".." + testTokenNumStr), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + testRealmNumStr + '.' + testTokenNumStr + '.'),
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + testRealmNumStr + testTokenNumStr + '.'),
                std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString('.' + testShardNumStr + '.' + testRealmNumStr + '.' + testTokenNumStr + '.'),
+  EXPECT_THROW(tokenId = TokenId::fromString(".." + testShardNumStr + testRealmNumStr + testTokenNumStr),
+               std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString('.' + testShardNumStr + '.' + testRealmNumStr + testTokenNumStr),
+               std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString('.' + testShardNumStr + testRealmNumStr + '.' + testTokenNumStr),
+               std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString('.' + testShardNumStr + testRealmNumStr + testTokenNumStr + '.'),
+               std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + ".." + testRealmNumStr + testTokenNumStr),
+               std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + '.' + testRealmNumStr + testTokenNumStr + '.'),
+               std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + testRealmNumStr + ".." + testTokenNumStr),
+               std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + testRealmNumStr + '.' + testTokenNumStr + '.'),
+               std::invalid_argument);
+  EXPECT_THROW(tokenId =
+                 TokenId::fromString('.' + testShardNumStr + '.' + testRealmNumStr + '.' + testTokenNumStr + '.'),
                std::invalid_argument);
 
-  EXPECT_THROW(TokenId::fromString("abc"), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString("o.o.e"), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString("0.0.1!"), std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testNumTooBigStr + '.' + testRealmNumStr + '.' + testTokenNumStr),
+  EXPECT_THROW(tokenId = TokenId::fromString("abc"), std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString("o.o.e"), std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString("0.0.1!"), std::invalid_argument);
+  EXPECT_THROW(tokenId = TokenId::fromString(testNumTooBigStr + '.' + testRealmNumStr + '.' + testTokenNumStr),
                std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + '.' + testNumTooBigStr + '.' + testTokenNumStr),
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + '.' + testNumTooBigStr + '.' + testTokenNumStr),
                std::invalid_argument);
-  EXPECT_THROW(TokenId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + testNumTooBigStr),
+  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + testNumTooBigStr),
                std::invalid_argument);
 }
 

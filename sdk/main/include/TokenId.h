@@ -66,20 +66,20 @@ public:
   bool operator==(const TokenId& other) const;
 
   /**
-   * Create a TokenId object from a string of the form "<shard>.<realm>.<num>".
+   * Construct a TokenId object from a string of the form "<shard>.<realm>.<num>".
    *
    * @param id The token ID string from which to construct.
    * @throws std::invalid_argument If the input string is malformed.
    */
-  static TokenId fromString(std::string_view id);
+  [[nodiscard]] static TokenId fromString(std::string_view id);
 
   /**
-   * Create an TokenId object from a TokenID protobuf object.
+   * Construct an TokenId object from a TokenID protobuf object.
    *
-   * @param proto The TokenID protobuf object from which to create a TokenId object.
-   * @return The created TokenId object.
+   * @param proto The TokenID protobuf object from which to construct a TokenId object.
+   * @return The constructed TokenId object.
    */
-  static TokenId fromProtobuf(const proto::TokenID& proto);
+  [[nodiscard]] static TokenId fromProtobuf(const proto::TokenID& proto);
 
   /**
    * Construct a TokenID protobuf object from this TokenId object.

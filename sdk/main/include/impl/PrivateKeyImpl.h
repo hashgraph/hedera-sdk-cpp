@@ -39,7 +39,7 @@ struct PrivateKey::PrivateKeyImpl
   internal::OpenSSLUtils::EVP_PKEY mKey;
 
   /**
-   * This PrivateKey's chain code. If this is empty, then this PrivateKey will not support derivation.
+   * The chain code. If this is empty, then this PrivateKey will not support derivation.
    */
   std::vector<unsigned char> mChainCode;
 

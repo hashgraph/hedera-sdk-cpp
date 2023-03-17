@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ACCOUNT_UDPATE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_ACCOUNT_UDPATE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_ACCOUNT_UPDATE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_ACCOUNT_UPDATE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "PublicKey.h"
@@ -53,8 +53,7 @@ public:
    * Construct from a TransactionBody protobuf object.
    *
    * @param transactionBody The TransactionBody protobuf object from which to construct.
-   * @throws                std::invalid_argument If the input TransactionBody does not represent a CryptoUpdate
-   * transaction.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a CryptoUpdate transaction.
    */
   explicit AccountUpdateTransaction(const proto::TransactionBody& transactionBody);
 
@@ -62,8 +61,8 @@ public:
    * Set the ID of the account to update.
    *
    * @param accountId The ID of the account this transaction should update.
-   * @return          A reference to this AccountUpdateTransaction object with the newly-set account ID.
-   * @throws          IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set account ID.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setAccountId(const AccountId& accountId);
 
@@ -72,8 +71,8 @@ public:
    * mReceiverSignatureRequired is true, then it must also sign any transfer into the account.
    *
    * @param publicKey The desired new public key for the account.
-   * @return          A reference to this AccountUpdateTransaction object with the newly-set public key.
-   * @throws          IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set public key.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setKey(const std::shared_ptr<PublicKey>& publicKey);
 
@@ -93,38 +92,38 @@ public:
    * expires, then the account is deleted.
    *
    * @param autoRenewPeriod The desired new auto renew period for the account.
-   * @return                A reference to this AccountUpdateTransaction object with the newly-set auto renew period.
-   * @throws                IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set auto renew period.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
 
   /**
-   * Set a new expiration time for the acount.
+   * Set a new expiration time for the account.
    *
-   * @param expiration  The desired new expiration time for the account.
-   * @return            A reference to this AccountUpdateTransaction object with the newly-set expiration time.
-   * @throws            IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @param expiration The desired new expiration time for the account.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set expiration time.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setExpirationTime(const std::chrono::system_clock::time_point& expiration);
 
   /**
    * Set a new memo for the account.
    *
-   * @param memo  The desired new memo for the account.
-   * @return      A reference to this AccountUpdateTransaction object with the newly-set memo.
-   * @throws      IllegalStateException If this AccountUpdateTransaction is frozen.
-   * @throws      std::length_error If the memo is more than 100 characters.
+   * @param memo The desired new memo for the account.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set memo.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @throws std::length_error If the memo is more than 100 characters.
    */
   AccountUpdateTransaction& setAccountMemo(std::string_view memo);
 
   /**
    * Set the new maximum automatic token associations the account can have.
    *
-   * @param associations  The desired new maximum amount of token associations for the account.
-   * @return              A reference to this AccountUpdateTransaction object with the newly-set maximum automatic token
-   *                      associations.
-   * @throws              IllegalStateException If this AccountUpdateTransaction is frozen.
-   * @throws              std::invalid_argument If the desired maximum number of associations is over 5000.
+   * @param associations The desired new maximum amount of token associations for the account.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set maximum automatic token
+   *         associations.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @throws std::invalid_argument If the desired maximum number of associations is over 5000.
    */
   AccountUpdateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
 
@@ -133,8 +132,8 @@ public:
    * reset the value of the mStakedNodeId if it is set.
    *
    * @param stakedAccountId The ID of the desired new account to which the account will stake.
-   * @return                A reference to this AccountUpdateTransaction object with the newly-set staked account ID.
-   * @throws                IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set staked account ID.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
@@ -142,9 +141,9 @@ public:
    * Set the new node to which the account should stake. This is mutually exclusive with mStakedAccountId, and will
    * reset the value of the mStakedAccountId if it is set.
    *
-   * @param stakedNodeId  The ID of the desired new node to which the account will stake.
-   * @return              A reference to this AccountUpdateTransaction object with the newly-set staked node ID.
-   * @throws              IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @param stakedNodeId The ID of the desired new node to which the account will stake.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set staked node ID.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setStakedNodeId(const uint64_t& stakedNodeId);
 
@@ -152,9 +151,8 @@ public:
    * Set a new staking reward reception policy for the account.
    *
    * @param declineReward \c TRUE if the account should decline receiving staking rewards, otherwise \c FALSE.
-   * @return              A reference to this AccountUpdateTransaction object with the newly-set staking rewards
-   *                      reception policy.
-   * @throws              IllegalStateException If this AccountUpdateTransaction is frozen.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set staking rewards reception policy.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setDeclineStakingReward(bool declineReward);
 
@@ -243,24 +241,24 @@ private:
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this AccountUpdateTransaction object.
    *
-   * @param client  The Client trying to construct this AccountUpdateTransaction.
-   * @param node    The Node to which this AccountUpdateTransaction will be sent. This is unused.
-   * @return        A Transaction protobuf object filled with this AccountUpdateTransaction object's data.
-   * @throws        UninitializedException If the input client has no operator with which to sign this
-   *                AccountUpdateTransaction.
+   * @param client The Client trying to construct this AccountUpdateTransaction.
+   * @param node   The Node to which this AccountUpdateTransaction will be sent. This is unused.
+   * @return A Transaction protobuf object filled with this AccountUpdateTransaction object's data.
+   * @throws UninitializedException If the input client has no operator with which to sign this
+   *                                AccountUpdateTransaction.
    */
   [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>& node) const override;
+                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
 
   /**
    * Derived from Executable. Submit this AccountUpdateTransaction to a Node.
    *
-   * @param client    The Client submitting this AccountUpdateTransaction.
-   * @param deadline  The deadline for submitting this AccountUpdateTransaction.
-   * @param node      Pointer to the Node to which this AccountUpdateTransaction should be submitted.
-   * @param response  Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
-   *                  information from the gRPC server.
-   * @return          The gRPC status of the submission.
+   * @param client   The Client submitting this AccountUpdateTransaction.
+   * @param deadline The deadline for submitting this AccountUpdateTransaction.
+   * @param node     Pointer to the Node to which this AccountUpdateTransaction should be submitted.
+   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
+   *                 information from the gRPC server.
+   * @return The gRPC status of the submission.
    */
   [[nodiscard]] grpc::Status submitRequest(const Client& client,
                                            const std::chrono::system_clock::time_point& deadline,
@@ -331,4 +329,4 @@ private:
 
 } // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_ACCOUNT_UDPATE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_ACCOUNT_UPDATE_TRANSACTION_H_

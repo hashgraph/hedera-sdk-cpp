@@ -31,9 +31,6 @@ namespace Hedera::internal
 class IPv4Address
 {
 public:
-  /**
-   * Default constructor
-   */
   IPv4Address() = default;
 
   /**

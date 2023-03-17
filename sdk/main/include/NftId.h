@@ -58,20 +58,20 @@ public:
   bool operator==(const NftId& other) const;
 
   /**
-   * Create an NftId object from a string of the form "<shard>.<realm>.<num>/<serialNum>".
+   * Construct an NftId object from a string of the form "<shard>.<realm>.<num>/<serialNum>".
    *
    * @param id The NFT ID string from which to construct.
    * @throws std::invalid_argument If the input string is malformed.
    */
-  static NftId fromString(std::string_view id);
+  [[nodiscard]] static NftId fromString(std::string_view id);
 
   /**
-   * Create an NftId object from a NftID protobuf object.
+   * Construct an NftId object from a NftID protobuf object.
    *
-   * @param proto The NftID protobuf object from which to create a NftId object.
-   * @return The created NftId object.
+   * @param proto The NftID protobuf object from which to construct a NftId object.
+   * @return The constructed NftId object.
    */
-  static NftId fromProtobuf(const proto::NftID& proto);
+  [[nodiscard]] static NftId fromProtobuf(const proto::NftID& proto);
 
   /**
    * Construct an NftID protobuf object from this NftId object.

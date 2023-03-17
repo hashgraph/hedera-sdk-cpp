@@ -24,7 +24,7 @@
 #include <vector>
 
 /**
- * Utility functions dealing with wallet derivation paths, as described in BIP32, BIP44, and SLIP10
+ * Utility functions dealing with wallet derivation paths, as described in BIP32, BIP44, and SLIP10.
  */
 namespace Hedera::internal::DerivationPathUtils
 {
@@ -47,7 +47,7 @@ bool isHardenedChildIndex(uint32_t index);
 uint32_t getHardenedIndex(uint32_t index);
 
 /**
- * Converts unsigned 32 bit int index into big endian byte array (direct implementation of ser32 function from BIP 32)
+ * Converts a uint32_t index into a big endian byte array (direct implementation of ser32 function from BIP 32)
  *
  * @param childIndex The index to convert to a big endian byte array.
  * @return The big endian byte array representing the child index.

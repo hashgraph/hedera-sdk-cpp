@@ -27,7 +27,7 @@
 namespace Hedera::internal::HexConverter
 {
 /**
- * Convert an array of bytes to their hex values and put them in a string.
+ * Convert an array of bytes to a hex string.
  *
  * @param bytes The bytes from which to get the hex string.
  * @return A string containing the hex values of the input byte array.

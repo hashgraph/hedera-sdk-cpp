@@ -35,7 +35,7 @@ public:
   EVP_PKEY() = default;
 
   /**
-   * Construct with the input EVP_PKEY, its EVP_PKEY_free deleter function, and EVP_PKEY_dup copier function.
+   * Construct with the input EVP_PKEY, its EVP_PKEY_free deleter function, and its EVP_PKEY_dup copier function.
    *
    * @param evpPkey The EVP_PKEY OpenSSL object to wrap.
    */

@@ -50,12 +50,12 @@ class TransactionRecord
 {
 public:
   /**
-   * Create a TransactionRecord object from a TransactionRecord protobuf object.
+   * Construct a TransactionRecord object from a TransactionRecord protobuf object.
    *
-   * @param proto The TransactionRecord protobuf object from which to create an TransactionRecord object.
-   * @return The created TransactionRecord object.
+   * @param proto The TransactionRecord protobuf object from which to construct an TransactionRecord object.
+   * @return The constructed TransactionRecord object.
    */
-  static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
+  [[nodiscard]] static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
 
   /**
    * Get the receipt of the transaction with which this TransactionRecord is associated.

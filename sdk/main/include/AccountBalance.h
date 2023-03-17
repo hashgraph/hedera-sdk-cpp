@@ -36,10 +36,10 @@ class AccountBalance
 {
 public:
   /**
-   * Create an AccountBalance object from a CryptoGetAccountBalanceResponse protobuf object.
+   * Construct an AccountBalance object from a CryptoGetAccountBalanceResponse protobuf object.
    *
-   * @param proto The CryptoGetAccountBalance protobuf object from which to create an AccountBalance object.
-   * @return The created AccountBalance object.
+   * @param proto The CryptoGetAccountBalance protobuf object from which to construct an AccountBalance object.
+   * @return The constructed AccountBalance object.
    */
   static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
 

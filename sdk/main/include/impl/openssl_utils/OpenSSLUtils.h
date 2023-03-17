@@ -29,7 +29,7 @@ namespace Hedera::internal::OpenSSLUtils
 /**
  * Computes the SHA256 hash of a byte array.
  *
- * @param data The byte array from which to compute the hash.
+ * @param data The byte array of which to compute the hash.
  * @return The SHA256 hash of the data.
  */
 [[nodiscard]] std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
@@ -37,7 +37,7 @@ namespace Hedera::internal::OpenSSLUtils
 /**
  * Compute the SHA384 hash of a byte array.
  *
- * @param data The byte array from which to compute the hash.
+ * @param data The byte array of which to compute the hash.
  * @return The SHA384 hash of the data.
  */
 [[nodiscard]] std::vector<unsigned char> computeSHA384(const std::vector<unsigned char>& data);
@@ -47,7 +47,7 @@ namespace Hedera::internal::OpenSSLUtils
  *
  * @param key  The key input to the hash function.
  * @param data The data input to the hash function.
- * @return The hash of the data and key.
+ * @return The HMAC-SHA512 hash of the data and key.
  * @throws OpenSSLException If OpenSSL is unable to compute the HMAC-SHA512 hash of the given inputs.
  */
 [[nodiscard]] std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,

@@ -38,12 +38,12 @@ class ExchangeRate
 {
 public:
   /**
-   * Create an ExchangeRate object from a ExchangeRate protobuf object.
+   * Construct an ExchangeRate object from a ExchangeRate protobuf object.
    *
-   * @param proto The ExchangeRate protobuf object from which to create an ExchangeRate object.
-   * @return The created ExchangeRate object.
+   * @param proto The ExchangeRate protobuf object from which to construct an ExchangeRate object.
+   * @return The constructed ExchangeRate object.
    */
-  static ExchangeRate fromProtobuf(const proto::ExchangeRate& proto);
+  [[nodiscard]] static ExchangeRate fromProtobuf(const proto::ExchangeRate& proto);
 
   /**
    * Get the amount an Hbar is worth in cents (USD).

@@ -48,7 +48,7 @@ AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contra
 }
 
 //-----
-proto::Query AccountBalanceQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
+proto::Query AccountBalanceQuery::makeRequest(const Client&, const std::shared_ptr<internal::Node>&) const
 {
   proto::Query query;
   proto::CryptoGetAccountBalanceQuery* getAccountBalanceQuery = query.mutable_cryptogetaccountbalance();
