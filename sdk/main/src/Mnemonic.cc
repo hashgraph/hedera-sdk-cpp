@@ -22,6 +22,7 @@
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <stdexcept>
 
 namespace Hedera
@@ -290,7 +291,8 @@ std::vector<std::string> Mnemonic::splitMnemonicString(std::string_view fullMnem
 //-----
 std::byte Mnemonic::computeChecksumFromEntropy(const std::vector<std::byte>& entropy)
 {
-  return internal::OpenSSLUtils::computeSHA256(entropy).at(0) & ~(std::byte(0xFF) >> (entropy.size() * 8 / 32));
+  return internal::OpenSSLUtils::computeSHA256(entropy).at(0) &
+         ~(std::byte(0xFF) >> static_cast<int>(entropy.size() * 8 / 32));
 }
 
 //-----
