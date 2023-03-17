@@ -63,9 +63,7 @@ public:
    *                     ID's and protobuf transactions.
    */
   explicit AccountDeleteTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
    * Construct from a protobuf transaction object.
@@ -110,10 +108,7 @@ public:
    *
    * @return The account ID of the account to receive the Hbars.
    */
-  inline InitType<AccountId> getTransferAccountId() const
-  {
-    return mTransferAccountId;
-  }
+  inline InitType<AccountId> getTransferAccountId() const { return mTransferAccountId; }
 
 private:
   /**
