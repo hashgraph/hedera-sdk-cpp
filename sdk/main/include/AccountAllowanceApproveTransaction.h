@@ -87,11 +87,15 @@ public:
    * Derived from Transaction. Called in freezeWith(Client) just before the
    * transaction body is built. The intent is for the derived class to assign
    * their data variant to the transaction body.
+   *
+   * @param body The transaction's body part. (XXX)
    */
   virtual void onFreeze(proto::TransactionBody* body) const override;
 
   /**
    * Called in schedule() when converting transaction into a scheduled version.
+   *
+   * @param body The schedulable transaction's body part. (XXX)
    */
   virtual void onScheduled(proto::SchedulableTransactionBody* body) const override;
 
