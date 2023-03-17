@@ -50,8 +50,7 @@ namespace Hedera
 /**
  * This transaction type is for approving account allowance.
  */
-class AccountAllowanceApproveTransaction
-  : public Transaction<AccountAllowanceApproveTransaction>
+class AccountAllowanceApproveTransaction : public Transaction<AccountAllowanceApproveTransaction>
 {
 public:
   /**
@@ -67,9 +66,7 @@ public:
    *                     ID's and protobuf transactions.
    */
   explicit AccountAllowanceApproveTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
    * Construct from a protobuf transaction object.
@@ -77,8 +74,7 @@ public:
    * @param transaction The protobuf transaction object from which to construct
    *                    this transaction.
    */
-  explicit AccountAllowanceApproveTransaction(
-    const proto::TransactionBody& transaction);
+  explicit AccountAllowanceApproveTransaction(const proto::TransactionBody& transaction);
 
   /**
    * Validate the checksums.
@@ -97,8 +93,7 @@ public:
   /**
    * Called in schedule() when converting transaction into a scheduled version.
    */
-  virtual void onScheduled(
-    proto::SchedulableTransactionBody* body) const override;
+  virtual void onScheduled(proto::SchedulableTransactionBody* body) const override;
 
   /**
    * Build an account allowance approval protobuf message based on the data in
@@ -118,10 +113,9 @@ public:
    *                         positive.
    * @return Reference to this AccountAllowanceApproveTransaction object
    */
-  AccountAllowanceApproveTransaction& approveHbarAllowance(
-    const InitType<AccountId>& ownerAccountId,
-    const AccountId& spenderAccountId,
-    const Hbar& amount);
+  AccountAllowanceApproveTransaction& approveHbarAllowance(const InitType<AccountId>& ownerAccountId,
+                                                           const AccountId& spenderAccountId,
+                                                           const Hbar& amount);
 
   /**
    * Approves the NFT allowance.
@@ -132,10 +126,9 @@ public:
    * @param spenderAccountId The spender's account ID.
    * @return Reference to this AccountAllowanceApproveTransaction object
    */
-  AccountAllowanceApproveTransaction& approveNftAllowance(
-    const NftId& nftId,
-    const InitType<AccountId>& ownerAccountId,
-    const AccountId& spenderAccountId);
+  AccountAllowanceApproveTransaction& approveNftAllowance(const NftId& nftId,
+                                                          const InitType<AccountId>& ownerAccountId,
+                                                          const AccountId& spenderAccountId);
 
   /**
    * Approve the NFT allowance on all serials for a specific token.
@@ -146,10 +139,9 @@ public:
    * @param spenderAccountId The spender's account ID.
    * @return Reference to this AccountAllowanceApproveTransaction object
    */
-  AccountAllowanceApproveTransaction& approveNftAllowanceAllSerials(
-    const TokenId& tokenId,
-    const InitType<AccountId>& ownerAccountId,
-    const AccountId& spenderAccountId);
+  AccountAllowanceApproveTransaction& approveNftAllowanceAllSerials(const TokenId& tokenId,
+                                                                    const InitType<AccountId>& ownerAccountId,
+                                                                    const AccountId& spenderAccountId);
 
   /**
    * Approve a token allowance.
@@ -161,41 +153,31 @@ public:
    * @param amount           The amount of tokens.
    * @return Reference to this AccountAllowanceApproveTransaction object
    */
-  AccountAllowanceApproveTransaction& approveTokenAllowance(
-    const TokenId& tokenId,
-    const InitType<AccountId>& ownerAccountId,
-    const AccountId& spenderAccountId,
-    const int64_t& amount);
+  AccountAllowanceApproveTransaction& approveTokenAllowance(const TokenId& tokenId,
+                                                            const InitType<AccountId>& ownerAccountId,
+                                                            const AccountId& spenderAccountId,
+                                                            const int64_t& amount);
 
   /**
    * Extract the list of Hbar allowance approvals.
    *
    * @return The list of Hbar allowance approvals.
    */
-  inline std::vector<HbarAllowance> getHbarApprovals() const
-  {
-    return mHbarAllowances;
-  }
+  inline std::vector<HbarAllowance> getHbarApprovals() const { return mHbarAllowances; }
 
   /**
    * Extract the list of NFT allowance approvals.
    *
    * @return The list of NFT allowance approvals.
    */
-  inline std::vector<NftAllowance> getNftApprovals() const
-  {
-    return mNftAllowances;
-  }
+  inline std::vector<NftAllowance> getNftApprovals() const { return mNftAllowances; }
 
   /**
    * Extract the list of token allowance approvals.
    *
    * @return The list of token allowance approvals.
    */
-  inline std::vector<TokenAllowance> getTokenApprovals() const
-  {
-    return mTokenAllowances;
-  }
+  inline std::vector<TokenAllowance> getTokenApprovals() const { return mTokenAllowances; }
 
 private:
   /**
