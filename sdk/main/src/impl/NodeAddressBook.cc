@@ -44,17 +44,17 @@ NodeAddressBook NodeAddressBook::fromBytes(const std::vector<char>& bytes)
 }
 
 //-----
-NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& addressBook)
+NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& protoAddressBook)
 {
   NodeAddressBook outputAddressBook;
 
-  for (int i = 0; i < addressBook.nodeaddress_size(); ++i)
+  for (int i = 0; i < protoAddressBook.nodeaddress_size(); ++i)
   {
-    const proto::NodeAddress& nodeAddress = addressBook.nodeaddress(i);
+    const proto::NodeAddress& protoNodeAddress = protoAddressBook.nodeaddress(i);
 
     outputAddressBook.mAddressMap.try_emplace(
-      AccountId::fromProtobuf(nodeAddress.nodeaccountid()),
-      std::make_shared<internal::NodeAddress>(internal::NodeAddress::fromProtobuf(nodeAddress)));
+      AccountId::fromProtobuf(protoNodeAddress.nodeaccountid()),
+      std::make_shared<internal::NodeAddress>(internal::NodeAddress::fromProtobuf(protoNodeAddress)));
   }
 
   return outputAddressBook;

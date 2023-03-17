@@ -59,10 +59,10 @@ public:
   /**
    * Create a NodeAddressBook object from a NodeAddressBook protobuf object.
    *
-   * @param proto The NodeAddressBook protobuf object from which to create a NodeAddressBook object.
+   * @param protoAddressBook The NodeAddressBook protobuf object from which to create a NodeAddressBook object.
    * @return The created NodeAddressBook object.
    */
-  static NodeAddressBook fromProtobuf(const proto::NodeAddressBook& addressBook);
+  static NodeAddressBook fromProtobuf(const proto::NodeAddressBook& protoAddressBook);
 
   /**
    * Gets the map of all nodes, where the key is the associated account ID, and the value is the NodeAddress

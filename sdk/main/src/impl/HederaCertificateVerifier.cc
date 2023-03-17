@@ -33,7 +33,7 @@ HederaCertificateVerifier::HederaCertificateVerifier(std::vector<unsigned char> 
 
 //-----
 bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
-                                       std::function<void(grpc::Status)>,
+                                       std::function<void(grpc::Status)> callback,
                                        grpc::Status* sync_status)
 {
   if (const grpc::string_ref grpcCertificateChain = request->peer_cert_full_chain();

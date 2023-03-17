@@ -40,7 +40,6 @@ std::string bytesToHex(const std::vector<unsigned char>& bytes);
  *
  * @param hex The hex string to convert to a byte array.
  * @return The byte array containing the values of the input hex string.
- * @throws std::invalid_argument If the input hex string doesn't contain an even number of digits.
  * @throws OpenSSLException If OpenSSL is unable to convert the input string to a byte array.
  */
 std::vector<unsigned char> hexToBytes(std::string_view hex);

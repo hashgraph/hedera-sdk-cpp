@@ -25,10 +25,10 @@
 namespace Hedera::internal
 {
 //-----
-Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint)
+Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& protoServiceEndpoint)
 {
-  return { IPv4Address::fromString(serviceEndpoint.ipaddressv4()),
-           static_cast<int>(serviceEndpoint.port() & 0x00000000ffffffffL) };
+  return { IPv4Address::fromString(protoServiceEndpoint.ipaddressv4()),
+           static_cast<int>(protoServiceEndpoint.port() & 0x00000000ffffffffL) };
 }
 
 //-----

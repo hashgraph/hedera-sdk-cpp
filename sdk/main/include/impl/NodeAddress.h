@@ -46,14 +46,14 @@ public:
    *
    * @param ipAddressV4 The IPv4 address of the Node with separator and octets.
    * @param port        The port number of the server for the node.
-   * @throws IllegalStateException If the given IP address is malformed.
+   * @throws std::invalid_argument If the given IP address is malformed.
    */
   NodeAddress(std::string_view ipAddressV4, int port);
 
   /**
    * Create a NodeAddress object from a NodeAddress protobuf object.
    *
-   * @param proto The NodeAddress protobuf object from which to create a NodeAddress object.
+   * @param protoNodeAddress The NodeAddress protobuf object from which to create a NodeAddress object.
    * @return The created NodeAddress object.
    */
   [[nodiscard]] static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
@@ -63,7 +63,7 @@ public:
    *
    * @param nodeAddress The string representation from which to create a new NodeAddress object.
    * @return The created NodeAddress object.
-   * @throws IllegalStateException If the given node address is malformed.
+   * @throws std::invalid_argument If the given node address is malformed.
    */
   [[nodiscard]] static NodeAddress fromString(std::string_view nodeAddress);
 
@@ -78,7 +78,7 @@ public:
   /**
    * Set a new node ID associated with the node at this address.
    *
-   * @param accountId The account ID to be associated with the node
+   * @param nodeId The account ID to be associated with the node
    * @return A reference to this NodeAddress with the newly-set account ID.
    */
   NodeAddress& setNodeId(const int64_t& nodeId);
