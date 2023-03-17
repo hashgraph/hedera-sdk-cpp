@@ -39,42 +39,42 @@ private:
 
 TEST_F(EvmAddressTest, StringConstructor)
 {
-  EXPECT_NO_THROW(EvmAddress::fromString(getTestString()));
-  EXPECT_NO_THROW(EvmAddress::fromString("0x" + getTestString()));
+  EXPECT_NO_THROW(auto evmAddress = EvmAddress::fromString(getTestString()));
+  EXPECT_NO_THROW(auto evmAddress = EvmAddress::fromString("0x" + getTestString()));
 
   // String too short
   std::string badString = getTestString();
   badString.pop_back();
-  EXPECT_THROW(EvmAddress::fromString(badString), std::invalid_argument);
-  EXPECT_THROW(EvmAddress::fromString("0x" + badString), std::invalid_argument);
+  EXPECT_THROW(auto evmAddress = EvmAddress::fromString(badString), std::invalid_argument);
+  EXPECT_THROW(auto evmAddress = EvmAddress::fromString("0x" + badString), std::invalid_argument);
 
   // String contains non-hex characters
   badString.push_back('x');
-  EXPECT_THROW(EvmAddress::fromString(badString), std::invalid_argument);
-  EXPECT_THROW(EvmAddress::fromString("0x" + badString), std::invalid_argument);
+  EXPECT_THROW(auto evmAddress = EvmAddress::fromString(badString), std::invalid_argument);
+  EXPECT_THROW(auto evmAddress = EvmAddress::fromString("0x" + badString), std::invalid_argument);
 
   // String contains prefix not at beginning of string
   badString.pop_back();
   badString.pop_back();
   badString.insert(badString.size() / 2, "0x");
-  EXPECT_THROW(EvmAddress::fromString(badString), std::invalid_argument);
-  EXPECT_THROW(EvmAddress::fromString("0x" + badString), std::invalid_argument);
+  EXPECT_THROW(auto evmAddress = EvmAddress::fromString(badString), std::invalid_argument);
+  EXPECT_THROW(auto evmAddress = EvmAddress::fromString("0x" + badString), std::invalid_argument);
 }
 
 TEST_F(EvmAddressTest, ByteConstructor)
 {
-  EXPECT_NO_THROW(EvmAddress::fromBytes(getTestBytes()));
+  EXPECT_NO_THROW(auto evmAddress = EvmAddress::fromBytes(getTestBytes()));
 
   std::vector<unsigned char> badBytes = getTestBytes();
 
   // Byte array too small
   badBytes.pop_back();
-  EXPECT_THROW(EvmAddress::fromBytes(badBytes), std::invalid_argument);
+  EXPECT_THROW(auto evmAddress = EvmAddress::fromBytes(badBytes), std::invalid_argument);
 
   // Byte array too big
   badBytes.push_back(255);
   badBytes.push_back(172);
-  EXPECT_THROW(EvmAddress::fromBytes(badBytes), std::invalid_argument);
+  EXPECT_THROW(auto evmAddress = EvmAddress::fromBytes(badBytes), std::invalid_argument);
 }
 
 TEST_F(EvmAddressTest, StringByteEquality)
