@@ -46,7 +46,8 @@ public:
    * Construct with an account number.
    *
    * @param num The desired account number.
-   * @throws std::invalid_argument If the account number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @throws    std::invalid_argument If the account number is too big (max value is
+   * std::numeric_limits<int64_t>::max()).
    */
   explicit AccountId(const uint64_t& num);
 

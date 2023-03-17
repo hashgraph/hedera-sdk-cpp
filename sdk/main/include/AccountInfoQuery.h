@@ -67,8 +67,7 @@ public:
    * @param query  The query object to fill out.
    * @param header The header for the query.
    */
-  virtual void onMakeRequest(proto::Query* query,
-                             proto::QueryHeader* header) const override;
+  virtual void onMakeRequest(proto::Query* query, proto::QueryHeader* header) const override;
 
   /**
    * Derived from Query. Get the account info header from the response.
@@ -76,8 +75,7 @@ public:
    * @param response The associated response to this query.
    * @return         The response header for the derived class's query.
    */
-  virtual proto::ResponseHeader mapResponseHeader(
-    proto::Response* response) const override;
+  virtual proto::ResponseHeader mapResponseHeader(proto::Response* response) const override;
 
   /**
    * Derived from Query. Grab the account info query header.
@@ -85,8 +83,7 @@ public:
    * @param query  The query of which to extract the header.
    * @return       The account info query header.
    */
-  virtual proto::QueryHeader mapRequestHeader(
-    const proto::Query& query) const override;
+  virtual proto::QueryHeader mapRequestHeader(const proto::Query& query) const override;
 
   /**
    * Derived from Query. Extract the account info data from the response
