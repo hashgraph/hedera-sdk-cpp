@@ -61,11 +61,6 @@ public:
 
 private:
   /**
-   * The number of octets in an IPv4Address.
-   */
-  static constexpr const unsigned int NUM_BYTES = 4U;
-
-  /**
    * The first octet of the address
    */
   std::byte mOctet1;

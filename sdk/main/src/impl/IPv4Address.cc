@@ -37,7 +37,7 @@ IPv4Address::IPv4Address(std::byte octet1, std::byte octet2, std::byte octet3, s
 IPv4Address IPv4Address::fromString(std::string_view address)
 {
   // The input string is in byte format, where each byte represents a single IP address octet.
-  if (address.size() == NUM_BYTES)
+  if (address.size() == 4)
   {
     const std::vector<std::byte> byteVector = Utilities::stringToByteVector(address);
     return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
@@ -47,13 +47,14 @@ IPv4Address IPv4Address::fromString(std::string_view address)
   {
     std::vector<std::byte> byteVector;
     std::string_view octet;
-    for (int i = 0; i < NUM_BYTES; ++i)
+    for (int i = 0; i < 3; ++i)
     {
       octet = address.substr(0, address.find_first_of('.'));
       byteVector.push_back(Utilities::stringToByte(octet));
       address.remove_prefix(octet.size() + 1);
     }
 
+    byteVector.push_back(Utilities::stringToByte(address));
     return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
   }
   catch (const std::exception&)
