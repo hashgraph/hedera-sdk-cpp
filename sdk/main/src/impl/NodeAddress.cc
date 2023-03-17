@@ -21,6 +21,7 @@
 #include "exceptions/IllegalStateException.h"
 #include "impl/HexConverter.h"
 #include "impl/IPv4Address.h"
+#include "impl/Utilities.h"
 
 #include <charconv>
 #include <iomanip>
@@ -33,33 +34,7 @@ namespace Hedera::internal
 //-----
 NodeAddress::NodeAddress(std::string_view ipAddressV4, int port)
 {
-  std::vector<unsigned char> octets;
-  std::stringstream strStream({ ipAddressV4.begin(), ipAddressV4.end() });
-  std::string temp;
-
-  try
-  {
-    while (getline(strStream, temp, '.'))
-    {
-      int octet = std::stoi(temp);
-
-      if (octet > 0)
-      {
-        octets.push_back(static_cast<unsigned char>(octet));
-      }
-    }
-  }
-  catch (const std::exception&)
-  {
-    throw IllegalStateException("Failed to parse the IP address.");
-  }
-
-  if (octets.size() != 4)
-  {
-    throw IllegalStateException("The IP address is missing or has wrong format.");
-  }
-
-  mEndpoints.push_back(std::make_shared<Endpoint>(IPv4Address(octets[0], octets[1], octets[2], octets[3]), port));
+  mEndpoints.push_back(std::make_shared<Endpoint>(IPv4Address::fromString(ipAddressV4), port));
 }
 
 //-----
@@ -82,8 +57,7 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
   outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
   outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
   outputNodeAddress.mNodeAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
-  outputNodeAddress.mNodeCertHash = { protoNodeAddress.nodecerthash().cbegin(),
-                                      protoNodeAddress.nodecerthash().cend() };
+  outputNodeAddress.mNodeCertHash = Utilities::stringToByteVector(protoNodeAddress.nodecerthash());
   outputNodeAddress.mDescription = protoNodeAddress.description();
   outputNodeAddress.mStake = protoNodeAddress.stake();
 
@@ -135,7 +109,7 @@ NodeAddress& NodeAddress::setNodeAccountId(const AccountId& accountId)
 //-----
 NodeAddress& NodeAddress::setNodeCertHash(std::string_view certHash)
 {
-  mNodeCertHash = { certHash.cbegin(), certHash.cend() };
+  mNodeCertHash = Utilities::stringToByteVector(certHash);
   return *this;
 }
 

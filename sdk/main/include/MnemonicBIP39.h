@@ -114,7 +114,7 @@ public:
    * @return This MnemonicBIP39's seed, given the input passphrase.
    * @throws OpenSSLException If OpenSSL is unable to compute a seed.
    */
-  [[nodiscard]] std::vector<unsigned char> toSeed(std::string_view passphrase = "") const;
+  [[nodiscard]] std::vector<std::byte> toSeed(std::string_view passphrase = "") const;
 
   /**
    * Compute the word indices that result from the input entropy.
@@ -122,7 +122,7 @@ public:
    * @param entropy The entropy from which to compute the word indices.
    * @return A vector containing the word indices.
    */
-  static std::vector<uint16_t> entropyToWordIndices(const std::vector<unsigned char>& entropy);
+  static std::vector<uint16_t> entropyToWordIndices(const std::vector<std::byte>& entropy);
 
 private:
   /**

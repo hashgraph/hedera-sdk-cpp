@@ -23,6 +23,7 @@
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "TransferTransaction.h"
 #include "impl/DurationConverter.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction.pb.h>
@@ -47,12 +48,12 @@ protected:
     mCryptoCreateTransactionBody->set_allocated_staked_account_id(mAccountId.toProtobuf().release());
     mCryptoCreateTransactionBody->set_decline_reward(mDeclineStakingReward);
 
-    const std::vector<unsigned char> testPublicKeyBytes = mPublicKey->toBytesDer();
-    const std::vector<unsigned char> testEvmAddressBytes = mEvmAddress.toBytes();
+    const std::vector<std::byte> testPublicKeyBytes = mPublicKey->toBytesDer();
+    const std::vector<std::byte> testEvmAddressBytes = mEvmAddress.toBytes();
     mCryptoCreateTransactionBody->set_allocated_alias(
-      new std::string{ testPublicKeyBytes.cbegin(), testPublicKeyBytes.cend() });
+      new std::string(internal::Utilities::byteVectorToString(testPublicKeyBytes)));
     mCryptoCreateTransactionBody->set_allocated_evm_address(
-      new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
+      new std::string(internal::Utilities::byteVectorToString(testEvmAddressBytes)));
 
     // Initialize the CryptoTransfer unique_ptr
     proto::AccountAmount* amount = mCryptoTransferTransactionBody->mutable_transfers()->add_accountamounts();
@@ -140,7 +141,7 @@ TEST_F(TransactionTest, AccountCreateTransactionFromTransactionBodyBytes)
 
   // When
   const auto [index, txVariant] =
-    Transaction<AccountCreateTransaction>::fromBytes({ serialized.cbegin(), serialized.cend() });
+    Transaction<AccountCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
 
   // Then
   ASSERT_EQ(index, 0);
@@ -177,7 +178,7 @@ TEST_F(TransactionTest, AccountCreateTransactionFromSignedTransactionBytes)
 
   // When
   const auto [index, txVariant] =
-    Transaction<AccountCreateTransaction>::fromBytes({ serialized.cbegin(), serialized.cend() });
+    Transaction<AccountCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
 
   // Then
   ASSERT_EQ(index, 0);
@@ -217,7 +218,7 @@ TEST_F(TransactionTest, AccountCreateTransactionFromTransactionBytes)
 
   // When
   const auto [index, txVariant] =
-    Transaction<AccountCreateTransaction>::fromBytes({ serialized.cbegin(), serialized.cend() });
+    Transaction<AccountCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
 
   // Then
   ASSERT_EQ(index, 0);
@@ -250,7 +251,7 @@ TEST_F(TransactionTest, TransferTransactionFromTransactionBodyBytes)
 
   // When
   const auto [index, txVariant] =
-    Transaction<AccountCreateTransaction>::fromBytes({ serialized.cbegin(), serialized.cend() });
+    Transaction<AccountCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
 
   // Then
   ASSERT_EQ(index, 1);
@@ -296,7 +297,7 @@ TEST_F(TransactionTest, TransferTransactionFromSignedTransactionBytes)
 
   // When
   const auto [index, txVariant] =
-    Transaction<AccountCreateTransaction>::fromBytes({ serialized.cbegin(), serialized.cend() });
+    Transaction<AccountCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
 
   // Then
   ASSERT_EQ(index, 1);
@@ -345,7 +346,7 @@ TEST_F(TransactionTest, TransferTransactionFromTransactionBytes)
 
   // When
   const auto [index, txVariant] =
-    Transaction<AccountCreateTransaction>::fromBytes({ serialized.cbegin(), serialized.cend() });
+    Transaction<AccountCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
 
   // Then
   ASSERT_EQ(index, 1);

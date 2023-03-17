@@ -19,10 +19,14 @@
  */
 #include "impl/Utilities.h"
 
+#include <algorithm>
+#include <charconv>
+#include <iostream>
+
 namespace Hedera::internal::Utilities
 {
 //-----
-bool isPrefixOf(const std::vector<unsigned char>& bytes, const std::vector<unsigned char>& prefix)
+bool isPrefixOf(const std::vector<std::byte>& bytes, const std::vector<std::byte>& prefix)
 {
   if (prefix.size() > bytes.size())
   {
@@ -41,21 +45,51 @@ bool isPrefixOf(const std::vector<unsigned char>& bytes, const std::vector<unsig
 }
 
 //-----
-std::vector<unsigned char> removePrefix(const std::vector<unsigned char>& bytes, long num)
+std::vector<std::byte> removePrefix(const std::vector<std::byte>& bytes, long num)
 {
   return { bytes.cbegin() + num, bytes.cend() };
 }
 
 //-----
-std::vector<unsigned char> concatenateVectors(const std::vector<std::vector<unsigned char>>& vectors)
+std::vector<std::byte> concatenateVectors(const std::vector<std::vector<std::byte>>& vectors)
 {
-  std::vector<unsigned char> bytes;
-  for (const std::vector<unsigned char>& vec : vectors)
+  std::vector<std::byte> bytes;
+  for (const std::vector<std::byte>& vec : vectors)
   {
     bytes.insert(bytes.end(), vec.cbegin(), vec.cend());
   }
 
   return bytes;
+}
+
+//-----
+std::vector<std::byte> stringToByteVector(std::string_view str)
+{
+  std::vector<std::byte> bytes;
+  std::transform(str.cbegin(), str.cend(), std::back_inserter(bytes), [](char c) { return std::byte(c); });
+  return bytes;
+}
+
+//-----
+std::byte stringToByte(std::string_view str)
+{
+  unsigned char byte;
+  if (const auto result = std::from_chars(str.data(), str.data() + str.size(), byte);
+      result.ptr != str.data() + str.size() || result.ec != std::errc())
+  {
+    throw std::invalid_argument("Cannot convert string to byte");
+  }
+
+  return std::byte(byte);
+}
+
+//-----
+std::string byteVectorToString(const std::vector<std::byte>& bytes)
+{
+  std::string str;
+  std::transform(
+    bytes.cbegin(), bytes.cend(), std::back_inserter(str), [](std::byte byte) { return static_cast<char>(byte); });
+  return str;
 }
 
 } // namespace Hedera::internal::Utilities

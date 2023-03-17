@@ -31,52 +31,59 @@ namespace Hedera::internal
 class IPv4Address
 {
 public:
-  /**
-   * Default constructor
-   */
   IPv4Address() = default;
 
   /**
-   * Constructor which initializes address octets
+   * Constructor with four octets.
+   *
+   * @param octet1 The first octet.
+   * @param octet2 The second octet.
+   * @param octet3 The third octet.
+   * @param octet4 The fourth octet.
    */
-  IPv4Address(unsigned char octet1, unsigned char octet2, unsigned char octet3, unsigned char octet4);
+  IPv4Address(std::byte octet1, std::byte octet2, std::byte octet3, std::byte octet4);
 
   /**
-   * Creates a new IP address from a string. Supports ascii or byte representation
+   * Creates a new IP address from a string. Supports ascii or byte representation.
    *
-   * @param inputString string representing an IP address
-   *
-   * @return the new IP address. Currently returns address of 0.0.0.0 if there is an error in creation
+   * @param address The IP address from which to construct, in string form.
+   * @return The new IP address.
+   * @throws std::invalid_argument If the input IPv4Address string is malformed.
    */
-  static IPv4Address fromString(const std::string& inputString);
+  [[nodiscard]] static IPv4Address fromString(std::string_view address);
 
   /**
-   * Converts address to form octet1.octet2.octet3.octet4
+   * Get the string representation of this IPv4Address (form is <octet>.<octet>.<octet>.<octet>).
    *
-   * @return string representing the address
+   * @return The string represenation of this IPv4Address.
    */
   [[nodiscard]] std::string toString() const;
 
 private:
   /**
+   * The number of octets in an IPv4Address.
+   */
+  static constexpr const unsigned int NUM_BYTES = 4U;
+
+  /**
    * The first octet of the address
    */
-  unsigned char mOctet1;
+  std::byte mOctet1;
 
   /**
    * The second octet of the address
    */
-  unsigned char mOctet2;
+  std::byte mOctet2;
 
   /**
    * The third octet of the address
    */
-  unsigned char mOctet3;
+  std::byte mOctet3;
 
   /**
    * The fourth octet of the address
    */
-  unsigned char mOctet4;
+  std::byte mOctet4;
 };
 
 } // namespace Hedera::internal

@@ -88,7 +88,7 @@ public:
    * @return The bytes with the signature of this Client's operator appended.
    * @throws UninitializedException If this Client's operator has not yet been set.
    */
-  [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytes) const;
+  [[nodiscard]] std::vector<std::byte> sign(const std::vector<std::byte>& bytes) const;
 
   /**
    * Get a list of pointers to Nodes on this Client's network that are associated with the input account IDs. If no

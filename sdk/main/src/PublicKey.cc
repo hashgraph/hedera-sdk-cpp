@@ -36,11 +36,11 @@ std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
 {
   if (key.key_case() == proto::Key::KeyCase::kEd25519)
   {
-    return ED25519PublicKey::fromBytes({ key.ed25519().cbegin(), key.ed25519().cend() });
+    return ED25519PublicKey::fromBytes(internal::Utilities::stringToByteVector(key.ed25519()));
   }
   else if (key.key_case() == proto::Key::KeyCase::kECDSASecp256K1)
   {
-    return ECDSAsecp256k1PublicKey::fromBytes({ key.ecdsa_secp256k1().cbegin(), key.ecdsa_secp256k1().cend() });
+    return ECDSAsecp256k1PublicKey::fromBytes(internal::Utilities::stringToByteVector(key.ecdsa_secp256k1()));
   }
   else
   {
@@ -65,7 +65,7 @@ std::shared_ptr<PublicKey> PublicKey::fromStringDer(std::string_view key)
 }
 
 //-----
-std::shared_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<unsigned char>& bytes)
+std::shared_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<std::byte>& bytes)
 {
   if (internal::Utilities::isPrefixOf(bytes, ED25519PublicKey::DER_ENCODED_PREFIX_BYTES))
   {

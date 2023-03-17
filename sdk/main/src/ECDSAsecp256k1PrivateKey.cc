@@ -41,11 +41,16 @@ namespace Hedera
 namespace
 {
 // The seed to use to compute the SHA512 HMAC, as defined in BIP32.
-const std::vector<unsigned char> BIP32_SEED = { 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' };
+const std::vector<std::byte> BIP32_SEED = { std::byte('B'), std::byte('i'), std::byte('t'), std::byte('c'),
+                                            std::byte('o'), std::byte('i'), std::byte('n'), std::byte(' '),
+                                            std::byte('s'), std::byte('e'), std::byte('e'), std::byte('d') };
 // The ASN.1 algorithm identifier prefix bytes for an ECDSAsecp256k1PrivateKey.
-const std::vector<unsigned char> ASN1_PREFIX_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x01, 0x04, 0x20 };
+const std::vector<std::byte> ASN1_PREFIX_BYTES = { std::byte(0x30), std::byte(0x2E), std::byte(0x02), std::byte(0x01),
+                                                   std::byte(0x01), std::byte(0x04), std::byte(0x20) };
 // The ASN.1 algorithm identifier suffix bytes for an ECDSAsecp256k1PrivateKey.
-const std::vector<unsigned char> ASN1_SUFFIX_BYTES = { 0xA0, 0x07, 0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x0A };
+const std::vector<std::byte> ASN1_SUFFIX_BYTES = { std::byte(0xA0), std::byte(0x07), std::byte(0x06),
+                                                   std::byte(0x05), std::byte(0x2B), std::byte(0x81),
+                                                   std::byte(0x04), std::byte(0x00), std::byte(0x0A) };
 // The order of the secp256k1 curve.
 const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
   internal::OpenSSLUtils::BIGNUM::fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
@@ -57,9 +62,9 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
  * @return The newly created wrapped OpenSSL keypair object.
  * @throws OpenSSLException If OpenSSL is unable to create a keypair from the input bytes.
  */
-[[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<unsigned char>& bytes)
+[[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<std::byte>& bytes)
 {
-  const std::vector<unsigned char> formattedBytes = internal::Utilities::concatenateVectors(
+  const std::vector<std::byte> formattedBytes = internal::Utilities::concatenateVectors(
     { ASN1_PREFIX_BYTES,
       (bytes.size() == ECDSAsecp256k1PrivateKey::KEY_SIZE + ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size())
         ? internal::Utilities::removePrefix(
@@ -67,7 +72,7 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
         : bytes,
       ASN1_SUFFIX_BYTES });
 
-  const unsigned char* rawKeyBytes = formattedBytes.data();
+  const unsigned char* rawKeyBytes = internal::OpenSSLUtils::toUnsignedCharPtr(formattedBytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(
     d2i_PrivateKey(EVP_PKEY_EC, nullptr, &rawKeyBytes, static_cast<long>(formattedBytes.size())));
   if (!key)
@@ -117,7 +122,7 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(s
 }
 
 //-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytes(const std::vector<unsigned char>& bytes)
+std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytes(const std::vector<std::byte>& bytes)
 {
   if ((bytes.size() == KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() &&
        internal::Utilities::isPrefixOf(bytes, DER_ENCODED_PREFIX_BYTES)) ||
@@ -142,11 +147,11 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytes(co
 }
 
 //-----
-std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromSeed(const std::vector<unsigned char>& seed)
+std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromSeed(const std::vector<std::byte>& seed)
 {
   try
   {
-    const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(BIP32_SEED, seed);
+    const std::vector<std::byte> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(BIP32_SEED, seed);
 
     // The hmac is the key bytes followed by the chain code bytes
     return std::make_unique<ECDSAsecp256k1PrivateKey>(
@@ -173,13 +178,14 @@ std::unique_ptr<PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint32_t childIndex
     throw UninitializedException("Key not initialized with chain code, unable to derive keys");
   }
 
-  const std::vector<unsigned char> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
+  const std::vector<std::byte> hmacOutput = internal::OpenSSLUtils::computeSHA512HMAC(
     getChainCode(),
-    internal::Utilities::concatenateVectors({ (internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
-                                                ? internal::Utilities::concatenateVectors({ { 0x0 }, toBytesRaw() })
-                                                : getPublicKey()->toBytesRaw(),
-                                              internal::DerivationPathUtils::indexToBigEndianArray(childIndex) }));
-
+    internal::Utilities::concatenateVectors(
+      { (internal::DerivationPathUtils::isHardenedChildIndex(childIndex))
+          ? internal::Utilities::concatenateVectors({ { std::byte(0x0) }, toBytesRaw() })
+          : getPublicKey()->toBytesRaw(),
+        internal::DerivationPathUtils::indexToBigEndianArray(childIndex) }));
+  
   // Modular add the private key bytes computed from the HMAC to the existing private key (using the secp256k1 curve
   // order as the modulo), and compute the new chain code from the HMAC
   return std::make_unique<ECDSAsecp256k1PrivateKey>(ECDSAsecp256k1PrivateKey(
@@ -190,7 +196,7 @@ std::unique_ptr<PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint32_t childIndex
 }
 
 //-----
-std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsigned char>& bytesToSign) const
+std::vector<std::byte> ECDSAsecp256k1PrivateKey::sign(const std::vector<std::byte>& bytesToSign) const
 {
   internal::OpenSSLUtils::OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
   if (!libraryContext)
@@ -218,17 +224,20 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
 
   // 72 is the maximum required size. actual signature may be slightly smaller
   size_t signatureLength = MAX_SIGNATURE_SIZE;
-  std::vector<unsigned char> signature(signatureLength);
+  std::vector<std::byte> signature(signatureLength);
 
-  if (EVP_DigestSign(
-        messageDigestContext.get(), signature.data(), &signatureLength, bytesToSign.data(), bytesToSign.size()) <= 0)
+  if (EVP_DigestSign(messageDigestContext.get(),
+                     internal::OpenSSLUtils::toUnsignedCharPtr(signature.data()),
+                     &signatureLength,
+                     internal::OpenSSLUtils::toUnsignedCharPtr(bytesToSign.data()),
+                     bytesToSign.size()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
   }
 
   // we have the signature complete, now we need to turn it into its raw form of (r,s)
 
-  const unsigned char* signaturePointer = signature.data();
+  const unsigned char* signaturePointer = internal::OpenSSLUtils::toUnsignedCharPtr(signature.data());
   const internal::OpenSSLUtils::ECDSA_SIG signatureObject(
     d2i_ECDSA_SIG(nullptr, &signaturePointer, static_cast<long>(signatureLength)));
   if (!signatureObject)
@@ -249,14 +258,14 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::sign(const std::vector<unsi
   }
 
   // signature is returned in the raw, 64 byte form (r, s)
-  std::vector<unsigned char> outputArray(RAW_SIGNATURE_SIZE);
+  std::vector<std::byte> outputArray(RAW_SIGNATURE_SIZE);
 
-  if (BN_bn2binpad(signatureR, outputArray.data(), R_SIZE) <= 0)
+  if (BN_bn2binpad(signatureR, internal::OpenSSLUtils::toUnsignedCharPtr(outputArray.data()), R_SIZE) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bn2binpad"));
   }
 
-  if (BN_bn2binpad(signatureS, outputArray.data() + R_SIZE, S_SIZE) <= 0)
+  if (BN_bn2binpad(signatureS, internal::OpenSSLUtils::toUnsignedCharPtr(outputArray.data()) + R_SIZE, S_SIZE) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bn2binpad"));
   }
@@ -277,17 +286,18 @@ std::string ECDSAsecp256k1PrivateKey::toStringRaw() const
 }
 
 //-----
-std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesDer() const
+std::vector<std::byte> ECDSAsecp256k1PrivateKey::toBytesDer() const
 {
   return internal::Utilities::concatenateVectors({ DER_ENCODED_PREFIX_BYTES, toBytesRaw() });
 }
 
 //-----
-std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesRaw() const
+std::vector<std::byte> ECDSAsecp256k1PrivateKey::toBytesRaw() const
 {
-  std::vector<unsigned char> outputBytes(i2d_PrivateKey(getInternalKey().get(), nullptr));
+  std::vector<std::byte> outputBytes(i2d_PrivateKey(getInternalKey().get(), nullptr));
 
-  if (unsigned char* rawBytes = outputBytes.data(); i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
+  if (unsigned char* rawBytes = internal::OpenSSLUtils::toUnsignedCharPtr(outputBytes.data());
+      i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));
   }
@@ -301,7 +311,7 @@ std::vector<unsigned char> ECDSAsecp256k1PrivateKey::toBytesRaw() const
 
 //-----
 ECDSAsecp256k1PrivateKey::ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key,
-                                                   std::vector<unsigned char> chainCode)
+                                                   std::vector<std::byte> chainCode)
   : PrivateKey(std::move(key), std::move(chainCode))
 {
 }

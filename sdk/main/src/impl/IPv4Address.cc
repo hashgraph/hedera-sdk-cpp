@@ -18,16 +18,15 @@
  *
  */
 #include "impl/IPv4Address.h"
+#include "impl/Utilities.h"
 
-#include <algorithm>
 #include <charconv>
 #include <iostream>
-#include <sstream>
 #include <vector>
 
 namespace Hedera::internal
 {
-IPv4Address::IPv4Address(unsigned char octet1, unsigned char octet2, unsigned char octet3, unsigned char octet4)
+IPv4Address::IPv4Address(std::byte octet1, std::byte octet2, std::byte octet3, std::byte octet4)
   : mOctet1(octet1)
   , mOctet2(octet2)
   , mOctet3(octet3)
@@ -35,69 +34,40 @@ IPv4Address::IPv4Address(unsigned char octet1, unsigned char octet2, unsigned ch
 {
 }
 
-IPv4Address IPv4Address::fromString(const std::string& inputString)
+IPv4Address IPv4Address::fromString(std::string_view address)
 {
-  // input string is in byte format, where each byte represents a single IP address octet
-  if (inputString.size() == 4)
+  // The input string is in byte format, where each byte represents a single IP address octet.
+  if (address.size() == NUM_BYTES)
   {
-    std::vector<unsigned char> byteVector = { inputString.cbegin(), inputString.cend() };
-
-    IPv4Address outputAddress = { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
-
-    return outputAddress;
+    const std::vector<std::byte> byteVector = Utilities::stringToByteVector(address);
+    return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
   }
 
-  // if input string isn't bytes, it must be made up of number characters, with 4 octets separated by the '.' character
-  if (std::count(inputString.begin(), inputString.end(), '.') != 3)
+  try
+  {
+    std::vector<std::byte> byteVector;
+    std::string_view octet;
+    for (int i = 0; i < NUM_BYTES; ++i)
+    {
+      octet = address.substr(0, address.find_first_of('.'));
+      byteVector.push_back(Utilities::stringToByte(octet));
+      address.remove_prefix(octet.size() + 1);
+    }
+
+    return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
+  }
+  catch (const std::exception&)
   {
     throw std::invalid_argument("Input IPv4Address is malformed");
   }
-
-  std::vector<unsigned char> byteVector;
-
-  int previousDelimiter = -1;
-  int nextDelimiter = (int)inputString.find('.');
-
-  for (int i = 0; i < 4; ++i)
-  {
-    std::string byteString = inputString.substr(previousDelimiter + 1, nextDelimiter - previousDelimiter - 1);
-
-    if (!byteString.length())
-    {
-      throw std::invalid_argument("Input IPv4Address has empty octet");
-    }
-
-    for (char character : byteString)
-    {
-      if (!std::isdigit(character))
-      {
-        throw std::invalid_argument("Input IPv4Address has octet that isn't a number");
-      }
-    }
-
-    unsigned int byteInt = std::stoi(byteString);
-    if (byteInt > 255)
-    {
-      throw std::invalid_argument("Input IPv4Address octet is > 255");
-    }
-
-    byteVector.push_back(byteInt);
-
-    previousDelimiter = nextDelimiter;
-    nextDelimiter = (int)inputString.find('.', previousDelimiter + 1);
-  }
-
-  return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
 }
 
 std::string IPv4Address::toString() const
 {
-  std::stringstream outputStream;
-
-  outputStream << (unsigned int)mOctet1 << "." << (unsigned int)mOctet2 << "." << (unsigned int)mOctet3 << "."
-               << (unsigned int)mOctet4;
-
-  return outputStream.str();
+  return std::to_string(std::to_integer<unsigned char>(mOctet1)) + '.' +
+         std::to_string(std::to_integer<unsigned char>(mOctet2)) + '.' +
+         std::to_string(std::to_integer<unsigned char>(mOctet3)) + '.' +
+         std::to_string(std::to_integer<unsigned char>(mOctet4));
 }
 
 } // namespace Hedera::internal

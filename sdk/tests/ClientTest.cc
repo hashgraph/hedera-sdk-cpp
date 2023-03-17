@@ -77,7 +77,7 @@ TEST_F(ClientTest, SetOperator)
 //-----
 TEST_F(ClientTest, SignWithOperator)
 {
-  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  const std::vector<std::byte> bytesToSign = { std::byte(0x1), std::byte(0x2), std::byte(0x3) };
 
   Client client;
   EXPECT_THROW(auto bytes = client.sign(bytesToSign), UninitializedException);

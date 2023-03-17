@@ -67,7 +67,7 @@ public:
    * to create may not be known at compile time, a std::variant is used to encompass all possible Transactions. Usage of
    * this return type would look like the following:
    *
-   * std::vector<unsigned char> bytes;
+   * std::vector<std::byte> bytes;
    *                                                              The Transaction type here doesn't matter and is an
    *                                     vvvvvvvvvvvvvvvvvvvvvvvv unfortunate, ugly byproduct of this approach.
    * auto [index, variant] = Transaction<AccountCreateTransaction>::fromBytes(bytes);
@@ -94,7 +94,7 @@ public:
    * @throws std::invalid_argument If unable to construct a Transaction from the input bytes.
    */
   static std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction>>
-  fromBytes(const std::vector<unsigned char>& bytes);
+  fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Sign this Transaction with the given PrivateKey. Signing a Transaction with a key that has already been used to
@@ -116,7 +116,7 @@ public:
    * @throws IllegalStateException If this Transaction object is not frozen.
    */
   SdkRequestType& signWith(const std::shared_ptr<PublicKey>& key,
-                           const std::function<std::vector<unsigned char>(const std::vector<unsigned char>&)>& signer);
+                           const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer);
 
   /**
    * Freeze this transaction with a Client. The Client's operator will be used to generate a transaction ID, and the
@@ -320,7 +320,7 @@ private:
    * Container of PublicKey and signer function pairs to use to sign this Transaction.
    */
   std::vector<
-    std::pair<std::shared_ptr<PublicKey>, std::function<std::vector<unsigned char>(const std::vector<unsigned char>&)>>>
+    std::pair<std::shared_ptr<PublicKey>, std::function<std::vector<std::byte>(const std::vector<std::byte>&)>>>
     mSignatures;
 
   /**

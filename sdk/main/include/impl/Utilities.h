@@ -20,6 +20,9 @@
 #ifndef HEDERA_SDK_CPP_IMPL_UTILITIES_H_
 #define HEDERA_SDK_CPP_IMPL_UTILITIES_H_
 
+#include <cstddef>
+#include <string>
+#include <string_view>
 #include <vector>
 
 namespace Hedera::internal::Utilities
@@ -31,7 +34,7 @@ namespace Hedera::internal::Utilities
  * @param prefix The prefix bytes to find in the byte array.
  * @return \c TRUE If prefix is a prefix of bytes, otherwise \c FALSE.
  */
-[[nodiscard]] bool isPrefixOf(const std::vector<unsigned char>& bytes, const std::vector<unsigned char>& prefix);
+[[nodiscard]] bool isPrefixOf(const std::vector<std::byte>& bytes, const std::vector<std::byte>& prefix);
 
 /**
  * Remove a certain number of bytes from the beginning of a byte vector.
@@ -40,7 +43,7 @@ namespace Hedera::internal::Utilities
  * @param num   The number of bytes to remove.
  * @return The byte vector with the removed prefix bytes.
  */
-[[nodiscard]] std::vector<unsigned char> removePrefix(const std::vector<unsigned char>& bytes, long num);
+[[nodiscard]] std::vector<std::byte> removePrefix(const std::vector<std::byte>& bytes, long num);
 
 /**
  * Concatenate bytes vectors together (in the order of the arguments).
@@ -48,7 +51,31 @@ namespace Hedera::internal::Utilities
  * @param vectors  The bytes vectors to concatenate together.
  * @return A byte vector containing the input byte vectors concatenated into one.
  */
-[[nodiscard]] std::vector<unsigned char> concatenateVectors(const std::vector<std::vector<unsigned char>>& vectors);
+[[nodiscard]] std::vector<std::byte> concatenateVectors(const std::vector<std::vector<std::byte>>& vectors);
+
+/**
+ * Convert a string to a byte vector.
+ *
+ * @param str The string to convert.
+ * @return The byte vector representing the input string.
+ */
+[[nodiscard]] std::vector<std::byte> stringToByteVector(std::string_view str);
+
+/**
+ * Convert a string to a byte.
+ *
+ * @param str The string to convert.
+ * @return The byte representing the string.
+ */
+[[nodiscard]] std::byte stringToByte(std::string_view str);
+
+/**
+ * Convert a byte vector to a string.
+ *
+ * @param bytes The byte vector to convert to a string.
+ * @return The string that represent of the byte vector.
+ */
+[[nodiscard]] std::string byteVectorToString(const std::vector<std::byte>& bytes);
 
 } // namespace Hedera::internal::Utilities
 

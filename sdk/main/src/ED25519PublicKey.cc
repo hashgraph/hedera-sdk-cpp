@@ -40,14 +40,14 @@ namespace
  * @return The newly created wrapped OpenSSL keypair object.
  * @throws OpenSSLException If OpenSSL is unable to create a keypair from the input bytes.
  */
-[[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<unsigned char> bytes)
+[[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<std::byte> bytes)
 {
   if (bytes.size() == ED25519PublicKey::KEY_SIZE)
   {
     bytes = internal::Utilities::concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, bytes });
   }
 
-  const unsigned char* bytesPtr = bytes.data();
+  const unsigned char* bytesPtr = internal::OpenSSLUtils::toUnsignedCharPtr(bytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &bytesPtr, static_cast<long>(bytes.size())));
   if (!key)
   {
@@ -81,7 +81,7 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view 
 }
 
 //-----
-std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<unsigned char>& bytes)
+std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<std::byte>& bytes)
 {
   if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != KEY_SIZE)
   {
@@ -108,8 +108,8 @@ std::unique_ptr<PublicKey> ED25519PublicKey::clone() const
 }
 
 //-----
-bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatureBytes,
-                                       const std::vector<unsigned char>& signedBytes) const
+bool ED25519PublicKey::verifySignature(const std::vector<std::byte>& signatureBytes,
+                                       const std::vector<std::byte>& signedBytes) const
 {
   internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
@@ -122,8 +122,11 @@ bool ED25519PublicKey::verifySignature(const std::vector<unsigned char>& signatu
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestVerifyInit"));
   }
 
-  const int verificationResult = EVP_DigestVerify(
-    messageDigestContext.get(), signatureBytes.data(), signatureBytes.size(), signedBytes.data(), signedBytes.size());
+  const int verificationResult = EVP_DigestVerify(messageDigestContext.get(),
+                                                  internal::OpenSSLUtils::toUnsignedCharPtr(signatureBytes.data()),
+                                                  signatureBytes.size(),
+                                                  internal::OpenSSLUtils::toUnsignedCharPtr(signedBytes.data()),
+                                                  signedBytes.size());
 
   // Any value other than 0 or 1 means an error occurred
   if (verificationResult != 0 && verificationResult != 1)
@@ -147,13 +150,13 @@ std::string ED25519PublicKey::toStringRaw() const
 }
 
 //-----
-std::vector<unsigned char> ED25519PublicKey::toBytesDer() const
+std::vector<std::byte> ED25519PublicKey::toBytesDer() const
 {
   int bytesLength = i2d_PUBKEY(getInternalKey().get(), nullptr);
 
-  std::vector<unsigned char> publicKeyBytes(bytesLength);
+  std::vector<std::byte> publicKeyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = publicKeyBytes.data();
+  if (unsigned char* rawPublicKeyBytes = internal::OpenSSLUtils::toUnsignedCharPtr(publicKeyBytes.data());
       i2d_PUBKEY(getInternalKey().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
@@ -163,7 +166,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytesDer() const
 }
 
 //-----
-std::vector<unsigned char> ED25519PublicKey::toBytesRaw() const
+std::vector<std::byte> ED25519PublicKey::toBytesRaw() const
 {
   return internal::Utilities::removePrefix(toBytesDer(), static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()));
 }
@@ -172,8 +175,7 @@ std::vector<unsigned char> ED25519PublicKey::toBytesRaw() const
 std::unique_ptr<proto::Key> ED25519PublicKey::toProtobuf() const
 {
   auto keyProtobuf = std::make_unique<proto::Key>();
-  const std::vector<unsigned char> rawBytes = toBytesRaw();
-  keyProtobuf->set_allocated_ed25519(new std::string({ rawBytes.cbegin(), rawBytes.cend() }));
+  keyProtobuf->set_allocated_ed25519(new std::string(internal::Utilities::byteVectorToString(toBytesRaw())));
   return keyProtobuf;
 }
 

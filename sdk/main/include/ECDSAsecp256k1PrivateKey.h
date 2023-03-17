@@ -48,9 +48,11 @@ public:
   /**
    * The prefix bytes of a DER-encoded ECDSAsecp256k1PrivateKey.
    */
-  static inline const std::vector<unsigned char> DER_ENCODED_PREFIX_BYTES = { 0x30, 0x30, 0x02, 0x01, 0x00, 0x30,
-                                                                              0x07, 0x06, 0x05, 0x2B, 0x81, 0x04,
-                                                                              0x00, 0x0A, 0x04, 0x22, 0x04, 0x20 };
+  static inline const std::vector<std::byte> DER_ENCODED_PREFIX_BYTES = {
+    std::byte(0x30), std::byte(0x30), std::byte(0x02), std::byte(0x01), std::byte(0x00), std::byte(0x30),
+    std::byte(0x07), std::byte(0x06), std::byte(0x05), std::byte(0x2B), std::byte(0x81), std::byte(0x04),
+    std::byte(0x00), std::byte(0x0A), std::byte(0x04), std::byte(0x22), std::byte(0x04), std::byte(0x20)
+  };
 
   /**
    * The hex-encoded string of the DER-encoded prefix bytes of an ECDSAsecp256k1PrivateKey.
@@ -107,7 +109,7 @@ public:
    * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input bytes.
    * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input bytes.
    */
-  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Construct an ECDSAsecp256k1PrivateKey from a seed array.
@@ -116,7 +118,7 @@ public:
    * @return A pointer to an ECDSAsecp256k1PrivateKey representing the input seed bytes.
    * @throws BadKeyException If an ECDSAsecp256k1PrivateKey cannot be realized from the input seed bytes.
    */
-  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromSeed(const std::vector<std::byte>& seed);
 
   /**
    * Derived from PrivateKey. Create a clone of this ECDSAsecp256k1PrivateKey object.
@@ -142,7 +144,7 @@ public:
    * @return The signature of the byte array.
    * @throws OpenSSLException If OpenSSL is unable to generate a signature.
    */
-  [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
+  [[nodiscard]] std::vector<std::byte> sign(const std::vector<std::byte>& bytesToSign) const override;
 
   /**
    * Derived from PrivateKey. Get the hex-encoded string of the DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
@@ -164,14 +166,14 @@ public:
    *
    * @return The DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytesDer() const override;
+  [[nodiscard]] std::vector<std::byte> toBytesDer() const override;
 
   /**
    * Derived from PrivateKey. Get the raw, non-DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
    *
    * @return The raw bytes of this ECDSAsecp256k1PrivateKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytesRaw() const override;
+  [[nodiscard]] std::vector<std::byte> toBytesRaw() const override;
 
 private:
   /**
@@ -184,7 +186,7 @@ private:
    * @throws BadKeyException  If the chain code is malformed.
    */
   explicit ECDSAsecp256k1PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key,
-                                    std::vector<unsigned char> chainCode = std::vector<unsigned char>());
+                                    std::vector<std::byte> chainCode = std::vector<std::byte>());
 };
 
 } // namespace Hedera

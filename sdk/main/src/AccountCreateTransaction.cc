@@ -21,6 +21,7 @@
 #include "TransactionResponse.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
+#include "impl/Utilities.h"
 
 #include <grpcpp/client_context.h>
 #include <proto/crypto_create.pb.h>
@@ -78,12 +79,12 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
 
   if (!body.alias().empty())
   {
-    mAlias = PublicKey::fromBytesDer({ body.alias().cbegin(), body.alias().cend() });
+    mAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(body.alias()));
   }
 
   if (!body.evm_address().empty())
   {
-    mEvmAddress = EvmAddress::fromBytes({ body.evm_address().cbegin(), body.evm_address().cend() });
+    mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(body.evm_address()));
   }
 }
 
@@ -250,14 +251,12 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   if (mAlias)
   {
-    const std::vector<unsigned char> aliasBytes = mAlias->toBytesDer();
-    body->set_allocated_alias(new std::string{ aliasBytes.cbegin(), aliasBytes.cend() });
+    body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mAlias->toBytesDer())));
   }
 
   if (mEvmAddress)
   {
-    const std::vector<unsigned char> addressBytes = mEvmAddress->toBytes();
-    body->set_allocated_evm_address(new std::string{ addressBytes.cbegin(), addressBytes.cend() });
+    body->set_allocated_evm_address(new std::string(internal::Utilities::byteVectorToString(mEvmAddress->toBytes())));
   }
 
   return body.release();

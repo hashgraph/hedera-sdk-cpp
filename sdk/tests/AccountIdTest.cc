@@ -21,6 +21,7 @@
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "PublicKey.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 #include <limits>
@@ -415,8 +416,8 @@ TEST_F(AccountIdTest, ProtobufAccountId)
   EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kAlias);
 
   // Adjust protobuf fields
-  std::vector<unsigned char> testBytes = ED25519PrivateKey::generatePrivateKey()->getPublicKey()->toBytesDer();
-  protoAccountId->set_allocated_alias(new std::string{ testBytes.cbegin(), testBytes.cend() });
+  std::vector<std::byte> testBytes = ED25519PrivateKey::generatePrivateKey()->getPublicKey()->toBytesDer();
+  protoAccountId->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testBytes)));
 
   // Deserialize ED25519 alias
   accountId = AccountId::fromProtobuf(*protoAccountId);
@@ -430,7 +431,7 @@ TEST_F(AccountIdTest, ProtobufAccountId)
 
   // Adjust protobuf fields
   testBytes = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey()->toBytesDer();
-  protoAccountId->set_allocated_alias(new std::string{ testBytes.cbegin(), testBytes.cend() });
+  protoAccountId->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testBytes)));
 
   // Deserialize ECDSA alias
   accountId = AccountId::fromProtobuf(*protoAccountId);
@@ -443,8 +444,11 @@ TEST_F(AccountIdTest, ProtobufAccountId)
   EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kEvmAddress);
 
   // Adjust protobuf fields
-  testBytes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' };
-  protoAccountId->set_allocated_evm_address(new std::string{ testBytes.cbegin(), testBytes.cend() });
+  testBytes = { std::byte('0'), std::byte('1'), std::byte('2'), std::byte('3'), std::byte('4'),
+                std::byte('5'), std::byte('6'), std::byte('7'), std::byte('8'), std::byte('9'),
+                std::byte('a'), std::byte('b'), std::byte('c'), std::byte('d'), std::byte('e'),
+                std::byte('f'), std::byte('g'), std::byte('h'), std::byte('i'), std::byte('j') };
+  protoAccountId->set_allocated_evm_address(new std::string(internal::Utilities::byteVectorToString(testBytes)));
 
   // Deserialize EVM address
   accountId = AccountId::fromProtobuf(*protoAccountId);

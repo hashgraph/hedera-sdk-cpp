@@ -20,6 +20,7 @@
 #include "AccountId.h"
 #include "PublicKey.h"
 #include "exceptions/BadKeyException.h"
+#include "impl/Utilities.h"
 
 #include <charconv>
 #include <limits>
@@ -172,7 +173,7 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
     {
       try
       {
-        accountId.mAlias = PublicKey::fromBytesDer({ proto.alias().cbegin(), proto.alias().cend() });
+        accountId.mAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(proto.alias()));
       }
       catch (const BadKeyException& ex)
       {
@@ -182,7 +183,7 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
     }
     case proto::AccountID::kEvmAddress:
     {
-      accountId.mEvmAddress = EvmAddress::fromBytes({ proto.evm_address().cbegin(), proto.evm_address().cend() });
+      accountId.mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.evm_address()));
       break;
     }
     default:
@@ -205,13 +206,11 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
   }
   else if (mAlias)
   {
-    const std::vector<unsigned char> bytes = mAlias->toBytesDer();
-    proto->set_allocated_alias(new std::string{ bytes.cbegin(), bytes.cend() });
+    proto->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mAlias->toBytesDer())));
   }
   else if (mEvmAddress)
   {
-    const std::vector<unsigned char> bytes = mEvmAddress->toBytes();
-    proto->set_allocated_evm_address(new std::string{ bytes.cbegin(), bytes.cend() });
+    proto->set_allocated_evm_address(new std::string(internal::Utilities::byteVectorToString(mEvmAddress->toBytes())));
   }
 
   return proto;

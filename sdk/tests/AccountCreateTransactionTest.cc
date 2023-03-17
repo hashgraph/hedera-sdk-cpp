@@ -25,6 +25,7 @@
 #include "PublicKey.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/DurationConverter.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_body.pb.h>
@@ -88,15 +89,15 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   body->set_initialbalance(static_cast<uint64_t>(getTestInitialBalance().toTinybars()));
   body->set_receiversigrequired(getTestReceiverSignatureRequired());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
-  body->set_allocated_memo(new std::string{ getTestAccountMemo().cbegin(), getTestAccountMemo().cend() });
+  body->set_allocated_memo(new std::string(getTestAccountMemo()));
   body->set_max_automatic_token_associations(static_cast<int32_t>(getTestMaximumTokenAssociations()));
   body->set_allocated_staked_account_id(getTestAccountId().toProtobuf().release());
   body->set_decline_reward(getTestDeclineStakingReward());
 
-  const std::vector<unsigned char> testPublicKeyBytes = getTestPublicKey()->toBytesDer();
-  const std::vector<unsigned char> testEvmAddressBytes = getTestEvmAddress().toBytes();
-  body->set_allocated_alias(new std::string{ testPublicKeyBytes.cbegin(), testPublicKeyBytes.cend() });
-  body->set_allocated_evm_address(new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
+  const std::vector<std::byte> testPublicKeyBytes = getTestPublicKey()->toBytesDer();
+  const std::vector<std::byte> testEvmAddressBytes = getTestEvmAddress().toBytes();
+  body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testPublicKeyBytes)));
+  body->set_allocated_evm_address(new std::string(internal::Utilities::byteVectorToString(testEvmAddressBytes)));
 
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptocreateaccount(body.release());

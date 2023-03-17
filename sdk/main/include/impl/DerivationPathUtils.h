@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
 #define HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -52,7 +53,7 @@ uint32_t getHardenedIndex(uint32_t index);
  * @param childIndex The index to convert to a big endian byte array.
  * @return The big endian byte array representing the child index.
  */
-std::vector<unsigned char> indexToBigEndianArray(uint32_t childIndex);
+std::vector<std::byte> indexToBigEndianArray(uint32_t childIndex);
 
 }; // namespace Hedera::internal::DerivationPathUtils
 

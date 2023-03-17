@@ -41,7 +41,7 @@ struct PrivateKey::PrivateKeyImpl
   /**
    * This PrivateKey's chain code. If this is empty, then this PrivateKey will not support derivation.
    */
-  std::vector<unsigned char> mChainCode;
+  std::vector<std::byte> mChainCode;
 
   /**
    * A pointer to the PublicKey object that corresponds to this PrivateKey.
