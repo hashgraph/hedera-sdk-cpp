@@ -48,9 +48,11 @@ public:
   /**
    * The prefix bytes of a DER-encoded, uncompressed ECDSAsecp256k1PublicKey.
    */
-  static inline const std::vector<unsigned char> DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES = {
-    0x30, 0x56, 0x30, 0x10, 0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02,
-    0x01, 0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x0A, 0x03, 0x42, 0x00
+  static inline const std::vector<std::byte> DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES = {
+    std::byte(0x30), std::byte(0x56), std::byte(0x30), std::byte(0x10), std::byte(0x06), std::byte(0x07),
+    std::byte(0x2A), std::byte(0x86), std::byte(0x48), std::byte(0xCE), std::byte(0x3D), std::byte(0x02),
+    std::byte(0x01), std::byte(0x06), std::byte(0x05), std::byte(0x2B), std::byte(0x81), std::byte(0x04),
+    std::byte(0x00), std::byte(0x0A), std::byte(0x03), std::byte(0x42), std::byte(0x00)
   };
 
   /**
@@ -62,9 +64,11 @@ public:
   /**
    * The prefix bytes of a DER-encoded, compressed ECDSAsecp256k1PublicKey.
    */
-  static inline const std::vector<unsigned char> DER_ENCODED_COMPRESSED_PREFIX_BYTES = { 0x30, 0x2D, 0x30, 0x07, 0x06,
-                                                                                         0x05, 0x2B, 0x81, 0x04, 0x00,
-                                                                                         0x0A, 0x03, 0x22, 0x00 };
+  static inline const std::vector<std::byte> DER_ENCODED_COMPRESSED_PREFIX_BYTES = {
+    std::byte(0x30), std::byte(0x2D), std::byte(0x30), std::byte(0x07), std::byte(0x06),
+    std::byte(0x05), std::byte(0x2B), std::byte(0x81), std::byte(0x04), std::byte(0x00),
+    std::byte(0x0A), std::byte(0x03), std::byte(0x22), std::byte(0x00)
+  };
 
   /**
    * The hex-encoded string of the DER-encoded prefix bytes of a compressed ECDSAsecp256k1PublicKey.
@@ -94,7 +98,7 @@ public:
    * @return A pointer to an ECDSAsecp256k1PublicKey representing the input bytes.
    * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input bytes.
    */
-  [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Converts an uncompressed ECDSAsecp256k1PublicKey byte vector to a compressed ECDSAsecp256k1PublicKey byte vector.
@@ -104,7 +108,7 @@ public:
    * @throws std::invalid_argument If the input bytes are not the correct uncompressed key size or malformed.
    * @throws OpenSSLException      If OpenSSL is unable to compress the input bytes.
    */
-  [[nodiscard]] static std::vector<unsigned char> compressBytes(const std::vector<unsigned char>& uncompressedBytes);
+  [[nodiscard]] static std::vector<std::byte> compressBytes(const std::vector<std::byte>& uncompressedBytes);
 
   /**
    * Converts a compressed ECDSAsecp256k1PublicKey byte vector to an uncompressed ECDSAsecp256k1PublicKey byte vector.
@@ -114,7 +118,7 @@ public:
    * @throws std::invalid_argument If the input bytes are not the correct compressed key size or malformed.
    * @throws OpenSSLException      If OpenSSL is unable to uncompress the input bytes.
    */
-  [[nodiscard]] static std::vector<unsigned char> uncompressBytes(const std::vector<unsigned char>& compressedBytes);
+  [[nodiscard]] static std::vector<std::byte> uncompressBytes(const std::vector<std::byte>& compressedBytes);
 
   /**
    * Derived from PublicKey. Create a clone of this ECDSAsecp256k1PublicKey object.
@@ -132,8 +136,8 @@ public:
    * @return \c TRUE if the signature is valid, otherwise \c FALSE.
    * @throws OpenSSLException If OpenSSL is unable to verify the signature.
    */
-  [[nodiscard]] bool verifySignature(const std::vector<unsigned char>& signatureBytes,
-                                     const std::vector<unsigned char>& signedBytes) const override;
+  [[nodiscard]] bool verifySignature(const std::vector<std::byte>& signatureBytes,
+                                     const std::vector<std::byte>& signedBytes) const override;
 
   /**
    * Derived from PublicKey. Get the hex-encoded string of the DER-encoded bytes of this ECDSAsecp256k1PublicKey.
@@ -154,14 +158,14 @@ public:
    *
    * @return The DER-encoded bytes of this ECDSAsecp256k1PublicKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytesDer() const override;
+  [[nodiscard]] std::vector<std::byte> toBytesDer() const override;
 
   /**
    * Derived from PublicKey. Get the raw bytes of this ECDSAsecp256k1PublicKey.
    *
    * @return The raw bytes of this ECDSAsecp256k1PublicKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytesRaw() const override;
+  [[nodiscard]] std::vector<std::byte> toBytesRaw() const override;
 
   /**
    * Derived from PublicKey. Construct a Key protobuf object from this ECDSAsecp256k1PublicKey object.

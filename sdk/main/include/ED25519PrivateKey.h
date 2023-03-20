@@ -48,9 +48,11 @@ public:
   /**
    * The prefix bytes of a DER-encoded ED25519PrivateKey.
    */
-  static inline const std::vector<unsigned char> DER_ENCODED_PREFIX_BYTES = { 0x30, 0x2E, 0x02, 0x01, 0x00, 0x30,
-                                                                              0x05, 0x06, 0x03, 0x2B, 0x65, 0x70,
-                                                                              0x04, 0x22, 0x04, 0x20 };
+  static inline const std::vector<std::byte> DER_ENCODED_PREFIX_BYTES = {
+    std::byte(0x30), std::byte(0x2E), std::byte(0x02), std::byte(0x01), std::byte(0x00), std::byte(0x30),
+    std::byte(0x05), std::byte(0x06), std::byte(0x03), std::byte(0x2B), std::byte(0x65), std::byte(0x70),
+    std::byte(0x04), std::byte(0x22), std::byte(0x04), std::byte(0x20)
+  };
 
   /**
    * The hex-encoded string of the DER-encoded prefix bytes of an ED25519PrivateKey.
@@ -87,7 +89,7 @@ public:
    * @return A pointer to an ED25519PrivateKey representing the input bytes.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input bytes.
    */
-  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Construct an ED25519PrivateKey from a seed array.
@@ -96,7 +98,7 @@ public:
    * @return A pointer to an ED25519PrivateKey representing the input seed bytes.
    * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input seed bytes.
    */
-  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromSeed(const std::vector<unsigned char>& seed);
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromSeed(const std::vector<std::byte>& seed);
 
   /**
    * Derived from PrivateKey. Create a clone of this ED25519PrivateKey object.
@@ -123,7 +125,7 @@ public:
    * @return The signature of the byte array.
    * @throws OpenSSLException If OpenSSL is unable to generate a signature.
    */
-  [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const override;
+  [[nodiscard]] std::vector<std::byte> sign(const std::vector<std::byte>& bytesToSign) const override;
 
   /**
    * Derived from PrivateKey. Get the hex-encoded string of the DER-encoded bytes of this ED25519PrivateKey.
@@ -144,14 +146,14 @@ public:
    *
    * @return The DER-encoded bytes of this ED25519PrivateKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytesDer() const override;
+  [[nodiscard]] std::vector<std::byte> toBytesDer() const override;
 
   /**
    * Derived from PrivateKey. Get the raw, non-DER-encoded bytes of this ED25519PrivateKey.
    *
    * @return The raw bytes of this ED25519PrivateKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytesRaw() const override;
+  [[nodiscard]] std::vector<std::byte> toBytesRaw() const override;
 
 private:
   /**
@@ -164,7 +166,7 @@ private:
    * @throws BadKeyException  If the chain code is malformed.
    */
   explicit ED25519PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key,
-                             std::vector<unsigned char> chainCode = std::vector<unsigned char>());
+                             std::vector<std::byte> chainCode = std::vector<std::byte>());
 };
 
 } // namespace Hedera

@@ -75,7 +75,7 @@ public:
    * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
    *                         from the input byte array.
    */
-  [[nodiscard]] static std::shared_ptr<PublicKey> fromBytesDer(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static std::shared_ptr<PublicKey> fromBytesDer(const std::vector<std::byte>& bytes);
 
   /**
    * Create a clone of this PublicKey object.
@@ -98,8 +98,8 @@ public:
    * @param signedBytes    The bytes which were purportedly signed to create the signature.
    * @return \c TRUE if the signature is valid, otherwise \c FALSE.
    */
-  [[nodiscard]] virtual bool verifySignature(const std::vector<unsigned char>& signatureBytes,
-                                             const std::vector<unsigned char>& signedBytes) const = 0;
+  [[nodiscard]] virtual bool verifySignature(const std::vector<std::byte>& signatureBytes,
+                                             const std::vector<std::byte>& signedBytes) const = 0;
 
   /**
    * Get the hex-encoded string of the DER-encoded bytes of this PublicKey.
@@ -120,14 +120,14 @@ public:
    *
    * @return The DER-encoded bytes of this PublicKey.
    */
-  [[nodiscard]] virtual std::vector<unsigned char> toBytesDer() const = 0;
+  [[nodiscard]] virtual std::vector<std::byte> toBytesDer() const = 0;
 
   /**
    * Get the raw bytes of this PublicKey.
    *
    * @return The raw bytes of this PublicKey.
    */
-  [[nodiscard]] virtual std::vector<unsigned char> toBytesRaw() const = 0;
+  [[nodiscard]] virtual std::vector<std::byte> toBytesRaw() const = 0;
 
 protected:
   /**

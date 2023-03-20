@@ -29,12 +29,15 @@ class EvmAddressTest : public testing::Test
 {
 protected:
   [[nodiscard]] inline const std::string& getTestString() const { return mTestString; }
-  [[nodiscard]] inline const std::vector<unsigned char>& getTestBytes() const { return mTestBytes; }
+  [[nodiscard]] inline const std::vector<std::byte>& getTestBytes() const { return mTestBytes; }
 
 private:
   const std::string mTestString = "303132333435363738396162636465666768696A";
-  const std::vector<unsigned char> mTestBytes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                                                  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' };
+  const std::vector<std::byte> mTestBytes = { std::byte('0'), std::byte('1'), std::byte('2'), std::byte('3'),
+                                              std::byte('4'), std::byte('5'), std::byte('6'), std::byte('7'),
+                                              std::byte('8'), std::byte('9'), std::byte('a'), std::byte('b'),
+                                              std::byte('c'), std::byte('d'), std::byte('e'), std::byte('f'),
+                                              std::byte('g'), std::byte('h'), std::byte('i'), std::byte('j') };
 };
 
 TEST_F(EvmAddressTest, StringConstructor)
@@ -65,28 +68,28 @@ TEST_F(EvmAddressTest, ByteConstructor)
 {
   EXPECT_NO_THROW(EvmAddress::fromBytes(getTestBytes()));
 
-  std::vector<unsigned char> badBytes = getTestBytes();
+  std::vector<std::byte> badBytes = getTestBytes();
 
   // Byte array too small
   badBytes.pop_back();
   EXPECT_THROW(EvmAddress::fromBytes(badBytes), std::invalid_argument);
 
   // Byte array too big
-  badBytes.push_back(255);
-  badBytes.push_back(172);
+  badBytes.push_back(std::byte(255));
+  badBytes.push_back(std::byte(172));
   EXPECT_THROW(EvmAddress::fromBytes(badBytes), std::invalid_argument);
 }
 
 TEST_F(EvmAddressTest, StringByteEquality)
 {
   std::string testString = getTestString();
-  std::vector<unsigned char> testBytes = getTestBytes();
+  std::vector<std::byte> testBytes = getTestBytes();
 
   EXPECT_EQ(EvmAddress::fromString(testString).toBytes(), testBytes);
   EXPECT_EQ(EvmAddress::fromBytes(testBytes).toString(), testString);
 
   testString.front() = '4';
-  testBytes.front() = '@';
+  testBytes.front() = std::byte('@');
 
   EXPECT_EQ(EvmAddress::fromString(testString).toBytes(), testBytes);
   EXPECT_EQ(EvmAddress::fromBytes(testBytes).toString(), testString);

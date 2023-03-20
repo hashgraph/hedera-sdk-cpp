@@ -43,8 +43,10 @@ public:
   /**
    * The prefix bytes of a DER-encoded ED25519PublicKey.
    */
-  static inline const std::vector<unsigned char> DER_ENCODED_PREFIX_BYTES = { 0x30, 0x2A, 0x30, 0x05, 0x06, 0x03,
-                                                                              0x2B, 0x65, 0x70, 0x03, 0x21, 0x00 };
+  static inline const std::vector<std::byte> DER_ENCODED_PREFIX_BYTES = {
+    std::byte(0x30), std::byte(0x2A), std::byte(0x30), std::byte(0x05), std::byte(0x06), std::byte(0x03),
+    std::byte(0x2B), std::byte(0x65), std::byte(0x70), std::byte(0x03), std::byte(0x21), std::byte(0x00)
+  };
 
   /**
    * The hex-encoded string of the DER-encoded prefix bytes of an ED25519PublicKey.
@@ -73,7 +75,7 @@ public:
    * @return A pointer to an ED25519PublicKey representing the input bytes.
    * @throws BadKeyException If an ED25519PublicKey cannot be realized from the input bytes.
    */
-  [[nodiscard]] static std::shared_ptr<ED25519PublicKey> fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static std::shared_ptr<ED25519PublicKey> fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Derived from PublicKey. Create a clone of this ED25519PublicKey object.
@@ -91,8 +93,8 @@ public:
    * @return \c TRUE if the signature is valid for this ED25519PublicKey's private key, otherwise \c FALSE.
    * @throws OpenSSLException If OpenSSL is unable to verify the signature.
    */
-  [[nodiscard]] bool verifySignature(const std::vector<unsigned char>& signatureBytes,
-                                     const std::vector<unsigned char>& signedBytes) const override;
+  [[nodiscard]] bool verifySignature(const std::vector<std::byte>& signatureBytes,
+                                     const std::vector<std::byte>& signedBytes) const override;
 
   /**
    * Derived from PublicKey. Get the hex-encoded string of the DER-encoded bytes of this ED25519PublicKey.
@@ -113,14 +115,14 @@ public:
    *
    * @return The DER-encoded bytes of this ED25519PublicKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytesDer() const override;
+  [[nodiscard]] std::vector<std::byte> toBytesDer() const override;
 
   /**
    * Derived from PublicKey. Get the raw bytes of this ED25519PublicKey.
    *
    * @return The raw bytes of this ED25519PublicKey.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytesRaw() const override;
+  [[nodiscard]] std::vector<std::byte> toBytesRaw() const override;
 
   /**
    * Derived from PublicKey. Construct a Key protobuf object from this ED25519PublicKey object.

@@ -33,7 +33,7 @@ namespace Hedera::internal::HexConverter
  * @return A string containing the hex values of the input byte array.
  * @throws OpenSSLException If OpenSSL is unable to convert the input bytes to hex.
  */
-std::string bytesToHex(const std::vector<unsigned char>& bytes);
+std::string bytesToHex(const std::vector<std::byte>& bytes);
 
 /**
  * Convert a hex string to the array of bytes it represents.
@@ -43,7 +43,7 @@ std::string bytesToHex(const std::vector<unsigned char>& bytes);
  * @throws std::invalid_argument If the input hex string doesn't contain an even number of digits.
  * @throws OpenSSLException If OpenSSL is unable to convert the input string to a byte array.
  */
-std::vector<unsigned char> hexToBytes(std::string_view hex);
+std::vector<std::byte> hexToBytes(std::string_view hex);
 
 } // namespace Hedera::internal::HexConverter
 

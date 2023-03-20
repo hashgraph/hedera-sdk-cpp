@@ -32,6 +32,7 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
+#include "impl/Utilities.h"
 
 #include <proto/basic_types.pb.h>
 #include <proto/transaction.pb.h>
@@ -44,7 +45,7 @@ namespace Hedera
 //-----
 template<typename SdkRequestType>
 std::pair<int, std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction>>
-Transaction<SdkRequestType>::fromBytes(const std::vector<unsigned char>& bytes)
+Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
 
@@ -88,14 +89,14 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<unsigned char>& bytes)
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::sign(const PrivateKey* key)
 {
-  return signWith(key->getPublicKey(), [key](const std::vector<unsigned char>& vec) { return key->sign(vec); });
+  return signWith(key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); });
 }
 
 //-----
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::signWith(
   const std::shared_ptr<PublicKey>& key,
-  const std::function<std::vector<unsigned char>(const std::vector<unsigned char>&)>& signer)
+  const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer)
 {
   if (!mIsFrozen)
   {
@@ -217,39 +218,39 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
   {
     // Generate a signature from the TransactionBody
     auto transactionBodySerialized = std::make_unique<std::string>(transaction.SerializeAsString());
-    std::vector<unsigned char> signature =
-      client.sign({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
+    std::vector<std::byte> signature = client.sign(internal::Utilities::stringToByteVector(*transactionBodySerialized));
 
     // Generate a protobuf SignaturePair from a protobuf SignatureMap
     auto signatureMap = std::make_unique<proto::SignatureMap>();
     proto::SignaturePair* signaturePair = signatureMap->add_sigpair();
-    std::vector<unsigned char> publicKeyBytes = client.getOperatorPublicKey()->toBytesRaw();
-    signaturePair->set_allocated_pubkeyprefix(new std::string(publicKeyBytes.cbegin(), publicKeyBytes.cend()));
+    signaturePair->set_allocated_pubkeyprefix(
+      new std::string(internal::Utilities::byteVectorToString(client.getOperatorPublicKey()->toBytesRaw())));
 
     if (dynamic_cast<ED25519PublicKey*>(client.getOperatorPublicKey().get()))
     {
-      signaturePair->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
+      signaturePair->set_allocated_ed25519(new std::string(internal::Utilities::byteVectorToString(signature)));
     }
     else
     {
-      signaturePair->set_allocated_ecdsa_secp256k1(new std::string(signature.cbegin(), signature.cend()));
+      signaturePair->set_allocated_ecdsa_secp256k1(new std::string(internal::Utilities::byteVectorToString(signature)));
     }
 
     // Add other signatures
     for (const auto& [publicKey, signer] : mSignatures)
     {
-      signature = signer({ transactionBodySerialized->cbegin(), transactionBodySerialized->cend() });
+      signature = signer(internal::Utilities::stringToByteVector(*transactionBodySerialized));
       signaturePair = signatureMap->add_sigpair();
-      publicKeyBytes = publicKey->toBytesRaw();
-      signaturePair->set_allocated_pubkeyprefix(new std::string(publicKeyBytes.cbegin(), publicKeyBytes.cend()));
+      signaturePair->set_allocated_pubkeyprefix(
+        new std::string(internal::Utilities::byteVectorToString(publicKey->toBytesRaw())));
 
       if (dynamic_cast<ED25519PublicKey*>(publicKey.get()))
       {
-        signaturePair->set_allocated_ed25519(new std::string(signature.cbegin(), signature.cend()));
+        signaturePair->set_allocated_ed25519(new std::string(internal::Utilities::byteVectorToString(signature)));
       }
       else
       {
-        signaturePair->set_allocated_ecdsa_secp256k1(new std::string({ signature.cbegin(), signature.cend() }));
+        signaturePair->set_allocated_ecdsa_secp256k1(
+          new std::string(internal::Utilities::byteVectorToString(signature)));
       }
     }
 

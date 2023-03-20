@@ -39,7 +39,7 @@ TEST_P(RFC8032TestVectors, TestVectors)
 
   // When
   const std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::fromString(privateKeyHex);
-  const std::vector<unsigned char> signature = privateKey->sign(hexToBytes(message));
+  const std::vector<std::byte> signature = privateKey->sign(hexToBytes(message));
 
   // Then
   EXPECT_EQ(signature, hexToBytes(expectedSignature));

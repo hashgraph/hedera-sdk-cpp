@@ -120,7 +120,7 @@ Client& Client::setOperator(const AccountId& accountId, std::unique_ptr<PrivateK
 }
 
 //-----
-std::vector<unsigned char> Client::sign(const std::vector<unsigned char>& bytes) const
+std::vector<std::byte> Client::sign(const std::vector<std::byte>& bytes) const
 {
   if (mImpl->mOperatorPrivateKey)
   {

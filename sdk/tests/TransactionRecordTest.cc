@@ -21,6 +21,7 @@
 #include "AccountId.h"
 #include "EvmAddress.h"
 #include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <chrono>
 #include <gtest/gtest.h>
@@ -45,8 +46,11 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   const uint64_t txFee = 10ULL;
   const auto tokenId = TokenId(10ULL);
   const auto nftId = NftId(TokenId(20ULL), 1000ULL);
-  const std::vector<unsigned char> testEvmAddressBytes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                                                           'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j' };
+  const std::vector<std::byte> testEvmAddressBytes = { std::byte('0'), std::byte('1'), std::byte('2'), std::byte('3'),
+                                                       std::byte('4'), std::byte('5'), std::byte('6'), std::byte('7'),
+                                                       std::byte('8'), std::byte('9'), std::byte('a'), std::byte('b'),
+                                                       std::byte('c'), std::byte('d'), std::byte('e'), std::byte('f'),
+                                                       std::byte('g'), std::byte('h'), std::byte('i'), std::byte('j') };
 
   proto::TransactionRecord protoTransactionRecord;
   protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf().release());
@@ -56,7 +60,7 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   protoTransactionRecord.set_allocated_memo(new std::string(txMemo));
   protoTransactionRecord.set_transactionfee(txFee);
   protoTransactionRecord.set_allocated_evm_address(
-    new std::string{ testEvmAddressBytes.cbegin(), testEvmAddressBytes.cend() });
+    new std::string(internal::Utilities::byteVectorToString(testEvmAddressBytes)));
 
   proto::AccountAmount* aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
   aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());

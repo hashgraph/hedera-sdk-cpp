@@ -22,6 +22,7 @@
 #include "impl/Endpoint.h"
 #include "impl/HexConverter.h"
 #include "impl/IPv4Address.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>
@@ -98,7 +99,7 @@ TEST_F(NodeAddressTest, GettersAndSettersNodeAddress)
   const IPv4Address& testIpAddressV4_2 = IPv4Address::fromString(testStringForIpAddressV4_2);
   const std::string& testDescription = getTestDescription();
   const std::string& testNodeCertHash = getTestNodeCertHash();
-  const std::vector<unsigned char> nodeCertHashVec = { testNodeCertHash.cbegin(), testNodeCertHash.cend() };
+  const std::vector<std::byte> nodeCertHashVec = Utilities::stringToByteVector(testNodeCertHash);
   const auto testEndpointPtr_1 = std::make_shared<Endpoint>(testIpAddressV4_1, testPortTLS);
   const auto testEndpointPtr_2 = std::make_shared<Endpoint>(testIpAddressV4_2, testPortTLS);
   std::vector<std::shared_ptr<Endpoint>> testEndpoints;
