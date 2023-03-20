@@ -42,11 +42,11 @@ public:
   NodeAddress() = default;
 
   /**
-   * Construct a NodeAddress instance with a given address and port.
+   * Construct a NodeAddress instance with a given IPv4 address and port.
    *
-   * @param ipAddressV4 The IPv4 address of the Node with separator and octets.
+   * @param ipAddressV4 The stringified IPv4 address.
    * @param port        The port number of the server for the node.
-   * @throws IllegalStateException If the given IP address is malformed.
+   * @throws std::invalid_argument If the given IP address is malformed.
    */
   NodeAddress(std::string_view ipAddressV4, int port);
 
@@ -69,7 +69,7 @@ public:
   /**
    * Create a NodeAddress object from a NodeAddress protobuf object.
    *
-   * @param proto The NodeAddress protobuf object from which to create a NodeAddress object.
+   * @param protoNodeAddress The NodeAddress protobuf object from which to create a NodeAddress object.
    * @return The created NodeAddress object.
    */
   [[nodiscard]] static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
@@ -79,7 +79,7 @@ public:
    *
    * @param nodeAddress The string representation from which to create a new NodeAddress object.
    * @return The created NodeAddress object.
-   * @throws IllegalStateException If the given node address is malformed.
+   * @throws std::invalid_argument If the given node address is malformed.
    */
   [[nodiscard]] static NodeAddress fromString(std::string_view nodeAddress);
 
@@ -92,17 +92,17 @@ public:
   NodeAddress& setRSAPublicKey(std::string_view publicKey);
 
   /**
-   * Set a new node ID associated with the node at this address.
+   * Set a new node ID for the node at this address.
    *
-   * @param accountId The account ID to be associated with the node
-   * @return A reference to this NodeAddress with the newly-set account ID.
+   * @param nodeId The ID of the node to set.
+   * @return A reference to this NodeAddress with the newly-set node ID.
    */
   NodeAddress& setNodeId(const int64_t& nodeId);
 
   /**
    * Set a new account ID associated with the node at this address.
    *
-   * @param accountId The account ID to be associated with the node
+   * @param accountId The account ID to be associated with the node.
    * @return A reference to this NodeAddress with the newly-set account ID.
    */
   NodeAddress& setNodeAccountId(const AccountId& accountId);
@@ -110,7 +110,7 @@ public:
   /**
    * Set a new certificate hash for the node.
    *
-   * @param certHash The certificate hash to be assigned to the node
+   * @param certHash The certificate hash to be assigned to the node.
    * @return A reference to this NodeAddress with the newly-set certificate hash.
    */
   NodeAddress& setNodeCertHash(std::string_view certHash);
@@ -118,80 +118,80 @@ public:
   /**
    * Set a vector of endpoints for the node.
    *
-   * @param endpoints The endpoints to be assigned to the node
-   * @return A reference to this NodeAddress with the newsly-set endpoints.
+   * @param endpoints The endpoints to be assigned to the node.
+   * @return A reference to this NodeAddress with the newly-set endpoints.
    */
   NodeAddress& setEndpoints(const std::vector<std::shared_ptr<Endpoint>>& endpoints);
 
   /**
-   * Assign а new description text for the node.
+   * Set а new description text for the node.
    *
-   * @param description The description text to be assigned with the node
+   * @param description The description text to be assigned with the node.
    * @return A reference to this NodeAddress with the newly-set description.
    */
   NodeAddress& setDescription(std::string_view description);
 
   /**
-   * Set new amount of tinybars staked to the node.
+   * Set a new amount of tinybars staked to the node.
    *
-   * @param stake The new amount of tinybars staked to the node
+   * @param stake The new amount of tinybars staked to the node.
    * @return A reference to this NodeAddress with the newly-set staked tinybars.
    */
   NodeAddress& setStake(const uint64_t& stake);
 
   /**
-   * Get a string representation of the node address.
+   * Get a string representation of the NodeAddress.
    *
-   * @return A string representing the node address.
+   * @return A string representing this NodeAddress.
    */
   [[nodiscard]] std::string toString() const;
 
   /**
-   * Get the IP address of the node.
+   * Get the default IP address of this NodeAddress.
    *
-   * @return An instance of IPv4Address containing the IP address of the node.
+   * @return The default IP address of this NodeAddress.
    */
   [[nodiscard]] inline IPv4Address getDefaultIpAddress() const { return getDefaultEndpoint()->getAddress(); }
 
   /**
-   * Get the port number of the gRPC server for the node.
+   * Get the default port number of the gRPC server of this NodeAddress.
    *
-   * @return An int value containing the port number.
+   * @return The default port of this NodeAddress.
    */
   [[nodiscard]] inline int getDefaultPort() const { return getDefaultEndpoint()->getPort(); }
 
   /**
-   * Get the node ID
+   * Get the node ID of this NodeAddress.
    *
-   * @return A int64 value representing the node ID.
+   * @return The node ID of this NodeAddress.
    */
   [[nodiscard]] inline int64_t getNodeId() const { return mNodeId; }
 
   /**
-   * Get the public key of the node.
+   * Get the public key of this NodeAddress.
    *
-   * @return A hash value representing the public key of the node.
+   * @return The hash value representing the public key of the node.
    */
   [[nodiscard]] inline std::string getPublicKey() const { return mRSAPublicKey; }
 
   /**
-   * Get the account ID associated with the node at this address.
+   * Get the account ID associated with this NodeAddress.
    *
-   * @return The account ID associated with the node at this address.
+   * @return The account ID associated with this NodeAddress.
    */
   [[nodiscard]] inline AccountId getNodeAccountId() const { return mNodeAccountId; }
 
   /**
-   * Get the SHA-384 hash of the node certificate chain.
+   * Get the SHA-384 hash of this NodeAddress's certificate chain.
    *
-   * @return The certificate chain hash.
+   * @return The SHA-384 hash of this NodeAddress's certificate chain.
    */
   [[nodiscard]] inline std::vector<std::byte> getNodeCertHash() const { return mNodeCertHash; }
 
   /**
-   * Get the default endpoint associated with the node.
+   * Get the default Endpoint of this NodeAddress.
    *
-   * @return The default node endpoint.
+   * @return The default Endpoint of this NodeAddress.
    */
   [[nodiscard]] inline std::shared_ptr<Endpoint> getDefaultEndpoint() const
   {
@@ -204,23 +204,23 @@ public:
   }
 
   /**
-   * Get a vector of endpoints associated with the node.
+   * Get the Endpoints associated with this NodeAddress.
    *
-   * @return The node endpoints.
+   * @return The Endpoints associated with this NodeAddress.
    */
   [[nodiscard]] inline const std::vector<std::shared_ptr<Endpoint>>& getEndpoints() const { return mEndpoints; }
 
   /**
-   * Get the description text associated with the node.
+   * Get the description text of this NodeAddress.
    *
-   * @return The description text.
+   * @return The description text of this NodeAddress.
    */
   [[nodiscard]] inline std::string getDescription() const { return mDescription; }
 
   /**
-   * Get the amount of tinybars staked to the node.
+   * Get the amount of tinybars staked to the Node at this NodeAddress.
    *
-   * @return A uint64_t value representing the amount.
+   * @return The amount of tinybars staked to the Node at this NodeAddress.
    */
   [[nodiscard]] inline uint64_t getStake() const { return mStake; }
 
@@ -234,7 +234,7 @@ private:
   static constexpr int PORT_NODE_TLS = 50212;
 
   /**
-   * The endpoints associated with the node.
+   * The Endpoints associated with the node.
    */
   std::vector<std::shared_ptr<Endpoint>> mEndpoints;
 
@@ -264,7 +264,7 @@ private:
   std::string mDescription;
 
   /**
-   * The amount of tinybars staked to the node
+   * The amount of tinybars staked to the node.
    */
   uint64_t mStake = 0;
 };

@@ -46,10 +46,10 @@ public:
   /**
    * Create an Endpoint object from a ServiceEndpoint protobuf object.
    *
-   * @param proto The ServiceEndpoint protobuf object from which to create an Endpoint object.
+   * @param protoServiceEndpoint The ServiceEndpoint protobuf object from which to create an Endpoint object.
    * @return The created Endpoint object.
    */
-  static Endpoint fromProtobuf(const proto::ServiceEndpoint& serviceEndpoint);
+  static Endpoint fromProtobuf(const proto::ServiceEndpoint& protoServiceEndpoint);
 
   /**
    * Get a string representation of the endpoint with the form <ip.add.re.ss>:<port>.

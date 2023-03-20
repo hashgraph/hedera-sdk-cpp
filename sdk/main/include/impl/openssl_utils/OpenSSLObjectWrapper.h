@@ -28,8 +28,8 @@ namespace Hedera::internal::OpenSSLUtils
 /**
  * Templated base wrapper class to be used for OpenSSL objects that require custom deleter and copier functions.
  *
- * @tparam ObjectType  The type of OpenSSL object this class should wrap.
- * @tparam CopierFunc  The copier type (function signature) for the OpenSSL object.
+ * @tparam ObjectType The type of OpenSSL object this class should wrap.
+ * @tparam CopierFunc The copier type (function signature) for the OpenSSL object.
  */
 template<typename ObjectType, typename CopierFunc = std::function<ObjectType*(const ObjectType*)>>
 class OpenSSLObjectWrapper
@@ -38,8 +38,9 @@ public:
   virtual ~OpenSSLObjectWrapper() = default;
 
   /**
-   * Copy constructor and assignment operator use this OpenSSLObjectWrapper's custom copier to copy the wrapped OpenSSL
-   * object.
+   * Copy constructor.
+   *
+   * @param other The OpenSSLObjectWrapper object to copy.
    */
   OpenSSLObjectWrapper(const OpenSSLObjectWrapper& other)
     : mObject({ other.mCopier(other.mObject.get()), other.mObject.get_deleter() })
@@ -47,6 +48,11 @@ public:
   {
   }
 
+  /**
+   * Copy assignment operator.
+   *
+   * @param other The OpenSSLObjectWrapper object to copy.
+   */
   OpenSSLObjectWrapper& operator=(const OpenSSLObjectWrapper& other)
   {
     if (this != &other)
@@ -64,7 +70,7 @@ public:
   /**
    * Get the wrapped OpenSSL object.
    *
-   * @return A pointer to the wrapped OpenSSL object, nullptr if no object exists.
+   * @return A pointer to the wrapped OpenSSL object. nullptr if no object exists.
    */
   [[nodiscard]] ObjectType* get() { return mObject.get(); }
   [[nodiscard]] const ObjectType* get() const { return mObject.get(); }

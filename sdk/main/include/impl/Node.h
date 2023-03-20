@@ -65,7 +65,7 @@ public:
   explicit Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls = TLSBehavior::REQUIRE);
 
   /**
-   * Attempt to connect to this Node to the remote node.
+   * Attempt to connect this Node to the remote node.
    *
    * @param timeout The point in time that the attempted connection will cease and be considered a failure.
    * @return \c TRUE if the Node is already connected or successfully connected, otherwise \c FALSE.
@@ -134,7 +134,7 @@ public:
    * that indicates a successful request attempt, or if it has fully backed off for its full period of backoff time
    * after an unsuccessful submission attempt.
    *
-   * @return \c TRUE if this Node is healthy, otherwise \c FALSE.
+   * @return \c TRUE if this Node is "healthy", otherwise \c FALSE.
    */
   [[nodiscard]] bool isHealthy() const;
 
@@ -160,7 +160,7 @@ public:
   /**
    * Get the ID of the account associated with this Node.
    *
-   * @return The account ID.
+   * @return The ID of the account associated with this Node.
    */
   [[nodiscard]] inline AccountId getAccountId() const { return mAddress->getNodeAccountId(); }
 
@@ -169,7 +169,7 @@ private:
    * Initialize the gRPC channel used to communicate with this Node's remote node based on mTLSBehavior.
    *
    * @param deadline The deadline to connect. Processing will continue trying until this point to establish a connection
-   * and will return \c FALSE if not established by then.
+   *                 and will return \c FALSE if not established by then.
    * @return \c TRUE if initialization was successful, otherwise \c FALSE.
    */
   bool initializeChannel(const std::chrono::system_clock::time_point& deadline);
@@ -196,7 +196,7 @@ private:
   std::unique_ptr<proto::CryptoService::Stub> mCryptoStub = nullptr;
 
   /**
-   * The TLS behavior of this Node should use to communicate with its remote node.
+   * The TLS behavior this Node should use to communicate with its remote node.
    */
   TLSBehavior mTLSBehavior = TLSBehavior::REQUIRE;
 

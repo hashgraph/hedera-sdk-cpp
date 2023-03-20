@@ -33,7 +33,8 @@ class EVP_PKEY_CTX : public OpenSSLObjectWrapper<::EVP_PKEY_CTX>
 {
 public:
   /**
-   * Construct with the input EVP_PKEY_CTX and its EVP_PKEY_CTX_free deleter function.
+   * Construct with the input EVP_PKEY_CTX, its EVP_PKEY_CTX_free deleter function, and its EVP_PKEY_CTX_dup copier
+   * function.
    *
    * @param evpPkeyCtx The EVP_PKEY_CTX OpenSSL object to wrap.
    */

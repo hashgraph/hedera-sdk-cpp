@@ -45,7 +45,7 @@ public:
    * @return An initialized MnemonicBIP39.
    * @throws BadMnemonicException If the input indices are not valid or there is an invalid checksum.
    */
-  static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<uint16_t>& wordIndices);
+  [[nodiscard]] static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<uint16_t>& wordIndices);
 
   /**
    * Initialize a MnemonicBIP39 from a vector of word strings.
@@ -55,7 +55,7 @@ public:
    * @throws BadMnemonicException If any of the input words are not part of the BIP39 standard word list or if the
    *                              checksum is invalid.
    */
-  static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<std::string>& words);
+  [[nodiscard]] static MnemonicBIP39 initializeBIP39Mnemonic(const std::vector<std::string>& words);
 
   /**
    * Initialize a MnemonicBIP39 from a string containing all the words of a mnemonic phrase.
@@ -66,21 +66,22 @@ public:
    * @throws BadMnemonicException If any of the input words are not part of the BIP39 standard word list or if the
    *                              checksum is invalid.
    */
-  static MnemonicBIP39 initializeBIP39Mnemonic(std::string_view fullMnemonic, std::string_view delimiter = " ");
+  [[nodiscard]] static MnemonicBIP39 initializeBIP39Mnemonic(std::string_view fullMnemonic,
+                                                             std::string_view delimiter = " ");
 
   /**
    * Generate a MnemonicBIP39 phrase with 12 words.
    *
    * @return The newly-generated MnemonicBIP39.
    */
-  static MnemonicBIP39 generate12WordBIP39Mnemonic();
+  [[nodiscard]] static MnemonicBIP39 generate12WordBIP39Mnemonic();
 
   /**
    * Generate a MnemonicBIP39 phrase with 24 words.
    *
    * @return The newly-generated MnemonicBIP39.
    */
-  static MnemonicBIP39 generate24WordBIP39Mnemonic();
+  [[nodiscard]] static MnemonicBIP39 generate24WordBIP39Mnemonic();
 
   /**
    * Generate a SLIP44-standard ED25519PrivateKey from this Mnemonic using the input passphrase at the specified
@@ -122,7 +123,7 @@ public:
    * @param entropy The entropy from which to compute the word indices.
    * @return A vector containing the word indices.
    */
-  static std::vector<uint16_t> entropyToWordIndices(const std::vector<std::byte>& entropy);
+  [[nodiscard]] static std::vector<uint16_t> entropyToWordIndices(const std::vector<std::byte>& entropy);
 
 private:
   /**

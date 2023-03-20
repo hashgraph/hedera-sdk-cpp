@@ -34,17 +34,17 @@ class HbarTransfer
 {
 public:
   /**
-   * Create an HbarTransfer object from an AccountAmount protobuf object.
+   * Construct an HbarTransfer object from an AccountAmount protobuf object.
    *
-   * @param proto The AccountAmount protobuf object from which to create an HbarTransfer object.
-   * @return The created HbarTransfer object.
+   * @param proto The AccountAmount protobuf object from which to construct an HbarTransfer object.
+   * @return The constructed HbarTransfer object.
    */
-  static HbarTransfer fromProtobuf(const proto::AccountAmount& proto);
+  [[nodiscard]] static HbarTransfer fromProtobuf(const proto::AccountAmount& proto);
 
   /**
    * Construct an AccountAmount protobuf object from this HbarTransfer object.
    *
-   * @return A pointer to a created AccountAmount protobuf object filled with this HbarTransfer object's data.
+   * @return A pointer to a constructed AccountAmount protobuf object filled with this HbarTransfer object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::AccountAmount> toProtobuf() const;
 

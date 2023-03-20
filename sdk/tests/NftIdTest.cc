@@ -75,18 +75,18 @@ TEST_F(NftIdTest, ConstructFromString)
   EXPECT_EQ(nftId.getTokenId(), getTestTokenId());
   EXPECT_EQ(nftId.getSerialNum(), getTestSerialNum());
 
-  EXPECT_THROW(NftId::fromString(testTokenIdStr + testSerialNumSr), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString('/' + testTokenIdStr + testSerialNumSr), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString(testTokenIdStr + testSerialNumSr + '/'), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString("//" + testTokenIdStr + testSerialNumSr), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString('/' + testTokenIdStr + '/' + testSerialNumSr), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString(testTokenIdStr + '/' + testSerialNumSr + '/'), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString(testTokenIdStr + "//" + testSerialNumSr), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + testSerialNumSr), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString('/' + testTokenIdStr + testSerialNumSr), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + testSerialNumSr + '/'), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString("//" + testTokenIdStr + testSerialNumSr), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString('/' + testTokenIdStr + '/' + testSerialNumSr), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + '/' + testSerialNumSr + '/'), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + "//" + testSerialNumSr), std::invalid_argument);
 
-  EXPECT_THROW(NftId::fromString(testTokenIdStr + "/abc"), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString(testTokenIdStr + "/o.o.e"), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString(testTokenIdStr + "/0001!"), std::invalid_argument);
-  EXPECT_THROW(NftId::fromString(testTokenIdStr + '/' + testNumTooBigStr), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + "/abc"), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + "/o.o.e"), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + "/0001!"), std::invalid_argument);
+  EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + '/' + testNumTooBigStr), std::invalid_argument);
 }
 
 //-----

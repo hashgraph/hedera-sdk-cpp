@@ -41,12 +41,12 @@ class TransactionReceipt
 {
 public:
   /**
-   * Create a TransactionReceipt object from a TransactionReceipt protobuf object.
+   * Construct a TransactionReceipt object from a TransactionReceipt protobuf object.
    *
-   * @param proto The TransactionReceipt protobuf object from which to create an TransactionReceipt object.
-   * @return The created TransactionReceipt object.
+   * @param proto The TransactionReceipt protobuf object from which to construct an TransactionReceipt object.
+   * @return The constructed TransactionReceipt object.
    */
-  static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto);
+  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto);
 
   /**
    * Get the transaction status.

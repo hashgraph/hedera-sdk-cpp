@@ -41,12 +41,12 @@ class TokenNftTransfer
 {
 public:
   /**
-   * Create a TokenNftTransfer object from an NftTransfer protobuf object.
+   * Construct a TokenNftTransfer object from an NftTransfer protobuf object.
    *
-   * @param proto The NftTransfer protobuf object from which to create an TokenNftTransfer object.
-   * @return The created TokenNftTransfer object.
+   * @param proto The NftTransfer protobuf object from which to construct an TokenNftTransfer object.
+   * @return The constructed TokenNftTransfer object.
    */
-  static TokenNftTransfer fromProtobuf(const proto::NftTransfer& proto);
+  [[nodiscard]] static TokenNftTransfer fromProtobuf(const proto::NftTransfer& proto);
 
   /**
    * Construct an NftTransfer protobuf object from this TokenNftTransfer object.

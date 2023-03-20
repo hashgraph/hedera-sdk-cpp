@@ -39,7 +39,7 @@ public:
    * @throws std::invalid_argument If the input string is malformed.
    * @throws OpenSSLException If OpenSSL is unable to convert the string to a byte array.
    */
-  static EvmAddress fromString(std::string_view address);
+  [[nodiscard]] static EvmAddress fromString(std::string_view address);
 
   /**
    * Construct an EvmAddress from a 20-byte buffer.
@@ -47,7 +47,7 @@ public:
    * @param bytes The bytes of the EvmAddress.
    * @throws std::invalid_argument If the input byte buffer is not 20 bytes long.
    */
-  static EvmAddress fromBytes(const std::vector<std::byte>& bytes);
+  [[nodiscard]] static EvmAddress fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Get the hex-encoded string representation of this EVM address.

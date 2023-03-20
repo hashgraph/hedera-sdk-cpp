@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ACCOUNT_UDPATE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_ACCOUNT_UDPATE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_ACCOUNT_UPDATE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_ACCOUNT_UPDATE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "PublicKey.h"
@@ -98,7 +98,7 @@ public:
   AccountUpdateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
 
   /**
-   * Set a new expiration time for the acount.
+   * Set a new expiration time for the account.
    *
    * @param expiration The desired new expiration time for the account.
    * @return A reference to this AccountUpdateTransaction object with the newly-set expiration time.
@@ -329,4 +329,4 @@ private:
 
 } // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_ACCOUNT_UDPATE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_ACCOUNT_UPDATE_TRANSACTION_H_

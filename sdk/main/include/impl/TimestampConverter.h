@@ -32,26 +32,26 @@ class TimestampSeconds;
 namespace Hedera::internal::TimestampConverter
 {
 /**
- * Create a system time object from a Timestamp protobuf.
+ * Get the time point represented by a Timestamp protobuf object.
  *
- * @param timestamp The Timestamp protobuf.
- * @return The system time represented by the input Timestamp protobuf.
+ * @param timestamp The Timestamp protobuf from which to get the time point.
+ * @return The time point represented by the input Timestamp protobuf.
  */
 std::chrono::system_clock::time_point fromProtobuf(const proto::Timestamp& timestamp);
 
 /**
- * Create a system time object from a TimestampSeconds protobuf.
+ * Get the time point represented by a TimestampSeconds protobuf object.
  *
- * @param timestamp The TimestampSeconds protobuf.
- * @return The system time represented by the input TimestampSeconds protobuf.
+ * @param timestamp The TimestampSeconds protobuf from which to get the time point.
+ * @return The time point represented by the input TimestampSeconds protobuf.
  */
 std::chrono::system_clock::time_point fromProtobuf(const proto::TimestampSeconds& timestamp);
 
 /**
- * Create a Timestamp protobuf from a system time.
+ * Create a Timestamp protobuf object from a time point.
  *
- * @param time The system time.
- * @return The Timestamp protobuf represented by the input system time.
+ * @param duration The duration object from which to create a Timestamp protobuf object.
+ * @return A pointer to the created Timestamp protobuf object.
  */
 proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time);
 

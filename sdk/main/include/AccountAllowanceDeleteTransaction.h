@@ -45,8 +45,7 @@ namespace Hedera
 /**
  * This transaction type is for deleting an account allowance.
  */
-class AccountAllowanceDeleteTransaction
-  : public Transaction<AccountAllowanceDeleteTransaction>
+class AccountAllowanceDeleteTransaction : public Transaction<AccountAllowanceDeleteTransaction>
 {
 public:
   /**
@@ -62,9 +61,7 @@ public:
    *                     ID's and protobuf transactions.
    */
   explicit AccountAllowanceDeleteTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
 
   /**
    * Construct from a protobuf transaction object.
@@ -72,8 +69,7 @@ public:
    * @param transaction The protobuf transaction object from which to construct
    *                    this transaction.
    */
-  explicit AccountAllowanceDeleteTransaction(
-    const proto::TransactionBody& transaction);
+  explicit AccountAllowanceDeleteTransaction(const proto::TransactionBody& transaction);
 
   /**
    * Validate the checksums.
@@ -86,14 +82,17 @@ public:
    * Derived from Transaction. Called in freezeWith(Client) just before the
    * transaction body is built. The intent is for the derived class to assign
    * their data variant to the transaction body.
+   *
+   * @param body The transaction's body part. (XXX)
    */
   virtual void onFreeze(proto::TransactionBody* body) const override;
 
   /**
    * Called in schedule() when converting transaction into a scheduled version.
+   *
+   * @param body The schedulable transaction's body part. (XXX)
    */
-  virtual void onScheduled(
-    proto::SchedulableTransactionBody* body) const override;
+  virtual void onScheduled(proto::SchedulableTransactionBody* body) const override;
 
   /**
    * Build an account allowance delete protobuf message based on the data in
@@ -106,23 +105,18 @@ public:
   /**
    * Delete all NFT allowances.
    *
-   * @param tokenId          The token's ID.
+   * @param nftId            The token's ID.
    * @param ownerAccountId   The owner's account ID.
    * @return Reference to this AccountAllowanceDeleteTransaction object
    */
-  AccountAllowanceDeleteTransaction& deleteAllNftAllowances(
-    const NftId& nftId,
-    const AccountId& ownerAccountId);
+  AccountAllowanceDeleteTransaction& deleteAllNftAllowances(const NftId& nftId, const AccountId& ownerAccountId);
 
   /**
    * Extract the list of token NFT allowance approvals.
    *
    * @return The list of token NFT allowance approvals.
    */
-  inline std::vector<NftAllowance> getNftAllowanceDeletions() const
-  {
-    return mNftAllowances;
-  }
+  inline std::vector<NftAllowance> getNftAllowanceDeletions() const { return mNftAllowances; }
 
 private:
   /**
@@ -138,9 +132,7 @@ private:
    * @param tokenId          The token's ID.
    * @param ownerAccountId   The owner's account ID.
    */
-  void saveNftSerial(const int64_t& serial,
-                     const TokenId& tokenId,
-                     const AccountId& ownerAccountId);
+  void saveNftSerial(const int64_t& serial, const TokenId& tokenId, const AccountId& ownerAccountId);
 
   /**
    * A list of added NFT allowances.

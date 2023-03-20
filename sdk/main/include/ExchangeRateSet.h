@@ -39,12 +39,12 @@ class ExchangeRateSet
 {
 public:
   /**
-   * Create an ExchangeRateSet object from a ExchangeRateSet protobuf object.
+   * Construct an ExchangeRateSet object from a ExchangeRateSet protobuf object.
    *
-   * @param proto The ExchangeRateSet protobuf object from which to create an ExchangeRateSet object.
-   * @return The created ExchangeRateSet object.
+   * @param proto The ExchangeRateSet protobuf object from which to construct an ExchangeRateSet object.
+   * @return The constructed ExchangeRateSet object.
    */
-  static ExchangeRateSet fromProtobuf(const proto::ExchangeRateSet& proto);
+  [[nodiscard]] static ExchangeRateSet fromProtobuf(const proto::ExchangeRateSet& proto);
 
   /**
    * Get the current exchange rate.

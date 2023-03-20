@@ -37,8 +37,6 @@ namespace Hedera
 class AccountBalanceQuery : public Query<AccountBalanceQuery, AccountBalance>
 {
 public:
-  ~AccountBalanceQuery() override = default;
-
   /**
    * Set the ID of the account of which to request the balance. This is mutually exclusive with setContractId() and will
    * clear the contract ID if one is already set.

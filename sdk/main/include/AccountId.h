@@ -105,21 +105,22 @@ public:
   bool operator==(const AccountId& other) const;
 
   /**
-   * Create an AccountId object from a string of the form "<shard>.<realm>.<num>". <num> can be the account number, the
-   * stringified PublicKey alias (DER-encoded), or the stringified EVM address.
+   * Construct an AccountId object from a string of the form "<shard>.<realm>.<num>". <num> can be the account number,
+   * the stringified PublicKey alias (DER-encoded), or the stringified EVM address.
    *
    * @param id The account ID string from which to construct.
+   * @return The constructed AccountId object.
    * @throws std::invalid_argument If the input string is malformed or the type of <num> cannot be determined.
    */
-  static AccountId fromString(std::string_view id);
+  [[nodiscard]] static AccountId fromString(std::string_view id);
 
   /**
    * Create an AccountId object from an AccountID protobuf object.
    *
    * @param proto The AccountID protobuf object from which to create an AccountId object.
-   * @return The created AccountId object.
+   * @return The constructed AccountId object.
    */
-  static AccountId fromProtobuf(const proto::AccountID& proto);
+  [[nodiscard]] static AccountId fromProtobuf(const proto::AccountID& proto);
 
   /**
    * Construct an AccountID protobuf object from this AccountId object.

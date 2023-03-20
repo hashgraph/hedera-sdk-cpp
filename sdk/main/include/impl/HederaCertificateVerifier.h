@@ -55,7 +55,7 @@ private:
    * @return \c TRUE because all checks are done synchronously.
    */
   bool Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
-              std::function<void(grpc::Status)> /*callback*/,
+              std::function<void(grpc::Status)> callback,
               grpc::Status* sync_status) override;
 
   /**

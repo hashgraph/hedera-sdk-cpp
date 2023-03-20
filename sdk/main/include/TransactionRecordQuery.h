@@ -38,8 +38,6 @@ namespace Hedera
 class TransactionRecordQuery : public Query<TransactionRecordQuery, TransactionRecord>
 {
 public:
-  ~TransactionRecordQuery() override = default;
-  
   /**
    * Set the ID of the transaction of which to request the record.
    *

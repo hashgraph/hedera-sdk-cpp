@@ -85,7 +85,7 @@ public:
    * Sign an arbitrary array of bytes with this Client's operator.
    *
    * @param bytes The bytes for this Client's operator to sign.
-   * @return The bytes with the signature of this Client's operator appended.
+   * @return The generated signature of this Client's operator.
    * @throws UninitializedException If this Client's operator has not yet been set.
    */
   [[nodiscard]] std::vector<std::byte> sign(const std::vector<std::byte>& bytes) const;
@@ -178,7 +178,7 @@ public:
   /**
    * Get the account ID of this Client's operator.
    *
-   * @return The set account ID of this Client's operator. Uninitialized if the operator has not yet been set.
+   * @return The account ID of this Client's operator. Uninitialized if the operator has not yet been set.
    */
   [[nodiscard]] std::optional<AccountId> getOperatorAccountId() const;
 
@@ -226,7 +226,7 @@ public:
    * the same node.
    *
    * @return The minimum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
-   * not previously set.
+   *         not previously set.
    */
   [[nodiscard]] std::optional<std::chrono::duration<double>> getMinBackoff() const;
 
