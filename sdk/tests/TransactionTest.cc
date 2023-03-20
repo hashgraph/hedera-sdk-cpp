@@ -19,6 +19,7 @@
  */
 #include "Transaction.h"
 #include "AccountCreateTransaction.h"
+#include "AccountDeleteTransaction.h"
 #include "AccountUpdateTransaction.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "TransferTransaction.h"

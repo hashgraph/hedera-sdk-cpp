@@ -17,6 +17,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountBalanceQueryTest.cc
         AccountBalanceTest.cc
         AccountCreateTransactionTest.cc
+        AccountDeleteTransactionTest.cc
         AccountIdTest.cc
         AccountUpdateTransactionTest.cc
         ClientTest.cc
