@@ -73,7 +73,7 @@ protected:
    * @param entropy The array of entropy of which to compute the checksum.
    * @return The checksum of the entropy.
    */
-  [[nodiscard]] static unsigned char computeChecksumFromEntropy(const std::vector<unsigned char>& entropy);
+  [[nodiscard]] static std::byte computeChecksumFromEntropy(const std::vector<std::byte>& entropy);
 
   /**
    * Initialize this Mnemonic with a vector of word indices.
@@ -103,7 +103,7 @@ protected:
    *
    * @return A byte vector, representing the entropy and checksum of the mnemonic.
    */
-  [[nodiscard]] std::vector<unsigned char> computeEntropyAndChecksum() const;
+  [[nodiscard]] std::vector<std::byte> computeEntropyAndChecksum() const;
 
   /**
    * Get the word list for this Mnemonic.

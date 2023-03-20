@@ -23,6 +23,7 @@
 #include "exceptions/BadMnemonicException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/DerivationPathUtils.h"
+#include "impl/Utilities.h"
 #include "impl/openssl_utils/EVP_MD.h"
 #include "impl/openssl_utils/EVP_MD_CTX.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
@@ -123,7 +124,7 @@ std::unique_ptr<PrivateKey> MnemonicBIP39::toStandardECDSAsecp256k1PrivateKey(st
 }
 
 //-----
-std::vector<unsigned char> MnemonicBIP39::toSeed(std::string_view passphrase) const
+std::vector<std::byte> MnemonicBIP39::toSeed(std::string_view passphrase) const
 {
   internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
@@ -142,20 +143,20 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(std::string_view passphrase) co
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestInit"));
   }
 
-  std::vector<unsigned char> seed(SEED_SIZE);
+  std::vector<std::byte> seed(SEED_SIZE);
 
   const std::string mnemonicString = toString();
   const std::string saltStr = std::string("mnemonic").append(passphrase);
 
-  if (const std::vector<unsigned char> salt = { saltStr.cbegin(), saltStr.cend() };
+  if (const std::vector<std::byte> salt = internal::Utilities::stringToByteVector(saltStr);
       PKCS5_PBKDF2_HMAC(mnemonicString.c_str(),
                         static_cast<int>(mnemonicString.length()),
-                        salt.data(),
+                        internal::OpenSSLUtils::toUnsignedCharPtr(salt.data()),
                         static_cast<int>(salt.size()),
                         SEED_ITERATIONS,
                         messageDigest.get(),
                         static_cast<int>(seed.size()),
-                        seed.data()) <= 0)
+                        internal::OpenSSLUtils::toUnsignedCharPtr(seed.data())) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("PKCS5_PBKDF2_HMAC"));
   }
@@ -164,9 +165,9 @@ std::vector<unsigned char> MnemonicBIP39::toSeed(std::string_view passphrase) co
 }
 
 //-----
-std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsigned char>& entropy)
+std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<std::byte>& entropy)
 {
-  std::vector<unsigned char> entropyAndChecksum = entropy;
+  std::vector<std::byte> entropyAndChecksum = entropy;
 
   entropyAndChecksum.push_back(computeChecksumFromEntropy(entropy));
 
@@ -209,10 +210,10 @@ std::vector<uint16_t> MnemonicBIP39::entropyToWordIndices(const std::vector<unsi
 
   unsigned int scratch = 0;
   unsigned int offset = 0;
-  for (unsigned char byte : entropyAndChecksum)
+  for (std::byte byte : entropyAndChecksum)
   {
-    scratch <<= 8;   // (2)
-    scratch |= byte; // (1)
+    scratch <<= 8;                         // (2)
+    scratch |= std::to_integer<int>(byte); // (1)
 
     offset += 8;
 

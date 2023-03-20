@@ -75,7 +75,7 @@ public:
    * @param bytesToSign The bytes to sign.
    * @return The signature of the byte array.
    */
-  [[nodiscard]] virtual std::vector<unsigned char> sign(const std::vector<unsigned char>& bytesToSign) const = 0;
+  [[nodiscard]] virtual std::vector<std::byte> sign(const std::vector<std::byte>& bytesToSign) const = 0;
 
   /**
    * Get the hex-encoded string of the DER-encoded bytes of this PrivateKey.
@@ -96,21 +96,21 @@ public:
    *
    * @return The DER-encoded bytes of this PrivateKey.
    */
-  [[nodiscard]] virtual std::vector<unsigned char> toBytesDer() const = 0;
+  [[nodiscard]] virtual std::vector<std::byte> toBytesDer() const = 0;
 
   /**
    * Get the raw, non-DER-encoded bytes of this PrivateKey.
    *
    * @return The raw bytes of this PrivateKey.
    */
-  [[nodiscard]] virtual std::vector<unsigned char> toBytesRaw() const = 0;
+  [[nodiscard]] virtual std::vector<std::byte> toBytesRaw() const = 0;
 
   /**
    * Get this PrivateKey's chain code. It is possible that the chain code could be empty.
    *
    * @return This PrivateKey's chaincode if it exists, otherwise an empty vector.
    */
-  [[nodiscard]] std::vector<unsigned char> getChainCode() const;
+  [[nodiscard]] std::vector<std::byte> getChainCode() const;
 
   /**
    * Get the PublicKey that corresponds to this PrivateKey.
@@ -137,7 +137,7 @@ protected:
    * @throws BadKeyException  If the chain code is malformed.
    */
   explicit PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key,
-                      std::vector<unsigned char> chainCode = std::vector<unsigned char>());
+                      std::vector<std::byte> chainCode = std::vector<std::byte>());
 
   /**
    * Get this PrivateKey's wrapped OpenSSL key object.

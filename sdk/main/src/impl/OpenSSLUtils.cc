@@ -43,24 +43,23 @@ constexpr const size_t ERROR_MSG_SIZE = 256ULL;
 }
 
 //-----
-std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data)
+std::vector<std::byte> computeSHA256(const std::vector<std::byte>& data)
 {
-  auto outputBytes = std::vector<unsigned char>(SHA256_HASH_SIZE);
-  SHA256(data.data(), data.size(), outputBytes.data());
+  auto outputBytes = std::vector<std::byte>(SHA256_HASH_SIZE);
+  SHA256(toUnsignedCharPtr(data.data()), data.size(), toUnsignedCharPtr(outputBytes.data()));
   return outputBytes;
 }
 
 //-----
-std::vector<unsigned char> computeSHA384(const std::vector<unsigned char>& data)
+std::vector<std::byte> computeSHA384(const std::vector<std::byte>& data)
 {
-  auto outputBytes = std::vector<unsigned char>(SHA384_HASH_SIZE);
-  SHA384(data.data(), data.size(), outputBytes.data());
+  auto outputBytes = std::vector<std::byte>(SHA384_HASH_SIZE);
+  SHA384(toUnsignedCharPtr(data.data()), data.size(), toUnsignedCharPtr(outputBytes.data()));
   return outputBytes;
 }
 
 //-----
-std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
-                                             const std::vector<unsigned char>& data)
+std::vector<std::byte> computeSHA512HMAC(const std::vector<std::byte>& key, const std::vector<std::byte>& data)
 {
   EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
   if (!messageDigestContext)
@@ -79,13 +78,13 @@ std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& k
     throw OpenSSLException(getErrorMessage("EVP_DigestInit"));
   }
 
-  std::vector<unsigned char> digest(SHA512_HMAC_HASH_SIZE);
+  std::vector<std::byte> digest(SHA512_HMAC_HASH_SIZE);
   if (!HMAC(messageDigest.get(),
             key.data(),
             static_cast<int>(key.size()),
-            data.data(),
+            toUnsignedCharPtr(data.data()),
             static_cast<int>(data.size()),
-            digest.data(),
+            toUnsignedCharPtr(digest.data()),
             nullptr))
   {
     throw OpenSSLException(getErrorMessage("HMAC"));
@@ -112,21 +111,33 @@ std::string getErrorMessage(std::string_view functionName)
 }
 
 //-----
-std::vector<unsigned char> getRandomBytes(int count)
+std::vector<std::byte> getRandomBytes(int count)
 {
   if (count <= 0)
   {
     throw std::invalid_argument("The number of random bytes to generate must be positive");
   }
 
-  std::vector<unsigned char> randomBytes(count);
+  std::vector<std::byte> randomBytes(count);
 
-  if (RAND_priv_bytes(randomBytes.data(), count) <= 0)
+  if (RAND_priv_bytes(toUnsignedCharPtr(randomBytes.data()), count) <= 0)
   {
     throw OpenSSLException(getErrorMessage("RAND_priv_bytes"));
   }
 
   return randomBytes;
+}
+
+//-----
+unsigned char* toUnsignedCharPtr(std::byte* byte)
+{
+  return reinterpret_cast<unsigned char*>(byte);
+}
+
+//-----
+const unsigned char* toUnsignedCharPtr(const std::byte* byte)
+{
+  return reinterpret_cast<const unsigned char*>(byte);
 }
 
 } // namespace Hedera::internal::OpenSSLUtils

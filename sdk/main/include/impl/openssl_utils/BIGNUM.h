@@ -71,7 +71,7 @@ public:
    * @param bytes The vector of bytes representing the BIGNUM.
    * @return A newly constructed BIGNUM.
    */
-  [[nodiscard]] static BIGNUM fromBytes(const std::vector<unsigned char>& bytes)
+  [[nodiscard]] static BIGNUM fromBytes(const std::vector<std::byte>& bytes)
   {
     return fromHex(HexConverter::bytesToHex(bytes));
   }
@@ -110,7 +110,7 @@ public:
    *
    * @return The byte vector representing this BIGNUM.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytes() const
+  [[nodiscard]] std::vector<std::byte> toBytes() const
   {
     char* hex = BN_bn2hex(get());
     const std::string hexString(hex);

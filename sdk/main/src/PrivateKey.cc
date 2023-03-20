@@ -32,7 +32,7 @@ namespace Hedera
 PrivateKey::~PrivateKey() = default;
 
 //-----
-std::vector<unsigned char> PrivateKey::getChainCode() const
+std::vector<std::byte> PrivateKey::getChainCode() const
 {
   return mImpl->mChainCode;
 }
@@ -44,7 +44,7 @@ std::shared_ptr<PublicKey> PrivateKey::getPublicKey() const
 }
 
 //-----
-PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<unsigned char> chainCode)
+PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<std::byte> chainCode)
   : mImpl(PrivateKeyImpl())
 {
   mImpl->mKey = std::move(key);
@@ -55,9 +55,10 @@ PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<unsig
     throw BadKeyException("Key chain code malformed");
   }
 
-  std::vector<unsigned char> keyBytes(i2d_PUBKEY(mImpl->mKey.get(), nullptr));
+  std::vector<std::byte> keyBytes(i2d_PUBKEY(mImpl->mKey.get(), nullptr));
 
-  if (unsigned char* rawPublicKeyBytes = keyBytes.data(); i2d_PUBKEY(mImpl->mKey.get(), &rawPublicKeyBytes) <= 0)
+  if (unsigned char* rawPublicKeyBytes = internal::OpenSSLUtils::toUnsignedCharPtr(keyBytes.data());
+      i2d_PUBKEY(mImpl->mKey.get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
   }

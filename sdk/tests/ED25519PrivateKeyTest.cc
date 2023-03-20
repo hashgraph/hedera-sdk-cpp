@@ -35,14 +35,18 @@ class ED25519PrivateKeyTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::string& getTestPrivateKeyHexString() const { return mPrivateKeyHexString; }
-  [[nodiscard]] inline const std::vector<unsigned char>& getTestPrivateKeyBytes() const { return mPrivateKeyBytes; }
+  [[nodiscard]] inline const std::vector<std::byte>& getTestPrivateKeyBytes() const { return mPrivateKeyBytes; }
 
 private:
   const std::string mPrivateKeyHexString = "68FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
-  const std::vector<unsigned char> mPrivateKeyBytes = { 0x68, 0xFB, 0xA5, 0x16, 0x47, 0x2B, 0x38, 0x7C,
-                                                        0x9F, 0x33, 0xC3, 0xE6, 0x67, 0x61, 0x6D, 0x80,
-                                                        0x6E, 0x5B, 0x9C, 0xEF, 0xF2, 0x3A, 0x76, 0x6E,
-                                                        0x5D, 0x9A, 0x38, 0x18, 0xC7, 0x78, 0x71, 0xF1 };
+  const std::vector<std::byte> mPrivateKeyBytes = {
+    std::byte(0x68), std::byte(0xFB), std::byte(0xA5), std::byte(0x16), std::byte(0x47), std::byte(0x2B),
+    std::byte(0x38), std::byte(0x7C), std::byte(0x9F), std::byte(0x33), std::byte(0xC3), std::byte(0xE6),
+    std::byte(0x67), std::byte(0x61), std::byte(0x6D), std::byte(0x80), std::byte(0x6E), std::byte(0x5B),
+    std::byte(0x9C), std::byte(0xEF), std::byte(0xF2), std::byte(0x3A), std::byte(0x76), std::byte(0x6E),
+    std::byte(0x5D), std::byte(0x9A), std::byte(0x38), std::byte(0x18), std::byte(0xC7), std::byte(0x78),
+    std::byte(0x71), std::byte(0xF1)
+  };
 };
 
 //-----
@@ -107,7 +111,7 @@ TEST_F(ED25519PrivateKeyTest, FromString)
 //-----
 TEST_F(ED25519PrivateKeyTest, FromBytes)
 {
-  const std::vector<unsigned char> derEncodedPrivateKeyBytes =
+  const std::vector<std::byte> derEncodedPrivateKeyBytes =
     concatenateVectors({ ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes() });
 
   const std::unique_ptr<ED25519PrivateKey> privateKeyFromBytes = ED25519PrivateKey::fromBytes(getTestPrivateKeyBytes());
@@ -161,10 +165,10 @@ TEST_F(ED25519PrivateKeyTest, Sign)
 {
   // Given
   const std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::fromString(getTestPrivateKeyHexString());
-  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  const std::vector<std::byte> bytesToSign = { std::byte(0x1), std::byte(0x2), std::byte(0x3) };
 
   // When / Then
-  EXPECT_NO_THROW(const std::vector<unsigned char> signature = privateKey->sign(bytesToSign));
+  EXPECT_NO_THROW(const std::vector<std::byte> signature = privateKey->sign(bytesToSign));
 
   // Signature functionality is further tested in RFC8032 test vectors
 }
@@ -176,7 +180,7 @@ TEST_F(ED25519PrivateKeyTest, SignEmptyBytes)
   const std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::fromString(getTestPrivateKeyHexString());
 
   // When / Then
-  EXPECT_NO_THROW(const std::vector<unsigned char> signature = privateKey->sign({}));
+  EXPECT_NO_THROW(const std::vector<std::byte> signature = privateKey->sign({}));
 
   // Signature functionality is further tested in RFC8032 test vectors
 }
@@ -203,8 +207,8 @@ TEST_F(ED25519PrivateKeyTest, ToBytes)
   const std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::fromString(getTestPrivateKeyHexString());
 
   // When
-  const std::vector<unsigned char> bytesDer = privateKey->toBytesDer();
-  const std::vector<unsigned char> bytesRaw = privateKey->toBytesRaw();
+  const std::vector<std::byte> bytesDer = privateKey->toBytesDer();
+  const std::vector<std::byte> bytesRaw = privateKey->toBytesRaw();
 
   // Then
   EXPECT_EQ(bytesDer, concatenateVectors({ ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes() }));
@@ -218,7 +222,7 @@ TEST_F(ED25519PrivateKeyTest, GetChainCode)
   const std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::fromString(getTestPrivateKeyHexString());
 
   // When
-  const std::vector<unsigned char> chainCode = privateKey->getChainCode();
+  const std::vector<std::byte> chainCode = privateKey->getChainCode();
 
   // Then
   EXPECT_TRUE(chainCode.empty());

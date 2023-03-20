@@ -59,7 +59,7 @@ EvmAddress EvmAddress::fromString(std::string_view address)
 }
 
 //-----
-EvmAddress EvmAddress::fromBytes(const std::vector<unsigned char>& bytes)
+EvmAddress EvmAddress::fromBytes(const std::vector<std::byte>& bytes)
 {
   EvmAddress evmAddress;
   evmAddress.mEvmAddress = bytes;
@@ -74,7 +74,7 @@ std::string EvmAddress::toString() const
 }
 
 //-----
-std::vector<unsigned char> EvmAddress::toBytes() const
+std::vector<std::byte> EvmAddress::toBytes() const
 {
   return mEvmAddress;
 }

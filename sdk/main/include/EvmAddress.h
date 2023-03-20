@@ -47,7 +47,7 @@ public:
    * @param bytes The bytes of the EvmAddress.
    * @throws std::invalid_argument If the input byte buffer is not 20 bytes long.
    */
-  [[nodiscard]] static EvmAddress fromBytes(const std::vector<unsigned char>& bytes);
+  [[nodiscard]] static EvmAddress fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Get the hex-encoded string representation of this EVM address.
@@ -61,7 +61,7 @@ public:
    *
    * @return The bytes of this EVM address.
    */
-  [[nodiscard]] std::vector<unsigned char> toBytes() const;
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
 
 private:
   EvmAddress() = default;
@@ -81,7 +81,7 @@ private:
   /**
    * The 20-byte buffer that represents the address for an ethereum account.
    */
-  std::vector<unsigned char> mEvmAddress;
+  std::vector<std::byte> mEvmAddress;
 };
 
 } // namespace Hedera

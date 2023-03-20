@@ -19,6 +19,7 @@
  */
 #include "TransactionRecord.h"
 #include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <proto/transaction_record.pb.h>
 
@@ -97,7 +98,7 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
 
   if (!proto.evm_address().empty())
   {
-    transactionRecord.mEvmAddress = EvmAddress::fromBytes({ proto.evm_address().cbegin(), proto.evm_address().cend() });
+    transactionRecord.mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.evm_address()));
   }
 
   return transactionRecord;

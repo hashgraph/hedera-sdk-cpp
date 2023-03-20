@@ -36,14 +36,18 @@ class ECDSAsecp256k1PrivateKeyTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::string& getTestPrivateKeyHexString() const { return mPrivateKeyHexString; }
-  [[nodiscard]] inline const std::vector<unsigned char>& getTestPrivateKeyBytes() const { return mPrivateKeyBytes; }
+  [[nodiscard]] inline const std::vector<std::byte>& getTestPrivateKeyBytes() const { return mPrivateKeyBytes; }
 
 private:
   const std::string mPrivateKeyHexString = "E8F32E723DECF4051AEFAC8E2C93C9C5B214313817CDB01A1494B917C8436B35";
-  const std::vector<unsigned char> mPrivateKeyBytes = { 0xE8, 0xF3, 0x2E, 0x72, 0x3D, 0xEC, 0xF4, 0x05,
-                                                        0x1A, 0xEF, 0xAC, 0x8E, 0x2C, 0x93, 0xC9, 0xC5,
-                                                        0xB2, 0x14, 0x31, 0x38, 0x17, 0xCD, 0xB0, 0x1A,
-                                                        0x14, 0x94, 0xB9, 0x17, 0xC8, 0x43, 0x6B, 0x35 };
+  const std::vector<std::byte> mPrivateKeyBytes = {
+    std::byte(0xE8), std::byte(0xF3), std::byte(0x2E), std::byte(0x72), std::byte(0x3D), std::byte(0xEC),
+    std::byte(0xF4), std::byte(0x05), std::byte(0x1A), std::byte(0xEF), std::byte(0xAC), std::byte(0x8E),
+    std::byte(0x2C), std::byte(0x93), std::byte(0xC9), std::byte(0xC5), std::byte(0xB2), std::byte(0x14),
+    std::byte(0x31), std::byte(0x38), std::byte(0x17), std::byte(0xCD), std::byte(0xB0), std::byte(0x1A),
+    std::byte(0x14), std::byte(0x94), std::byte(0xB9), std::byte(0x17), std::byte(0xC8), std::byte(0x43),
+    std::byte(0x6B), std::byte(0x35)
+  };
 };
 
 //-----
@@ -110,7 +114,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
 //-----
 TEST_F(ECDSAsecp256k1PrivateKeyTest, FromBytes)
 {
-  const std::vector<unsigned char> derEncodedPrivateKeyBytes =
+  const std::vector<std::byte> derEncodedPrivateKeyBytes =
     concatenateVectors({ ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes() });
 
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKeyFromBytes =
@@ -168,10 +172,10 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, Sign)
   // Given
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
     ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
-  const std::vector<unsigned char> bytesToSign = { 0x1, 0x2, 0x3 };
+  const std::vector<std::byte> bytesToSign = { std::byte(0x1), std::byte(0x2), std::byte(0x3) };
 
   // When
-  const std::vector<unsigned char> signature = privateKey->sign(bytesToSign);
+  const std::vector<std::byte> signature = privateKey->sign(bytesToSign);
 
   // Then
   // ECDSA signatures incorporate random elements, so equality can't be tested. Just make sure its size makes sense.
@@ -186,7 +190,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, SignEmptyBytes)
     ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
 
   // When
-  const std::vector<unsigned char> signature = privateKey->sign({});
+  const std::vector<std::byte> signature = privateKey->sign({});
 
   // Then
   EXPECT_LE(signature.size(), ECDSAsecp256k1PrivateKey::MAX_SIGNATURE_SIZE);
@@ -216,8 +220,8 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, ToBytes)
     ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
 
   // When
-  const std::vector<unsigned char> bytesDer = privateKey->toBytesDer();
-  const std::vector<unsigned char> bytesRaw = privateKey->toBytesRaw();
+  const std::vector<std::byte> bytesDer = privateKey->toBytesDer();
+  const std::vector<std::byte> bytesRaw = privateKey->toBytesRaw();
 
   // Then
   EXPECT_EQ(bytesDer,
@@ -233,7 +237,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, GetChainCode)
     ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
 
   // When
-  const std::vector<unsigned char> chainCode = privateKey->getChainCode();
+  const std::vector<std::byte> chainCode = privateKey->getChainCode();
 
   // Then
   EXPECT_TRUE(chainCode.empty());

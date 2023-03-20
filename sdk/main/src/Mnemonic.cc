@@ -22,6 +22,7 @@
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <stdexcept>
 
 namespace Hedera
@@ -288,10 +289,10 @@ std::vector<std::string> Mnemonic::splitMnemonicString(std::string_view fullMnem
 }
 
 //-----
-unsigned char Mnemonic::computeChecksumFromEntropy(const std::vector<unsigned char>& entropy)
+std::byte Mnemonic::computeChecksumFromEntropy(const std::vector<std::byte>& entropy)
 {
-  unsigned char mask = ~(0xFF >> (entropy.size() * 8 / 32));
-  return internal::OpenSSLUtils::computeSHA256(entropy)[0] & mask;
+  return internal::OpenSSLUtils::computeSHA256(entropy).at(0) &
+         ~(std::byte(0xFF) >> static_cast<int>(entropy.size() * 8 / 32));
 }
 
 //-----
@@ -321,7 +322,7 @@ std::vector<uint16_t> Mnemonic::wordsToIndices(const std::vector<std::string>& w
 //-----
 bool Mnemonic::verifyChecksum() const
 {
-  const std::vector<unsigned char>& entropyAndChecksum = computeEntropyAndChecksum();
+  const std::vector<std::byte>& entropyAndChecksum = computeEntropyAndChecksum();
 
   return ((entropyAndChecksum.size() * 8) % 32) &&
          (computeChecksumFromEntropy({ entropyAndChecksum.begin(), entropyAndChecksum.end() - 1 }) ==
@@ -329,7 +330,7 @@ bool Mnemonic::verifyChecksum() const
 }
 
 //-----
-std::vector<unsigned char> Mnemonic::computeEntropyAndChecksum() const
+std::vector<std::byte> Mnemonic::computeEntropyAndChecksum() const
 {
   // The algorithm described below is the reverse algorithm of `MnemonicBIP39::entropyToWordIndices`
   // Recall, since each mnemonic word index is < 2048 in the BIP39 list, they can be contained each in an 11 bit
@@ -373,7 +374,7 @@ std::vector<unsigned char> Mnemonic::computeEntropyAndChecksum() const
   // (4) For 12 word mnemonics, the final byte of the buffer will only have 4 meaningful bits. This is handled
   // separately, after having iterated through all mnemonic words
 
-  std::vector<unsigned char> buffer;
+  std::vector<std::byte> buffer;
 
   unsigned int scratch = 0;
   unsigned int offset = 0;
@@ -386,14 +387,14 @@ std::vector<unsigned char> Mnemonic::computeEntropyAndChecksum() const
 
     while (offset >= 8) // (2)
     {
-      buffer.push_back(static_cast<unsigned char>(scratch >> (offset - 8)));
+      buffer.push_back(std::byte(scratch >> (offset - 8)));
       offset -= 8;
     }
   }
 
   if (offset != 0) // (4)
   {
-    buffer.push_back(static_cast<unsigned char>(scratch << offset));
+    buffer.push_back(std::byte(scratch << offset));
   }
 
   return buffer;

@@ -32,7 +32,7 @@ namespace Hedera::internal::OpenSSLUtils
  * @param data The byte array of which to compute the hash.
  * @return The SHA256 hash of the data.
  */
-[[nodiscard]] std::vector<unsigned char> computeSHA256(const std::vector<unsigned char>& data);
+[[nodiscard]] std::vector<std::byte> computeSHA256(const std::vector<std::byte>& data);
 
 /**
  * Compute the SHA384 hash of a byte array.
@@ -40,7 +40,7 @@ namespace Hedera::internal::OpenSSLUtils
  * @param data The byte array of which to compute the hash.
  * @return The SHA384 hash of the data.
  */
-[[nodiscard]] std::vector<unsigned char> computeSHA384(const std::vector<unsigned char>& data);
+[[nodiscard]] std::vector<std::byte> computeSHA384(const std::vector<std::byte>& data);
 
 /**
  * Compute the HMAC-SHA512 hash of a key and data.
@@ -50,8 +50,8 @@ namespace Hedera::internal::OpenSSLUtils
  * @return The HMAC-SHA512 hash of the data and key.
  * @throws OpenSSLException If OpenSSL is unable to compute the HMAC-SHA512 hash of the given inputs.
  */
-[[nodiscard]] std::vector<unsigned char> computeSHA512HMAC(const std::vector<unsigned char>& key,
-                                                           const std::vector<unsigned char>& data);
+[[nodiscard]] std::vector<std::byte> computeSHA512HMAC(const std::vector<std::byte>& key,
+                                                       const std::vector<std::byte>& data);
 
 /**
  * Gets an error message for an OpenSSL error. Includes as much detail as possible.
@@ -69,7 +69,16 @@ namespace Hedera::internal::OpenSSLUtils
  * @throws std::invalid_argument If the input count is negative.
  * @throws OpenSSLException If OpenSSL is unable to generate random bytes.
  */
-[[nodiscard]] std::vector<unsigned char> getRandomBytes(int count);
+[[nodiscard]] std::vector<std::byte> getRandomBytes(int count);
+
+/**
+ * Reinterpret a std::byte pointer as an unsigned char pointer (for intergration with OpenSSL APIs).
+ *
+ * @param byte The pointer to the std::byte to reinterpret.
+ * @return A pointer to the std::byte as an unsigned char.
+ */
+[[nodiscard]] unsigned char* toUnsignedCharPtr(std::byte* byte);
+[[nodiscard]] const unsigned char* toUnsignedCharPtr(const std::byte* byte);
 
 } // namespace Hedera::internal::OpenSSLUtils
 

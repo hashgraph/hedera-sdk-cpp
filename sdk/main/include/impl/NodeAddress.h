@@ -51,6 +51,22 @@ public:
   NodeAddress(std::string_view ipAddressV4, int port);
 
   /**
+   * Determine if a particular port number corresponds to a TLS port.
+   *
+   * @param port The port number.
+   * @return \c TRUE if the input port number corresponds to a TLS port, otherwise \c FALSE.
+   */
+  static inline bool isTlsPort(int port) { return (port == PORT_NODE_TLS) || (port == PORT_MIRROR_TLS); }
+
+  /**
+   * Determine if a particular port number corresponds to a non-TLS port.
+   *
+   * @param port The port number.
+   * @return \c TRUE if the input port number corresponds to a non-TLS port, otherwise \c FALSE.
+   */
+  static inline bool isNonTlsPort(int port) { return (port == PORT_NODE_PLAIN) || (port == PORT_MIRROR_PLAIN); }
+
+  /**
    * Create a NodeAddress object from a NodeAddress protobuf object.
    *
    * @param protoNodeAddress The NodeAddress protobuf object from which to create a NodeAddress object.
@@ -124,23 +140,7 @@ public:
   NodeAddress& setStake(const uint64_t& stake);
 
   /**
-   * Determine if a particular port number corresponds to a TLS port.
-   *
-   * @param port The port number.
-   * @return \c TRUE if the input port number corresponds to a TLS port, otherwise \c FALSE.
-   */
-  static inline bool isTlsPort(int port) { return (port == PORT_NODE_TLS) || (port == PORT_MIRROR_TLS); }
-
-  /**
-   * Determine if a particular port number corresponds to a non-TLS port.
-   *
-   * @param port The port number.
-   * @return \c TRUE if the input port number corresponds to a non-TLS port, otherwise \c FALSE.
-   */
-  static inline bool isNonTlsPort(int port) { return (port == PORT_NODE_PLAIN) || (port == PORT_MIRROR_PLAIN); }
-
-  /**
-   * Get a string representation of this NodeAddress.
+   * Get a string representation of the NodeAddress.
    *
    * @return A string representing this NodeAddress.
    */
@@ -186,7 +186,7 @@ public:
    *
    * @return The SHA-384 hash of this NodeAddress's certificate chain.
    */
-  [[nodiscard]] inline std::vector<unsigned char> getNodeCertHash() const { return mNodeCertHash; }
+  [[nodiscard]] inline std::vector<std::byte> getNodeCertHash() const { return mNodeCertHash; }
 
   /**
    * Get the default Endpoint of this NodeAddress.
@@ -256,7 +256,7 @@ private:
   /**
    * The SHA-384 hash of the node's certificate chain.
    */
-  std::vector<unsigned char> mNodeCertHash;
+  std::vector<std::byte> mNodeCertHash;
 
   /**
    * A string description of the node.
