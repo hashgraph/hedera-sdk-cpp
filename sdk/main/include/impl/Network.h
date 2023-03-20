@@ -40,11 +40,25 @@ class Network
 {
 public:
   /**
+   * Construct a Network that is pre-configured for Hedera Mainnet access.
+   *
+   * @return A Network object that is set-up to communicate with the Hedera Mainnet.
+   */
+  [[nodiscard]] static Network forMainnet();
+
+  /**
    * Construct a Network that is pre-configured for Hedera Testnet access.
    *
    * @return A Network object that is set-up to communicate with the Hedera Testnet.
    */
-  static Network forTestnet();
+  [[nodiscard]] static Network forTestnet();
+
+  /**
+   * Construct a Network that is pre-configured for Hedera Previewnet access.
+   *
+   * @return A Network object that is set-up to communicate with the Hedera Previewnet.
+   */
+  [[nodiscard]] static Network forPreviewnet();
 
   /**
    * Get a list of Node pointers that point to Nodes on this Network that are associated with the input account IDs. If

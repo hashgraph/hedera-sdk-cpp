@@ -62,11 +62,25 @@ public:
   Client& operator=(Client&& other) noexcept;
 
   /**
+   * Construct a Client pre-configured for Hedera Mainnet access.
+   *
+   * @return A Client object that is set-up to communicate with the Hedera Mainnet.
+   */
+  [[nodiscard]] static Client forMainnet();
+
+  /**
    * Construct a Client pre-configured for Hedera Testnet access.
    *
    * @return A Client object that is set-up to communicate with the Hedera Testnet.
    */
-  static Client forTestnet();
+  [[nodiscard]] static Client forTestnet();
+
+  /**
+   * Construct a Client pre-configured for Hedera Previewnet access.
+   *
+   * @return A Client object that is set-up to communicate with the Hedera Previewnet.
+   */
+  [[nodiscard]] static Client forPreviewnet();
 
   /**
    * Set the account that will, by default, be paying for requests submitted by this Client. The operator account ID is
