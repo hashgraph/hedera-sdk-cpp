@@ -97,10 +97,26 @@ Client& Client::operator=(Client&& other) noexcept
 }
 
 //-----
+Client Client::forMainnet()
+{
+  Client client;
+  client.mImpl->mNetwork = internal::Network::forMainnet();
+  return client;
+}
+
+//-----
 Client Client::forTestnet()
 {
   Client client;
   client.mImpl->mNetwork = internal::Network::forTestnet();
+  return client;
+}
+
+//-----
+Client Client::forPreviewnet()
+{
+  Client client;
+  client.mImpl->mNetwork = internal::Network::forPreviewnet();
   return client;
 }
 

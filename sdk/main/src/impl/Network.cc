@@ -24,11 +24,26 @@
 namespace Hedera::internal
 {
 //-----
+Network Network::forMainnet()
+{
+  Network network;
+  network.setNetwork(NodeAddressBook::fromFile("mainnet.pb"));
+  return network;
+}
+
+//-----
 Network Network::forTestnet()
 {
   Network network;
   network.setNetwork(NodeAddressBook::fromFile("testnet.pb"));
+  return network;
+}
 
+//-----
+Network Network::forPreviewnet()
+{
+  Network network;
+  network.setNetwork(NodeAddressBook::fromFile("previewnet.pb"));
   return network;
 }
 

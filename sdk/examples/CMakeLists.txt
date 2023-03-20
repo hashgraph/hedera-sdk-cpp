@@ -14,9 +14,11 @@ add_executable(${TRANSFER_CRYPTO_EXAMPLE_NAME} TransferCryptoExample.cc)
 add_executable(${TRANSFER_TOKENS_EXAMPLE_NAME} TransferTokensExample.cc)
 add_executable(${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME} UpdateAccountPublicKeyExample.cc)
 
-file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+file(COPY ${PROJECT_SOURCE_DIR}/addressbook/previewnet.pb
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
 # Install gRPC's roots.pem file for Windows with the examples so that it can be easily referenced.
