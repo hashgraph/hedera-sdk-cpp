@@ -228,42 +228,44 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_TRUE(accountId.getAccountNum().has_value());
   EXPECT_EQ(*accountId.getAccountNum(), getTestAccountNum());
 
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + testRealmNumStr + testAccountNumStr), std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString('.' + testShardNumStr + testRealmNumStr + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + testRealmNumStr + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString('.' + testShardNumStr + testRealmNumStr + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + testRealmNumStr + testAccountNumStr + '.'),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(".." + testShardNumStr + testRealmNumStr + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + testRealmNumStr + testAccountNumStr + '.'),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString('.' + testShardNumStr + '.' + testRealmNumStr + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(".." + testShardNumStr + testRealmNumStr + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString('.' + testShardNumStr + testRealmNumStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString('.' + testShardNumStr + '.' + testRealmNumStr + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString('.' + testShardNumStr + testRealmNumStr + testAccountNumStr + '.'),
+  EXPECT_THROW(accountId = AccountId::fromString('.' + testShardNumStr + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + ".." + testRealmNumStr + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString('.' + testShardNumStr + testRealmNumStr + testAccountNumStr + '.'),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr + '.'),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + ".." + testRealmNumStr + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + testRealmNumStr + ".." + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + testAccountNumStr + '.'),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr + '.'),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + testRealmNumStr + ".." + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString('.' + testShardNumStr + '.' + testRealmNumStr + '.' + testAccountNumStr + '.'),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + testRealmNumStr + '.' + testAccountNumStr + '.'),
+               std::invalid_argument);
+  EXPECT_THROW(accountId =
+                 AccountId::fromString('.' + testShardNumStr + '.' + testRealmNumStr + '.' + testAccountNumStr + '.'),
                std::invalid_argument);
 
-  EXPECT_THROW(AccountId::fromString("abc"), std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString("o.o.e"), std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString("0.0.1!"), std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testNumTooBigStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString("abc"), std::invalid_argument);
+  EXPECT_THROW(accountId = AccountId::fromString("o.o.e"), std::invalid_argument);
+  EXPECT_THROW(accountId = AccountId::fromString("0.0.1!"), std::invalid_argument);
+  EXPECT_THROW(accountId = AccountId::fromString(testNumTooBigStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + '.' + testNumTooBigStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testNumTooBigStr + '.' + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + testNumTooBigStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + testNumTooBigStr),
                std::invalid_argument);
 
   const std::string ed25519AliasStr = getTestEd25519Alias()->toStringDer();
@@ -273,9 +275,9 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_NE(accountId.getAlias(), nullptr);
   EXPECT_EQ(accountId.getAlias()->toStringDer(), ed25519AliasStr);
 
-  EXPECT_THROW(AccountId::fromString(ed25519AliasStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(ed25519AliasStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + '.' + ed25519AliasStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + ed25519AliasStr + '.' + testAccountNumStr),
                std::invalid_argument);
 
   const std::string ecdsaAliasStr = getTestEcdsaSecp256k1Alias()->toStringDer();
@@ -285,9 +287,9 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_NE(accountId.getAlias(), nullptr);
   EXPECT_EQ(accountId.getAlias()->toStringDer(), ecdsaAliasStr);
 
-  EXPECT_THROW(AccountId::fromString(ecdsaAliasStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(ecdsaAliasStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + '.' + ecdsaAliasStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + ecdsaAliasStr + '.' + testAccountNumStr),
                std::invalid_argument);
 
   const std::string evmAddressStr = getTestEvmAddress().toString();
@@ -297,9 +299,9 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_TRUE(accountId.getEvmAddress());
   EXPECT_EQ(accountId.getEvmAddress()->toString(), evmAddressStr);
 
-  EXPECT_THROW(AccountId::fromString(evmAddressStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(evmAddressStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
                std::invalid_argument);
-  EXPECT_THROW(AccountId::fromString(testShardNumStr + '.' + evmAddressStr + '.' + testAccountNumStr),
+  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + evmAddressStr + '.' + testAccountNumStr),
                std::invalid_argument);
 }
 
