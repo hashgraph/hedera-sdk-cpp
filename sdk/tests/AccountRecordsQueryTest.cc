@@ -17,32 +17,40 @@
  * limitations under the License.
  *
  */
-#include "AccountBalance.h"
+#include "AccountRecordsQuery.h"
 
 #include <gtest/gtest.h>
-#include <proto/crypto_get_account_balance.pb.h>
 
 using namespace Hedera;
 
-class AccountBalanceTest : public ::testing::Test
+class AccountRecordsQueryTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const Hbar& getTestBalance() const { return mBalance; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
 
 private:
-  const Hbar mBalance = Hbar(100LL);
+  const AccountId mTestAccountId = AccountId(1ULL);
 };
 
 //-----
-TEST_F(AccountBalanceTest, DeserializeAccountBalanceFromProtobuf)
+TEST_F(AccountRecordsQueryTest, ConstructAccountRecordsQuery)
 {
-  // Given
-  proto::CryptoGetAccountBalanceResponse testProtoAccountBalance;
-  testProtoAccountBalance.set_balance(static_cast<unsigned long long>(getTestBalance().toTinybars()));
-
-  // When
-  const AccountBalance accountBalance = AccountBalance::fromProtobuf(testProtoAccountBalance);
+  // Given / When
+  AccountRecordsQuery query;
 
   // Then
-  EXPECT_EQ(accountBalance.getBalance().toTinybars(), getTestBalance().toTinybars());
+  EXPECT_EQ(query.getAccountId(), AccountId());
+}
+
+//-----
+TEST_F(AccountRecordsQueryTest, SetAccountId)
+{
+  // Given
+  AccountRecordsQuery query;
+
+  // When
+  query.setAccountId(getTestAccountId());
+
+  // Then
+  EXPECT_EQ(query.getAccountId(), getTestAccountId());
 }

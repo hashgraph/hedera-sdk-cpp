@@ -19,6 +19,7 @@
  */
 #include "AccountBalanceQuery.h"
 #include "AccountId.h"
+#include "ContractId.h"
 
 #include <gtest/gtest.h>
 
@@ -35,38 +36,55 @@ private:
   const ContractId mTestContractId = ContractId(3ULL);
 };
 
+//-----
 TEST_F(AccountBalanceQueryTest, ConstructAccountBalanceQuery)
 {
+  // Given \ When
   AccountBalanceQuery query;
+
+  // Then
   EXPECT_FALSE(query.getAccountId());
   EXPECT_FALSE(query.getContractId());
 }
 
+//-----
 TEST_F(AccountBalanceQueryTest, SetAccountId)
 {
+  // Given
   AccountBalanceQuery query;
+
+  // When
   query.setAccountId(getTestAccountId());
 
+  // Then
   EXPECT_EQ(*query.getAccountId(), getTestAccountId());
 }
 
+//-----
 TEST_F(AccountBalanceQueryTest, SetContractId)
 {
+  // Given
   AccountBalanceQuery query;
+
+  // When
   query.setContractId(getTestContractId());
 
+  // Then
   EXPECT_EQ(*query.getContractId(), getTestContractId());
 }
 
+//-----
 TEST_F(AccountBalanceQueryTest, ResetMutuallyExclusiveIds)
 {
+  // Given
   AccountBalanceQuery query;
   query.setAccountId(getTestAccountId());
   query.setContractId(getTestContractId());
-
   EXPECT_FALSE(query.getAccountId());
 
+  // When
   query.setAccountId(getTestAccountId());
 
+  // Then
   EXPECT_FALSE(query.getContractId());
 }
