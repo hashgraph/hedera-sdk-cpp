@@ -36,6 +36,7 @@
 namespace Hedera
 {
 class AccountCreateTransaction;
+class AccountDeleteTransaction;
 class AccountUpdateTransaction;
 class PrivateKey;
 class TransactionResponse;
@@ -93,8 +94,9 @@ public:
    * @return A pair which contains an index into the variant, as well as
    * @throws std::invalid_argument If unable to construct a Transaction from the input bytes.
    */
-  [[nodiscard]] static std::pair<int,
-                                 std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction>>
+  [[nodiscard]] static std::pair<
+    int,
+    std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction, AccountDeleteTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);
 
   /**

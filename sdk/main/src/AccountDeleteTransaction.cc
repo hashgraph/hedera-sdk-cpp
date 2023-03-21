@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,92 +18,82 @@
  *
  */
 #include "AccountDeleteTransaction.h"
+#include "impl/Node.h"
 
+#include <grpcpp/client_context.h>
 #include <proto/crypto_delete.pb.h>
+#include <proto/transaction.pb.h>
+#include <stdexcept>
 
 namespace Hedera
 {
 //-----
-AccountDeleteTransaction::AccountDeleteTransaction()
-  : Transaction()
-  , mAccountId()
-  , mTransferAccountId()
+AccountDeleteTransaction::AccountDeleteTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<AccountDeleteTransaction>(transactionBody)
 {
-}
-
-//-----
-AccountDeleteTransaction::AccountDeleteTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  : Transaction(transactions)
-{
-  initFromTransactionBody();
-}
-
-//-----
-AccountDeleteTransaction::AccountDeleteTransaction(
-  const proto::TransactionBody& transaction)
-  : Transaction(transaction)
-{
-  initFromTransactionBody();
-}
-
-//-----
-void
-AccountDeleteTransaction::validateChecksums(const Client& client) const
-{
-  if (mAccountId.isValid())
+  if (!transactionBody.has_cryptodelete())
   {
-    mAccountId.getValue().validateChecksum(client);
+    throw std::invalid_argument("Transaction body doesn't contain CryptoDelete data");
   }
 
-  if (mTransferAccountId.isValid())
+  const proto::CryptoDeleteTransactionBody& body = transactionBody.cryptodelete();
+
+  if (body.has_deleteaccountid())
   {
-    mTransferAccountId.getValue().validateChecksum(client);
+    mDeleteAccountId = AccountId::fromProtobuf(body.deleteaccountid());
+  }
+
+  if (body.has_transferaccountid())
+  {
+    mTransferAccountId = AccountId::fromProtobuf(body.transferaccountid());
   }
 }
 
 //-----
-AccountDeleteTransaction&
-AccountDeleteTransaction::setAccountId(const AccountId& accountId)
+AccountDeleteTransaction& AccountDeleteTransaction::setDeleteAccountId(const AccountId& accountId)
 {
   requireNotFrozen();
 
-  mAccountId.setValue(accountId);
+  mDeleteAccountId = accountId;
   return *this;
 }
 
 //-----
-AccountDeleteTransaction&
-AccountDeleteTransaction::setTransferAccountId(const AccountId& accountId)
+AccountDeleteTransaction& AccountDeleteTransaction::setTransferAccountId(const AccountId& accountId)
 {
   requireNotFrozen();
 
-  mTransferAccountId.setValue(accountId);
+  mTransferAccountId = accountId;
   return *this;
 }
 
 //-----
-void
-AccountDeleteTransaction::initFromTransactionBody()
+proto::Transaction AccountDeleteTransaction::makeRequest(const Client& client,
+                                                         const std::shared_ptr<internal::Node>&) const
 {
-  if (mSourceTransactionBody.has_cryptodelete())
-  {
-    const proto::CryptoDeleteTransactionBody& body =
-      mSourceTransactionBody.cryptodelete();
+  proto::TransactionBody transactionBody = generateTransactionBody(client);
+  transactionBody.set_allocated_cryptodelete(build());
 
-    if (body.has_deleteaccountid())
-    {
-      mAccountId.setValue(AccountId::fromProtobuf(body.deleteaccountid()));
-    }
+  return signTransaction(transactionBody, client);
+}
 
-    if (body.has_transferaccountid())
-    {
-      mTransferAccountId.setValue(
-        AccountId::fromProtobuf(body.transferaccountid()));
-    }
-  }
+//-----
+grpc::Status AccountDeleteTransaction::submitRequest(const Client& client,
+                                                     const std::chrono::system_clock::time_point& deadline,
+                                                     const std::shared_ptr<internal::Node>& node,
+                                                     proto::TransactionResponse* response) const
+{
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kCryptoDelete, makeRequest(client, node), deadline, response);
+}
+
+//-----
+proto::CryptoDeleteTransactionBody* AccountDeleteTransaction::build() const
+{
+  auto body = std::make_unique<proto::CryptoDeleteTransactionBody>();
+  body->set_allocated_deleteaccountid(mDeleteAccountId.toProtobuf().release());
+  body->set_allocated_transferaccountid(mTransferAccountId.toProtobuf().release());
+  return body.release();
 }
 
 } // namespace Hedera

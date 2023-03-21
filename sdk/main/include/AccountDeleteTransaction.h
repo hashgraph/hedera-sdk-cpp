@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,117 +17,119 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_DELETE_TRANSACTION_H_
-#define ACCOUNT_DELETE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "Transaction.h"
 
-#include "helper/InitType.h"
-
-#include <unordered_map>
-
-namespace Hedera
-{
-class Client;
-class TransactionId;
-}
-
 namespace proto
 {
+class CryptoDeleteTransactionBody;
 class TransactionBody;
 }
 
 namespace Hedera
 {
 /**
- * Marks an account as deleted, moving all its current Hbars to another account.
- *
- * It will remain in the ledger, marked as deleted, until it expires.
- * Transfers into a deleted account fail. But a deleted account can still have
- * its expiration extended in the normal way.
+ * Mark an account as deleted, moving all its current hbars to another account. It will remain in the ledger, marked as
+ * deleted, until it expires. Transfers into it a deleted account fail. But a deleted account can still have its
+ * expiration extended in the normal way.
  */
 class AccountDeleteTransaction : public Transaction<AccountDeleteTransaction>
 {
 public:
-  /**
-   * Default constructor.
-   */
-  AccountDeleteTransaction();
+  AccountDeleteTransaction() = default;
 
   /**
-   * Construct from a map of transaction ID's to their corresponding account
-   * ID's and protobuf transactions.
+   * Construct from a TransactionBody protobuf object.
    *
-   * @param transactions Map of transaction IDs to their corresponding account
-   *                     ID's and protobuf transactions.
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a CryptoDeleteAccount transaction.
    */
-  explicit AccountDeleteTransaction(
-    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+  explicit AccountDeleteTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Construct from a protobuf transaction object.
+   * Sets the ID of the account to delete.
    *
-   * @param transaction The protobuf transaction object from which to construct
-   *                    this transaction.
+   * @param accountId The ID of the account to delete.
+   * @return A reference to this AccountDeleteTransaction object with the newly-set account ID.
+   * @throws IllegalStateException If this AccountDeleteTransaction is frozen.
    */
-  explicit AccountDeleteTransaction(const proto::TransactionBody& transaction);
+  AccountDeleteTransaction& setDeleteAccountId(const AccountId& accountId);
 
   /**
-   * Derived from Transaction. Validate the checksums of the account IDs.
+   * Set the ID of the account to which to transfer the deleted account's remaining Hbars.
    *
-   * @param client The client with which to validate.
-   */
-  virtual void validateChecksums(const Client& client) const override;
-
-  /**
-   * Sets the account ID of the account to delete.
-   *
-   * @param accountId The account ID of the account to delete.
-   * @return          Reference to this AccountDeleteTransaction object.
-   */
-  AccountDeleteTransaction& setAccountId(const AccountId& accountId);
-
-  /**
-   * Sets the account ID which will receive all remaining Hbars.
-   *
-   * @param accountId The account ID of the account to receive the Hbars.
-   * @return          Reference to this AccountDeleteTransaction object.
+   * @param accountId The ID of the account to which to transfer the deleted account's remaining Hbars.
+   * @return A reference to this AccountDeleteTransaction object with the newly-set transfer account ID.
+   * @throws IllegalStateException If this AccountDeleteTransaction is frozen.
    */
   AccountDeleteTransaction& setTransferAccountId(const AccountId& accountId);
 
   /**
-   * Extract the account id of the account to delete.
+   * Get the ID of the account this AccountDeleteTransaction is currently configured to delete.
    *
-   * @return The account id of the account to delete.
+   * @return The ID of the account this AccountDeleteTransaction is currently configured to delete.
    */
-  inline InitType<AccountId> getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline AccountId getDeleteAccountId() const { return mDeleteAccountId; }
 
   /**
-   * Extract the receiving account id.
+   * Get the ID of the account to which this AccountDeleteTransaction is currently configured to transfer the deleted
+   * account's remaining Hbars.
    *
-   * @return The account ID of the account to receive the Hbars.
+   * @return The ID of the account to which this AccountDeleteTransaction is currently configured to transfer the
+   * deleted account's remaining Hbars.
    */
-  inline InitType<AccountId> getTransferAccountId() const { return mTransferAccountId; }
+  [[nodiscard]] inline AccountId getTransferAccountId() const { return mTransferAccountId; }
 
 private:
   /**
-   * Initialize from the transaction body.
-   */
-  void initFromTransactionBody();
-
-  /**
-   * The account ID of the account to delete.
-   */
-  InitType<AccountId> mAccountId;
-
-  /**
-   * The account ID of the account to receive the Hbars.
+   * Derived from Executable. Construct a Transaction protobuf object from this AccountDeleteTransaction object.
    *
+   * @param client The Client trying to construct this AccountDeleteTransaction.
+   * @param node   The Node to which this AccountDeleteTransaction will be sent. This is unused.
+   * @return A Transaction protobuf object filled with this AccountDeleteTransaction object's data.
+   * @throws UninitializedException If the input client has no operator with which to sign this
+   *                                AccountDeleteTransaction.
    */
-  InitType<AccountId> mTransferAccountId;
+  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
+                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
+
+  /**
+   * Derived from Executable. Submit this AccountDeleteTransaction to a Node.
+   *
+   * @param client   The Client submitting this AccountDeleteTransaction.
+   * @param deadline The deadline for submitting this AccountDeleteTransaction.
+   * @param node     Pointer to the Node to which this AccountDeleteTransaction should be submitted.
+   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
+   *                 information from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::TransactionResponse* response) const override;
+
+  /**
+   * Build a CryptoDeleteTransactionBody protobuf object from this AccountDeleteTransaction object.
+   *
+   * @return A pointer to a CryptoDeleteTransactionBody protobuf object filled with this AccountDeleteTransaction
+   *         object's data.
+   */
+  [[nodiscard]] proto::CryptoDeleteTransactionBody* build() const;
+
+  /**
+   * The ID of the account to delete.
+   */
+  AccountId mDeleteAccountId;
+
+  /**
+   * The ID of the account which will receive all the remaining Hbars from the deleted account.
+   */
+  AccountId mTransferAccountId;
 };
 
 } // namespace Hedera
 
-#endif // ACCOUNT_DELETE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_
