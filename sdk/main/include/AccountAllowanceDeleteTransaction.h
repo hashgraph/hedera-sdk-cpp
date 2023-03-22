@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,136 +17,107 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
-#define ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 
-#include "TokenNftAllowance.h"
+#include "TokenNftRemoveAllowance.h"
 #include "Transaction.h"
-
-#include <unordered_map>
-#include <vector>
 
 namespace proto
 {
+class CryptoDeleteAllowanceTransactionBody;
 class TransactionBody;
 }
 
 namespace Hedera
 {
-template<typename T>
-class InitType;
-
 class NftId;
-class TokenId;
 }
 
 namespace Hedera
 {
 /**
- * This transaction type is for deleting an account allowance.
+ * A transaction called by the token owner to delete allowances for NFTs only. In order to delete an existing Hbar or
+ * fungible token allowance the AccountAllowanceApproveTransaction API should be used with an amount of 0.
+ *
+ * The total number of NFT serial number deletions contained within the transaction body cannot exceed 20.
  */
 class AccountAllowanceDeleteTransaction : public Transaction<AccountAllowanceDeleteTransaction>
 {
 public:
-  /**
-   * Default constructor.
-   */
-  AccountAllowanceDeleteTransaction();
+  AccountAllowanceDeleteTransaction() = default;
 
   /**
-   * Construct from a map of transaction ID's to their corresponding account
-   * ID's and protobuf transactions.
+   * Construct from a TransactionBody protobuf object.
    *
-   * @param transactions Map of transaction IDs to their corresponding account
-   *                     ID's and protobuf transactions.
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a CryptoDeleteAllowance transaction.
    */
-  explicit AccountAllowanceDeleteTransaction(
-    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+  explicit AccountAllowanceDeleteTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Construct from a protobuf transaction object.
+   * Remove all NFT allowances from an account.
    *
-   * @param transaction The protobuf transaction object from which to construct
-   *                    this transaction.
+   * @param nftId The ID of the NFT to remove as an allowance.
+   * @param owner The ID of the account from which to remove the allowances.
+   * @return A reference to this AccountAllowanceDeleteTransaction object with the added allowance removal.
+   * @throws IllegalStateException If this AccountAllowanceDeleteTransaction is frozen.
    */
-  explicit AccountAllowanceDeleteTransaction(const proto::TransactionBody& transaction);
+  AccountAllowanceDeleteTransaction& deleteAllTokenNftAllowances(const NftId& nftId, const AccountId& owner);
 
   /**
-   * Validate the checksums.
+   * Get the list of a NFT allowance removals added to this AccountAllowanceDeleteTransaction.
    *
-   * @param client The client with which to validate the checksums
+   * @return The list of a NFT allowance removals added to this AccountAllowanceDeleteTransaction.
    */
-  virtual void validateChecksums(const Client& client) const override;
-
-  /**
-   * Derived from Transaction. Called in freezeWith(Client) just before the
-   * transaction body is built. The intent is for the derived class to assign
-   * their data variant to the transaction body.
-   *
-   * @param body The transaction's body part. (XXX)
-   */
-  virtual void onFreeze(proto::TransactionBody* body) const override;
-
-  /**
-   * Called in schedule() when converting transaction into a scheduled version.
-   *
-   * @param body The schedulable transaction's body part. (XXX)
-   */
-  virtual void onScheduled(proto::SchedulableTransactionBody* body) const override;
-
-  /**
-   * Build an account allowance delete protobuf message based on the data in
-   * this class.
-   *
-   * @return An account allowance delete protobuf message.
-   */
-  proto::CryptoDeleteAllowanceTransactionBody* build() const;
-
-  /**
-   * Delete all NFT allowances.
-   *
-   * @param nftId            The token's ID.
-   * @param ownerAccountId   The owner's account ID.
-   * @return Reference to this AccountAllowanceDeleteTransaction object
-   */
-  AccountAllowanceDeleteTransaction& deleteAllNftAllowances(const NftId& nftId, const AccountId& ownerAccountId);
-
-  /**
-   * Extract the list of token NFT allowance approvals.
-   *
-   * @return The list of token NFT allowance approvals.
-   */
-  inline std::vector<NftAllowance> getNftAllowanceDeletions() const { return mNftAllowances; }
+  [[nodiscard]] inline std::vector<TokenNftRemoveAllowance> getTokenNftAllowanceDeletions() const
+  {
+    return mNftAllowanceDeletions;
+  }
 
 private:
   /**
-   * Function used to initialize an AccountAllowanceDeleteTransaction object
-   * from a protobuf TransactionBody object
-   */
-  void initFromTransactionBody();
-
-  /**
-   * Save an NFT serial number for a specific token.
+   * Derived from Executable. Construct a Transaction protobuf object from this AccountAllowanceDeleteTransaction
+   * object.
    *
-   * @param serial           The serial number to save.
-   * @param tokenId          The token's ID.
-   * @param ownerAccountId   The owner's account ID.
+   * @param client The Client trying to construct this AccountAllowanceDeleteTransaction.
+   * @param node   The Node to which this AccountAllowanceDeleteTransaction will be sent. This is unused.
+   * @return A Transaction protobuf object filled with this AccountAllowanceDeleteTransaction object's data.
+   * @throws UninitializedException If the input client has no operator with which to sign this
+   *                                AccountAllowanceDeleteTransaction.
    */
-  void saveNftSerial(const int64_t& serial, const TokenId& tokenId, const AccountId& ownerAccountId);
+  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
+                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
 
   /**
-   * A list of added NFT allowances.
+   * Derived from Executable. Submit this AccountAllowanceDeleteTransaction to a Node.
+   *
+   * @param client   The Client submitting this AccountAllowanceDeleteTransaction.
+   * @param deadline The deadline for submitting this AccountAllowanceDeleteTransaction.
+   * @param node     Pointer to the Node to which this AccountAllowanceDeleteTransaction should be submitted.
+   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
+   *                 information from the gRPC server.
+   * @return The gRPC status of the submission.
    */
-  std::vector<NftAllowance> mNftAllowances;
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::TransactionResponse* response) const override;
 
   /**
-   * A map of NFT information.
-   * Key is "{ownerId}:{tokenId}". The value is the index into the
-   * mNftAllowances list.
+   * Build a CryptoDeleteAllowanceTransactionBody protobuf object from this AccountAllowanceDeleteTransaction object.
+   *
+   * @return A pointer to a CryptoDeleteAllowanceTransactionBody protobuf object filled with this
+   *         AccountAllowanceDeleteTransaction object's data.
    */
-  std::unordered_map<std::string, size_t> mNftMap;
+  [[nodiscard]] proto::CryptoDeleteAllowanceTransactionBody* build() const;
+
+  /**
+   * The list of NFT allowances to be deleted.
+   */
+  std::vector<TokenNftRemoveAllowance> mNftAllowanceDeletions;
 };
 
 } // namespace Hedera
 
-#endif // ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_

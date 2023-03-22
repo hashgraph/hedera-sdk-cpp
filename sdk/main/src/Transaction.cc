@@ -19,6 +19,7 @@
  */
 #include "Transaction.h"
 #include "AccountAllowanceApproveTransaction.h"
+#include "AccountAllowanceDeleteTransaction.h"
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
 #include "AccountUpdateTransaction.h"
@@ -387,6 +388,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
  * Explicit template instantiation.
  */
 template class Transaction<AccountAllowanceApproveTransaction>;
+template class Transaction<AccountAllowanceDeleteTransaction>;
 template class Transaction<AccountCreateTransaction>;
 template class Transaction<AccountDeleteTransaction>;
 template class Transaction<AccountUpdateTransaction>;
