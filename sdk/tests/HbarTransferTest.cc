@@ -17,16 +17,16 @@
  * limitations under the License.
  *
  */
+#include "HbarTransfer.h"
 #include "AccountId.h"
 #include "Hbar.h"
-#include "HbarTransfer.h"
 
 #include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>
 
 using namespace Hedera;
 
-class TransferTest : public ::testing::Test
+class HbarTransferTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const int64_t& getTestAmount() const { return mAmount; }
@@ -38,7 +38,7 @@ private:
 };
 
 // Tests serialization of Hedera::HbarTransfer -> proto::AccountAmount.
-TEST_F(TransferTest, SerializeTransferToProtobuf)
+TEST_F(HbarTransferTest, SerializeTransferToProtobuf)
 {
   // Given
   const AccountId testAccountId = getTestAccountId();
@@ -60,7 +60,7 @@ TEST_F(TransferTest, SerializeTransferToProtobuf)
 }
 
 // Tests deserialization of proto::AccountAmount -> Hedera::HbarTransfer.
-TEST_F(TransferTest, DeserializeTransferFromProtobuf)
+TEST_F(HbarTransferTest, DeserializeTransferFromProtobuf)
 {
   // Given
   const AccountId testAccountId = getTestAccountId();
@@ -80,7 +80,7 @@ TEST_F(TransferTest, DeserializeTransferFromProtobuf)
 }
 
 // Tests serialization & deserialization of Hedera::HbarTransfer -> proto::AccountAmount -> Hedera::HbarTransfer.
-TEST_F(TransferTest, ProtoTransfer)
+TEST_F(HbarTransferTest, ProtoTransfer)
 {
   AccountId accountId(10ULL);
   int64_t amount = 10LL;

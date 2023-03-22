@@ -18,6 +18,7 @@
  *
  */
 #include "Executable.h"
+#include "AccountAllowanceApproveTransaction.h"
 #include "AccountBalance.h"
 #include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
@@ -271,6 +272,10 @@ Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>
 /**
  * Explicit template instantiations.
  */
+template class Executable<AccountAllowanceApproveTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>;
 template class Executable<AccountCreateTransaction,
                           proto::Transaction,

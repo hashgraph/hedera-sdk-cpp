@@ -4,7 +4,7 @@ FetchContent_Declare(valuable
 FetchContent_MakeAvailable(valuable)
 
 add_library(${PROJECT_NAME} STATIC
-        #    src/AccountAllowanceApproveTransaction.cc
+        src/AccountAllowanceApproveTransaction.cc
         #    src/AccountAllowanceDeleteTransaction.cc
         src/AccountBalance.cc
         src/AccountBalanceQuery.cc
@@ -39,6 +39,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
         #    src/FileCreateTransaction.cc
+        src/HbarAllowance.cc
         src/HbarTransfer.cc
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
@@ -46,7 +47,9 @@ add_library(${PROJECT_NAME} STATIC
         src/PrivateKey.cc
         src/PublicKey.cc
         src/Status.cc
+        src/TokenAllowance.cc
         src/TokenId.cc
+        src/TokenNftAllowance.cc
         src/TokenNftTransfer.cc
         src/TokenTransfer.cc
         src/Transaction.cc

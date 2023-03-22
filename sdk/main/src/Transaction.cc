@@ -18,6 +18,7 @@
  *
  */
 #include "Transaction.h"
+#include "AccountAllowanceApproveTransaction.h"
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
 #include "AccountUpdateTransaction.h"
@@ -121,8 +122,6 @@ SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client& client)
   {
     throw UninitializedException("Client operator has not been initialized and cannot freeze transaction");
   }
-
-  mTransactionId = TransactionId::generate(*client.getOperatorAccountId());
 
   mIsFrozen = true;
   return static_cast<SdkRequestType&>(*this);
@@ -377,12 +376,17 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
     throw UninitializedException("No client operator private key with which to sign");
   }
 
-  mTransactionId = TransactionId::generate(*client.getOperatorAccountId());
+  // Set the transaction ID if it has not already been manually set.
+  if (mTransactionId.getAccountId() == AccountId())
+  {
+    mTransactionId = TransactionId::generate(*client.getOperatorAccountId());
+  }
 }
 
 /**
  * Explicit template instantiation.
  */
+template class Transaction<AccountAllowanceApproveTransaction>;
 template class Transaction<AccountCreateTransaction>;
 template class Transaction<AccountDeleteTransaction>;
 template class Transaction<AccountUpdateTransaction>;

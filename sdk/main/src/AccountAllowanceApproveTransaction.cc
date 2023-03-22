@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,314 +18,188 @@
  *
  */
 #include "AccountAllowanceApproveTransaction.h"
-
-#include "AccountId.h"
-#include "Hbar.h"
 #include "NftId.h"
+#include "impl/Node.h"
 
-#include "helper/InitType.h"
-
-#include <proto/basic_types.pb.h>
+#include <grpcpp/client_context.h>
 #include <proto/crypto_approve_allowance.pb.h>
-#include <proto/schedulable_transaction_body.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <proto/transaction.pb.h>
+#include <proto/transaction_response.pb.h>
+#include <stdexcept>
 
 namespace Hedera
 {
-//-----
-AccountAllowanceApproveTransaction::AccountAllowanceApproveTransaction()
-  : mHbarAllowances()
-  , mTokenAllowances()
-  , mNftAllowances()
-  , mNftMap()
-{
-}
 
 //-----
-AccountAllowanceApproveTransaction::AccountAllowanceApproveTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  : Transaction(transactions)
+AccountAllowanceApproveTransaction::AccountAllowanceApproveTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<AccountAllowanceApproveTransaction>(transactionBody)
 {
-  initFromTransactionBody();
-}
-
-//----
-AccountAllowanceApproveTransaction::AccountAllowanceApproveTransaction(
-  const proto::TransactionBody& transaction)
-  : Transaction(transaction)
-{
-  initFromTransactionBody();
-}
-
-//-----
-void
-AccountAllowanceApproveTransaction::validateChecksums(
-  const Client& client) const
-{
-  for (size_t i = 0; i < mHbarAllowances.size(); ++i)
+  if (!transactionBody.has_cryptoapproveallowance())
   {
-    mHbarAllowances.at(i).validateChecksums(client);
+    throw std::invalid_argument("Transaction body doesn't contain CryptoApproveAllowance data");
   }
 
-  for (size_t i = 0; i < mNftAllowances.size(); ++i)
+  const proto::CryptoApproveAllowanceTransactionBody& body = transactionBody.cryptoapproveallowance();
+
+  for (int i = 0; i < body.cryptoallowances_size(); ++i)
   {
-    mNftAllowances.at(i).validateChecksums(client);
+    mHbarAllowances.push_back(HbarAllowance::fromProtobuf(body.cryptoallowances(i)));
   }
 
-  for (size_t i = 0; i < mTokenAllowances.size(); ++i)
+  for (int i = 0; i < body.tokenallowances_size(); ++i)
   {
-    mTokenAllowances.at(i).validateChecksums(client);
+    mTokenAllowances.push_back(TokenAllowance::fromProtobuf(body.tokenallowances(i)));
+  }
+
+  for (int i = 0; i < body.nftallowances_size(); ++i)
+  {
+    mNftAllowances.push_back(TokenNftAllowance::fromProtobuf(body.nftallowances(i)));
   }
 }
 
 //-----
-void
-AccountAllowanceApproveTransaction::onFreeze(proto::TransactionBody* body) const
-{
-  body->set_allocated_cryptoapproveallowance(build());
-}
-
-//-----
-void
-AccountAllowanceApproveTransaction::onScheduled(
-  proto::SchedulableTransactionBody* body) const
-{
-  body->set_allocated_cryptoapproveallowance(build());
-}
-
-//----
-proto::CryptoApproveAllowanceTransactionBody*
-AccountAllowanceApproveTransaction::build() const
-{
-  proto::CryptoApproveAllowanceTransactionBody* body =
-    new proto::CryptoApproveAllowanceTransactionBody;
-
-  for (size_t i = 0; i < mHbarAllowances.size(); ++i)
-  {
-    proto::CryptoAllowance* allow = body->add_cryptoallowances();
-    (void)allow;
-    //  TODO: fill out crypto fields
-  }
-
-  for (size_t i = 0; i < mNftAllowances.size(); ++i)
-  {
-    proto::NftAllowance* allow = body->add_nftallowances();
-    (void)allow;
-    //  TODO: fill out nft fields
-  }
-
-  for (size_t i = 0; i < mTokenAllowances.size(); ++i)
-  {
-    proto::TokenAllowance* allow = body->add_tokenallowances();
-    (void)allow;
-    //  TODO: fill out token fields
-  }
-
-  return body;
-}
-
-//-----
-AccountAllowanceApproveTransaction&
-AccountAllowanceApproveTransaction::approveHbarAllowance(
-  const InitType<AccountId>& ownerAccountId,
+AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveHbarAllowance(
+  const AccountId& ownerAccountId,
   const AccountId& spenderAccountId,
   const Hbar& amount)
 {
   requireNotFrozen();
 
-  if (amount.toTinybars() < 0)
+  if (amount.toTinybars() < 0LL)
   {
-    // TODO: throw
+    throw std::invalid_argument("Can't approve a negative allowance");
   }
 
-  mHbarAllowances.push_back(
-    HbarAllowance(ownerAccountId, spenderAccountId, amount));
-
+  mHbarAllowances.emplace_back(ownerAccountId, spenderAccountId, amount);
   return *this;
 }
 
 //-----
-AccountAllowanceApproveTransaction&
-AccountAllowanceApproveTransaction::approveNftAllowance(
+AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveTokenAllowance(
+  const TokenId& tokenId,
+  const AccountId& ownerAccountId,
+  const AccountId& spenderAccountId,
+  const uint64_t& amount)
+{
+  requireNotFrozen();
+  mTokenAllowances.emplace_back(tokenId, ownerAccountId, spenderAccountId, amount);
+  return *this;
+}
+
+//-----
+AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveTokenNftAllowance(
   const NftId& nftId,
-  const InitType<AccountId>& ownerAccountId,
+  const AccountId& ownerAccountId,
   const AccountId& spenderAccountId)
 {
   requireNotFrozen();
 
-  saveNftSerial(
-    nftId.mSerial, nftId.mTokenId, ownerAccountId, spenderAccountId);
+  // Add the serial number to the token allowance if there's already an allowance for this token ID, owner, and spender.
+  for (TokenNftAllowance& allowance : mNftAllowances)
+  {
+    if (allowance.getTokenId() == nftId.getTokenId() && allowance.getOwnerAccountId() == ownerAccountId &&
+        allowance.getSpenderAccountId() == spenderAccountId)
+    {
+      allowance.addSerialNumber(nftId.getSerialNum());
+      return *this;
+    }
+  }
 
+  mNftAllowances.emplace_back(
+    nftId.getTokenId(), ownerAccountId, spenderAccountId, std::vector<uint64_t>{ nftId.getSerialNum() });
   return *this;
 }
 
 //-----
-AccountAllowanceApproveTransaction&
-AccountAllowanceApproveTransaction::approveNftAllowanceAllSerials(
+AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveNftAllowanceAllSerials(
   const TokenId& tokenId,
-  const InitType<AccountId>& ownerAccountId,
+  const AccountId& ownerAccountId,
   const AccountId& spenderAccountId)
 {
   requireNotFrozen();
 
-  saveAllNftSerials(tokenId, ownerAccountId, spenderAccountId);
+  for (TokenNftAllowance& allowance : mNftAllowances)
+  {
+    if (allowance.getTokenId() == tokenId && allowance.getOwnerAccountId() == ownerAccountId &&
+        allowance.getSpenderAccountId() == spenderAccountId)
+    {
+      allowance.approveForAll(true);
+      return *this;
+    }
+  }
 
+  mNftAllowances.emplace_back(tokenId, ownerAccountId, spenderAccountId, std::vector<uint64_t>{}, true);
   return *this;
 }
 
 //-----
-AccountAllowanceApproveTransaction&
-AccountAllowanceApproveTransaction::approveTokenAllowance(
-  const TokenId& tokenId,
-  const InitType<AccountId>& ownerAccountId,
-  const AccountId& spenderAccountId,
-  const int64_t& amount)
+proto::Transaction AccountAllowanceApproveTransaction::makeRequest(const Client& client,
+                                                                   const std::shared_ptr<internal::Node>&) const
 {
-  requireNotFrozen();
+  proto::TransactionBody transactionBody = generateTransactionBody(client);
+  transactionBody.set_allocated_cryptoapproveallowance(build());
 
-  if (amount < 0)
-  {
-    // TODO: throw
-  }
-
-  mTokenAllowances.push_back(
-    TokenAllowance(tokenId, ownerAccountId, spenderAccountId, amount));
-
-  return *this;
+  return signTransaction(transactionBody, client);
 }
 
 //-----
-void
-AccountAllowanceApproveTransaction::initFromTransactionBody()
+grpc::Status AccountAllowanceApproveTransaction::submitRequest(const Client& client,
+                                                               const std::chrono::system_clock::time_point& deadline,
+                                                               const std::shared_ptr<internal::Node>& node,
+                                                               proto::TransactionResponse* response) const
 {
-  if (mSourceTransactionBody.has_cryptoapproveallowance())
-  {
-    const proto::CryptoApproveAllowanceTransactionBody& body =
-      mSourceTransactionBody.cryptoapproveallowance();
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kCryptoApproveAllowance, makeRequest(client, node), deadline, response);
+}
 
-    for (int i = 0; i < body.cryptoallowances_size(); ++i)
+//-----
+proto::CryptoApproveAllowanceTransactionBody* AccountAllowanceApproveTransaction::build() const
+{
+  auto body = std::make_unique<proto::CryptoApproveAllowanceTransactionBody>();
+
+  for (const HbarAllowance& allowance : mHbarAllowances)
+  {
+    proto::CryptoAllowance* cryptoAllowance = body->add_cryptoallowances();
+    cryptoAllowance->set_allocated_owner(allowance.getOwnerAccountId().toProtobuf().release());
+    cryptoAllowance->set_allocated_spender(allowance.getSpenderAccountId().toProtobuf().release());
+    cryptoAllowance->set_amount(allowance.getAmount().toTinybars());
+  }
+
+  for (const TokenAllowance& allowance : mTokenAllowances)
+  {
+    proto::TokenAllowance* tokenAllowance = body->add_tokenallowances();
+    tokenAllowance->set_allocated_tokenid(allowance.getTokenId().toProtobuf().release());
+    tokenAllowance->set_allocated_owner(allowance.getOwnerAccountId().toProtobuf().release());
+    tokenAllowance->set_allocated_spender(allowance.getSpenderAccountId().toProtobuf().release());
+    tokenAllowance->set_amount(static_cast<int64_t>(allowance.getAmount()));
+  }
+
+  for (const TokenNftAllowance& allowance : mNftAllowances)
+  {
+    proto::NftAllowance* nftAllowance = body->add_nftallowances();
+    nftAllowance->set_allocated_tokenid(allowance.getTokenId().toProtobuf().release());
+    nftAllowance->set_allocated_owner(allowance.getOwnerAccountId().toProtobuf().release());
+    nftAllowance->set_allocated_spender(allowance.getSpenderAccountId().toProtobuf().release());
+
+    for (const uint64_t& serialNumber : allowance.getSerialNumbers())
     {
-      mHbarAllowances.push_back(
-        HbarAllowance::fromProtobuf(body.cryptoallowances(i)));
+      nftAllowance->add_serial_numbers(static_cast<int64_t>(serialNumber));
     }
 
-    for (int i = 0; i < body.nftallowances_size(); ++i)
+    if (allowance.getApprovedForAll().has_value())
     {
-      const proto::NftAllowance& nft = body.nftallowances(i);
-      if (!nft.has_tokenid() || !nft.has_spender())
-      {
-        // TODO: throw
-      }
-
-      const TokenId tokenId = TokenId::fromProtobuf(nft.tokenid());
-      const InitType<AccountId> owner =
-        (nft.has_owner())
-          ? InitType<AccountId>(AccountId::fromProtobuf(nft.owner()))
-          : InitType<AccountId>();
-      const AccountId spender = AccountId::fromProtobuf(nft.spender());
-
-      if (nft.has_approved_for_all() && nft.approved_for_all().value())
-      {
-        saveAllNftSerials(tokenId, owner, spender);
-      }
-      else
-      {
-        for (int i = 0; i < nft.serial_numbers_size(); ++i)
-        {
-          saveNftSerial(nft.serial_numbers(i), tokenId, owner, spender);
-        }
-      }
+      auto value = std::make_unique<google::protobuf::BoolValue>();
+      value->set_value(*allowance.getApprovedForAll());
+      nftAllowance->set_allocated_approved_for_all(value.release());
     }
 
-    for (int i = 0; i < body.tokenallowances_size(); ++i)
+    if (allowance.getDelegateSpender().has_value())
     {
-      mTokenAllowances.push_back(
-        TokenAllowance::fromProtobuf(body.tokenallowances(i)));
+      nftAllowance->set_allocated_delegating_spender(allowance.getDelegateSpender()->toProtobuf().release());
     }
   }
-}
 
-//-----
-std::vector<int64_t>
-AccountAllowanceApproveTransaction::getNftSerials(
-  const TokenId& tokenId,
-  const InitType<AccountId>& ownerAccountId,
-  const AccountId& spenderAccountId)
-{
-  const std::string key =
-    getNftMapKey(ownerAccountId, spenderAccountId, tokenId);
-
-  if (mNftMap.find(key) != mNftMap.end())
-  {
-    return mNftAllowances.at(mNftMap.at(key)).mSerialNumbers;
-  }
-
-  return std::vector<int64_t>();
-}
-
-//-----
-void
-AccountAllowanceApproveTransaction::saveNftSerial(
-  const int64_t& serial,
-  const TokenId& tokenId,
-  const InitType<AccountId>& ownerAccountId,
-  const AccountId& spenderAccountId)
-{
-  const std::string key =
-    getNftMapKey(ownerAccountId, spenderAccountId, tokenId);
-
-  if (mNftMap.find(key) != mNftMap.end())
-  {
-    mNftAllowances.at(mNftMap.at(key)).mSerialNumbers.push_back(serial);
-  }
-  else
-  {
-    mNftMap.insert({ key, mNftAllowances.size() });
-    mNftAllowances.push_back(NftAllowance(InitType<TokenId>(tokenId),
-                                          ownerAccountId,
-                                          InitType<AccountId>(spenderAccountId),
-                                          std::vector<int64_t>({ serial }),
-                                          false));
-  }
-}
-
-//-----
-void
-AccountAllowanceApproveTransaction::saveAllNftSerials(
-  const TokenId& tokenId,
-  const InitType<AccountId>& ownerAccountId,
-  const AccountId& spenderAccountId)
-{
-  const std::string key =
-    getNftMapKey(ownerAccountId, spenderAccountId, tokenId);
-
-  if (mNftMap.find(key) != mNftMap.end())
-  {
-    mNftAllowances.at(mNftMap.at(key)).allSerials = true;
-  }
-  else
-  {
-    mNftMap.insert({ key, mNftAllowances.size() });
-    mNftAllowances.push_back(NftAllowance(InitType<TokenId>(tokenId),
-                                          ownerAccountId,
-                                          InitType<AccountId>(spenderAccountId),
-                                          std::vector<int64_t>(),
-                                          true));
-  }
-}
-
-//----
-std::string
-AccountAllowanceApproveTransaction::getNftMapKey(
-  const InitType<AccountId>& ownerAccountId,
-  const AccountId& spenderAccountId,
-  const TokenId& tokenId) const
-{
-  return ((ownerAccountId.isValid()) ? ownerAccountId.getValue().toString()
-                                     : "FEE_PAYER") +
-         ':' + spenderAccountId.toString() + ':' + tokenId.toString();
+  return body.release();
 }
 
 } // namespace Hedera
