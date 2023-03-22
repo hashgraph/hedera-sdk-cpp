@@ -50,11 +50,8 @@ private:
 TEST_F(TokenNftAllowanceTest, ConstructWithTokenIdOwnerSpenderSerialNumbersApproval)
 {
   // Given / When
-  const TokenNftAllowance tokenNftAllowance(getTestTokenId(),
-                                            getTestOwnerAccountId(),
-                                            getTestSpenderAccountId(),
-                                            getTestSerialNumbers(),
-                                            std::optional<bool>());
+  const TokenNftAllowance tokenNftAllowance(
+    getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId(), getTestSerialNumbers());
 
   // Then
   EXPECT_EQ(tokenNftAllowance.getTokenId(), getTestTokenId());

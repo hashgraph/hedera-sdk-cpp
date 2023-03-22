@@ -154,9 +154,9 @@ public:
   [[nodiscard]] inline std::vector<TokenAllowance> getTokenApprovals() const { return mTokenAllowances; }
 
   /**
-   * Extract the list of NFT allowance approvals.
+   * Get the list of NFT allowance approvals added to this AccountAllowanceApproveTransaction.
    *
-   * @return The list of NFT allowance approvals.
+   * @return The list of NFT allowance approvals added to this AccountAllowanceApproveTransaction.
    */
   [[nodiscard]] inline std::vector<TokenNftAllowance> getNftApprovals() const { return mNftAllowances; }
 
