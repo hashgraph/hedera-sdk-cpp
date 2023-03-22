@@ -30,7 +30,7 @@ class CryptoGetAccountBalanceResponse;
 namespace Hedera
 {
 /**
- * Response when the client sends a node an AccountBalanceQuery.
+ * Response from a Hedera network when the client sends an AccountBalanceQuery.
  */
 class AccountBalance
 {
@@ -41,7 +41,7 @@ public:
    * @param proto The CryptoGetAccountBalance protobuf object from which to construct an AccountBalance object.
    * @return The constructed AccountBalance object.
    */
-  static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
+  [[nodiscard]] static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
 
   /**
    * Get the balance of the queried account or contract.

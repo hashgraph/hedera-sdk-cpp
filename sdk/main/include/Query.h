@@ -26,6 +26,8 @@ namespace Hedera
 {
 class AccountBalance;
 class AccountBalanceQuery;
+class AccountRecords;
+class AccountRecordsQuery;
 class AccountId;
 class TransactionReceipt;
 class TransactionReceiptQuery;
@@ -75,6 +77,7 @@ protected:
  * Explicit template instantiations.
  */
 template class Query<AccountBalanceQuery, AccountBalance>;
+template class Query<AccountRecordsQuery, AccountRecords>;
 template class Query<TransactionReceiptQuery, TransactionReceipt>;
 template class Query<TransactionRecordQuery, TransactionRecord>;
 

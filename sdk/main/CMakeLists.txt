@@ -13,7 +13,8 @@ add_library(${PROJECT_NAME} STATIC
         src/AccountId.cc
         #    src/AccountInfo.cc
         #    src/AccountInfoQuery.cc
-        #    src/AccountRecordsQuery.cc
+        src/AccountRecords.cc
+        src/AccountRecordsQuery.cc
         #    src/AccountStakersQuery.cc
         src/AccountUpdateTransaction.cc
         src/Client.cc
