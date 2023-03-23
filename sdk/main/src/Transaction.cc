@@ -46,9 +46,12 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
-std::pair<
-  int,
-  std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction, AccountDeleteTransaction>>
+std::pair<int,
+          std::variant<AccountCreateTransaction,
+                       TransferTransaction,
+                       AccountUpdateTransaction,
+                       AccountDeleteTransaction,
+                       AccountAllowanceApproveTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -86,6 +89,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 2, AccountUpdateTransaction(txBody) };
     case proto::TransactionBody::kCryptoDelete:
       return { 3, AccountDeleteTransaction(txBody) };
+    case proto::TransactionBody::kCryptoApproveAllowance:
+      return { 4, AccountAllowanceApproveTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }

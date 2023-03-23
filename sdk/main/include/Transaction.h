@@ -35,6 +35,7 @@
 
 namespace Hedera
 {
+class AccountAllowanceApproveTransaction;
 class AccountCreateTransaction;
 class AccountDeleteTransaction;
 class AccountUpdateTransaction;
@@ -91,12 +92,15 @@ public:
    * }
    *
    * @param bytes The bytes from which to construct a Transaction.
-   * @return A pair which contains an index into the variant, as well as
+   * @return A pair which contains an index into the variant, as well as the created Transaction.
    * @throws std::invalid_argument If unable to construct a Transaction from the input bytes.
    */
-  [[nodiscard]] static std::pair<
-    int,
-    std::variant<AccountCreateTransaction, TransferTransaction, AccountUpdateTransaction, AccountDeleteTransaction>>
+  [[nodiscard]] static std::pair<int,
+                                 std::variant<AccountCreateTransaction,
+                                              TransferTransaction,
+                                              AccountUpdateTransaction,
+                                              AccountDeleteTransaction,
+                                              AccountAllowanceApproveTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);
 
   /**
