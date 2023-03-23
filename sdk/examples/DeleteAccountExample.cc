@@ -51,9 +51,9 @@ int main(int argc, char** argv)
   std::cout << "Generated private key: " << privateKey->toStringRaw() << std::endl;
   std::cout << "Generated public key: " << publicKey->toStringRaw() << std::endl;
 
-  // Create a new account with an initial balance of 1000 tinybars. The only required field here is the key.
+  // Create a new account with an initial balance of 2 Hbars. The only required field here is the key.
   TransactionResponse txResp =
-    AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(1000ULL, HbarUnit::TINYBAR())).execute(client);
+    AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(2LL)).execute(client);
 
   // Get the receipt when it becomes available
   TransactionReceipt txReceipt = txResp.getReceipt(client);
@@ -63,8 +63,6 @@ int main(int argc, char** argv)
 
   // Delete the newly-created account
   txReceipt = AccountDeleteTransaction()
-                // The transaction ID has to use the ID of the account being deleted
-                .setTransactionId(TransactionId::generate(newAccountId))
                 .setDeleteAccountId(newAccountId)
                 .setTransferAccountId(operatorAccountId)
                 .freezeWith(client)

@@ -20,9 +20,9 @@
 #include "AccountAllowanceDeleteTransaction.h"
 
 #include "AccountId.h"
-#include "NftAllowance.h"
 #include "NftId.h"
 #include "TokenId.h"
+#include "TokenNftAllowance.h"
 #include "helper/InitType.h"
 
 #include <proto/crypto_delete_allowance.pb.h>
@@ -40,25 +40,21 @@ AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction()
 
 //-----
 AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
+  const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
   : Transaction(transactions)
 {
   initFromTransactionBody();
 }
 
 //----
-AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(
-  const proto::TransactionBody& transaction)
+AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(const proto::TransactionBody& transaction)
   : Transaction(transaction)
 {
   initFromTransactionBody();
 }
 
 //-----
-void
-AccountAllowanceDeleteTransaction::validateChecksums(const Client& client) const
+void AccountAllowanceDeleteTransaction::validateChecksums(const Client& client) const
 {
   for (size_t i = 0; i < mNftAllowances.size(); ++i)
   {
@@ -67,26 +63,21 @@ AccountAllowanceDeleteTransaction::validateChecksums(const Client& client) const
 }
 
 //-----
-void
-AccountAllowanceDeleteTransaction::onFreeze(proto::TransactionBody* body) const
+void AccountAllowanceDeleteTransaction::onFreeze(proto::TransactionBody* body) const
 {
   body->set_allocated_cryptodeleteallowance(build());
 }
 
 //-----
-void
-AccountAllowanceDeleteTransaction::onScheduled(
-  proto::SchedulableTransactionBody* body) const
+void AccountAllowanceDeleteTransaction::onScheduled(proto::SchedulableTransactionBody* body) const
 {
   body->set_allocated_cryptodeleteallowance(build());
 }
 
 //-----
-proto::CryptoDeleteAllowanceTransactionBody*
-AccountAllowanceDeleteTransaction::build() const
+proto::CryptoDeleteAllowanceTransactionBody* AccountAllowanceDeleteTransaction::build() const
 {
-  proto::CryptoDeleteAllowanceTransactionBody* body =
-    new proto::CryptoDeleteAllowanceTransactionBody;
+  proto::CryptoDeleteAllowanceTransactionBody* body = new proto::CryptoDeleteAllowanceTransactionBody;
 
   for (size_t i = 0; i < mNftAllowances.size(); ++i)
   {
@@ -99,8 +90,7 @@ AccountAllowanceDeleteTransaction::build() const
 }
 
 //-----
-AccountAllowanceDeleteTransaction&
-AccountAllowanceDeleteTransaction::deleteAllNftAllowances(
+AccountAllowanceDeleteTransaction& AccountAllowanceDeleteTransaction::deleteAllNftAllowances(
   const NftId& nftId,
   const AccountId& ownerAccountId)
 {
@@ -112,13 +102,11 @@ AccountAllowanceDeleteTransaction::deleteAllNftAllowances(
 }
 
 //-----
-void
-AccountAllowanceDeleteTransaction::initFromTransactionBody()
+void AccountAllowanceDeleteTransaction::initFromTransactionBody()
 {
   if (mSourceTransactionBody.has_cryptodeleteallowance())
   {
-    const proto::CryptoDeleteAllowanceTransactionBody& body =
-      mSourceTransactionBody.cryptodeleteallowance();
+    const proto::CryptoDeleteAllowanceTransactionBody& body = mSourceTransactionBody.cryptodeleteallowance();
 
     for (int i = 0; i < body.nftallowances_size(); ++i)
     {
@@ -140,11 +128,9 @@ AccountAllowanceDeleteTransaction::initFromTransactionBody()
 }
 
 //-----
-void
-AccountAllowanceDeleteTransaction::saveNftSerial(
-  const int64_t& serial,
-  const TokenId& tokenId,
-  const AccountId& ownerAccountId)
+void AccountAllowanceDeleteTransaction::saveNftSerial(const int64_t& serial,
+                                                      const TokenId& tokenId,
+                                                      const AccountId& ownerAccountId)
 {
   const std::string key = ownerAccountId.toString() + ':' + tokenId.toString();
 

@@ -14,6 +14,7 @@ endif ()
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
 add_executable(${TEST_PROJECT_NAME}
+        AccountAllowanceApproveTransactionTest.cc
         AccountBalanceQueryTest.cc
         AccountBalanceTest.cc
         AccountCreateTransactionTest.cc
@@ -30,11 +31,15 @@ add_executable(${TEST_PROJECT_NAME}
         ED25519PublicKeyTest.cc
         EvmAddressTest.cc
         ExchangeRateTest.cc
+        HbarAllowanceTest.cc
         HbarTest.cc
+        HbarTransferTest.cc
         JSONTest.cc
         NftIdTest.cc
         NodeAddressTest.cc
+        TokenAllowanceTest.cc
         TokenIdTest.cc
+        TokenNftAllowanceTest.cc
         TokenNftTransferTest.cc
         TokenTransferTest.cc
         TransactionIdTest.cc
@@ -44,7 +49,6 @@ add_executable(${TEST_PROJECT_NAME}
         TransactionRecordTest.cc
         TransactionResponseTest.cc
         TransactionTest.cc
-        TransferTest.cc
         TransferTransactionTest.cc
 
         vectors/BIP39TestVectors.cc

@@ -18,6 +18,7 @@
  *
  */
 #include "Transaction.h"
+#include "AccountAllowanceApproveTransaction.h"
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
 #include "AccountUpdateTransaction.h"
@@ -109,6 +110,33 @@ protected:
     // Initialize the CryptoDelete unique_ptr
     mCryptoDeleteTransactionBody->set_allocated_deleteaccountid(getTestAccountId().toProtobuf().release());
     mCryptoDeleteTransactionBody->set_allocated_transferaccountid(getTestAccountId().toProtobuf().release());
+
+    // Initialize the CryptoApproveAllowance unique_ptr
+    proto::CryptoAllowance* cryptoAllowance = mCryptoApproveAllowanceTransactionBody->add_cryptoallowances();
+    cryptoAllowance->set_allocated_owner(mAccountId.toProtobuf().release());
+    cryptoAllowance->set_allocated_spender(mAccountId.toProtobuf().release());
+    cryptoAllowance->set_amount(mAmount.toTinybars());
+
+    proto::TokenAllowance* tokenAllowance = mCryptoApproveAllowanceTransactionBody->add_tokenallowances();
+    tokenAllowance->set_allocated_tokenid(mTokenId.toProtobuf().release());
+    tokenAllowance->set_allocated_owner(mAccountId.toProtobuf().release());
+    tokenAllowance->set_allocated_spender(mAccountId.toProtobuf().release());
+    tokenAllowance->set_amount(mAmount.toTinybars());
+
+    proto::NftAllowance* nftAllowance = mCryptoApproveAllowanceTransactionBody->add_nftallowances();
+    nftAllowance->set_allocated_tokenid(mTokenId.toProtobuf().release());
+    nftAllowance->set_allocated_owner(mAccountId.toProtobuf().release());
+    nftAllowance->set_allocated_spender(mAccountId.toProtobuf().release());
+    nftAllowance->set_allocated_delegating_spender(mAccountId.toProtobuf().release());
+
+    for (const uint64_t& num : mSerialNumbers)
+    {
+      nftAllowance->add_serial_numbers(static_cast<int64_t>(num));
+    }
+
+    boolValue = std::make_unique<google::protobuf::BoolValue>();
+    boolValue->set_value(mApproval);
+    nftAllowance->set_allocated_approved_for_all(boolValue.release());
   }
 
   [[nodiscard]] inline const std::unique_ptr<proto::CryptoCreateTransactionBody>& getTestCryptoCreateTransactionBody()
@@ -131,6 +159,12 @@ protected:
   {
     return mCryptoDeleteTransactionBody;
   }
+  [[nodiscard]] inline const std::unique_ptr<proto::CryptoApproveAllowanceTransactionBody>&
+  getTestCryptoApproveAllowanceTransactionBody() const
+  {
+    return mCryptoApproveAllowanceTransactionBody;
+  }
+
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
   [[nodiscard]] inline const Hbar& getTestInitialBalance() const { return mInitialBalance; }
   [[nodiscard]] inline bool getTestReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
@@ -150,6 +184,7 @@ protected:
   {
     return mExpirationTime;
   }
+  [[nodiscard]] inline const std::vector<uint64_t>& getTestSerialNumbers() const { return mSerialNumbers; }
 
 private:
   std::unique_ptr<proto::CryptoCreateTransactionBody> mCryptoCreateTransactionBody =
@@ -160,6 +195,8 @@ private:
     std::make_unique<proto::CryptoUpdateTransactionBody>();
   std::unique_ptr<proto::CryptoDeleteTransactionBody> mCryptoDeleteTransactionBody =
     std::make_unique<proto::CryptoDeleteTransactionBody>();
+  std::unique_ptr<proto::CryptoApproveAllowanceTransactionBody> mCryptoApproveAllowanceTransactionBody =
+    std::make_unique<proto::CryptoApproveAllowanceTransactionBody>();
 
   const std::shared_ptr<PublicKey> mPublicKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const Hbar mInitialBalance = Hbar(1LL);
@@ -177,6 +214,7 @@ private:
   const uint32_t mExpectedDecimals = 9U;
   const bool mApproval = true;
   const std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now();
+  const std::vector<uint64_t> mSerialNumbers = { 10ULL, 11ULL };
 };
 
 //-----
@@ -605,4 +643,150 @@ TEST_F(TransactionTest, AccountDeleteTransactionFromTransactionBytes)
   const AccountDeleteTransaction accountDeleteTransaction = std::get<3>(txVariant);
   EXPECT_EQ(accountDeleteTransaction.getDeleteAccountId(), getTestAccountId());
   EXPECT_EQ(accountDeleteTransaction.getTransferAccountId(), getTestAccountId());
+}
+
+//-----
+TEST_F(TransactionTest, AccountApproveAllowanceFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptoapproveallowance(
+    std::make_unique<proto::CryptoApproveAllowanceTransactionBody>(*getTestCryptoApproveAllowanceTransactionBody())
+      .release());
+
+  const std::string serialized = txBody.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceApproveTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 4);
+
+  const AccountAllowanceApproveTransaction accountAllowanceApproveTransaction = std::get<4>(txVariant);
+  ASSERT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getAmount(), getTestAmount());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getAmount(), getTestAmount().toTinybars());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getNftApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSerialNumbers().size(),
+            getTestSerialNumbers().size());
+  for (int i = 0; i < getTestSerialNumbers().size(); ++i)
+  {
+    EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSerialNumbers().at(i),
+              getTestSerialNumbers().at(i));
+  }
+  ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll().has_value());
+  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll(), getTestApproval());
+  ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender().has_value());
+  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender(), getTestAccountId());
+}
+
+//-----
+TEST_F(TransactionTest, AccountApproveAllowanceFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptoapproveallowance(
+    std::make_unique<proto::CryptoApproveAllowanceTransactionBody>(*getTestCryptoApproveAllowanceTransactionBody())
+      .release());
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_allocated_bodybytes(new std::string(txBody.SerializeAsString()));
+  // SignatureMap not required
+
+  const std::string serialized = signedTx.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceApproveTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 4);
+
+  const AccountAllowanceApproveTransaction accountAllowanceApproveTransaction = std::get<4>(txVariant);
+  ASSERT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getAmount(), getTestAmount());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getAmount(), getTestAmount().toTinybars());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getNftApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSerialNumbers().size(),
+            getTestSerialNumbers().size());
+  for (int i = 0; i < getTestSerialNumbers().size(); ++i)
+  {
+    EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSerialNumbers().at(i),
+              getTestSerialNumbers().at(i));
+  }
+  ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll().has_value());
+  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll(), getTestApproval());
+  ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender().has_value());
+  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender(), getTestAccountId());
+}
+
+//-----
+TEST_F(TransactionTest, AccountApproveAllowanceFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptoapproveallowance(
+    std::make_unique<proto::CryptoApproveAllowanceTransactionBody>(*getTestCryptoApproveAllowanceTransactionBody())
+      .release());
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_allocated_bodybytes(new std::string(txBody.SerializeAsString()));
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_allocated_signedtransactionbytes(new std::string(signedTx.SerializeAsString()));
+
+  const std::string serialized = tx.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceApproveTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 4);
+
+  const AccountAllowanceApproveTransaction accountAllowanceApproveTransaction = std::get<4>(txVariant);
+  ASSERT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getAmount(), getTestAmount());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getAmount(), getTestAmount().toTinybars());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getNftApprovals().size(), 1);
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getOwnerAccountId(), getTestAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSpenderAccountId(), getTestAccountId());
+  ASSERT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSerialNumbers().size(),
+            getTestSerialNumbers().size());
+  for (int i = 0; i < getTestSerialNumbers().size(); ++i)
+  {
+    EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSerialNumbers().at(i),
+              getTestSerialNumbers().at(i));
+  }
+  ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll().has_value());
+  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll(), getTestApproval());
+  ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender().has_value());
+  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender(), getTestAccountId());
 }

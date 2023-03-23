@@ -20,7 +20,7 @@
 #ifndef ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 #define ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 
-#include "NftAllowance.h"
+#include "TokenNftAllowance.h"
 #include "Transaction.h"
 
 #include <unordered_map>
