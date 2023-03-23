@@ -24,6 +24,8 @@
 #include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
+#include "AccountInfo.h"
+#include "AccountInfoQuery.h"
 #include "AccountRecords.h"
 #include "AccountRecordsQuery.h"
 #include "AccountUpdateTransaction.h"
@@ -292,6 +294,7 @@ template class Executable<AccountDeleteTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+template class Executable<AccountInfoQuery, proto::Query, proto::Response, AccountInfo>;
 template class Executable<AccountRecordsQuery, proto::Query, proto::Response, AccountRecords>;
 template class Executable<AccountUpdateTransaction,
                           proto::Transaction,

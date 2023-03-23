@@ -30,6 +30,8 @@ namespace Hedera
 class LedgerId
 {
 public:
+  LedgerId() = default;
+
   /**
    * The Hedera Mainnet ledger ID.
    */

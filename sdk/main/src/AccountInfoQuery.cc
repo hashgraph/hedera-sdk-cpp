@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,9 +18,12 @@
  *
  */
 #include "AccountInfoQuery.h"
-
 #include "AccountId.h"
 #include "AccountInfo.h"
+#include "Client.h"
+#include "TransactionRecord.h"
+#include "TransferTransaction.h"
+#include "impl/Node.h"
 
 #include <proto/crypto_get_info.pb.h>
 #include <proto/query.pb.h>
@@ -30,65 +33,54 @@
 namespace Hedera
 {
 //-----
-AccountInfoQuery::AccountInfoQuery()
-  : mAccountId()
+AccountInfoQuery& AccountInfoQuery::setAccountId(const AccountId& accountId)
 {
+  mAccountId = accountId;
+  return *this;
 }
 
 //-----
-void
-AccountInfoQuery::validateChecksums(const Client& client) const
+proto::Query AccountInfoQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
 {
-  if (mAccountId.isValid())
-  {
-    mAccountId.getValue().validateChecksum(client);
-  }
+  proto::Query query;
+  proto::CryptoGetInfoQuery* getAccountInfoQuery = query.mutable_cryptogetinfo();
+
+  proto::QueryHeader* header = getAccountInfoQuery->mutable_header();
+  header->set_responsetype(proto::ANSWER_ONLY);
+
+  TransferTransaction tx = TransferTransaction()
+                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
+                             .setNodeAccountIds({ node->getAccountId() })
+                             .setMaxTransactionFee(Hbar(1LL))
+                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
+                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
+  tx.onSelectNode(node);
+  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
+
+  getAccountInfoQuery->set_allocated_accountid(mAccountId.toProtobuf().release());
+
+  return query;
 }
 
 //-----
-void
-AccountInfoQuery::onMakeRequest(proto::Query* query,
-                                proto::QueryHeader* header) const
-{
-  proto::CryptoGetInfoQuery* getInfoQuery = query->mutable_cryptogetinfo();
-
-  if (mAccountId.isValid())
-  {
-    getInfoQuery->set_allocated_accountid(mAccountId.getValue().toProtobuf());
-  }
-
-  getInfoQuery->set_allocated_header(header);
-}
-
-//-----
-proto::ResponseHeader
-AccountInfoQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->cryptogetinfo().header();
-}
-
-//-----
-proto::QueryHeader
-AccountInfoQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.cryptogetinfo().header();
-}
-
-//-----
-AccountInfo
-AccountInfoQuery::mapResponse(const proto::Response& response,
-                              const AccountId& accountId,
-                              const proto::Query& query) const
+AccountInfo AccountInfoQuery::mapResponse(const proto::Response& response) const
 {
   return AccountInfo::fromProtobuf(response.cryptogetinfo().accountinfo());
 }
 
 //-----
-AccountInfoQuery&
-AccountInfoQuery::setAccountId(const AccountId& accountId)
+Status AccountInfoQuery::mapResponseStatus(const proto::Response& response) const
 {
-  mAccountId.setValue(accountId);
-  return *this;
+  return gProtobufResponseCodeToStatus.at(response.cryptogetinfo().header().nodetransactionprecheckcode());
+}
+
+//-----
+grpc::Status AccountInfoQuery::submitRequest(const Client& client,
+                                             const std::chrono::system_clock::time_point& deadline,
+                                             const std::shared_ptr<internal::Node>& node,
+                                             proto::Response* response) const
+{
+  return node->submitQuery(proto::Query::QueryCase::kCryptoGetInfo, makeRequest(client, node), deadline, response);
 }
 
 } // namespace Hedera

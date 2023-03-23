@@ -196,6 +196,7 @@ private:
   /**
    * Allow queries that are not free to create Transaction protobuf objects from TransferTransactions.
    */
+  friend class AccountInfoQuery;
   friend class AccountRecordsQuery;
   friend class TransactionRecordQuery;
 

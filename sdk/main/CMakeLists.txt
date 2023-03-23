@@ -11,8 +11,8 @@ add_library(${PROJECT_NAME} STATIC
         src/AccountCreateTransaction.cc
         src/AccountDeleteTransaction.cc
         src/AccountId.cc
-        #    src/AccountInfo.cc
-        #    src/AccountInfoQuery.cc
+        src/AccountInfo.cc
+        src/AccountInfoQuery.cc
         src/AccountRecords.cc
         src/AccountRecordsQuery.cc
         #    src/AccountStakersQuery.cc
