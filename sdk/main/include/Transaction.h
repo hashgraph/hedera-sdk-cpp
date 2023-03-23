@@ -36,6 +36,7 @@
 namespace Hedera
 {
 class AccountAllowanceApproveTransaction;
+class AccountAllowanceDeleteTransaction;
 class AccountCreateTransaction;
 class AccountDeleteTransaction;
 class AccountUpdateTransaction;
@@ -100,7 +101,8 @@ public:
                                               TransferTransaction,
                                               AccountUpdateTransaction,
                                               AccountDeleteTransaction,
-                                              AccountAllowanceApproveTransaction>>
+                                              AccountAllowanceApproveTransaction,
+                                              AccountAllowanceDeleteTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);
 
   /**

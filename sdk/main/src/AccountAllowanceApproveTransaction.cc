@@ -29,7 +29,6 @@
 
 namespace Hedera
 {
-
 //-----
 AccountAllowanceApproveTransaction::AccountAllowanceApproveTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountAllowanceApproveTransaction>(transactionBody)

@@ -19,6 +19,7 @@
  */
 #include "Transaction.h"
 #include "AccountAllowanceApproveTransaction.h"
+#include "AccountAllowanceDeleteTransaction.h"
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
 #include "AccountUpdateTransaction.h"
@@ -137,6 +138,16 @@ protected:
     boolValue = std::make_unique<google::protobuf::BoolValue>();
     boolValue->set_value(mApproval);
     nftAllowance->set_allocated_approved_for_all(boolValue.release());
+
+    // Initialize the CryptoDeleteAllowance unique_ptr
+    proto::NftRemoveAllowance* nftRemoveAllowance = mCryptoDeleteAllowanceTransactionBody->add_nftallowances();
+    nftRemoveAllowance->set_allocated_token_id(mTokenId.toProtobuf().release());
+    nftRemoveAllowance->set_allocated_owner(mAccountId.toProtobuf().release());
+
+    for (const uint64_t& num : mSerialNumbers)
+    {
+      nftRemoveAllowance->add_serial_numbers(static_cast<int64_t>(num));
+    }
   }
 
   [[nodiscard]] inline const std::unique_ptr<proto::CryptoCreateTransactionBody>& getTestCryptoCreateTransactionBody()
@@ -163,6 +174,11 @@ protected:
   getTestCryptoApproveAllowanceTransactionBody() const
   {
     return mCryptoApproveAllowanceTransactionBody;
+  }
+  [[nodiscard]] inline const std::unique_ptr<proto::CryptoDeleteAllowanceTransactionBody>&
+  getTestCryptoDeleteAllowanceTransactionBody() const
+  {
+    return mCryptoDeleteAllowanceTransactionBody;
   }
 
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
@@ -197,6 +213,8 @@ private:
     std::make_unique<proto::CryptoDeleteTransactionBody>();
   std::unique_ptr<proto::CryptoApproveAllowanceTransactionBody> mCryptoApproveAllowanceTransactionBody =
     std::make_unique<proto::CryptoApproveAllowanceTransactionBody>();
+  std::unique_ptr<proto::CryptoDeleteAllowanceTransactionBody> mCryptoDeleteAllowanceTransactionBody =
+    std::make_unique<proto::CryptoDeleteAllowanceTransactionBody>();
 
   const std::shared_ptr<PublicKey> mPublicKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const Hbar mInitialBalance = Hbar(1LL);
@@ -789,4 +807,111 @@ TEST_F(TransactionTest, AccountApproveAllowanceFromTransactionBytes)
   EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll(), getTestApproval());
   ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender().has_value());
   EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender(), getTestAccountId());
+}
+
+//-----
+TEST_F(TransactionTest, AccountDeleteAllowanceFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptodeleteallowance(
+    std::make_unique<proto::CryptoDeleteAllowanceTransactionBody>(*getTestCryptoDeleteAllowanceTransactionBody())
+      .release());
+
+  const std::string serialized = txBody.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 5);
+
+  const AccountAllowanceDeleteTransaction accountAllowanceDeleteTransaction = std::get<5>(txVariant);
+  ASSERT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().size(), 1);
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getOwnerAccountId(),
+            getTestAccountId());
+  ASSERT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().size(),
+            getTestSerialNumbers().size());
+  for (int i = 0; i < getTestSerialNumbers().size(); ++i)
+  {
+    EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().at(i),
+              getTestSerialNumbers().at(i));
+  }
+}
+
+//-----
+TEST_F(TransactionTest, AccountDeleteAllowanceFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptodeleteallowance(
+    std::make_unique<proto::CryptoDeleteAllowanceTransactionBody>(*getTestCryptoDeleteAllowanceTransactionBody())
+      .release());
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_allocated_bodybytes(new std::string(txBody.SerializeAsString()));
+  // SignatureMap not required
+
+  const std::string serialized = signedTx.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 5);
+
+  const AccountAllowanceDeleteTransaction accountAllowanceDeleteTransaction = std::get<5>(txVariant);
+  ASSERT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().size(), 1);
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getOwnerAccountId(),
+            getTestAccountId());
+  ASSERT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().size(),
+            getTestSerialNumbers().size());
+  for (int i = 0; i < getTestSerialNumbers().size(); ++i)
+  {
+    EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().at(i),
+              getTestSerialNumbers().at(i));
+  }
+}
+
+//-----
+TEST_F(TransactionTest, AccountDeleteAllowanceFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptodeleteallowance(
+    std::make_unique<proto::CryptoDeleteAllowanceTransactionBody>(*getTestCryptoDeleteAllowanceTransactionBody())
+      .release());
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_allocated_bodybytes(new std::string(txBody.SerializeAsString()));
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_allocated_signedtransactionbytes(new std::string(signedTx.SerializeAsString()));
+
+  const std::string serialized = tx.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 5);
+
+  const AccountAllowanceDeleteTransaction accountAllowanceDeleteTransaction = std::get<5>(txVariant);
+  ASSERT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().size(), 1);
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getOwnerAccountId(),
+            getTestAccountId());
+  ASSERT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().size(),
+            getTestSerialNumbers().size());
+  for (int i = 0; i < getTestSerialNumbers().size(); ++i)
+  {
+    EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().at(i),
+              getTestSerialNumbers().at(i));
+  }
 }

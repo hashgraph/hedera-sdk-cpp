@@ -15,6 +15,7 @@ endif ()
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
 add_executable(${TEST_PROJECT_NAME}
         AccountAllowanceApproveTransactionTest.cc
+        AccountAllowanceDeleteTransactionTest.cc
         AccountBalanceQueryTest.cc
         AccountBalanceTest.cc
         AccountCreateTransactionTest.cc
@@ -40,6 +41,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenAllowanceTest.cc
         TokenIdTest.cc
         TokenNftAllowanceTest.cc
+        TokenNftRemoveAllowanceTest.cc
         TokenNftTransferTest.cc
         TokenTransferTest.cc
         TransactionIdTest.cc
