@@ -48,6 +48,7 @@ add_library(${PROJECT_NAME} STATIC
         src/NftId.cc
         src/PrivateKey.cc
         src/PublicKey.cc
+        src/StakingInfo.cc
         src/Status.cc
         src/TokenAllowance.cc
         src/TokenId.cc

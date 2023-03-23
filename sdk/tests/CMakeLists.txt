@@ -38,6 +38,7 @@ add_executable(${TEST_PROJECT_NAME}
         LedgerIdTest.cc
         NftIdTest.cc
         NodeAddressTest.cc
+        StakingInfoTest.cc
         TokenAllowanceTest.cc
         TokenIdTest.cc
         TokenNftAllowanceTest.cc
