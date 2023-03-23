@@ -42,6 +42,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileCreateTransaction.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc
+        src/LedgerId.cc
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
         src/NftId.cc
