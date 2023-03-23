@@ -73,7 +73,6 @@ proto::Transaction AccountAllowanceDeleteTransaction::makeRequest(const Client& 
 {
   proto::TransactionBody transactionBody = generateTransactionBody(client);
   transactionBody.set_allocated_cryptodeleteallowance(build());
-
   return signTransaction(transactionBody, client);
 }
 
