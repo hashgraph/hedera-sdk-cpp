@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,135 +18,92 @@
  *
  */
 #include "AccountAllowanceDeleteTransaction.h"
-
-#include "AccountId.h"
 #include "NftId.h"
-#include "TokenId.h"
-#include "TokenNftAllowance.h"
-#include "helper/InitType.h"
+#include "impl/Node.h"
 
+#include <grpcpp/client_context.h>
 #include <proto/crypto_delete_allowance.pb.h>
-#include <proto/schedulable_transaction_body.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <proto/transaction.pb.h>
+#include <proto/transaction_response.pb.h>
+#include <stdexcept>
 
 namespace Hedera
 {
 //-----
-AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction()
-  : mNftAllowances()
-  , mNftMap()
+AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<AccountAllowanceDeleteTransaction>(transactionBody)
 {
-}
-
-//-----
-AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(
-  const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  : Transaction(transactions)
-{
-  initFromTransactionBody();
-}
-
-//----
-AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(const proto::TransactionBody& transaction)
-  : Transaction(transaction)
-{
-  initFromTransactionBody();
-}
-
-//-----
-void AccountAllowanceDeleteTransaction::validateChecksums(const Client& client) const
-{
-  for (size_t i = 0; i < mNftAllowances.size(); ++i)
+  if (!transactionBody.has_cryptodeleteallowance())
   {
-    mNftAllowances.at(i).validateChecksums(client);
+    throw std::invalid_argument("Transaction body doesn't contain CryptoDeleteAllowance data");
+  }
+
+  const proto::CryptoDeleteAllowanceTransactionBody& body = transactionBody.cryptodeleteallowance();
+
+  for (int i = 0; i < body.nftallowances_size(); ++i)
+  {
+    mNftAllowanceDeletions.push_back(TokenNftRemoveAllowance::fromProtobuf(body.nftallowances(i)));
   }
 }
 
 //-----
-void AccountAllowanceDeleteTransaction::onFreeze(proto::TransactionBody* body) const
+AccountAllowanceDeleteTransaction& AccountAllowanceDeleteTransaction::deleteAllTokenNftAllowances(
+  const NftId& nftId,
+  const AccountId& owner)
 {
-  body->set_allocated_cryptodeleteallowance(build());
+  requireNotFrozen();
+
+  // Add the serial number to the token allowance if there's already an allowance for this token ID, owner, and spender.
+  for (TokenNftRemoveAllowance& allowance : mNftAllowanceDeletions)
+  {
+    if (allowance.getTokenId() == nftId.getTokenId() && allowance.getOwnerAccountId() == owner)
+    {
+      allowance.addSerialNumber(nftId.getSerialNum());
+      return *this;
+    }
+  }
+
+  mNftAllowanceDeletions.emplace_back(nftId.getTokenId(), owner, std::vector<uint64_t>{ nftId.getSerialNum() });
+  return *this;
 }
 
 //-----
-void AccountAllowanceDeleteTransaction::onScheduled(proto::SchedulableTransactionBody* body) const
+proto::Transaction AccountAllowanceDeleteTransaction::makeRequest(const Client& client,
+                                                                  const std::shared_ptr<internal::Node>&) const
 {
-  body->set_allocated_cryptodeleteallowance(build());
+  proto::TransactionBody transactionBody = generateTransactionBody(client);
+  transactionBody.set_allocated_cryptodeleteallowance(build());
+  return signTransaction(transactionBody, client);
+}
+
+//-----
+grpc::Status AccountAllowanceDeleteTransaction::submitRequest(const Client& client,
+                                                              const std::chrono::system_clock::time_point& deadline,
+                                                              const std::shared_ptr<internal::Node>& node,
+                                                              proto::TransactionResponse* response) const
+{
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kCryptoDeleteAllowance, makeRequest(client, node), deadline, response);
 }
 
 //-----
 proto::CryptoDeleteAllowanceTransactionBody* AccountAllowanceDeleteTransaction::build() const
 {
-  proto::CryptoDeleteAllowanceTransactionBody* body = new proto::CryptoDeleteAllowanceTransactionBody;
+  auto body = std::make_unique<proto::CryptoDeleteAllowanceTransactionBody>();
 
-  for (size_t i = 0; i < mNftAllowances.size(); ++i)
+  for (const TokenNftRemoveAllowance& allowance : mNftAllowanceDeletions)
   {
-    proto::NftRemoveAllowance* allow = body->add_nftallowances();
-    (void)allow;
-    // TODO: fill out nft removal allowance
-  }
+    proto::NftRemoveAllowance* nftRemoveAllowance = body->add_nftallowances();
+    nftRemoveAllowance->set_allocated_token_id(allowance.getTokenId().toProtobuf().release());
+    nftRemoveAllowance->set_allocated_owner(allowance.getOwnerAccountId().toProtobuf().release());
 
-  return body;
-}
-
-//-----
-AccountAllowanceDeleteTransaction& AccountAllowanceDeleteTransaction::deleteAllNftAllowances(
-  const NftId& nftId,
-  const AccountId& ownerAccountId)
-{
-  requireNotFrozen();
-
-  saveNftSerial(nftId.mSerial, nftId.mTokenId, ownerAccountId);
-
-  return *this;
-}
-
-//-----
-void AccountAllowanceDeleteTransaction::initFromTransactionBody()
-{
-  if (mSourceTransactionBody.has_cryptodeleteallowance())
-  {
-    const proto::CryptoDeleteAllowanceTransactionBody& body = mSourceTransactionBody.cryptodeleteallowance();
-
-    for (int i = 0; i < body.nftallowances_size(); ++i)
+    for (const uint64_t& num : allowance.getSerialNumbers())
     {
-      const proto::NftRemoveAllowance& nft = body.nftallowances(i);
-      if (!nft.has_token_id() || !nft.has_owner())
-      {
-        // TODO: throw
-      }
-
-      const TokenId tokenId = TokenId::fromProtobuf(nft.token_id());
-      const AccountId owner = AccountId::fromProtobuf(nft.owner());
-
-      for (int i = 0; i < nft.serial_numbers_size(); ++i)
-      {
-        saveNftSerial(nft.serial_numbers(i), tokenId, owner);
-      }
+      nftRemoveAllowance->add_serial_numbers(static_cast<int64_t>(num));
     }
   }
-}
 
-//-----
-void AccountAllowanceDeleteTransaction::saveNftSerial(const int64_t& serial,
-                                                      const TokenId& tokenId,
-                                                      const AccountId& ownerAccountId)
-{
-  const std::string key = ownerAccountId.toString() + ':' + tokenId.toString();
-
-  if (mNftMap.find(key) != mNftMap.end())
-  {
-    mNftAllowances.at(mNftMap.at(key)).mSerialNumbers.push_back(serial);
-  }
-  else
-  {
-    mNftMap.insert({ key, mNftAllowances.size() });
-    mNftAllowances.push_back(NftAllowance(InitType<TokenId>(tokenId),
-                                          InitType<AccountId>(ownerAccountId),
-                                          InitType<AccountId>(),
-                                          std::vector<int64_t>(),
-                                          false));
-  }
+  return body.release();
 }
 
 } // namespace Hedera

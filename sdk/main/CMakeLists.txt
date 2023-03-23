@@ -5,7 +5,7 @@ FetchContent_MakeAvailable(valuable)
 
 add_library(${PROJECT_NAME} STATIC
         src/AccountAllowanceApproveTransaction.cc
-        #    src/AccountAllowanceDeleteTransaction.cc
+        src/AccountAllowanceDeleteTransaction.cc
         src/AccountBalance.cc
         src/AccountBalanceQuery.cc
         src/AccountCreateTransaction.cc
@@ -53,6 +53,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenAllowance.cc
         src/TokenId.cc
         src/TokenNftAllowance.cc
+        src/TokenNftRemoveAllowance.cc
         src/TokenNftTransfer.cc
         src/TokenTransfer.cc
         src/Transaction.cc
