@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_IMPL_NODE_H_
 
 #include <proto/crypto_service.grpc.pb.h>
+#include <proto/smart_contract_service.grpc.pb.h>
 
 #include "Defaults.h"
 #include "impl/NodeAddress.h"
@@ -194,6 +195,11 @@ private:
    * Pointer to the gRPC stub used to communicate with the cryptography service living on the remote node.
    */
   std::unique_ptr<proto::CryptoService::Stub> mCryptoStub = nullptr;
+
+  /**
+   * Pointer to the gRPC stub used to communicate with the smart contract service living on the remote node.
+   */
+  std::unique_ptr<proto::SmartContractService::Stub> mSmartContractSub = nullptr;
 
   /**
    * The TLS behavior this Node should use to communicate with its remote node.
