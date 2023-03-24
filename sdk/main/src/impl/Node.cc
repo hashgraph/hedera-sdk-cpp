@@ -71,6 +71,11 @@ void Node::shutdown()
     mCryptoStub.reset();
   }
 
+  if (mSmartContractSub)
+  {
+    mSmartContractSub.reset();
+  }
+
   if (mChannel)
   {
     mChannel.reset();
@@ -95,6 +100,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
 
   switch (funcEnum)
   {
+    case proto::Query::QueryCase::kContractGetBytecode:
+      return mSmartContractSub->ContractGetBytecode(&context, query, response);
     case proto::Query::QueryCase::kCryptogetAccountBalance:
       return mCryptoStub->cryptoGetBalance(&context, query, response);
     case proto::Query::QueryCase::kCryptoGetAccountRecords:
