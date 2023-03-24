@@ -198,6 +198,7 @@ private:
    */
   friend class AccountInfoQuery;
   friend class AccountRecordsQuery;
+  friend class ContractByteCodeQuery;
   friend class TransactionRecordQuery;
 
   /**
