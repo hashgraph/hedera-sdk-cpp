@@ -18,6 +18,8 @@
  *
  */
 #include "AccountCreateTransaction.h"
+#include "AccountInfo.h"
+#include "AccountInfoQuery.h"
 #include "AccountUpdateTransaction.h"
 #include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
@@ -74,6 +76,10 @@ int main(int argc, char** argv)
 
   txReceipt = txResp.getReceipt(client);
   std::cout << "Transaction response: " << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+
+  // Query for the new account key
+  const AccountInfo accountInfo = AccountInfoQuery().setAccountId(newAccountId).execute(client);
+  std::cout << "New queried public key: " << accountInfo.getKey()->toStringDer() << std::endl;
 
   return 0;
 }

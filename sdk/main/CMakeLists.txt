@@ -11,8 +11,8 @@ add_library(${PROJECT_NAME} STATIC
         src/AccountCreateTransaction.cc
         src/AccountDeleteTransaction.cc
         src/AccountId.cc
-        #    src/AccountInfo.cc
-        #    src/AccountInfoQuery.cc
+        src/AccountInfo.cc
+        src/AccountInfoQuery.cc
         src/AccountRecords.cc
         src/AccountRecordsQuery.cc
         #    src/AccountStakersQuery.cc
@@ -42,11 +42,13 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileCreateTransaction.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc
+        src/LedgerId.cc
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
         src/NftId.cc
         src/PrivateKey.cc
         src/PublicKey.cc
+        src/StakingInfo.cc
         src/Status.cc
         src/TokenAllowance.cc
         src/TokenId.cc

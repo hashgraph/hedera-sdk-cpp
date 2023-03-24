@@ -21,6 +21,8 @@ add_executable(${TEST_PROJECT_NAME}
         AccountCreateTransactionTest.cc
         AccountDeleteTransactionTest.cc
         AccountIdTest.cc
+        AccountInfoQueryTest.cc
+        AccountInfoTest.cc
         AccountRecordsQueryTest.cc
         AccountRecordsTest.cc
         AccountUpdateTransactionTest.cc
@@ -36,8 +38,10 @@ add_executable(${TEST_PROJECT_NAME}
         HbarTest.cc
         HbarTransferTest.cc
         JSONTest.cc
+        LedgerIdTest.cc
         NftIdTest.cc
         NodeAddressTest.cc
+        StakingInfoTest.cc
         TokenAllowanceTest.cc
         TokenIdTest.cc
         TokenNftAllowanceTest.cc
