@@ -106,25 +106,25 @@ public:
   explicit ContractCreateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Set the ID of the file that contains the smart contract initcode. A copy will be made and held by the contract
-   * instance, and have the same expiration time as the instance. If the initcode is large (>5K), then it must be stored
-   * in a file. This is mutually exclusive with mInitCode, and will reset the value of the mInitCode if it is set.
+   * Set the ID of the file that contains the smart contract bytecode. A copy will be made and held by the contract
+   * instance, and have the same expiration time as the instance. If the bytecode is large (>5K), then it must be stored
+   * in a file. This is mutually exclusive with mBytecode, and will reset the value of the mBytecode if it is set.
    *
-   * @param fileId The ID of the file that contains the initcode for the new smart contract instance.
+   * @param fileId The ID of the file that contains the bytecode for the new smart contract instance.
    * @return A reference to this ContractCreateTransaction object with the newly-set file ID.
    * @throws IllegalStateException If this ContractCreateTransaction is frozen.
    */
-  ContractCreateTransaction& setFileId(const FileId& fileId);
+  ContractCreateTransaction& setBytecodeFileId(const FileId& fileId);
 
   /**
-   * Set the bytes of the smart contract initcode. If the initcode is large (>5K), then it must be stored in a file.
-   * This is mutually exclusive with mFileId, and will reset the value of the mFileId if it is set.
+   * Set the bytes of the smart contract bytecode. If the bytecode is large (>5K), then it must be stored in a file.
+   * This is mutually exclusive with mBytecodeFileId, and will reset the value of the mBytecodeFileId if it is set.
    *
-   * @param initCode The initcode for the new smart contract instance.
+   * @param initCode The bytecode for the new smart contract instance.
    * @return A reference to this ContractCreateTransaction object with the newly-set initcode.
    * @throws IllegalStateException If this ContractCreateTransaction is frozen.
    */
-  ContractCreateTransaction& setInitCode(const std::vector<std::byte>& initCode);
+  ContractCreateTransaction& setBytecode(const std::vector<std::byte>& initCode);
 
   /**
    * Set the admin key for the new smart contract instance. The state of the smart contract instance and its fields can
@@ -242,17 +242,17 @@ public:
    * Get the ID of the file that contains the smart contract initcode.
    *
    * @return The ID of the file that contains the desired smart contract initcode. Returns uninitialized if a value has
-   *         not yet been set, or if mInitCode has been set more recently.
+   *         not yet been set, or if mBytecode has been set more recently.
    */
-  [[nodiscard]] inline std::optional<FileId> getFileId() const { return mFileId; }
+  [[nodiscard]] inline std::optional<FileId> getFileId() const { return mBytecodeFileId; }
 
   /**
    * Get the bytes of the smart contract initcode.
    *
    * @return The bytes of the desired smart contract initcode. Returns empty if a value has not yet been set, or if the
-   *         mFileId has been set more recently.
+   *         mBytecodeFileId has been set more recently.
    */
-  [[nodiscard]] inline std::vector<std::byte> getInitCode() const { return mInitCode; }
+  [[nodiscard]] inline std::vector<std::byte> getInitCode() const { return mBytecode; }
 
   /**
    * Get the admin key for the new smart contract instance.
@@ -374,14 +374,14 @@ private:
   [[nodiscard]] proto::ContractCreateTransactionBody* build() const;
 
   /**
-   * The ID of the file that contains the smart contract initcode.
+   * The ID of the file that contains the smart contract bytecode.
    */
-  std::optional<FileId> mFileId;
+  std::optional<FileId> mBytecodeFileId;
 
   /**
-   * The bytes of the smart contract initcode.
+   * The bytes of the smart contract bytecode.
    */
-  std::vector<std::byte> mInitCode;
+  std::vector<std::byte> mBytecode;
 
   /**
    * The admin key for the new smart contract instance.

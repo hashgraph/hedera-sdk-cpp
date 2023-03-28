@@ -41,7 +41,7 @@ protected:
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
-  [[nodiscard]] inline const std::vector<std::byte>& getTestInitCode() { return mTestInitCode; }
+  [[nodiscard]] inline const std::vector<std::byte>& getTestBytecode() const { return mTestBytecode; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestAdminKey() const { return mTestAdminKey; }
   [[nodiscard]] inline const uint64_t& getTestGas() const { return mTestGas; }
   [[nodiscard]] inline const Hbar& getTestInitialBalance() const { return mTestInitialBalance; }
@@ -49,7 +49,7 @@ protected:
   {
     return mTestAutoRenewPeriod;
   }
-  [[nodiscard]] inline const std::vector<std::byte>& getTestConstructorParameters()
+  [[nodiscard]] inline const std::vector<std::byte>& getTestConstructorParameters() const
   {
     return mTestConstructorParameters;
   }
@@ -63,7 +63,7 @@ protected:
 private:
   Client mClient;
   const FileId mTestFileId = FileId(1ULL);
-  const std::vector<std::byte> mTestInitCode = { std::byte(0x02), std::byte(0x03), std::byte(0x04) };
+  const std::vector<std::byte> mTestBytecode = { std::byte(0x02), std::byte(0x03), std::byte(0x04) };
   const std::shared_ptr<PublicKey> mTestAdminKey = PublicKey::fromStringDer(
     "302A300506032B6570032100BCAF3153262A767B281CC8C888DB3E097C83D690AEF01B8C1BE64D3DE11AACC3");
   const uint64_t mTestGas = 5ULL;
@@ -127,7 +127,7 @@ TEST_F(ContractCreateTransactionTest, GetSetFileId)
   ContractCreateTransaction transaction;
 
   // When
-  transaction.setFileId(getTestFileId());
+  transaction.setBytecodeFileId(getTestFileId());
 
   // Then
   ASSERT_TRUE(transaction.getFileId().has_value());
@@ -142,7 +142,7 @@ TEST_F(ContractCreateTransactionTest, GetSetFileIdFrozen)
   transaction.freezeWith(getTestClient());
 
   // When / Then
-  EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);
+  EXPECT_THROW(transaction.setBytecodeFileId(getTestFileId()), IllegalStateException);
 }
 
 //-----
@@ -152,10 +152,10 @@ TEST_F(ContractCreateTransactionTest, GetSetInitCode)
   ContractCreateTransaction transaction;
 
   // When
-  transaction.setInitCode(getTestInitCode());
+  transaction.setBytecode(getTestBytecode());
 
   // Then
-  EXPECT_EQ(transaction.getInitCode(), getTestInitCode());
+  EXPECT_EQ(transaction.getInitCode(), getTestBytecode());
 }
 
 //-----
@@ -166,7 +166,7 @@ TEST_F(ContractCreateTransactionTest, GetSetInitCodeFrozen)
   transaction.freezeWith(getTestClient());
 
   // When / Then
-  EXPECT_THROW(transaction.setInitCode(getTestInitCode()), IllegalStateException);
+  EXPECT_THROW(transaction.setBytecode(getTestBytecode()), IllegalStateException);
 }
 
 //-----
@@ -438,10 +438,10 @@ TEST_F(ContractCreateTransactionTest, ResetFileIdWhenSettingInitCode)
 {
   // Given
   ContractCreateTransaction transaction;
-  transaction.setFileId(getTestFileId());
+  transaction.setBytecodeFileId(getTestFileId());
 
   // When
-  transaction.setInitCode(getTestInitCode());
+  transaction.setBytecode(getTestBytecode());
 
   // Then
   EXPECT_FALSE(transaction.getFileId().has_value());
@@ -452,10 +452,10 @@ TEST_F(ContractCreateTransactionTest, ResetInitCodeWhenSettingFileId)
 {
   // Given
   ContractCreateTransaction transaction;
-  transaction.setInitCode(getTestInitCode());
+  transaction.setBytecode(getTestBytecode());
 
   // When
-  transaction.setFileId(getTestFileId());
+  transaction.setBytecodeFileId(getTestFileId());
 
   // Then
   EXPECT_TRUE(transaction.getInitCode().empty());

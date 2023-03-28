@@ -49,12 +49,12 @@ ContractCreateTransaction::ContractCreateTransaction(const proto::TransactionBod
 
   if (body.has_fileid())
   {
-    mFileId = FileId::fromProtobuf(body.fileid());
+    mBytecodeFileId = FileId::fromProtobuf(body.fileid());
   }
 
   if (body.has_initcode())
   {
-    mInitCode = internal::Utilities::stringToByteVector(body.initcode());
+    mBytecode = internal::Utilities::stringToByteVector(body.initcode());
   }
 
   if (body.has_adminkey())
@@ -93,20 +93,20 @@ ContractCreateTransaction::ContractCreateTransaction(const proto::TransactionBod
 }
 
 //-----
-ContractCreateTransaction& ContractCreateTransaction::setFileId(const FileId& fileId)
+ContractCreateTransaction& ContractCreateTransaction::setBytecodeFileId(const FileId& fileId)
 {
   requireNotFrozen();
-  mFileId = fileId;
-  mInitCode.clear();
+  mBytecodeFileId = fileId;
+  mBytecode.clear();
   return *this;
 }
 
 //-----
-ContractCreateTransaction& ContractCreateTransaction::setInitCode(const std::vector<std::byte>& initCode)
+ContractCreateTransaction& ContractCreateTransaction::setBytecode(const std::vector<std::byte>& initCode)
 {
   requireNotFrozen();
-  mInitCode = initCode;
-  mFileId.reset();
+  mBytecode = initCode;
+  mBytecodeFileId.reset();
   return *this;
 }
 
@@ -227,13 +227,13 @@ proto::ContractCreateTransactionBody* ContractCreateTransaction::build() const
 {
   auto body = std::make_unique<proto::ContractCreateTransactionBody>();
 
-  if (mFileId.has_value())
+  if (mBytecodeFileId.has_value())
   {
-    body->set_allocated_fileid(mFileId->toProtobuf().release());
+    body->set_allocated_fileid(mBytecodeFileId->toProtobuf().release());
   }
   else
   {
-    body->set_allocated_initcode(new std::string(internal::Utilities::byteVectorToString(mInitCode)));
+    body->set_allocated_initcode(new std::string(internal::Utilities::byteVectorToString(mBytecode)));
   }
 
   if (mAdminKey)
