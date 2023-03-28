@@ -28,6 +28,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountUpdateTransactionTest.cc
         ClientTest.cc
         ContractByteCodeQueryTest.cc
+        ContractCreateTransactionTest.cc
         ContractIdTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
         ECDSAsecp256k1PublicKeyTest.cc
@@ -35,6 +36,7 @@ add_executable(${TEST_PROJECT_NAME}
         ED25519PublicKeyTest.cc
         EvmAddressTest.cc
         ExchangeRateTest.cc
+        FileIdTest.cc
         HbarAllowanceTest.cc
         HbarTest.cc
         HbarTransferTest.cc
