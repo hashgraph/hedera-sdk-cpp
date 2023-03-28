@@ -24,9 +24,11 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/Utilities.h"
 
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using namespace Hedera;
@@ -35,6 +37,13 @@ using namespace Hedera::internal::Utilities;
 class ECDSAsecp256k1PrivateKeyTest : public ::testing::Test
 {
 protected:
+  [[nodiscard]] static std::string toLowercase(std::string_view str)
+  {
+    std::string lowercaseStr;
+    std::transform(str.cbegin(), str.cend(), std::back_inserter(lowercaseStr), [](char c) { return tolower(c); });
+    return lowercaseStr;
+  }
+
   [[nodiscard]] inline const std::string& getTestPrivateKeyHexString() const { return mPrivateKeyHexString; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestPrivateKeyBytes() const { return mPrivateKeyBytes; }
 
@@ -109,6 +118,8 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, FromString)
     const std::unique_ptr<ECDSAsecp256k1PrivateKey> key = ECDSAsecp256k1PrivateKey::fromString(
       std::string(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX.size(), 'A') + getTestPrivateKeyHexString()),
     BadKeyException);
+  EXPECT_NO_THROW(const std::unique_ptr<ECDSAsecp256k1PrivateKey> key =
+                    ECDSAsecp256k1PrivateKey::fromString(toLowercase(getTestPrivateKeyHexString())));
 }
 
 //-----
