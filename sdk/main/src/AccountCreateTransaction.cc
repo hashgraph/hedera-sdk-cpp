@@ -79,12 +79,14 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
 
   if (!body.alias().empty())
   {
-    mAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(body.alias()));
-  }
-
-  if (!body.evm_address().empty())
-  {
-    mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(body.evm_address()));
+    if (body.alias().size() == EvmAddress::NUM_BYTES)
+    {
+      mEvmAddressAlias = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(body.alias()));
+    }
+    else
+    {
+      mPublicKeyAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(body.alias()));
+    }
   }
 }
 
@@ -183,20 +185,20 @@ AccountCreateTransaction& AccountCreateTransaction::setDeclineStakingReward(bool
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setAlias(const std::shared_ptr<PublicKey>& alias)
+AccountCreateTransaction& AccountCreateTransaction::setPublicKeyAlias(const std::shared_ptr<PublicKey>& alias)
 {
   requireNotFrozen();
 
-  mAlias = alias;
+  mPublicKeyAlias = alias;
   return *this;
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setEvmAddress(const EvmAddress& address)
+AccountCreateTransaction& AccountCreateTransaction::setEvmAddressAlias(const EvmAddress& address)
 {
   requireNotFrozen();
 
-  mEvmAddress = address;
+  mEvmAddressAlias = address;
   return *this;
 }
 
@@ -249,14 +251,14 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   body->set_decline_reward(mDeclineStakingReward);
 
-  if (mAlias)
+  if (mPublicKeyAlias)
   {
-    body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mAlias->toBytesDer())));
+    body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mPublicKeyAlias->toBytesDer())));
   }
 
-  if (mEvmAddress)
+  if (mEvmAddressAlias)
   {
-    body->set_allocated_evm_address(new std::string(internal::Utilities::byteVectorToString(mEvmAddress->toBytes())));
+    body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mEvmAddressAlias->toBytes())));
   }
 
   return body.release();
