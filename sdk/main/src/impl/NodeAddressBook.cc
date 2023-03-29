@@ -61,6 +61,13 @@ NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& prot
 }
 
 //-----
+void NodeAddressBook::setAddressMap(
+  const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& addressMap)
+{
+  mAddressMap = addressMap;
+}
+
+//-----
 const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& NodeAddressBook::getAddressMap() const
 {
   return mAddressMap;

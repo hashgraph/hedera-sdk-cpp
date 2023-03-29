@@ -67,6 +67,13 @@ public:
   [[nodiscard]] static NodeAddressBook fromProtobuf(const proto::NodeAddressBook& protoAddressBook);
 
   /**
+   * Set the content of mAddressMap using a map.
+   *
+   * @param addressMap Map of AccountIds to NodeAddresses.
+   */
+  void setAddressMap(const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& addressMap);
+
+  /**
    * Get a map of AccountIds to NodeAddresses contained in this NodeAddressBook.
    *
    * @return A map of AccountIds to NodeAddresses contained in this NodeAddressBook.

@@ -121,6 +121,14 @@ Client Client::forPreviewnet()
 }
 
 //-----
+Client Client::forNetwork(const std::map<std::string, Hedera::AccountId>& networkMap)
+{
+  Client client;
+  client.mImpl->mNetwork = internal::Network::forNetwork(networkMap);
+  return client;
+}
+
+//-----
 Client& Client::setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>& privateKey)
 {
   return setOperator(accountId, std::move(privateKey));

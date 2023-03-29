@@ -25,6 +25,7 @@
 #include "NodeAddressBook.h"
 #include "TLSBehavior.h"
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -59,6 +60,13 @@ public:
    * @return A Network object that is set-up to communicate with the Hedera Previewnet.
    */
   [[nodiscard]] static Network forPreviewnet();
+
+  /**
+   * TODO
+   *
+   * @return A Network object that is set-up to communicate with a specific Hedera network.
+   */
+  [[nodiscard]] static Network forNetwork(const std::map<std::string, Hedera::AccountId>& networkMap);
 
   /**
    * Get a list of Node pointers that point to Nodes on this Network that are associated with the input account IDs. If
@@ -96,6 +104,15 @@ private:
    *                                hash.
    */
   void setNetwork(const NodeAddressBook& nodeAddressBook);
+
+  /**
+   * TODO
+   *
+   * @param networkMap TODO
+   * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
+   *                        hash.
+   */
+  void setNetwork(const std::map<std::string, Hedera::AccountId>& networkMap);
 
   /**
    * The list of pointers to Nodes with which this Network is communicating.

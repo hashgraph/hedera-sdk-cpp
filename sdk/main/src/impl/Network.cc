@@ -48,6 +48,14 @@ Network Network::forPreviewnet()
 }
 
 //-----
+Network Network::forNetwork(const std::map<std::string, Hedera::AccountId>& networkMap)
+{
+  Network network;
+  network.setNetwork(networkMap);
+  return network;
+}
+
+//-----
 std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const
 {
   if (accountIds.empty())
@@ -85,6 +93,45 @@ void Network::setTLSBehavior(TLSBehavior desiredBehavior) const
   {
     node->setTLSBehavior(desiredBehavior);
   }
+}
+
+//-----
+void Network::setNetwork(const std::map<std::string, Hedera::AccountId>& networkMap)
+{
+  std::cout << "In Network::setNetwork" << std::endl;
+
+  std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>> addressMap;
+  std::map<std::string, Hedera::AccountId>::const_iterator it;
+
+  std::cout << "Before for loop." << std::endl;
+
+  for (it = networkMap.begin(); it != networkMap.end(); it++)
+  {
+    const std::string& nodeAddressAsString = it->first;
+    const AccountId& accountId = it->second;
+
+    std::cout << "nodeAddressAsString: " << nodeAddressAsString << std::endl;
+    std::cout << "accountId: " << accountId.toString() << std::endl;
+
+    internal::NodeAddress nodeAddress = internal::NodeAddress::fromString(nodeAddressAsString);
+    nodeAddress.setNodeCertHash("Test Node Certificate Hash");
+    nodeAddress.setNodeAccountId(accountId);
+    std::cout << "nodeAddress: " << nodeAddress.toString() << std::endl;
+
+    std::shared_ptr<internal::NodeAddress> nodeAddressPtr = std::make_shared<internal::NodeAddress>(nodeAddress);
+    // std::cout << std::endl << "nodeAddressPtr: " << nodeAddressPtr->toString() << std::endl;
+
+    addressMap.insert(std::pair<Hedera::AccountId, std::shared_ptr<internal::NodeAddress>>(accountId, nodeAddressPtr));
+    // std::cout << std::endl << "addressMap.size(): " << addressMap.size() << std::endl;
+
+    std::cout << std::endl << std::endl;
+  }
+
+  // std::cout << "BEFORE Trace Trap" << std::endl;
+
+  NodeAddressBook nodeAddressBook;
+  nodeAddressBook.setAddressMap(addressMap);
+  setNetwork(nodeAddressBook);
 }
 
 //-----

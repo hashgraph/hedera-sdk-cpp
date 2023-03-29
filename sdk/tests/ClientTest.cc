@@ -18,13 +18,23 @@
  *
  */
 #include "Client.h"
+#include "AccountCreateTransaction.h"
 #include "AccountId.h"
+#include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
+#include "PublicKey.h"
+#include "TransactionReceipt.h"
+#include "TransactionResponse.h"
 #include "exceptions/UninitializedException.h"
 
+#include <filesystem>
+#include <fstream>
 #include <gtest/gtest.h>
+#include <iostream>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 using namespace Hedera;
 
 class ClientTest : public ::testing::Test
@@ -32,10 +42,12 @@ class ClientTest : public ::testing::Test
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
+  [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
 
 private:
   const AccountId mAccountId = AccountId(10ULL);
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::filesystem::path mFilePath = std::filesystem::current_path() / "local_node.json";
 };
 
 //-----
@@ -103,4 +115,59 @@ TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 
   // Negative value should throw
   EXPECT_THROW(client.setMaxTransactionFee(fee.negated()), std::invalid_argument);
+}
+
+//-----
+TEST_F(ClientTest, ForNetwork)
+{
+  // Given
+  const std::string testAccountIdStr = "0.0.3";
+  const std::string testPathToJSON = getPathToJSON();
+  std::ifstream testInputFile(testPathToJSON, std::ios::in);
+  std::string nodeAddress;
+
+  try
+  {
+    json jsonData = json::parse(testInputFile);
+
+    if (jsonData["network"][testAccountIdStr.c_str()].is_string())
+    {
+      nodeAddress = jsonData["network"][testAccountIdStr.c_str()];
+    }
+  }
+  catch (json::parse_error& error)
+  {
+    EXPECT_TRUE(false);
+  }
+
+  testInputFile.close();
+
+  std::cout << "NodeAddress: " << nodeAddress << std::endl;
+
+  std::map<std::string, Hedera::AccountId> networkMap;
+
+  networkMap.insert(
+    std::pair<std::string, Hedera::AccountId>(nodeAddress.c_str(), AccountId::fromString(testAccountIdStr)));
+
+  Client client = Client::forNetwork(networkMap);
+  client.setOperator(
+    AccountId::fromString("0.0.2"),
+    ED25519PrivateKey::fromString(
+      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+
+  // Generate a ED25519 private, public key pair
+  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
+
+  // Create a new account with an initial balance of 1000 tinybars. The only required field here is the key.
+  TransactionResponse txResp =
+    AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(1000ULL, HbarUnit::TINYBAR())).execute(client);
+
+  // Get the receipt when it becomes available
+  TransactionReceipt txReceipt = txResp.getReceipt(client);
+
+  const AccountId newAccountId = txReceipt.getAccountId().value();
+  std::cout << "Created new account with ID: " << newAccountId.toString() << std::endl;
+
+  EXPECT_FALSE(newAccountId.toString().empty());
 }
