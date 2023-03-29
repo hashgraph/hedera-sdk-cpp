@@ -42,6 +42,7 @@
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>
 #include <proto/transaction_contents.pb.h>
+#include <proto/transaction_list.pb.h>
 #include <vector>
 
 namespace Hedera
@@ -60,9 +61,19 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
 
+  // TransactionList protobuf object
+  if (proto::TransactionList txList;
+      txList.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && txList.transaction_list_size() > 0)
+  {
+    proto::SignedTransaction signedTx;
+    signedTx.ParseFromArray(txList.transaction_list(0).signedtransactionbytes().data(),
+                            static_cast<int>(txList.transaction_list(0).signedtransactionbytes().size()));
+    txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
+  }
+
   // Transaction protobuf object
-  if (proto::Transaction tx;
-      tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !tx.signedtransactionbytes().empty())
+  else if (proto::Transaction tx;
+           tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !tx.signedtransactionbytes().empty())
   {
     proto::SignedTransaction signedTx;
     signedTx.ParseFromArray(tx.signedtransactionbytes().data(), static_cast<int>(tx.signedtransactionbytes().size()));
