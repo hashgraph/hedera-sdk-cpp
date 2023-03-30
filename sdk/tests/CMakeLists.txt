@@ -12,7 +12,7 @@ else ()
 endif ()
 
 
-set(TEST_PROJECT_NAME ${PROJECT_NAME}-tests)
+set(TEST_PROJECT_NAME ${PROJECT_NAME}-unit-tests)
 add_executable(${TEST_PROJECT_NAME}
         AccountAllowanceApproveTransactionTest.cc
         AccountAllowanceDeleteTransactionTest.cc
@@ -76,5 +76,5 @@ file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
-file(COPY ${PROJECT_SOURCE_DIR}/config/local_node.json
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+#add_subdirectory(unit)
+add_subdirectory(integration)
