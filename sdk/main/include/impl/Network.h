@@ -62,9 +62,9 @@ public:
   [[nodiscard]] static Network forPreviewnet();
 
   /**
-   * TODO
+   * Construct a Network that is pre-configured for local node access.
    *
-   * @return A Network object that is set-up to communicate with a specific Hedera network.
+   * @return A Network object that is set-up to communicate with a specific node addresses.
    */
   [[nodiscard]] static Network forNetwork(const std::map<std::string, Hedera::AccountId>& networkMap);
 
@@ -106,11 +106,11 @@ private:
   void setNetwork(const NodeAddressBook& nodeAddressBook);
 
   /**
-   * TODO
+   * Establish communications with all node addresses for this Network that are specified in the input map collection.
    *
-   * @param networkMap TODO
+   * @param networkMap The map containing string node addresses pointing to specific accountId object.
    * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
-   *                        hash.
+   *         hash.
    */
   void setNetwork(const std::map<std::string, Hedera::AccountId>& networkMap);
 

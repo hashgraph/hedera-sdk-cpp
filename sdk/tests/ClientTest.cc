@@ -121,53 +121,43 @@ TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 TEST_F(ClientTest, ForNetwork)
 {
   // Given
-  const std::string testAccountIdStr = "0.0.3";
+  const std::string_view testAccountIdStr = "0.0.3";
+  const std::string_view jsonNetworkTag = "network";
+  const std::string_view jsonOperatorIdTag = "0.0.2";
+  const std::string_view jsonOperatorPrivateKey =
+    "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137";
   const std::string testPathToJSON = getPathToJSON();
+  const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
+  const auto testInitialHbarBalance = Hbar(1000ULL, HbarUnit::TINYBAR());
+
   std::ifstream testInputFile(testPathToJSON, std::ios::in);
   std::string nodeAddress;
+  json jsonData;
 
-  try
-  {
-    json jsonData = json::parse(testInputFile);
+  EXPECT_NO_THROW(jsonData = json::parse(testInputFile));
 
-    if (jsonData["network"][testAccountIdStr.c_str()].is_string())
-    {
-      nodeAddress = jsonData["network"][testAccountIdStr.c_str()];
-    }
-  }
-  catch (json::parse_error& error)
+  if (jsonData[jsonNetworkTag][testAccountIdStr].is_string())
   {
-    EXPECT_TRUE(false);
+    nodeAddress = jsonData[jsonNetworkTag][testAccountIdStr];
   }
 
   testInputFile.close();
 
-  std::cout << "NodeAddress: " << nodeAddress << std::endl;
-
   std::map<std::string, Hedera::AccountId> networkMap;
+  networkMap.insert(std::pair<std::string, Hedera::AccountId>(nodeAddress, AccountId::fromString(testAccountIdStr)));
 
-  networkMap.insert(
-    std::pair<std::string, Hedera::AccountId>(nodeAddress.c_str(), AccountId::fromString(testAccountIdStr)));
-
+  // When
   Client client = Client::forNetwork(networkMap);
-  client.setOperator(
-    AccountId::fromString("0.0.2"),
-    ED25519PrivateKey::fromString(
-      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+  client.setOperator(AccountId::fromString(jsonOperatorIdTag), ED25519PrivateKey::fromString(jsonOperatorPrivateKey));
 
-  // Generate a ED25519 private, public key pair
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
-  const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
-
-  // Create a new account with an initial balance of 1000 tinybars. The only required field here is the key.
   TransactionResponse txResp =
-    AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(1000ULL, HbarUnit::TINYBAR())).execute(client);
+    AccountCreateTransaction().setKey(testPublicKey).setInitialBalance(testInitialHbarBalance).execute(client);
 
-  // Get the receipt when it becomes available
-  TransactionReceipt txReceipt = txResp.getReceipt(client);
+  const AccountId newAccountId = txResp.getReceipt(client).getAccountId().value();
 
-  const AccountId newAccountId = txReceipt.getAccountId().value();
-  std::cout << "Created new account with ID: " << newAccountId.toString() << std::endl;
-
+  // Then
+  EXPECT_EQ(client.getOperatorAccountId()->toString(), jsonOperatorIdTag);
+  EXPECT_NE(client.getOperatorPublicKey(), nullptr);
   EXPECT_FALSE(newAccountId.toString().empty());
 }
