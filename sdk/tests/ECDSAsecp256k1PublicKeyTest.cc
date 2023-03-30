@@ -22,9 +22,12 @@
 #include "exceptions/BadKeyException.h"
 #include "impl/Utilities.h"
 
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <proto/basic_types.pb.h>
+#include <string>
+#include <string_view>
 #include <vector>
 
 using namespace Hedera;
@@ -33,6 +36,13 @@ using namespace Hedera::internal::Utilities;
 class ECDSAsecp256k1PublicKeyTest : public ::testing::Test
 {
 protected:
+  [[nodiscard]] static std::string toLowercase(std::string_view str)
+  {
+    std::string lowercaseStr;
+    std::transform(str.cbegin(), str.cend(), std::back_inserter(lowercaseStr), [](char c) { return tolower(c); });
+    return lowercaseStr;
+  }
+
   [[nodiscard]] inline const std::string& getTestUncompressedPublicKeyHex() const { return mUncompressedPublicKeyHex; }
   [[nodiscard]] inline const std::string& getTestCompressedPublicKeyHex() const { return mCompressedPublicKeyHex; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestUncompressedPublicKeyBytes() const
@@ -122,6 +132,8 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, FromString)
                  std::string(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX.size(), 'A') +
                  getTestCompressedPublicKeyHex()),
                BadKeyException);
+  EXPECT_NO_THROW(const std::shared_ptr<ECDSAsecp256k1PublicKey> key =
+                    ECDSAsecp256k1PublicKey::fromString(toLowercase(getTestCompressedPublicKeyHex())));
 }
 
 //-----

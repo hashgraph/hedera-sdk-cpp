@@ -64,6 +64,7 @@ const std::vector<std::byte> SLIP10_SEED = { std::byte('e'), std::byte('d'), std
 
   return key;
 }
+
 } // namespace
 
 //-----
@@ -92,47 +93,42 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_view key)
 {
-  if (key.size() == KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() || key.size() == KEY_SIZE * 2)
-  {
-    try
-    {
-      return std::make_unique<ED25519PrivateKey>(
-        ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
-    }
-    catch (const OpenSSLException& openSSLException)
-    {
-      throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input string: ") +
-                            openSSLException.what());
-    }
-  }
-  else
+  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != KEY_SIZE * 2)
   {
     throw BadKeyException("ED25519PrivateKey cannot be realized from input string: input string size should be " +
                           std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
                           std::to_string(KEY_SIZE * 2));
+  }
+
+  try
+  {
+    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input string: ") +
+                          openSSLException.what());
   }
 }
 
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytes(const std::vector<std::byte>& bytes)
 {
-  if (bytes.size() == KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() || bytes.size() == KEY_SIZE)
-  {
-    try
-    {
-      return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(bytes)));
-    }
-    catch (const OpenSSLException& openSSLException)
-    {
-      throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input bytes: ") +
-                            openSSLException.what());
-    }
-  }
-  else
+  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != KEY_SIZE)
   {
     throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: input byte array size should be " +
                           std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
                           std::to_string(KEY_SIZE));
+  }
+
+  try
+  {
+    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(bytes)));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(std::string("ED25519PrivateKey cannot be realized from input bytes: ") +
+                          openSSLException.what());
   }
 }
 
