@@ -25,9 +25,9 @@
 #include "NodeAddressBook.h"
 #include "TLSBehavior.h"
 
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace Hedera
@@ -64,9 +64,10 @@ public:
   /**
    * Construct a Network that is pre-configured for local node access.
    *
+   * @param networkMap The map with string representation of node addresses with their corresponding accountId.
    * @return A Network object that is set-up to communicate with a specific node addresses.
    */
-  [[nodiscard]] static Network forNetwork(const std::map<std::string, Hedera::AccountId>& networkMap);
+  [[nodiscard]] static Network forNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
 
   /**
    * Get a list of Node pointers that point to Nodes on this Network that are associated with the input account IDs. If
@@ -112,7 +113,7 @@ private:
    * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
    *         hash.
    */
-  void setNetwork(const std::map<std::string, Hedera::AccountId>& networkMap);
+  void setNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
 
   /**
    * The list of pointers to Nodes with which this Network is communicating.

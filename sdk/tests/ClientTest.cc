@@ -144,7 +144,7 @@ TEST_F(ClientTest, ConnectToLocalNode)
 
   testInputFile.close();
 
-  std::map<std::string, Hedera::AccountId> networkMap;
+  std::unordered_map<std::string, Hedera::AccountId> networkMap;
   networkMap.insert(std::pair<std::string, Hedera::AccountId>(nodeAddress, AccountId::fromString(testAccountIdStr)));
 
   // When

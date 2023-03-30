@@ -21,9 +21,9 @@
 #define HEDERA_SDK_CPP_CLIENT_H_
 
 #include <chrono>
-#include <map>
 #include <memory>
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 namespace Hedera
@@ -65,10 +65,10 @@ public:
   /**
    * Construct a Client pre-configured for a specific Hedera network.
    *
-   * @param network Map with TODO
+   * @param networkMap The map with string representation of node addresses with their corresponding accountId.
    * @return A reference to this Client object with the newly-set operator account ID from the map.
    */
-  static Client forNetwork(const std::map<std::string, Hedera::AccountId>& networkMap);
+  [[nodiscard]] static Client forNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
 
   /**
    * Construct a Client pre-configured for Hedera Mainnet access.

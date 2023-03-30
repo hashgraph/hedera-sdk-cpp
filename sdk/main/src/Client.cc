@@ -121,7 +121,7 @@ Client Client::forPreviewnet()
 }
 
 //-----
-Client Client::forNetwork(const std::map<std::string, Hedera::AccountId>& networkMap)
+Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
 {
   Client client;
   client.mImpl->mNetwork = internal::Network::forNetwork(networkMap);

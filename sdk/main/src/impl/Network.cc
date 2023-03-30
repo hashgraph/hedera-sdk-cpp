@@ -48,7 +48,7 @@ Network Network::forPreviewnet()
 }
 
 //-----
-Network Network::forNetwork(const std::map<std::string, Hedera::AccountId>& networkMap)
+Network Network::forNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
 {
   Network network;
   network.setNetwork(networkMap);
@@ -96,10 +96,10 @@ void Network::setTLSBehavior(TLSBehavior desiredBehavior) const
 }
 
 //-----
-void Network::setNetwork(const std::map<std::string, Hedera::AccountId>& networkMap)
+void Network::setNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
 {
   std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>> addressMap;
-  std::map<std::string, Hedera::AccountId>::const_iterator it;
+  std::unordered_map<std::string, Hedera::AccountId>::const_iterator it;
 
   for (it = networkMap.begin(); it != networkMap.end(); it++)
   {
