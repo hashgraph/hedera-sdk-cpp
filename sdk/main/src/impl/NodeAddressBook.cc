@@ -69,10 +69,4 @@ NodeAddressBook NodeAddressBook::fromAddressMap(
   return outputAddressBook;
 }
 
-//-----
-const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& NodeAddressBook::getAddressMap() const
-{
-  return mAddressMap;
-}
-
 } // namespace Hedera::internal
