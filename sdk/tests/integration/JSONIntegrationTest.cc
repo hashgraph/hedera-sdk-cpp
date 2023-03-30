@@ -24,7 +24,7 @@
 
 using json = nlohmann::json;
 
-class JSONTest : public ::testing::Test
+class JSONIntegrationTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
@@ -34,7 +34,7 @@ private:
 };
 
 // Tests JSON parsing of a configuration file for the Local Node.
-TEST_F(JSONTest, ParseJSONConfig)
+TEST_F(JSONIntegrationTest, ParseJSONConfig)
 {
   // Given
   std::string testPathToJSON = getPathToJSON();
