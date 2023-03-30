@@ -73,20 +73,23 @@ public:
    * @return The constructed NodeAddressBook object.
    */
   [[nodiscard]] static NodeAddressBook fromAddressMap(
-    const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& addressMap);
+    const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& addressMap);
 
   /**
    * Get a map of AccountIds to NodeAddresses contained in this NodeAddressBook.
    *
    * @return A map of AccountIds to NodeAddresses contained in this NodeAddressBook.
    */
-  [[nodiscard]] const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& getAddressMap() const;
+  [[nodiscard]] inline const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& getAddressMap() const
+  {
+    return mAddressMap;
+  }
 
 private:
   /**
    * A map from AccountId's to NodeAddresses.
    */
-  std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>> mAddressMap;
+  std::unordered_map<AccountId, std::shared_ptr<NodeAddress>> mAddressMap;
 };
 
 } // namespace Hedera::internal

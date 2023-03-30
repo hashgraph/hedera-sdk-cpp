@@ -54,7 +54,7 @@ NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& prot
 
     outputAddressBook.mAddressMap.try_emplace(
       AccountId::fromProtobuf(protoNodeAddress.nodeaccountid()),
-      std::make_shared<internal::NodeAddress>(internal::NodeAddress::fromProtobuf(protoNodeAddress)));
+      std::make_shared<NodeAddress>(NodeAddress::fromProtobuf(protoNodeAddress)));
   }
 
   return outputAddressBook;
@@ -62,7 +62,7 @@ NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& prot
 
 //-----
 NodeAddressBook NodeAddressBook::fromAddressMap(
-  const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& addressMap)
+  const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& addressMap)
 {
   NodeAddressBook outputAddressBook;
   outputAddressBook.mAddressMap = addressMap;
@@ -70,7 +70,7 @@ NodeAddressBook NodeAddressBook::fromAddressMap(
 }
 
 //-----
-const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& NodeAddressBook::getAddressMap() const
+const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& NodeAddressBook::getAddressMap() const
 {
   return mAddressMap;
 }
