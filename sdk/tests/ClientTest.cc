@@ -118,7 +118,7 @@ TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 }
 
 //-----
-TEST_F(ClientTest, ForNetwork)
+TEST_F(ClientTest, ConnectToLocalNode)
 {
   // Given
   const std::string_view testAccountIdStr = "0.0.3";
