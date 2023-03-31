@@ -108,9 +108,8 @@ void Network::setNetwork(const NodeAddressBook& nodeAddressBook, TLSBehavior tls
 void Network::setNetwork(const std::unordered_map<std::string, AccountId>& networkMap, TLSBehavior tls)
 {
   std::unordered_map<AccountId, std::shared_ptr<NodeAddress>> addressMap;
-  std::unordered_map<std::string, Hedera::AccountId>::const_iterator it;
 
-  for (it = networkMap.begin(); it != networkMap.end(); it++)
+  for (auto it = networkMap.cbegin(); it != networkMap.cend(); ++it)
   {
     const std::string& nodeAddressAsString = it->first;
     const AccountId& accountId = it->second;
