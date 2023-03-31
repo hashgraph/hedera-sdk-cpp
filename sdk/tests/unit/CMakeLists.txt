@@ -1,17 +1,3 @@
-if (APPLE OR WIN32)
-    include(FetchContent)
-    FetchContent_Declare(googletest
-            GIT_REPOSITORY https://github.com/google/googletest.git
-            GIT_TAG release-1.12.1)
-
-    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googletest)
-    include(googletest)
-else ()
-    find_package(GTest REQUIRED)
-endif ()
-
-
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-unit-tests)
 add_executable(${TEST_PROJECT_NAME}
         AccountAllowanceApproveTransactionTest.cc
