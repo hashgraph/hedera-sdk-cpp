@@ -38,11 +38,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
 
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install the local node
+        run: @hashgraph/hedera-local
+
       - name: Install NodeJS
         if: ${{ runner.os == 'Linux' }}
-        run: |
-          sudo apt-get install nodejs
-          npm install
+        run: npm install
 
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
