@@ -78,6 +78,9 @@ jobs:
         if: success()
         run: sudo npx @hashgraph/hedera-local start -d --network local
 
+      - name: Start CTest suite
+        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+
       - name: Compute Short SHA
         id: sha
         run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
