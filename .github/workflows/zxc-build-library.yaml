@@ -42,9 +42,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      
-      - name: Install the local node
-        run: @hashgraph/hedera-local
 
       - name: Install NodeJS
         if: ${{ runner.os == 'Linux' }}
