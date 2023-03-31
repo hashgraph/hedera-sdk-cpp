@@ -78,8 +78,11 @@ jobs:
         if: success()
         run: sudo npx @hashgraph/hedera-local start -d --network local
 
-      - name: Start CTest suite
+      - name: Start CTest suite (Debug)
         run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+
+      - name: Start CTest suite (Release)
+        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
       - name: Compute Short SHA
         id: sha
