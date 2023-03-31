@@ -43,6 +43,9 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install Local Node
+        run: sudo npm install -g @hashgraph/hedera-local
+
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
