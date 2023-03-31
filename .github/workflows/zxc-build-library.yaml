@@ -37,6 +37,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
+          sudo apt-get install nodejs
+          npm install
 
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
@@ -66,11 +68,9 @@ jobs:
 #        shell: pwsh
 #        run: tree /F build
 
-      - name: Start Local Node
+      - name: Start the local node
+        if: success()
         run: npx @hashgraph/hedera-local start -d --network local
-
-      - name: Stop Local Node
-        run: npx @hashgraph/hedera-local stop
 
       - name: Compute Short SHA
         id: sha
@@ -82,3 +82,6 @@ jobs:
           name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
           path: package/
           if-no-files-found: warn
+
+       - name: Stop the local node
+        run: npx @hashgraph/hedera-local stop
