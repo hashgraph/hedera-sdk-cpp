@@ -66,6 +66,12 @@ jobs:
 #        shell: pwsh
 #        run: tree /F build
 
+      - name: Start Local Node
+        run: npx @hashgraph/hedera-local start -d --network local
+
+      - name: Stop Local Node
+        run: npx @hashgraph/hedera-local stop
+
       - name: Compute Short SHA
         id: sha
         run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
