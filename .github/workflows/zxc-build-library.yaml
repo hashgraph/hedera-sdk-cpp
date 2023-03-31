@@ -43,10 +43,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install NodeJS
-        if: ${{ runner.os == 'Linux' }}
-        run: npm install
-
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
