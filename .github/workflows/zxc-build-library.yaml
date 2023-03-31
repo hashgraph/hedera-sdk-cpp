@@ -76,7 +76,7 @@ jobs:
 
       - name: Start the local node
         if: success()
-        run: npx @hashgraph/hedera-local start -d --network local
+        run: sudo npx @hashgraph/hedera-local start -d --network local
 
       - name: Compute Short SHA
         id: sha
@@ -90,4 +90,4 @@ jobs:
           if-no-files-found: warn
 
       - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
+        run: sudo npx @hashgraph/hedera-local stop
