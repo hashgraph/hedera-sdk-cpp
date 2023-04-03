@@ -23,6 +23,7 @@
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
 #include "AccountUpdateTransaction.h"
+#include "ContractCreateTransaction.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "TransferTransaction.h"
 #include "impl/DurationConverter.h"
@@ -47,7 +48,7 @@ protected:
     mCryptoCreateTransactionBody->set_receiversigrequired(mReceiverSignatureRequired);
     mCryptoCreateTransactionBody->set_allocated_autorenewperiod(
       internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
-    mCryptoCreateTransactionBody->set_allocated_memo(new std::string{ mAccountMemo.cbegin(), mAccountMemo.cend() });
+    mCryptoCreateTransactionBody->set_allocated_memo(new std::string(mMemo));
     mCryptoCreateTransactionBody->set_max_automatic_token_associations(static_cast<int32_t>(mMaxTokenAssociations));
     mCryptoCreateTransactionBody->set_allocated_staked_account_id(mAccountId.toProtobuf().release());
     mCryptoCreateTransactionBody->set_decline_reward(mDeclineStakingReward);
@@ -97,7 +98,7 @@ protected:
     mCryptoUpdateTransactionBody->set_allocated_receiversigrequiredwrapper(boolValue.release());
 
     auto strValue = std::make_unique<google::protobuf::StringValue>();
-    strValue->set_value(mAccountMemo);
+    strValue->set_value(mMemo);
     mCryptoUpdateTransactionBody->set_allocated_memo(strValue.release());
 
     auto uInt32Value = std::make_unique<google::protobuf::Int32Value>();
@@ -148,8 +149,28 @@ protected:
     {
       nftRemoveAllowance->add_serial_numbers(static_cast<int64_t>(num));
     }
+
+    // Initialize the ContractCreate unique_ptr
+    mContractCreateTransactionBody->set_allocated_fileid(mFileId.toProtobuf().release());
+    mContractCreateTransactionBody->set_allocated_adminkey(mPublicKey->toProtobuf().release());
+    mContractCreateTransactionBody->set_gas(static_cast<int64_t>(mGas));
+    mContractCreateTransactionBody->set_initialbalance(mInitialBalance.toTinybars());
+    mContractCreateTransactionBody->set_allocated_autorenewperiod(
+      internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
+    mContractCreateTransactionBody->set_allocated_constructorparameters(
+      new std::string(internal::Utilities::byteVectorToString(mConstructorParameters)));
+    mContractCreateTransactionBody->set_allocated_memo(new std::string(mMemo));
+    mContractCreateTransactionBody->set_max_automatic_token_associations(static_cast<int32_t>(mMaxTokenAssociations));
+    mContractCreateTransactionBody->set_allocated_auto_renew_account_id(mAccountId.toProtobuf().release());
+    mContractCreateTransactionBody->set_staked_node_id(static_cast<int64_t>(mNodeId));
+    mContractCreateTransactionBody->set_decline_reward(mDeclineStakingReward);
   }
 
+  [[nodiscard]] inline const std::unique_ptr<proto::ContractCreateTransactionBody>&
+  getTestContractCreateTransactionBody() const
+  {
+    return mContractCreateTransactionBody;
+  }
   [[nodiscard]] inline const std::unique_ptr<proto::CryptoCreateTransactionBody>& getTestCryptoCreateTransactionBody()
     const
   {
@@ -185,7 +206,7 @@ protected:
   [[nodiscard]] inline const Hbar& getTestInitialBalance() const { return mInitialBalance; }
   [[nodiscard]] inline bool getTestReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
   [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const { return mAutoRenewPeriod; }
-  [[nodiscard]] inline const std::string& getTestAccountMemo() const { return mAccountMemo; }
+  [[nodiscard]] inline const std::string& getTestMemo() const { return mMemo; }
   [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const uint64_t& getTestNodeId() const { return mNodeId; }
@@ -201,8 +222,16 @@ protected:
     return mExpirationTime;
   }
   [[nodiscard]] inline const std::vector<uint64_t>& getTestSerialNumbers() const { return mSerialNumbers; }
+  [[nodiscard]] inline const FileId& getTestFileId() const { return mFileId; }
+  [[nodiscard]] inline const uint64_t& getTestGas() const { return mGas; }
+  [[nodiscard]] inline const std::vector<std::byte>& getTestConstructorParameters() const
+  {
+    return mConstructorParameters;
+  }
 
 private:
+  std::unique_ptr<proto::ContractCreateTransactionBody> mContractCreateTransactionBody =
+    std::make_unique<proto::ContractCreateTransactionBody>();
   std::unique_ptr<proto::CryptoCreateTransactionBody> mCryptoCreateTransactionBody =
     std::make_unique<proto::CryptoCreateTransactionBody>();
   std::unique_ptr<proto::CryptoTransferTransactionBody> mCryptoTransferTransactionBody =
@@ -220,7 +249,7 @@ private:
   const Hbar mInitialBalance = Hbar(1LL);
   const bool mReceiverSignatureRequired = true;
   const std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(2);
-  const std::string mAccountMemo = "test account memo";
+  const std::string mMemo = "test memo";
   const uint32_t mMaxTokenAssociations = 3U;
   const AccountId mAccountId = AccountId(4ULL);
   const uint64_t mNodeId = 5ULL;
@@ -233,6 +262,9 @@ private:
   const bool mApproval = true;
   const std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now();
   const std::vector<uint64_t> mSerialNumbers = { 10ULL, 11ULL };
+  const FileId mFileId = FileId(12ULL);
+  const uint64_t mGas = 13ULL;
+  const std::vector<std::byte> mConstructorParameters = { std::byte(0x14), std::byte(0x15) };
 };
 
 //-----
@@ -257,7 +289,7 @@ TEST_F(TransactionTest, AccountCreateTransactionFromTransactionBodyBytes)
   EXPECT_EQ(accountCreateTransaction.getInitialBalance(), getTestInitialBalance());
   EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
-  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), getTestAccountMemo());
+  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), getTestMemo());
   EXPECT_EQ(accountCreateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
   ASSERT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
   EXPECT_EQ(*accountCreateTransaction.getStakedAccountId(), getTestAccountId());
@@ -294,7 +326,7 @@ TEST_F(TransactionTest, AccountCreateTransactionFromSignedTransactionBytes)
   EXPECT_EQ(accountCreateTransaction.getInitialBalance(), getTestInitialBalance());
   EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
-  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), getTestAccountMemo());
+  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), getTestMemo());
   EXPECT_EQ(accountCreateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
   ASSERT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
   EXPECT_EQ(*accountCreateTransaction.getStakedAccountId(), getTestAccountId());
@@ -334,7 +366,7 @@ TEST_F(TransactionTest, AccountCreateTransactionFromTransactionBytes)
   EXPECT_EQ(accountCreateTransaction.getInitialBalance(), getTestInitialBalance());
   EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
-  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), getTestAccountMemo());
+  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), getTestMemo());
   EXPECT_EQ(accountCreateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
   ASSERT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
   EXPECT_EQ(*accountCreateTransaction.getStakedAccountId(), getTestAccountId());
@@ -505,7 +537,7 @@ TEST_F(TransactionTest, AccountUpdateTransactionFromTransactionBodyByte)
   EXPECT_EQ(accountUpdateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   EXPECT_EQ(accountUpdateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
   EXPECT_EQ(accountUpdateTransaction.getExpirationTime(), getTestExpirationTime());
-  EXPECT_EQ(accountUpdateTransaction.getAccountMemo(), getTestAccountMemo());
+  EXPECT_EQ(accountUpdateTransaction.getAccountMemo(), getTestMemo());
   EXPECT_EQ(accountUpdateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
   EXPECT_FALSE(accountUpdateTransaction.getStakedAccountId().has_value());
   ASSERT_TRUE(accountUpdateTransaction.getStakedNodeId().has_value());
@@ -540,7 +572,7 @@ TEST_F(TransactionTest, AccountUpdateTransactionFromSignedTransactionBytes)
   EXPECT_EQ(accountUpdateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   EXPECT_EQ(accountUpdateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
   EXPECT_EQ(accountUpdateTransaction.getExpirationTime(), getTestExpirationTime());
-  EXPECT_EQ(accountUpdateTransaction.getAccountMemo(), getTestAccountMemo());
+  EXPECT_EQ(accountUpdateTransaction.getAccountMemo(), getTestMemo());
   EXPECT_EQ(accountUpdateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
   EXPECT_FALSE(accountUpdateTransaction.getStakedAccountId().has_value());
   ASSERT_TRUE(accountUpdateTransaction.getStakedNodeId().has_value());
@@ -578,7 +610,7 @@ TEST_F(TransactionTest, AccountUpdateTransactionFromTransactionBytes)
   EXPECT_EQ(accountUpdateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   EXPECT_EQ(accountUpdateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
   EXPECT_EQ(accountUpdateTransaction.getExpirationTime(), getTestExpirationTime());
-  EXPECT_EQ(accountUpdateTransaction.getAccountMemo(), getTestAccountMemo());
+  EXPECT_EQ(accountUpdateTransaction.getAccountMemo(), getTestMemo());
   EXPECT_EQ(accountUpdateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
   EXPECT_FALSE(accountUpdateTransaction.getStakedAccountId().has_value());
   ASSERT_TRUE(accountUpdateTransaction.getStakedNodeId().has_value());
@@ -914,4 +946,120 @@ TEST_F(TransactionTest, AccountDeleteAllowanceFromTransactionBytes)
     EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().at(i),
               getTestSerialNumbers().at(i));
   }
+}
+
+//-----
+TEST_F(TransactionTest, ContractCreateTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractcreateinstance(
+    std::make_unique<proto::ContractCreateTransactionBody>(*getTestContractCreateTransactionBody()).release());
+
+  const std::string serialized = txBody.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 6);
+
+  const ContractCreateTransaction contractCreateTransaction = std::get<6>(txVariant);
+  ASSERT_TRUE(contractCreateTransaction.getFileId().has_value());
+  EXPECT_EQ(contractCreateTransaction.getFileId(), getTestFileId());
+  EXPECT_TRUE(contractCreateTransaction.getInitCode().empty());
+  EXPECT_EQ(contractCreateTransaction.getAdminKey()->toStringDer(), getTestPublicKey()->toStringDer());
+  EXPECT_EQ(contractCreateTransaction.getGas(), getTestGas());
+  EXPECT_EQ(contractCreateTransaction.getInitialBalance(), getTestInitialBalance());
+  EXPECT_EQ(contractCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
+  EXPECT_EQ(contractCreateTransaction.getConstructorParameters(), getTestConstructorParameters());
+  EXPECT_EQ(contractCreateTransaction.getMemo(), getTestMemo());
+  EXPECT_EQ(contractCreateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
+  EXPECT_EQ(contractCreateTransaction.getAutoRenewAccountId(), getTestAccountId());
+  EXPECT_FALSE(contractCreateTransaction.getStakedAccountId().has_value());
+  ASSERT_TRUE(contractCreateTransaction.getStakedNodeId().has_value());
+  EXPECT_EQ(contractCreateTransaction.getStakedNodeId(), getTestNodeId());
+  EXPECT_EQ(contractCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
+}
+
+//-----
+TEST_F(TransactionTest, ContractCreateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractcreateinstance(
+    std::make_unique<proto::ContractCreateTransactionBody>(*getTestContractCreateTransactionBody()).release());
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_allocated_bodybytes(new std::string(txBody.SerializeAsString()));
+  // SignatureMap not required
+
+  const std::string serialized = signedTx.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 6);
+
+  const ContractCreateTransaction contractCreateTransaction = std::get<6>(txVariant);
+  ASSERT_TRUE(contractCreateTransaction.getFileId().has_value());
+  EXPECT_EQ(contractCreateTransaction.getFileId(), getTestFileId());
+  EXPECT_TRUE(contractCreateTransaction.getInitCode().empty());
+  EXPECT_EQ(contractCreateTransaction.getAdminKey()->toStringDer(), getTestPublicKey()->toStringDer());
+  EXPECT_EQ(contractCreateTransaction.getGas(), getTestGas());
+  EXPECT_EQ(contractCreateTransaction.getInitialBalance(), getTestInitialBalance());
+  EXPECT_EQ(contractCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
+  EXPECT_EQ(contractCreateTransaction.getConstructorParameters(), getTestConstructorParameters());
+  EXPECT_EQ(contractCreateTransaction.getMemo(), getTestMemo());
+  EXPECT_EQ(contractCreateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
+  EXPECT_EQ(contractCreateTransaction.getAutoRenewAccountId(), getTestAccountId());
+  EXPECT_FALSE(contractCreateTransaction.getStakedAccountId().has_value());
+  ASSERT_TRUE(contractCreateTransaction.getStakedNodeId().has_value());
+  EXPECT_EQ(contractCreateTransaction.getStakedNodeId(), getTestNodeId());
+  EXPECT_EQ(contractCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
+}
+
+//-----
+TEST_F(TransactionTest, ContractCreateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractcreateinstance(
+    std::make_unique<proto::ContractCreateTransactionBody>(*getTestContractCreateTransactionBody()).release());
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_allocated_bodybytes(new std::string(txBody.SerializeAsString()));
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_allocated_signedtransactionbytes(new std::string(signedTx.SerializeAsString()));
+
+  const std::string serialized = tx.SerializeAsString();
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<AccountAllowanceDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+
+  // Then
+  ASSERT_EQ(index, 6);
+
+  const ContractCreateTransaction contractCreateTransaction = std::get<6>(txVariant);
+  ASSERT_TRUE(contractCreateTransaction.getFileId().has_value());
+  EXPECT_EQ(contractCreateTransaction.getFileId(), getTestFileId());
+  EXPECT_TRUE(contractCreateTransaction.getInitCode().empty());
+  EXPECT_EQ(contractCreateTransaction.getAdminKey()->toStringDer(), getTestPublicKey()->toStringDer());
+  EXPECT_EQ(contractCreateTransaction.getGas(), getTestGas());
+  EXPECT_EQ(contractCreateTransaction.getInitialBalance(), getTestInitialBalance());
+  EXPECT_EQ(contractCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
+  EXPECT_EQ(contractCreateTransaction.getConstructorParameters(), getTestConstructorParameters());
+  EXPECT_EQ(contractCreateTransaction.getMemo(), getTestMemo());
+  EXPECT_EQ(contractCreateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
+  EXPECT_EQ(contractCreateTransaction.getAutoRenewAccountId(), getTestAccountId());
+  EXPECT_FALSE(contractCreateTransaction.getStakedAccountId().has_value());
+  ASSERT_TRUE(contractCreateTransaction.getStakedNodeId().has_value());
+  EXPECT_EQ(contractCreateTransaction.getStakedNodeId(), getTestNodeId());
+  EXPECT_EQ(contractCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
 }

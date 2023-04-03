@@ -32,6 +32,7 @@
 #include "Client.h"
 #include "ContractByteCodeQuery.h"
 #include "ContractCallQuery.h"
+#include "ContractCreateTransaction.h"
 #include "ContractFunctionResult.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
@@ -52,7 +53,6 @@
 #include <proto/transaction_response.pb.h>
 #include <stdexcept>
 #include <thread>
-#include <utility>
 
 namespace Hedera
 {
@@ -305,6 +305,10 @@ template class Executable<AccountUpdateTransaction,
                           TransactionResponse>;
 template class Executable<ContractByteCodeQuery, proto::Query, proto::Response, ContractByteCode>;
 template class Executable<ContractCallQuery, proto::Query, proto::Response, ContractFunctionResult>;
+template class Executable<ContractCreateTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>;
 template class Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>;
 template class Executable<TransferTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;

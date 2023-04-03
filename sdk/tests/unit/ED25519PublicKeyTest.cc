@@ -24,9 +24,12 @@
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <proto/basic_types.pb.h>
+#include <string>
+#include <string_view>
 #include <vector>
 
 using namespace Hedera;
@@ -35,6 +38,13 @@ using namespace Hedera::internal::Utilities;
 class ED25519PublicKeyTest : public ::testing::Test
 {
 protected:
+  [[nodiscard]] static std::string toLowercase(std::string_view str)
+  {
+    std::string lowercaseStr;
+    std::transform(str.cbegin(), str.cend(), std::back_inserter(lowercaseStr), [](char c) { return tolower(c); });
+    return lowercaseStr;
+  }
+
   [[nodiscard]] inline const std::string& getTestPublicKeyHex() const { return mPublicKeyHexString; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestPublicKeyBytes() const { return mPublicKeyBytes; }
 
@@ -86,6 +96,8 @@ TEST_F(ED25519PublicKeyTest, FromString)
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromString(
                  std::string(ED25519PublicKey::DER_ENCODED_PREFIX_HEX.size(), 'A') + getTestPublicKeyHex()),
                BadKeyException);
+  EXPECT_NO_THROW(const std::shared_ptr<ED25519PublicKey> key =
+                    ED25519PublicKey::fromString(toLowercase(getTestPublicKeyHex())));
 }
 
 //-----

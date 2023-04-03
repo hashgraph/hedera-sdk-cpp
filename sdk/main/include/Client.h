@@ -23,6 +23,7 @@
 #include <chrono>
 #include <memory>
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 namespace Hedera
@@ -60,6 +61,14 @@ public:
    */
   Client(Client&& other) noexcept;
   Client& operator=(Client&& other) noexcept;
+
+  /**
+   * Construct a Client pre-configured for a specific Hedera network.
+   *
+   * @param networkMap The map with string representation of node addresses with their corresponding accountId.
+   * @return A reference to this Client object with the newly-set operator account ID from the map.
+   */
+  [[nodiscard]] static Client forNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
 
   /**
    * Construct a Client pre-configured for Hedera Mainnet access.
