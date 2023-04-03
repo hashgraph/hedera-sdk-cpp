@@ -40,22 +40,22 @@ class ClientIntegrationTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::string_view& getJsonNetworkTag() const { return mJsonNetworkTag; }
-  [[nodiscard]] inline const std::string_view& getJsonOperatorIdTag() const { return mJsonOperatorIdTag; }
-  [[nodiscard]] inline const std::string_view& getJsonOperatorPrivateKeyTag() const
-  {
-    return mJsonOperatorPrivateKeyTag;
-  }
+  [[nodiscard]] inline const std::string_view& getJsonOperatorTag() const { return mJsonOperatorTag; }
+  [[nodiscard]] inline const std::string_view& getJsonAccountIdTag() const { return mJsonAccountIdTag; }
+  [[nodiscard]] inline const std::string_view& getJsonPrivateKeyTag() const { return mJsonPrivateKeyTag; }
+
+  [[nodiscard]] inline const std::string_view& getAccountIdStr() const { return mAccountIdStr; }
   [[nodiscard]] inline const AccountId& getAccountId() const { return mAccountId; }
-  [[nodiscard]] inline const AccountId& getOperatorAccountId() const { return mOperatorAccountId; }
   [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
 
 private:
   const std::string_view mJsonNetworkTag = "network";
-  const std::string_view mJsonOperatorIdTag = "0.0.2";
-  const std::string_view mJsonOperatorPrivateKeyTag =
-    "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137";
+  const std::string_view mJsonOperatorTag = "operator";
+  const std::string_view mJsonAccountIdTag = "accountId";
+  const std::string_view mJsonPrivateKeyTag = "privateKey";
+
+  const std::string_view mAccountIdStr = "0.0.3";
   const AccountId mAccountId = AccountId::fromString("0.0.3");
-  const AccountId mOperatorAccountId = AccountId::fromString(mJsonOperatorIdTag);
   const std::filesystem::path mFilePath = std::filesystem::current_path() / "local_node.json";
 };
 
@@ -64,15 +64,19 @@ TEST_F(ClientIntegrationTest, ConnectToLocalNode)
 {
   // Given
   const auto accountId = getAccountId();
-  const std::string_view accountIdStr = accountId.toString();
+  const std::string_view accountIdStr = getAccountIdStr();
   const std::string_view networkTag = getJsonNetworkTag();
-  const std::string_view operatorIdTag = getJsonOperatorIdTag();
-  const std::string_view operatorPrivateKeyTag = getJsonOperatorPrivateKeyTag();
+  const std::string_view operatorTag = getJsonOperatorTag();
+  const std::string_view accountIdTag = getJsonAccountIdTag();
+  const std::string_view privateKeyTag = getJsonPrivateKeyTag();
+
   const std::string testPathToJSON = getPathToJSON();
   const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
   const auto testInitialHbarBalance = Hbar(1000ULL, HbarUnit::TINYBAR());
 
+  AccountId operatorAccountId;
+  std::string operatorAccountPrivateKey;
   std::ifstream testInputFile(testPathToJSON, std::ios::in);
   std::string nodeAddressString;
   json jsonData;
@@ -84,6 +88,14 @@ TEST_F(ClientIntegrationTest, ConnectToLocalNode)
     nodeAddressString = jsonData[networkTag][accountIdStr];
   }
 
+  if (jsonData[operatorTag][accountIdTag].is_string() && jsonData[operatorTag][privateKeyTag].is_string())
+  {
+    std::string operatorAccountIdStr = jsonData[operatorTag][accountIdTag];
+
+    operatorAccountId = AccountId::fromString(operatorAccountIdStr);
+    operatorAccountPrivateKey = jsonData[operatorTag][privateKeyTag];
+  }
+
   testInputFile.close();
 
   std::unordered_map<std::string, AccountId> networkMap;
@@ -91,7 +103,7 @@ TEST_F(ClientIntegrationTest, ConnectToLocalNode)
 
   // When
   Client client = Client::forNetwork(networkMap);
-  client.setOperator(AccountId::fromString(operatorIdTag), ED25519PrivateKey::fromString(operatorPrivateKeyTag));
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
 
   TransactionResponse txResp =
     AccountCreateTransaction().setKey(testPublicKey).setInitialBalance(testInitialHbarBalance).execute(client);
@@ -99,7 +111,7 @@ TEST_F(ClientIntegrationTest, ConnectToLocalNode)
   const AccountId newAccountId = txResp.getReceipt(client).getAccountId().value();
 
   // Then
-  EXPECT_EQ(client.getOperatorAccountId()->toString(), operatorIdTag);
+  EXPECT_EQ(client.getOperatorAccountId()->toString(), operatorAccountId.toString());
   EXPECT_NE(client.getOperatorPublicKey(), nullptr);
   EXPECT_FALSE(newAccountId.toString().empty());
 }
