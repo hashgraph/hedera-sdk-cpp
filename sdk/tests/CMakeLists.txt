@@ -30,6 +30,7 @@ add_executable(${TEST_PROJECT_NAME}
         ContractByteCodeQueryTest.cc
         ContractCallQueryTest.cc
         ContractIdTest.cc
+        ContractLogInfoTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
         ECDSAsecp256k1PublicKeyTest.cc
         ED25519PrivateKeyTest.cc
