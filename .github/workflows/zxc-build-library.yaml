@@ -59,12 +59,16 @@ jobs:
 
       - name: CMake Build (Debug)
         uses: lukka/run-cmake@v10
+        env: 
+          VCPKG_BINARY_SOURCES: clear
         with:
           configurePreset: ${{ matrix.preset }}-debug
           buildPreset: ${{ matrix.preset }}-debug
 
       - name: CMake Build (Release)
         uses: lukka/run-cmake@v10
+        env: 
+          VCPKG_BINARY_SOURCES: clear
         with:
           configurePreset: ${{ matrix.preset }}-release
           buildPreset: ${{ matrix.preset }}-release

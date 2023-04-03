@@ -67,17 +67,29 @@ public:
   [[nodiscard]] static NodeAddressBook fromProtobuf(const proto::NodeAddressBook& protoAddressBook);
 
   /**
+   * Construct a NodeAddressBook object from an address map.
+   *
+   * @param addressMap The address map containing accountId to node address relations.
+   * @return The constructed NodeAddressBook object.
+   */
+  [[nodiscard]] static NodeAddressBook fromAddressMap(
+    const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& addressMap);
+
+  /**
    * Get a map of AccountIds to NodeAddresses contained in this NodeAddressBook.
    *
    * @return A map of AccountIds to NodeAddresses contained in this NodeAddressBook.
    */
-  [[nodiscard]] const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& getAddressMap() const;
+  [[nodiscard]] inline const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& getAddressMap() const
+  {
+    return mAddressMap;
+  }
 
 private:
   /**
    * A map from AccountId's to NodeAddresses.
    */
-  std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>> mAddressMap;
+  std::unordered_map<AccountId, std::shared_ptr<NodeAddress>> mAddressMap;
 };
 
 } // namespace Hedera::internal
