@@ -105,7 +105,7 @@ private:
 };
 
 // Tests invoking of method execute() from AccountBalanceQuery.
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToTestnetNode)
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToLocalNode)
 {
   // Given
   const auto testAccountId = getTestAccountId();
