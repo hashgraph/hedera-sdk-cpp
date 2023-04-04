@@ -18,8 +18,10 @@
  *
  */
 #include "ContractId.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
+#include <limits>
 #include <proto/basic_types.pb.h>
 
 using namespace Hedera;
@@ -30,112 +32,256 @@ protected:
   [[nodiscard]] inline const uint64_t& getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t& getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t& getTestContractNum() const { return mContractNum; }
+  [[nodiscard]] inline const uint64_t& getTestNumTooBig() const { return mNumTooBig; }
+  [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
 
 private:
-  const uint64_t mShardNum = 8ULL;
-  const uint64_t mRealmNum = 9ULL;
-  const uint64_t mContractNum = 10ULL;
+  const uint64_t mShardNum = 1ULL;
+  const uint64_t mRealmNum = 2ULL;
+  const uint64_t mContractNum = 3ULL;
+  const uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1ULL;
+  const EvmAddress mEvmAddress = EvmAddress::fromString("0x0123456789abcdef0123456789abcdef01234567");
 };
 
+//-----
 TEST_F(ContractIdTest, DefaultConstructContractId)
 {
-  ContractId contractId;
+  // Given / When
+  const ContractId contractId;
+
+  // Then
   EXPECT_EQ(contractId.getShardNum(), 0ULL);
   EXPECT_EQ(contractId.getRealmNum(), 0ULL);
-  EXPECT_EQ(contractId.getContractNum(), 0ULL);
+  EXPECT_FALSE(contractId.getContractNum().has_value());
+  EXPECT_FALSE(contractId.getEvmAddress().has_value());
 }
 
+//-----
 TEST_F(ContractIdTest, ConstructWithContractNum)
 {
-  ContractId contractId(getTestContractNum());
+  // Given / When
+  const ContractId contractId(getTestContractNum());
+
+  // Then
   EXPECT_EQ(contractId.getShardNum(), 0ULL);
   EXPECT_EQ(contractId.getRealmNum(), 0ULL);
+  ASSERT_TRUE(contractId.getContractNum().has_value());
   EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
+  EXPECT_FALSE(contractId.getEvmAddress().has_value());
 }
 
+//-----
+TEST_F(ContractIdTest, ConstructWithContractNumTooBig)
+{
+  // Given / When / Then
+  EXPECT_THROW(const ContractId contractId(getTestNumTooBig()), std::invalid_argument);
+}
+
+//-----
+TEST_F(ContractIdTest, ConstructWithEvmAddress)
+{
+  // Given / When
+  const ContractId contractId(getTestEvmAddress());
+
+  // Then
+  EXPECT_EQ(contractId.getShardNum(), 0ULL);
+  EXPECT_EQ(contractId.getRealmNum(), 0ULL);
+  EXPECT_FALSE(contractId.getContractNum().has_value());
+  ASSERT_TRUE(contractId.getEvmAddress().has_value());
+  EXPECT_EQ(contractId.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+}
+
+//-----
 TEST_F(ContractIdTest, ConstructWithShardRealmContractNum)
 {
-  ContractId contractId(getTestShardNum(), getTestRealmNum(), getTestContractNum());
+  // Given / When
+  const ContractId contractId(getTestShardNum(), getTestRealmNum(), getTestContractNum());
+
+  // Then
   EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
   EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
+  ASSERT_TRUE(contractId.getContractNum().has_value());
+  EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
+  EXPECT_FALSE(contractId.getEvmAddress().has_value());
+}
+
+//-----
+TEST_F(ContractIdTest, ConstructWithShardRealmContractNumTooBig)
+{
+  // Given / When / Then
+  EXPECT_THROW(const ContractId contractId(getTestNumTooBig(), getTestRealmNum(), getTestContractNum()),
+               std::invalid_argument);
+  EXPECT_THROW(const ContractId contractId(getTestShardNum(), getTestNumTooBig(), getTestContractNum()),
+               std::invalid_argument);
+  EXPECT_THROW(const ContractId contractId(getTestShardNum(), getTestRealmNum(), getTestNumTooBig()),
+               std::invalid_argument);
+}
+
+//-----
+TEST_F(ContractIdTest, ConstructWithShardRealmEvmAddress)
+{
+  // Given / When
+  const ContractId contractId(getTestShardNum(), getTestRealmNum(), getTestEvmAddress());
+
+  // Then
+  EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
+  EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
+  EXPECT_FALSE(contractId.getContractNum().has_value());
+  ASSERT_TRUE(contractId.getEvmAddress().has_value());
+  EXPECT_EQ(contractId.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+}
+
+//-----
+TEST_F(ContractIdTest, ConstructWithShardRealmEvmAddressTooBig)
+{
+  // Given / When / Then
+  EXPECT_THROW(const ContractId contractId(getTestNumTooBig(), getTestRealmNum(), getTestEvmAddress()),
+               std::invalid_argument);
+  EXPECT_THROW(const ContractId contractId(getTestShardNum(), getTestNumTooBig(), getTestEvmAddress()),
+               std::invalid_argument);
+}
+
+//-----
+TEST_F(ContractIdTest, CompareContractIds)
+{
+  // Given / When / Then
+  EXPECT_TRUE(ContractId() == ContractId());
+  EXPECT_TRUE(ContractId(getTestContractNum()) == ContractId(getTestContractNum()));
+  EXPECT_TRUE(ContractId(getTestEvmAddress()) == ContractId(getTestEvmAddress()));
+  EXPECT_TRUE(ContractId(getTestShardNum(), getTestRealmNum(), getTestContractNum()) ==
+              ContractId(getTestShardNum(), getTestRealmNum(), getTestContractNum()));
+  EXPECT_FALSE(ContractId(getTestContractNum()) == ContractId(getTestContractNum() - 1ULL));
+  EXPECT_FALSE(ContractId(getTestShardNum(), getTestRealmNum(), getTestContractNum()) ==
+               ContractId(getTestShardNum() - 1ULL, getTestRealmNum(), getTestContractNum()));
+  EXPECT_FALSE(ContractId(getTestShardNum(), getTestRealmNum(), getTestContractNum()) ==
+               ContractId(getTestShardNum(), getTestRealmNum() - 1ULL, getTestContractNum()));
+}
+
+//-----
+TEST_F(ContractIdTest, FromProtobuf)
+{
+  // Given
+  proto::ContractID protoContractIdContractNum;
+  protoContractIdContractNum.set_shardnum(static_cast<int64_t>(getTestShardNum()));
+  protoContractIdContractNum.set_realmnum(static_cast<int64_t>(getTestRealmNum()));
+  protoContractIdContractNum.set_contractnum(static_cast<int64_t>(getTestContractNum()));
+
+  proto::ContractID protoContractIdEvmAddress;
+  protoContractIdEvmAddress.set_shardnum(static_cast<int64_t>(getTestShardNum()));
+  protoContractIdEvmAddress.set_realmnum(static_cast<int64_t>(getTestRealmNum()));
+  protoContractIdEvmAddress.set_evm_address(internal::Utilities::byteVectorToString(getTestEvmAddress().toBytes()));
+
+  // When
+  const ContractId contractIdContractNum = ContractId::fromProtobuf(protoContractIdContractNum);
+  const ContractId contractIdEvmAddress = ContractId::fromProtobuf(protoContractIdEvmAddress);
+
+  // Then
+  EXPECT_EQ(contractIdContractNum.getShardNum(), getTestShardNum());
+  EXPECT_EQ(contractIdContractNum.getRealmNum(), getTestRealmNum());
+  ASSERT_TRUE(contractIdContractNum.getContractNum().has_value());
+  EXPECT_EQ(contractIdContractNum.getContractNum(), getTestContractNum());
+  EXPECT_FALSE(contractIdContractNum.getEvmAddress().has_value());
+
+  EXPECT_EQ(contractIdEvmAddress.getShardNum(), getTestShardNum());
+  EXPECT_EQ(contractIdEvmAddress.getRealmNum(), getTestRealmNum());
+  EXPECT_FALSE(contractIdEvmAddress.getContractNum().has_value());
+  ASSERT_TRUE(contractIdEvmAddress.getEvmAddress().has_value());
+  EXPECT_EQ(contractIdEvmAddress.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+}
+
+//-----
+TEST_F(ContractIdTest, ToProtobuf)
+{
+  // Given
+  const ContractId contractIdContractNum(getTestShardNum(), getTestRealmNum(), getTestContractNum());
+  const ContractId contractIdEvmAddress(getTestShardNum(), getTestRealmNum(), getTestEvmAddress());
+
+  // When
+  const std::unique_ptr<proto::ContractID> protoContractIdContractNum = contractIdContractNum.toProtobuf();
+  const std::unique_ptr<proto::ContractID> protoContractIdEvmAddress = contractIdEvmAddress.toProtobuf();
+
+  // Then
+  EXPECT_EQ(protoContractIdContractNum->shardnum(), static_cast<int64_t>(getTestShardNum()));
+  EXPECT_EQ(protoContractIdContractNum->realmnum(), static_cast<int64_t>(getTestRealmNum()));
+  ASSERT_EQ(protoContractIdContractNum->contract_case(), proto::ContractID::ContractCase::kContractNum);
+  EXPECT_EQ(protoContractIdContractNum->contractnum(), static_cast<int64_t>(getTestContractNum()));
+
+  EXPECT_EQ(protoContractIdEvmAddress->shardnum(), static_cast<int64_t>(getTestShardNum()));
+  EXPECT_EQ(protoContractIdEvmAddress->realmnum(), static_cast<int64_t>(getTestRealmNum()));
+  ASSERT_EQ(protoContractIdEvmAddress->contract_case(), proto::ContractID::ContractCase::kEvmAddress);
+  EXPECT_EQ(protoContractIdEvmAddress->evm_address(),
+            internal::Utilities::byteVectorToString(getTestEvmAddress().toBytes()));
+}
+
+//-----
+TEST_F(ContractIdTest, GetSetShardNum)
+{
+  // Given
+  ContractId contractId;
+
+  // When
+  EXPECT_THROW(contractId.setShardNum(getTestNumTooBig()), std::invalid_argument);
+  contractId.setShardNum(getTestShardNum());
+
+  // Then
+  EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
+}
+
+//-----
+TEST_F(ContractIdTest, GetSetRealmNum)
+{
+  // Given
+  ContractId contractId;
+
+  // When
+  EXPECT_THROW(contractId.setRealmNum(getTestNumTooBig()), std::invalid_argument);
+  contractId.setRealmNum(getTestRealmNum());
+
+  // Then
+  EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
+}
+
+//-----
+TEST_F(ContractIdTest, GetSetContractNum)
+{
+  // Given
+  ContractId contractId;
+
+  // When
+  EXPECT_THROW(contractId.setContractNum(getTestNumTooBig()), std::invalid_argument);
+  contractId.setContractNum(getTestContractNum());
+
+  // Then
+  ASSERT_TRUE(contractId.getContractNum().has_value());
   EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
 }
 
-TEST_F(ContractIdTest, SetShardRealmContractNum)
-{
-  ContractId contractId;
-  contractId.setShardNum(getTestShardNum());
-  contractId.setRealmNum(getTestRealmNum());
-  contractId.setContractNum(getTestContractNum());
-
-  EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
-}
-
-// Tests serialization of Hedera::ContractId -> proto::ContractID.
-TEST_F(ContractIdTest, SerializeContractIdToProtobufTest)
+//-----
+TEST_F(ContractIdTest, GetSetEvmAddress)
 {
   // Given
-  const uint64_t testShardNum = getTestShardNum();
-  const uint64_t testRealmNum = getTestRealmNum();
-  const uint64_t testContractNum = getTestContractNum();
-  const auto testContractId = ContractId(testShardNum, testRealmNum, testContractNum);
+  ContractId contractId;
 
   // When
-  auto protoContractId = std::unique_ptr<proto::ContractID>(testContractId.toProtobuf());
+  contractId.setEvmAddress(getTestEvmAddress());
 
   // Then
-  EXPECT_EQ(protoContractId->shardnum(), testShardNum);
-  EXPECT_EQ(protoContractId->realmnum(), testRealmNum);
-  EXPECT_EQ(protoContractId->contractnum(), testContractNum);
+  ASSERT_TRUE(contractId.getEvmAddress().has_value());
+  EXPECT_EQ(contractId.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
 }
 
-// Tests deserialization of proto::ContractID -> Hedera::ContractId.
-TEST_F(ContractIdTest, DeserializeContractIdFromProtobuf)
+//-----
+TEST_F(ContractIdTest, ResetMutuallyExclusiveIds)
 {
   // Given
-  const uint64_t testShardNum = getTestShardNum();
-  const uint64_t testRealmNum = getTestRealmNum();
-  const uint64_t testContractNum = getTestContractNum();
-  proto::ContractID testProtoContractId;
-  testProtoContractId.set_shardnum(static_cast<int64_t>(testShardNum));
-  testProtoContractId.set_realmnum(static_cast<int64_t>(testRealmNum));
-  testProtoContractId.set_contractnum(static_cast<int64_t>(testContractNum));
+  ContractId contractIdContractNum(getTestContractNum());
+  ContractId contractIdEvmAddress(getTestEvmAddress());
 
   // When
-  ContractId contractId = ContractId::fromProtobuf(testProtoContractId);
+  contractIdContractNum.setEvmAddress(getTestEvmAddress());
+  contractIdEvmAddress.setContractNum(getTestContractNum());
 
   // Then
-  EXPECT_EQ(contractId.getShardNum(), testShardNum);
-  EXPECT_EQ(contractId.getRealmNum(), testRealmNum);
-  EXPECT_EQ(contractId.getContractNum(), testContractNum);
-}
-
-// Tests serialization & deserialization of Hedera::ContractId -> proto::ContractID -> Hedera::ContractId.
-TEST_F(ContractIdTest, ProtobufContractId)
-{
-  ContractId contractId;
-  contractId.setShardNum(getTestShardNum());
-  contractId.setRealmNum(getTestRealmNum());
-  contractId.setContractNum(getTestContractNum());
-
-  auto protoContractId = std::unique_ptr<proto::ContractID>(contractId.toProtobuf());
-  EXPECT_EQ(protoContractId->shardnum(), getTestShardNum());
-  EXPECT_EQ(protoContractId->realmnum(), getTestRealmNum());
-  EXPECT_EQ(protoContractId->contractnum(), getTestContractNum());
-
-  const uint64_t adjustment = 3ULL;
-  const uint64_t newShard = getTestShardNum() + adjustment;
-  const uint64_t newRealm = getTestRealmNum() - adjustment;
-  const uint64_t newContract = getTestContractNum() * adjustment;
-
-  protoContractId->set_shardnum(static_cast<int64_t>(newShard));
-  protoContractId->set_realmnum(static_cast<int64_t>(newRealm));
-  protoContractId->set_contractnum(static_cast<int64_t>(newContract));
-
-  contractId = ContractId::fromProtobuf(*protoContractId);
-  EXPECT_EQ(contractId.getShardNum(), newShard);
-  EXPECT_EQ(contractId.getRealmNum(), newRealm);
-  EXPECT_EQ(contractId.getContractNum(), newContract);
+  EXPECT_FALSE(contractIdContractNum.getContractNum().has_value());
+  EXPECT_FALSE(contractIdEvmAddress.getEvmAddress().has_value());
 }

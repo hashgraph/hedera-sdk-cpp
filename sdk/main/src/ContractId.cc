@@ -18,7 +18,9 @@
  *
  */
 #include "ContractId.h"
+#include "impl/Utilities.h"
 
+#include <limits>
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
@@ -26,6 +28,13 @@ namespace Hedera
 //-----
 ContractId::ContractId(const uint64_t& num)
   : mContractNum(num)
+{
+  checkContractNum();
+}
+
+//-----
+ContractId::ContractId(const EvmAddress& address)
+  : mEvmAddress(address)
 {
 }
 
@@ -35,20 +44,47 @@ ContractId::ContractId(const uint64_t& shard, const uint64_t& realm, const uint6
   , mRealmNum(realm)
   , mContractNum(num)
 {
+  checkShardNum();
+  checkRealmNum();
+  checkContractNum();
 }
 
 //-----
-ContractId ContractId::fromProtobuf(const proto::ContractID& proto)
+ContractId::ContractId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address)
+  : mShardNum(shard)
+  , mRealmNum(realm)
+  , mEvmAddress(address)
 {
-  return ContractId(static_cast<uint64_t>(proto.shardnum()),
-                    static_cast<uint64_t>(proto.realmnum()),
-                    static_cast<uint64_t>(proto.contractnum()));
+  checkShardNum();
+  checkRealmNum();
 }
 
 //-----
 bool ContractId::operator==(const ContractId& other) const
 {
-  return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) && (mContractNum == other.mContractNum);
+  return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) &&
+         ((mContractNum && other.mContractNum && *mContractNum == *other.mContractNum) ||
+          (mEvmAddress && other.mEvmAddress && mEvmAddress->toBytes() == other.mEvmAddress->toBytes()) ||
+          (!mContractNum && !other.mContractNum && !mEvmAddress && !other.mEvmAddress));
+}
+
+//-----
+ContractId ContractId::fromProtobuf(const proto::ContractID& proto)
+{
+  ContractId contractId;
+  contractId.mShardNum = static_cast<uint64_t>(proto.shardnum());
+  contractId.mRealmNum = static_cast<uint64_t>(proto.realmnum());
+
+  if (proto.contract_case() == proto::ContractID::ContractCase::kContractNum)
+  {
+    contractId.mContractNum = static_cast<uint64_t>(proto.contractnum());
+  }
+  else if (proto.contract_case() == proto::ContractID::ContractCase::kEvmAddress)
+  {
+    contractId.mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.evm_address()));
+  }
+
+  return contractId;
 }
 
 //-----
@@ -57,7 +93,15 @@ std::unique_ptr<proto::ContractID> ContractId::toProtobuf() const
   auto proto = std::make_unique<proto::ContractID>();
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
-  proto->set_contractnum(static_cast<int64_t>(mContractNum));
+
+  if (mContractNum)
+  {
+    proto->set_contractnum(static_cast<int64_t>(*mContractNum));
+  }
+  else if (mEvmAddress)
+  {
+    proto->set_evm_address(internal::Utilities::byteVectorToString(mEvmAddress->toBytes()));
+  }
 
   return proto;
 }
@@ -66,6 +110,7 @@ std::unique_ptr<proto::ContractID> ContractId::toProtobuf() const
 ContractId& ContractId::setShardNum(const uint64_t& num)
 {
   mShardNum = num;
+  checkShardNum();
   return *this;
 }
 
@@ -73,6 +118,7 @@ ContractId& ContractId::setShardNum(const uint64_t& num)
 ContractId& ContractId::setRealmNum(const uint64_t& num)
 {
   mRealmNum = num;
+  checkRealmNum();
   return *this;
 }
 
@@ -80,7 +126,44 @@ ContractId& ContractId::setRealmNum(const uint64_t& num)
 ContractId& ContractId::setContractNum(const uint64_t& num)
 {
   mContractNum = num;
+  checkContractNum();
+  mEvmAddress.reset();
   return *this;
+}
+
+//-----
+ContractId& ContractId::setEvmAddress(const EvmAddress& address)
+{
+  mEvmAddress = address;
+  mContractNum.reset();
+  return *this;
+}
+
+//-----
+void ContractId::checkShardNum() const
+{
+  if (mShardNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input shard number is too large");
+  }
+}
+
+//-----
+void ContractId::checkRealmNum() const
+{
+  if (mRealmNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input realm number is too large");
+  }
+}
+
+//-----
+void ContractId::checkContractNum() const
+{
+  if (mContractNum && *mContractNum > std::numeric_limits<int64_t>::max())
+  {
+    throw std::invalid_argument("Input contract number is too large");
+  }
 }
 
 } // namespace Hedera
