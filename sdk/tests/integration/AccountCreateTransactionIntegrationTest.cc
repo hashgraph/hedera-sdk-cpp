@@ -26,35 +26,100 @@
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 
+#include <filesystem>
+#include <fstream>
 #include <gtest/gtest.h>
+#include <iostream>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 using namespace Hedera;
 
 class AccountCreateTransactionIntegrationTest : public ::testing::Test
 {
 protected:
+  [[nodiscard]] inline const std::string_view& getJsonNetworkTag() const { return mJsonNetworkTag; }
+  [[nodiscard]] inline const std::string_view& getJsonOperatorTag() const { return mJsonOperatorTag; }
+  [[nodiscard]] inline const std::string_view& getJsonAccountIdTag() const { return mJsonAccountIdTag; }
+  [[nodiscard]] inline const std::string_view& getJsonPrivateKeyTag() const { return mJsonPrivateKeyTag; }
+
+  [[nodiscard]] inline const std::string_view& getNodeAccountIdStr() const { return mNodeAccountIdStr; }
+  [[nodiscard]] inline const AccountId& getNodeAccountId() const { return mNodeAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
+  [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
+
+  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
+
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
-  [[nodiscard]] inline const AccountId& getTestAccountOperatorId() const { return mTestAccountOperatorId; }
   [[nodiscard]] inline const Hbar& getTestBalance() const { return mTestBalance; }
 
+  void SetUp() override
+  {
+    const auto accountId = getNodeAccountId();
+    const std::string_view accountIdStr = getNodeAccountIdStr();
+    const std::string_view networkTag = getJsonNetworkTag();
+    const std::string_view operatorTag = getJsonOperatorTag();
+    const std::string_view accountIdTag = getJsonAccountIdTag();
+    const std::string_view privateKeyTag = getJsonPrivateKeyTag();
+
+    const std::string testPathToJSON = getPathToJSON();
+    const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+    const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
+
+    AccountId operatorAccountId;
+    std::string operatorAccountPrivateKey;
+    std::ifstream testInputFile(testPathToJSON, std::ios::in);
+    std::string nodeAddressString;
+    json jsonData;
+
+    EXPECT_NO_THROW(jsonData = json::parse(testInputFile));
+
+    if (jsonData[networkTag][accountIdStr].is_string())
+    {
+      nodeAddressString = jsonData[networkTag][accountIdStr];
+    }
+
+    if (jsonData[operatorTag][accountIdTag].is_string() && jsonData[operatorTag][privateKeyTag].is_string())
+    {
+      std::string operatorAccountIdStr = jsonData[operatorTag][accountIdTag];
+
+      operatorAccountId = AccountId::fromString(operatorAccountIdStr);
+      operatorAccountPrivateKey = jsonData[operatorTag][privateKeyTag];
+    }
+
+    testInputFile.close();
+
+    std::unordered_map<std::string, AccountId> networkMap;
+    networkMap.insert(std::pair<std::string, AccountId>(nodeAddressString, accountId));
+
+    mClient = Client::forNetwork(networkMap);
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+  }
+
 private:
+  const std::string_view mJsonNetworkTag = "network";
+  const std::string_view mJsonOperatorTag = "operator";
+  const std::string_view mJsonAccountIdTag = "accountId";
+  const std::string_view mJsonPrivateKeyTag = "privateKey";
+
+  const std::string_view mNodeAccountIdStr = "0.0.3";
+  const AccountId mNodeAccountId = AccountId::fromString("0.0.3");
+  const AccountId mTestAccountId = AccountId::fromString("0.0.1023");
+  const std::filesystem::path mFilePath = std::filesystem::current_path() / "local_node.json";
+
   const std::shared_ptr<PublicKey> mPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-  const AccountId mTestAccountOperatorId = AccountId::fromString("0.0.2");
   const Hbar mTestBalance = Hbar(1000ULL, HbarUnit::TINYBAR());
+
+  Client mClient;
 };
 
 // Tests invoking of method execute() from AccountCreateTransaction.
-TEST_F(AccountCreateTransactionIntegrationTest, ExecuteRequestToTestnetNode)
+TEST_F(AccountCreateTransactionIntegrationTest, ExecuteRequestToLocalNode)
 {
   // Given
   const auto testBalance = getTestBalance();
   const auto testPublicKey = getTestPublicKey();
   const auto testMemo = "Test memo for AccountCreateTransaction.";
-  Client testnetClient = Client::forTestnet();
-  testnetClient.setOperator(
-    getTestAccountOperatorId(),
-    ED25519PrivateKey::fromString(
-      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
 
   AccountCreateTransaction testAccountCreateTransaction;
   testAccountCreateTransaction.setKey(testPublicKey);
@@ -62,17 +127,16 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteRequestToTestnetNode)
   testAccountCreateTransaction.setInitialBalance(testBalance);
 
   // When
-  const TransactionResponse txResponse = testAccountCreateTransaction.execute(testnetClient);
+  const TransactionResponse txResponse = testAccountCreateTransaction.execute(getTestClient());
+  const TransactionReceipt txReceipt = txResponse.getReceipt(getTestClient());
+  const TransactionRecord txRecord = txResponse.getRecord(getTestClient());
 
   // Then
-  const TransactionReceipt txReceipt = txResponse.getReceipt(testnetClient);
-  const TransactionRecord txRecord = txResponse.getRecord(testnetClient);
-
   EXPECT_TRUE(txResponse.getValidateStatus());
   EXPECT_TRUE(txReceipt.getAccountId().has_value());
   EXPECT_TRUE(txReceipt.getExchangeRates().has_value());
   EXPECT_TRUE(txReceipt.getExchangeRates()->getCurrentExchangeRate().has_value());
   EXPECT_TRUE(txRecord.getTransactionId().has_value());
   EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
-  EXPECT_FALSE(txRecord.getNftTransferList().empty());
+  EXPECT_TRUE(txRecord.getNftTransferList().empty());
 }
