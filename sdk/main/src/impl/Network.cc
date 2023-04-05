@@ -48,6 +48,14 @@ Network Network::forPreviewnet()
 }
 
 //-----
+Network Network::forNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
+{
+  Network network;
+  network.setNetwork(networkMap);
+  return network;
+}
+
+//-----
 std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const
 {
   if (accountIds.empty())
@@ -88,12 +96,31 @@ void Network::setTLSBehavior(TLSBehavior desiredBehavior) const
 }
 
 //-----
-void Network::setNetwork(const NodeAddressBook& nodeAddressBook)
+void Network::setNetwork(const NodeAddressBook& nodeAddressBook, TLSBehavior tls)
 {
   for (const auto& [accountId, nodeAddress] : nodeAddressBook.getAddressMap())
   {
-    mNodes.push_back(std::make_shared<Node>(nodeAddress));
+    mNodes.push_back(std::make_shared<Node>(nodeAddress, tls));
   }
+}
+
+//-----
+void Network::setNetwork(const std::unordered_map<std::string, AccountId>& networkMap, TLSBehavior tls)
+{
+  std::unordered_map<AccountId, std::shared_ptr<NodeAddress>> addressMap;
+
+  for (auto it = networkMap.cbegin(); it != networkMap.cend(); ++it)
+  {
+    const std::string& nodeAddressAsString = it->first;
+    const AccountId& accountId = it->second;
+
+    NodeAddress nodeAddress = NodeAddress::fromString(nodeAddressAsString);
+    std::shared_ptr<NodeAddress> nodeAddressPtr = std::make_shared<NodeAddress>(nodeAddress);
+    nodeAddressPtr->setNodeAccountId(accountId);
+    addressMap.insert(std::pair<Hedera::AccountId, std::shared_ptr<NodeAddress>>(accountId, nodeAddressPtr));
+  }
+
+  setNetwork(NodeAddressBook::fromAddressMap(addressMap), tls);
 }
 
 } // namespace Hedera::internal

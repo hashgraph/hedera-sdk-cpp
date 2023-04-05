@@ -66,7 +66,9 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
 {
   const std::vector<std::byte> formattedBytes = internal::Utilities::concatenateVectors(
     { ASN1_PREFIX_BYTES,
-      (bytes.size() == ECDSAsecp256k1PrivateKey::KEY_SIZE + ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size())
+      // Remove the DER-encoding header if need be
+      (bytes.size() == ECDSAsecp256k1PrivateKey::KEY_SIZE + ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size() &&
+       internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES))
         ? internal::Utilities::removePrefix(
             bytes, static_cast<long>(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size()))
         : bytes,
@@ -82,6 +84,7 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
 
   return key;
 }
+
 } // namespace
 
 //-----
@@ -99,50 +102,43 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::generatePriv
 //-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(std::string_view key)
 {
-  if ((key.size() == KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.find(DER_ENCODED_PREFIX_HEX) == 0UL) ||
-      key.size() == KEY_SIZE * 2)
-  {
-    try
-    {
-      return std::make_unique<ECDSAsecp256k1PrivateKey>(
-        ECDSAsecp256k1PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
-    }
-    catch (const OpenSSLException& openSSLException)
-    {
-      throw BadKeyException(std::string("ECDSAsecp256k1PrivateKey cannot be realized from input string: ") +
-                            openSSLException.what());
-    }
-  }
-  else
+  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != KEY_SIZE * 2)
   {
     throw BadKeyException(
       "ECDSAsecp256k1PrivateKey cannot be realized from input string: input string size should be " +
       std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " + std::to_string(KEY_SIZE * 2));
+  }
+
+  try
+  {
+    return std::make_unique<ECDSAsecp256k1PrivateKey>(
+      ECDSAsecp256k1PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(std::string("ECDSAsecp256k1PrivateKey cannot be realized from input string: ") +
+                          openSSLException.what());
   }
 }
 
 //-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytes(const std::vector<std::byte>& bytes)
 {
-  if ((bytes.size() == KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() &&
-       internal::Utilities::isPrefixOf(bytes, DER_ENCODED_PREFIX_BYTES)) ||
-      bytes.size() == KEY_SIZE)
-  {
-    try
-    {
-      return std::make_unique<ECDSAsecp256k1PrivateKey>(ECDSAsecp256k1PrivateKey(bytesToPKEY(bytes)));
-    }
-    catch (const OpenSSLException& openSSLException)
-    {
-      throw BadKeyException(std::string("ECDSAsecp256k1PrivateKey cannot be realized from input bytes: ") +
-                            openSSLException.what());
-    }
-  }
-  else
+  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != KEY_SIZE)
   {
     throw BadKeyException(
       "ECDSAsecp256k1PrivateKey cannot be realized from input bytes: input byte array size should be " +
       std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " + std::to_string(KEY_SIZE));
+  }
+
+  try
+  {
+    return std::make_unique<ECDSAsecp256k1PrivateKey>(ECDSAsecp256k1PrivateKey(bytesToPKEY(bytes)));
+  }
+  catch (const OpenSSLException& openSSLException)
+  {
+    throw BadKeyException(std::string("ECDSAsecp256k1PrivateKey cannot be realized from input bytes: ") +
+                          openSSLException.what());
   }
 }
 
@@ -185,7 +181,7 @@ std::unique_ptr<PrivateKey> ECDSAsecp256k1PrivateKey::derive(uint32_t childIndex
           ? internal::Utilities::concatenateVectors({ { std::byte(0x0) }, toBytesRaw() })
           : getPublicKey()->toBytesRaw(),
         internal::DerivationPathUtils::indexToBigEndianArray(childIndex) }));
-  
+
   // Modular add the private key bytes computed from the HMAC to the existing private key (using the secp256k1 curve
   // order as the modulo), and compute the new chain code from the HMAC
   return std::make_unique<ECDSAsecp256k1PrivateKey>(ECDSAsecp256k1PrivateKey(

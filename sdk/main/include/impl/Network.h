@@ -27,6 +27,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace Hedera
@@ -61,6 +62,14 @@ public:
   [[nodiscard]] static Network forPreviewnet();
 
   /**
+   * Construct a Network that is pre-configured for local node access.
+   *
+   * @param networkMap The map with string representation of node addresses with their corresponding accountId.
+   * @return A Network object that is set-up to communicate with a specific node addresses.
+   */
+  [[nodiscard]] static Network forNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
+
+  /**
    * Get a list of Node pointers that point to Nodes on this Network that are associated with the input account IDs. If
    * no account IDs are specified, pointers to all Nodes on this Network are returned.
    *
@@ -92,10 +101,21 @@ private:
    * Establish communications with all Nodes for this Network that are specified in the input address book.
    *
    * @param nodeAddressBook The address book that contains the Nodes with which this Network will be communicating.
+   * @param tls The TLS behavior all nodes should initially use. Default value is REQUIRE.
    * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
    *                                hash.
    */
-  void setNetwork(const NodeAddressBook& nodeAddressBook);
+  void setNetwork(const NodeAddressBook& nodeAddressBook, TLSBehavior tls = TLSBehavior::REQUIRE);
+
+  /**
+   * Establish communications with all node addresses for this Network that are specified in the input map collection.
+   *
+   * @param networkMap The map containing string node addresses pointing to specific accountId object.
+   * @param tls The TLS behavior all nodes should initially use. Default value is DISABLE.
+   * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
+   *         hash.
+   */
+  void setNetwork(const std::unordered_map<std::string, AccountId>& networkMap, TLSBehavior tls = TLSBehavior::DISABLE);
 
   /**
    * The list of pointers to Nodes with which this Network is communicating.
