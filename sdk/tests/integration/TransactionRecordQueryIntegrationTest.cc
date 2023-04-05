@@ -108,7 +108,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteRequestToTestnetNode)
   // Then
   EXPECT_TRUE(txRecord.getReceipt().has_value());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_EQ(txRecord.getReceipt()->getStatus(), Hedera::Status::SUCCESS);
+  EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
   EXPECT_EQ(txRecord.getTransactionId(), testTransactionId);
   EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
 }
