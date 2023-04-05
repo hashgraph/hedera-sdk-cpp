@@ -18,13 +18,23 @@
  *
  */
 #include "Client.h"
+#include "AccountCreateTransaction.h"
 #include "AccountId.h"
+#include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
+#include "PublicKey.h"
+#include "TransactionReceipt.h"
+#include "TransactionResponse.h"
 #include "exceptions/UninitializedException.h"
 
+#include <filesystem>
+#include <fstream>
 #include <gtest/gtest.h>
+#include <iostream>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 using namespace Hedera;
 
 class ClientTest : public ::testing::Test
@@ -32,10 +42,12 @@ class ClientTest : public ::testing::Test
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
+  [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
 
 private:
   const AccountId mAccountId = AccountId(10ULL);
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::filesystem::path mFilePath = std::filesystem::current_path() / "local_node.json";
 };
 
 //-----

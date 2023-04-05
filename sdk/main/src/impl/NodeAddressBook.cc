@@ -54,16 +54,19 @@ NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& prot
 
     outputAddressBook.mAddressMap.try_emplace(
       AccountId::fromProtobuf(protoNodeAddress.nodeaccountid()),
-      std::make_shared<internal::NodeAddress>(internal::NodeAddress::fromProtobuf(protoNodeAddress)));
+      std::make_shared<NodeAddress>(NodeAddress::fromProtobuf(protoNodeAddress)));
   }
 
   return outputAddressBook;
 }
 
 //-----
-const std::unordered_map<AccountId, std::shared_ptr<internal::NodeAddress>>& NodeAddressBook::getAddressMap() const
+NodeAddressBook NodeAddressBook::fromAddressMap(
+  const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& addressMap)
 {
-  return mAddressMap;
+  NodeAddressBook outputAddressBook;
+  outputAddressBook.mAddressMap = addressMap;
+  return outputAddressBook;
 }
 
 } // namespace Hedera::internal
