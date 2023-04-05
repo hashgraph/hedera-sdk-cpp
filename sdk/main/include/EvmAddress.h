@@ -33,6 +33,11 @@ class EvmAddress
 {
 public:
   /**
+   * The number of bytes an EVM address should be.
+   */
+  static constexpr const size_t NUM_BYTES = 20ULL;
+
+  /**
    * Construct an EvmAddress from a hex-encoded string that represents the 20-byte EVM address.
    *
    * @param address The hex-encoded string representing the EvmAddress.
@@ -65,11 +70,6 @@ public:
 
 private:
   EvmAddress() = default;
-
-  /**
-   * The number of bytes an EVM address should be.
-   */
-  static constexpr const size_t NUM_BYTES = 20ULL;
 
   /**
    * Helper function for making sure this EVM address is correctly formed.

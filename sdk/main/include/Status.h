@@ -1496,7 +1496,12 @@ enum class Status
   /**
    * The account cannot be modified. Account's key is not set
    */
-  ACCOUNT_IS_IMMUTABLE
+  ACCOUNT_IS_IMMUTABLE,
+
+  /**
+   * An alias that is assigned to an account or contract cannot be assigned to another account or contract.
+   */
+  ALIAS_ALREADY_ASSIGNED
 };
 
 /**

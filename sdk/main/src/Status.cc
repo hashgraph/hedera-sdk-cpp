@@ -329,7 +329,8 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
   { proto::ResponseCodeEnum::MAX_CHILD_RECORDS_EXCEEDED,                                     Status::MAX_CHILD_RECORDS_EXCEEDED             },
   { proto::ResponseCodeEnum::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES },
   { proto::ResponseCodeEnum::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 Status::TRANSACTION_HAS_UNKNOWN_FIELDS         },
-  { proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE,                                           Status::ACCOUNT_IS_IMMUTABLE                   }
+  { proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE,                                           Status::ACCOUNT_IS_IMMUTABLE                   },
+  { proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED,                                         Status::ALIAS_ALREADY_ASSIGNED                 }
 };
 
 //-----
@@ -620,7 +621,8 @@ const std::unordered_map<Status, std::string_view> gStatusToString = {
   { Status::MAX_CHILD_RECORDS_EXCEEDED,                                     "MAX_CHILD_RECORDS_EXCEEDED"                        },
   { Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         "INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES"            },
   { Status::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 "TRANSACTION_HAS_UNKNOWN_FIELDS"                    },
-  { Status::ACCOUNT_IS_IMMUTABLE,                                           "ACCOUNT_IS_IMMUTABLE"                              }
+  { Status::ACCOUNT_IS_IMMUTABLE,                                           "ACCOUNT_IS_IMMUTABLE"                              },
+  { Status::ALIAS_ALREADY_ASSIGNED,                                         "ALIAS_ALREADY_ASSIGNED"                            }
 };
 
 } // namespace Hedera
