@@ -104,7 +104,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteRequestToTestnetNode)
   const TransactionReceipt txReceipt = testTransactionReceiptQuery.execute(getTestClient());
 
   // Then
-  EXPECT_EQ(txReceipt.getStatus(), Hedera::Status::SUCCESS);
+  EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
   EXPECT_TRUE(txReceipt.getAccountId().has_value());
   EXPECT_TRUE(txReceipt.getExchangeRates().has_value());
   EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
