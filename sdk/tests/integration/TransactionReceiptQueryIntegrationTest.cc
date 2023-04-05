@@ -94,14 +94,10 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteRequestToTestnetNode)
   AccountCreateTransaction testAccountCreateTransaction;
   testAccountCreateTransaction.setKey(testPublicKey);
 
-  TransactionId testTransactionId =
-    testAccountCreateTransaction.execute(getTestClient()).getRecord(getTestClient()).getTransactionId().value();
-
-  TransactionReceiptQuery testTransactionReceiptQuery;
-  testTransactionReceiptQuery.setTransactionId(testTransactionId);
+  const TransactionResponse txResponse = testAccountCreateTransaction.execute(getTestClient());
 
   // When
-  const TransactionReceipt txReceipt = testTransactionReceiptQuery.execute(getTestClient());
+  const TransactionReceipt txReceipt = txResponse.getReceipt(getTestClient());
 
   // Then
   EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
