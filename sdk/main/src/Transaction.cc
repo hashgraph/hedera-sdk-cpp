@@ -72,8 +72,9 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
   }
 
   // Transaction protobuf object
-  else if (proto::Transaction tx;
-           tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !tx.signedtransactionbytes().empty())
+  if (proto::Transaction tx; txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET &&
+                             tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) &&
+                             !tx.signedtransactionbytes().empty())
   {
     proto::SignedTransaction signedTx;
     signedTx.ParseFromArray(tx.signedtransactionbytes().data(), static_cast<int>(tx.signedtransactionbytes().size()));
@@ -81,15 +82,16 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
   }
 
   // SignedTransaction protobuf object
-  else if (proto::SignedTransaction signedTx;
-           signedTx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !signedTx.bodybytes().empty())
+  if (proto::SignedTransaction signedTx; txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET &&
+                                         signedTx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) &&
+                                         !signedTx.bodybytes().empty())
   {
     txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
   }
 
-  // If not TransactionBody protobuf object, throw
-  else if (!txBody.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) ||
-           txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET)
+  // If not a TransactionBody protobuf object, throw
+  if (txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET &&
+      !txBody.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())))
   {
     throw std::invalid_argument("Unable to construct Transaction from input bytes");
   }
