@@ -38,27 +38,18 @@ using namespace Hedera;
 class TransactionReceiptQueryIntegrationTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const std::string_view& getJsonNetworkTag() const { return mJsonNetworkTag; }
-  [[nodiscard]] inline const std::string_view& getJsonOperatorTag() const { return mJsonOperatorTag; }
-  [[nodiscard]] inline const std::string_view& getJsonAccountIdTag() const { return mJsonAccountIdTag; }
-  [[nodiscard]] inline const std::string_view& getJsonPrivateKeyTag() const { return mJsonPrivateKeyTag; }
-
-  [[nodiscard]] inline const std::string_view& getNodeAccountIdStr() const { return mNodeAccountIdStr; }
-  [[nodiscard]] inline const AccountId& getNodeAccountId() const { return mNodeAccountId; }
-  [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
-
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
 
   void SetUp() override
   {
-    const auto accountId = getNodeAccountId();
-    const std::string_view accountIdStr = getNodeAccountIdStr();
-    const std::string_view networkTag = getJsonNetworkTag();
-    const std::string_view operatorTag = getJsonOperatorTag();
-    const std::string_view accountIdTag = getJsonAccountIdTag();
-    const std::string_view privateKeyTag = getJsonPrivateKeyTag();
+    const auto accountId = AccountId::fromString("0.0.3");
+    const std::string_view accountIdStr = "0.0.3";
+    const std::string_view networkTag = "network";
+    const std::string_view operatorTag = "operator";
+    const std::string_view accountIdTag = "accountId";
+    const std::string_view privateKeyTag = "privateKey";
 
-    const std::string testPathToJSON = getPathToJSON();
+    const std::string testPathToJSON = std::filesystem::current_path() / "local_node.json";
     const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
     const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
 
@@ -91,15 +82,6 @@ protected:
   }
 
 private:
-  const std::string_view mJsonNetworkTag = "network";
-  const std::string_view mJsonOperatorTag = "operator";
-  const std::string_view mJsonAccountIdTag = "accountId";
-  const std::string_view mJsonPrivateKeyTag = "privateKey";
-
-  const std::string_view mNodeAccountIdStr = "0.0.3";
-  const AccountId mNodeAccountId = AccountId::fromString("0.0.3");
-  const std::filesystem::path mFilePath = std::filesystem::current_path() / "local_node.json";
-
   Client mClient;
 };
 
