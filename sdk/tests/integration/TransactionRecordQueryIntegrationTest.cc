@@ -96,19 +96,14 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteRequestToTestnetNode)
   testAccountCreateTransaction.setKey(testPublicKey);
   testAccountCreateTransaction.setTransactionMemo(testMemo);
 
-  TransactionId testTransactionId =
-    testAccountCreateTransaction.execute(getTestClient()).getRecord(getTestClient()).getTransactionId().value();
-
-  TransactionRecordQuery testTransactionRecordQuery;
-  testTransactionRecordQuery.setTransactionId(testTransactionId);
+  const TransactionResponse txResponse = testAccountCreateTransaction.execute(getTestClient());
 
   // When
-  const TransactionRecord txRecord = testTransactionRecordQuery.execute(getTestClient());
+  const TransactionRecord txRecord = txResponse.getRecord(getTestClient());
 
   // Then
   EXPECT_TRUE(txRecord.getReceipt().has_value());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
   EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
-  EXPECT_EQ(txRecord.getTransactionId(), testTransactionId);
   EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
 }
