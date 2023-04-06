@@ -35,7 +35,8 @@ using namespace Hedera;
 class AccountBalanceQueryIntegrationTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const AccountId& getWrongAccountId() const { return mWrongAccountId; }
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
 
   void SetUp() override
@@ -80,7 +81,8 @@ protected:
   }
 
 private:
-  const AccountId mTestAccountId = AccountId::fromString("0.0.1023");
+  const AccountId mAccountId = AccountId::fromString("0.0.1023");
+  const AccountId mWrongAccountId = AccountId::fromString("0.0.999");
 
   Client mClient;
 };
@@ -90,7 +92,6 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToLocalNode)
 {
   // Given
   const auto testAccountId = getTestAccountId();
-
   AccountBalanceQuery testAccountBalanceQuery;
   testAccountBalanceQuery.setAccountId(testAccountId);
 
@@ -99,4 +100,32 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToLocalNode)
 
   // Then
   EXPECT_NE(hbarBalance.toTinybars(), 0);
+}
+
+// Tests invoking of method execute() from AccountBalanceQuery withoout AccountId.
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToLocalNodeWithoutAccountId)
+{
+  // Given
+  AccountBalanceQuery testAccountBalanceQuery;
+
+  // When
+  const Hbar hbarBalance = testAccountBalanceQuery.execute(getTestClient()).getBalance();
+
+  // Then
+  EXPECT_EQ(hbarBalance.toTinybars(), 0);
+}
+
+// Tests invoking of method execute() from AccountBalanceQuery with wrong AccountId.
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToLocalNodeWithWrongAccountId)
+{
+  // Given
+  const auto wrongAccountId = getWrongAccountId();
+  AccountBalanceQuery testAccountBalanceQuery;
+  testAccountBalanceQuery.setAccountId(wrongAccountId);
+
+  // When
+  const Hbar hbarBalance = testAccountBalanceQuery.execute(getTestClient()).getBalance();
+
+  // Then
+  EXPECT_EQ(hbarBalance.toTinybars(), 0);
 }
