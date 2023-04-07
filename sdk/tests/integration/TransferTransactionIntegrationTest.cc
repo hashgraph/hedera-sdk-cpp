@@ -22,17 +22,22 @@
 #include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
+#include "HbarTransfer.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <proto/transaction_record.pb.h>
 
 using json = nlohmann::json;
 using namespace Hedera;
@@ -40,8 +45,8 @@ using namespace Hedera;
 class TransferTransactionIntegrationTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
-  [[nodiscard]] inline const Hbar& getTestBalance() const { return mTestBalance; }
+  [[nodiscard]] inline const AccountId& getTestAccountIdTo() const { return mAccountIdTo; }
+  [[nodiscard]] inline const AccountId& getTestAccountIdFrom() const { return mAccountIdFrom; }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
 
@@ -87,8 +92,8 @@ protected:
   }
 
 private:
-  const AccountId mTestAccountId = AccountId::fromString("0.0.1023");
-  const Hbar mTestBalance = Hbar(10ULL, HbarUnit::TINYBAR());
+  const AccountId mAccountIdFrom = AccountId::fromString("0.0.1024");
+  const AccountId mAccountIdTo = AccountId::fromString("0.0.1032");
 
   Client mClient;
 };
@@ -97,32 +102,90 @@ private:
 TEST_F(TransferTransactionIntegrationTest, ExecuteRequestToTestnetNode)
 {
   // Given
-  const auto testBalance = getTestBalance();
-  const auto testPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-  const auto accountOperatorId = AccountId::fromString("0.0.1024");
-  const auto testMemo = "Test memo for TransferTransaction.";
+  const auto accountIdFrom = getTestAccountIdFrom();
+  const auto accountIdTo = getTestAccountIdTo();
+  const int64_t transferAmount = 10LL;
+  const std::string txHash = "txHash";
+  const std::string txMemo = "txMemo";
+  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+  const uint64_t txFee = 10ULL;
+  const auto tokenId = TokenId(10ULL);
+  const auto nftId = NftId(TokenId(20ULL), 1000ULL);
 
-  AccountCreateTransaction testAccountCreateTransaction;
-  testAccountCreateTransaction.setKey(testPublicKey);
-  testAccountCreateTransaction.setInitialBalance(testBalance);
+  proto::TransactionRecord protoTransactionRecord;
+  protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf().release());
+  protoTransactionRecord.set_allocated_transactionhash(new std::string(txHash));
+  protoTransactionRecord.set_allocated_consensustimestamp(internal::TimestampConverter::toProtobuf(now));
+  protoTransactionRecord.set_allocated_transactionid(TransactionId::generate(accountIdFrom).toProtobuf().release());
+  protoTransactionRecord.set_allocated_memo(new std::string(txMemo));
+  protoTransactionRecord.set_transactionfee(txFee);
 
-  TransactionReceipt testTxReceipt =
-    testAccountCreateTransaction.execute(getTestClient()).getRecord(getTestClient()).getReceipt().value();
-  AccountId createdAccountId = testTxReceipt.getAccountId().value();
+  proto::AccountAmount* aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
+  aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
+  aa->set_amount(-transferAmount);
 
-  TransferTransaction transferTransaction;
-  transferTransaction.addApprovedHbarTransfer(createdAccountId, Hbar(20ULL, HbarUnit::TINYBAR()));
-  transferTransaction.addApprovedHbarTransfer(accountOperatorId, Hbar(-20ULL, HbarUnit::TINYBAR()));
-  transferTransaction.setTransactionMemo(testMemo);
+  aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
+  aa->set_allocated_accountid(accountIdTo.toProtobuf().release());
+  aa->set_amount(transferAmount);
+
+  proto::TokenTransferList* list = protoTransactionRecord.add_tokentransferlists();
+  list->set_allocated_token(tokenId.toProtobuf().release());
+
+  aa = list->add_transfers();
+  aa->set_allocated_accountid(accountIdTo.toProtobuf().release());
+  aa->set_amount(transferAmount);
+
+  aa = list->add_transfers();
+  aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
+  aa->set_amount(-transferAmount);
+
+  list = protoTransactionRecord.add_tokentransferlists();
+  list->set_allocated_token(nftId.getTokenId().toProtobuf().release());
+
+  proto::NftTransfer* nft = list->add_nfttransfers();
+  nft->set_serialnumber(static_cast<int64_t>(nftId.getSerialNum()));
+  nft->set_allocated_senderaccountid(accountIdFrom.toProtobuf().release());
+  nft->set_allocated_receiveraccountid(accountIdTo.toProtobuf().release());
 
   // When
-  const TransactionResponse txResponse = transferTransaction.execute(getTestClient());
+  TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
 
   // Then
-  const TransactionRecord txRecord = txResponse.getRecord(getTestClient());
-  const TransactionReceipt txReceipt = txResponse.getReceipt(getTestClient());
-  EXPECT_TRUE(txResponse.getValidateStatus());
   EXPECT_TRUE(txRecord.getReceipt().has_value());
+  EXPECT_TRUE(txRecord.getReceipt()->getAccountId());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
+  EXPECT_EQ(*txRecord.getReceipt()->getAccountId(), accountIdFrom);
+  EXPECT_EQ(txRecord.getTransactionHash(), txHash);
+  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
+
+  EXPECT_GE(txRecord.getConsensusTimestamp()->time_since_epoch().count(), now.time_since_epoch().count());
+
+  EXPECT_TRUE(txRecord.getTransactionId().has_value());
+  EXPECT_EQ(txRecord.getTransactionId()->getAccountId(), accountIdFrom);
+  EXPECT_GE(txRecord.getTransactionId()->getValidTransactionTime(), now);
+
+  EXPECT_EQ(txRecord.getTransactionMemo(), txMemo);
+
+  EXPECT_EQ(txRecord.getTransactionFee(), txFee);
+
+  EXPECT_EQ(txRecord.getHbarTransferList().size(), 2);
+  EXPECT_EQ(txRecord.getHbarTransferList().at(0).getAccountId(), accountIdFrom);
+  EXPECT_EQ(txRecord.getHbarTransferList().at(0).getAmount().toTinybars(), -transferAmount);
+  EXPECT_EQ(txRecord.getHbarTransferList().at(1).getAccountId(), accountIdTo);
+  EXPECT_EQ(txRecord.getHbarTransferList().at(1).getAmount().toTinybars(), transferAmount);
+
+  EXPECT_EQ(txRecord.getTokenTransferList().size(), 2);
+  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getTokenId(), tokenId);
+  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getAccountId(), accountIdTo);
+  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getAmount(), transferAmount);
+  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getTokenId(), tokenId);
+  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getAccountId(), accountIdFrom);
+  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getAmount(), -transferAmount);
+
+  EXPECT_EQ(txRecord.getNftTransferList().size(), 1);
+  EXPECT_EQ(txRecord.getNftTransferList().at(0).getNftId(), nftId);
+  EXPECT_EQ(txRecord.getNftTransferList().at(0).getSenderAccountId(), accountIdFrom);
+  EXPECT_EQ(txRecord.getNftTransferList().at(0).getReceiverAccountId(), accountIdTo);
+
+  EXPECT_FALSE(txRecord.getEvmAddress().has_value());
 }
