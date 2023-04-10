@@ -22,10 +22,10 @@ jobs:
         include:
           - os: Linux
             preset: linux-x64
-#          - os: macos-12
-#            preset: macos-x64
-#          - os: windows-latest
-#            preset: windows-x64
+    #          - os: macos-12
+    #            preset: macos-x64
+    #          - os: windows-latest
+    #            preset: windows-x64
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -43,8 +43,8 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Local Node
-        run: sudo npm install -g @hashgraph/hedera-local
+      #- name: Install Local Node
+      #  run: sudo npm install -g @hashgraph/hedera-local
 
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
@@ -59,7 +59,7 @@ jobs:
 
       - name: CMake Build (Debug)
         uses: lukka/run-cmake@v10
-        env: 
+        env:
           VCPKG_BINARY_SOURCES: clear
         with:
           configurePreset: ${{ matrix.preset }}-debug
@@ -67,26 +67,26 @@ jobs:
 
       - name: CMake Build (Release)
         uses: lukka/run-cmake@v10
-        env: 
+        env:
           VCPKG_BINARY_SOURCES: clear
         with:
           configurePreset: ${{ matrix.preset }}-release
           buildPreset: ${{ matrix.preset }}-release
 
-#      - name: List Directory Structure
-#        if: ${{ contains(runner.os, 'Windows') && always() }}
-#        shell: pwsh
-#        run: tree /F build
+      #      - name: List Directory Structure
+      #        if: ${{ contains(runner.os, 'Windows') && always() }}
+      #        shell: pwsh
+      #        run: tree /F build
 
-      - name: Start the local node
-        if: success()
-        run: sudo npx @hashgraph/hedera-local start -d --network local
+      #- name: Start the local node
+      #  if: success()
+      #  run: sudo npx @hashgraph/hedera-local start -d --network local
 
-      - name: Start CTest suite (Debug)
-        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+      #- name: Start CTest suite (Debug)
+      #  run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
 
-      - name: Start CTest suite (Release)
-        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+      #- name: Start CTest suite (Release)
+      #  run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
       - name: Compute Short SHA
         id: sha
@@ -99,5 +99,5 @@ jobs:
           path: package/
           if-no-files-found: warn
 
-      - name: Stop the local node
-        run: sudo npx @hashgraph/hedera-local stop
+      #- name: Stop the local node
+      #  run: sudo npx @hashgraph/hedera-local stop

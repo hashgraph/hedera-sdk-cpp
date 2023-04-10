@@ -1,5 +1,5 @@
-set(HAPI_LIBRARY_HASH "b4e54fd25c0ea10ffebd8f94deb2c8cc84b08a74a1380980c0327e9f256e560f" CACHE STRING "Use the configured hash to verify the Hedera API protobuf library release")
-set(HAPI_LIBRARY_URL "https://github.com/hashgraph/hedera-protobufs-cpp/releases/download/v0.34.0/hapi-library-93f5fc52.tar.gz" CACHE STRING "Use the configured URL to download the Hedera API protobuf library package")
+set(HAPI_LIBRARY_HASH "ed4516e220cb9373b118c7ae3912675f82769628188de9c19faf340ba0f35fe3" CACHE STRING "Use the configured hash to verify the Hedera API protobuf library release")
+set(HAPI_LIBRARY_URL "https://github.com/hashgraph/hedera-protobufs-cpp/releases/download/v0.36.0/hapi-library-6ea31fa4.tar.gz" CACHE STRING "Use the configured URL to download the Hedera API protobuf library package")
 
 set(HAPI_LOCAL_LIBRARY_PATH "" CACHE STRING "Overrides the configured HAPI_LIBRARY_URL setting and instead uses the local path to retrieve the artifacts")
 

@@ -38,13 +38,13 @@ AccountId::AccountId(const uint64_t& num)
 
 //-----
 AccountId::AccountId(const std::shared_ptr<PublicKey>& alias)
-  : mAlias(alias)
+  : mPublicKeyAlias(alias)
 {
 }
 
 //-----
 AccountId::AccountId(const EvmAddress& address)
-  : mEvmAddress(address)
+  : mEvmAddressAlias(address)
 {
 }
 
@@ -63,7 +63,7 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_
 AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const std::shared_ptr<PublicKey>& alias)
   : mShardNum(shard)
   , mRealmNum(realm)
-  , mAlias(alias)
+  , mPublicKeyAlias(alias)
 {
   checkShardNum();
   checkRealmNum();
@@ -73,7 +73,7 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const std::sh
 AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address)
   : mShardNum(shard)
   , mRealmNum(realm)
-  , mEvmAddress(address)
+  , mEvmAddressAlias(address)
 {
   checkShardNum();
   checkRealmNum();
@@ -118,7 +118,7 @@ AccountId AccountId::fromString(std::string_view id)
   // Determine what the input account number is. First determine if it is an alias (stringified DER-encoded PublicKey)
   try
   {
-    accountId.mAlias = PublicKey::fromStringDer(accountNumStr);
+    accountId.mPublicKeyAlias = PublicKey::fromStringDer(accountNumStr);
     return accountId;
   }
   catch (const BadKeyException&)
@@ -126,7 +126,7 @@ AccountId AccountId::fromString(std::string_view id)
     // If not an alias, determine if it is an EVM address
     try
     {
-      accountId.mEvmAddress = EvmAddress::fromString(accountNumStr);
+      accountId.mEvmAddressAlias = EvmAddress::fromString(accountNumStr);
     }
     catch (const std::invalid_argument&)
     {
@@ -150,9 +150,12 @@ bool AccountId::operator==(const AccountId& other) const
 {
   return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) &&
          ((mAccountNum && other.mAccountNum && mAccountNum == other.mAccountNum) ||
-          (mAlias && other.mAlias && mAlias->toStringDer() == other.mAlias->toStringDer()) ||
-          (mEvmAddress && other.mEvmAddress && mEvmAddress->toString() == other.mEvmAddress->toString()) ||
-          (!mAccountNum && !other.mAccountNum && !mAlias && !other.mAlias && !mEvmAddress && !other.mEvmAddress));
+          (mPublicKeyAlias && other.mPublicKeyAlias &&
+           mPublicKeyAlias->toStringDer() == other.mPublicKeyAlias->toStringDer()) ||
+          (mEvmAddressAlias && other.mEvmAddressAlias &&
+           mEvmAddressAlias->toString() == other.mEvmAddressAlias->toString()) ||
+          (!mAccountNum && !other.mAccountNum && !mPublicKeyAlias && !other.mPublicKeyAlias && !mEvmAddressAlias &&
+           !other.mEvmAddressAlias));
 }
 
 //-----
@@ -171,19 +174,21 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
     }
     case proto::AccountID::kAlias:
     {
-      try
+      if (proto.alias().size() == EvmAddress::NUM_BYTES)
       {
-        accountId.mAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(proto.alias()));
+        accountId.mEvmAddressAlias = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.alias()));
       }
-      catch (const BadKeyException& ex)
+      else
       {
-        std::cout << "Cannot decode AccountID protobuf alias: " << ex.what() << std::endl;
+        try
+        {
+          accountId.mPublicKeyAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(proto.alias()));
+        }
+        catch (const BadKeyException& ex)
+        {
+          std::cout << "Cannot decode AccountID protobuf alias: " << ex.what() << std::endl;
+        }
       }
-      break;
-    }
-    case proto::AccountID::kEvmAddress:
-    {
-      accountId.mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.evm_address()));
       break;
     }
     default:
@@ -204,13 +209,13 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
   {
     proto->set_accountnum(static_cast<int64_t>(*mAccountNum));
   }
-  else if (mAlias)
+  else if (mPublicKeyAlias)
   {
-    proto->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mAlias->toBytesDer())));
+    proto->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mPublicKeyAlias->toBytesDer())));
   }
-  else if (mEvmAddress)
+  else if (mEvmAddressAlias)
   {
-    proto->set_allocated_evm_address(new std::string(internal::Utilities::byteVectorToString(mEvmAddress->toBytes())));
+    proto->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mEvmAddressAlias->toBytes())));
   }
 
   return proto;
@@ -225,13 +230,13 @@ std::string AccountId::toString() const
   {
     return str + std::to_string(*mAccountNum);
   }
-  else if (mAlias)
+  else if (mPublicKeyAlias)
   {
-    return str + mAlias->toStringDer();
+    return str + mPublicKeyAlias->toStringDer();
   }
-  else if (mEvmAddress)
+  else if (mEvmAddressAlias)
   {
-    return str + mEvmAddress->toString();
+    return str + mEvmAddressAlias->toString();
   }
   else
   {
@@ -262,26 +267,26 @@ AccountId& AccountId::setAccountNum(const uint64_t& num)
   mAccountNum = num;
   checkAccountNum();
 
-  mAlias = nullptr;
-  mEvmAddress.reset();
+  mPublicKeyAlias = nullptr;
+  mEvmAddressAlias.reset();
   return *this;
 }
 
 //-----
-AccountId& AccountId::setAlias(const std::shared_ptr<PublicKey>& alias)
+AccountId& AccountId::setPublicKeyAlias(const std::shared_ptr<PublicKey>& alias)
 {
-  mAlias = alias;
+  mPublicKeyAlias = alias;
   mAccountNum.reset();
-  mEvmAddress.reset();
+  mEvmAddressAlias.reset();
   return *this;
 }
 
 //-----
-AccountId& AccountId::setEvmAddress(const EvmAddress& address)
+AccountId& AccountId::setEvmAddressAlias(const EvmAddress& address)
 {
-  mEvmAddress = address;
+  mEvmAddressAlias = address;
   mAccountNum.reset();
-  mAlias = nullptr;
+  mPublicKeyAlias = nullptr;
   return *this;
 }
 
