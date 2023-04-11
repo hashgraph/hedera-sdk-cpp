@@ -40,4 +40,20 @@ ContractLogInfo ContractLogInfo::fromProtobuf(const proto::ContractLoginfo& prot
   return contractLogInfo;
 }
 
+//-----
+std::unique_ptr<proto::ContractLoginfo> ContractLogInfo::toProtobuf() const
+{
+  auto proto = std::make_unique<proto::ContractLoginfo>();
+  proto->set_allocated_contractid(mContractId.toProtobuf().release());
+  proto->set_bloom(internal::Utilities::byteVectorToString(mBloom));
+
+  for (const auto& topic : mTopics)
+  {
+    proto->add_topic(internal::Utilities::byteVectorToString(topic));
+  }
+
+  proto->set_data(internal::Utilities::byteVectorToString(mData));
+  return proto;
+}
+
 } // namespace Hedera

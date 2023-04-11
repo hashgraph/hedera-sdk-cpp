@@ -18,245 +18,174 @@
  *
  */
 #include "ContractFunctionResult.h"
+#include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <proto/contract_call_local.pb.h>
 
 namespace Hedera
 {
 //-----
-ContractFunctionResult::ContractFunctionResult()
-  : mContractId()
-  , mContractCallResult()
-  , mErrorMessage(std::string())
-  , mBloom(std::string())
-  , mGasUsed(0ULL)
-  , mLogInfo()
-  , mEvmAddress()
-  , mGas(0LL)
-  , mAmount(0LL)
-  , mFunctionParameters()
-  , mSenderAccountId()
+ContractFunctionResult ContractFunctionResult::fromProtobuf(const proto::ContractFunctionResult& proto)
 {
-}
+  ContractFunctionResult contractFunctionResult;
 
-//-----
-ContractFunctionResult::ContractFunctionResult(
-  const proto::ContractFunctionResult& proto)
-{
   if (proto.has_contractid())
   {
-    mContractId.setValue(ContractId::fromProtobuf(proto.contractid()));
+    contractFunctionResult.mContractId = ContractId::fromProtobuf(proto.contractid());
   }
 
-  mContractCallResult = proto.contractcallresult();
-  mErrorMessage = proto.errormessage();
+  contractFunctionResult.mContractCallResult = internal::Utilities::stringToByteVector(proto.contractcallresult());
+  contractFunctionResult.mErrorMessage = proto.errormessage();
 
   // Remove the function selector bytes if an exception was thrown
-  if (!mErrorMessage.empty() &&
-      mContractCallResult.find_first_of(ERROR_PREFIX) != 0)
+  if (!contractFunctionResult.mErrorMessage.empty() &&
+      internal::Utilities::isPrefixOf(contractFunctionResult.mContractCallResult, ERROR_PREFIX))
   {
-    mContractCallResult = mContractCallResult.substr(4);
+    contractFunctionResult.mContractCallResult = internal::Utilities::removePrefix(
+      contractFunctionResult.mContractCallResult, static_cast<long>(ERROR_PREFIX.size()));
   }
 
-  mBloom = proto.bloom();
-  mGasUsed = proto.gasused();
+  contractFunctionResult.mBloom = internal::Utilities::stringToByteVector(proto.bloom());
+  contractFunctionResult.mGasUsed = proto.gasused();
 
-  for (size_t i = 0; i < proto.loginfo_size(); ++i)
+  for (int i = 0; i < proto.loginfo_size(); ++i)
   {
-    mLogInfo.push_back(ContractLogInfo::fromProtobuf(proto.loginfo(i)));
+    contractFunctionResult.mLogs.push_back(ContractLogInfo::fromProtobuf(proto.loginfo(i)));
   }
 
   if (proto.has_evm_address())
   {
-    mEvmAddress.setValue(proto.evm_address().value());
+    contractFunctionResult.mEvmAddress =
+      EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.evm_address().value()));
   }
 
-  mGas = proto.gas();
-  mAmount = Hbar::fromTinybars(proto.amount());
-  mFunctionParameters = proto.functionparameters();
+  contractFunctionResult.mGas = static_cast<uint64_t>(proto.gas());
+  contractFunctionResult.mAmount = Hbar(proto.amount(), HbarUnit::TINYBAR());
+  contractFunctionResult.mFunctionParameters = internal::Utilities::stringToByteVector(proto.functionparameters());
 
   if (proto.has_sender_id())
   {
-    mSenderAccountId.setValue(AccountId::fromProtobuf(proto.sender_id()));
+    contractFunctionResult.mSenderAccountId = AccountId::fromProtobuf(proto.sender_id());
   }
+
+  return contractFunctionResult;
 }
 
 //-----
-ContractFunctionResult
-ContractFunctionResult::fromProtobuf(const proto::ContractFunctionResult& proto)
+std::string ContractFunctionResult::getString(int index) const
 {
-  return ContractFunctionResult(proto);
+  return internal::Utilities::byteVectorToString(getDynamicBytes(index));
 }
 
 //-----
-proto::ContractFunctionResult
-ContractFunctionResult::toProtobuf() const
+std::vector<std::string> ContractFunctionResult::getStringArray(int index) const
 {
-  proto::ContractFunctionResult proto;
-
-  if (mContractId.isValid())
-  {
-    proto.set_allocated_contractid(mContractId.getValue().toProtobuf());
-  }
-
-  proto.set_contractcallresult(mContractCallResult);
-
-  if (!mErrorMessage.empty())
-  {
-    proto.set_errormessage(mErrorMessage);
-  }
-
-  proto.set_bloom(mBloom);
-
-  for (size_t i = 0; i < mLogInfo.size(); ++i)
-  {
-    proto::ContractLoginfo* logInfo = proto.add_loginfo();
-    // TODO: set loginfo fields
-  }
-
-  if (mEvmAddress.isValid())
-  {
-    google::protobuf::BytesValue* value = new google::protobuf::BytesValue;
-    value->set_allocated_value(new std::string(mEvmAddress.getValue()));
-    proto.set_allocated_evm_address(value);
-  }
-
-  proto.set_gas(mGas);
-  proto.set_amount(mAmount.toTinybars());
-  proto.set_functionparameters(mFunctionParameters);
-
-  if (mSenderAccountId.isValid())
-  {
-    proto.set_allocated_sender_id(mSenderAccountId.getValue().toProtobuf());
-  }
-
-  return proto;
-}
-
-//-----
-std::string
-ContractFunctionResult::getString(const size_t& index) const
-{
-  return getDynamicBytes(index);
-}
-
-//-----
-std::vector<std::string>
-ContractFunctionResult::getStringArray(const size_t& index) const
-{
-  const int offset = getInt32(index);
-  const int count = getIntegerValueAt(offset);
-
+  int offset = getInt32(index);
+  int count = getIntValueAt(offset);
   std::vector<std::string> strings;
 
-  for (size_t i = 0; i < count; ++i)
+  for (int i = 0; i < count; ++i)
   {
-    const int strOffset = getIntegerValueAt(offset + 32 + (i * 32));
-    const int len = getIntegerValueAt(offset + strOffset + 32);
-    const std::string str =
-      getByteString(offset + strOffset + 64, offset + strOffset + 64 + len);
-
-    strings.push_back(str);
+    int strOffset = getIntValueAt(offset + 32 + (i * 32));
+    int len = getIntValueAt(offset + strOffset + 32);
+    strings.push_back(
+      internal::Utilities::byteVectorToString(getByteString(offset + strOffset + 64, offset + strOffset + 64 + len)));
   }
 
   return strings;
 }
 
 //-----
-bool
-ContractFunctionResult::getBool(const size_t& index) const
+std::vector<std::byte> ContractFunctionResult::getByteArray(int index) const
+{
+  return getDynamicBytes(index);
+}
+
+//-----
+std::vector<std::byte> ContractFunctionResult::getBytes32(int index) const
+{
+  return getByteString(index * 32, (index + 1) * 32);
+}
+
+//-----
+bool ContractFunctionResult::getBool(int index) const
 {
   return getInt8(index) != 0;
 }
 
 //-----
-int8_t
-ContractFunctionResult::getInt8(const size_t& index) const
+int8_t ContractFunctionResult::getInt8(int index) const
 {
-  if (mFunctionParameters.size() < 32 * index + 31)
-  {
-    // TODO: throw
-  }
-
-  return static_cast<int8_t>(mFunctionParameters.at(32 * index + 31));
+  return static_cast<int8_t>(mContractCallResult.at((index * 32) + 31));
 }
 
 //-----
-int32_t
-ContractFunctionResult::getInt32(const size_t& index) const
+int32_t ContractFunctionResult::getInt32(int index) const
 {
-  return getIntegerValueAt(index * 32);
+  return getIntValueAt(index * 32);
 }
 
 //-----
-int64_t
-ContractFunctionResult::getInt64(const size_t& index) const
+int64_t ContractFunctionResult::getInt64(int index) const
 {
-  if (mFunctionParameters.size() < 32 * index + 24)
-  {
-    // TODO: throw
-  }
-
-  return *(
-    reinterpret_cast<const int64_t*>(&mFunctionParameters.at(32 * index + 24)));
+  // Make little-endian
+  return static_cast<int64_t>(mContractCallResult.at((index * 32) + 31)) << 0 |
+         static_cast<int64_t>(mContractCallResult.at((index * 32) + 30)) << 8 |
+         static_cast<int64_t>(mContractCallResult.at((index * 32) + 29)) << 16 |
+         static_cast<int64_t>(mContractCallResult.at((index * 32) + 28)) << 24 |
+         static_cast<int64_t>(mContractCallResult.at((index * 32) + 27)) << 32 |
+         static_cast<int64_t>(mContractCallResult.at((index * 32) + 26)) << 40 |
+         static_cast<int64_t>(mContractCallResult.at((index * 32) + 25)) << 48 |
+         static_cast<int64_t>(mContractCallResult.at((index * 32) + 24)) << 56;
 }
 
 //-----
-uint8_t
-ContractFunctionResult::getUInt8(const size_t index) const
+uint8_t ContractFunctionResult::getUint8(int index) const
 {
   return static_cast<uint8_t>(getInt8(index));
 }
 
 //-----
-uint32_t
-ContractFunctionResult::getUInt32(const size_t index) const
+uint32_t ContractFunctionResult::getUint32(int index) const
 {
   return static_cast<uint32_t>(getInt32(index));
 }
 
 //-----
-uint64_t
-ContractFunctionResult::getUInt64(const size_t index) const
+uint64_t ContractFunctionResult::getUint64(int index) const
 {
   return static_cast<uint64_t>(getInt64(index));
 }
 
 //-----
-std::string
-ContractFunctionResult::getAddress(const size_t index) const
+std::string ContractFunctionResult::getAddress(int index) const
 {
-  const int offset = index * 32;
-  return getByteString(offset + 12, offset + 32);
+  return internal::HexConverter::bytesToHex(getByteString(index * 32 + 12, (index + 1) * 32));
 }
 
 //-----
-std::string
-ContractFunctionResult::getDynamicBytes(const size_t& index) const
+std::vector<std::byte> ContractFunctionResult::getDynamicBytes(int index) const
 {
-  const int offset = getInt32(index);
-  const int len = getIntegerValueAt(offset);
+  int offset = getInt32(index);
+  int len = getIntValueAt(offset);
   return getByteString(offset + 32, offset + 32 + len);
 }
 
 //-----
-int
-ContractFunctionResult::getIntegerValueAt(const size_t& index) const
+int ContractFunctionResult::getIntValueAt(int offset) const
 {
-  if (mFunctionParameters.size() < 28 + index + sizeof(int))
-  {
-    // TODO: throw
-  }
-
-  return *(reinterpret_cast<const int*>(&mFunctionParameters.at(28 + index)));
+  // Make little-endian
+  return static_cast<int>(mContractCallResult.at(offset + 31)) << 0 |
+         static_cast<int>(mContractCallResult.at(offset + 30)) << 8 |
+         static_cast<int>(mContractCallResult.at(offset + 29)) << 16 |
+         static_cast<int>(mContractCallResult.at(offset + 28)) << 24;
 }
 
 //-----
-std::string
-ContractFunctionResult::getByteString(const size_t& start,
-                                      const size_t& end) const
+std::vector<std::byte> ContractFunctionResult::getByteString(int start, int end) const
 {
-  return mFunctionParameters.substr(start, end - start);
+  return { mContractCallResult.cbegin() + start, mContractCallResult.cbegin() + end };
 }
 
 } // namespace Hedera

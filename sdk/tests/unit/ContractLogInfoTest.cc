@@ -66,27 +66,53 @@ TEST_F(ContractLogInfoTest, FromProtobuf)
   const ContractLogInfo contractLogInfo = ContractLogInfo::fromProtobuf(protoContractLogInfo);
 
   // Then
-  EXPECT_EQ(contractLogInfo.getContractId(), getTestContractId());
+  EXPECT_EQ(contractLogInfo.mContractId, getTestContractId());
 
-  ASSERT_EQ(contractLogInfo.getBloom().size(), getTestBloom().size());
-  for (int i = 0; i < contractLogInfo.getBloom().size(); ++i)
+  ASSERT_EQ(contractLogInfo.mBloom.size(), getTestBloom().size());
+  for (int i = 0; i < contractLogInfo.mBloom.size(); ++i)
   {
-    EXPECT_EQ(contractLogInfo.getBloom().at(i), getTestBloom().at(i));
+    EXPECT_EQ(contractLogInfo.mBloom.at(i), getTestBloom().at(i));
   }
 
-  ASSERT_EQ(contractLogInfo.getTopics().size(), getTestTopics().size());
-  for (int i = 0; i < contractLogInfo.getTopics().size(); ++i)
+  ASSERT_EQ(contractLogInfo.mTopics.size(), getTestTopics().size());
+  for (int i = 0; i < contractLogInfo.mTopics.size(); ++i)
   {
-    ASSERT_EQ(contractLogInfo.getTopics().at(i).size(), getTestTopics().at(i).size());
-    for (int j = 0; j < contractLogInfo.getTopics().at(i).size(); ++j)
+    ASSERT_EQ(contractLogInfo.mTopics.at(i).size(), getTestTopics().at(i).size());
+    for (int j = 0; j < contractLogInfo.mTopics.at(i).size(); ++j)
     {
-      EXPECT_EQ(contractLogInfo.getTopics().at(i).at(j), getTestTopics().at(i).at(j));
+      EXPECT_EQ(contractLogInfo.mTopics.at(i).at(j), getTestTopics().at(i).at(j));
     }
   }
 
-  ASSERT_EQ(contractLogInfo.getData().size(), getTestData().size());
-  for (int i = 0; i < contractLogInfo.getData().size(); ++i)
+  ASSERT_EQ(contractLogInfo.mData.size(), getTestData().size());
+  for (int i = 0; i < contractLogInfo.mData.size(); ++i)
   {
-    EXPECT_EQ(contractLogInfo.getData().at(i), getTestData().at(i));
+    EXPECT_EQ(contractLogInfo.mData.at(i), getTestData().at(i));
   }
+}
+
+//-----
+TEST_F(ContractLogInfoTest, ToProtobuf)
+{
+  // Given
+  ContractLogInfo contractLogInfo;
+  contractLogInfo.mContractId = getTestContractId();
+  contractLogInfo.mBloom = getTestBloom();
+  contractLogInfo.mTopics = getTestTopics();
+  contractLogInfo.mData = getTestData();
+
+  // When
+  const std::unique_ptr<proto::ContractLoginfo> protoContractLogInfo = contractLogInfo.toProtobuf();
+
+  // Then
+  EXPECT_EQ(ContractId::fromProtobuf(protoContractLogInfo->contractid()), getTestContractId());
+  EXPECT_EQ(protoContractLogInfo->bloom(), internal::Utilities::byteVectorToString(getTestBloom()));
+
+  ASSERT_EQ(protoContractLogInfo->topic_size(), getTestTopics().size());
+  for (int i = 0; i < protoContractLogInfo->topic_size(); ++i)
+  {
+    EXPECT_EQ(protoContractLogInfo->topic(i), internal::Utilities::byteVectorToString(getTestTopics().at(i)));
+  }
+
+  EXPECT_EQ(protoContractLogInfo->data(), internal::Utilities::byteVectorToString(getTestData()));
 }

@@ -23,6 +23,7 @@
 #include "ContractId.h"
 
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 namespace proto
@@ -48,34 +49,12 @@ public:
   [[nodiscard]] static ContractLogInfo fromProtobuf(const proto::ContractLoginfo& proto);
 
   /**
-   * Get the ID of the contract that emitted this log event.
+   * Construct a ContractLogInfo protobuf object from this ContractLogInfo object.
    *
-   * @return The ID of the contract that emitted this log event.
+   * @return A pointer to the created ContractLogInfo protobuf object filled with this ContractLogInfo object's data.
    */
-  [[nodiscard]] inline ContractId getContractId() const { return mContractId; }
+  [[nodiscard]] std::unique_ptr<proto::ContractLoginfo> toProtobuf() const;
 
-  /**
-   * Get the bloom filter for this particular log event.
-   *
-   * @return The bloom filter for this particular log event.
-   */
-  [[nodiscard]] inline std::vector<std::byte> getBloom() const { return mBloom; }
-
-  /**
-   * Get the topics for this particular log event.
-   *
-   * @return The topics for this particular log event.
-   */
-  [[nodiscard]] inline std::vector<std::vector<std::byte>> getTopics() const { return mTopics; }
-
-  /**
-   * Get the log event data.
-   *
-   * @return The log event data.
-   */
-  [[nodiscard]] inline std::vector<std::byte> getData() const { return mBloom; }
-
-private:
   /**
    * The ID of the contract that emitted this log event.
    */
