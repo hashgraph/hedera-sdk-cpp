@@ -22,6 +22,10 @@ For Windows users:
 - [Perl](http://strawberryperl.com/) (`perl.exe` must be added to `%PATH%`)
 - [NASM](https://www.nasm.us) (`nasm.exe` must be added to `%PATH%`)
 
+## Preparing the Local Node
+
+To run the Integration Tests locally, first you will need to install the [Hedera Local Node](https://github.com/hashgraph/hedera-local-node). Follow the instructions given in the [Readme.md](https://github.com/hashgraph/hedera-local-node#readme).
+
 ## Build
 
 This project features CMake Presets which simplify the setup of vcpkg based dependencies. The below commands are
@@ -57,6 +61,33 @@ ctest -C Release --test-dir build/<PRESET>
 ```
 
 To run a specific test:
+
+```sh
+ctest -C Release --test-dir build/<PRESET> -R <NAME OF TEST>
+```
+
+### Running Integration Tests
+
+To run the integration tests it's necessary to have a running [Hedera Local Node](https://github.com/hashgraph/hedera-local-node). If the local node is already running, check the configuration JSON file for the network settings. Ensure the values for `network` tag contains a valid `AccountId` and a valid `IP address` for an operational node.
+
+Example config file:
+
+```
+{
+    "network": {
+        "0.0.3": "127.0.0.1:50211"
+    },
+     
+    "operator": {
+        "accountId": "0.0.2",
+        "privateKey": "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"
+    }
+}
+```
+
+(Source: [/config/local_node.json](https://github.com/hashgraph/hedera-sdk-cpp/blob/main/config/local_node.json))
+
+To execute a specific integration test, you can use the command from above:
 
 ```sh
 ctest -C Release --test-dir build/<PRESET> -R <NAME OF TEST>
