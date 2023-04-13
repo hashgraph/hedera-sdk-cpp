@@ -148,7 +148,7 @@ TEST_F(ContractFunctionResultTest, FromProtobuf)
   ASSERT_TRUE(contractFunctionResult.mEvmAddress.has_value());
   EXPECT_EQ(contractFunctionResult.mEvmAddress->toBytes(), getTestEvmAddress().toBytes());
   EXPECT_EQ(contractFunctionResult.mGasUsed, getTestGasUsed());
-  EXPECT_EQ(contractFunctionResult.mAmount, getTestAmount());
+  EXPECT_EQ(contractFunctionResult.mHbarAmount, getTestAmount());
   EXPECT_EQ(contractFunctionResult.mFunctionParameters, getTestFunctionParameters());
   EXPECT_EQ(contractFunctionResult.mSenderAccountId, getTestSenderAccountId());
 }

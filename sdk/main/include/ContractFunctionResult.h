@@ -207,12 +207,12 @@ public:
   uint64_t mGas = 0ULL;
 
   /**
-   * Number of tinybars sent (the function must be payable if this is nonzero).
+   * The amount sent (the function must be payable if this is nonzero).
    *
    * This field should only be populated when the paired TransactionBody in the record stream is not a
    * ContractCreateTransactionBody or a ContractCallTransactionBody.
    */
-  Hbar mAmount;
+  Hbar mHbarAmount;
 
   /**
    * The parameters passed into the contract call.
