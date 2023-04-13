@@ -20,13 +20,14 @@ add_library(${PROJECT_NAME} STATIC
         src/Client.cc
         src/ContractId.cc
         src/ContractByteCodeQuery.cc
-        #    src/ContractCallQuery.cc
+        src/ContractCallQuery.cc
         src/ContractCreateTransaction.cc
         #    src/ContractDeleteTransaction.cc
         #    src/ContractExecuteTransaction.cc
-        #    src/ContractFunctionResult.cc
+        src/ContractFunctionResult.cc
         #    src/ContractInfo.cc
         #    src/ContractInfoQuery.cc
+        src/ContractLogInfo.cc
         #    src/ContractUpdateTransaction.cc
         src/ECDSAsecp256k1PrivateKey.cc
         src/ECDSAsecp256k1PublicKey.cc

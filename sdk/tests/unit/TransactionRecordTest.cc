@@ -51,16 +51,21 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
                                                        std::byte('8'), std::byte('9'), std::byte('a'), std::byte('b'),
                                                        std::byte('c'), std::byte('d'), std::byte('e'), std::byte('f'),
                                                        std::byte('g'), std::byte('h'), std::byte('i'), std::byte('j') };
+  const auto contractId = ContractId(5ULL);
+  const std::vector<std::byte> contractCallResult = { std::byte(0x06), std::byte(0x07), std::byte(0x08) };
 
   proto::TransactionRecord protoTransactionRecord;
   protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf().release());
-  protoTransactionRecord.set_allocated_transactionhash(new std::string(txHash));
+  protoTransactionRecord.set_transactionhash(txHash);
   protoTransactionRecord.set_allocated_consensustimestamp(internal::TimestampConverter::toProtobuf(now));
   protoTransactionRecord.set_allocated_transactionid(TransactionId::generate(accountIdFrom).toProtobuf().release());
-  protoTransactionRecord.set_allocated_memo(new std::string(txMemo));
+  protoTransactionRecord.set_memo(txMemo);
   protoTransactionRecord.set_transactionfee(txFee);
-  protoTransactionRecord.set_allocated_evm_address(
-    new std::string(internal::Utilities::byteVectorToString(testEvmAddressBytes)));
+  protoTransactionRecord.set_evm_address(internal::Utilities::byteVectorToString(testEvmAddressBytes));
+
+  proto::ContractFunctionResult* contractFunctionResult = protoTransactionRecord.mutable_contractcallresult();
+  contractFunctionResult->set_allocated_contractid(contractId.toProtobuf().release());
+  contractFunctionResult->set_contractcallresult(internal::Utilities::byteVectorToString(contractCallResult));
 
   proto::AccountAmount* aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
   aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
@@ -90,7 +95,7 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   nft->set_allocated_receiveraccountid(accountIdTo.toProtobuf().release());
 
   // When
-  TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
+  const TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
 
   // Then
   EXPECT_TRUE(txRecord.getReceipt().has_value());
@@ -109,6 +114,10 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   EXPECT_EQ(txRecord.getTransactionMemo(), txMemo);
 
   EXPECT_EQ(txRecord.getTransactionFee(), txFee);
+
+  ASSERT_TRUE(txRecord.getContractFunctionResult().has_value());
+  EXPECT_EQ(txRecord.getContractFunctionResult()->mContractId, contractId);
+  EXPECT_EQ(txRecord.getContractFunctionResult()->mContractCallResult, contractCallResult);
 
   EXPECT_EQ(txRecord.getHbarTransferList().size(), 2);
   EXPECT_EQ(txRecord.getHbarTransferList().at(0).getAccountId(), accountIdFrom);

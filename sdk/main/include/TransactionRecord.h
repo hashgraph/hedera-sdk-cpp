@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_TRANSACTION_RECORD_H_
 
 #include "AccountId.h"
+#include "ContractFunctionResult.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
 #include "HbarTransfer.h"
@@ -103,6 +104,17 @@ public:
   [[nodiscard]] inline uint64_t getTransactionFee() const { return mTransactionFee; }
 
   /**
+   * Get the result of the executed smart contract function or the result of the executed smart contract constructor.
+   *
+   * @return The result of the executed smart contract function or the result of the executed smart contract
+   *         constructor. Uninitialized if the corresponding Transaction did not involve executing a smart contract.
+   */
+  [[nodiscard]] inline std::optional<ContractFunctionResult> getContractFunctionResult() const
+  {
+    return mContractFunctionResult;
+  }
+
+  /**
    * Get the list of all crypto transfers that occurred during the execution of the transaction with which this
    * TransactionRecord is associated.
    *
@@ -166,6 +178,11 @@ private:
    * The actual transaction fee charged, not the original transaction fee value from TransactionBody.
    */
   uint64_t mTransactionFee;
+
+  /**
+   * The result of the executed smart contract function or the result of the executed smart contract constructor.
+   */
+  std::optional<ContractFunctionResult> mContractFunctionResult;
 
   /**
    * All Hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by

@@ -50,6 +50,15 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   transactionRecord.mMemo = proto.memo();
   transactionRecord.mTransactionFee = proto.transactionfee();
 
+  if (proto.has_contractcallresult())
+  {
+    transactionRecord.mContractFunctionResult = ContractFunctionResult::fromProtobuf(proto.contractcallresult());
+  }
+  else if (proto.has_contractcreateresult())
+  {
+    transactionRecord.mContractFunctionResult = ContractFunctionResult::fromProtobuf(proto.contractcreateresult());
+  }
+
   if (proto.has_transferlist())
   {
     for (int i = 0; i < proto.transferlist().accountamounts_size(); ++i)

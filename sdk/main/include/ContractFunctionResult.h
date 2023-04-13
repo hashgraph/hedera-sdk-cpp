@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,15 +17,19 @@
  * limitations under the License.
  *
  */
-#ifndef CONTRACT_FUNCTION_RESULT_H_
-#define CONTRACT_FUNCTION_RESULT_H_
+#ifndef HEDERA_SDK_CPP_CONTRACT_FUNCTION_RESULT_H_
+#define HEDERA_SDK_CPP_CONTRACT_FUNCTION_RESULT_H_
 
 #include "AccountId.h"
 #include "ContractId.h"
 #include "ContractLogInfo.h"
+#include "EvmAddress.h"
 #include "Hbar.h"
 
-#include "helper/InitType.h"
+#include <cstddef>
+#include <optional>
+#include <string>
+#include <vector>
 
 namespace proto
 {
@@ -35,336 +39,224 @@ class ContractFunctionResult;
 namespace Hedera
 {
 /**
- * The result returned by a call to a smart contract function. This is part of
- * the response to a ContractCallLocal query, and is in the record for a
- * ContractCall or ContractCreateInstance transaction. The
- * ContractCreateInstance transaction record has the results of the call to the
- * constructor.
+ * Class to represent the result of invoking a contract via ContractCallQuery, ContractExecuteTransaction, or the result
+ * of a contract constructor being called by ContractCreateTransaction.
  */
 class ContractFunctionResult
 {
 public:
-  static constexpr char ERROR_PREFIX[4] = { 8, -61, 121, -96 };
+  /**
+   * The error prefix representing an error in contract execution.
+   */
+  static inline const std::vector<std::byte> ERROR_PREFIX = { std::byte(8),
+                                                              std::byte(-61),
+                                                              std::byte(121),
+                                                              std::byte(-96) };
 
   /**
-   * Constructor.
+   * Construct a ContractFunctionResult object from a ContractFunctionResult protobuf object.
+   *
+   * @param proto The ContractFunctionResult protobuf object from which to construct a ContractFunctionResult object.
+   * @return The constructed ContractFunctionResult object.
    */
-  ContractFunctionResult();
+  [[nodiscard]] static ContractFunctionResult fromProtobuf(const proto::ContractFunctionResult& proto);
 
   /**
-   * Construct from a contract function result protobuf object.
+   * Get the value at the input index as a string.
    *
-   * @param proto The contract function result protobuf object.
+   * @param index The index at which to retrieve the string.
+   * @return The value at the input index as a string.
    */
-  explicit ContractFunctionResult(const proto::ContractFunctionResult& proto);
+  [[nodiscard]] std::string getString(int index) const;
 
   /**
-   * Retrieve the contract function result from the protobuf object.
+   * Get the value at the input index as a string array.
    *
-   * @param proto The contract function result protobuf object.
-   * @return A contract function result object.
+   * @param index The index at which to retrieve the string array.
+   * @return The value at the input index as a string array.
    */
-  static ContractFunctionResult fromProtobuf(
-    const proto::ContractFunctionResult& proto);
+  [[nodiscard]] std::vector<std::string> getStringArray(int index) const;
 
   /**
-   * Convert this contract function result into a protobuf object.
+   * Get the value at the input index as a byte array.
    *
-   * @return The contract function result protobuf object.
+   * @param index The index at which to retrieve the byte array.
+   * @return The value at the input index as a byte array.
    */
-  proto::ContractFunctionResult toProtobuf() const;
+  [[nodiscard]] std::vector<std::byte> getByteArray(int index) const;
 
   /**
-   * Get the nth returned values as a string.
+   * Get the value at the input index as a Solidity 32-byte value.
    *
-   * @param index The index of the string to be returned.
-   * @return The value at the input index, as a string.
+   * @param index The index at which to retrieve the 32-byte value.
+   * @return The value at the input index as a 32-byte value.
    */
-  std::string getString(const size_t& index) const;
+  [[nodiscard]] std::vector<std::byte> getBytes32(int index) const;
 
   /**
-   * Get the nth returned value as a list of strings.
+   * Get the value at the input index as a boolean.
    *
-   * @param index The index of the list of strings to be retrieved.
-   * @return The value at the input index, as a list of strings.
+   * @param index The index at which to retrieve the boolean value.
+   * @return The value at the input index as a bool value.
    */
-  std::vector<std::string> getStringArray(const size_t& index) const;
+  [[nodiscard]] bool getBool(int index) const;
 
   /**
-   * Get the nth value as a boolean.
+   * Get the value at the input index as a signed 8-bit integer. If the actual value is wider, it will be truncated to
+   * the last byte.
    *
-   * @param valIndex The index of the boolean to be retrieved.
-   * @return The value at the input index, as a boolean.
+   * @param index The index at which to retrieve the signed 8-bit integer value.
+   * @return The value at the input index as a signed 8-bit integer value.
    */
-  bool getBool(const size_t& index) const;
+  [[nodiscard]] int8_t getInt8(int index) const;
 
   /**
-   * Get the nth returned value as an 8-bit integer.
+   * Get the value at the input index as a signed 32-bit integer. If the actual value is wider, it will be truncated to
+   * the last 4 bytes.
    *
-   * If the actual value is wider it will be truncated to the last byte.
-   *
-   * @param valIndex The index of the int8_t to be retrieved.
-   * @return The value at the input index, as an int8_t.
+   * @param index The index at which to retrieve the signed 32-bit integer value.
+   * @return The value at the input index as a signed 32-bit integer value.
    */
-  int8_t getInt8(const size_t& index) const;
+  [[nodiscard]] int32_t getInt32(int index) const;
 
   /**
-   * Get the nth returned value as a 32-bit integer.
+   * Get the value at the input index as a signed 64-bit integer. If the actual value is wider, it will be truncated to
+   * the last 8 bytes.
    *
-   * If the actual value is wider it will be truncated to the last 4 bytes.
-   *
-   * @param valIndex The index of the int32_t to be retrieved.
-   * @return The value at the input index, as an int32_t.
+   * @param index The index at which to retrieve the signed 64-bit integer value.
+   * @return The value at the input index as a signed 64-bit integer value.
    */
-  int32_t getInt32(const size_t& index) const;
+  [[nodiscard]] int64_t getInt64(int index) const;
 
   /**
-   * Get the nth returned value as a 64-bit integer.
+   * Get the value at the input index as an unsigned 8-bit integer. If the actual value is wider, it will be truncated
+   * to the last byte.
    *
-   * If the actual value is wider it will be truncated to the last 8 bytes.
-   *
-   * @param valIndex The index of the int64_t to be retrieved.
-   * @return The value at the input index, as an int64_t.
+   * @param index The index at which to retrieve the unsigned 8-bit integer value.
+   * @return The value at the input index as an unsigned 8-bit integer value.
    */
-  int64_t getInt64(const size_t& index) const;
+  [[nodiscard]] uint8_t getUint8(int index) const;
 
   /**
-   * Get the nth returned value as a 8-bit unsigned integer.
+   * Get the value at the input index as an unsigned 32-bit integer. If the actual value is wider, it will be truncated
+   * to the last 4 bytes.
    *
-   * @param valIndex The index of the uint8_t to be retrieved.
-   * @return The value at the input index, as a uint8_t.
+   * @param index The index at which to retrieve the unsigned 32-bit integer value.
+   * @return The value at the input index as an unsigned 32-bit integer value.
    */
-  uint8_t getUInt8(const size_t index) const;
+  [[nodiscard]] uint32_t getUint32(int index) const;
 
   /**
-   * Get the nth returned value as a 32-bit unsigned integer.
+   * Get the value at the input index as an unsigned 64-bit integer. If the actual value is wider, it will be truncated
+   * to the last 8 bytes.
    *
-   * @param valIndex The index of the uint32_t to be retrieved.
-   * @return The value at the input index, as a uint32_t.
+   * @param index The index at which to retrieve the unsigned 64-bit integer value.
+   * @return The value at the input index as an unsigned 64-bit integer value.
    */
-  uint32_t getUInt32(const size_t index) const;
+  [[nodiscard]] uint64_t getUint64(int index) const;
 
   /**
-   * Get the nth returned value as a 64-bit unsigned integer.
+   * Get the value at the input index as a Solidity address.
    *
-   * @param valIndex The index of the uint64_t to be retrieved.
-   * @return The value at the input index, as a uint8_t.
+   * @param index The index at which to retrieve the Solidity address value.
+   * @return The value at the input index as a Solidity address value.
    */
-  uint64_t getUInt64(const size_t index) const;
+  [[nodiscard]] std::string getAddress(int index) const;
 
   /**
-   * Get the nth returned value as a Solidity address.
-   *
-   * @param valIndex The index of the value to be retrieved
-   * @return String
+   * The ID of the contract whose functions was called.
    */
-  std::string getAddress(const size_t index) const;
-
-  /**
-   * Extract the contract ID.
-   *
-   * @return The contract ID.
-   */
-  inline InitType<ContractId> getContractId() const { return mContractId; }
-
-  /**
-   * Extract the whole raw function result.
-   *
-   * @return The whole raw function result.
-   */
-  inline std::string getContractCallResult() const
-  {
-    return mContractCallResult;
-  }
-
-  /**
-   * Extract the error message.
-   *
-   * @return The error message.
-   */
-  inline std::string getErrorMessage() const { return mErrorMessage; }
-
-  /**
-   * Extract the bloom filter record.
-   *
-   * @return The bloom filter record.
-   */
-  inline std::string getBloomFilter() const { return mBloom; }
-
-  /**
-   * Extract the amount of gas used to execute the contract.
-   *
-   * @return The amount of gas used to execute the contract.
-   */
-  inline int64_t getGasUsed() const { return mGasUsed; }
-
-  /**
-   * Extract the log info for events caused by the contract execution.
-   *
-   * @return The log info for events caused by the contract execution.
-   */
-  inline std::vector<ContractLogInfo> getContractLogInfo() const
-  {
-    return mLogInfo;
-  }
-
-  /**
-   * Extract the EVM address of the contract.
-   *
-   * @return The EVM address of the contract.
-   */
-  inline InitType<std::string> getEvmAddress() const { return mEvmAddress; }
-
-  /**
-   * Extract the gas limit of the contract.
-   *
-   * @return The gas limit of the contract.
-   */
-  inline int64_t getGasLimit() const { return mGas; }
-
-  /**
-   * Extract the amount of Hbars sent.
-   *
-   * @return The amount of Hbars sent.
-   */
-  inline Hbar getAmount() const { return mAmount; }
-
-  /**
-   * Extract the parameters of the contract function.
-   *
-   * @return The parameters of the contract function.
-   */
-  inline std::string getFunctionParameters() const
-  {
-    return mFunctionParameters;
-  }
-
-  /**
-   * Extract the ID of the sender account.
-   *
-   * @return The ID of the sender account.
-   */
-  inline InitType<AccountId> getSenderAccountId() const
-  {
-    return mSenderAccountId;
-  }
-
-private:
-  /**
-   * Get the bytes at a specific index.
-   *
-   * @param index The index at which to get the bytes.
-   * @return ByteString
-   */
-  std::string getDynamicBytes(const size_t& index) const;
-
-  /**
-   * Get the integer value at the specified offset of the contract function
-   * result.
-   *
-   * @param index The index at which to get the integer value.
-   * @return The integer value of the bytes at the specified index.
-   */
-  int getIntegerValueAt(const size_t& index) const;
-
-  /**
-   * Grab a portion of the byte string contract function result.
-   *
-   * @param start The index of the first byte to grab.
-   * @param end   The index of the last byte to grab.
-   * @return The byte string of the function result between the two indices.
-   */
-  std::string getByteString(const size_t& start, const size_t& end) const;
-
-  /**
-   * The smart contract instance whose function was called.
-   */
-  InitType<ContractId> mContractId;
+  ContractId mContractId;
 
   /**
    * The result returned by the function.
    */
-  std::string mContractCallResult;
+  std::vector<std::byte> mContractCallResult;
 
   /**
-   * The message in case there was an error during smart contract execution.
+   * The error message, in case there was an error during smart contract execution.
    */
   std::string mErrorMessage;
 
   /**
-   * Bloom filter for record.
+   * The bloom filter for the record.
    */
-  std::string mBloom;
+  std::vector<std::byte> mBloom;
 
   /**
-   * Units of gas used to execute contract.
+   * The units of gas used to execute the contract.
    */
-  uint64_t mGasUsed;
+  uint64_t mGasUsed = 0ULL;
 
   /**
    * The log info for events returned by the function.
    */
-  std::vector<ContractLogInfo> mLogInfo;
+  std::vector<ContractLogInfo> mLogs;
 
   /**
-   * The new contract's 20-byte EVM address. Only populated after release 0.23,
-   * where each created contract will have its own record. (This is an important
-   * point--the field is not a list because there will be a separate child
-   * record for each created contract.)
-   *
-   * Every contract has an EVM address determined by its shard.realm.num id.
-   * This address is as follows:
-   *  - The first 4 bytes are the big-endian representation of the shard.
-   *  - The next 8 bytes are the big-endian representation of the realm.
-   *  - The final 8 bytes are the big-endian representation of the number.
-   *
-   * Contracts created via CREATE2 have an additional, primary address that is
-   * derived from the EIP-1014 specification, and does not have a simple
-   * relation to a shard.realm.num id.
-   *
-   * (Please do note that CREATE2 contracts can also be referenced by the
-   * three-part EVM address described above.)
+   * The created contract's 20-byte EVM address.
    */
-  InitType<std::string> mEvmAddress;
+  std::optional<EvmAddress> mEvmAddress;
 
   /**
    * The amount of gas available for the call, aka the gasLimit.
    *
-   * This field should only be populated when the paired TransactionBody in the
-   * record stream is not a ContractCreateTransactionBody or a
-   * ContractCallTransactionBody.
+   * This field should only be populated when the paired TransactionBody in the record stream is not a
+   * ContractCreateTransactionBody or a ContractCallTransactionBody.
    */
-  int64_t mGas;
+  uint64_t mGas = 0ULL;
 
   /**
-   * Number of tinybars sent (the function must be payable if this is nonzero).
+   * The amount sent (the function must be payable if this is nonzero).
    *
-   * This field should only be populated when the paired TransactionBody in the
-   * record stream is not a ContractCreateTransactionBody or a
-   * ContractCallTransactionBody.
+   * This field should only be populated when the paired TransactionBody in the record stream is not a
+   * ContractCreateTransactionBody or a ContractCallTransactionBody.
    */
-  Hbar mAmount;
+  Hbar mHbarAmount;
 
   /**
    * The parameters passed into the contract call.
    *
-   * This field should only be populated when the paired TransactionBody in the
-   * record stream is not a ContractCreateTransactionBody or a
-   * ContractCallTransactionBody.
+   * This field should only be populated when the paired TransactionBody in the record stream is not a
+   * ContractCreateTransactionBody or a ContractCallTransactionBody.
    */
-  std::string mFunctionParameters;
+  std::vector<std::byte> mFunctionParameters;
 
   /**
-   * The account that is the "sender." If not present it is the account ID from
-   * the transaction ID.
+   * The account that is the "sender." If not present it is the account ID from the transaction ID.
    *
-   * This field should only be populated when the paired TransactionBody in the
-   * record stream is not a ContractCreateTransactionBody or a
-   * ContractCallTransactionBody.
+   * This field should only be populated when the paired TransactionBody in the record stream is not a
+   * ContractCreateTransactionBody or a ContractCallTransactionBody.
    */
-  InitType<AccountId> mSenderAccountId;
+  AccountId mSenderAccountId;
+
+private:
+  /**
+   * Get bytes that are a dynamic size.
+   *
+   * @param index The index at which to find the bytes.
+   * @return The bytes of the proper size.
+   */
+  [[nodiscard]] std::vector<std::byte> getDynamicBytes(int index) const;
+
+  /**
+   * Get the 32-bit integer value at a specific index.
+   *
+   * @param index The index from which to get the 32-bit integer.
+   * @return The 32-bit integer at the input index.
+   */
+  [[nodiscard]] int getIntValueAt(int index) const;
+
+  /**
+   * Get the bytes at a specific start index all the way to a specific end index.
+   *
+   * @param start The starting index of the bytes to retrieve.
+   * @param end   The ending index of the bytes to retrieve.
+   * @return The bytes between the start and end indices.
+   */
+  [[nodiscard]] std::vector<std::byte> getByteString(int start, int end) const;
 };
 
 } // namespace Hedera
 
-#endif // CONTRACT_FUNCTION_RESULT_H_
+#endif // HEDERA_SDK_CPP_CONTRACT_FUNCTION_RESULT_H_

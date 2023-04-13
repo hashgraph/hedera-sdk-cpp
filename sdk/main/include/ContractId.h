@@ -20,7 +20,10 @@
 #ifndef HEDERA_SDK_CPP_CONTRACT_ID_H_
 #define HEDERA_SDK_CPP_CONTRACT_ID_H_
 
+#include "EvmAddress.h"
+
 #include <memory>
+#include <optional>
 
 namespace proto
 {
@@ -40,26 +43,38 @@ public:
   /**
    * Construct with a contract number.
    *
-   * @param num The contract number to set.
+   * @param num The desired contract number.
+   * @throws std::invalid_argument If the contract number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   explicit ContractId(const uint64_t& num);
 
   /**
-   * Construct with with a shard, realm, and contract number.
+   * Construct with an EVM address.
    *
-   * @param shard The shard number to set.
-   * @param realm The realm number to set.
-   * @param num   The contract number to set.
+   * @param address The desired EVM address.
+   */
+  explicit ContractId(const EvmAddress& address);
+
+  /**
+   * Construct with a shard, realm, and contract number.
+   *
+   * @param shard The desired shard number.
+   * @param realm The desired realm number.
+   * @param num   The desired contract number.
+   * @throws std::invalid_argument If any number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   explicit ContractId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
 
   /**
-   * Retrieve the contract ID from an ContractID protobuf object.
+   * Construct with shard and realm numbers, and an EVM address.
    *
-   * @param proto The ContractID protobuf object.
-   * @return An ContractId object with the ContractID protobuf object data.
+   * @param shard   The desired shard number.
+   * @param realm   The desired realm number.
+   * @param address The desired EVM address.
+   * @throws std::invalid_argument If the shard or realm number is too big (max value is
+   *                               std::numeric_limits<int64_t>::max()).
    */
-  static ContractId fromProtobuf(const proto::ContractID& id);
+  explicit ContractId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address);
 
   /**
    * Compare this ContractId to another ContractId and determine if they represent the same contract.
@@ -68,6 +83,14 @@ public:
    * @return \c TRUE if this ContractId is the same as the input ContractId, otherwise \c FALSE.
    */
   bool operator==(const ContractId& other) const;
+
+  /**
+   * Construct an ContractId object from an ContractID protobuf object.
+   *
+   * @param proto The ContractID protobuf object from which to create an ContractId object.
+   * @return The constructed ContractId object.
+   */
+  [[nodiscard]] static ContractId fromProtobuf(const proto::ContractID& id);
 
   /**
    * Construct an ContractID protobuf object from this ContractId object.
@@ -81,6 +104,7 @@ public:
    *
    * @param num The desired shard number to set.
    * @return A reference to this ContractId object with the newly-set shard number.
+   * @throws std::invalid_argument If the shard number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   ContractId& setShardNum(const uint64_t& num);
 
@@ -89,16 +113,28 @@ public:
    *
    * @param num The realm number to set.
    * @return A reference to this ContractId object with the newly-set realm number.
+   * @throws std::invalid_argument If the realm number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   ContractId& setRealmNum(const uint64_t& num);
 
   /**
-   * Set the contract number.
+   * Set the contract number. This is mutually exclusive with mEvmAddress, and will reset the value of mEvmAddress if is
+   * set.
    *
    * @param num The contract number to set.
    * @return A reference to this ContractId object with the newly-set contract number.
+   * @throws std::invalid_argument If the contract number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
   ContractId& setContractNum(const uint64_t& num);
+
+  /**
+   * Set the contract EVM address. This is mutually exclusive with mContractNum, and will reset the value of the
+   * mContractNum is is set.
+   *
+   * @param address The EVM address to set.
+   * @return A reference to this ContractId object with the newly-set contract EVM address.
+   */
+  ContractId& setEvmAddress(const EvmAddress& address);
 
   /**
    * Get the shard number.
@@ -119,23 +155,54 @@ public:
    *
    * @return The account number.
    */
-  [[nodiscard]] inline uint64_t getContractNum() const { return mContractNum; }
+  [[nodiscard]] inline std::optional<uint64_t> getContractNum() const { return mContractNum; }
+
+  /**
+   * Get the contract EVM address.
+   *
+   * @return The contract EVM address.
+   */
+  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddress() const { return mEvmAddress; }
 
 private:
   /**
-   * The shard number. Defaults to 0.
+   * Check if the shard, realm, or contract numbers (respectively) are too big.
+   *
+   * @throws std::invalid_argument If the shard, realm, or contract number (respectively) is too big.
+   */
+  void checkShardNum() const;
+  void checkRealmNum() const;
+  void checkContractNum() const;
+
+  /**
+   * The shard number.
    */
   uint64_t mShardNum = 0ULL;
 
   /**
-   * The realm number. Defaults to 0.
+   * The realm number.
    */
   uint64_t mRealmNum = 0ULL;
 
   /**
-   * The contract number. Defaults to 0.
+   * The contract number.
    */
-  uint64_t mContractNum = 0ULL;
+  std::optional<uint64_t> mContractNum;
+
+  /**
+   * The 20-byte EVM address of the contract.
+   *
+   * Every contract has an EVM address determined by its <tt>shard.realm.num</tt> id. This address is as follows:
+   *  - The first 4 bytes are the big-endian representation of the shard.
+   *  - The next 8 bytes are the big-endian representation of the realm.
+   *  - The final 8 bytes are the big-endian representation of the number.
+   *
+   * Contracts created via CREATE2 have an additional, primary address that is derived from the EIP-1014 specification,
+   * and does not have a simple relation to a shard.realm.num id.
+   *
+   * (Please do note that CREATE2 contracts can also be referenced by the three-part EVM address described above.)
+   */
+  std::optional<EvmAddress> mEvmAddress;
 };
 
 } // namespace Hedera
