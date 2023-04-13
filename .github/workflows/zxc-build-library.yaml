@@ -79,7 +79,6 @@ jobs:
       #        run: tree /F build
 
       - name: Start the local node
-        if: success()
         run: sudo npx @hashgraph/hedera-local start -d --network local
 
       - name: Start CTest suite (Debug)
