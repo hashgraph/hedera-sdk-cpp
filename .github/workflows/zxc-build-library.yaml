@@ -78,6 +78,9 @@ jobs:
       #        shell: pwsh
       #        run: tree /F build
 
+      - name: Listen to port 5600
+        run: sudo lsof -Pni | grep "5600"
+
       - name: Start the local node
         run: sudo npx @hashgraph/hedera-local start -d --network local
 
