@@ -61,7 +61,7 @@ ContractFunctionResult ContractFunctionResult::fromProtobuf(const proto::Contrac
   }
 
   contractFunctionResult.mGas = static_cast<uint64_t>(proto.gas());
-  contractFunctionResult.mAmount = Hbar(proto.amount(), HbarUnit::TINYBAR());
+  contractFunctionResult.mHbarAmount = Hbar(proto.amount(), HbarUnit::TINYBAR());
   contractFunctionResult.mFunctionParameters = internal::Utilities::stringToByteVector(proto.functionparameters());
 
   if (proto.has_sender_id())
