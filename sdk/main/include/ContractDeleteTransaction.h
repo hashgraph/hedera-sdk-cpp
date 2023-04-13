@@ -49,6 +49,8 @@ namespace Hedera
 class ContractDeleteTransaction : public Transaction<ContractDeleteTransaction>
 {
 public:
+  ContractDeleteTransaction() = default;
+
   /**
    * Construct from a TransactionBody protobuf object.
    *
