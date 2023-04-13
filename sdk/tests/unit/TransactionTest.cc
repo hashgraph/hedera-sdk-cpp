@@ -24,6 +24,7 @@
 #include "AccountDeleteTransaction.h"
 #include "AccountUpdateTransaction.h"
 #include "ContractCreateTransaction.h"
+#include "ContractDeleteTransaction.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "TransferTransaction.h"
 #include "impl/DurationConverter.h"
