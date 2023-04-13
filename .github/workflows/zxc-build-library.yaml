@@ -46,6 +46,12 @@ jobs:
       - name: Install Local Node
         run: sudo npm install -g @hashgraph/hedera-local
 
+      - name: Listen to port 5600
+        run: lsof -Pni | grep "5600"
+
+      - name: Start the local node
+        run: sudo npx @hashgraph/hedera-local start -d --network local
+
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
@@ -79,10 +85,10 @@ jobs:
       #        run: tree /F build
 
       # - name: Listen to port 5600
-      #   run: sudo lsof -Pni | grep "5600"
+      #   run: lsof -Pni | grep "5600"
 
-      - name: Start the local node
-        run: sudo npx @hashgraph/hedera-local start -d --network local
+      # - name: Start the local node
+      #   run: sudo npx @hashgraph/hedera-local start -d --network local
 
       - name: Start CTest suite (Debug)
         run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
