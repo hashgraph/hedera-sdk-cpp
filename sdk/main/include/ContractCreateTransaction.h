@@ -366,9 +366,9 @@ private:
                                            proto::TransactionResponse* response) const override;
 
   /**
-   * Build a CryptoCreateTransactionBody protobuf object from this ContractCreateTransaction object.
+   * Build a ContractCreateTransactionBody protobuf object from this ContractCreateTransaction object.
    *
-   * @return A pointer to a CryptoCreateTransactionBody protobuf object filled with this ContractCreateTransaction
+   * @return A pointer to a ContractCreateTransactionBody protobuf object filled with this ContractCreateTransaction
    *         object's data.
    */
   [[nodiscard]] proto::ContractCreateTransactionBody* build() const;
