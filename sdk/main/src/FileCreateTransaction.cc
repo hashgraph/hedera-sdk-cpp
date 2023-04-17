@@ -56,7 +56,7 @@ FileCreateTransaction::FileCreateTransaction(const proto::TransactionBody& trans
   }
 
   mContents = internal::Utilities::stringToByteVector(body.contents());
-  mMemo = body.memo();
+  mFileMemo = body.memo();
 }
 
 //-----
@@ -85,10 +85,10 @@ FileCreateTransaction& FileCreateTransaction::setContents(const std::vector<std:
 }
 
 //-----
-FileCreateTransaction& FileCreateTransaction::setMemo(std::string_view memo)
+FileCreateTransaction& FileCreateTransaction::setFileMemo(std::string_view memo)
 {
   requireNotFrozen();
-  mMemo = memo;
+  mFileMemo = memo;
   return *this;
 }
 
@@ -126,7 +126,7 @@ proto::FileCreateTransactionBody* FileCreateTransaction::build() const
   }
 
   body->set_contents(internal::Utilities::byteVectorToString(mContents));
-  body->set_memo(mMemo);
+  body->set_memo(mFileMemo);
 
   return body.release();
 }

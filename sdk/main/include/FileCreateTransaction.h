@@ -103,7 +103,7 @@ public:
    * @throws std::invalid_argument If the number of bytes exceeds 4096.
    * @throws IllegalStateException If this ContractCreateTransaction is frozen.
    */
-  FileCreateTransaction& setMemo(std::string_view memo);
+  FileCreateTransaction& setFileMemo(std::string_view memo);
 
   /**
    * Get the time at which the new file will expire.
@@ -131,7 +131,7 @@ public:
    *
    * @return The memo for the new file.
    */
-  [[nodiscard]] inline std::string getMemo() const { return mMemo; }
+  [[nodiscard]] inline std::string getFileMemo() const { return mFileMemo; }
 
 private:
   /**
@@ -187,7 +187,7 @@ private:
   /**
    * The memo for the new file.
    */
-  std::string mMemo;
+  std::string mFileMemo;
 };
 
 } // namespace Hedera

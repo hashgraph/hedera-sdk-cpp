@@ -80,7 +80,7 @@ TEST_F(FileCreateTransactionTest, ConstructFileCreateTransactionFromTransactionB
   EXPECT_EQ(fileCreateTransaction.getExpirationTime(), getTestExpirationTime());
   EXPECT_EQ(fileCreateTransaction.getKey()->toBytesDer(), getTestKey()->toBytesDer());
   EXPECT_EQ(fileCreateTransaction.getContents(), getTestContents());
-  EXPECT_EQ(fileCreateTransaction.getMemo(), getTestMemo());
+  EXPECT_EQ(fileCreateTransaction.getFileMemo(), getTestMemo());
 }
 
 //-----
@@ -162,10 +162,10 @@ TEST_F(FileCreateTransactionTest, GetSetMemo)
   FileCreateTransaction transaction;
 
   // When
-  transaction.setMemo(getTestMemo());
+  transaction.setFileMemo(getTestMemo());
 
   // Then
-  EXPECT_EQ(transaction.getMemo(), getTestMemo());
+  EXPECT_EQ(transaction.getFileMemo(), getTestMemo());
 }
 
 //-----
@@ -176,5 +176,5 @@ TEST_F(FileCreateTransactionTest, GetSetMemoFrozen)
   transaction.freezeWith(getTestClient());
 
   // When / Then
-  EXPECT_THROW(transaction.setMemo(getTestMemo()), IllegalStateException);
+  EXPECT_THROW(transaction.setFileMemo(getTestMemo()), IllegalStateException);
 }
