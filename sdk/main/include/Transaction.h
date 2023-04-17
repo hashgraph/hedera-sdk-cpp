@@ -42,6 +42,7 @@ class AccountDeleteTransaction;
 class AccountUpdateTransaction;
 class ContractCreateTransaction;
 class ContractDeleteTransaction;
+class FileCreateTransaction;
 class PrivateKey;
 class TransactionResponse;
 class TransferTransaction;
@@ -106,7 +107,8 @@ public:
                                               AccountAllowanceApproveTransaction,
                                               AccountAllowanceDeleteTransaction,
                                               ContractCreateTransaction,
-                                              ContractDeleteTransaction>>
+                                              ContractDeleteTransaction,
+                                              FileCreateTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);
 
   /**

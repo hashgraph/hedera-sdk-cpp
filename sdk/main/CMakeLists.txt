@@ -40,7 +40,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Executable.cc
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
-        #    src/FileCreateTransaction.cc
+        src/FileCreateTransaction.cc
         src/FileId.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc
