@@ -1,12 +1,12 @@
 name: "ZXC: Build Library"
 on:
   workflow_call:
-  pull_request:
-      branches:
-          - main
-  push:
-      branches:
-          - main
+  # pull_request:
+  #     branches:
+  #         - main
+  # push:
+  #     branches:
+  #         - main
 
 defaults:
   run:
@@ -105,13 +105,24 @@ jobs:
     test:
         name: Unit and Integration Tests
         if: success()
-        runs-on: ubuntu-latest
+        runs-on:
+          - self-hosted
+          - "${{ matrix.os }}"
+          - xlarge
+          - ephemeral
+        strategy:
+          matrix:
+            include:
+              - os: Linux
+                preset: linux-x64
+              - os: macos-12
+                preset: macos-x64
+              - os: windows-latest
+                preset: windows-x64
         needs:
             - build
         env:
           HEDERA_NETWORK: localhost
-          OPERATOR_ID: ${{ secrets.LOCAL_OPERATOR_ID }}
-          OPERATOR_KEY: ${{ secrets.LOCAL_OPERATOR_KEY }}
   
         steps:
           - name: Use Node.js 18
