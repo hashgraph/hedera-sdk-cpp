@@ -1,6 +1,12 @@
 name: "ZXC: Build Library"
 on:
-  workflow_call:
+  #workflow_call:
+  pull_request:
+      branches:
+          - main
+  push:
+      branches:
+          - main
 
 defaults:
   run:
@@ -10,41 +16,33 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build
-    runs-on:
-      - self-hosted
-      - "${{ matrix.os }}"
-      - xlarge
-      - ephemeral
-    strategy:
-      matrix:
-        include:
-          - os: Linux
-            preset: linux-x64
-    #          - os: macos-12
-    #            preset: macos-x64
-    #          - os: windows-latest
-    #            preset: windows-x64
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+    build:
+      name: Build
+      runs-on:
+        - self-hosted
+        - "${{ matrix.os }}"
+        - xlarge
+        - ephemeral
+      strategy:
+        matrix:
+          include:
+            - os: Linux
+              preset: linux-x64
+            - os: macos-12
+              preset: macos-x64
+            - os: windows-latest
+              preset: windows-x64
+      steps:
+          - name: Checkout Code
+            uses: actions/checkout@v3
+            with:
+              submodules: true
 
-      - name: Install Linux Prerequisites
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
-
-      - name: Use Node.js 18
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install Local Node
-        run: sudo npm install -g @hashgraph/hedera-local
+          - name: Install Linux Prerequisites
+            if: ${{ runner.os == 'Linux' }}
+            run: |
+              sudo apt-get update
+              sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
 
       # - name: Install lsof
       #   run: sudo apt-get install lsof
@@ -52,35 +50,29 @@ jobs:
       # - name: Listen to port 5600
       #   run: sudo lsof -Pni | grep "5600"
 
-      - name: Start the local node
-        run: sudo npx @hashgraph/hedera-local start -d --network local
+          - name: Ensure Binary Cache Path Exists
+            run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
-      - name: Ensure Binary Cache Path Exists
-        run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
+          - name: Setup VCPkg
+            uses: lukka/run-vcpkg@v10
+            with:
+              binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
-      - name: Install CMake & Ninja
-        uses: lukka/get-cmake@latest
+          - name: CMake Build (Debug)
+            uses: lukka/run-cmake@v10
+            env:
+              VCPKG_BINARY_SOURCES: clear
+            with:
+              configurePreset: ${{ matrix.preset }}-debug
+              buildPreset: ${{ matrix.preset }}-debug
 
-      - name: Setup VCPkg
-        uses: lukka/run-vcpkg@v10
-        with:
-          binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
-
-      # - name: CMake Build (Debug)
-      #   uses: lukka/run-cmake@v10
-      #   env:
-      #     VCPKG_BINARY_SOURCES: clear
-      #   with:
-      #     configurePreset: ${{ matrix.preset }}-debug
-      #     buildPreset: ${{ matrix.preset }}-debug
-
-      # - name: CMake Build (Release)
-      #   uses: lukka/run-cmake@v10
-      #   env:
-      #     VCPKG_BINARY_SOURCES: clear
-      #   with:
-      #     configurePreset: ${{ matrix.preset }}-release
-      #     buildPreset: ${{ matrix.preset }}-release
+          - name: CMake Build (Release)
+            uses: lukka/run-cmake@v10
+            env:
+              VCPKG_BINARY_SOURCES: clear
+            with:
+              configurePreset: ${{ matrix.preset }}-release
+              buildPreset: ${{ matrix.preset }}-release
 
       #      - name: List Directory Structure
       #        if: ${{ contains(runner.os, 'Windows') && always() }}
@@ -93,22 +85,45 @@ jobs:
       # - name: Start the local node
       #   run: sudo npx @hashgraph/hedera-local start -d --network local
 
-      - name: Start CTest suite (Debug)
-        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+          # - name: Start CTest suite (Debug)
+          #   run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
 
-      - name: Start CTest suite (Release)
-        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+          # - name: Start CTest suite (Release)
+          #   run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
-      - name: Compute Short SHA
-        id: sha
-        run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
+          - name: Compute Short SHA
+            id: sha
+            run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
 
-      - name: Attach Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
-          path: package/
-          if-no-files-found: warn
+          - name: Attach Artifact
+            uses: actions/upload-artifact@v3
+            with:
+              name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
+              path: package/
+              if-no-files-found: warn
+    
+    test:
+        name: Unit and Integration Tests
+        if: success()
+        runs-on: ubuntu-latest
+        needs:
+            - build
+        env:
+          HEDERA_NETWORK: localhost
+          OPERATOR_ID: ${{ secrets.LOCAL_OPERATOR_ID }}
+          OPERATOR_KEY: ${{ secrets.LOCAL_OPERATOR_KEY }}
+  
+        steps:
+          - name: Use Node.js 18
+            uses: actions/setup-node@v3
+            with:
+              node-version: 18
 
-      - name: Stop the local node
-        run: sudo npx @hashgraph/hedera-local stop
+          - name: Install Local Node
+            run: sudo npm install -g @hashgraph/hedera-local
+            
+          - name: Start the local node
+            run: sudo npx @hashgraph/hedera-local start -d --network local
+
+          - name: Stop the local node
+            run: sudo npx @hashgraph/hedera-local stop   
