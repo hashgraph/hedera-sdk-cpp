@@ -1,6 +1,6 @@
 name: "ZXC: Build Library"
 on:
-  #workflow_call:
+  workflow_call:
   pull_request:
       branches:
           - main
