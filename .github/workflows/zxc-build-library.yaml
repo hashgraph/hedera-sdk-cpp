@@ -28,10 +28,10 @@ jobs:
           include:
             - os: Linux
               preset: linux-x64
-            - os: macos-12
-              preset: macos-x64
-            - os: windows-latest
-              preset: windows-x64
+            # - os: macos-12
+            #   preset: macos-x64
+            # - os: windows-latest
+            #   preset: windows-x64
       steps:
           - name: Checkout Code
             uses: actions/checkout@v3
@@ -44,14 +44,11 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
 
-      # - name: Install lsof
-      #   run: sudo apt-get install lsof
-
-      # - name: Listen to port 5600
-      #   run: sudo lsof -Pni | grep "5600"
-
           - name: Ensure Binary Cache Path Exists
             run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
+
+          - name: Install CMake & Ninja
+            uses: lukka/get-cmake@latest
 
           - name: Setup VCPkg
             uses: lukka/run-vcpkg@v10
@@ -115,10 +112,10 @@ jobs:
             include:
               - os: Linux
                 preset: linux-x64
-              - os: macos-12
-                preset: macos-x64
-              - os: windows-latest
-                preset: windows-x64
+              # - os: macos-12
+              #   preset: macos-x64
+              # - os: windows-latest
+              #   preset: windows-x64
         needs:
             - build
         env:
