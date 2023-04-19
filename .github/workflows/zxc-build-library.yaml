@@ -56,21 +56,19 @@ jobs:
             with:
               binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
-          - name: CMake Build (Debug)
-            uses: lukka/run-cmake@v10
-            env:
-              VCPKG_BINARY_SOURCES: clear
+          - name: Use Node.js 18
+            uses: actions/setup-node@v3
             with:
-              configurePreset: ${{ matrix.preset }}-debug
-              buildPreset: ${{ matrix.preset }}-debug
-
-          - name: CMake Build (Release)
-            uses: lukka/run-cmake@v10
-            env:
-              VCPKG_BINARY_SOURCES: clear
-            with:
-              configurePreset: ${{ matrix.preset }}-release
-              buildPreset: ${{ matrix.preset }}-release
+              node-version: 18
+  
+          - name: Install Local Node
+            run: sudo npm install -g @hashgraph/hedera-local
+              
+          - name: Start the local node
+            run: sudo npx @hashgraph/hedera-local start -d --network local
+  
+          - name: Stop the local node
+            run: sudo npx @hashgraph/hedera-local stop   
 
       #      - name: List Directory Structure
       #        if: ${{ contains(runner.os, 'Windows') && always() }}
@@ -122,17 +120,17 @@ jobs:
     #     env:
     #       HEDERA_NETWORK: localhost
   
-    #     steps:
-    #       - name: Use Node.js 18
-    #         uses: actions/setup-node@v3
-    #         with:
-    #           node-version: 18
+        steps:
+          - name: Use Node.js 18
+            uses: actions/setup-node@v3
+            with:
+              node-version: 18
 
-    #       - name: Install Local Node
-    #         run: sudo npm install -g @hashgraph/hedera-local
+          - name: Install Local Node
+            run: sudo npm install -g @hashgraph/hedera-local
             
-    #       - name: Start the local node
-    #         run: sudo npx @hashgraph/hedera-local start -d --network local
+          - name: Start the local node
+            run: sudo npx @hashgraph/hedera-local start -d --network local
 
-    #       - name: Stop the local node
-    #         run: sudo npx @hashgraph/hedera-local stop   
+          - name: Stop the local node
+            run: sudo npx @hashgraph/hedera-local stop   
