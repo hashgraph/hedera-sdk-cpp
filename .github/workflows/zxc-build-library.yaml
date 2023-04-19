@@ -12,12 +12,11 @@ permissions:
 jobs:
     build:
       name: Build
-      runs-on: ubuntu-latest
-      # runs-on:
-      #   - self-hosted
-      #   - "${{ matrix.os }}"
-      #   - xlarge
-      #   - ephemeral
+      runs-on:
+        - self-hosted
+        - "${{ matrix.os }}"
+        - xlarge
+        - ephemeral
       env:
         HEDERA_NETWORK: localhost
       strategy:
@@ -35,6 +34,31 @@ jobs:
             with:
               submodules: true
 
+          - name: Setup Docker Compose
+            run: |
+              sudo apt-get update
+              sudo apt-get install -y \
+                  ca-certificates \
+                  curl \
+                  gnupg \
+                  lsb-release
+              sudo mkdir -p /etc/apt/keyrings
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+              echo \
+                "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+                $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+              sudo apt-get update
+              sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            if: ${{ runner.os == 'Linux' }}
+              
+          - name: Use Node.js 18
+            uses: actions/setup-node@v3
+            with:
+              node-version: 18
+        
+          - name: Install Local Node
+            run: sudo npm install -g @hashgraph/hedera-local
+      
           - name: Install Linux Prerequisites
             if: ${{ runner.os == 'Linux' }}
             run: |
@@ -60,35 +84,27 @@ jobs:
               configurePreset: ${{ matrix.preset }}-debug
               buildPreset: ${{ matrix.preset }}-debug
         
-          # - name: CMake Build (Release)
-          #   uses: lukka/run-cmake@v10
-          #   env:
-          #     VCPKG_BINARY_SOURCES: clear
-          #   with:
-          #     configurePreset: ${{ matrix.preset }}-release
-          #     buildPreset: ${{ matrix.preset }}-release
+          - name: CMake Build (Release)
+            uses: lukka/run-cmake@v10
+            env:
+              VCPKG_BINARY_SOURCES: clear
+            with:
+              configurePreset: ${{ matrix.preset }}-release
+              buildPreset: ${{ matrix.preset }}-release
         
           # - name: List Directory Structure
           #     if: ${{ contains(runner.os, 'Windows') && always() }}
           #     shell: pwsh
           #     run: tree /F build
-        
-          - name: Use Node.js 18
-            uses: actions/setup-node@v3
-            with:
-              node-version: 18
-        
-          - name: Install Local Node
-            run: sudo npm install -g @hashgraph/hedera-local
-      
+          
           - name: Start the local node
             run: sudo npx @hashgraph/hedera-local start -d --network local
-        
+          
           - name: Start CTest suite (Debug)
             run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
         
-          # - name: Start CTest suite (Release)
-          #   run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+          - name: Start CTest suite (Release)
+            run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
       
           - name: Stop the local node
             run: sudo npx @hashgraph/hedera-local stop
