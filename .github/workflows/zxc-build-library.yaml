@@ -24,6 +24,8 @@ jobs:
       #   - "${{ matrix.os }}"
       #   - xlarge
       #   - ephemeral
+      env:
+        HEDERA_NETWORK: localhost
       strategy:
         matrix:
           include:
@@ -97,40 +99,3 @@ jobs:
           #     name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
           #     path: package/
           #     if-no-files-found: warn
-    
-    # test:
-    #     name: Unit and Integration Tests
-    #     if: success()
-    #     runs-on:
-    #       - self-hosted
-    #       - "${{ matrix.os }}"
-    #       - xlarge
-    #       - ephemeral
-    #     strategy:
-    #       matrix:
-    #         include:
-    #           - os: Linux
-    #             preset: linux-x64
-    #           # - os: macos-12
-    #           #   preset: macos-x64
-    #           # - os: windows-latest
-    #           #   preset: windows-x64
-    #     needs:
-    #         - build
-    #     env:
-    #       HEDERA_NETWORK: localhost
-  
-    #     steps:
-    #       - name: Use Node.js 18
-    #         uses: actions/setup-node@v3
-    #         with:
-    #           node-version: 18
-
-    #       - name: Install Local Node
-    #         run: sudo npm install -g @hashgraph/hedera-local
-            
-    #       - name: Start the local node
-    #         run: sudo npx @hashgraph/hedera-local start -d --network local
-
-    #       - name: Stop the local node
-    #         run: sudo npx @hashgraph/hedera-local stop   
