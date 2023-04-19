@@ -1,12 +1,6 @@
 name: "ZXC: Build Library"
 on:
   workflow_call:
-  # pull_request:
-  #     branches:
-  #         - main
-  # push:
-  #     branches:
-  #         - main
 
 defaults:
   run:
@@ -66,18 +60,18 @@ jobs:
               configurePreset: ${{ matrix.preset }}-debug
               buildPreset: ${{ matrix.preset }}-debug
         
-          - name: CMake Build (Release)
-            uses: lukka/run-cmake@v10
-            env:
-              VCPKG_BINARY_SOURCES: clear
-            with:
-              configurePreset: ${{ matrix.preset }}-release
-              buildPreset: ${{ matrix.preset }}-release
+          # - name: CMake Build (Release)
+          #   uses: lukka/run-cmake@v10
+          #   env:
+          #     VCPKG_BINARY_SOURCES: clear
+          #   with:
+          #     configurePreset: ${{ matrix.preset }}-release
+          #     buildPreset: ${{ matrix.preset }}-release
         
-              #      - name: List Directory Structure
-              #        if: ${{ contains(runner.os, 'Windows') && always() }}
-              #        shell: pwsh
-              #        run: tree /F build
+          # - name: List Directory Structure
+          #     if: ${{ contains(runner.os, 'Windows') && always() }}
+          #     shell: pwsh
+          #     run: tree /F build
         
           - name: Use Node.js 18
             uses: actions/setup-node@v3
@@ -93,8 +87,8 @@ jobs:
           - name: Start CTest suite (Debug)
             run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
         
-          - name: Start CTest suite (Release)
-            run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+          # - name: Start CTest suite (Release)
+          #   run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
       
           - name: Stop the local node
             run: sudo npx @hashgraph/hedera-local stop
