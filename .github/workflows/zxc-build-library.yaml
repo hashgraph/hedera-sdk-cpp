@@ -87,16 +87,16 @@ jobs:
           # - name: Start CTest suite (Release)
           #   run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
-          - name: Compute Short SHA
-            id: sha
-            run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
+          # - name: Compute Short SHA
+          #   id: sha
+          #   run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
 
-          - name: Attach Artifact
-            uses: actions/upload-artifact@v3
-            with:
-              name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
-              path: package/
-              if-no-files-found: warn
+          # - name: Attach Artifact
+          #   uses: actions/upload-artifact@v3
+          #   with:
+          #     name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
+          #     path: package/
+          #     if-no-files-found: warn
     
     # test:
     #     name: Unit and Integration Tests
@@ -120,17 +120,17 @@ jobs:
     #     env:
     #       HEDERA_NETWORK: localhost
   
-        steps:
-          - name: Use Node.js 18
-            uses: actions/setup-node@v3
-            with:
-              node-version: 18
+    #     steps:
+    #       - name: Use Node.js 18
+    #         uses: actions/setup-node@v3
+    #         with:
+    #           node-version: 18
 
-          - name: Install Local Node
-            run: sudo npm install -g @hashgraph/hedera-local
+    #       - name: Install Local Node
+    #         run: sudo npm install -g @hashgraph/hedera-local
             
-          - name: Start the local node
-            run: sudo npx @hashgraph/hedera-local start -d --network local
+    #       - name: Start the local node
+    #         run: sudo npx @hashgraph/hedera-local start -d --network local
 
-          - name: Stop the local node
-            run: sudo npx @hashgraph/hedera-local stop   
+    #       - name: Stop the local node
+    #         run: sudo npx @hashgraph/hedera-local stop   
