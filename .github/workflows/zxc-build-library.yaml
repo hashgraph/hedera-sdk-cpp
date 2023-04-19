@@ -46,56 +46,66 @@ jobs:
             run: |
               sudo apt-get update
               sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
-
+        
           - name: Ensure Binary Cache Path Exists
             run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
-
+        
           - name: Install CMake & Ninja
             uses: lukka/get-cmake@latest
-
+        
           - name: Setup VCPkg
             uses: lukka/run-vcpkg@v10
             with:
               binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
-
+        
+          - name: CMake Build (Debug)
+            uses: lukka/run-cmake@v10
+            env:
+              VCPKG_BINARY_SOURCES: clear
+            with:
+              configurePreset: ${{ matrix.preset }}-debug
+              buildPreset: ${{ matrix.preset }}-debug
+        
+          - name: CMake Build (Release)
+            uses: lukka/run-cmake@v10
+            env:
+              VCPKG_BINARY_SOURCES: clear
+            with:
+              configurePreset: ${{ matrix.preset }}-release
+              buildPreset: ${{ matrix.preset }}-release
+        
+              #      - name: List Directory Structure
+              #        if: ${{ contains(runner.os, 'Windows') && always() }}
+              #        shell: pwsh
+              #        run: tree /F build
+        
           - name: Use Node.js 18
             uses: actions/setup-node@v3
             with:
               node-version: 18
-  
+        
           - name: Install Local Node
             run: sudo npm install -g @hashgraph/hedera-local
-              
+      
           - name: Start the local node
             run: sudo npx @hashgraph/hedera-local start -d --network local
-  
+        
+          - name: Start CTest suite (Debug)
+            run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+        
+          - name: Start CTest suite (Release)
+            run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+      
           - name: Stop the local node
-            run: sudo npx @hashgraph/hedera-local stop   
-
-      #      - name: List Directory Structure
-      #        if: ${{ contains(runner.os, 'Windows') && always() }}
-      #        shell: pwsh
-      #        run: tree /F build
-
-      # - name: Listen to port 5600
-      #   run: lsof -Pni | grep "5600"
-
-      # - name: Start the local node
-      #   run: sudo npx @hashgraph/hedera-local start -d --network local
-
-          # - name: Start CTest suite (Debug)
-          #   run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
-
-          # - name: Start CTest suite (Release)
-          #   run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
-
-          # - name: Compute Short SHA
-          #   id: sha
-          #   run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
-
-          # - name: Attach Artifact
-          #   uses: actions/upload-artifact@v3
-          #   with:
-          #     name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
-          #     path: package/
-          #     if-no-files-found: warn
+            run: sudo npx @hashgraph/hedera-local stop
+        
+          - name: Compute Short SHA
+            id: sha
+            run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
+        
+          - name: Attach Artifact
+            uses: actions/upload-artifact@v3
+            with:
+              name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
+              path: package/
+              if-no-files-found: warn
