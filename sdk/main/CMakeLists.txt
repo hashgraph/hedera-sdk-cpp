@@ -22,7 +22,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractByteCodeQuery.cc
         src/ContractCallQuery.cc
         src/ContractCreateTransaction.cc
-        #    src/ContractDeleteTransaction.cc
+        src/ContractDeleteTransaction.cc
         #    src/ContractExecuteTransaction.cc
         src/ContractFunctionParameters.cc
         src/ContractFunctionResult.cc
@@ -42,7 +42,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Executable.cc
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
-        #    src/FileCreateTransaction.cc
+        src/FileCreateTransaction.cc
         src/FileId.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc

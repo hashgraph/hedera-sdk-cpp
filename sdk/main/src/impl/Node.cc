@@ -71,9 +71,14 @@ void Node::shutdown()
     mCryptoStub.reset();
   }
 
-  if (mSmartContractSub)
+  if (mSmartContractStub)
   {
-    mSmartContractSub.reset();
+    mSmartContractStub.reset();
+  }
+
+  if (mFileStub)
+  {
+    mFileStub.reset();
   }
 
   if (mChannel)
@@ -101,9 +106,9 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
   switch (funcEnum)
   {
     case proto::Query::QueryCase::kContractCallLocal:
-      return mSmartContractSub->contractCallLocalMethod(&context, query, response);
+      return mSmartContractStub->contractCallLocalMethod(&context, query, response);
     case proto::Query::QueryCase::kContractGetBytecode:
-      return mSmartContractSub->ContractGetBytecode(&context, query, response);
+      return mSmartContractStub->ContractGetBytecode(&context, query, response);
     case proto::Query::QueryCase::kCryptogetAccountBalance:
       return mCryptoStub->cryptoGetBalance(&context, query, response);
     case proto::Query::QueryCase::kCryptoGetAccountRecords:
@@ -141,7 +146,9 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
   switch (funcEnum)
   {
     case proto::TransactionBody::DataCase::kContractCreateInstance:
-      return mSmartContractSub->createContract(&context, transaction, response);
+      return mSmartContractStub->createContract(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kContractDeleteInstance:
+      return mSmartContractStub->deleteContract(&context, transaction, response);
     case proto::TransactionBody::DataCase::kCryptoAddLiveHash:
       return mCryptoStub->addLiveHash(&context, transaction, response);
     case proto::TransactionBody::DataCase::kCryptoApproveAllowance:
@@ -158,6 +165,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mCryptoStub->cryptoTransfer(&context, transaction, response);
     case proto::TransactionBody::DataCase::kCryptoUpdateAccount:
       return mCryptoStub->updateAccount(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kFileCreate:
+      return mFileStub->createFile(&context, transaction, response);
     default:
       // This should never happen
       throw std::invalid_argument("Unrecognized gRPC transaction method case");
@@ -266,6 +275,8 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
       if (mChannel->WaitForConnected(deadline))
       {
         mCryptoStub = proto::CryptoService::NewStub(mChannel);
+        mFileStub = proto::FileService::NewStub(mChannel);
+        mSmartContractStub = proto::SmartContractService::NewStub(mChannel);
         mIsInitialized = true;
 
         return true;

@@ -25,8 +25,10 @@
 #include "AccountUpdateTransaction.h"
 #include "Client.h"
 #include "ContractCreateTransaction.h"
+#include "ContractDeleteTransaction.h"
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
+#include "FileCreateTransaction.h"
 #include "PrivateKey.h"
 #include "Status.h"
 #include "TransactionId.h"
@@ -56,7 +58,9 @@ std::pair<int,
                        AccountDeleteTransaction,
                        AccountAllowanceApproveTransaction,
                        AccountAllowanceDeleteTransaction,
-                       ContractCreateTransaction>>
+                       ContractCreateTransaction,
+                       ContractDeleteTransaction,
+                       FileCreateTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -112,6 +116,10 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 5, AccountAllowanceDeleteTransaction(txBody) };
     case proto::TransactionBody::kContractCreateInstance:
       return { 6, ContractCreateTransaction(txBody) };
+    case proto::TransactionBody::kContractDeleteInstance:
+      return { 7, ContractDeleteTransaction(txBody) };
+    case proto::TransactionBody::kFileCreate:
+      return { 8, FileCreateTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -418,6 +426,8 @@ template class Transaction<AccountCreateTransaction>;
 template class Transaction<AccountDeleteTransaction>;
 template class Transaction<AccountUpdateTransaction>;
 template class Transaction<ContractCreateTransaction>;
+template class Transaction<ContractDeleteTransaction>;
+template class Transaction<FileCreateTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera
