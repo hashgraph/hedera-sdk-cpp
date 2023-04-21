@@ -89,7 +89,7 @@ const std::vector<std::byte> NEGATIVE_PADDING(31, std::byte(0xFF));
 }
 
 /**
- * Checks the length of a byte array and throws if larger than a Solidity word (32 bytes).
+ * Check the length of a byte array and throw if larger than a Solidity word (32 bytes).
  *
  * @param bytes The byte array of which to check the length.
  * @return The input byte array.
@@ -136,7 +136,7 @@ template<typename T>
  * Encode a value to its representative Solidity byte array.
  *
  * @tparam ValType         The type of value to encode.
- * @tparam ToBytesFuncType The function type that can convert the value.
+ * @tparam ToBytesFuncType The function type that can encode the value.
  * @tparam PaddingFuncType The function type that will pad the value.
  * @param val         The value to encode.
  * @param toBytesFunc The function to use to encode the value.
@@ -158,7 +158,7 @@ template<typename ValType, class ToBytesFuncType, class PaddingFuncType>
  * Encode an array of non-integral types to its representative Solidity byte array.
  *
  * @tparam ValType         The type of values in the array to encode.
- * @tparam ToBytesFuncType The function type that can convert the values in the array.
+ * @tparam ToBytesFuncType The function type that can encode the values in the array.
  * @tparam PaddingFuncType The function type that will pad the values in the array.
  * @param valArray    The array to encode.
  * @param toBytesFunc The function to use to encode the values in the array.
@@ -187,7 +187,7 @@ template<typename ValType,
  * Encode an array of integral types to its representative Solidity byte array.
  *
  * @tparam ValType         The type of values in the array to encode.
- * @tparam ToBytesFuncType The function type that can convert the values in the array.
+ * @tparam ToBytesFuncType The function type that can encode the values in the array.
  * @tparam PaddingFuncType The function type that will pad the values in the array.
  * @param valArray    The array to encode.
  * @param toBytesFunc The function to use to encode the values in the array.
