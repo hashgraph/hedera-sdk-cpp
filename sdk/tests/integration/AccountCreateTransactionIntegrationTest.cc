@@ -238,3 +238,20 @@ TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactio
   // When, Then
   EXPECT_THROW(AccountCreateTransaction accountCreateTransaction(testTxBody), std::invalid_argument);
 }
+
+// Tests construction from protobuf object TransactionBody with missing data.
+TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionWithMissingData)
+{
+  // Given
+  const auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
+  proto::TransactionBody testTxBody;
+  testTxBody.set_allocated_cryptocreateaccount(body.release());
+
+  // When
+  AccountCreateTransaction accountCreateTransaction(testTxBody);
+
+  // Then
+  ASSERT_FALSE(accountCreateTransaction.getStakedAccountId().has_value());
+  EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
+  EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
+}
