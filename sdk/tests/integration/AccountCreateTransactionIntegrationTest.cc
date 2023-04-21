@@ -49,7 +49,7 @@ protected:
   [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
-  // [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
+  [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
 
@@ -103,7 +103,7 @@ private:
   const uint32_t mMaxTokenAssociations = 3U;
   const AccountId mAccountId = AccountId::fromString("0.0.1023");
   const bool mDeclineStakingReward = true;
-  // const EvmAddress mEvmAddress = EvmAddress::fromString("303132333435363738396162636465666768696a");
+  const EvmAddress mEvmAddress = EvmAddress::fromString("303132333435363738396162636465666768696a");
 
   Client mClient;
 };
@@ -136,7 +136,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteRequestToLocalNode)
   EXPECT_TRUE(txRecord.getNftTransferList().empty());
 }
 
-// Tests invoking of method build() with protobuf object CryptoCreateTransactionBody
+// Tests invoking of method build() with protobuf object TransactionBody.
 TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionFromTransactionBodyProtobuf)
 {
   // Given
@@ -147,6 +147,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactio
   const auto testAccountMemo = getTestAccountMemo();
   const auto testMaxTokenAssociations = getTestMaximumTokenAssociations();
   const auto testAccount = getTestAccountId();
+  const auto testEvmAddress = getTestEvmAddress();
   const auto testDeclineStakingReward = getTestDeclineStakingReward();
   const std::vector<std::byte> testPublicKeyBytes = testPublicKey->toBytesDer();
 
@@ -161,11 +162,11 @@ TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactio
   body->set_decline_reward(testDeclineStakingReward);
   body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testPublicKeyBytes)));
 
-  proto::TransactionBody txBody;
-  txBody.set_allocated_cryptocreateaccount(body.release());
+  proto::TransactionBody testTxBody;
+  testTxBody.set_allocated_cryptocreateaccount(body.release());
 
   // When
-  AccountCreateTransaction accountCreateTransaction(txBody);
+  AccountCreateTransaction accountCreateTransaction(testTxBody);
 
   // Then
   EXPECT_EQ(accountCreateTransaction.getKey()->toStringDer(), testPublicKey->toStringDer());
@@ -180,4 +181,49 @@ TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactio
   EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), testDeclineStakingReward);
   EXPECT_EQ(accountCreateTransaction.getPublicKeyAlias()->toBytesDer(), testPublicKeyBytes);
   EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
+}
+
+// Tests construction from protobuf object TransactionBody with EVM address.
+TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionFromTransactionBodyWithEvmAddress)
+{
+  // Given
+  const auto testInitialBalance = getTestInitialBalance();
+  const auto testReceiverSignatureRequired = getTestReceiverSignatureRequired();
+  const auto testAutoRenewPeriod = getTestAutoRenewPeriod();
+  const auto testAccountMemo = getTestAccountMemo();
+  const auto testMaxTokenAssociations = getTestMaximumTokenAssociations();
+  const auto testAccount = getTestAccountId();
+  const auto testEvmAddress = getTestEvmAddress();
+  const auto testDeclineStakingReward = getTestDeclineStakingReward();
+  const std::vector<std::byte> testEvmAddressBytes = testEvmAddress.toBytes();
+
+  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
+  body->set_initialbalance(static_cast<uint64_t>(testInitialBalance.toTinybars()));
+  body->set_receiversigrequired(testReceiverSignatureRequired);
+  body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(testAutoRenewPeriod));
+  body->set_allocated_memo(new std::string(testAccountMemo));
+  body->set_max_automatic_token_associations(static_cast<int32_t>(testMaxTokenAssociations));
+  body->set_allocated_staked_account_id(testAccount.toProtobuf().release());
+  body->set_decline_reward(testDeclineStakingReward);
+  body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testEvmAddressBytes)));
+
+  proto::TransactionBody testTxBody;
+
+  testTxBody.set_allocated_cryptocreateaccount(body.release());
+
+  // When
+  AccountCreateTransaction accountCreateTransaction(testTxBody);
+
+  // Then
+  EXPECT_EQ(accountCreateTransaction.getInitialBalance(), testInitialBalance);
+  EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), testReceiverSignatureRequired);
+  EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), testAutoRenewPeriod);
+  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), testAccountMemo);
+  EXPECT_EQ(accountCreateTransaction.getMaxAutomaticTokenAssociations(), testMaxTokenAssociations);
+  ASSERT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
+  EXPECT_EQ(accountCreateTransaction.getStakedAccountId(), testAccount);
+  EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
+  EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), testDeclineStakingReward);
+  ASSERT_TRUE(accountCreateTransaction.getEvmAddressAlias().has_value());
+  EXPECT_EQ(accountCreateTransaction.getEvmAddressAlias()->toBytes(), testEvmAddressBytes);
 }
