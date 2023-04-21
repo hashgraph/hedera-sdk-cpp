@@ -37,10 +37,102 @@ constexpr int SOLIDITY_ADDRESS_LEN_HEX = SOLIDITY_ADDRESS_LEN * 2;
 const std::vector<std::byte> POSITIVE_PADDING(31, std::byte(0x00));
 const std::vector<std::byte> NEGATIVE_PADDING(31, std::byte(0xFF));
 
-//-----
+/**
+ * Get the number of Solidity words there must be to contain the input byte array.
+ *
+ * @param bytes The bytes of which to determine the Solidity word count.
+ * @return The number of Solidity words taken up by the byte array.
+ */
+[[nodiscard]] size_t getNumSolidityWords(const std::vector<std::byte>& bytes)
+{
+  return static_cast<size_t>(ceil(static_cast<double>(bytes.size()) / 32.0));
+}
+
+/**
+ * Get the number of bytes that are required to pad the input byte array to be a full Solidity word.
+ *
+ * @param bytes The byte array to pad.
+ * @return The number of bytes that are required to pad the input byte array to be a full Solidity word.
+ */
+[[nodiscard]] long getPaddingAmount(const std::vector<std::byte>& bytes)
+{
+  return static_cast<long>(getNumSolidityWords(bytes) * 32ULL - bytes.size());
+}
+
+/**
+ * Pad the left of the input byte array to be a full Solidity word (or a multiple of).
+ *
+ * @param bytes    The byte array to pad.
+ * @param negative \c TRUE if the bytes represent a negative integer value, otherwise \c FALSE.
+ * @return The byte array padded to be a full Solidity word (or a multiple of).
+ */
+[[nodiscard]] std::vector<std::byte> leftPad(const std::vector<std::byte>& bytes, bool negative = false)
+{
+  const std::vector<std::byte>& padding = negative ? NEGATIVE_PADDING : POSITIVE_PADDING;
+  return internal::Utilities::concatenateVectors({
+    {padding.cbegin(), padding.cbegin() + getPaddingAmount(bytes)},
+    bytes
+  });
+}
+
+/**
+ * Pad the right of the input byte array to be a full Solidity word (or a multiple of).
+ *
+ * @param bytes    The byte array to pad.
+ * @return The byte array padded to be a full Solidity word (or a multiple of).
+ */
+[[nodiscard]] std::vector<std::byte> rightPad(const std::vector<std::byte>& bytes, bool = false)
+{
+  return internal::Utilities::concatenateVectors({
+    bytes, {POSITIVE_PADDING.cbegin(), POSITIVE_PADDING.cbegin() + getPaddingAmount(bytes)}
+  });
+}
+
+/**
+ * Checks the length of a bytes32 byte array and throws if too large.
+ *
+ * @param bytes The byte array of which to check the length.
+ * @return The input byte array.
+ * @throws std::invalid_argument If the byte array is larger than 32 bytes.
+ */
+[[nodiscard]] std::vector<std::byte> checkBytes32(const std::vector<std::byte>& bytes)
+{
+  if (bytes.size() > 32ULL)
+  {
+    throw std::invalid_argument("bytes32 encoding forbids byte array length greater than 32");
+  }
+
+  return bytes;
+}
+
+/**
+ * Checks the length of an integer 256 byte array and throws if not 32 bytes.
+ *
+ * @param bytes The byte array of which to check the length.
+ * @return The input byte array.
+ * @throws std::invalid_argument If the byte array is not 32 bytes.
+ */
+[[nodiscard]] std::vector<std::byte> checkInt256AndUint256(const std::vector<std::byte>& bytes)
+{
+  if (bytes.size() != 32ULL)
+  {
+    throw std::invalid_argument("int256 and uint256 types require exactly 32 bytes");
+  }
+
+  return bytes;
+}
+
+/**
+ * Get the bytes (in big endian) that represent an integral type.
+ *
+ * @tparam T  The type of integer of which to get the bytes.
+ * @param val The value of which to get the bytes.
+ * @return An array of bytes that represents the input value.
+ */
 template<typename T>
 [[nodiscard]] std::vector<std::byte> getBytes(const T& val)
 {
+  // Only allow integral types
   static_assert(std::is_integral_v<T>, "getBytes works only with integral types");
 
   std::vector<std::byte> bytes(sizeof(T));
@@ -57,9 +149,21 @@ template<typename T>
   return bytes;
 }
 
-//-----
-template<typename T, class ToBytesFuncType, class PaddingFuncType>
-[[nodiscard]] std::vector<std::byte> encodeValue(const T& val,
+/**
+ * Encode a value to its representative Solidity byte array.
+ *
+ * @tparam ValType         The type of value to encode.
+ * @tparam ToBytesFuncType The function type that can convert the value.
+ * @tparam PaddingFuncType The function type that will pad the value.
+ * @param val         The value to encode.
+ * @param toBytesFunc The function to use to encode the value.
+ * @param paddingFunc The function that will pad the encoded value.
+ * @param negative    \c TRUE if the value is signed and should be padded as a negative number (i.e. padded with 0xFF
+ *                    values instead of 0x00), otherwise \c FALSE.
+ * @return The encoded and padded value.
+ */
+template<typename ValType, class ToBytesFuncType, class PaddingFuncType>
+[[nodiscard]] std::vector<std::byte> encodeValue(const ValType& val,
                                                  const ToBytesFuncType& toBytesFunc,
                                                  const PaddingFuncType& paddingFunc,
                                                  bool negative = false)
@@ -67,59 +171,17 @@ template<typename T, class ToBytesFuncType, class PaddingFuncType>
   return paddingFunc(toBytesFunc(val), negative);
 }
 
-//-----
-[[nodiscard]] size_t getNumSolidityWords(const std::vector<std::byte>& bytes)
-{
-  return static_cast<size_t>(ceil(static_cast<double>(bytes.size()) / 32.0));
-}
-
-//-----
-[[nodiscard]] long getPaddingAmount(const std::vector<std::byte>& bytes)
-{
-  return static_cast<long>(getNumSolidityWords(bytes) * 32ULL - bytes.size());
-}
-
-//-----
-[[nodiscard]] std::vector<std::byte> leftPad32(const std::vector<std::byte>& bytes, bool negative = false)
-{
-  const std::vector<std::byte>& padding = negative ? NEGATIVE_PADDING : POSITIVE_PADDING;
-  return internal::Utilities::concatenateVectors({
-    {padding.cbegin(), padding.cbegin() + getPaddingAmount(bytes)},
-    bytes
-  });
-}
-
-//-----
-[[nodiscard]] std::vector<std::byte> rightPad32(const std::vector<std::byte>& bytes, bool = false)
-{
-  return internal::Utilities::concatenateVectors({
-    bytes, {POSITIVE_PADDING.cbegin(), POSITIVE_PADDING.cbegin() + getPaddingAmount(bytes)}
-  });
-}
-
-//-----
-[[nodiscard]] std::vector<std::byte> checkBytes32(const std::vector<std::byte>& bytes)
-{
-  if (bytes.size() > 32ULL)
-  {
-    throw std::invalid_argument("bytes32 encoding forbids byte array length greater than 32");
-  }
-
-  return bytes;
-}
-
-//-----
-[[nodiscard]] std::vector<std::byte> checkInt256AndUint256(const std::vector<std::byte>& bytes)
-{
-  if (bytes.size() != 32ULL)
-  {
-    throw std::invalid_argument("int256 and uint256 types require exactly 32 bytes");
-  }
-
-  return bytes;
-}
-
-//-----
+/**
+ * Encode an array of non-integral types to its representative Solidity byte array.
+ *
+ * @tparam ValType         The type of values in the array to encode.
+ * @tparam ToBytesFuncType The function type that can convert the values in the array.
+ * @tparam PaddingFuncType The function type that will pad the values in the array.
+ * @param valArray    The array to encode.
+ * @param toBytesFunc The function to use to encode the values in the array.
+ * @param paddingFunc The function that will pad the encoded values in the array.
+ * @return The encoded byte array.
+ */
 template<typename ValType,
          typename ToBytesFuncType,
          typename PaddingFuncType,
@@ -128,7 +190,8 @@ template<typename ValType,
                                                  const ToBytesFuncType& toBytesFunc,
                                                  const PaddingFuncType& paddingFunc)
 {
-  std::vector<std::byte> bytes = encodeValue(valArray.size(), getBytes<decltype(valArray.size())>, leftPad32);
+  // The first word of an array always contains the number of elements in the array.
+  std::vector<std::byte> bytes = encodeValue(valArray.size(), getBytes<decltype(valArray.size())>, leftPad);
   for (const ValType& val : valArray)
   {
     bytes = internal::Utilities::concatenateVectors({ bytes, encodeValue(val, toBytesFunc, paddingFunc) });
@@ -137,7 +200,17 @@ template<typename ValType,
   return bytes;
 }
 
-//-----
+/**
+ * Encode an array of integral types to its representative Solidity byte array.
+ *
+ * @tparam ValType         The type of values in the array to encode.
+ * @tparam ToBytesFuncType The function type that can convert the values in the array.
+ * @tparam PaddingFuncType The function type that will pad the values in the array.
+ * @param valArray    The array to encode.
+ * @param toBytesFunc The function to use to encode the values in the array.
+ * @param paddingFunc The function that will pad the encoded values in the array.
+ * @return The encoded byte array.
+ */
 template<typename ValType,
          typename ToBytesFuncType,
          typename PaddingFuncType,
@@ -147,7 +220,7 @@ template<typename ValType,
                                                  const PaddingFuncType& paddingFunc)
 {
   // The first word of an array always contains the number of elements in the array.
-  std::vector<std::byte> bytes = encodeValue(valArray.size(), getBytes<decltype(valArray.size())>, leftPad32);
+  std::vector<std::byte> bytes = encodeValue(valArray.size(), getBytes<decltype(valArray.size())>, leftPad);
   for (const ValType& val : valArray)
   {
     bytes = internal::Utilities::concatenateVectors({ bytes, encodeValue(val, toBytesFunc, paddingFunc, val < 0) });
@@ -156,7 +229,15 @@ template<typename ValType,
   return bytes;
 }
 
-//-----
+/**
+ * Encode an array of dynamic types to its representative Solidity byte array.
+ *
+ * @tparam ValType         The type of values in the array to encode.
+ * @tparam ToBytesFuncType The function type that can convert the values in the array.
+ * @param valArray    The array to encode.
+ * @param toBytesFunc The function to use to encode the values in the array.
+ * @return The encoded byte array.
+ */
 template<typename ValType, typename ToBytesFuncType>
 [[nodiscard]] std::vector<std::byte> encodeDynamicArray(const std::vector<ValType>& valArray,
                                                         const ToBytesFuncType& toBytesFunc)
@@ -165,30 +246,32 @@ template<typename ValType, typename ToBytesFuncType>
   //  - The offsets of each byte array.
   //  - The length of each byte array.
   //  - The byte array itself.
-  std::vector<std::byte> offsets = leftPad32(getBytes(valArray.size()));
+  std::vector<std::byte> offsets = encodeValue(valArray.size(), getBytes<decltype(valArray.size())>, leftPad);
   std::vector<std::byte> lengthsAndBytes;
   size_t offset = 32ULL * valArray.size();
   for (const auto& val : valArray)
   {
     // Add the current byte array offset to the offsets vector.
-    offsets = internal::Utilities::concatenateVectors({ offsets, leftPad32(getBytes(offset)) });
+    offsets = internal::Utilities::concatenateVectors({ offsets, encodeValue(offset, getBytes<size_t>, leftPad) });
 
     // Add the byte array length and the right-padded byte array to the lengths and bytes vector.
     const std::vector<std::byte> valBytes = toBytesFunc(val);
     lengthsAndBytes = internal::Utilities::concatenateVectors({ lengthsAndBytes, valBytes });
 
-    // Update the offset (add 32 bytes for the byte array length, and then another 32 bytes for each Solidity word the
-    // byte array takes up).
+    // Update the offset with the number of Solidity words in the encoded value.
     offset += 32ULL * getNumSolidityWords(valBytes);
   }
 
-  // Concatenate all the byte arrays together. The first Solidity word (32 bytes) contains the number of elements in the
-  // array, the next words contain the offsets of each byte array, and then finally the actual byte array lengths and
-  // the byte arrays themselves.
+  // Concatenate the offsets and value arrays together.
   return internal::Utilities::concatenateVectors({ offsets, lengthsAndBytes });
 }
 
-//-----
+/**
+ * Encode a Solidity address to a byte array.
+ *
+ * @param address The Solidity address to encode.
+ * @return The encoded Solidity address.
+ */
 [[nodiscard]] std::vector<std::byte> encodeAddress(std::string_view address)
 {
   // Remove 0x prefix if it exists
@@ -213,19 +296,35 @@ template<typename ValType, typename ToBytesFuncType>
   }
 }
 
-//-----
+/**
+ * Encode a byte array.
+ *
+ * @param bytes The byte array to encode.
+ * @return The encoded byte array.
+ */
 [[nodiscard]] std::vector<std::byte> encodeBytes(const std::vector<std::byte>& bytes)
 {
-  return internal::Utilities::concatenateVectors({ leftPad32(getBytes(bytes.size())), rightPad32(bytes) });
+  return internal::Utilities::concatenateVectors(
+    { encodeValue(bytes.size(), getBytes<decltype(bytes.size())>, leftPad), rightPad(bytes) });
 }
 
-//-----
+/**
+ * Encode a string.
+ *
+ * @param str The string to encode.
+ * @return The encoded string.
+ */
 [[nodiscard]] std::vector<std::byte> encodeString(std::string_view str)
 {
   return encodeBytes(internal::Utilities::stringToByteVector(str));
 }
 
-//-----
+/**
+ * A no-op function to be used if a value doesn't need any encoding or padding.
+ *
+ * @param bytes The byte array with which to do nothing.
+ * @return The input byte array, unchanged.
+ */
 [[nodiscard]] std::vector<std::byte> noop(const std::vector<std::byte>& bytes, bool = false)
 {
   return bytes;
@@ -269,7 +368,7 @@ ContractFunctionParameters& ContractFunctionParameters::addBytesArray(const std:
 ContractFunctionParameters& ContractFunctionParameters::addBytes32(const std::vector<std::byte>& param)
 {
   mFunction.addBytes32();
-  mArguments.emplace_back(encodeValue(param, checkBytes32, rightPad32), false);
+  mArguments.emplace_back(encodeValue(param, checkBytes32, rightPad), false);
   return *this;
 }
 
@@ -278,7 +377,7 @@ ContractFunctionParameters& ContractFunctionParameters::addBytes32Array(
   const std::vector<std::vector<std::byte>>& param)
 {
   mFunction.addBytes32Array();
-  mArguments.emplace_back(encodeArray(param, checkBytes32, rightPad32), true);
+  mArguments.emplace_back(encodeArray(param, checkBytes32, rightPad), true);
   return *this;
 }
 
@@ -292,7 +391,7 @@ ContractFunctionParameters& ContractFunctionParameters::addBool(bool param)
                               return boolParam ? std::vector<std::byte>{ std::byte(0x01) }
                                                : std::vector<std::byte>{ std::byte(0x00) };
                             },
-                            leftPad32),
+                            leftPad),
                           false);
   return *this;
 }
@@ -301,7 +400,7 @@ ContractFunctionParameters& ContractFunctionParameters::addBool(bool param)
 ContractFunctionParameters& ContractFunctionParameters::addInt8(int8_t param)
 {
   mFunction.addInt8();
-  mArguments.emplace_back(encodeValue(param, getBytes<int8_t>, leftPad32, param < 0), false);
+  mArguments.emplace_back(encodeValue(param, getBytes<int8_t>, leftPad, param < 0), false);
   return *this;
 }
 
@@ -309,7 +408,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt8(int8_t param)
 ContractFunctionParameters& ContractFunctionParameters::addInt32(int32_t param)
 {
   mFunction.addInt32();
-  mArguments.emplace_back(encodeValue(param, getBytes<int32_t>, leftPad32, param < 0), false);
+  mArguments.emplace_back(encodeValue(param, getBytes<int32_t>, leftPad, param < 0), false);
   return *this;
 }
 
@@ -317,7 +416,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt32(int32_t param)
 ContractFunctionParameters& ContractFunctionParameters::addInt64(int64_t param)
 {
   mFunction.addInt64();
-  mArguments.emplace_back(encodeValue(param, getBytes<int64_t>, leftPad32, param < 0), false);
+  mArguments.emplace_back(encodeValue(param, getBytes<int64_t>, leftPad, param < 0), false);
   return *this;
 }
 
@@ -333,7 +432,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt256(const std::vec
 ContractFunctionParameters& ContractFunctionParameters::addInt8Array(const std::vector<int8_t>& param)
 {
   mFunction.addInt8Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<int8_t>, leftPad32), true);
+  mArguments.emplace_back(encodeArray(param, getBytes<int8_t>, leftPad), true);
   return *this;
 }
 
@@ -341,7 +440,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt8Array(const std::
 ContractFunctionParameters& ContractFunctionParameters::addInt32Array(const std::vector<int32_t>& param)
 {
   mFunction.addInt32Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<int32_t>, leftPad32), true);
+  mArguments.emplace_back(encodeArray(param, getBytes<int32_t>, leftPad), true);
   return *this;
 }
 
@@ -349,7 +448,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt32Array(const std:
 ContractFunctionParameters& ContractFunctionParameters::addInt64Array(const std::vector<int64_t>& param)
 {
   mFunction.addInt64Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<int64_t>, leftPad32), true);
+  mArguments.emplace_back(encodeArray(param, getBytes<int64_t>, leftPad), true);
   return *this;
 }
 
@@ -365,7 +464,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt256Array(const std
 ContractFunctionParameters& ContractFunctionParameters::addUint8(uint8_t param)
 {
   mFunction.addUint8();
-  mArguments.emplace_back(encodeValue(param, getBytes<uint8_t>, leftPad32), false);
+  mArguments.emplace_back(encodeValue(param, getBytes<uint8_t>, leftPad), false);
   return *this;
 }
 
@@ -373,7 +472,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint8(uint8_t param)
 ContractFunctionParameters& ContractFunctionParameters::addUint32(uint32_t param)
 {
   mFunction.addUint32();
-  mArguments.emplace_back(encodeValue(param, getBytes<uint32_t>, leftPad32), false);
+  mArguments.emplace_back(encodeValue(param, getBytes<uint32_t>, leftPad), false);
   return *this;
 }
 
@@ -381,7 +480,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint32(uint32_t param
 ContractFunctionParameters& ContractFunctionParameters::addUint64(uint64_t param)
 {
   mFunction.addUint64();
-  mArguments.emplace_back(encodeValue(param, getBytes<uint64_t>, leftPad32), false);
+  mArguments.emplace_back(encodeValue(param, getBytes<uint64_t>, leftPad), false);
   return *this;
 }
 
@@ -397,7 +496,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint256(const std::ve
 ContractFunctionParameters& ContractFunctionParameters::addUint8Array(const std::vector<uint8_t>& param)
 {
   mFunction.addUint8Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<uint8_t>, leftPad32), true);
+  mArguments.emplace_back(encodeArray(param, getBytes<uint8_t>, leftPad), true);
   return *this;
 }
 
@@ -405,7 +504,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint8Array(const std:
 ContractFunctionParameters& ContractFunctionParameters::addUint32Array(const std::vector<uint32_t>& param)
 {
   mFunction.addUint32Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<uint32_t>, leftPad32), true);
+  mArguments.emplace_back(encodeArray(param, getBytes<uint32_t>, leftPad), true);
   return *this;
 }
 
@@ -413,7 +512,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint32Array(const std
 ContractFunctionParameters& ContractFunctionParameters::addUint64Array(const std::vector<uint64_t>& param)
 {
   mFunction.addUint64Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<uint64_t>, leftPad32), true);
+  mArguments.emplace_back(encodeArray(param, getBytes<uint64_t>, leftPad), true);
   return *this;
 }
 
@@ -430,7 +529,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint256Array(
 ContractFunctionParameters& ContractFunctionParameters::addAddress(std::string_view param)
 {
   mFunction.addAddress();
-  mArguments.emplace_back(encodeValue(param, encodeAddress, leftPad32), false);
+  mArguments.emplace_back(encodeValue(param, encodeAddress, leftPad), false);
   return *this;
 }
 
@@ -438,7 +537,7 @@ ContractFunctionParameters& ContractFunctionParameters::addAddress(std::string_v
 ContractFunctionParameters& ContractFunctionParameters::addAddressArray(const std::vector<std::string>& param)
 {
   mFunction.addAddressArray();
-  mArguments.emplace_back(encodeArray(param, encodeAddress, leftPad32), true);
+  mArguments.emplace_back(encodeArray(param, encodeAddress, leftPad), true);
   return *this;
 }
 
@@ -453,7 +552,7 @@ ContractFunctionParameters& ContractFunctionParameters::addFunction(std::string_
       [](const std::pair<std::string_view, std::vector<std::byte>>& functionParams) {
         return internal::Utilities::concatenateVectors({ encodeAddress(functionParams.first), functionParams.second });
       },
-      rightPad32),
+      rightPad),
     false);
   return *this;
 }
@@ -466,13 +565,13 @@ std::vector<std::byte> ContractFunctionParameters::toBytes(std::string_view name
 
   std::vector<std::byte> paramsBytes;
   std::vector<std::byte> dynamicBytes;
-  paramsBytes.reserve((mArguments.size() + 1) * 32ULL);
 
   for (const Argument& arg : mArguments)
   {
     if (arg.mIsDynamic)
     {
-      paramsBytes = internal::Utilities::concatenateVectors({ paramsBytes, leftPad32(getBytes(dynamicOffset)) });
+      paramsBytes =
+        internal::Utilities::concatenateVectors({ paramsBytes, encodeValue(dynamicOffset, getBytes<size_t>, leftPad) });
       dynamicBytes = internal::Utilities::concatenateVectors({ dynamicBytes, arg.mValue });
       dynamicOffset += arg.mValue.size();
     }
@@ -482,6 +581,7 @@ std::vector<std::byte> ContractFunctionParameters::toBytes(std::string_view name
     }
   }
 
+  // Encode the function name if one exists.
   std::vector<std::byte> returnBytes;
   if (!name.empty())
   {

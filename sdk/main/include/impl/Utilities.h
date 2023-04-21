@@ -29,7 +29,7 @@
 namespace Hedera::internal::Utilities
 {
 /**
- * Swap the endianness of an unsigned integral value.
+ * Swap the endianness of an integral value.
  *
  * @param value The value of which to convert the endianness.
  * @return The value with the converted endianness.

@@ -254,7 +254,7 @@ public:
    * @param name The name of the function to which these parameters are being passed.
    * @return The encoding of the function parameters.
    */
-  std::vector<std::byte> toBytes(std::string_view name);
+  std::vector<std::byte> toBytes(std::string_view name = "");
 
 private:
   /**

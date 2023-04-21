@@ -275,7 +275,7 @@ TEST_F(ContractFunctionParametersTest, EncodeStaticParameters)
                                                             .addAddress("00112233445566778899aabbccddeeff00112233");
 
   // When
-  const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes(""));
+  const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes());
 
   // Then
   EXPECT_EQ(hexParams,
@@ -379,7 +379,7 @@ TEST_F(ContractFunctionParametersTest, EncodeBytes32Array)
   });
 
   // When
-  const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes(""));
+  const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes());
 
   // Then
   EXPECT_EQ(hexParams,
@@ -401,7 +401,7 @@ TEST_F(ContractFunctionParametersTest, EncodeBytesArray)
   });
 
   // When
-  const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes(""));
+  const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes());
 
   // Then
   EXPECT_EQ(hexParams,
@@ -426,7 +426,7 @@ TEST_F(ContractFunctionParametersTest, EncodeStringArray)
     ContractFunctionParameters().addStringArray({ "Hello", ",", "world!" });
 
   // When
-  const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes(""));
+  const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes());
 
   // Then
   EXPECT_EQ(hexParams,
