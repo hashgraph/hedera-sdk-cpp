@@ -19,6 +19,7 @@
  */
 #include "impl/openssl_utils/OpenSSLUtils.h"
 #include "exceptions/OpenSSLException.h"
+#include "impl/Utilities.h"
 #include "impl/openssl_utils/EVP_MD.h"
 #include "impl/openssl_utils/EVP_MD_CTX.h"
 
@@ -46,7 +47,9 @@ constexpr const size_t ERROR_MSG_SIZE = 256ULL;
 std::vector<std::byte> computeSHA256(const std::vector<std::byte>& data)
 {
   auto outputBytes = std::vector<std::byte>(SHA256_HASH_SIZE);
-  SHA256(toUnsignedCharPtr(data.data()), data.size(), toUnsignedCharPtr(outputBytes.data()));
+  SHA256(Utilities::toTypePtr<unsigned char>(data.data()),
+         data.size(),
+         Utilities::toTypePtr<unsigned char>(outputBytes.data()));
   return outputBytes;
 }
 
@@ -54,7 +57,9 @@ std::vector<std::byte> computeSHA256(const std::vector<std::byte>& data)
 std::vector<std::byte> computeSHA384(const std::vector<std::byte>& data)
 {
   auto outputBytes = std::vector<std::byte>(SHA384_HASH_SIZE);
-  SHA384(toUnsignedCharPtr(data.data()), data.size(), toUnsignedCharPtr(outputBytes.data()));
+  SHA384(Utilities::toTypePtr<unsigned char>(data.data()),
+         data.size(),
+         Utilities::toTypePtr<unsigned char>(outputBytes.data()));
   return outputBytes;
 }
 
@@ -82,9 +87,9 @@ std::vector<std::byte> computeSHA512HMAC(const std::vector<std::byte>& key, cons
   if (!HMAC(messageDigest.get(),
             key.data(),
             static_cast<int>(key.size()),
-            toUnsignedCharPtr(data.data()),
+            Utilities::toTypePtr<unsigned char>(data.data()),
             static_cast<int>(data.size()),
-            toUnsignedCharPtr(digest.data()),
+            Utilities::toTypePtr<unsigned char>(digest.data()),
             nullptr))
   {
     throw OpenSSLException(getErrorMessage("HMAC"));
@@ -120,24 +125,12 @@ std::vector<std::byte> getRandomBytes(int count)
 
   std::vector<std::byte> randomBytes(count);
 
-  if (RAND_priv_bytes(toUnsignedCharPtr(randomBytes.data()), count) <= 0)
+  if (RAND_priv_bytes(Utilities::toTypePtr<unsigned char>(randomBytes.data()), count) <= 0)
   {
     throw OpenSSLException(getErrorMessage("RAND_priv_bytes"));
   }
 
   return randomBytes;
-}
-
-//-----
-unsigned char* toUnsignedCharPtr(std::byte* byte)
-{
-  return reinterpret_cast<unsigned char*>(byte);
-}
-
-//-----
-const unsigned char* toUnsignedCharPtr(const std::byte* byte)
-{
-  return reinterpret_cast<const unsigned char*>(byte);
 }
 
 } // namespace Hedera::internal::OpenSSLUtils

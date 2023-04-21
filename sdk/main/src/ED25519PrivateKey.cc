@@ -54,7 +54,7 @@ const std::vector<std::byte> SLIP10_SEED = { std::byte('e'), std::byte('d'), std
     bytes = internal::Utilities::concatenateVectors({ ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, bytes });
   }
 
-  const unsigned char* rawKeyBytes = internal::OpenSSLUtils::toUnsignedCharPtr(bytes.data());
+  const unsigned char* rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(bytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(
     d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(bytes.size())));
   if (!key)
@@ -176,7 +176,7 @@ std::vector<std::byte> ED25519PrivateKey::sign(const std::vector<std::byte>& byt
   if (EVP_DigestSign(messageDigestContext.get(),
                      nullptr,
                      &signatureLength,
-                     internal::OpenSSLUtils::toUnsignedCharPtr(bytesToSign.data()),
+                     internal::Utilities::toTypePtr<unsigned char>(bytesToSign.data()),
                      bytesToSign.size()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
@@ -184,9 +184,9 @@ std::vector<std::byte> ED25519PrivateKey::sign(const std::vector<std::byte>& byt
 
   std::vector<std::byte> signature(signatureLength);
   if (EVP_DigestSign(messageDigestContext.get(),
-                     internal::OpenSSLUtils::toUnsignedCharPtr(signature.data()),
+                     internal::Utilities::toTypePtr<unsigned char>(signature.data()),
                      &signatureLength,
-                     internal::OpenSSLUtils::toUnsignedCharPtr(bytesToSign.data()),
+                     internal::Utilities::toTypePtr<unsigned char>(bytesToSign.data()),
                      bytesToSign.size()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
@@ -214,7 +214,7 @@ std::vector<std::byte> ED25519PrivateKey::toBytesDer() const
 
   std::vector<std::byte> outputBytes(bytesLength);
 
-  if (unsigned char* rawBytes = internal::OpenSSLUtils::toUnsignedCharPtr(outputBytes.data());
+  if (auto* rawBytes = internal::Utilities::toTypePtr<unsigned char>(outputBytes.data());
       i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));

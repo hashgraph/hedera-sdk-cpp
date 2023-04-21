@@ -81,16 +81,15 @@ std::string ContractFunctionResult::getString(int index) const
 //-----
 std::vector<std::string> ContractFunctionResult::getStringArray(int index) const
 {
-  int offset = getInt32(index);
-  int count = getIntValueAt(offset);
+  const int offset = getInt32(index);
+  const int count = getIntValueAt(offset);
   std::vector<std::string> strings;
 
   for (int i = 0; i < count; ++i)
   {
-    int strOffset = getIntValueAt(offset + 32 + (i * 32));
-    int len = getIntValueAt(offset + strOffset + 32);
-    strings.push_back(
-      internal::Utilities::byteVectorToString(getByteString(offset + strOffset + 64, offset + strOffset + 64 + len)));
+    const int strOffset = getIntValueAt(offset + 32 + (i * 32));
+    strings.push_back(internal::Utilities::byteVectorToString(
+      getByteString(offset + strOffset + 64, offset + strOffset + 64 + getIntValueAt(offset + strOffset + 32))));
   }
 
   return strings;
@@ -129,15 +128,13 @@ int32_t ContractFunctionResult::getInt32(int index) const
 //-----
 int64_t ContractFunctionResult::getInt64(int index) const
 {
-  // Make little-endian
-  return static_cast<int64_t>(mContractCallResult.at((index * 32) + 31)) << 0 |
-         static_cast<int64_t>(mContractCallResult.at((index * 32) + 30)) << 8 |
-         static_cast<int64_t>(mContractCallResult.at((index * 32) + 29)) << 16 |
-         static_cast<int64_t>(mContractCallResult.at((index * 32) + 28)) << 24 |
-         static_cast<int64_t>(mContractCallResult.at((index * 32) + 27)) << 32 |
-         static_cast<int64_t>(mContractCallResult.at((index * 32) + 26)) << 40 |
-         static_cast<int64_t>(mContractCallResult.at((index * 32) + 25)) << 48 |
-         static_cast<int64_t>(mContractCallResult.at((index * 32) + 24)) << 56;
+  const int64_t value = *internal::Utilities::toTypePtr<int64_t>(&mContractCallResult.at((index * 32) + 24));
+
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+  return internal::Utilities::swapEndianness(value);
+#else
+  return value;
+#endif
 }
 
 //-----
@@ -167,19 +164,20 @@ std::string ContractFunctionResult::getAddress(int index) const
 //-----
 std::vector<std::byte> ContractFunctionResult::getDynamicBytes(int index) const
 {
-  int offset = getInt32(index);
-  int len = getIntValueAt(offset);
-  return getByteString(offset + 32, offset + 32 + len);
+  const int offset = getInt32(index);
+  return getByteString(offset + 32, offset + 32 + getIntValueAt(offset));
 }
 
 //-----
 int ContractFunctionResult::getIntValueAt(int offset) const
 {
-  // Make little-endian
-  return static_cast<int>(mContractCallResult.at(offset + 31)) << 0 |
-         static_cast<int>(mContractCallResult.at(offset + 30)) << 8 |
-         static_cast<int>(mContractCallResult.at(offset + 29)) << 16 |
-         static_cast<int>(mContractCallResult.at(offset + 28)) << 24;
+  const int value = *internal::Utilities::toTypePtr<int>(&mContractCallResult.at(offset + 28));
+
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+  return internal::Utilities::swapEndianness(value);
+#else
+  return value;
+#endif
 }
 
 //-----

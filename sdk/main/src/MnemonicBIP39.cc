@@ -151,12 +151,12 @@ std::vector<std::byte> MnemonicBIP39::toSeed(std::string_view passphrase) const
   if (const std::vector<std::byte> salt = internal::Utilities::stringToByteVector(saltStr);
       PKCS5_PBKDF2_HMAC(mnemonicString.c_str(),
                         static_cast<int>(mnemonicString.length()),
-                        internal::OpenSSLUtils::toUnsignedCharPtr(salt.data()),
+                        internal::Utilities::toTypePtr<unsigned char>(salt.data()),
                         static_cast<int>(salt.size()),
                         SEED_ITERATIONS,
                         messageDigest.get(),
                         static_cast<int>(seed.size()),
-                        internal::OpenSSLUtils::toUnsignedCharPtr(seed.data())) <= 0)
+                        internal::Utilities::toTypePtr<unsigned char>(seed.data())) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("PKCS5_PBKDF2_HMAC"));
   }

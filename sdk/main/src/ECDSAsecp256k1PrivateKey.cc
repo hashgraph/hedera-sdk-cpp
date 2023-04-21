@@ -74,7 +74,7 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
         : bytes,
       ASN1_SUFFIX_BYTES });
 
-  const unsigned char* rawKeyBytes = internal::OpenSSLUtils::toUnsignedCharPtr(formattedBytes.data());
+  auto rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(formattedBytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(
     d2i_PrivateKey(EVP_PKEY_EC, nullptr, &rawKeyBytes, static_cast<long>(formattedBytes.size())));
   if (!key)
@@ -223,9 +223,9 @@ std::vector<std::byte> ECDSAsecp256k1PrivateKey::sign(const std::vector<std::byt
   std::vector<std::byte> signature(signatureLength);
 
   if (EVP_DigestSign(messageDigestContext.get(),
-                     internal::OpenSSLUtils::toUnsignedCharPtr(signature.data()),
+                     internal::Utilities::toTypePtr<unsigned char>(signature.data()),
                      &signatureLength,
-                     internal::OpenSSLUtils::toUnsignedCharPtr(bytesToSign.data()),
+                     internal::Utilities::toTypePtr<unsigned char>(bytesToSign.data()),
                      bytesToSign.size()) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestSign"));
@@ -233,7 +233,7 @@ std::vector<std::byte> ECDSAsecp256k1PrivateKey::sign(const std::vector<std::byt
 
   // we have the signature complete, now we need to turn it into its raw form of (r,s)
 
-  const unsigned char* signaturePointer = internal::OpenSSLUtils::toUnsignedCharPtr(signature.data());
+  const unsigned char* signaturePointer = internal::Utilities::toTypePtr<unsigned char>(signature.data());
   const internal::OpenSSLUtils::ECDSA_SIG signatureObject(
     d2i_ECDSA_SIG(nullptr, &signaturePointer, static_cast<long>(signatureLength)));
   if (!signatureObject)
@@ -256,12 +256,12 @@ std::vector<std::byte> ECDSAsecp256k1PrivateKey::sign(const std::vector<std::byt
   // signature is returned in the raw, 64 byte form (r, s)
   std::vector<std::byte> outputArray(RAW_SIGNATURE_SIZE);
 
-  if (BN_bn2binpad(signatureR, internal::OpenSSLUtils::toUnsignedCharPtr(outputArray.data()), R_SIZE) <= 0)
+  if (BN_bn2binpad(signatureR, internal::Utilities::toTypePtr<unsigned char>(outputArray.data()), R_SIZE) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bn2binpad"));
   }
 
-  if (BN_bn2binpad(signatureS, internal::OpenSSLUtils::toUnsignedCharPtr(outputArray.data()) + R_SIZE, S_SIZE) <= 0)
+  if (BN_bn2binpad(signatureS, internal::Utilities::toTypePtr<unsigned char>(outputArray.data()) + R_SIZE, S_SIZE) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("BN_bn2binpad"));
   }
@@ -292,7 +292,7 @@ std::vector<std::byte> ECDSAsecp256k1PrivateKey::toBytesRaw() const
 {
   std::vector<std::byte> outputBytes(i2d_PrivateKey(getInternalKey().get(), nullptr));
 
-  if (unsigned char* rawBytes = internal::OpenSSLUtils::toUnsignedCharPtr(outputBytes.data());
+  if (auto rawBytes = internal::Utilities::toTypePtr<unsigned char>(outputBytes.data());
       i2d_PrivateKey(getInternalKey().get(), &rawBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PrivateKey"));

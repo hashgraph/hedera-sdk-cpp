@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_UTILITIES_H_
 #define HEDERA_SDK_CPP_IMPL_UTILITIES_H_
 
+#include <array>
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -27,6 +28,55 @@
 
 namespace Hedera::internal::Utilities
 {
+/**
+ * Swap the endianness of an unsigned integral value.
+ *
+ * @param value The value of which to convert the endianness.
+ * @return The value with the converted endianness.
+ */
+template<typename T>
+[[nodiscard]] T swapEndianness(T value)
+{
+  static_assert(std::is_integral_v<T>, "swapEndianness works only with integral types");
+
+  constexpr size_t numBytes = sizeof(T);
+  union EndiannessUnion
+  {
+    T val;
+    std::array<std::byte, numBytes> bytes;
+  };
+
+  EndiannessUnion src;
+  EndiannessUnion dst;
+
+  src.val = value;
+
+  for (size_t i = 0; i < numBytes; ++i)
+  {
+    dst.bytes[i] = src.bytes[numBytes - i - 1];
+  }
+
+  return dst.val;
+}
+
+/**
+ * Reinterpret a pointer to a pointer of a different type.
+ *
+ * @param input The pointer to reinterpret.
+ * @param A pointer to the same input, reinterpreted as a different type.
+ */
+template<typename ReturnType, typename InputType>
+[[nodiscard]] ReturnType* toTypePtr(InputType* input)
+{
+  return reinterpret_cast<ReturnType*>(input);
+}
+
+template<typename ReturnType, typename InputType>
+[[nodiscard]] const ReturnType* toTypePtr(const InputType* input)
+{
+  return reinterpret_cast<const ReturnType*>(input);
+}
+
 /**
  * Determine if a byte array is the prefix of another.
  *

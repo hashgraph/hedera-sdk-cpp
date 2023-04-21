@@ -71,15 +71,6 @@ namespace Hedera::internal::OpenSSLUtils
  */
 [[nodiscard]] std::vector<std::byte> getRandomBytes(int count);
 
-/**
- * Reinterpret a std::byte pointer as an unsigned char pointer (for intergration with OpenSSL APIs).
- *
- * @param byte The pointer to the std::byte to reinterpret.
- * @return A pointer to the std::byte as an unsigned char.
- */
-[[nodiscard]] unsigned char* toUnsignedCharPtr(std::byte* byte);
-[[nodiscard]] const unsigned char* toUnsignedCharPtr(const std::byte* byte);
-
 } // namespace Hedera::internal::OpenSSLUtils
 
 #endif // HEDERA_SDK_CPP_IMPL_OPENSSL_UTILS_OPENSSL_UTILS_H_
