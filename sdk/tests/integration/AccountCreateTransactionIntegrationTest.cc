@@ -243,7 +243,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactio
 TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionWithMissingData)
 {
   // Given
-  const auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
+  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
   proto::TransactionBody testTxBody;
   testTxBody.set_allocated_cryptocreateaccount(body.release());
 
