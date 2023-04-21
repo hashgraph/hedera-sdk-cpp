@@ -227,3 +227,14 @@ TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactio
   ASSERT_TRUE(accountCreateTransaction.getEvmAddressAlias().has_value());
   EXPECT_EQ(accountCreateTransaction.getEvmAddressAlias()->toBytes(), testEvmAddressBytes);
 }
+
+// Tests construction from protobuf object TransactionBody without CryptoCreateAccount.
+TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionWithoutCryptoCreateAccount)
+{
+  // Given
+  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
+  proto::TransactionBody testTxBody;
+
+  // When, Then
+  EXPECT_THROW(AccountCreateTransaction accountCreateTransaction(testTxBody), std::invalid_argument);
+}
