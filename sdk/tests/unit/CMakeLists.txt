@@ -17,7 +17,9 @@ add_executable(${TEST_PROJECT_NAME}
         ContractCallQueryTest.cc
         ContractCreateTransactionTest.cc
         ContractDeleteTransactionTest.cc
+        ContractFunctionParametersTest.cc
         ContractFunctionResultTest.cc
+        ContractFunctionSelectorTest.cc
         ContractIdTest.cc
         ContractLogInfoTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc

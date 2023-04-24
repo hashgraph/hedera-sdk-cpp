@@ -22,6 +22,7 @@
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/PrivateKeyImpl.h"
+#include "impl/Utilities.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/x509.h>
@@ -57,7 +58,7 @@ PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<std::
 
   std::vector<std::byte> keyBytes(i2d_PUBKEY(mImpl->mKey.get(), nullptr));
 
-  if (unsigned char* rawPublicKeyBytes = internal::OpenSSLUtils::toUnsignedCharPtr(keyBytes.data());
+  if (unsigned char* rawPublicKeyBytes = internal::Utilities::toTypePtr<unsigned char>(keyBytes.data());
       i2d_PUBKEY(mImpl->mKey.get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));

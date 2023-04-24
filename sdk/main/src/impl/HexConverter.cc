@@ -19,6 +19,7 @@
  */
 #include "impl/HexConverter.h"
 #include "exceptions/OpenSSLException.h"
+#include "impl/Utilities.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/crypto.h>
@@ -31,15 +32,18 @@ std::string bytesToHex(const std::vector<std::byte>& bytes)
 {
   size_t stringLength;
   if (OPENSSL_buf2hexstr_ex(
-        nullptr, 0, &stringLength, OpenSSLUtils::toUnsignedCharPtr(bytes.data()), bytes.size(), '\0') <= 0)
+        nullptr, 0, &stringLength, Utilities::toTypePtr<unsigned char>(bytes.data()), bytes.size(), '\0') <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
 
   std::string charString(stringLength, '\0');
-  if (OPENSSL_buf2hexstr_ex(
-        charString.data(), stringLength, nullptr, OpenSSLUtils::toUnsignedCharPtr(bytes.data()), bytes.size(), '\0') <=
-      0)
+  if (OPENSSL_buf2hexstr_ex(charString.data(),
+                            stringLength,
+                            nullptr,
+                            Utilities::toTypePtr<unsigned char>(bytes.data()),
+                            bytes.size(),
+                            '\0') <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OPENSSL_buf2hexstr_ex"));
   }
@@ -59,7 +63,7 @@ std::vector<std::byte> hexToBytes(std::string_view hex)
 
   std::vector<std::byte> outputBytes(bufferLength);
   if (OPENSSL_hexstr2buf_ex(
-        OpenSSLUtils::toUnsignedCharPtr(outputBytes.data()), bufferLength, nullptr, hex.data(), '\0') <= 0)
+        Utilities::toTypePtr<unsigned char>(outputBytes.data()), bufferLength, nullptr, hex.data(), '\0') <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OPENSSL_hexstr2buf_ex"));
   }

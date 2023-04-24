@@ -47,7 +47,7 @@ namespace
     bytes = internal::Utilities::concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, bytes });
   }
 
-  const unsigned char* bytesPtr = internal::OpenSSLUtils::toUnsignedCharPtr(bytes.data());
+  const auto* bytesPtr = internal::Utilities::toTypePtr<unsigned char>(bytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &bytesPtr, static_cast<long>(bytes.size())));
   if (!key)
   {
@@ -123,9 +123,9 @@ bool ED25519PublicKey::verifySignature(const std::vector<std::byte>& signatureBy
   }
 
   const int verificationResult = EVP_DigestVerify(messageDigestContext.get(),
-                                                  internal::OpenSSLUtils::toUnsignedCharPtr(signatureBytes.data()),
+                                                  internal::Utilities::toTypePtr<unsigned char>(signatureBytes.data()),
                                                   signatureBytes.size(),
-                                                  internal::OpenSSLUtils::toUnsignedCharPtr(signedBytes.data()),
+                                                  internal::Utilities::toTypePtr<unsigned char>(signedBytes.data()),
                                                   signedBytes.size());
 
   // Any value other than 0 or 1 means an error occurred
@@ -156,7 +156,7 @@ std::vector<std::byte> ED25519PublicKey::toBytesDer() const
 
   std::vector<std::byte> publicKeyBytes(bytesLength);
 
-  if (unsigned char* rawPublicKeyBytes = internal::OpenSSLUtils::toUnsignedCharPtr(publicKeyBytes.data());
+  if (auto rawPublicKeyBytes = internal::Utilities::toTypePtr<unsigned char>(publicKeyBytes.data());
       i2d_PUBKEY(getInternalKey().get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));
