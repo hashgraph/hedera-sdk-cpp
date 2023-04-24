@@ -58,6 +58,7 @@ jobs:
         
           - name: Install Local Node
             run: sudo npm install -g @hashgraph/hedera-local
+            if: ${{ runner.os == 'Linux' }}
       
           - name: Install Linux Prerequisites
             if: ${{ runner.os == 'Linux' }}
