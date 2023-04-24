@@ -122,11 +122,7 @@ template<typename T>
   auto byte = internal::Utilities::toTypePtr<std::byte>(&val);
   for (size_t i = 0; i < sizeof(T); ++i)
   {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
     bytes[sizeof(T) - i - 1] = *byte++;
-#else
-    bytes[i] = *byte++;
-#endif
   }
 
   return bytes;

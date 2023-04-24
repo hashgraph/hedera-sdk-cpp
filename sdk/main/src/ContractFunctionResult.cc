@@ -129,12 +129,7 @@ int32_t ContractFunctionResult::getInt32(int index) const
 int64_t ContractFunctionResult::getInt64(int index) const
 {
   const int64_t value = *internal::Utilities::toTypePtr<int64_t>(&mContractCallResult.at((index * 32) + 24));
-
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
   return internal::Utilities::swapEndianness(value);
-#else
-  return value;
-#endif
 }
 
 //-----
@@ -172,12 +167,7 @@ std::vector<std::byte> ContractFunctionResult::getDynamicBytes(int index) const
 int ContractFunctionResult::getIntValueAt(int offset) const
 {
   const int value = *internal::Utilities::toTypePtr<int>(&mContractCallResult.at(offset + 28));
-
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
   return internal::Utilities::swapEndianness(value);
-#else
-  return value;
-#endif
 }
 
 //-----
