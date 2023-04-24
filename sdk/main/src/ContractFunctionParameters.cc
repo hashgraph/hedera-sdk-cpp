@@ -544,14 +544,14 @@ std::vector<std::byte> ContractFunctionParameters::toBytes(std::string_view name
   }
 
   // Encode the function name if one exists.
-  std::vector<std::byte> returnBytes;
+  std::vector<std::byte> functionBytes;
   if (!name.empty())
   {
     mFunction.addName(name);
-    returnBytes = mFunction.finish();
+    functionBytes = mFunction.finish();
   }
 
-  return internal::Utilities::concatenateVectors({ returnBytes, paramsBytes, dynamicBytes });
+  return internal::Utilities::concatenateVectors({ functionBytes, paramsBytes, dynamicBytes });
 }
 
 } // namespace Hedera
