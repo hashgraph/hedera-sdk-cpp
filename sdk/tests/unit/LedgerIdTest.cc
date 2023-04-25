@@ -128,15 +128,15 @@ TEST_F(LedgerIdTest, FromString)
 }
 
 //-----
-// TEST_F(LedgerIdTest, FromBadStrings)
-// {
-//   // Given / When / Then
-//   EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("mainet"), std::invalid_argument);
-//   EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("this is a bad string"), std::invalid_argument);
-//   EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("1234567890abcdefg"), std::invalid_argument);
-//   EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("TESTNET"), std::invalid_argument);
-//   EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("Previewnet"), std::invalid_argument);
-// }
+TEST_F(LedgerIdTest, FromBadStrings)
+{
+  // Given / When / Then
+  EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("mainet"), std::invalid_argument);
+  EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("this is a bad string"), std::invalid_argument);
+  EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("1234567890abcdefg"), std::invalid_argument);
+  EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("TESTNET"), std::invalid_argument);
+  EXPECT_THROW(const LedgerId ledgerId = LedgerId::fromString("Previewnet"), std::invalid_argument);
+}
 
 //-----
 TEST_F(LedgerIdTest, ToString)
