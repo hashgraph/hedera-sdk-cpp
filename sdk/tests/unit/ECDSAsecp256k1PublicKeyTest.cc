@@ -216,24 +216,24 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, CompressBytes)
 }
 
 //-----
-// TEST_F(ECDSAsecp256k1PublicKeyTest, UncompressBytes)
-// {
-//   // Given / When
-//   const std::vector<std::byte> uncompressedBytes =
-//     ECDSAsecp256k1PublicKey::uncompressBytes(getTestCompressedPublicKeyBytes());
+TEST_F(ECDSAsecp256k1PublicKeyTest, UncompressBytes)
+{
+  // Given / When
+  const std::vector<std::byte> uncompressedBytes =
+    ECDSAsecp256k1PublicKey::uncompressBytes(getTestCompressedPublicKeyBytes());
 
-//   // Then
-//   EXPECT_EQ(uncompressedBytes, getTestUncompressedPublicKeyBytes());
+  // Then
+  EXPECT_EQ(uncompressedBytes, getTestUncompressedPublicKeyBytes());
 
-//   // Throw if not correct size
-//   EXPECT_THROW(const std::vector<std::byte> bytes =
-//                  ECDSAsecp256k1PublicKey::uncompressBytes({ std::byte(0x3), std::byte(0x2), std::byte(0x1) }),
-//                std::invalid_argument);
-//   // Throw if not starting with 0x2 or 0x3
-//   EXPECT_THROW(const std::vector<std::byte> bytes = ECDSAsecp256k1PublicKey::uncompressBytes(
-//                  std::vector<std::byte>(ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE, std::byte(0x1))),
-//                std::invalid_argument);
-// }
+  // Throw if not correct size
+  EXPECT_THROW(const std::vector<std::byte> bytes =
+                 ECDSAsecp256k1PublicKey::uncompressBytes({ std::byte(0x3), std::byte(0x2), std::byte(0x1) }),
+               std::invalid_argument);
+  // Throw if not starting with 0x2 or 0x3
+  EXPECT_THROW(const std::vector<std::byte> bytes = ECDSAsecp256k1PublicKey::uncompressBytes(
+                 std::vector<std::byte>(ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE, std::byte(0x1))),
+               std::invalid_argument);
+}
 
 //-----
 TEST_F(ECDSAsecp256k1PublicKeyTest, Clone)
