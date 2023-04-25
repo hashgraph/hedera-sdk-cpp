@@ -21,7 +21,9 @@
 #define HEDERA_SDK_CPP_TRANSACTION_RECEIPT_H_
 
 #include "AccountId.h"
+#include "ContractId.h"
 #include "ExchangeRateSet.h"
+#include "FileId.h"
 #include "Status.h"
 
 #include <optional>
@@ -59,9 +61,28 @@ public:
    * Get the ID of the account that was created as a result of the submitted transaction. Only valid is this
    * TransactionReceipt is for an AccountCreateTransaction.
    *
-   * @return The ID of the created account.
+   * @return The ID of the created account. Uninitialized if the corresponding Transaction was not an
+   * AccountCreateTransaction.
    */
   [[nodiscard]] inline std::optional<AccountId> getAccountId() const { return mAccountId; };
+
+  /**
+   * Get the ID of the file that was created as a result of the submitted transaction. Only valid is this
+   * TransactionReceipt is for an FileCreateTransaction.
+   *
+   * @return The ID of the created file. Uninitialized if the corresponding Transaction was not an
+   * FileCreateTransaction.
+   */
+  [[nodiscard]] inline std::optional<FileId> getFileId() const { return mFileId; };
+
+  /**
+   * Get the ID of the contract that was created as a result of the submitted transaction. Only valid is this
+   * TransactionReceipt is for an ContractCreateTransaction.
+   *
+   * @return The ID of the created contract. Uninitialized if the corresponding Transaction was not an
+   * ContractCreateTransaction.
+   */
+  [[nodiscard]] inline std::optional<ContractId> getContractId() const { return mContractId; };
 
   /**
    * Get the exchange rates in effect when the transaction reached consensus.
@@ -81,6 +102,16 @@ private:
    * In the receipt of a CryptoCreate, the ID of the newly created account.
    */
   std::optional<AccountId> mAccountId;
+
+  /**
+   * In the receipt of a FileCreate, the ID of the newly created file.
+   */
+  std::optional<FileId> mFileId;
+
+  /**
+   * In the receipt of a ContractCreate, the ID of the newly created contract.
+   */
+  std::optional<ContractId> mContractId;
 
   /**
    * The exchange rates in effect when the transaction reached consensus.

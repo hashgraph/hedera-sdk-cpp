@@ -21,10 +21,13 @@
 #define HEDERA_SDK_CPP_CONTRACT_CALL_QUERY_H_
 
 #include "AccountId.h"
+#include "ContractFunctionParameters.h"
 #include "ContractId.h"
 #include "Query.h"
 
 #include <cstddef>
+#include <optional>
+#include <string_view>
 #include <vector>
 
 namespace Hedera
@@ -48,6 +51,17 @@ namespace Hedera
 class ContractCallQuery : public Query<ContractCallQuery, ContractFunctionResult>
 {
 public:
+  /**
+   * Set the function name to call. Optionally, function parameters can be passed as well.
+   *
+   * @param name       The name of the function to call.
+   * @param parameters The parameters to pass to the function.
+   * @return A reference to this ContractCallQuery object with the newly-set function name and optional function
+   *         parameters.
+   */
+  ContractCallQuery& setFunction(std::string_view name,
+                                 const ContractFunctionParameters& parameters = ContractFunctionParameters());
+
   /**
    * Set the ID of the contract from which to call a function.
    *
@@ -104,9 +118,10 @@ public:
   /**
    * Get the ID of the account this query is currently configured to use as the sender.
    *
-   * @return The ID of the account this query is currently configured to use as the sender.
+   * @return The ID of the account this query is currently configured to use as the sender. Uninitialized if no sender
+   *         account ID has been set.
    */
-  [[nodiscard]] inline AccountId getSenderAccountId() const { return mSenderAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getSenderAccountId() const { return mSenderAccountId; }
 
 private:
   /**
@@ -169,7 +184,7 @@ private:
   /**
    * The ID of the account this query should use as the sender.
    */
-  AccountId mSenderAccountId;
+  std::optional<AccountId> mSenderAccountId;
 };
 
 } // namespace Hedera

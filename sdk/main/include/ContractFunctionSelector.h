@@ -31,18 +31,9 @@ class ContractFunctionSelector
 {
 public:
   /**
-   * Add the function name.
-   *
-   * @param name The name of the function
-   * @return A reference to this ContractFunctionSelector with the newly-added function name.
-   */
-  ContractFunctionSelector& addName(std::string_view name);
-
-  /**
    * Add a string parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added string parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addString();
 
@@ -50,7 +41,6 @@ public:
    * Add a string array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added string array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addStringArray();
 
@@ -58,7 +48,6 @@ public:
    * Add a bytes parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added bytes parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addBytes();
 
@@ -66,7 +55,6 @@ public:
    * Add a bytes array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added bytes array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addBytesArray();
 
@@ -74,7 +62,6 @@ public:
    * Add a bytes32 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added bytes32 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addBytes32();
 
@@ -82,7 +69,6 @@ public:
    * Add a bytes32 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added bytes32 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addBytes32Array();
 
@@ -90,7 +76,6 @@ public:
    * Add a bool parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added bool parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addBool();
 
@@ -98,7 +83,6 @@ public:
    * Add an int8 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added int8 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addInt8();
 
@@ -106,7 +90,6 @@ public:
    * Add an int32 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added int32 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addInt32();
 
@@ -114,7 +97,6 @@ public:
    * Add an int64 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added int64 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addInt64();
 
@@ -122,7 +104,6 @@ public:
    * Add an int256 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added int256 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addInt256();
 
@@ -130,7 +111,6 @@ public:
    * Add an int8 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added int8 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addInt8Array();
 
@@ -138,7 +118,6 @@ public:
    * Add an int32 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added int32 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addInt32Array();
 
@@ -146,7 +125,6 @@ public:
    * Add an int64 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added int64 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addInt64Array();
 
@@ -154,7 +132,6 @@ public:
    * Add an int256 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added int256 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addInt256Array();
 
@@ -162,7 +139,6 @@ public:
    * Add a uint8 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added uint8 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addUint8();
 
@@ -170,7 +146,6 @@ public:
    * Add a uint32 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added uint32 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addUint32();
 
@@ -178,7 +153,6 @@ public:
    * Add a uint64 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added uint64 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addUint64();
 
@@ -186,7 +160,6 @@ public:
    * Add a uint256 parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added uint256 parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addUint256();
 
@@ -194,7 +167,6 @@ public:
    * Add a uint8 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added uint8 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addUint8Array();
 
@@ -202,7 +174,6 @@ public:
    * Add a uint32 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added uint32 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addUint32Array();
 
@@ -210,7 +181,6 @@ public:
    * Add a uint64 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added uint64 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addUint64Array();
 
@@ -218,7 +188,6 @@ public:
    * Add a uint256 array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added uint256 array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addUint256Array();
 
@@ -226,7 +195,6 @@ public:
    * Add an address parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added address parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addAddress();
 
@@ -234,7 +202,6 @@ public:
    * Add an address array parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added address array parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addAddressArray();
 
@@ -242,17 +209,16 @@ public:
    * Add a function parameter.
    *
    * @return A reference to this ContractFunctionSelector with the newly-added function parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addFunction();
 
   /**
-   * Get the function selector bytes for all currently added parameters. No more parameters may be added after this
-   * method call. However, this can be called multiple times to return the same result.
+   * Get the function selector bytes for all currently added parameters.
    *
+   * @param name The name of the function.
    * @return The Solidity function selector bytes.
    */
-  std::vector<std::byte> finish();
+  [[nodiscard]] std::vector<std::byte> finish(std::string_view name = "") const;
 
 private:
   /**
@@ -260,7 +226,6 @@ private:
    *
    * @param type The name of the type to add.
    * @return A reference to this ContractFunctionSelector with the newly-added parameter.
-   * @throws IllegalStateException If the Solidity function selector bytes have already been compiled.
    */
   ContractFunctionSelector& addParameter(std::string_view type);
 
@@ -268,11 +233,6 @@ private:
    * The bytes of the function.
    */
   std::vector<std::byte> mFunctionCall;
-
-  /**
-   * The final compiled Solidity function selector bytes.
-   */
-  std::vector<std::byte> mSelectorBytes;
 
   /**
    * Should a comma be added before adding a parameter?

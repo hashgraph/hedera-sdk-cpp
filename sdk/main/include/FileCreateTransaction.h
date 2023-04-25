@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_
 #define HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_
 
+#include "Defaults.h"
 #include "PublicKey.h"
 #include "Transaction.h"
 
@@ -172,7 +173,7 @@ private:
   /**
    * The time at which the new file will expire.
    */
-  std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now();
+  std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now() + DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The key that must sign Transactions to mutate the new file.

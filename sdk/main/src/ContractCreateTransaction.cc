@@ -248,7 +248,11 @@ proto::ContractCreateTransactionBody* ContractCreateTransaction::build() const
     new std::string(internal::Utilities::byteVectorToString(mConstructorParameters)));
   body->set_allocated_memo(new std::string(mMemo));
   body->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
-  body->set_allocated_auto_renew_account_id(mAutoRenewAccountId.toProtobuf().release());
+
+  if (mAutoRenewAccountId.has_value())
+  {
+    body->set_allocated_auto_renew_account_id(mAutoRenewAccountId->toProtobuf().release());
+  }
 
   if (mStakedAccountId.has_value())
   {

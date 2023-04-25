@@ -167,7 +167,7 @@ TEST_F(ContractFunctionParametersTest, EncodeFunctions)
 {
   // Given
   ContractFunctionParameters contractFunctionParameters = ContractFunctionParameters().addFunction(
-    "0x1122334455667788990011223344556677889900", ContractFunctionSelector().addName("randomFunction").addBool());
+    "0x1122334455667788990011223344556677889900", ContractFunctionSelector().addBool().finish("randomFunction"));
 
   // When
   const std::string hexParams = internal::HexConverter::bytesToHex(contractFunctionParameters.toBytes("foo"));

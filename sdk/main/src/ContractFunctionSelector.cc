@@ -37,14 +37,6 @@ constexpr size_t KECCAK_256_HASH_SIZE = 32ULL;
 }
 
 //-----
-ContractFunctionSelector& ContractFunctionSelector::addName(std::string_view name)
-{
-  mFunctionCall = internal::Utilities::concatenateVectors(
-    { internal::Utilities::stringToByteVector(name), { std::byte('(') }, mFunctionCall });
-  return *this;
-}
-
-//-----
 ContractFunctionSelector& ContractFunctionSelector::addString()
 {
   return addParameter("string");
@@ -203,11 +195,6 @@ ContractFunctionSelector& ContractFunctionSelector::addFunction()
 //-----
 ContractFunctionSelector& ContractFunctionSelector::addParameter(std::string_view type)
 {
-  if (!mSelectorBytes.empty())
-  {
-    throw IllegalStateException("Solidity function selector bytes have already been generated");
-  }
-
   if (addComma)
   {
     mFunctionCall.push_back(std::byte(','));
@@ -221,55 +208,50 @@ ContractFunctionSelector& ContractFunctionSelector::addParameter(std::string_vie
 }
 
 //-----
-std::vector<std::byte> ContractFunctionSelector::finish()
+std::vector<std::byte> ContractFunctionSelector::finish(std::string_view name) const
 {
-  if (mSelectorBytes.empty())
+  // Generate the Keccak-256 hash
+  internal::OpenSSLUtils::OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
+  if (!libraryContext)
   {
-    mFunctionCall.push_back(std::byte(')'));
-
-    // Generate the Keccak-256 hash
-    internal::OpenSSLUtils::OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
-    if (!libraryContext)
-    {
-      throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_LIB_CTX_new"));
-    }
-
-    const internal::OpenSSLUtils::EVP_MD messageDigest(EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr));
-    if (!messageDigest)
-    {
-      throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_fetch"));
-    }
-
-    internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
-    if (!messageDigestContext)
-    {
-      throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
-    }
-
-    if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
-    {
-      throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestInit_ex"));
-    }
-
-    if (EVP_DigestUpdate(messageDigestContext.get(),
-                         internal::Utilities::toTypePtr<unsigned char>(mFunctionCall.data()),
-                         mFunctionCall.size()) <= 0)
-    {
-      throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestUpdate"));
-    }
-
-    mSelectorBytes.resize(KECCAK_256_HASH_SIZE);
-    if (EVP_DigestFinal(messageDigestContext.get(),
-                        internal::Utilities::toTypePtr<unsigned char>(mSelectorBytes.data()),
-                        nullptr) <= 0)
-    {
-      throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestFinal_ex"));
-    }
-
-    mFunctionCall.clear();
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_LIB_CTX_new"));
   }
 
-  return { mSelectorBytes.cbegin(), mSelectorBytes.cbegin() + 4 };
+  const internal::OpenSSLUtils::EVP_MD messageDigest(EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr));
+  if (!messageDigest)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_fetch"));
+  }
+
+  internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  if (!messageDigestContext)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
+  }
+
+  if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestInit_ex"));
+  }
+
+  if (const std::vector<std::byte> functionData = internal::Utilities::concatenateVectors(
+        { internal::Utilities::stringToByteVector(name), { std::byte('(') }, mFunctionCall, { std::byte(')') } });
+      EVP_DigestUpdate(messageDigestContext.get(),
+                       internal::Utilities::toTypePtr<unsigned char>(functionData.data()),
+                       functionData.size()) <= 0)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestUpdate"));
+  }
+
+  std::vector<std::byte> selectorBytes;
+  selectorBytes.resize(KECCAK_256_HASH_SIZE);
+  if (EVP_DigestFinal(
+        messageDigestContext.get(), internal::Utilities::toTypePtr<unsigned char>(selectorBytes.data()), nullptr) <= 0)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestFinal_ex"));
+  }
+
+  return { selectorBytes.cbegin(), selectorBytes.cbegin() + 4 };
 }
 
 } // namespace Hedera

@@ -128,6 +128,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     node->decreaseBackoff();
 
     const Status responseStatus = mapResponseStatus(response);
+    // std::cout << gStatusToString.at(responseStatus) << std::endl;
     switch (determineStatus(responseStatus, client, response))
     {
       case ExecutionStatus::SERVER_ERROR:
