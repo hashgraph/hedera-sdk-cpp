@@ -21,7 +21,13 @@
 #include "AccountBalanceQuery.h"
 #include "AccountId.h"
 #include "Client.h"
+#include "ContractCreateTransaction.h"
+#include "ContractDeleteTransaction.h"
+#include "ContractId.h"
 #include "ED25519PrivateKey.h"
+#include "TransactionReceipt.h"
+#include "TransactionResponse.h"
+#include "exceptions/PrecheckStatusException.h"
 
 #include <filesystem>
 #include <fstream>
@@ -35,8 +41,6 @@ using namespace Hedera;
 class AccountBalanceQueryIntegrationTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
-  [[nodiscard]] inline const AccountId& getWrongAccountId() const { return mWrongAccountId; }
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
 
   void SetUp() override
@@ -74,58 +78,111 @@ protected:
     testInputFile.close();
 
     std::unordered_map<std::string, AccountId> networkMap;
-    networkMap.insert(std::pair<std::string, AccountId>(nodeAddressString, accountId));
+    networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
     mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
   }
 
-private:
-  const AccountId mAccountId = AccountId::fromString("0.0.1023");
-  const AccountId mWrongAccountId = AccountId::fromString("0.0.999");
+  [[nodiscard]] ContractId createTestContract() const
+  {
+    return ContractCreateTransaction()
+      .setGas(500000ULL)
+      .execute(getTestClient())
+      .getReceipt(getTestClient())
+      .getContractId()
+      .value();
+  }
 
+  void deleteTestContract(const ContractId& contractId) const
+  {
+    ContractDeleteTransaction()
+      .setContractId(contractId)
+      .setTransferAccountId(AccountId(2ULL)) // Local node operator account
+      .execute(getTestClient());
+  }
+
+private:
   Client mClient;
 };
 
-// Tests invoking of method execute() from AccountBalanceQuery.
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToLocalNode)
+//-----
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithAccountId)
 {
   // Given
-  const auto testAccountId = getTestAccountId();
-  AccountBalanceQuery testAccountBalanceQuery;
-  testAccountBalanceQuery.setAccountId(testAccountId);
+  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId(1023ULL));
 
   // When
-  const Hbar hbarBalance = testAccountBalanceQuery.execute(getTestClient()).getBalance();
+  const AccountBalance accountBalance = accountBalanceQuery.execute(getTestClient());
 
   // Then
-  EXPECT_NE(hbarBalance.toTinybars(), 0);
+  EXPECT_EQ(accountBalance.getBalance(), Hbar(10000LL));
 }
 
-// Tests invoking of method execute() from AccountBalanceQuery withoout AccountId.
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToLocalNodeWithoutAccountId)
+//-----
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteBlankAccountBalanceQuery)
 {
   // Given
-  AccountBalanceQuery testAccountBalanceQuery;
+  AccountBalanceQuery accountBalanceQuery;
 
-  // When
-  const Hbar hbarBalance = testAccountBalanceQuery.execute(getTestClient()).getBalance();
-
-  // Then
-  EXPECT_EQ(hbarBalance.toTinybars(), 0);
+  // When / Then
+  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID
 }
 
-// Tests invoking of method execute() from AccountBalanceQuery with wrong AccountId.
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteRequestToLocalNodeWithWrongAccountId)
+//-----
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithBadAccountId)
 {
   // Given
-  const auto wrongAccountId = getWrongAccountId();
-  AccountBalanceQuery testAccountBalanceQuery;
-  testAccountBalanceQuery.setAccountId(wrongAccountId);
+  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId());
+
+  // When / Then
+  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID
+}
+
+//------
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithValidButNonExistantAccountId)
+{
+  // Given
+  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId(10000ULL));
+
+  // When / Then
+  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID
+}
+
+//-----
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithContractId)
+{
+  // Given
+  ContractId contractId;
+  ASSERT_NO_THROW(contractId = createTestContract());
+  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(contractId);
 
   // When
-  const Hbar hbarBalance = testAccountBalanceQuery.execute(getTestClient()).getBalance();
+  const AccountBalance accountBalance = accountBalanceQuery.execute(getTestClient());
 
   // Then
-  EXPECT_EQ(hbarBalance.toTinybars(), 0);
+  EXPECT_EQ(accountBalance.getBalance(), Hbar(0LL));
+
+  // Clean up
+  deleteTestContract(contractId);
+}
+
+//-----
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithBadContractId)
+{
+  // Given
+  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(ContractId());
+
+  // When / Then
+  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_CONTRACT_ID
+}
+
+//-----
+TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithValidButNonExistantContractId)
+{
+  // Given
+  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(ContractId(1ULL));
+
+  // When / Then
+  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_CONTRACT_ID
 }

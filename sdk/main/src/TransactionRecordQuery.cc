@@ -53,9 +53,9 @@ proto::Query TransactionRecordQuery::makeRequest(const Client& client,
   TransferTransaction tx = TransferTransaction()
                              .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
                              .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1ULL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1ULL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1ULL));
+                             .setMaxTransactionFee(Hbar(1LL))
+                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
+                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
   tx.onSelectNode(node);
   header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
 
@@ -84,28 +84,24 @@ TransactionRecordQuery::determineStatus(Status status, const Client& client, con
         baseStatus =
           Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::determineStatus(
             status, client, response);
-      baseStatus != ExecutionStatus::UNKNOWN)
+      baseStatus == ExecutionStatus::SERVER_ERROR || baseStatus == ExecutionStatus::REQUEST_ERROR)
   {
+    if (status == Status::RECORD_NOT_FOUND)
+    {
+      return ExecutionStatus::RETRY;
+    }
+
     return baseStatus;
   }
 
-  switch (status)
-  {
-    case Status::UNKNOWN:
-    case Status::RECORD_NOT_FOUND:
-      return ExecutionStatus::RETRY;
-    case Status::OK:
-      break;
-    default:
-      return ExecutionStatus::REQUEST_ERROR;
-  }
-
-  // Check the actual receipt status value to ensure the record actually holds correct data.
+  // TransactionRecordQuery should wait until the receipt is actually generated. That status data is contained in the
+  // protobuf receipt.
   switch (gProtobufResponseCodeToStatus.at(response.transactiongetrecord().transactionrecord().receipt().status()))
   {
-    case Status::OK:
-    case Status::RECORD_NOT_FOUND:
+    case Status::BUSY:
     case Status::UNKNOWN:
+    case Status::RECORD_NOT_FOUND:
+    case Status::OK:
       return ExecutionStatus::RETRY;
     default:
       return ExecutionStatus::SUCCESS;

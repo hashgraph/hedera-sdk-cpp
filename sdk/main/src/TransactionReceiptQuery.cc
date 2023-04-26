@@ -71,29 +71,23 @@ TransactionReceiptQuery::determineStatus(Status status, const Client& client, co
         baseStatus =
           Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::determineStatus(
             status, client, response);
-      baseStatus != ExecutionStatus::UNKNOWN)
+      baseStatus == ExecutionStatus::SERVER_ERROR || baseStatus == ExecutionStatus::REQUEST_ERROR)
   {
+    if (status == Status::RECEIPT_NOT_FOUND)
+    {
+      return ExecutionStatus::RETRY;
+    }
+
     return baseStatus;
   }
 
-  switch (status)
-  {
-    case Status::UNKNOWN:
-    case Status::RECEIPT_NOT_FOUND:
-      return ExecutionStatus::RETRY;
-    case Status::OK:
-      break;
-    default:
-      return ExecutionStatus::REQUEST_ERROR;
-  }
-
-  // Check the actual receipt status value to ensure the receipt actually holds correct data.
+  // TransactionReceiptQuery should wait until the receipt is actually generated. That status data is contained in the
+  // protobuf receipt.
   switch (gProtobufResponseCodeToStatus.at(response.transactiongetreceipt().receipt().status()))
   {
     case Status::BUSY:
     case Status::UNKNOWN:
     case Status::RECEIPT_NOT_FOUND:
-    case Status::RECORD_NOT_FOUND:
     case Status::OK:
       return ExecutionStatus::RETRY;
     default:
