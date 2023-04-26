@@ -79,9 +79,7 @@ TEST_F(ClientIntegrationTest, ConnectToLocalNode)
   std::string operatorAccountPrivateKey;
   std::ifstream testInputFile(testPathToJSON, std::ios::in);
   std::string nodeAddressString;
-  json jsonData;
-
-  EXPECT_NO_THROW(jsonData = json::parse(testInputFile));
+  json jsonData = json::parse(testInputFile);
 
   if (jsonData[networkTag][accountIdStr].is_string())
   {
