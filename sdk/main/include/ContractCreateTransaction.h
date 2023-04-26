@@ -309,9 +309,10 @@ public:
   /**
    * Get the account to charge for auto-renewal of the new smart contract instance.
    *
-   * @return The account to charge for auto-renewal of the new smart contract instance.
+   * @return The account to charge for auto-renewal of the new smart contract instance. Uninitialized if no auto-renew
+   *         account ID has been set.
    */
-  [[nodiscard]] inline AccountId getAutoRenewAccountId() const { return mAutoRenewAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getAutoRenewAccountId() const { return mAutoRenewAccountId; }
 
   /**
    * Get the ID of the account to which the new smart contract instance should stake.
@@ -404,7 +405,7 @@ private:
    * enough balance, it extends as long as possible. If the balance is zero when it expires, then the smart contract
    * instance is deleted.
    */
-  std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(0);
+  std::chrono::duration<double> mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The parameters to pass to the new smart contract instance's constructor.
@@ -424,7 +425,7 @@ private:
   /**
    * The account to charge for auto-renewal of the new smart contract instance.
    */
-  AccountId mAutoRenewAccountId;
+  std::optional<AccountId> mAutoRenewAccountId;
 
   /**
    * The ID of the account to which the new smart contract instance will be staked. Mutually exclusive with

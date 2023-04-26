@@ -100,6 +100,13 @@ public:
   [[nodiscard]] std::unique_ptr<proto::ContractID> toProtobuf() const;
 
   /**
+   * Get a string representation of this ContractId object with the form "<shard>.<realm>.<num>".
+   *
+   * @return A string representation of this ContractId.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
    * Set the shard number.
    *
    * @param num The desired shard number to set.

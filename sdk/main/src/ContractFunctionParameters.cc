@@ -508,16 +508,23 @@ ContractFunctionParameters& ContractFunctionParameters::addAddressArray(const st
 
 //-----
 ContractFunctionParameters& ContractFunctionParameters::addFunction(std::string_view address,
-                                                                    ContractFunctionSelector& selector)
+                                                                    const ContractFunctionSelector& selector)
+{
+  return addFunction(address, selector.finish());
+}
+
+//-----
+ContractFunctionParameters& ContractFunctionParameters::addFunction(std::string_view address,
+                                                                    const std::vector<std::byte>& selector)
 {
   mFunction.addFunction();
-  mArguments.emplace_back(
-    rightPad(internal::Utilities::concatenateVectors({ encodeAddress(address), selector.finish() })), false);
+  mArguments.emplace_back(rightPad(internal::Utilities::concatenateVectors({ encodeAddress(address), selector })),
+                          false);
   return *this;
 }
 
 //-----
-std::vector<std::byte> ContractFunctionParameters::toBytes(std::string_view name)
+std::vector<std::byte> ContractFunctionParameters::toBytes(std::string_view name) const
 {
   // Keep track of the offset for dynamic-length data. They come immediately after the value arguments.
   size_t dynamicOffset = mArguments.size() * 32ULL;
@@ -543,8 +550,7 @@ std::vector<std::byte> ContractFunctionParameters::toBytes(std::string_view name
   std::vector<std::byte> functionBytes;
   if (!name.empty())
   {
-    mFunction.addName(name);
-    functionBytes = mFunction.finish();
+    functionBytes = mFunction.finish(name);
   }
 
   return internal::Utilities::concatenateVectors({ functionBytes, paramsBytes, dynamicBytes });

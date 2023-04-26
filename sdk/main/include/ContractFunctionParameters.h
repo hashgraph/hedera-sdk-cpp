@@ -241,12 +241,12 @@ public:
    * Add a Solidity function parameter type.
    *
    * @param address  The Solidity address of the function.
-   * @param selector The ContractFunctionSelector to use to call the function. Note, the selector will not be able to be
-   *                 modified after this call.
+   * @param selector The ContractFunctionSelector to use to call the function, or the selector bytes.
    * @return A reference to this ContractFunctionParameters with the newly-added function parameter.
    * @throws std::invalid_argument If the input address is malformed.
    */
-  ContractFunctionParameters& addFunction(std::string_view address, ContractFunctionSelector& selector);
+  ContractFunctionParameters& addFunction(std::string_view address, const ContractFunctionSelector& selector);
+  ContractFunctionParameters& addFunction(std::string_view address, const std::vector<std::byte>& selector);
 
   /**
    * Get the encoding of the currently-added parameters.
@@ -254,7 +254,7 @@ public:
    * @param name The name of the function to which these parameters are being passed.
    * @return The encoding of the function parameters.
    */
-  std::vector<std::byte> toBytes(std::string_view name = "");
+  [[nodiscard]] std::vector<std::byte> toBytes(std::string_view name = "") const;
 
 private:
   /**
