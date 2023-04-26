@@ -214,6 +214,35 @@ TEST_F(ContractIdTest, ToProtobuf)
 }
 
 //-----
+TEST_F(ContractIdTest, ToString)
+{
+  // Given
+  const ContractId contractIdDefault;
+  const ContractId contractIdContractNum(getTestContractNum());
+  const ContractId contractIdEvmAddress(getTestEvmAddress());
+  const ContractId contractIdShardRealmContractNum(getTestShardNum(), getTestRealmNum(), getTestContractNum());
+  const ContractId contractIdShardRealmEvmAddress(getTestShardNum(), getTestRealmNum(), getTestEvmAddress());
+
+  // When
+  const std::string strContractIdDefault = contractIdDefault.toString();
+  const std::string strContractIdContractNum = contractIdContractNum.toString();
+  const std::string strContractIdEvmAddress = contractIdEvmAddress.toString();
+  const std::string strContractIdShardRealmContractNum = contractIdShardRealmContractNum.toString();
+  const std::string strContractIdShardRealmEvmAddress = contractIdShardRealmEvmAddress.toString();
+
+  // Then
+  EXPECT_EQ(strContractIdDefault, "0.0.0");
+  EXPECT_EQ(strContractIdContractNum, "0.0." + std::to_string(getTestContractNum()));
+  EXPECT_EQ(strContractIdEvmAddress, "0.0." + getTestEvmAddress().toString());
+  EXPECT_EQ(strContractIdShardRealmContractNum,
+            std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
+              std::to_string(getTestContractNum()));
+  EXPECT_EQ(strContractIdShardRealmEvmAddress,
+            std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
+              getTestEvmAddress().toString());
+}
+
+//-----
 TEST_F(ContractIdTest, GetSetShardNum)
 {
   // Given

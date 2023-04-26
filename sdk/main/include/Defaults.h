@@ -42,6 +42,10 @@ constexpr auto DEFAULT_MAX_BACKOFF = std::chrono::seconds(8);
  * The default maximum transaction fee.
  */
 constexpr auto DEFAULT_MAX_TRANSACTION_FEE = Hbar(2LL);
+/**
+ * The default auto-renew period.
+ */
+constexpr auto DEFAULT_AUTO_RENEW_PERIOD = std::chrono::hours(2160);
 }
 
 #endif // HEDERA_SDK_CPP_DEFAULTS_H_

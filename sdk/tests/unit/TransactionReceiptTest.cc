@@ -29,27 +29,39 @@ using namespace Hedera;
 class TransactionReceiptTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
+  [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
+  [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
 
 private:
-  const AccountId mAccountId = AccountId(0ULL, 0ULL, 10ULL);
+  const AccountId mTestAccountId = AccountId(1ULL);
+  const FileId mTestFileId = FileId(2ULL);
+  const ContractId mTestContractId = ContractId(3ULL);
 };
 
+//-----
 TEST_F(TransactionReceiptTest, ConstructTransactionReceipt)
 {
-  TransactionReceipt transactionReceipt;
+  // Given / When
+  const TransactionReceipt transactionReceipt;
+
+  // Then
   EXPECT_EQ(transactionReceipt.getStatus(), Status::UNKNOWN);
   EXPECT_FALSE(transactionReceipt.getAccountId().has_value());
+  EXPECT_FALSE(transactionReceipt.getFileId().has_value());
+  EXPECT_FALSE(transactionReceipt.getContractId().has_value());
   EXPECT_FALSE(transactionReceipt.getExchangeRates().has_value());
 }
 
-// Tests deserialization of Hedera::TransactionReceipt -> proto::TransactionReceipt.
+//-----
 TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
 {
   // Given
   proto::TransactionReceipt protoTxReceipt;
   protoTxReceipt.set_status(proto::ResponseCodeEnum::SUCCESS);
   protoTxReceipt.set_allocated_accountid(getTestAccountId().toProtobuf().release());
+  protoTxReceipt.set_allocated_fileid(getTestFileId().toProtobuf().release());
+  protoTxReceipt.set_allocated_contractid(getTestContractId().toProtobuf().release());
 
   const int32_t value = 6;
   const int32_t secs = 100;
@@ -63,15 +75,20 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   protoExRateSet->mutable_nextrate()->mutable_expirationtime()->set_seconds(secs);
 
   // When
-  TransactionReceipt txRx = TransactionReceipt::fromProtobuf(protoTxReceipt);
+  const TransactionReceipt txRx = TransactionReceipt::fromProtobuf(protoTxReceipt);
 
   // Then
   EXPECT_EQ(txRx.getStatus(), Status::SUCCESS);
+  ASSERT_TRUE(txRx.getAccountId().has_value());
   EXPECT_EQ(txRx.getAccountId(), getTestAccountId());
-  EXPECT_TRUE(txRx.getExchangeRates().has_value());
-  EXPECT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate().has_value());
+  ASSERT_TRUE(txRx.getFileId().has_value());
+  EXPECT_EQ(txRx.getFileId(), getTestFileId());
+  ASSERT_TRUE(txRx.getContractId().has_value());
+  EXPECT_EQ(txRx.getContractId(), getTestContractId());
+  ASSERT_TRUE(txRx.getExchangeRates().has_value());
+  ASSERT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate().has_value());
   EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getCurrentExchangeRate(), value / value);
-  EXPECT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime().has_value());
+  ASSERT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime().has_value());
   EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime(),
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
   EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate().has_value());

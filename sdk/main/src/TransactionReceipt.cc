@@ -34,6 +34,16 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
     receipt.mAccountId = AccountId::fromProtobuf(proto.accountid());
   }
 
+  if (proto.has_fileid())
+  {
+    receipt.mFileId = FileId::fromProtobuf(proto.fileid());
+  }
+
+  if (proto.has_contractid())
+  {
+    receipt.mContractId = ContractId::fromProtobuf(proto.contractid());
+  }
+
   if (proto.has_exchangerate())
   {
     receipt.mExchangeRates = ExchangeRateSet::fromProtobuf(proto.exchangerate());

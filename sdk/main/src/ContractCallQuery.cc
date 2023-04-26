@@ -25,13 +25,19 @@
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
-#include <proto/contract_call.pb.h>
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
 
 namespace Hedera
 {
+//-----
+ContractCallQuery& ContractCallQuery::setFunction(std::string_view name, const ContractFunctionParameters& parameters)
+{
+  setFunctionParameters(parameters.toBytes(name));
+  return *this;
+}
+
 //-----
 ContractCallQuery& ContractCallQuery::setContractId(const ContractId& contractId)
 {
@@ -82,7 +88,11 @@ proto::Query ContractCallQuery::makeRequest(const Client& client, const std::sha
   callLocalQuery->set_gas(static_cast<int64_t>(mGas));
   callLocalQuery->set_allocated_functionparameters(
     new std::string(internal::Utilities::byteVectorToString(mFunctionParameters)));
-  callLocalQuery->set_allocated_sender_id(mSenderAccountId.toProtobuf().release());
+
+  if (mSenderAccountId.has_value())
+  {
+    callLocalQuery->set_allocated_sender_id(mSenderAccountId->toProtobuf().release());
+  }
 
   return query;
 }

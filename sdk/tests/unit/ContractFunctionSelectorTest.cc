@@ -35,7 +35,6 @@ TEST_F(ContractFunctionSelectorTest, AddAllTypes)
 {
   // Given
   ContractFunctionSelector selector = ContractFunctionSelector()
-                                        .addName("testFunction")
                                         .addAddress()
                                         .addAddressArray()
                                         .addBool()
@@ -64,45 +63,9 @@ TEST_F(ContractFunctionSelectorTest, AddAllTypes)
                                         .addStringArray();
 
   // When
-  const std::vector<std::byte> bytes = selector.finish();
+  const std::vector<std::byte> bytes = selector.finish("testFunction");
 
   // Then
   const std::vector<std::byte> expectedBytes = { std::byte(0x44), std::byte(0x38), std::byte(0xE4), std::byte(0xCE) };
   EXPECT_EQ(bytes, expectedBytes);
-}
-
-//-----
-TEST_F(ContractFunctionSelectorTest, ThrowAddingAfterFinish)
-{
-  // Given
-  ContractFunctionSelector selector = ContractFunctionSelector().addName("testFunction");
-  const std::vector<std::byte> bytes = selector.finish();
-
-  // When / Then
-  EXPECT_THROW(selector.addAddress(), IllegalStateException);
-  EXPECT_THROW(selector.addAddressArray(), IllegalStateException);
-  EXPECT_THROW(selector.addBool(), IllegalStateException);
-  EXPECT_THROW(selector.addBytes(), IllegalStateException);
-  EXPECT_THROW(selector.addBytes32(), IllegalStateException);
-  EXPECT_THROW(selector.addBytes32Array(), IllegalStateException);
-  EXPECT_THROW(selector.addBytesArray(), IllegalStateException);
-  EXPECT_THROW(selector.addFunction(), IllegalStateException);
-  EXPECT_THROW(selector.addInt8(), IllegalStateException);
-  EXPECT_THROW(selector.addInt8Array(), IllegalStateException);
-  EXPECT_THROW(selector.addInt32(), IllegalStateException);
-  EXPECT_THROW(selector.addInt32Array(), IllegalStateException);
-  EXPECT_THROW(selector.addInt64(), IllegalStateException);
-  EXPECT_THROW(selector.addInt64Array(), IllegalStateException);
-  EXPECT_THROW(selector.addInt256(), IllegalStateException);
-  EXPECT_THROW(selector.addInt256Array(), IllegalStateException);
-  EXPECT_THROW(selector.addUint8(), IllegalStateException);
-  EXPECT_THROW(selector.addUint8Array(), IllegalStateException);
-  EXPECT_THROW(selector.addUint32(), IllegalStateException);
-  EXPECT_THROW(selector.addUint32Array(), IllegalStateException);
-  EXPECT_THROW(selector.addUint64(), IllegalStateException);
-  EXPECT_THROW(selector.addUint64Array(), IllegalStateException);
-  EXPECT_THROW(selector.addUint256(), IllegalStateException);
-  EXPECT_THROW(selector.addUint256Array(), IllegalStateException);
-  EXPECT_THROW(selector.addString(), IllegalStateException);
-  EXPECT_THROW(selector.addStringArray(), IllegalStateException);
 }

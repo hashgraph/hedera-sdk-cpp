@@ -107,6 +107,26 @@ std::unique_ptr<proto::ContractID> ContractId::toProtobuf() const
 }
 
 //-----
+std::string ContractId::toString() const
+{
+  std::string str = std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.';
+
+  if (mContractNum)
+  {
+    return str + std::to_string(*mContractNum);
+  }
+  else if (mEvmAddress)
+  {
+    return str + mEvmAddress->toString();
+  }
+  else
+  {
+    // Uninitialized case
+    return str + '0';
+  }
+}
+
+//-----
 ContractId& ContractId::setShardNum(const uint64_t& num)
 {
   mShardNum = num;
