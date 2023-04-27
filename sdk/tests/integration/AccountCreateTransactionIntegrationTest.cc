@@ -111,18 +111,19 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
   const uint32_t testMaxAutomaticTokenAssociations = 4U;
 
   // When
-  const TransactionResponse txResponse = AccountCreateTransaction()
-                                           .setKey(testPublicKey)
-                                           .setInitialBalance(testInitialBalance)
-                                           .setReceiverSignatureRequired(true)
-                                           .setAutoRenewPeriod(testAutoRenewPeriod)
-                                           .setAccountMemo(testMemo)
-                                           .setMaxAutomaticTokenAssociations(testMaxAutomaticTokenAssociations)
-                                           .setDeclineStakingReward(true)
-                                           .setAlias(testEvmAddress)
-                                           .freezeWith(getTestClient())
-                                           .sign(testPrivateKey.get())
-                                           .execute(getTestClient());
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
+                                 .setKey(testPublicKey)
+                                 .setInitialBalance(testInitialBalance)
+                                 .setReceiverSignatureRequired(true)
+                                 .setAutoRenewPeriod(testAutoRenewPeriod)
+                                 .setAccountMemo(testMemo)
+                                 .setMaxAutomaticTokenAssociations(testMaxAutomaticTokenAssociations)
+                                 .setDeclineStakingReward(true)
+                                 .setAlias(testEvmAddress)
+                                 .freezeWith(getTestClient())
+                                 .sign(testPrivateKey.get())
+                                 .execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -157,16 +158,19 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionM
   const uint64_t nodeId = 0ULL;
 
   // When
-  const TransactionResponse txResponseStakedAccountId = AccountCreateTransaction()
-                                                          .setKey(testPublicKey)
-                                                          .setStakedAccountId(operatorAccountId)
-                                                          .freezeWith(getTestClient())
-                                                          .execute(getTestClient());
-  const TransactionResponse txResponseStakedNodeId = AccountCreateTransaction()
-                                                       .setKey(testPublicKey)
-                                                       .setStakedNodeId(nodeId)
-                                                       .freezeWith(getTestClient())
-                                                       .execute(getTestClient());
+  TransactionResponse txResponseStakedAccountId;
+  TransactionResponse txResponseStakedNodeId;
+
+  EXPECT_NO_THROW(txResponseStakedAccountId = AccountCreateTransaction()
+                                                .setKey(testPublicKey)
+                                                .setStakedAccountId(operatorAccountId)
+                                                .freezeWith(getTestClient())
+                                                .execute(getTestClient()));
+  EXPECT_NO_THROW(txResponseStakedNodeId = AccountCreateTransaction()
+                                             .setKey(testPublicKey)
+                                             .setStakedNodeId(nodeId)
+                                             .freezeWith(getTestClient())
+                                             .execute(getTestClient()));
 
   // Then
   AccountId accountIdStakedAccountId;
@@ -204,10 +208,12 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionM
 //-----
 TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionWithNoInitialBalance)
 {
-  // Given / When
+  // Given
   const std::unique_ptr<ED25519PrivateKey> testKey = ED25519PrivateKey::generatePrivateKey();
-  const TransactionResponse txResponse =
-    AccountCreateTransaction().setKey(testKey->getPublicKey()).execute(getTestClient());
+
+  // When
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = AccountCreateTransaction().setKey(testKey->getPublicKey()).execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -246,8 +252,9 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionW
                                      .value());
 
   // When
-  const TransactionResponse txResponse =
-    AccountCreateTransaction().setKey(adminKey).setAlias(evmAddress).execute(getTestClient());
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse =
+                    AccountCreateTransaction().setKey(adminKey).setAlias(evmAddress).execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -289,13 +296,14 @@ TEST_F(AccountCreateTransactionIntegrationTest,
                                      .value());
 
   // When
-  const TransactionResponse txResponse = AccountCreateTransaction()
-                                           .setReceiverSignatureRequired(true)
-                                           .setKey(adminKeyPublicKey)
-                                           .setAlias(evmAddress)
-                                           .freezeWith(getTestClient())
-                                           .sign(adminKeyPrivateKey.get())
-                                           .execute(getTestClient());
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
+                                 .setReceiverSignatureRequired(true)
+                                 .setKey(adminKeyPublicKey)
+                                 .setAlias(evmAddress)
+                                 .freezeWith(getTestClient())
+                                 .sign(adminKeyPrivateKey.get())
+                                 .execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -371,14 +379,15 @@ TEST_F(AccountCreateTransactionIntegrationTest,
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(aliasPrivateKey->getPublicKey())->toEvmAddress();
 
   // When
-  const TransactionResponse txResponse = AccountCreateTransaction()
-                                           .setReceiverSignatureRequired(true)
-                                           .setKey(adminPrivateKey->getPublicKey())
-                                           .setAlias(alias)
-                                           .freezeWith(getTestClient())
-                                           .sign(adminPrivateKey.get())
-                                           .sign(aliasPrivateKey.get())
-                                           .execute(getTestClient());
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
+                                 .setReceiverSignatureRequired(true)
+                                 .setKey(adminPrivateKey->getPublicKey())
+                                 .setAlias(alias)
+                                 .freezeWith(getTestClient())
+                                 .sign(adminPrivateKey.get())
+                                 .sign(aliasPrivateKey.get())
+                                 .execute(getTestClient()));
 
   // Then
   AccountId accountId;

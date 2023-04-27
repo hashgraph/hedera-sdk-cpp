@@ -141,7 +141,8 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveHbarAllowance)
   AccountAllowanceApproveTransaction transaction;
 
   // When
-  transaction.approveHbarAllowance(getTestOwnerAccountId(), getTestSpenderAccountId(), getTestAmountHbar());
+  EXPECT_NO_THROW(
+    transaction.approveHbarAllowance(getTestOwnerAccountId(), getTestSpenderAccountId(), getTestAmountHbar()));
 
   // Then
   ASSERT_EQ(transaction.getHbarApprovals().size(), 1);
@@ -155,7 +156,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveHbarAllowanceFrozen)
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
   EXPECT_THROW(
@@ -182,8 +183,8 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveTokenAllowance)
   AccountAllowanceApproveTransaction transaction;
 
   // When
-  transaction.approveTokenAllowance(
-    getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId(), getTestAmountHbar().toTinybars());
+  EXPECT_NO_THROW(transaction.approveTokenAllowance(
+    getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId(), getTestAmountHbar().toTinybars()));
 
   // Then
   ASSERT_EQ(transaction.getTokenApprovals().size(), 1);
@@ -198,7 +199,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveTokenAllowanceFrozen)
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
   EXPECT_THROW(
@@ -218,11 +219,12 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowance)
   // When
   for (const uint64_t& num : getTestSerialNumbers())
   {
-    transaction.approveTokenNftAllowance(
-      NftId(getTestTokenId(), num), getTestOwnerAccountId(), getTestSpenderAccountId());
+    EXPECT_NO_THROW(transaction.approveTokenNftAllowance(
+      NftId(getTestTokenId(), num), getTestOwnerAccountId(), getTestSpenderAccountId()));
   }
 
-  transaction.approveTokenNftAllowance(NftId(tokenId, serialNum), getTestOwnerAccountId(), getTestSpenderAccountId());
+  EXPECT_NO_THROW(transaction.approveTokenNftAllowance(
+    NftId(tokenId, serialNum), getTestOwnerAccountId(), getTestSpenderAccountId()));
 
   // Then
   ASSERT_EQ(transaction.getNftApprovals().size(), 2);
@@ -248,7 +250,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceFrozen)
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.approveTokenNftAllowance(
@@ -263,7 +265,8 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceAllSerials)
   AccountAllowanceApproveTransaction transaction;
 
   // When
-  transaction.approveNftAllowanceAllSerials(getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId());
+  EXPECT_NO_THROW(
+    transaction.approveNftAllowanceAllSerials(getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId()));
 
   // Then
   ASSERT_EQ(transaction.getNftApprovals().size(), 1);
@@ -281,7 +284,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceAllSerialsFroz
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
   EXPECT_THROW(

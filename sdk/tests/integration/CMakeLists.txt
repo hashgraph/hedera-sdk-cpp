@@ -1,5 +1,6 @@
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-integration-tests)
 add_executable(${TEST_PROJECT_NAME}
+        AccountAllowanceApproveTransactionIntegrationTests.cc
         AccountBalanceQueryIntegrationTest.cc
         AccountCreateTransactionIntegrationTest.cc
         ClientIntegrationTest.cc
