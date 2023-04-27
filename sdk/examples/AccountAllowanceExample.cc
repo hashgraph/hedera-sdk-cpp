@@ -30,6 +30,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "exceptions/ReceiptStatusException.h"
 
 #include <iostream>
 
@@ -127,17 +128,22 @@ int main(int argc, char** argv)
   std::cout << "Going to attempt to transfer another 2 Hbar from Alice to Charlie using Bob's allowance. "
                "However, this should fail since there should only be 1 Hbar left in Bob's allowance"
             << std::endl;
-  txReceipt = TransferTransaction()
-                .addApprovedHbarTransfer(aliceAccountId, Hbar(-2LL))
-                .addHbarTransfer(charlieAccountId, Hbar(2LL))
-                .setTransactionId(TransactionId::generate(bobAccountId))
-                .freezeWith(client)
-                .sign(bobPrivateKey.get())
-                .execute(client)
-                .getReceipt(client);
-  std::cout << "Transfer of 2 Hbar from Alice to Charlie, using Bob's allowance: "
-            << gStatusToString.at(txReceipt.getStatus()) << std::endl
-            << std::endl;
+  try
+  {
+    txReceipt = TransferTransaction()
+                  .addApprovedHbarTransfer(aliceAccountId, Hbar(-2LL))
+                  .addHbarTransfer(charlieAccountId, Hbar(2LL))
+                  .setTransactionId(TransactionId::generate(bobAccountId))
+                  .freezeWith(client)
+                  .sign(bobPrivateKey.get())
+                  .execute(client)
+                  .getReceipt(client);
+  }
+  catch (const ReceiptStatusException& ex)
+  {
+    std::cout << "Transfer of 2 Hbar from Alice to Charlie, using Bob's allowance failed: " << ex.what() << std::endl
+              << std::endl;
+  }
 
   std::cout << "Adjusting Bob's allowance to 3 Hbar" << std::endl;
   txReceipt = AccountAllowanceApproveTransaction()

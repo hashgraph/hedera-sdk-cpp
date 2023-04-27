@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_ACCOUNT_CREATE_TRANSACTION_H_
 
 #include "AccountId.h"
+#include "Defaults.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
 #include "PublicKey.h"
@@ -101,7 +102,7 @@ public:
   AccountCreateTransaction& setInitialBalance(const Hbar& initialBalance);
 
   /**
-   * Set the new account's transfer receiver signature policy.
+   * Set the new account's transfer receiver signature policy. This requires the signature of the new account's key.
    *
    * @param receiveSignatureRequired \c TRUE to require the new account to sign any Hbar transfer transactions that
    *                                 involve transferring Hbars into itself, otherwise \c FALSE.
@@ -172,30 +173,14 @@ public:
   AccountCreateTransaction& setDeclineStakingReward(bool declineReward);
 
   /**
-   * Set the key to be used as the new account's alias. Currently, only ED25519/ECDSA_SECP256K1 primitive key types are
-   * supported. ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported.
-   *
-   * A given alias can map to at most one account on the network at a time. This uniqueness will be enforced relative to
-   * aliases currently on the network at alias assignment.
-   *
-   * If a transaction creates an account using an alias, any further crypto transfers to that alias will simply be
-   * deposited in that account, without creating anything, and with no creation fee being charged.
-   *
-   * @param alias The desired key to be used as the account's alias.
-   * @return A reference to this AccountCreateTransaction object with the newly-set account alias.
-   * @throws IllegalStateException If this AccountCreateTransaction is frozen.
-   */
-  AccountCreateTransaction& setPublicKeyAlias(const std::shared_ptr<PublicKey>& alias);
-
-  /**
    * Set the EOA 20-byte address to create for the new account. This EVM address may be either the encoded form of the
    * <shard>.<realm>.<num>, or the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
    *
-   * @param address The desired EVM address for the new account.
-   * @return A reference to this AccountCreateTransaction object with the newly-set EVM address.
+   * @param address The desired EVM address to be used as the account's alias.
+   * @return A reference to this AccountCreateTransaction object with the newly-set EVM address account alias.
    * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
-  AccountCreateTransaction& setEvmAddressAlias(const EvmAddress& address);
+  AccountCreateTransaction& setAlias(const EvmAddress& address);
 
   /**
    * Get the public key to be used for the new account.
@@ -263,18 +248,11 @@ public:
   [[nodiscard]] inline bool getDeclineStakingReward() const { return mDeclineStakingReward; }
 
   /**
-   * Get the key to be used as the new account's alias.
-   *
-   * @return The key to be used as the new account's alias. Nullptr if the alias has not yet been set.
-   */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getPublicKeyAlias() const { return mPublicKeyAlias; }
-
-  /**
    * Get the EVM address of the new account.
    *
    * @return The EVM address of the new account. Returns uninitialized if a value has not yet been set.
    */
-  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddressAlias() const { return mEvmAddressAlias; }
+  [[nodiscard]] inline std::optional<EvmAddress> getAlias() const { return mAlias; }
 
 private:
   /**
@@ -334,7 +312,7 @@ private:
    * extends as long as possible. If the balance is zero when it expires, then the account is deleted. Defaults to 90
    * days (2160 hours).
    */
-  std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(2160);
+  std::chrono::duration<double> mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The memo to be associated with the account (UTF-8 encoding max 100 bytes).
@@ -363,22 +341,9 @@ private:
   bool mDeclineStakingReward = false;
 
   /**
-   * The bytes to be used as the account's alias. It will be the serialization of a protobuf Key message for an
-   * ED25519/ECDSA_SECP256K1 primitive key type. Currently only primitive key bytes are supported as the key for an
-   * account with an alias. ThresholdKey, KeyList, ContractID, and delegatable_contract_id are not supported.
-   *
-   * A given alias can map to at most one account on the network at a time. This uniqueness will be enforced relative to
-   * aliases currently on the network at alias assignment.
-   *
-   * If a transaction creates an account using an alias, any further crypto transfers to that alias will
-   * simply be deposited in that account, without creating anything, and with no creation fee being charged.
-   */
-  std::shared_ptr<PublicKey> mPublicKeyAlias = nullptr;
-
-  /**
    * The EOA 20-byte address to create that is derived from the keccak-256 hash of a ECDSA_SECP256K1 primitive key.
    */
-  std::optional<EvmAddress> mEvmAddressAlias;
+  std::optional<EvmAddress> mAlias;
 };
 
 } // namespace Hedera

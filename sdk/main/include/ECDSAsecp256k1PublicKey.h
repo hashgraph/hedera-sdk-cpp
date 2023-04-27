@@ -29,6 +29,11 @@
 
 namespace Hedera
 {
+class EvmAddress;
+}
+
+namespace Hedera
+{
 /**
  * A class representing an ECDSA secp256k1 public key.
  */
@@ -174,6 +179,14 @@ public:
    * @throws OpenSSLException If OpenSSL is unable to serialize this ECDSAsecp256k1PublicKey.
    */
   [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
+
+  /**
+   * Construct an EvmAddress from this ECDSAsecp256k1PublicKey. The constructed EvmAddress will be the last 20 bytes of
+   * the keccak-256 hash of this ECDSAsecp256k1PublicKey.
+   *
+   * @return The constructed EvmAddress.
+   */
+  [[nodiscard]] EvmAddress toEvmAddress() const;
 
 private:
   /**

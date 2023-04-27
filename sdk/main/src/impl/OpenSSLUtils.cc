@@ -22,6 +22,7 @@
 #include "impl/Utilities.h"
 #include "impl/openssl_utils/EVP_MD.h"
 #include "impl/openssl_utils/EVP_MD_CTX.h"
+#include "impl/openssl_utils/OSSL_LIB_CTX.h"
 
 #include <openssl/err.h>
 #include <openssl/hmac.h>
@@ -31,18 +32,6 @@
 
 namespace Hedera::internal::OpenSSLUtils
 {
-namespace
-{
-// The size of a SHA256 hash (in bytes).
-constexpr const size_t SHA256_HASH_SIZE = 32ULL;
-// The size of a SHA384 hash (in bytes).
-constexpr const size_t SHA384_HASH_SIZE = 48ULL;
-// The size of a SHA512 hash (in bytes).
-constexpr const size_t SHA512_HMAC_HASH_SIZE = 64ULL;
-// The size of an OpenSSL error message.
-constexpr const size_t ERROR_MSG_SIZE = 256ULL;
-}
-
 //-----
 std::vector<std::byte> computeSHA256(const std::vector<std::byte>& data)
 {
@@ -61,6 +50,49 @@ std::vector<std::byte> computeSHA384(const std::vector<std::byte>& data)
          data.size(),
          Utilities::toTypePtr<unsigned char>(outputBytes.data()));
   return outputBytes;
+}
+
+//-----
+std::vector<std::byte> computeKECCAK256(const std::vector<std::byte>& data)
+{
+  internal::OpenSSLUtils::OSSL_LIB_CTX libraryContext(OSSL_LIB_CTX_new());
+  if (!libraryContext)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_LIB_CTX_new"));
+  }
+
+  const internal::OpenSSLUtils::EVP_MD messageDigest(EVP_MD_fetch(libraryContext.get(), "KECCAK-256", nullptr));
+  if (!messageDigest)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_fetch"));
+  }
+
+  internal::OpenSSLUtils::EVP_MD_CTX messageDigestContext(EVP_MD_CTX_new());
+  if (!messageDigestContext)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_MD_CTX_new"));
+  }
+
+  if (EVP_DigestInit(messageDigestContext.get(), messageDigest.get()) <= 0)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestInit_ex"));
+  }
+
+  if (EVP_DigestUpdate(
+        messageDigestContext.get(), internal::Utilities::toTypePtr<unsigned char>(data.data()), data.size()) <= 0)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestUpdate"));
+  }
+
+  std::vector<std::byte> hash;
+  hash.resize(KECCAK256_HASH_SIZE);
+  if (EVP_DigestFinal(
+        messageDigestContext.get(), internal::Utilities::toTypePtr<unsigned char>(hash.data()), nullptr) <= 0)
+  {
+    throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("EVP_DigestFinal_ex"));
+  }
+
+  return hash;
 }
 
 //-----

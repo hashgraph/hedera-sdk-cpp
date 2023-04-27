@@ -4,6 +4,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountCreateTransactionIntegrationTest.cc
         ClientIntegrationTest.cc
         JSONIntegrationTest.cc
+        TransactionIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc
         TransactionRecordQueryIntegrationTest.cc
         TransferTransactionIntegrationTest.cc)

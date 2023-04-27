@@ -18,6 +18,7 @@
  *
  */
 #include "AccountInfo.h"
+#include "exceptions/BadKeyException.h"
 #include "impl/DurationConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
@@ -64,7 +65,21 @@ AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_Account
 
   if (!proto.alias().empty())
   {
-    accountInfo.mPublicKeyAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(proto.alias()));
+    if (proto.alias().size() == EvmAddress::NUM_BYTES)
+    {
+      accountInfo.mEvmAddressAlias = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.alias()));
+    }
+    else
+    {
+      try
+      {
+        accountInfo.mPublicKeyAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(proto.alias()));
+      }
+      catch (const BadKeyException& ex)
+      {
+        std::cout << "Cannot decode AccountID protobuf alias: " << ex.what() << std::endl;
+      }
+    }
   }
 
   if (!proto.ledger_id().empty())

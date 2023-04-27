@@ -84,24 +84,6 @@ protected:
     mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
   }
 
-  [[nodiscard]] ContractId createTestContract() const
-  {
-    return ContractCreateTransaction()
-      .setGas(500000ULL)
-      .execute(getTestClient())
-      .getReceipt(getTestClient())
-      .getContractId()
-      .value();
-  }
-
-  void deleteTestContract(const ContractId& contractId) const
-  {
-    ContractDeleteTransaction()
-      .setContractId(contractId)
-      .setTransferAccountId(AccountId(2ULL)) // Local node operator account
-      .execute(getTestClient());
-  }
-
 private:
   Client mClient;
 };
@@ -143,7 +125,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithBadAcco
 TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithValidButNonExistantAccountId)
 {
   // Given
-  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId(10000ULL));
+  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId(1000000ULL));
 
   // When / Then
   EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID
@@ -154,7 +136,12 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithContrac
 {
   // Given
   ContractId contractId;
-  ASSERT_NO_THROW(contractId = createTestContract());
+  ASSERT_NO_THROW(contractId = ContractCreateTransaction()
+                                 .setGas(500000ULL)
+                                 .execute(getTestClient())
+                                 .getReceipt(getTestClient())
+                                 .getContractId()
+                                 .value());
   AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(contractId);
 
   // When
@@ -164,7 +151,10 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithContrac
   EXPECT_EQ(accountBalance.getBalance(), Hbar(0LL));
 
   // Clean up
-  deleteTestContract(contractId);
+  ASSERT_NO_THROW(ContractDeleteTransaction()
+                    .setContractId(contractId)
+                    .setTransferAccountId(AccountId(2ULL)) // Local node operator account
+                    .execute(getTestClient()));
 }
 
 //-----

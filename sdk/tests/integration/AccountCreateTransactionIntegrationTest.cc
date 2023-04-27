@@ -18,15 +18,24 @@
  *
  */
 #include "AccountCreateTransaction.h"
+#include "AccountDeleteTransaction.h"
+#include "AccountInfo.h"
+#include "AccountInfoQuery.h"
 #include "Client.h"
+#include "Defaults.h"
+#include "ECDSAsecp256k1PrivateKey.h"
+#include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 #include "PublicKey.h"
+#include "TransactionId.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
+#include "exceptions/PrecheckStatusException.h"
+#include "exceptions/ReceiptStatusException.h"
 #include "impl/DurationConverter.h"
-#include "impl/Utilities.h"
+#include "impl/HexConverter.h"
 
 #include <filesystem>
 #include <fstream>
@@ -41,16 +50,6 @@ using namespace Hedera;
 class AccountCreateTransactionIntegrationTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
-  [[nodiscard]] inline const Hbar& getTestInitialBalance() const { return mInitialBalance; }
-  [[nodiscard]] inline bool getTestReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const { return mAutoRenewPeriod; }
-  [[nodiscard]] inline const std::string& getTestAccountMemo() const { return mAccountMemo; }
-  [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
-  [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
-  [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
-
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
 
   void SetUp() override
@@ -88,170 +87,352 @@ protected:
     testInputFile.close();
 
     std::unordered_map<std::string, AccountId> networkMap;
-    networkMap.insert(std::pair<std::string, AccountId>(nodeAddressString, accountId));
+    networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
     mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
   }
 
 private:
-  const std::shared_ptr<PublicKey> mPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-  const Hbar mInitialBalance = Hbar(1000ULL, HbarUnit::TINYBAR());
-  const bool mReceiverSignatureRequired = true;
-  const std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(3);
-  const std::string mAccountMemo = "Test Account Memo";
-  const uint32_t mMaxTokenAssociations = 3U;
-  const AccountId mAccountId = AccountId::fromString("0.0.1023");
-  const bool mDeclineStakingReward = true;
-  const EvmAddress mEvmAddress = EvmAddress::fromString("303132333435363738396162636465666768696a");
-
   Client mClient;
 };
 
-// Tests invoking of method execute() from AccountCreateTransaction.
-TEST_F(AccountCreateTransactionIntegrationTest, ExecuteRequestToLocalNode)
+//-----
+TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
 {
   // Given
-  const auto testBalance = getTestInitialBalance();
-  const auto testPublicKey = getTestPublicKey();
-  const auto testMemo = "Test memo for AccountCreateTransaction.";
-
-  AccountCreateTransaction testAccountCreateTransaction;
-  testAccountCreateTransaction.setKey(testPublicKey);
-  testAccountCreateTransaction.setTransactionMemo(testMemo);
-  testAccountCreateTransaction.setInitialBalance(testBalance);
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
+  const EvmAddress testEvmAddress = testPublicKey->toEvmAddress();
+  const Hbar testInitialBalance(1000LL, HbarUnit::TINYBAR());
+  const std::chrono::duration<double> testAutoRenewPeriod = std::chrono::seconds(2592000);
+  const std::string testMemo = "test account memo";
+  const uint32_t testMaxAutomaticTokenAssociations = 4U;
 
   // When
-  const TransactionResponse txResponse = testAccountCreateTransaction.execute(getTestClient());
-  const TransactionReceipt txReceipt = txResponse.getReceipt(getTestClient());
-  const TransactionRecord txRecord = txResponse.getRecord(getTestClient());
+  const TransactionResponse txResponse = AccountCreateTransaction()
+                                           .setKey(testPublicKey)
+                                           .setInitialBalance(testInitialBalance)
+                                           .setReceiverSignatureRequired(true)
+                                           .setAutoRenewPeriod(testAutoRenewPeriod)
+                                           .setAccountMemo(testMemo)
+                                           .setMaxAutomaticTokenAssociations(testMaxAutomaticTokenAssociations)
+                                           .setDeclineStakingReward(true)
+                                           .setAlias(testEvmAddress)
+                                           .freezeWith(getTestClient())
+                                           .sign(testPrivateKey.get())
+                                           .execute(getTestClient());
 
   // Then
-  EXPECT_TRUE(txResponse.getValidateStatus());
-  EXPECT_TRUE(txReceipt.getAccountId().has_value());
-  EXPECT_TRUE(txReceipt.getExchangeRates().has_value());
-  EXPECT_TRUE(txReceipt.getExchangeRates()->getCurrentExchangeRate().has_value());
-  EXPECT_TRUE(txRecord.getTransactionId().has_value());
-  EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
-  EXPECT_TRUE(txRecord.getNftTransferList().empty());
+  AccountId accountId;
+  AccountInfo accountInfo;
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
+
+  EXPECT_EQ(accountInfo.getAccountId(), accountId);
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), testEvmAddress.toBytes());
+  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), testPublicKey->toBytesDer());
+  EXPECT_EQ(accountInfo.getBalance(), testInitialBalance);
+  EXPECT_EQ(accountInfo.getAutoRenewPeriod(), testAutoRenewPeriod);
+  EXPECT_EQ(accountInfo.getMemo(), testMemo);
+  EXPECT_EQ(accountInfo.getMaxAutomaticTokenAssociations(), testMaxAutomaticTokenAssociations);
+  EXPECT_TRUE(accountInfo.getStakingInfo().getDeclineReward());
+  EXPECT_FALSE(accountInfo.getStakingInfo().getStakedAccountId().has_value());
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
 }
 
-// Tests invoking of method build() with protobuf object TransactionBody.
-TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionFromTransactionBodyProtobuf)
+//-----
+TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionMutuallyExclusiveStakingIds)
 {
   // Given
-  const auto testPublicKey = getTestPublicKey();
-  const auto testInitialBalance = getTestInitialBalance();
-  const auto testReceiverSignatureRequired = getTestReceiverSignatureRequired();
-  const auto testAutoRenewPeriod = getTestAutoRenewPeriod();
-  const auto testAccountMemo = getTestAccountMemo();
-  const auto testMaxTokenAssociations = getTestMaximumTokenAssociations();
-  const auto testAccount = getTestAccountId();
-  const auto testEvmAddress = getTestEvmAddress();
-  const auto testDeclineStakingReward = getTestDeclineStakingReward();
-  const std::vector<std::byte> testPublicKeyBytes = testPublicKey->toBytesDer();
-
-  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
-  body->set_allocated_key(testPublicKey->toProtobuf().release());
-  body->set_initialbalance(static_cast<uint64_t>(testInitialBalance.toTinybars()));
-  body->set_receiversigrequired(testReceiverSignatureRequired);
-  body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(testAutoRenewPeriod));
-  body->set_allocated_memo(new std::string(testAccountMemo));
-  body->set_max_automatic_token_associations(static_cast<int32_t>(testMaxTokenAssociations));
-  body->set_allocated_staked_account_id(testAccount.toProtobuf().release());
-  body->set_decline_reward(testDeclineStakingReward);
-  body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testPublicKeyBytes)));
-
-  proto::TransactionBody testTxBody;
-  testTxBody.set_allocated_cryptocreateaccount(body.release());
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey());
+  const AccountId operatorAccountId(2ULL);
+  const uint64_t nodeId = 0ULL;
 
   // When
-  AccountCreateTransaction accountCreateTransaction(testTxBody);
+  const TransactionResponse txResponseStakedAccountId = AccountCreateTransaction()
+                                                          .setKey(testPublicKey)
+                                                          .setStakedAccountId(operatorAccountId)
+                                                          .freezeWith(getTestClient())
+                                                          .execute(getTestClient());
+  const TransactionResponse txResponseStakedNodeId = AccountCreateTransaction()
+                                                       .setKey(testPublicKey)
+                                                       .setStakedNodeId(nodeId)
+                                                       .freezeWith(getTestClient())
+                                                       .execute(getTestClient());
 
   // Then
-  EXPECT_EQ(accountCreateTransaction.getKey()->toStringDer(), testPublicKey->toStringDer());
-  EXPECT_EQ(accountCreateTransaction.getInitialBalance(), testInitialBalance);
-  EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), testReceiverSignatureRequired);
-  EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), testAutoRenewPeriod);
-  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), testAccountMemo);
-  EXPECT_EQ(accountCreateTransaction.getMaxAutomaticTokenAssociations(), testMaxTokenAssociations);
-  ASSERT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
-  EXPECT_EQ(accountCreateTransaction.getStakedAccountId(), testAccount);
-  EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
-  EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), testDeclineStakingReward);
-  EXPECT_EQ(accountCreateTransaction.getPublicKeyAlias()->toBytesDer(), testPublicKeyBytes);
-  EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
+  AccountId accountIdStakedAccountId;
+  AccountId accountIdStakedNodeId;
+  AccountInfo accountInfo;
+  ASSERT_NO_THROW(accountIdStakedAccountId =
+                    txResponseStakedAccountId.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountIdStakedNodeId = txResponseStakedNodeId.getReceipt(getTestClient()).getAccountId().value());
+
+  ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountIdStakedAccountId).execute(getTestClient()));
+  EXPECT_EQ(accountInfo.getAccountId(), accountIdStakedAccountId);
+  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), testPublicKey->toBytesDer());
+  ASSERT_TRUE(accountInfo.getStakingInfo().getStakedAccountId().has_value());
+  EXPECT_EQ(accountInfo.getStakingInfo().getStakedAccountId(), operatorAccountId);
+  EXPECT_FALSE(accountInfo.getStakingInfo().getStakedNodeId().has_value());
+
+  ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountIdStakedNodeId).execute(getTestClient()));
+  EXPECT_EQ(accountInfo.getAccountId(), accountIdStakedNodeId);
+  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), testPublicKey->toBytesDer());
+  EXPECT_FALSE(accountInfo.getStakingInfo().getStakedAccountId().has_value());
+  ASSERT_TRUE(accountInfo.getStakingInfo().getStakedNodeId().has_value());
+  EXPECT_EQ(accountInfo.getStakingInfo().getStakedNodeId(), nodeId);
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountIdStakedAccountId)
+                    .setTransferAccountId(operatorAccountId)
+                    .execute(getTestClient()));
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountIdStakedNodeId)
+                    .setTransferAccountId(operatorAccountId)
+                    .execute(getTestClient()));
 }
 
-// Tests construction from protobuf object TransactionBody with EVM address.
-TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionFromTransactionBodyWithEvmAddress)
+//-----
+TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionWithNoInitialBalance)
+{
+  // Given / When
+  const std::unique_ptr<ED25519PrivateKey> testKey = ED25519PrivateKey::generatePrivateKey();
+  const TransactionResponse txResponse =
+    AccountCreateTransaction().setKey(testKey->getPublicKey()).execute(getTestClient());
+
+  // Then
+  AccountId accountId;
+  AccountInfo accountInfo;
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
+
+  EXPECT_EQ(accountInfo.getAccountId(), accountId);
+  EXPECT_FALSE(accountInfo.getIsDeleted());
+  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), testKey->getPublicKey()->toBytesDer());
+  EXPECT_EQ(accountInfo.getBalance(), Hbar(0LL));
+  EXPECT_EQ(accountInfo.getAutoRenewPeriod(), DEFAULT_AUTO_RENEW_PERIOD);
+  EXPECT_EQ(accountInfo.getProxyReceived(), Hbar(0LL));
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionWithAliasFromAdminKey)
 {
   // Given
-  const auto testInitialBalance = getTestInitialBalance();
-  const auto testReceiverSignatureRequired = getTestReceiverSignatureRequired();
-  const auto testAutoRenewPeriod = getTestAutoRenewPeriod();
-  const auto testAccountMemo = getTestAccountMemo();
-  const auto testMaxTokenAssociations = getTestMaximumTokenAssociations();
-  const auto testAccount = getTestAccountId();
-  const auto testEvmAddress = getTestEvmAddress();
-  const auto testDeclineStakingReward = getTestDeclineStakingReward();
-  const std::vector<std::byte> testEvmAddressBytes = testEvmAddress.toBytes();
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> adminKey =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey());
+  const EvmAddress evmAddress = adminKey->toEvmAddress();
 
-  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
-  body->set_initialbalance(static_cast<uint64_t>(testInitialBalance.toTinybars()));
-  body->set_receiversigrequired(testReceiverSignatureRequired);
-  body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(testAutoRenewPeriod));
-  body->set_allocated_memo(new std::string(testAccountMemo));
-  body->set_max_automatic_token_associations(static_cast<int32_t>(testMaxTokenAssociations));
-  body->set_allocated_staked_account_id(testAccount.toProtobuf().release());
-  body->set_decline_reward(testDeclineStakingReward);
-  body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testEvmAddressBytes)));
-
-  proto::TransactionBody testTxBody;
-
-  testTxBody.set_allocated_cryptocreateaccount(body.release());
+  AccountId adminAccountId;
+  ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
+                                     .setKey(adminKey)
+                                     .execute(getTestClient())
+                                     .getReceipt(getTestClient())
+                                     .getAccountId()
+                                     .value());
 
   // When
-  AccountCreateTransaction accountCreateTransaction(testTxBody);
+  const TransactionResponse txResponse =
+    AccountCreateTransaction().setKey(adminKey).setAlias(evmAddress).execute(getTestClient());
 
   // Then
-  EXPECT_EQ(accountCreateTransaction.getInitialBalance(), testInitialBalance);
-  EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), testReceiverSignatureRequired);
-  EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), testAutoRenewPeriod);
-  EXPECT_EQ(accountCreateTransaction.getAccountMemo(), testAccountMemo);
-  EXPECT_EQ(accountCreateTransaction.getMaxAutomaticTokenAssociations(), testMaxTokenAssociations);
-  ASSERT_TRUE(accountCreateTransaction.getStakedAccountId().has_value());
-  EXPECT_EQ(accountCreateTransaction.getStakedAccountId(), testAccount);
-  EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
-  EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), testDeclineStakingReward);
-  ASSERT_TRUE(accountCreateTransaction.getEvmAddressAlias().has_value());
-  EXPECT_EQ(accountCreateTransaction.getEvmAddressAlias()->toBytes(), testEvmAddressBytes);
+  AccountId accountId;
+  AccountInfo accountInfo;
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
+
+  EXPECT_EQ(accountInfo.getAccountId(), accountId);
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), evmAddress.toBytes());
+  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), adminKey->toBytesDer());
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(adminAccountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
 }
 
-// Tests construction from protobuf object TransactionBody without CryptoCreateAccount.
-TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionWithoutCryptoCreateAccount)
+//-----
+TEST_F(AccountCreateTransactionIntegrationTest,
+       ExecuteAccountCreateTransactionWithAliasFromAdminKeyWithReceiverSigRequired)
 {
   // Given
-  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
-  proto::TransactionBody testTxBody;
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> adminKeyPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> adminKeyPublicKey =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(adminKeyPrivateKey->getPublicKey());
+  const EvmAddress evmAddress = adminKeyPublicKey->toEvmAddress();
 
-  // When, Then
-  EXPECT_THROW(AccountCreateTransaction accountCreateTransaction(testTxBody), std::invalid_argument);
-}
-
-// Tests construction from protobuf object TransactionBody with missing data.
-TEST_F(AccountCreateTransactionIntegrationTest, ConstructAccountCreateTransactionWithMissingData)
-{
-  // Given
-  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
-  proto::TransactionBody testTxBody;
-  testTxBody.set_allocated_cryptocreateaccount(body.release());
+  AccountId adminAccountId;
+  ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
+                                     .setKey(adminKeyPublicKey)
+                                     .execute(getTestClient())
+                                     .getReceipt(getTestClient())
+                                     .getAccountId()
+                                     .value());
 
   // When
-  AccountCreateTransaction accountCreateTransaction(testTxBody);
+  const TransactionResponse txResponse = AccountCreateTransaction()
+                                           .setReceiverSignatureRequired(true)
+                                           .setKey(adminKeyPublicKey)
+                                           .setAlias(evmAddress)
+                                           .freezeWith(getTestClient())
+                                           .sign(adminKeyPrivateKey.get())
+                                           .execute(getTestClient());
 
   // Then
-  ASSERT_FALSE(accountCreateTransaction.getStakedAccountId().has_value());
-  EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
-  EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
+  AccountId accountId;
+  AccountInfo accountInfo;
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
+
+  EXPECT_EQ(accountInfo.getAccountId(), accountId);
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), evmAddress.toBytes());
+  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), adminKeyPublicKey->toBytesDer());
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(adminAccountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTest,
+       ExecuteAccountCreateTransactionWithAliasFromAdminKeyWithReceiverSigRequiredWithoutSignature)
+{
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> adminKeyPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> adminKeyPublicKey =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(adminKeyPrivateKey->getPublicKey());
+  const EvmAddress evmAddress = adminKeyPublicKey->toEvmAddress();
+
+  AccountId adminAccountId;
+  ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
+                                     .setKey(adminKeyPublicKey)
+                                     .execute(getTestClient())
+                                     .getReceipt(getTestClient())
+                                     .getAccountId()
+                                     .value());
+
+  // When
+  EXPECT_THROW(const TransactionReceipt txReceipt = AccountCreateTransaction()
+                                                      .setReceiverSignatureRequired(true)
+                                                      .setKey(adminKeyPublicKey)
+                                                      .setAlias(evmAddress)
+                                                      .execute(getTestClient())
+                                                      .getReceipt(getTestClient()),
+               ReceiptStatusException);
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(adminAccountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTest,
+       ExecuteAccountCreateTransactionWithAliasDifferentFromAdminKeyWithReceiverSigRequired)
+{
+  // Given
+  const std::unique_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  AccountId adminAccountId;
+  ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
+                                     .setKey(adminPrivateKey->getPublicKey())
+                                     .execute(getTestClient())
+                                     .getReceipt(getTestClient())
+                                     .getAccountId()
+                                     .value());
+
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> aliasPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const EvmAddress alias =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(aliasPrivateKey->getPublicKey())->toEvmAddress();
+
+  // When
+  const TransactionResponse txResponse = AccountCreateTransaction()
+                                           .setReceiverSignatureRequired(true)
+                                           .setKey(adminPrivateKey->getPublicKey())
+                                           .setAlias(alias)
+                                           .freezeWith(getTestClient())
+                                           .sign(adminPrivateKey.get())
+                                           .sign(aliasPrivateKey.get())
+                                           .execute(getTestClient());
+
+  // Then
+  AccountId accountId;
+  AccountInfo accountInfo;
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
+
+  EXPECT_EQ(accountInfo.getAccountId(), accountId);
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), alias.toBytes());
+  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), adminPrivateKey->getPublicKey()->toBytesDer());
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(adminAccountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTest,
+       ExecuteAccountCreateTransactionWithAliasDifferentFromAdminKeyWithReceiverSigRequiredWithoutSignature)
+{
+  // Given
+  const std::unique_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  AccountId adminAccountId;
+  ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
+                                     .setKey(adminPrivateKey->getPublicKey())
+                                     .execute(getTestClient())
+                                     .getReceipt(getTestClient())
+                                     .getAccountId()
+                                     .value());
+
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> aliasPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const EvmAddress alias =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(aliasPrivateKey->getPublicKey())->toEvmAddress();
+
+  // When
+  EXPECT_THROW(const TransactionReceipt txReceipt = AccountCreateTransaction()
+                                                      .setReceiverSignatureRequired(true)
+                                                      .setKey(adminPrivateKey->getPublicKey())
+                                                      .setAlias(alias)
+                                                      .freezeWith(getTestClient())
+                                                      .sign(aliasPrivateKey.get())
+                                                      .execute(getTestClient())
+                                                      .getReceipt(getTestClient()),
+               ReceiptStatusException);
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(adminAccountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .execute(getTestClient()));
 }

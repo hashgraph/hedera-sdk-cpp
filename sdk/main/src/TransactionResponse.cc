@@ -48,7 +48,14 @@ TransactionReceipt TransactionResponse::getReceipt(const Client& client) const
 TransactionReceipt TransactionResponse::getReceipt(const Client& client,
                                                    const std::chrono::duration<double>& timeout) const
 {
-  return TransactionReceiptQuery().setTransactionId(mTransactionId).execute(client, timeout);
+  TransactionReceipt txReceipt = TransactionReceiptQuery().setTransactionId(mTransactionId).execute(client, timeout);
+
+  if (mValidateStatus)
+  {
+    txReceipt.validateStatus();
+  }
+
+  return txReceipt;
 }
 
 //-----
@@ -62,6 +69,13 @@ TransactionRecord TransactionResponse::getRecord(const Client& client,
                                                  const std::chrono::duration<double>& timeout) const
 {
   return TransactionRecordQuery().setTransactionId(mTransactionId).execute(client, timeout);
+}
+
+//-----
+TransactionResponse& TransactionResponse::setValidateStatus(bool validate)
+{
+  mValidateStatus = validate;
+  return *this;
 }
 
 } // namespace Hedera

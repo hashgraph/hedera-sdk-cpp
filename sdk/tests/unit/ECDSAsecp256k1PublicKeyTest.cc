@@ -19,6 +19,7 @@
  */
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "EvmAddress.h"
 #include "exceptions/BadKeyException.h"
 #include "impl/Utilities.h"
 
@@ -408,4 +409,19 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, PublicKeyFromProtobuf)
             concatenateVectors(
               { ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes() }));
   EXPECT_EQ(publicKey->toBytesRaw(), getTestCompressedPublicKeyBytes());
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PublicKeyTest, ToEvmAddress)
+{
+  // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+    ECDSAsecp256k1PrivateKey::fromString("DEBAE3CA62AB3157110DBA79C8DE26540DC320EE9BE73A77D70BA175643A3500");
+  const auto publicKey = std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(privateKey->getPublicKey());
+
+  // When
+  const EvmAddress evmAddress = publicKey->toEvmAddress();
+
+  // Then
+  EXPECT_EQ(evmAddress.toString(), "D8EB8DB03C699FAA3F47ADCDCD2AE91773B10F8B");
 }

@@ -189,3 +189,31 @@ TEST_F(TransferTransactionIntegrationTest, ExecuteRequestToTestnetNode)
 
   EXPECT_FALSE(txRecord.getEvmAddress().has_value());
 }
+
+//-----
+TEST_F(TransferTransactionIntegrationTest, ExecuteAccountCreateTransactionWithAliasKey)
+{
+  /*@Test
+@DisplayName("Can create account using aliasKey")
+void canCreateWithAliasKey() throws Exception {
+    var testEnv = new IntegrationTestEnv(1);
+
+var key = PrivateKey.generateED25519();
+
+var aliasId = key.toAccountId(0, 0);
+
+new TransferTransaction()
+.addHbarTransfer(testEnv.operatorId, new Hbar(10).negated())
+.addHbarTransfer(aliasId, new Hbar(10))
+.execute(testEnv.client)
+.getReceipt(testEnv.client);
+
+var info = new AccountInfoQuery()
+           .setAccountId(aliasId)
+           .execute(testEnv.client);
+
+assertThat(key.getPublicKey()).isEqualTo(info.aliasKey);
+
+testEnv.close(info.accountId, key);
+}*/
+}

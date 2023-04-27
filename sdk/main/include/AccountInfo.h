@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_ACCOUNT_INFO_H_
 
 #include "AccountId.h"
+#include "EvmAddress.h"
 #include "Hbar.h"
 #include "LedgerId.h"
 #include "PublicKey.h"
@@ -28,6 +29,7 @@
 
 #include <chrono>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace proto
@@ -145,6 +147,14 @@ public:
   [[nodiscard]] inline std::shared_ptr<PublicKey> getPublicKeyAlias() const { return mPublicKeyAlias; }
 
   /**
+   * Get the EvmAddress being used as an alias for the queried account.
+   *
+   * @return The EvmAddress being used as an alias for the queried account. Uninitialized if no EvmAddress is being used
+   * as an alias for the queried account.
+   */
+  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddressAlias() const { return mEvmAddressAlias; }
+
+  /**
    * Get the ID of the ledger from which this AccountInfo was received.
    *
    * @return The ID of the ledger from which this AccountInfo was received.
@@ -228,6 +238,11 @@ private:
    * The PublicKey alias of the queried account.
    */
   std::shared_ptr<PublicKey> mPublicKeyAlias = nullptr;
+
+  /**
+   * The EVM address alias of the queried account.
+   */
+  std::optional<EvmAddress> mEvmAddressAlias;
 
   /**
    * The ID of the ledger from which this AccountInfo was received.
