@@ -57,7 +57,7 @@ TEST_F(AccountBalanceQueryTest, SetAccountId)
   query.setAccountId(getTestAccountId());
 
   // Then
-  EXPECT_EQ(*query.getAccountId(), getTestAccountId());
+  EXPECT_EQ(query.getAccountId(), getTestAccountId());
 }
 
 //-----
@@ -70,21 +70,35 @@ TEST_F(AccountBalanceQueryTest, SetContractId)
   query.setContractId(getTestContractId());
 
   // Then
-  EXPECT_EQ(*query.getContractId(), getTestContractId());
+  EXPECT_EQ(query.getContractId(), getTestContractId());
 }
 
 //-----
-TEST_F(AccountBalanceQueryTest, ResetMutuallyExclusiveIds)
+TEST_F(AccountBalanceQueryTest, ResetAccountId)
 {
   // Given
   AccountBalanceQuery query;
   query.setAccountId(getTestAccountId());
+
+  // When
   query.setContractId(getTestContractId());
+
+  // Then
   EXPECT_FALSE(query.getAccountId());
+  EXPECT_TRUE(query.getContractId());
+}
+
+//-----
+TEST_F(AccountBalanceQueryTest, ResetContractId)
+{
+  // Given
+  AccountBalanceQuery query;
+  query.setContractId(getTestContractId());
 
   // When
   query.setAccountId(getTestAccountId());
 
   // Then
+  EXPECT_TRUE(query.getAccountId());
   EXPECT_FALSE(query.getContractId());
 }

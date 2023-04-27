@@ -92,10 +92,10 @@ private:
 TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithAccountId)
 {
   // Given
-  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId(1023ULL));
+  AccountBalance accountBalance;
 
   // When
-  const AccountBalance accountBalance = accountBalanceQuery.execute(getTestClient());
+  EXPECT_NO_THROW(accountBalance = AccountBalanceQuery().setAccountId(AccountId(1023ULL)).execute(getTestClient()));
 
   // Then
   EXPECT_EQ(accountBalance.getBalance(), Hbar(10000LL));
@@ -142,10 +142,10 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithContrac
                                  .getReceipt(getTestClient())
                                  .getContractId()
                                  .value());
-  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(contractId);
+  AccountBalance accountBalance;
 
   // When
-  const AccountBalance accountBalance = accountBalanceQuery.execute(getTestClient());
+  EXPECT_NO_THROW(accountBalance = AccountBalanceQuery().setContractId(contractId).execute(getTestClient()));
 
   // Then
   EXPECT_EQ(accountBalance.getBalance(), Hbar(0LL));
