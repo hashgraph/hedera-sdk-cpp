@@ -1,4 +1,4 @@
-# Contributing to the Hedera SDK for JavaScript
+# Contributing to the Hedera SDK for C++
 
 Thank you for your interest in contributing the Hedera SDK for C++!
 
@@ -29,15 +29,15 @@ Select tag `v0.3.0` from the dropdown list. Enter the Release title to be same a
 
 ### Step 3 - Notes
 
-It's a good decision to tap direclty on button `Generate release notes` to get an automatically generated notes which can be used as a basis.
+It's a good decision to tap directly on button `Generate release notes` to get an automatically generated notes which can be used as a basis.
 
-#### What's Changed
+#### What's New
 
-In this section should be filled all of the issues which have been completed and merged into `main` branch. Use only the title of each issue and add a prefix with ➡️.
+This section should be filled with all of the issues which have been completed and merged into `main` branch. Use the emoji ➡️ followed by a description in plain English for each over-arching new feature and a bug fix.
 
 #### Examples
 
-In this section should be listed all of the newly added examples. Each of them should represent a link to the implementation (for example: [TransferTokensExample.cc](TransferTokensExample.cc)). It's a good idea also to add prefix with ➡️ before each line.
+This section should list all of the newly added examples. Each of them should represent a link to the implementation (for example: [TransferTokensExample.cc](TransferTokensExample.cc)). It's a good idea also to add prefix with ➡️ before each line.
 
 #### Notes
 
