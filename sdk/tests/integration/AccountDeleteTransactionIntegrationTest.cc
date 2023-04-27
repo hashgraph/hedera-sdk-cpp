@@ -146,5 +146,5 @@ TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteAccountWithoutSignat
                              .setTransferAccountId(AccountId(2ULL))
                              .execute(getTestClient())
                              .getReceipt(getTestClient()),
-               ReceiptStatusException);
+               ReceiptStatusException); // INVALID_SIGNATURE
 }

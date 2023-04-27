@@ -131,10 +131,14 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(allowerAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(allowerKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(alloweeAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(alloweeKey.get())
                     .execute(getTestClient()));
 }
 
@@ -167,15 +171,19 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, CannotAllowAllowanceWi
                                                       .approveHbarAllowance(allowerAccountId, alloweeAccountId, amount)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               ReceiptStatusException);
+               ReceiptStatusException); // INVALID_SIGNATURE
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(allowerAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(allowerKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(alloweeAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(alloweeKey.get())
                     .execute(getTestClient()));
 }

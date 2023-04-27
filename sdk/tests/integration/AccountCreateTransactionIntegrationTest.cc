@@ -145,6 +145,8 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(testPrivateKey.get())
                     .execute(getTestClient()));
 }
 
@@ -152,8 +154,9 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
 TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
 {
   // Given
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
-    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey());
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
   const AccountId operatorAccountId(2ULL);
   const uint64_t nodeId = 0ULL;
 
@@ -198,10 +201,14 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountIdStakedAccountId)
                     .setTransferAccountId(operatorAccountId)
+                    .freezeWith(getTestClient())
+                    .sign(testPrivateKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountIdStakedNodeId)
                     .setTransferAccountId(operatorAccountId)
+                    .freezeWith(getTestClient())
+                    .sign(testPrivateKey.get())
                     .execute(getTestClient()));
 }
 
@@ -232,6 +239,8 @@ TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(testKey.get())
                     .execute(getTestClient()));
 }
 
@@ -239,13 +248,14 @@ TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
 TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
 {
   // Given
-  const std::shared_ptr<ECDSAsecp256k1PublicKey> adminKey =
-    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey());
-  const EvmAddress evmAddress = adminKey->toEvmAddress();
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> adminPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> adminPublicKey =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(adminPrivateKey->getPublicKey());
+  const EvmAddress evmAddress = adminPublicKey->toEvmAddress();
 
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminKey)
+                                     .setKey(adminPublicKey)
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .getAccountId()
@@ -254,7 +264,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
   // When
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse =
-                    AccountCreateTransaction().setKey(adminKey).setAlias(evmAddress).execute(getTestClient()));
+                    AccountCreateTransaction().setKey(adminPublicKey).setAlias(evmAddress).execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -264,16 +274,20 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
 
   EXPECT_EQ(accountInfo.getAccountId(), accountId);
   EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), evmAddress.toBytes());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), adminKey->toBytesDer());
+  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), adminPublicKey->toBytesDer());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
 }
 
@@ -318,10 +332,14 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(adminKeyPrivateKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(adminKeyPrivateKey.get())
                     .execute(getTestClient()));
 }
 
@@ -349,12 +367,14 @@ TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWit
                                                       .setAlias(evmAddress)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               ReceiptStatusException);
+               ReceiptStatusException); // INVALID_SIGNATURE
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(adminKeyPrivateKey.get())
                     .execute(getTestClient()));
 }
 
@@ -400,10 +420,14 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
 }
 
@@ -434,11 +458,13 @@ TEST_F(AccountCreateTransactionIntegrationTest,
                                                       .sign(aliasPrivateKey.get())
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               ReceiptStatusException);
+               ReceiptStatusException); // INVALID_SIGNATURE
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
 }
