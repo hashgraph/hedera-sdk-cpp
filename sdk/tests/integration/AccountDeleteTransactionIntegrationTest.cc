@@ -121,8 +121,7 @@ TEST_F(AccountDeleteTransactionIntegrationTest, ExecuteAccountDeleteTransaction)
 TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteInvalidAccountId)
 {
   // Given / When / Then
-  TransactionResponse txResponse;
-  EXPECT_THROW(txResponse = AccountDeleteTransaction().setTransferAccountId(AccountId(2ULL)).execute(getTestClient()),
+  EXPECT_THROW(AccountDeleteTransaction().setTransferAccountId(AccountId(2ULL)).execute(getTestClient()),
                PrecheckStatusException);
 }
 
@@ -147,4 +146,12 @@ TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteAccountWithoutSignat
                              .execute(getTestClient())
                              .getReceipt(getTestClient()),
                ReceiptStatusException); // INVALID_SIGNATURE
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(key.get())
+                    .execute(getTestClient()));
 }
