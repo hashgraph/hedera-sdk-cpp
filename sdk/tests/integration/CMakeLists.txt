@@ -3,6 +3,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountAllowanceApproveTransactionIntegrationTests.cc
         AccountBalanceQueryIntegrationTest.cc
         AccountCreateTransactionIntegrationTest.cc
+        AccountDeleteTransactionIntegrationTest.cc
         ClientIntegrationTest.cc
         JSONIntegrationTest.cc
         TransactionIntegrationTest.cc

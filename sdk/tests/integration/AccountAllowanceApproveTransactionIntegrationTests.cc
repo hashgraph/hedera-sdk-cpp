@@ -116,7 +116,7 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
                                        .getAccountId()
                                        .value());
 
-  // When / Then
+  // When
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountAllowanceApproveTransaction()
                                  .approveHbarAllowance(allowerAccountId, alloweeAccountId, amount)
@@ -139,8 +139,7 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
 }
 
 //-----
-TEST_F(AccountAllowanceApproveTransactionIntegrationTest,
-       ExecuteAccountAllowanceApproveTransactionWithoutAllowerSignature)
+TEST_F(AccountAllowanceApproveTransactionIntegrationTest, CannotAllowAllowanceWithoutAllowerSignature)
 {
   // Given
   const Hbar amount(5LL);
@@ -164,13 +163,11 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest,
                                        .value());
 
   // When / Then
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = AccountAllowanceApproveTransaction()
-                                 .approveHbarAllowance(allowerAccountId, alloweeAccountId, amount)
-                                 .execute(getTestClient()));
-
-  // Then
-  EXPECT_THROW(const TransactionReceipt txReceipt = txResponse.getReceipt(getTestClient()), ReceiptStatusException);
+  EXPECT_THROW(const TransactionReceipt txReceipt = AccountAllowanceApproveTransaction()
+                                                      .approveHbarAllowance(allowerAccountId, alloweeAccountId, amount)
+                                                      .execute(getTestClient())
+                                                      .getReceipt(getTestClient()),
+               ReceiptStatusException);
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()

@@ -91,8 +91,17 @@ grpc::Status AccountDeleteTransaction::submitRequest(const Client& client,
 proto::CryptoDeleteTransactionBody* AccountDeleteTransaction::build() const
 {
   auto body = std::make_unique<proto::CryptoDeleteTransactionBody>();
-  body->set_allocated_deleteaccountid(mDeleteAccountId.toProtobuf().release());
-  body->set_allocated_transferaccountid(mTransferAccountId.toProtobuf().release());
+
+  if (mDeleteAccountId.has_value())
+  {
+    body->set_allocated_deleteaccountid(mDeleteAccountId->toProtobuf().release());
+  }
+
+  if (mTransferAccountId.has_value())
+  {
+    body->set_allocated_transferaccountid(mTransferAccountId->toProtobuf().release());
+  }
+
   return body.release();
 }
 

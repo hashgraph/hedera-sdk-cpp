@@ -89,7 +89,7 @@ private:
 };
 
 //-----
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithAccountId)
+TEST_F(AccountBalanceQueryIntegrationTest, AccountId)
 {
   // Given
   AccountBalance accountBalance;
@@ -102,7 +102,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithAccount
 }
 
 //-----
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteBlankAccountBalanceQuery)
+TEST_F(AccountBalanceQueryIntegrationTest, Blank)
 {
   // Given
   AccountBalanceQuery accountBalanceQuery;
@@ -112,7 +112,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteBlankAccountBalanceQuery)
 }
 
 //-----
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithBadAccountId)
+TEST_F(AccountBalanceQueryIntegrationTest, BadAccountId)
 {
   // Given
   AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId());
@@ -122,7 +122,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithBadAcco
 }
 
 //------
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithValidButNonExistantAccountId)
+TEST_F(AccountBalanceQueryIntegrationTest, ValidButNonExistantAccountId)
 {
   // Given
   AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId(1000000ULL));
@@ -132,7 +132,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithValidBu
 }
 
 //-----
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithContractId)
+TEST_F(AccountBalanceQueryIntegrationTest, ContractId)
 {
   // Given
   ContractId contractId;
@@ -158,7 +158,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithContrac
 }
 
 //-----
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithBadContractId)
+TEST_F(AccountBalanceQueryIntegrationTest, BadContractId)
 {
   // Given
   AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(ContractId());
@@ -168,7 +168,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithBadCont
 }
 
 //-----
-TEST_F(AccountBalanceQueryIntegrationTest, ExecuteAccountBalanceQueryWithValidButNonExistantContractId)
+TEST_F(AccountBalanceQueryIntegrationTest, ValidButNonExistantContractId)
 {
   // Given
   AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(ContractId(1ULL));

@@ -149,7 +149,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
 }
 
 //-----
-TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionMutuallyExclusiveStakingIds)
+TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
 {
   // Given
   const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
@@ -206,7 +206,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionM
 }
 
 //-----
-TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionWithNoInitialBalance)
+TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
 {
   // Given
   const std::unique_ptr<ED25519PrivateKey> testKey = ED25519PrivateKey::generatePrivateKey();
@@ -236,7 +236,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionW
 }
 
 //-----
-TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionWithAliasFromAdminKey)
+TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
 {
   // Given
   const std::shared_ptr<ECDSAsecp256k1PublicKey> adminKey =
@@ -278,8 +278,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransactionW
 }
 
 //-----
-TEST_F(AccountCreateTransactionIntegrationTest,
-       ExecuteAccountCreateTransactionWithAliasFromAdminKeyWithReceiverSigRequired)
+TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSigRequired)
 {
   // Given
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> adminKeyPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
@@ -327,8 +326,7 @@ TEST_F(AccountCreateTransactionIntegrationTest,
 }
 
 //-----
-TEST_F(AccountCreateTransactionIntegrationTest,
-       ExecuteAccountCreateTransactionWithAliasFromAdminKeyWithReceiverSigRequiredWithoutSignature)
+TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWithReceiverSigRequiredWithoutSignature)
 {
   // Given
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> adminKeyPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
@@ -361,8 +359,7 @@ TEST_F(AccountCreateTransactionIntegrationTest,
 }
 
 //-----
-TEST_F(AccountCreateTransactionIntegrationTest,
-       ExecuteAccountCreateTransactionWithAliasDifferentFromAdminKeyWithReceiverSigRequired)
+TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithReceiverSigRequired)
 {
   // Given
   const std::unique_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
@@ -412,7 +409,7 @@ TEST_F(AccountCreateTransactionIntegrationTest,
 
 //-----
 TEST_F(AccountCreateTransactionIntegrationTest,
-       ExecuteAccountCreateTransactionWithAliasDifferentFromAdminKeyWithReceiverSigRequiredWithoutSignature)
+       CannotCreateWithAliasDifferentFromAdminKeyWithReceiverSigRequiredWithoutSignature)
 {
   // Given
   const std::unique_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();

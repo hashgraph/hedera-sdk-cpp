@@ -23,6 +23,8 @@
 #include "AccountId.h"
 #include "Transaction.h"
 
+#include <optional>
+
 namespace proto
 {
 class CryptoDeleteTransactionBody;
@@ -70,18 +72,19 @@ public:
   /**
    * Get the ID of the account this AccountDeleteTransaction is currently configured to delete.
    *
-   * @return The ID of the account this AccountDeleteTransaction is currently configured to delete.
+   * @return The ID of the account this AccountDeleteTransaction is currently configured to delete. Uninitialized if no
+   *         account ID has been set.
    */
-  [[nodiscard]] inline AccountId getDeleteAccountId() const { return mDeleteAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getDeleteAccountId() const { return mDeleteAccountId; }
 
   /**
    * Get the ID of the account to which this AccountDeleteTransaction is currently configured to transfer the deleted
    * account's remaining Hbars.
    *
    * @return The ID of the account to which this AccountDeleteTransaction is currently configured to transfer the
-   * deleted account's remaining Hbars.
+   *         deleted account's remaining Hbars. Uninitialized if no account ID has been set.
    */
-  [[nodiscard]] inline AccountId getTransferAccountId() const { return mTransferAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getTransferAccountId() const { return mTransferAccountId; }
 
 private:
   /**
@@ -122,12 +125,12 @@ private:
   /**
    * The ID of the account to delete.
    */
-  AccountId mDeleteAccountId;
+  std::optional<AccountId> mDeleteAccountId;
 
   /**
    * The ID of the account which will receive all the remaining Hbars from the deleted account.
    */
-  AccountId mTransferAccountId;
+  std::optional<AccountId> mTransferAccountId;
 };
 
 } // namespace Hedera
