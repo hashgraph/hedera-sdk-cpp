@@ -104,13 +104,11 @@ TEST_F(AccountInfoTest, FromProtobuf)
   protoAccountInfo.set_receiversigrequired(getTestReceiverSignatureRequired());
   protoAccountInfo.set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
   protoAccountInfo.set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
-  protoAccountInfo.set_allocated_memo(new std::string(getTestMemo()));
+  protoAccountInfo.set_memo(getTestMemo());
   protoAccountInfo.set_ownednfts(static_cast<int64_t>(getTestOwnedNfts()));
   protoAccountInfo.set_max_automatic_token_associations(static_cast<int32_t>(getTestMaxAutomaticTokenAssociations()));
-  protoAccountInfo.set_allocated_alias(
-    new std::string(internal::Utilities::byteVectorToString(getTestPublicKeyAlias()->toBytesDer())));
-  protoAccountInfo.set_allocated_ledger_id(
-    new std::string(internal::Utilities::byteVectorToString(getTestLedgerId().toBytes())));
+  protoAccountInfo.set_alias(internal::Utilities::byteVectorToString(getTestPublicKeyAlias()->toBytesDer()));
+  protoAccountInfo.set_ledger_id(internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
 
   protoAccountInfo.mutable_staking_info()->set_decline_reward(getTestDeclineReward());
   protoAccountInfo.mutable_staking_info()->set_allocated_stake_period_start(
