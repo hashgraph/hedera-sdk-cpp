@@ -30,7 +30,7 @@ protected:
   [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
 
 private:
-  const std::filesystem::path mFilePath = std::filesystem::current_path() / "local_node.json";
+  const std::filesystem::path mFilePath = (std::filesystem::current_path() / "local_node.json").string();
 };
 
 // Tests JSON parsing of a configuration file for the Local Node.

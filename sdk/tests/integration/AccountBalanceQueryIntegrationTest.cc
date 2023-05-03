@@ -52,7 +52,7 @@ protected:
     const std::string_view accountIdTag = "accountId";
     const std::string_view privateKeyTag = "privateKey";
 
-    const std::string testPathToJSON = std::filesystem::current_path() / "local_node.json";
+    const std::string testPathToJSON = (std::filesystem::current_path() / "local_node.json").string();
     const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
     const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
 
