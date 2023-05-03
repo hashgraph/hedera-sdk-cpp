@@ -56,7 +56,7 @@ private:
 
   const std::string_view mAccountIdStr = "0.0.3";
   const AccountId mAccountId = AccountId::fromString("0.0.3");
-  const std::filesystem::path mFilePath = std::filesystem::current_path() / "local_node.json";
+  const std::filesystem::path mFilePath = (std::filesystem::current_path() / "local_node.json").string();
 };
 
 //-----
