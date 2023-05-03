@@ -19,6 +19,7 @@
  */
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "EvmAddress.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
@@ -414,6 +415,15 @@ std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobuf() const
   auto keyProtobuf = std::make_unique<proto::Key>();
   keyProtobuf->set_allocated_ecdsa_secp256k1(new std::string(internal::Utilities::byteVectorToString(toBytesRaw())));
   return keyProtobuf;
+}
+
+//-----
+EvmAddress ECDSAsecp256k1PublicKey::toEvmAddress() const
+{
+  // Generate hash without "0x04" prefix of uncompressed bytes.
+  return EvmAddress::fromBytes(internal::Utilities::removePrefix(
+    internal::OpenSSLUtils::computeKECCAK256(internal::Utilities::removePrefix(uncompressBytes(toBytesRaw()), 1)),
+    static_cast<long>(internal::OpenSSLUtils::KECCAK256_HASH_SIZE - EvmAddress::NUM_BYTES)));
 }
 
 //-----

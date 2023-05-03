@@ -27,6 +27,27 @@
 namespace Hedera::internal::OpenSSLUtils
 {
 /**
+ * The size of a SHA256 hash (in bytes).
+ */
+constexpr const size_t SHA256_HASH_SIZE = 32ULL;
+/**
+ * The size of a SHA384 hash (in bytes).
+ */
+constexpr const size_t SHA384_HASH_SIZE = 48ULL;
+/**
+ * The size of a KECCAK256 hash (in bytes)
+ */
+constexpr size_t KECCAK256_HASH_SIZE = 32ULL;
+/**
+ * The size of a SHA512 hash (in bytes).
+ */
+constexpr const size_t SHA512_HMAC_HASH_SIZE = 64ULL;
+/**
+ * The size of an OpenSSL error message.
+ */
+constexpr const size_t ERROR_MSG_SIZE = 256ULL;
+
+/**
  * Computes the SHA256 hash of a byte array.
  *
  * @param data The byte array of which to compute the hash.
@@ -41,6 +62,14 @@ namespace Hedera::internal::OpenSSLUtils
  * @return The SHA384 hash of the data.
  */
 [[nodiscard]] std::vector<std::byte> computeSHA384(const std::vector<std::byte>& data);
+
+/**
+ * Compute the KECCAK256 hash of a byte array.
+ *
+ * @param data The byte array of which to compute the hash.
+ * @return The KECCAK256 hash of the data.
+ */
+[[nodiscard]] std::vector<std::byte> computeKECCAK256(const std::vector<std::byte>& data);
 
 /**
  * Compute the HMAC-SHA512 hash of a key and data.

@@ -17,28 +17,33 @@
  * limitations under the License.
  *
  */
-#include "AccountBalance.h"
-#include "AccountBalanceQuery.h"
+#include "AccountCreateTransaction.h"
+#include "AccountDeleteTransaction.h"
 #include "AccountId.h"
+#include "AccountRecords.h"
+#include "AccountRecordsQuery.h"
 #include "Client.h"
-#include "ContractCreateTransaction.h"
-#include "ContractDeleteTransaction.h"
-#include "ContractId.h"
+#include "Defaults.h"
 #include "ED25519PrivateKey.h"
+#include "PrivateKey.h"
+#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "TransferTransaction.h"
 #include "exceptions/PrecheckStatusException.h"
 
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
-#include <iostream>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 using json = nlohmann::json;
 using namespace Hedera;
 
-class AccountBalanceQueryIntegrationTest : public ::testing::Test
+class AccountRecordsQueryIntegrationTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
@@ -89,90 +94,52 @@ private:
 };
 
 //-----
-TEST_F(AccountBalanceQueryIntegrationTest, AccountId)
+TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
 {
   // Given
-  AccountBalance accountBalance;
+  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const AccountId operatorAccountId(2ULL);
+  const Hbar amount(1LL);
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = AccountCreateTransaction()
+                                .setKey(privateKey->getPublicKey())
+                                .setInitialBalance(amount)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient())
+                                .getAccountId()
+                                .value());
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = TransferTransaction()
+                                                         .addHbarTransfer(operatorAccountId, amount.negated())
+                                                         .addHbarTransfer(accountId, amount)
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = TransferTransaction()
+                                                         .addHbarTransfer(operatorAccountId, amount)
+                                                         .addHbarTransfer(accountId, amount.negated())
+                                                         .freezeWith(getTestClient())
+                                                         .sign(privateKey.get())
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
 
   // When
-  EXPECT_NO_THROW(accountBalance = AccountBalanceQuery().setAccountId(AccountId(1023ULL)).execute(getTestClient()));
+  AccountRecords accountRecords;
+  EXPECT_NO_THROW(accountRecords = AccountRecordsQuery().setAccountId(accountId).execute(getTestClient()));
 
   // Then
-  EXPECT_EQ(accountBalance.getBalance(), Hbar(10000LL));
-}
-
-//-----
-TEST_F(AccountBalanceQueryIntegrationTest, Blank)
-{
-  // Given
-  AccountBalanceQuery accountBalanceQuery;
-
-  // When / Then
-  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID
-}
-
-//-----
-TEST_F(AccountBalanceQueryIntegrationTest, BadAccountId)
-{
-  // Given
-  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId());
-
-  // When / Then
-  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID
-}
-
-//------
-TEST_F(AccountBalanceQueryIntegrationTest, ValidButNonExistantAccountId)
-{
-  // Given
-  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setAccountId(AccountId(1000000ULL));
-
-  // When / Then
-  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID
-}
-
-//-----
-TEST_F(AccountBalanceQueryIntegrationTest, ContractId)
-{
-  // Given
-  ContractId contractId;
-  ASSERT_NO_THROW(contractId = ContractCreateTransaction()
-                                 .setGas(500000ULL)
-                                 .execute(getTestClient())
-                                 .getReceipt(getTestClient())
-                                 .getContractId()
-                                 .value());
-  AccountBalance accountBalance;
-
-  // When
-  EXPECT_NO_THROW(accountBalance = AccountBalanceQuery().setContractId(contractId).execute(getTestClient()));
-
-  // Then
-  EXPECT_EQ(accountBalance.getBalance(), Hbar(0LL));
+  EXPECT_TRUE(accountRecords.getRecords().empty());
 
   // Clean up
-  ASSERT_NO_THROW(ContractDeleteTransaction()
-                    .setContractId(contractId)
-                    .setTransferAccountId(AccountId(2ULL)) // Local node operator account
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(operatorAccountId)
+                    .freezeWith(getTestClient())
+                    .sign(privateKey.get())
                     .execute(getTestClient()));
 }
 
 //-----
-TEST_F(AccountBalanceQueryIntegrationTest, BadContractId)
+TEST_F(AccountRecordsQueryIntegrationTest, NoAccountId)
 {
-  // Given
-  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(ContractId());
-
-  // When / Then
-  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_CONTRACT_ID
-}
-
-//-----
-TEST_F(AccountBalanceQueryIntegrationTest, ValidButNonExistantContractId)
-{
-  // Given
-  AccountBalanceQuery accountBalanceQuery = AccountBalanceQuery().setContractId(ContractId(1ULL));
-
-  // When / Then
-  EXPECT_THROW(accountBalanceQuery.execute(getTestClient()), PrecheckStatusException); // INVALID_CONTRACT_ID
+  // Given / When / Then
+  EXPECT_THROW(AccountRecordsQuery().execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID
 }

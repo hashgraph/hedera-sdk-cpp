@@ -45,9 +45,12 @@ private:
 //-----
 TEST_F(AccountDeleteTransactionTest, ConstructAccountDeleteTransaction)
 {
+  // Given / When
   AccountDeleteTransaction transaction;
-  EXPECT_EQ(transaction.getDeleteAccountId(), AccountId());
-  EXPECT_EQ(transaction.getTransferAccountId(), AccountId());
+
+  // Then
+  EXPECT_FALSE(transaction.getDeleteAccountId().has_value());
+  EXPECT_FALSE(transaction.getTransferAccountId().has_value());
 }
 
 //-----
@@ -62,7 +65,7 @@ TEST_F(AccountDeleteTransactionTest, ConstructAccountCreateTransactionFromTransa
   txBody.set_allocated_cryptodelete(body.release());
 
   // When
-  AccountDeleteTransaction accountDeleteTransaction(txBody);
+  const AccountDeleteTransaction accountDeleteTransaction(txBody);
 
   // Then
   EXPECT_EQ(accountDeleteTransaction.getDeleteAccountId(), getTestDeleteAccountId());
@@ -72,21 +75,47 @@ TEST_F(AccountDeleteTransactionTest, ConstructAccountCreateTransactionFromTransa
 //-----
 TEST_F(AccountDeleteTransactionTest, SetDeleteAccountId)
 {
+  // Given
   AccountDeleteTransaction transaction;
-  transaction.setDeleteAccountId(getTestDeleteAccountId());
-  EXPECT_EQ(transaction.getDeleteAccountId(), getTestDeleteAccountId());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setDeleteAccountId(getTestDeleteAccountId()));
+
+  // Then
+  EXPECT_EQ(transaction.getDeleteAccountId(), getTestDeleteAccountId());
+}
+
+//-----
+TEST_F(AccountDeleteTransactionTest, SetDeleteAccountIdFrozen)
+{
+  // Given
+  AccountDeleteTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setDeleteAccountId(getTestDeleteAccountId()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountDeleteTransactionTest, SetTransferAccountId)
 {
+  // Given
   AccountDeleteTransaction transaction;
-  transaction.setTransferAccountId(getTestTransferAccountId());
-  EXPECT_EQ(transaction.getTransferAccountId(), getTestTransferAccountId());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setTransferAccountId(getTestTransferAccountId()));
+
+  // Then
+  EXPECT_EQ(transaction.getTransferAccountId(), getTestTransferAccountId());
+}
+
+//-----
+TEST_F(AccountDeleteTransactionTest, SetTransferAccountIdFrozen)
+{
+  // Given
+  AccountDeleteTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setTransferAccountId(getTestTransferAccountId()), IllegalStateException);
 }

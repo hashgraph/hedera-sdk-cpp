@@ -18,6 +18,7 @@
  *
  */
 #include "TransactionReceipt.h"
+#include "exceptions/ReceiptStatusException.h"
 
 #include <proto/transaction_receipt.pb.h>
 
@@ -50,6 +51,15 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
   }
 
   return receipt;
+}
+
+//-----
+void TransactionReceipt::validateStatus() const
+{
+  if (mStatus != Status::SUCCESS)
+  {
+    throw ReceiptStatusException(gStatusToString.at(mStatus));
+  }
 }
 
 } // namespace Hedera

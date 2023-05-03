@@ -28,6 +28,11 @@
 
 namespace Hedera
 {
+class AccountBalance;
+}
+
+namespace Hedera
+{
 /**
  * Get the balance of a Hedera crypto-currency account. This returns only the balance, so it is a smaller and faster
  * reply than an AccountInfoQuery.

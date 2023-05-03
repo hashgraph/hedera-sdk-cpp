@@ -68,7 +68,10 @@ private:
 //-----
 TEST_F(AccountUpdateTransactionTest, ConstructAccountUpdateTransaction)
 {
+  // Given / When
   AccountUpdateTransaction transaction;
+
+  // Then
   EXPECT_EQ(transaction.getAccountId(), AccountId());
   EXPECT_EQ(transaction.getKey(), nullptr);
   EXPECT_FALSE(transaction.getReceiverSignatureRequired().has_value());
@@ -112,10 +115,11 @@ TEST_F(AccountUpdateTransactionTest, ConstructAccountUpdateTransactionFromTransa
   txBody.set_allocated_cryptoupdateaccount(body.release());
 
   // When
-  AccountUpdateTransaction accountUpdateTransaction(txBody);
+  const AccountUpdateTransaction accountUpdateTransaction(txBody);
 
   // Then
   EXPECT_EQ(accountUpdateTransaction.getAccountId(), getTestAccountId());
+  ASSERT_NE(accountUpdateTransaction.getKey(), nullptr);
   EXPECT_EQ(accountUpdateTransaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
   ASSERT_TRUE(accountUpdateTransaction.getReceiverSignatureRequired().has_value());
   EXPECT_EQ(accountUpdateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
@@ -137,52 +141,109 @@ TEST_F(AccountUpdateTransactionTest, ConstructAccountUpdateTransactionFromTransa
 //-----
 TEST_F(AccountUpdateTransactionTest, SetAccountId)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setAccountId(getTestAccountId());
-  EXPECT_EQ(transaction.getAccountId(), getTestAccountId());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setAccountId(getTestAccountId()));
+
+  // Then
+  EXPECT_EQ(transaction.getAccountId(), getTestAccountId());
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, SetAccountIdFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountUpdateTransactionTest, SetKey)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setKey(getTestPublicKey());
-  EXPECT_EQ(transaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setKey(getTestPublicKey()));
+
+  // Then
+  EXPECT_EQ(transaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, SetKeyFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountUpdateTransactionTest, SetReceiverSignatureRequired)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired());
-  EXPECT_TRUE(transaction.getReceiverSignatureRequired());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired()));
+
+  // Then
+  EXPECT_TRUE(transaction.getReceiverSignatureRequired());
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, SetReceiverSignatureRequiredFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountUpdateTransactionTest, SetAutoRenewPeriod)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setAutoRenewPeriod(getTestAutoRenewPeriod());
-  EXPECT_EQ(transaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()));
+
+  // Then
+  EXPECT_EQ(transaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, SetAutoRenewPeriodFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountUpdateTransactionTest, SetExpirationTime)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setExpirationTime(getTestExpirationTime());
+
+  // When
+  EXPECT_NO_THROW(transaction.setExpirationTime(getTestExpirationTime()));
+
+  // Then
   EXPECT_EQ(transaction.getExpirationTime(), getTestExpirationTime());
 
   transaction.freezeWith(getTestClient());
@@ -190,80 +251,182 @@ TEST_F(AccountUpdateTransactionTest, SetExpirationTime)
 }
 
 //-----
+TEST_F(AccountUpdateTransactionTest, SetExpirationTimeFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
+}
+
+//-----
 TEST_F(AccountUpdateTransactionTest, SetAccountMemo)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setAccountMemo(getTestAccountMemo());
+
+  // When
+  EXPECT_NO_THROW(transaction.setAccountMemo(getTestAccountMemo()));
+
+  // Then
   EXPECT_EQ(transaction.getAccountMemo(), getTestAccountMemo());
+}
 
-  // Throw if account memo is larger than 100 characters
+//-----
+TEST_F(AccountUpdateTransactionTest, SetAccountMemoTooLarge)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+
+  // When / Then
   EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::length_error);
+}
 
-  transaction.freezeWith(getTestClient());
+//-----
+TEST_F(AccountUpdateTransactionTest, SetAccountMemoFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setAccountMemo(getTestAccountMemo()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountUpdateTransactionTest, SetMaxAutomaticTokenAssociations)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations());
+
+  // When
+  EXPECT_NO_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()));
+
+  // Then
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
+}
 
-  // Throw if over 5000
-  EXPECT_NO_THROW(transaction.setMaxAutomaticTokenAssociations(5000U));
+//-----
+TEST_F(AccountUpdateTransactionTest, SetMaxAutomaticTokenAssociationsTooMany)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+
+  // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(5001U), std::invalid_argument);
-  EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(std::numeric_limits<uint32_t>::max()),
-               std::invalid_argument);
+}
 
-  transaction.freezeWith(getTestClient());
+//-----
+TEST_F(AccountUpdateTransactionTest, SetMaxAutomaticTokenAssociationsFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountUpdateTransactionTest, SetStakedAccountId)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setStakedAccountId(getTestStakedAccountId());
-  EXPECT_EQ(transaction.getStakedAccountId(), getTestStakedAccountId());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setStakedAccountId(getTestStakedAccountId()));
+
+  // Then
+  EXPECT_EQ(transaction.getStakedAccountId(), getTestStakedAccountId());
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, SetStakedAccountIdFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setStakedAccountId(getTestStakedAccountId()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountUpdateTransactionTest, SetStakedNodeId)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setStakedNodeId(getTestStakedNodeId());
-  EXPECT_EQ(transaction.getStakedNodeId(), getTestStakedNodeId());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setStakedNodeId(getTestStakedNodeId()));
+
+  // Then
+  EXPECT_EQ(transaction.getStakedNodeId(), getTestStakedNodeId());
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, SetStakedNodeIdFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestStakedNodeId()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountUpdateTransactionTest, SetStakingRewardPolicy)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setDeclineStakingReward(getTestDeclineStakingReward());
-  EXPECT_EQ(transaction.getDeclineStakingReward(), getTestDeclineStakingReward());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()));
+
+  // Then
+  EXPECT_EQ(transaction.getDeclineStakingReward(), getTestDeclineStakingReward());
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, SetStakingRewardPolicyFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()), IllegalStateException);
 }
 
 //-----
-TEST_F(AccountUpdateTransactionTest, ResetMutuallyExclusiveIds)
+TEST_F(AccountUpdateTransactionTest, ResetStakedAccountId)
 {
+  // Given
   AccountUpdateTransaction transaction;
-  transaction.setStakedAccountId(getTestStakedAccountId());
-  transaction.setStakedNodeId(getTestStakedNodeId());
+  ASSERT_NO_THROW(transaction.setStakedAccountId(getTestStakedAccountId()));
 
+  // When
+  EXPECT_NO_THROW(transaction.setStakedNodeId(getTestStakedNodeId()));
+
+  // Then
   EXPECT_FALSE(transaction.getStakedAccountId().has_value());
   EXPECT_TRUE(transaction.getStakedNodeId().has_value());
+}
 
-  transaction.setStakedAccountId(getTestStakedAccountId());
+//-----
+TEST_F(AccountUpdateTransactionTest, ResetStakedNodeId)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.setStakedNodeId(getTestStakedNodeId()));
+
+  // When
+  EXPECT_NO_THROW(transaction.setStakedAccountId(getTestStakedAccountId()));
+
+  // Then
   EXPECT_TRUE(transaction.getStakedAccountId().has_value());
   EXPECT_FALSE(transaction.getStakedNodeId().has_value());
 }

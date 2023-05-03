@@ -22,19 +22,6 @@
 
 #include "Executable.h"
 
-namespace Hedera
-{
-class AccountBalance;
-class AccountBalanceQuery;
-class AccountRecords;
-class AccountRecordsQuery;
-class AccountId;
-class TransactionReceipt;
-class TransactionReceiptQuery;
-class TransactionRecord;
-class TransactionRecordQuery;
-}
-
 namespace proto
 {
 class Query;
@@ -72,14 +59,6 @@ protected:
   { // Intentionally unimplemented
   }
 };
-
-/**
- * Explicit template instantiations.
- */
-template class Query<AccountBalanceQuery, AccountBalance>;
-template class Query<AccountRecordsQuery, AccountRecords>;
-template class Query<TransactionReceiptQuery, TransactionReceipt>;
-template class Query<TransactionRecordQuery, TransactionRecord>;
 
 } // namespace Hedera
 

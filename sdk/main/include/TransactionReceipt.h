@@ -51,6 +51,13 @@ public:
   [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto);
 
   /**
+   * Validate the status and throw if it is not a Status::SUCCESS.
+   *
+   * @throws ReceiptStatusException If the status is not a Status::SUCCESS.
+   */
+  void validateStatus() const;
+
+  /**
    * Get the transaction status.
    *
    * @return The transaction status.

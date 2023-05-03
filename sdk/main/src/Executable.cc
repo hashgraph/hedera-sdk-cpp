@@ -222,9 +222,12 @@ Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>
     case Status::PLATFORM_NOT_ACTIVE:
     case Status::BUSY:
       return ExecutionStatus::SERVER_ERROR;
-    // Let derived class handle this status
+    case Status::OK:
+    case Status::SUCCESS:
+      return ExecutionStatus::SUCCESS;
+      // Let derived class handle this status, assume request error
     default:
-      return ExecutionStatus::UNKNOWN;
+      return ExecutionStatus::REQUEST_ERROR;
   }
 }
 

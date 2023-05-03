@@ -27,6 +27,11 @@
 
 namespace Hedera
 {
+class TransactionRecord;
+}
+
+namespace Hedera
+{
 /**
  * Get the record for a transaction. If the transaction requested a record, then the record lasts for one hour, and a
  * state proof is available for it. If the transaction created an account, file, or smart contract instance, then the

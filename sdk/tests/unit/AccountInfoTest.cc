@@ -55,7 +55,7 @@ protected:
   [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
   [[nodiscard]] inline const uint64_t& getTestOwnedNfts() const { return mTestOwnedNfts; }
   [[nodiscard]] inline uint32_t getTestMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
-  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestAlias() const { return mTestAlias; }
+  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKeyAlias() const { return mTestPublicKeyAlias; }
   [[nodiscard]] inline const LedgerId& getTestLedgerId() const { return mTestLedgerId; }
   [[nodiscard]] inline bool getTestDeclineReward() const { return mTestDeclineReward; }
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestStakePeriodStart() const
@@ -80,7 +80,7 @@ private:
   const std::string mTestMemo = "test memo";
   const uint64_t mTestOwnedNfts = 5ULL;
   const uint32_t mMaxAutomaticTokenAssociations = 6U;
-  const std::shared_ptr<PublicKey> mTestAlias = PublicKey::fromStringDer(
+  const std::shared_ptr<PublicKey> mTestPublicKeyAlias = PublicKey::fromStringDer(
     "302A300506032B6570032100fc51cd8e6218a1a38da47ed00230f0580816ed13ba3303ac5deb911548908025");
   const LedgerId mTestLedgerId = LedgerId({ std::byte(0x07), std::byte(0x08), std::byte(0x09) });
   const bool mTestDeclineReward = true;
@@ -104,13 +104,11 @@ TEST_F(AccountInfoTest, FromProtobuf)
   protoAccountInfo.set_receiversigrequired(getTestReceiverSignatureRequired());
   protoAccountInfo.set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
   protoAccountInfo.set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
-  protoAccountInfo.set_allocated_memo(new std::string(getTestMemo()));
+  protoAccountInfo.set_memo(getTestMemo());
   protoAccountInfo.set_ownednfts(static_cast<int64_t>(getTestOwnedNfts()));
   protoAccountInfo.set_max_automatic_token_associations(static_cast<int32_t>(getTestMaxAutomaticTokenAssociations()));
-  protoAccountInfo.set_allocated_alias(
-    new std::string(internal::Utilities::byteVectorToString(getTestAlias()->toBytesDer())));
-  protoAccountInfo.set_allocated_ledger_id(
-    new std::string(internal::Utilities::byteVectorToString(getTestLedgerId().toBytes())));
+  protoAccountInfo.set_alias(internal::Utilities::byteVectorToString(getTestPublicKeyAlias()->toBytesDer()));
+  protoAccountInfo.set_ledger_id(internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
 
   protoAccountInfo.mutable_staking_info()->set_decline_reward(getTestDeclineReward());
   protoAccountInfo.mutable_staking_info()->set_allocated_stake_period_start(
@@ -136,7 +134,7 @@ TEST_F(AccountInfoTest, FromProtobuf)
   EXPECT_EQ(accountInfo.getMemo(), getTestMemo());
   EXPECT_EQ(accountInfo.getOwnedNfts(), getTestOwnedNfts());
   EXPECT_EQ(accountInfo.getMaxAutomaticTokenAssociations(), getTestMaxAutomaticTokenAssociations());
-  EXPECT_EQ(accountInfo.getPublicKeyAlias()->toBytesDer(), getTestAlias()->toBytesDer());
+  EXPECT_EQ(accountInfo.getPublicKeyAlias()->toBytesDer(), getTestPublicKeyAlias()->toBytesDer());
   EXPECT_EQ(accountInfo.getLedgerId().toBytes(), getTestLedgerId().toBytes());
   EXPECT_EQ(accountInfo.getStakingInfo().getDeclineReward(), getTestDeclineReward());
   EXPECT_EQ(accountInfo.getStakingInfo().getStakePeriodStart(), getTestStakePeriodStart());

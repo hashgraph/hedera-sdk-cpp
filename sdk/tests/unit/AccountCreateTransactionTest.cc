@@ -19,6 +19,7 @@
  */
 #include "AccountCreateTransaction.h"
 #include "Client.h"
+#include "Defaults.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
@@ -66,18 +67,20 @@ private:
 //-----
 TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransaction)
 {
+  // Given / When
   AccountCreateTransaction transaction;
+
+  // Then
   EXPECT_EQ(transaction.getKey(), nullptr);
   EXPECT_EQ(transaction.getInitialBalance(), Hbar(0ULL));
   EXPECT_FALSE(transaction.getReceiverSignatureRequired());
-  EXPECT_EQ(transaction.getAutoRenewPeriod(), std::chrono::hours(2160)); // 90 days
+  EXPECT_EQ(transaction.getAutoRenewPeriod(), DEFAULT_AUTO_RENEW_PERIOD);
   EXPECT_EQ(transaction.getTransactionMemo(), std::string());
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 0U);
   EXPECT_FALSE(transaction.getStakedAccountId().has_value());
   EXPECT_FALSE(transaction.getStakedNodeId().has_value());
   EXPECT_FALSE(transaction.getDeclineStakingReward());
-  EXPECT_EQ(transaction.getPublicKeyAlias(), nullptr);
-  EXPECT_FALSE(transaction.getEvmAddressAlias().has_value());
+  EXPECT_FALSE(transaction.getAlias().has_value());
 }
 
 //-----
@@ -89,22 +92,22 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   body->set_initialbalance(static_cast<uint64_t>(getTestInitialBalance().toTinybars()));
   body->set_receiversigrequired(getTestReceiverSignatureRequired());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
-  body->set_allocated_memo(new std::string(getTestAccountMemo()));
+  body->set_memo(getTestAccountMemo());
   body->set_max_automatic_token_associations(static_cast<int32_t>(getTestMaximumTokenAssociations()));
   body->set_allocated_staked_account_id(getTestAccountId().toProtobuf().release());
   body->set_decline_reward(getTestDeclineStakingReward());
 
-  const std::vector<std::byte> testPublicKeyBytes = getTestPublicKey()->toBytesDer();
-  body->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testPublicKeyBytes)));
+  const std::vector<std::byte> testAliasBytes = getTestEvmAddress().toBytes();
+  body->set_alias(internal::Utilities::byteVectorToString(testAliasBytes));
 
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptocreateaccount(body.release());
 
   // When
-  AccountCreateTransaction accountCreateTransaction(txBody);
+  const AccountCreateTransaction accountCreateTransaction(txBody);
 
   // Then
-  EXPECT_EQ(accountCreateTransaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
+  EXPECT_EQ(accountCreateTransaction.getKey()->toBytesDer(), getTestPublicKey()->toBytesDer());
   EXPECT_EQ(accountCreateTransaction.getInitialBalance(), getTestInitialBalance());
   EXPECT_EQ(accountCreateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   EXPECT_EQ(accountCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
@@ -114,159 +117,312 @@ TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromTransa
   EXPECT_EQ(accountCreateTransaction.getStakedAccountId(), getTestAccountId());
   EXPECT_FALSE(accountCreateTransaction.getStakedNodeId().has_value());
   EXPECT_EQ(accountCreateTransaction.getDeclineStakingReward(), getTestDeclineStakingReward());
-  EXPECT_EQ(accountCreateTransaction.getPublicKeyAlias()->toBytesDer(), testPublicKeyBytes);
-  EXPECT_FALSE(accountCreateTransaction.getEvmAddressAlias().has_value());
+  ASSERT_TRUE(accountCreateTransaction.getAlias().has_value());
+  EXPECT_EQ(accountCreateTransaction.getAlias()->toBytes(), testAliasBytes);
+}
 
-  const std::vector<std::byte> testEvmAddressBytes = getTestEvmAddress().toBytes();
-  txBody.mutable_cryptocreateaccount()->set_allocated_alias(
-    new std::string(internal::Utilities::byteVectorToString(testEvmAddressBytes)));
-  AccountCreateTransaction test2(txBody);
-  ASSERT_TRUE(test2.getEvmAddressAlias().has_value());
-  EXPECT_EQ(test2.getEvmAddressAlias()->toBytes(), testEvmAddressBytes);
+//-----
+TEST_F(AccountCreateTransactionTest, ConstructAccountCreateTransactionFromWrongTransactionBodyProtobuf)
+{
+  // Given
+  auto body = std::make_unique<proto::CryptoDeleteTransactionBody>();
+  proto::TransactionBody txBody;
+  txBody.set_allocated_cryptodelete(body.release());
+
+  // When / Then
+  EXPECT_THROW(const AccountCreateTransaction accountCreateTransaction(txBody), std::invalid_argument);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetKey)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setKey(getTestPublicKey());
-  EXPECT_EQ(transaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setKey(getTestPublicKey()));
+
+  // Then
+  EXPECT_EQ(transaction.getKey()->toBytesDer(), getTestPublicKey()->toBytesDer());
+}
+
+//-----
+TEST_F(AccountCreateTransactionTest, SetKeyFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetInitialBalance)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setInitialBalance(getTestInitialBalance());
-  EXPECT_EQ(transaction.getInitialBalance(), getTestInitialBalance());
 
-  transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
+  // When
+  EXPECT_NO_THROW(transaction.setInitialBalance(getTestInitialBalance()));
+
+  // Then
+  EXPECT_EQ(transaction.getInitialBalance(), getTestInitialBalance());
+}
+
+//-----
+TEST_F(AccountCreateTransactionTest, SetInitialBalanceFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.setInitialBalance(getTestInitialBalance()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequired)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired());
-  EXPECT_TRUE(transaction.getReceiverSignatureRequired());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired()));
+
+  // Then
+  EXPECT_TRUE(transaction.getReceiverSignatureRequired());
+}
+
+//-----
+TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequiredFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriod)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setAutoRenewPeriod(getTestAutoRenewPeriod());
-  EXPECT_EQ(transaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()));
+
+  // Then
+  EXPECT_EQ(transaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
+}
+
+//-----
+TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriodFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetAccountMemo)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setAccountMemo(getTestAccountMemo());
+
+  // When
+  EXPECT_NO_THROW(transaction.setAccountMemo(getTestAccountMemo()));
+
+  // Then
   EXPECT_EQ(transaction.getAccountMemo(), getTestAccountMemo());
+}
 
-  // Throw if account memo is larger than 100 characters
+//-----
+TEST_F(AccountCreateTransactionTest, SetAccountMemoTooLarge)
+{
+  // Given
+  AccountCreateTransaction transaction;
+
+  // When / Then
   EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::length_error);
+}
 
-  transaction.freezeWith(getTestClient());
+//-----
+TEST_F(AccountCreateTransactionTest, SetAccountMemoFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setAccountMemo(getTestAccountMemo()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociations)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations());
+
+  // When
+  EXPECT_NO_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()));
+
+  // Then
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), getTestMaximumTokenAssociations());
+}
 
-  // Throw if over 5000
-  EXPECT_NO_THROW(transaction.setMaxAutomaticTokenAssociations(5000U));
+//-----
+TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociationsTooMany)
+{
+  // Given
+  AccountCreateTransaction transaction;
+
+  // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(5001U), std::invalid_argument);
-  EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(std::numeric_limits<uint32_t>::max()),
-               std::invalid_argument);
+}
 
-  transaction.freezeWith(getTestClient());
+//-----
+TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociationsFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetStakedAccountId)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setStakedAccountId(getTestAccountId());
-  EXPECT_EQ(*transaction.getStakedAccountId(), getTestAccountId());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setStakedAccountId(getTestAccountId()));
+
+  // Then
+  EXPECT_EQ(transaction.getStakedAccountId(), getTestAccountId());
+}
+
+//-----
+TEST_F(AccountCreateTransactionTest, SetStakedAccountIdFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setStakedAccountId(getTestAccountId()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetStakedNodeId)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setStakedNodeId(getTestNodeId());
-  EXPECT_EQ(*transaction.getStakedNodeId(), getTestNodeId());
 
-  transaction.freezeWith(getTestClient());
+  // When
+  EXPECT_NO_THROW(transaction.setStakedNodeId(getTestNodeId()));
+
+  // Then
+  EXPECT_EQ(transaction.getStakedNodeId(), getTestNodeId());
+}
+
+//-----
+TEST_F(AccountCreateTransactionTest, SetStakedNodeIdFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestNodeId()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetStakingRewardPolicy)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setDeclineStakingReward(true);
-  EXPECT_TRUE(transaction.getDeclineStakingReward());
 
-  transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.setDeclineStakingReward(true), IllegalStateException);
+  // When
+  EXPECT_NO_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()));
+
+  // Then
+  EXPECT_TRUE(transaction.getDeclineStakingReward());
+}
+
+//-----
+TEST_F(AccountCreateTransactionTest, SetStakingRewardPolicyFrozen)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()), IllegalStateException);
 }
 
 //-----
 TEST_F(AccountCreateTransactionTest, SetAlias)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setPublicKeyAlias(getTestPublicKey());
-  EXPECT_EQ(transaction.getPublicKeyAlias()->toStringDer(), getTestPublicKey()->toStringDer());
+
+  // When
+  EXPECT_NO_THROW(transaction.setAlias(getTestEvmAddress()));
+
+  // Then
+  ASSERT_TRUE(transaction.getAlias().has_value());
+  EXPECT_EQ(transaction.getAlias()->toBytes(), getTestEvmAddress().toBytes());
 
   transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.setPublicKeyAlias(getTestPublicKey()), IllegalStateException);
+  EXPECT_THROW(transaction.setAlias(getTestEvmAddress()), IllegalStateException);
 }
 
 //-----
-TEST_F(AccountCreateTransactionTest, SetEvmAddress)
+TEST_F(AccountCreateTransactionTest, SetAliasFrozen)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setEvmAddressAlias(getTestEvmAddress());
-  ASSERT_TRUE(transaction.getEvmAddressAlias().has_value());
-  EXPECT_EQ(transaction.getEvmAddressAlias()->toString(), getTestEvmAddress().toString());
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
-  transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.setEvmAddressAlias(getTestEvmAddress()), IllegalStateException);
+  // When
+  EXPECT_THROW(transaction.setAlias(getTestEvmAddress()), IllegalStateException);
 }
 
 //-----
-TEST_F(AccountCreateTransactionTest, ResetMutuallyExclusiveIds)
+TEST_F(AccountCreateTransactionTest, ResetStakedAccountId)
 {
+  // Given
   AccountCreateTransaction transaction;
-  transaction.setStakedAccountId(getTestAccountId());
-  transaction.setStakedNodeId(getTestNodeId());
+  ASSERT_NO_THROW(transaction.setStakedAccountId(getTestAccountId()));
 
+  // When
+  EXPECT_NO_THROW(transaction.setStakedNodeId(getTestNodeId()));
+
+  // Then
   EXPECT_FALSE(transaction.getStakedAccountId().has_value());
   EXPECT_TRUE(transaction.getStakedNodeId().has_value());
+}
 
-  transaction.setStakedAccountId(getTestAccountId());
+//-----
+TEST_F(AccountCreateTransactionTest, ResetStakedNodeId)
+{
+  // Given
+  AccountCreateTransaction transaction;
+  ASSERT_NO_THROW(transaction.setStakedNodeId(getTestNodeId()));
+
+  // When
+  EXPECT_NO_THROW(transaction.setStakedAccountId(getTestAccountId()));
+
+  // Then
   EXPECT_TRUE(transaction.getStakedAccountId().has_value());
   EXPECT_FALSE(transaction.getStakedNodeId().has_value());
 }

@@ -179,11 +179,7 @@ protected:
     /**
      * The call was successful but an operation did not complete.
      */
-    RETRY,
-    /**
-     * The status of the request could not be determined, requires further processing.
-     */
-    UNKNOWN
+    RETRY
   };
 
   /**

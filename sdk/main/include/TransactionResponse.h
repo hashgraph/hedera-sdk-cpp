@@ -66,6 +66,8 @@ public:
    * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
    *                                      allowable attempts.
    * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   [[nodiscard]] TransactionReceipt getReceipt(const Client& client) const;
@@ -79,6 +81,8 @@ public:
    * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
    *                                      allowable attempts.
    * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   [[nodiscard]] TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
@@ -107,6 +111,14 @@ public:
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
+
+  /**
+   * Set this TransactionResponse's TransactionReceipt validation policy.
+   *
+   * @param validate \c TRUE if this TransactionResponse should throw if it retrieves a TransactionReceipt that does not
+   *                 have a successful status (i.e. Status::SUCCESS), otherwise \c FALSE.
+   */
+  TransactionResponse& setValidateStatus(bool validate);
 
   /**
    * Get the cost to execute this TransactionResponse's corresponding Transaction if the Transaction's max transaction
