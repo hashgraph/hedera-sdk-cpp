@@ -211,11 +211,11 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
   }
   else if (mPublicKeyAlias)
   {
-    proto->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mPublicKeyAlias->toBytesDer())));
+    proto->set_alias(internal::Utilities::byteVectorToString(mPublicKeyAlias->toBytesRaw()));
   }
   else if (mEvmAddressAlias)
   {
-    proto->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(mEvmAddressAlias->toBytes())));
+    proto->set_alias(internal::Utilities::byteVectorToString(mEvmAddressAlias->toBytes()));
   }
 
   return proto;

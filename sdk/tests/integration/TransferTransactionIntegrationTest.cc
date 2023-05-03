@@ -17,9 +17,15 @@
  * limitations under the License.
  *
  */
+#include "AccountAllowanceApproveTransaction.h"
 #include "AccountCreateTransaction.h"
+#include "AccountDeleteTransaction.h"
 #include "AccountId.h"
+#include "AccountInfo.h"
+#include "AccountInfoQuery.h"
 #include "Client.h"
+#include "ECDSAsecp256k1PrivateKey.h"
+#include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 #include "HbarTransfer.h"
@@ -28,6 +34,7 @@
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "impl/HexConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
@@ -45,9 +52,6 @@ using namespace Hedera;
 class TransferTransactionIntegrationTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountIdTo() const { return mAccountIdTo; }
-  [[nodiscard]] inline const AccountId& getTestAccountIdFrom() const { return mAccountIdFrom; }
-
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
 
   void SetUp() override
@@ -85,199 +89,177 @@ protected:
     testInputFile.close();
 
     std::unordered_map<std::string, AccountId> networkMap;
-    networkMap.insert(std::pair<std::string, AccountId>(nodeAddressString, accountId));
+    networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
     mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
   }
 
 private:
-  const AccountId mAccountIdFrom = AccountId::fromString("0.0.1024");
-  const AccountId mAccountIdTo = AccountId::fromString("0.0.1032");
-
   Client mClient;
 };
 
-// Tests invoking of method execute() from TransferTransaction.
-TEST_F(TransferTransactionIntegrationTest, ExecuteRequestToTestnetNode)
+//-----
+TEST_F(TransferTransactionIntegrationTest, ExecuteTransferTransaction)
 {
   // Given
-  const auto accountIdFrom = getTestAccountIdFrom();
-  const auto accountIdTo = getTestAccountIdTo();
-  const int64_t transferAmount = 10LL;
-  const std::string txHash = "txHash";
-  const std::string txMemo = "txMemo";
-  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  const uint64_t txFee = 10ULL;
-  const auto tokenId = TokenId(10ULL);
-  const auto nftId = NftId(TokenId(20ULL), 1000ULL);
-
-  proto::TransactionRecord protoTransactionRecord;
-  protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf().release());
-  protoTransactionRecord.set_allocated_transactionhash(new std::string(txHash));
-  protoTransactionRecord.set_allocated_consensustimestamp(internal::TimestampConverter::toProtobuf(now));
-  protoTransactionRecord.set_allocated_transactionid(TransactionId::generate(accountIdFrom).toProtobuf().release());
-  protoTransactionRecord.set_allocated_memo(new std::string(txMemo));
-  protoTransactionRecord.set_transactionfee(txFee);
-
-  proto::AccountAmount* aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
-  aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
-  aa->set_amount(-transferAmount);
-
-  aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
-  aa->set_allocated_accountid(accountIdTo.toProtobuf().release());
-  aa->set_amount(transferAmount);
-
-  proto::TokenTransferList* list = protoTransactionRecord.add_tokentransferlists();
-  list->set_allocated_token(tokenId.toProtobuf().release());
-
-  aa = list->add_transfers();
-  aa->set_allocated_accountid(accountIdTo.toProtobuf().release());
-  aa->set_amount(transferAmount);
-
-  aa = list->add_transfers();
-  aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
-  aa->set_amount(-transferAmount);
-
-  list = protoTransactionRecord.add_tokentransferlists();
-  list->set_allocated_token(nftId.getTokenId().toProtobuf().release());
-
-  proto::NftTransfer* nft = list->add_nfttransfers();
-  nft->set_serialnumber(static_cast<int64_t>(nftId.getSerialNum()));
-  nft->set_allocated_senderaccountid(accountIdFrom.toProtobuf().release());
-  nft->set_allocated_receiveraccountid(accountIdTo.toProtobuf().release());
+  const Hbar amount(1LL);
 
   // When
-  TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = TransferTransaction()
+                                 .addHbarTransfer(AccountId(2ULL), amount.negated())
+                                 .addHbarTransfer(AccountId(3ULL), amount)
+                                 .execute(getTestClient()));
 
   // Then
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getAccountId());
-  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_EQ(*txRecord.getReceipt()->getAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.getTransactionHash(), txHash);
-  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-
-  EXPECT_GE(txRecord.getConsensusTimestamp()->time_since_epoch().count(), now.time_since_epoch().count());
-
-  EXPECT_TRUE(txRecord.getTransactionId().has_value());
-  EXPECT_EQ(txRecord.getTransactionId()->getAccountId(), accountIdFrom);
-  EXPECT_GE(txRecord.getTransactionId()->getValidTransactionTime(), now);
-
-  EXPECT_EQ(txRecord.getTransactionMemo(), txMemo);
-
-  EXPECT_EQ(txRecord.getTransactionFee(), txFee);
-
+  TransactionRecord txRecord;
+  ASSERT_NO_THROW(txRecord = txResponse.getRecord(getTestClient()));
   EXPECT_EQ(txRecord.getHbarTransferList().size(), 2);
-  EXPECT_EQ(txRecord.getHbarTransferList().at(0).getAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.getHbarTransferList().at(0).getAmount().toTinybars(), -transferAmount);
-  EXPECT_EQ(txRecord.getHbarTransferList().at(1).getAccountId(), accountIdTo);
-  EXPECT_EQ(txRecord.getHbarTransferList().at(1).getAmount().toTinybars(), transferAmount);
-
-  EXPECT_EQ(txRecord.getTokenTransferList().size(), 2);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getTokenId(), tokenId);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getAccountId(), accountIdTo);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getAmount(), transferAmount);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getTokenId(), tokenId);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getAmount(), -transferAmount);
-
-  EXPECT_EQ(txRecord.getNftTransferList().size(), 1);
-  EXPECT_EQ(txRecord.getNftTransferList().at(0).getNftId(), nftId);
-  EXPECT_EQ(txRecord.getNftTransferList().at(0).getSenderAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.getNftTransferList().at(0).getReceiverAccountId(), accountIdTo);
-
-  EXPECT_FALSE(txRecord.getEvmAddress().has_value());
 }
 
 //-----
-TEST_F(TransferTransactionIntegrationTest, ExecuteAccountCreateTransactionWithAliasKey)
+TEST_F(TransferTransactionIntegrationTest, TransferNothing)
 {
-  /*@Test
-@DisplayName("Can create account using aliasKey")
-void canCreateWithAliasKey() throws Exception {
-    var testEnv = new IntegrationTestEnv(1);
-
-var key = PrivateKey.generateED25519();
-
-var aliasId = key.toAccountId(0, 0);
-
-new TransferTransaction()
-.addHbarTransfer(testEnv.operatorId, new Hbar(10).negated())
-.addHbarTransfer(aliasId, new Hbar(10))
-.execute(testEnv.client)
-.getReceipt(testEnv.client);
-
-var info = new AccountInfoQuery()
-           .setAccountId(aliasId)
-           .execute(testEnv.client);
-
-assertThat(key.getPublicKey()).isEqualTo(info.aliasKey);
-
-testEnv.close(info.accountId, key);
-}*/
+  // Given / When / Then
+  EXPECT_NO_THROW(const TransactionReceipt txReceipt =
+                    TransferTransaction().execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
-TEST_F(TransferTransactionIntegrationTest, ExecuteTransferTransactionCanSpendHbarAllowance)
+TEST_F(TransferTransactionIntegrationTest, TransferOutOfNonOperatorAccount)
 {
-  /*@Test
-@DisplayName("Can spend hbar allowance")
-void canSpendHbarAllowance() throws Throwable {
-    var testEnv = new IntegrationTestEnv(1);
+  // Given
+  const std::unique_ptr<PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const Hbar amount(1LL);
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = AccountCreateTransaction()
+                                .setKey(privateKey->getPublicKey())
+                                .setInitialBalance(Hbar(10LL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient())
+                                .getAccountId()
+                                .value());
 
-var aliceKey = PrivateKey.generateED25519();
-var aliceId = new AccountCreateTransaction()
-              .setKey(aliceKey)
-              .setInitialBalance(new Hbar(10))
-              .execute(testEnv.client)
-              .getReceipt(testEnv.client)
-              .accountId;
+  // When
+  TransactionRecord txRecord;
+  EXPECT_NO_THROW(txRecord = TransferTransaction()
+                               .addHbarTransfer(AccountId(2ULL), amount)
+                               .addHbarTransfer(accountId, amount.negated())
+                               .freezeWith(getTestClient())
+                               .sign(privateKey.get())
+                               .execute(getTestClient())
+                               .getRecord(getTestClient()));
 
-var bobKey = PrivateKey.generateED25519();
-var bobId = new AccountCreateTransaction()
-            .setKey(bobKey)
-            .setInitialBalance(new Hbar(10))
-            .execute(testEnv.client)
-            .getReceipt(testEnv.client)
-            .accountId;
+  // Then
+  EXPECT_EQ(txRecord.getHbarTransferList().size(), 2);
 
-Objects.requireNonNull(aliceId);
-Objects.requireNonNull(bobId);
-
-new AccountAllowanceApproveTransaction()
-.approveHbarAllowance(bobId, aliceId, new Hbar(10))
-.freezeWith(testEnv.client)
-.sign(bobKey)
-.execute(testEnv.client)
-.getReceipt(testEnv.client);
-
-var transferRecord = new TransferTransaction()
-                     .addHbarTransfer(testEnv.operatorId, new Hbar(5))
-                     .addApprovedHbarTransfer(bobId, new Hbar(5).negated())
-                     .setTransactionId(TransactionId.generate(aliceId))
-                     .freezeWith(testEnv.client)
-                     .sign(aliceKey)
-                     .execute(testEnv.client)
-                     .getRecord(testEnv.client);
-
-var transferFound = false;
-for (var transfer : transferRecord.transfers) {
-if (transfer.accountId.equals(testEnv.operatorId) && transfer.amount.equals(new Hbar(5))) {
-  transferFound = true;
-  break;
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(privateKey.get())
+                    .execute(getTestClient()));
 }
+
+//-----
+TEST_F(TransferTransactionIntegrationTest, CanTransferHbarWithAliasID)
+{
+  // Given
+  const std::unique_ptr<PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const Hbar amount(1LL);
+  const EvmAddress evmAddress =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(privateKey->getPublicKey())->toEvmAddress();
+  const AccountId aliasId(evmAddress);
+
+  // When
+  EXPECT_NO_THROW(const TransactionReceipt txReceipt = TransferTransaction()
+                                                         .addHbarTransfer(AccountId(2ULL), amount.negated())
+                                                         .addHbarTransfer(aliasId, amount)
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
+
+  // Then
+  AccountInfo accountInfo;
+  ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(aliasId).execute(getTestClient()));
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), evmAddress.toBytes());
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(aliasId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(privateKey.get())
+                    .execute(getTestClient()));
 }
-assertThat(transferFound).isTrue();
 
-new AccountDeleteTransaction()
-.setAccountId(bobId)
-.setTransferAccountId(testEnv.operatorId)
-.freezeWith(testEnv.client)
-.sign(bobKey)
-.execute(testEnv.client)
-.getReceipt(testEnv.client);
+//-----
+TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
+{
+  // Given
+  const std::unique_ptr<PrivateKey> allowerKey = ED25519PrivateKey::generatePrivateKey();
+  const std::unique_ptr<PrivateKey> alloweeKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const Hbar balance(10LL);
+  const Hbar amount(1LL);
+  AccountId allowerId;
+  AccountId alloweeId;
+  ASSERT_NO_THROW(allowerId = AccountCreateTransaction()
+                                .setKey(allowerKey->getPublicKey())
+                                .setInitialBalance(balance)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient())
+                                .getAccountId()
+                                .value());
+  ASSERT_NO_THROW(alloweeId = AccountCreateTransaction()
+                                .setKey(alloweeKey->getPublicKey())
+                                .setInitialBalance(balance)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient())
+                                .getAccountId()
+                                .value());
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountAllowanceApproveTransaction()
+                                                         .approveHbarAllowance(allowerId, alloweeId, amount)
+                                                         .freezeWith(getTestClient())
+                                                         .sign(allowerKey.get())
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
 
-testEnv.close(aliceId, aliceKey);
-}*/
+  // When
+  TransactionRecord txRecord;
+  EXPECT_NO_THROW(txRecord = TransferTransaction()
+                               .addHbarTransfer(AccountId(2ULL), amount)
+                               .addApprovedHbarTransfer(allowerId, amount.negated())
+                               .setTransactionId(TransactionId::generate(alloweeId))
+                               .freezeWith(getTestClient())
+                               .sign(alloweeKey.get())
+                               .execute(getTestClient())
+                               .getRecord(getTestClient()));
+
+  // Then
+  bool transferFound = false;
+  for (const auto& transfer : txRecord.getHbarTransferList())
+  {
+    if (transfer.getAccountId() == allowerId && transfer.getAmount() == amount.negated())
+    {
+      transferFound = true;
+      break;
+    }
+  }
+
+  EXPECT_TRUE(transferFound);
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(allowerId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(allowerKey.get())
+                    .execute(getTestClient()));
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(alloweeId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(alloweeKey.get())
+                    .execute(getTestClient()));
 }

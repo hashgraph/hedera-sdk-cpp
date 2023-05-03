@@ -58,7 +58,10 @@ private:
 //-----
 TEST_F(TransferTransactionTest, ConstructTransferTransaction)
 {
+  // Given / When
   TransferTransaction transaction;
+
+  // Then
   EXPECT_TRUE(transaction.getHbarTransfers().empty());
   EXPECT_TRUE(transaction.getTokenTransfers().empty());
   EXPECT_TRUE(transaction.getNftTransfers().empty());
@@ -128,78 +131,142 @@ TEST_F(TransferTransactionTest, ConstructTransferTransactionFromTransactionBodyP
 //-----
 TEST_F(TransferTransactionTest, AddHbarTransfer)
 {
+  // Given
   TransferTransaction transaction;
-  transaction.addHbarTransfer(getTestAccountId1(), getTestAmount());
+
+  // When
+  EXPECT_NO_THROW(transaction.addHbarTransfer(getTestAccountId1(), getTestAmount()));
+
+  // THEN
   EXPECT_FALSE(transaction.getHbarTransfers().empty());
   EXPECT_EQ(transaction.getHbarTransfers().cbegin()->first, getTestAccountId1());
   EXPECT_EQ(transaction.getHbarTransfers().cbegin()->second, getTestAmount());
+}
 
-  transaction.addHbarTransfer(getTestAccountId1(), getTestAmount());
-  EXPECT_FALSE(transaction.getHbarTransfers().empty());
-  EXPECT_EQ(transaction.getHbarTransfers().cbegin()->first, getTestAccountId1());
-  EXPECT_EQ(transaction.getHbarTransfers().cbegin()->second, getTestAmount() + getTestAmount());
+//-----
+TEST_F(TransferTransactionTest, AddHbarTransferFrozen)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
-  transaction.addHbarTransfer(getTestAccountId1(), (getTestAmount() + getTestAmount()).negated());
-  EXPECT_TRUE(transaction.getHbarTransfers().empty());
-
-  transaction.freezeWith(getTestClient());
+  // When / Then
   EXPECT_THROW(transaction.addHbarTransfer(getTestAccountId1(), getTestAmount()), IllegalStateException);
+}
+
+//-----
+TEST_F(TransferTransactionTest, RemoveHbarTransferIfAmountEqualsZero)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.addHbarTransfer(getTestAccountId1(), getTestAmount()));
+
+  // When
+  EXPECT_NO_THROW(transaction.addHbarTransfer(getTestAccountId1(), getTestAmount().negated()));
+
+  // Then
+  EXPECT_TRUE(transaction.getHbarTransfers().empty());
 }
 
 //-----
 TEST_F(TransferTransactionTest, AddTokenTransfer)
 {
+  // Given
   TransferTransaction transaction;
-  transaction.addTokenTransfer(getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars());
-  EXPECT_FALSE(transaction.getTokenTransfers().empty());
+
+  // When
+  EXPECT_NO_THROW(transaction.addTokenTransfer(getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars()));
+
+  // Then
+  ASSERT_FALSE(transaction.getTokenTransfers().empty());
   EXPECT_EQ(transaction.getTokenTransfers().cbegin()->first, getTestTokenId());
   EXPECT_EQ(transaction.getTokenTransfers().cbegin()->second.cbegin()->first, getTestAccountId2());
   EXPECT_EQ(transaction.getTokenTransfers().cbegin()->second.cbegin()->second, getTestAmount().toTinybars());
   EXPECT_TRUE(transaction.getTokenIdDecimals().empty());
+}
 
-  transaction.addTokenTransfer(getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars());
-  EXPECT_FALSE(transaction.getTokenTransfers().empty());
-  EXPECT_EQ(transaction.getTokenTransfers().cbegin()->first, getTestTokenId());
-  EXPECT_EQ(transaction.getTokenTransfers().cbegin()->second.cbegin()->first, getTestAccountId2());
-  EXPECT_EQ(transaction.getTokenTransfers().cbegin()->second.cbegin()->second,
-            (getTestAmount() + getTestAmount()).toTinybars());
-  EXPECT_TRUE(transaction.getTokenIdDecimals().empty());
+//-----
+TEST_F(TransferTransactionTest, AddTokenTransferFrozen)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
-  transaction.addTokenTransfer(
-    getTestTokenId(), getTestAccountId2(), (getTestAmount() + getTestAmount()).negated().toTinybars());
-  EXPECT_TRUE(transaction.getTokenTransfers().empty());
-
-  transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.addTokenTransfer(getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars()),
+  // When / Then
+  EXPECT_THROW(transaction.addTokenTransfer(getTestTokenId(), getTestAccountId1(), getTestAmount().toTinybars()),
                IllegalStateException);
+}
+
+//-----
+TEST_F(TransferTransactionTest, RemoveTokenTransferIfAmountEqualsZero)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.addTokenTransfer(getTestTokenId(), getTestAccountId1(), getTestAmount().toTinybars()));
+
+  // When
+  EXPECT_NO_THROW(
+    transaction.addTokenTransfer(getTestTokenId(), getTestAccountId1(), getTestAmount().negated().toTinybars()));
+
+  // Then
+  EXPECT_TRUE(transaction.getTokenTransfers().empty());
 }
 
 //-----
 TEST_F(TransferTransactionTest, AddNftTransfer)
 {
+  // Given
   TransferTransaction transaction;
-  transaction.addNftTransfer(getTestNftId(), getTestAccountId1(), getTestAccountId2());
-  EXPECT_FALSE(transaction.getNftTransfers().empty());
+
+  // When
+  EXPECT_NO_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId1(), getTestAccountId2()));
+
+  // Then
+  ASSERT_NO_THROW(transaction.getNftTransfers().empty());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->first, getTestTokenId());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getSenderAccountId(), getTestAccountId1());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getReceiverAccountId(), getTestAccountId2());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getNftId().getSerialNum(),
             getTestNftId().getSerialNum());
+}
 
-  transaction.addNftTransfer(getTestNftId(), getTestAccountId2(), getTestAccountId1());
-  EXPECT_TRUE(transaction.getNftTransfers().empty());
+//-----
+TEST_F(TransferTransactionTest, AddNftTransferFrozen)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
-  transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId2(), getTestAccountId1()),
+  // When / Then
+  EXPECT_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId1(), getTestAccountId2()),
                IllegalStateException);
+}
+
+//-----
+TEST_F(TransferTransactionTest, RemoveNftTransferIfAmountEqualsZero)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId1(), getTestAccountId2()));
+
+  // When
+  EXPECT_NO_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId2(), getTestAccountId1()));
+
+  // Then
+  EXPECT_TRUE(transaction.getNftTransfers().empty());
 }
 
 //-----
 TEST_F(TransferTransactionTest, AddTokenTransferWithDecimals)
 {
+  // Given
   TransferTransaction transaction;
-  transaction.addTokenTransferWithDecimals(
-    getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars(), getTestExpectedDecimals());
+
+  // When
+  EXPECT_NO_THROW(transaction.addTokenTransferWithDecimals(
+    getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars(), getTestExpectedDecimals()));
+
+  // Then
   EXPECT_FALSE(transaction.getTokenTransfers().empty());
   EXPECT_EQ(transaction.getTokenTransfers().cbegin()->first, getTestTokenId());
   EXPECT_EQ(transaction.getTokenTransfers().cbegin()->second.cbegin()->first, getTestAccountId2());
@@ -207,33 +274,50 @@ TEST_F(TransferTransactionTest, AddTokenTransferWithDecimals)
   EXPECT_FALSE(transaction.getTokenIdDecimals().empty());
   EXPECT_EQ(transaction.getTokenIdDecimals().cbegin()->first, getTestTokenId());
   EXPECT_EQ(transaction.getTokenIdDecimals().cbegin()->second, getTestExpectedDecimals());
+}
 
-  transaction.addTokenTransferWithDecimals(
-    getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars(), getTestExpectedDecimals());
-  EXPECT_FALSE(transaction.getTokenTransfers().empty());
-  EXPECT_EQ(transaction.getTokenTransfers().cbegin()->first, getTestTokenId());
-  EXPECT_EQ(transaction.getTokenTransfers().cbegin()->second.cbegin()->first, getTestAccountId2());
-  EXPECT_EQ(transaction.getTokenTransfers().cbegin()->second.cbegin()->second,
-            (getTestAmount() + getTestAmount()).toTinybars());
-  EXPECT_FALSE(transaction.getTokenIdDecimals().empty());
-  EXPECT_EQ(transaction.getTokenIdDecimals().cbegin()->first, getTestTokenId());
-  EXPECT_EQ(transaction.getTokenIdDecimals().cbegin()->second, getTestExpectedDecimals());
+//-----
+TEST_F(TransferTransactionTest, AddTokenTransferWithDecimalsFrozen)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
-  EXPECT_THROW(transaction.addTokenTransferWithDecimals(
-                 getTestTokenId(), getTestAccountId2(), getTestAmount().toTinybars(), getTestExpectedDecimals() + 1U),
-               std::invalid_argument);
-
-  transaction.addTokenTransferWithDecimals(getTestTokenId(),
-                                           getTestAccountId2(),
-                                           (getTestAmount() + getTestAmount()).negated().toTinybars(),
-                                           getTestExpectedDecimals());
-  EXPECT_TRUE(transaction.getTokenTransfers().empty());
-  EXPECT_TRUE(transaction.getTokenIdDecimals().empty());
-
-  transaction.freezeWith(getTestClient());
+  // When / Then
   EXPECT_THROW(transaction.addTokenTransferWithDecimals(getTestTokenId(),
                                                         getTestAccountId2(),
                                                         (getTestAmount() + getTestAmount()).negated().toTinybars(),
                                                         getTestExpectedDecimals()),
                IllegalStateException);
+}
+
+//-----
+TEST_F(TransferTransactionTest, ThrowIfDecimalsDoNotMatch)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.addTokenTransferWithDecimals(
+    getTestTokenId(), getTestAccountId1(), getTestAmount().toTinybars(), getTestExpectedDecimals()));
+
+  // When / Then
+  EXPECT_THROW(transaction.addTokenTransferWithDecimals(
+                 getTestTokenId(), getTestAccountId1(), getTestAmount().toTinybars(), getTestExpectedDecimals() + 1U),
+               std::invalid_argument);
+}
+
+//-----
+TEST_F(TransferTransactionTest, RemoveTokenWithDecimalsTransferIfAmountEqualsZero)
+{
+  // Given
+  TransferTransaction transaction;
+  ASSERT_NO_THROW(transaction.addTokenTransferWithDecimals(
+    getTestTokenId(), getTestAccountId1(), getTestAmount().toTinybars(), getTestExpectedDecimals()));
+
+  // When
+  EXPECT_NO_THROW(transaction.addTokenTransferWithDecimals(
+    getTestTokenId(), getTestAccountId1(), getTestAmount().negated().toTinybars(), getTestExpectedDecimals()));
+
+  // Then
+  EXPECT_TRUE(transaction.getTokenTransfers().empty());
+  EXPECT_TRUE(transaction.getTokenIdDecimals().empty());
 }
