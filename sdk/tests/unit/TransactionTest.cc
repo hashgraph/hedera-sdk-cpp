@@ -26,6 +26,7 @@
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "TransferTransaction.h"
 #include "impl/Utilities.h"
 
@@ -587,4 +588,63 @@ TEST_F(TransactionTest, FileCreateTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 8);
   EXPECT_NO_THROW(const FileCreateTransaction fileCreateTransaction = std::get<8>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, FileDeleteTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_filedelete(new proto::FileDeleteTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 9);
+  EXPECT_NO_THROW(const FileDeleteTransaction fileDeleteTransaction = std::get<9>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, FileDeleteTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_filedelete(new proto::FileDeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<FileDeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 9);
+  EXPECT_NO_THROW(const FileDeleteTransaction fileDeleteTransaction = std::get<9>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, FileDeleteTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_filedelete(new proto::FileDeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 9);
+  EXPECT_NO_THROW(const FileDeleteTransaction fileDeleteTransaction = std::get<9>(txVariant));
 }

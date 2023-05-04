@@ -26,7 +26,6 @@
 #include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
-#include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
@@ -61,7 +60,8 @@ std::pair<int,
                        AccountAllowanceDeleteTransaction,
                        ContractCreateTransaction,
                        ContractDeleteTransaction,
-                       FileCreateTransaction>>
+                       FileCreateTransaction,
+                       FileDeleteTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -121,6 +121,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 7, ContractDeleteTransaction(txBody) };
     case proto::TransactionBody::kFileCreate:
       return { 8, FileCreateTransaction(txBody) };
+    case proto::TransactionBody::kFileDelete:
+      return { 9, FileDeleteTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
