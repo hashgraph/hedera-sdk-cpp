@@ -19,19 +19,23 @@
  */
 #include "AccountId.h"
 #include "Client.h"
+#include "ContractCallQuery.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
+#include "ContractFunctionResult.h"
 #include "ContractId.h"
 #include "ED25519PrivateKey.h"
+#include "FileCreateTransaction.h"
+#include "FileId.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
+#include "impl/HexConverter.h"
 
-#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
@@ -43,7 +47,7 @@
 using json = nlohmann::json;
 using namespace Hedera;
 
-class ContractDeleteTransactionIntegrationTest : public ::testing::Test
+class ContractCallQueryIntegrationTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
@@ -118,61 +122,167 @@ private:
 };
 
 //-----
-TEST_F(ContractDeleteTransactionIntegrationTest, DeleteContractWithAdminKey)
+TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+  FileId fileId;
+  ASSERT_NO_THROW(fileId = FileCreateTransaction()
+                             .setKey(operatorKey->getPublicKey())
+                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient())
+                             .getFileId()
+                             .value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setBytecode({})
                       .setAdminKey(operatorKey->getPublicKey())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setBytecodeFileId(fileId)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
                       .getContractId()
                       .value());
 
-  // When / Then
-  EXPECT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
+  // When
+  ContractFunctionResult contractFunctionResult;
+  EXPECT_NO_THROW(contractFunctionResult = ContractCallQuery()
+                                             .setContractId(contractId)
+                                             .setGas(100000ULL)
+                                             .setFunction("getMessage")
+                                             .execute(getTestClient()));
+
+  // Then
+  EXPECT_EQ(contractFunctionResult.getString(0), "Hello from Hedera.");
+
+  // Clean up
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
                                                          .setContractId(contractId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
+  // TODO: FileDeleteTransaction
 }
 
 //-----
-TEST_F(ContractDeleteTransactionIntegrationTest, CannotDeleteContractWithNoAdminKey)
+TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractFunctionIsNotSet)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+  FileId fileId;
+  ASSERT_NO_THROW(fileId = FileCreateTransaction()
+                             .setKey(operatorKey->getPublicKey())
+                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient())
+                             .getFileId()
+                             .value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setBytecode({})
+                      .setAdminKey(operatorKey->getPublicKey())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setBytecodeFileId(fileId)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
                       .getContractId()
                       .value());
 
   // When / Then
-  EXPECT_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
-                                                      .setContractId(contractId)
-                                                      .setTransferAccountId(AccountId(2ULL))
-                                                      .execute(getTestClient())
-                                                      .getReceipt(getTestClient()),
-               ReceiptStatusException); // MODIFYING_IMMUTABLE_CONTRACT
+  EXPECT_THROW(const ContractFunctionResult contractFunctionResult =
+                 ContractCallQuery().setContractId(contractId).setGas(100000ULL).execute(getTestClient()),
+               PrecheckStatusException); // CONTRACT_REVERT_EXECUTED
+
+  // Clean up
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
+                                                         .setContractId(contractId)
+                                                         .setTransferAccountId(AccountId(2ULL))
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
+  // TODO: FileDeleteTransaction
 }
 
 //-----
-TEST_F(ContractDeleteTransactionIntegrationTest, CannotDeleteContractWithNoContractId)
+TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotSet)
 {
-  // Given / When / Then
-  EXPECT_THROW(const TransactionResponse txResponse = ContractDeleteTransaction().execute(getTestClient()),
+  // Given
+  const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
+    "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+  FileId fileId;
+  ASSERT_NO_THROW(fileId = FileCreateTransaction()
+                             .setKey(operatorKey->getPublicKey())
+                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient())
+                             .getFileId()
+                             .value());
+  ContractId contractId;
+  ASSERT_NO_THROW(contractId =
+                    ContractCreateTransaction()
+                      .setAdminKey(operatorKey->getPublicKey())
+                      .setGas(100000ULL)
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setBytecodeFileId(fileId)
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient())
+                      .getContractId()
+                      .value());
+
+  // When / Then
+  EXPECT_THROW(const ContractFunctionResult contractFunctionResult =
+                 ContractCallQuery().setContractId(contractId).setFunction("getMessage").execute(getTestClient()),
+               PrecheckStatusException); // INSUFFICIENT_GAS
+
+  // Clean up
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
+                                                         .setContractId(contractId)
+                                                         .setTransferAccountId(AccountId(2ULL))
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
+  // TODO: FileDeleteTransaction
+}
+
+//-----
+TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractIdIsNotSet)
+{
+  // Given
+  const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
+    "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+  FileId fileId;
+  ASSERT_NO_THROW(fileId = FileCreateTransaction()
+                             .setKey(operatorKey->getPublicKey())
+                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient())
+                             .getFileId()
+                             .value());
+  ContractId contractId;
+  ASSERT_NO_THROW(contractId =
+                    ContractCreateTransaction()
+                      .setAdminKey(operatorKey->getPublicKey())
+                      .setGas(100000ULL)
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setBytecodeFileId(fileId)
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient())
+                      .getContractId()
+                      .value());
+
+  // When / Then
+  EXPECT_THROW(const ContractFunctionResult contractFunctionResult =
+                 ContractCallQuery().setGas(100000ULL).setFunction("getMessage").execute(getTestClient()),
                PrecheckStatusException); // INVALID_CONTRACT_ID
+
+  // Clean up
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
+                                                         .setContractId(contractId)
+                                                         .setTransferAccountId(AccountId(2ULL))
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
+  // TODO: FileDeleteTransaction
 }
