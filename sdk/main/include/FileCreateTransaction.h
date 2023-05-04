@@ -69,8 +69,8 @@ public:
    * being deleted, use a FileUpdateTransaction to update with the new expiration time.
    *
    * @param expirationTime The time at which the new file will expire.
-   * @return A reference to this ContractCreateTransaction object with the newly-set expiration time.
-   * @throws IllegalStateException If this ContractCreateTransaction is frozen.
+   * @return A reference to this FileCreateTransaction object with the newly-set expiration time.
+   * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
   FileCreateTransaction& setExpirationTime(const std::chrono::system_clock::time_point& expirationTime);
 
@@ -90,9 +90,9 @@ public:
    * set larger contents.
    *
    * @param contents The contents of the new file.
-   * @return A reference to this ContractCreateTransaction object with the newly-set contents.
+   * @return A reference to this FileCreateTransaction object with the newly-set contents.
    * @throws std::invalid_argument If the number of bytes exceeds 4096.
-   * @throws IllegalStateException If this ContractCreateTransaction is frozen.
+   * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
   FileCreateTransaction& setContents(const std::vector<std::byte>& contents);
 
@@ -100,9 +100,9 @@ public:
    * Set the memo for the new file. The memo cannot exceed 100 bytes.
    *
    * @param contents The contents of the new file.
-   * @return A reference to this ContractCreateTransaction object with the newly-set contents.
+   * @return A reference to this FileCreateTransaction object with the newly-set contents.
    * @throws std::invalid_argument If the number of bytes exceeds 4096.
-   * @throws IllegalStateException If this ContractCreateTransaction is frozen.
+   * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
   FileCreateTransaction& setFileMemo(std::string_view memo);
 
@@ -163,9 +163,9 @@ private:
                                            proto::TransactionResponse* response) const override;
 
   /**
-   * Build a CryptoCreateTransactionBody protobuf object from this FileCreateTransaction object.
+   * Build a FileCreateTransactionBody protobuf object from this FileCreateTransaction object.
    *
-   * @return A pointer to a CryptoCreateTransactionBody protobuf object filled with this FileCreateTransaction object's
+   * @return A pointer to a FileCreateTransactionBody protobuf object filled with this FileCreateTransaction object's
    *         data.
    */
   [[nodiscard]] proto::FileCreateTransactionBody* build() const;
