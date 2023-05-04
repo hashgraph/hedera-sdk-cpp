@@ -7,6 +7,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountInfoQueryIntegrationTests.cc
         AccountRecordsQueryIntegrationTests.cc
         AccountUpdateTransactionIntegrationTest.cc
+        FileDeleteTransactionIntegrationTests.cc
         ClientIntegrationTest.cc
         JSONIntegrationTest.cc
         TransactionIntegrationTest.cc
