@@ -29,6 +29,7 @@
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "PrivateKey.h"
 #include "Status.h"
 #include "TransactionId.h"
@@ -428,6 +429,7 @@ template class Transaction<AccountUpdateTransaction>;
 template class Transaction<ContractCreateTransaction>;
 template class Transaction<ContractDeleteTransaction>;
 template class Transaction<FileCreateTransaction>;
+template class Transaction<FileDeleteTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera
