@@ -109,6 +109,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
       return mSmartContractStub->contractCallLocalMethod(&context, query, response);
     case proto::Query::QueryCase::kContractGetBytecode:
       return mSmartContractStub->ContractGetBytecode(&context, query, response);
+    case proto::Query::QueryCase::kContractGetInfo:
+      return mSmartContractStub->getContractInfo(&context, query, response);
     case proto::Query::QueryCase::kCryptogetAccountBalance:
       return mCryptoStub->cryptoGetBalance(&context, query, response);
     case proto::Query::QueryCase::kCryptoGetAccountRecords:

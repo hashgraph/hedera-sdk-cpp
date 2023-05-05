@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,240 +17,118 @@
  * limitations under the License.
  *
  */
-#ifndef CONTRACT_INFO_H_
-#define CONTRACT_INFO_H_
+#ifndef HEDERA_SDK_CPP_CONTRACT_INFO_H_
+#define HEDERA_SDK_CPP_CONTRACT_INFO_H_
 
 #include "AccountId.h"
 #include "ContractId.h"
 #include "Hbar.h"
+#include "LedgerId.h"
 #include "PublicKey.h"
 #include "StakingInfo.h"
 
-#include "helper/InitType.h"
-
-#include <proto/contract_get_info.pb.h>
-
 #include <chrono>
+#include <cstdint>
+#include <memory>
+#include <optional>
 #include <string>
+
+namespace proto
+{
+class ContractGetInfoResponse_ContractInfo;
+}
 
 namespace Hedera
 {
 /**
- * Contains information about a smart contract instance. This includes the
- * account that it uses, the file containing its initcode (if a file was used to
- * initialize the contract), and the time when it will expire.
+ * Contains information about a smart contract instance. This includes the account that it uses, the file containing its
+ * initcode (if a file was used to initialize the contract), and the time when it will expire.
  */
 class ContractInfo
 {
 public:
   /**
-   * Constructor.
-   */
-  ContractInfo();
-
-  /**
-   * Extract the contract info from a contract info protobuf object.
+   * Construct a ContractInfo object from a ContractGetInfoResponse_ContractInfo protobuf object.
    *
-   * @param proto The contract info protobuf object.
-   * @return The contract info object.
+   * @param proto The ContractGetInfoResponse_ContractInfo protobuf object from which to construct a ContractInfo
+   *              object.
+   * @return The constructed ContractInfo object.
    */
-  static ContractInfo fromProtobuf(const proto::ContractGetInfoResponse_ContractInfo& proto);
+  [[nodiscard]] static ContractInfo fromProtobuf(const proto::ContractGetInfoResponse_ContractInfo& proto);
 
   /**
-   * Build a contract info protobuf object from this contract info object.
-   *
-   * @return The contract info protobuf object.
+   * The ID of the contract.
    */
-  proto::ContractGetInfoResponse_ContractInfo toProtobuf() const;
+  ContractId mContractId;
 
   /**
-   * Extract the contract ID of the contract.
-   *
-   * @return The contract ID of the contract.
+   * The ID of the account that is owned by the contract.
    */
-  inline InitType<ContractId> getContractId() const { return mContractId; }
+  AccountId mAccountId;
 
   /**
-   * Extract the account ID of the account that owns this contract.
-   *
-   * @return The account ID of the account that owns this contract.
-   */
-  inline InitType<AccountId> getAccountId() const { return mAccountId; }
-
-  /**
-   * Extract the Solidity contract account ID.
-   *
-   * @return The Solidity contract account ID.
-   */
-  inline std::string getContractAccountId() const { return mContractAccountId; }
-
-  /**
-   * Extract the admin key used to sign transaction modifications.
-   *
-   * @return The admin key associated with this contract.
-   */
-  inline std::shared_ptr<PublicKey> getAdminKey() const { return mAdminKey; }
-
-  /**
-   * Extract the expiration time of this contract.
-   *
-   * @return The expiration time of this contract.
-   */
-  inline InitType<std::chrono::nanoseconds> getExpirationTime() const { return mExpirationTime; }
-
-  /**
-   * Extract the amount of time added to the expiration date when the contract
-   * instance automatically renews.
-   *
-   * @return The amount of time added to the expiration date when the contract
-   * instance automatically renews.
-   */
-  inline InitType<std::chrono::seconds> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
-
-  /**
-   * Extract the storage space of this contract, in bytes.
-   *
-   * @return The storage space of this contract, in bytes.
-   */
-  inline int64_t getStorage() const { return mStorage; }
-
-  /**
-   * Extract the contract memo.
-   *
-   * @return The contract memo.
-   */
-  inline std::string getMemo() const { return mMemo; }
-
-  /**
-   * Extract the current contract balance.
-   *
-   * @return The current contract balance.
-   */
-  inline Hbar getBalance() const { return mBalance; }
-
-  /**
-   * Extract the deleted status of this contract.
-   *
-   * @return \c TRUE if the contract has been deleted, otherwise \c FALSE.
-   */
-  inline bool getDeleted() const { return mDeleted; }
-
-  /**
-   * Extract the ledger ID from which the response was returned.
-   *
-   * @return The ledger ID from which the response was returned.
-   */
-  inline std::string getLedgerId() const { return mLedgerId; }
-
-  /**
-   * Extract the account ID to charge for auto-renewal.
-   *
-   * @return The account ID to charge for auto-renewal.
-   */
-  inline InitType<AccountId> getAutoRenewAccountId() const { return mAutoRenewAccountId; }
-
-  /**
-   * Extract the maximum number of token associations for this contract.
-   *
-   * @return The maximum number of token associations for this contract.
-   */
-  inline int32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
-
-  /**
-   * Extract the staking metadata for this contract.
-   *
-   * @return The staking metadata for this contract.
-   */
-  inline InitType<StakingInfo> getStakingInfo() const { return mStakingInfo; }
-
-private:
-  /**
-   * The ID of the contract instance, in the format used in transactions.
-   */
-  InitType<ContractId> mContractId;
-
-  /**
-   * The ID of the cryptocurrency account owned by the contract instance, in the
-   * format used in transactions.
-   */
-  InitType<AccountId> mAccountId;
-
-  /**
-   * The ID of both the contract instance and the cryptocurrency account owned
-   * by the contract instance, in the format used by Solidity.
+   * The ID of both the contract and the account owned by the contract, in the format used by Solidity.
    */
   std::string mContractAccountId;
 
   /**
-   * The state of the instance and its fields can be modified arbitrarily if
-   * this key signs a transaction to modify it. If this is null, then such
-   * modifications are not possible, and there is no administrator that can
-   * override the normal operation of this smart contract instance. Note that if
-   * it is created with no admin keys, then there is no administrator to
-   * authorize changing the admin keys, so there can never be any admin keys for
-   * that instance.
+   * Pointer to the admin key that can be used to modify the state of the contract.
    */
-  std::shared_ptr<PublicKey> mAdminKey;
+  std::shared_ptr<PublicKey> mAdminKey = nullptr;
 
   /**
-   * The current time at which this contract instance (and its account) is set
-   * to expire in nanoseconds from epoch.
+   * The expiration time of the queried contract and its account.
    */
-  InitType<std::chrono::nanoseconds> mExpirationTime;
+  std::chrono::system_clock::time_point mExpirationTime;
 
   /**
-   * The expiration time will extend every this many seconds. If there are
-   * insufficient funds, then it extends as long as possible. If the account is
-   * empty when it expires, then it is deleted.
+   * The duration of time the queried contract uses to automatically extend its expiration period.
    */
-  InitType<std::chrono::seconds> mAutoRenewPeriod;
+  std::chrono::duration<double> mAutoRenewPeriod;
 
   /**
-   * The number of bytes of storage being used by this instance (which affects
-   * the cost to extend the expiration time).
+   * Get the number of bytes of storage the queried contract is using (which affects the cost to extend the expiration
+   * time).
    */
-  int64_t mStorage;
+  uint64_t mStorage = 0ULL;
 
   /**
-   * The memo associated with the contract (max 100 bytes).
+   * The contract memo.
    */
   std::string mMemo;
 
   /**
-   * The current balance of the contract.
+   * The current contract balance.
    */
-  Hbar mBalance;
+  Hbar mBalance = Hbar(0LL);
 
   /**
-   * \c TRUE if the contract has been deleted, otherwise \c FALSE
+   * Has this contract been deleted?
    */
-  bool mDeleted;
+  bool mDeleted = false;
 
   /**
-   * The ledger ID the response was returned from; please see HIP-198 for the
-   * network-specific IDs.
+   * The ledger ID from which the response was returned.
    */
-  std::string mLedgerId;
+  LedgerId mLedgerId;
 
   /**
-   * The ID of the an account to charge for auto-renewal of this contract. If
-   * not set, or set to an account with zero hbar balance, the contract's own
-   * hbar balance will be used to cover auto-renewal fees.
+   * The ID of the account to charge for auto-renewal. If not set, or set to an account with zero Hbar balance, the
+   * contract's own Hbar balance will be used to cover auto-renewal fees.
    */
-  InitType<AccountId> mAutoRenewAccountId;
+  std::optional<AccountId> mAutoRenewAccountId;
 
   /**
-   * The maximum number of tokens with which this contract can be implicitly
-   * associated.
+   * The maximum number of token associations for this contract.
    */
-  int32_t mMaxAutomaticTokenAssociations;
+  int32_t mMaxAutomaticTokenAssociations = 0U;
 
   /**
    * The staking metadata for this contract.
    */
-  InitType<StakingInfo> mStakingInfo;
+  StakingInfo mStakingInfo;
 };
 
 } // namespace Hedera
 
-#endif // CONTRACT_INFO_H_
+#endif // HEDERA_SDK_CPP_CONTRACT_INFO_H_
