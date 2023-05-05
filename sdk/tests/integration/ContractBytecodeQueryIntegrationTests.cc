@@ -26,6 +26,7 @@
 #include "ContractId.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
@@ -158,7 +159,8 @@ TEST_F(ContractBytecodeQueryIntegrationTest, ExecuteContractBytecodeQuery)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
-  // TODO: delete file
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
