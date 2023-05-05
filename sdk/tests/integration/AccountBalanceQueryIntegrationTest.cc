@@ -137,6 +137,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ContractId)
   // Given
   ContractId contractId;
   ASSERT_NO_THROW(contractId = ContractCreateTransaction()
+                                 .setBytecode({})
                                  .setGas(500000ULL)
                                  .execute(getTestClient())
                                  .getReceipt(getTestClient())

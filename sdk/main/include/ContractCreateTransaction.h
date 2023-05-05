@@ -249,10 +249,10 @@ public:
   /**
    * Get the bytes of the smart contract initcode.
    *
-   * @return The bytes of the desired smart contract initcode. Returns empty if a value has not yet been set, or if the
-   *         mBytecodeFileId has been set more recently.
+   * @return The bytes of the desired smart contract initcode. Returns uninitialized if a value has not yet been set, or
+   *         if the mBytecodeFileId has been set more recently.
    */
-  [[nodiscard]] inline std::vector<std::byte> getInitCode() const { return mBytecode; }
+  [[nodiscard]] inline std::optional<std::vector<std::byte>> getInitCode() const { return mBytecode; }
 
   /**
    * Get the admin key for the new smart contract instance.
@@ -382,7 +382,7 @@ private:
   /**
    * The bytes of the smart contract bytecode.
    */
-  std::vector<std::byte> mBytecode;
+  std::optional<std::vector<std::byte>> mBytecode;
 
   /**
    * The admin key for the new smart contract instance.
