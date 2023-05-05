@@ -68,10 +68,10 @@ private:
                                          const std::shared_ptr<internal::Node>& node) const override;
 
   /**
-   * Derived from Executable. Construct an ContractInfo object from a Response protobuf object.
+   * Derived from Executable. Construct a ContractInfo object from a Response protobuf object.
    *
-   * @param response The Response protobuf object from which to construct an ContractInfo object.
-   * @return An ContractInfo object filled with the Response protobuf object's data
+   * @param response The Response protobuf object from which to construct a ContractInfo object.
+   * @return A ContractInfo object filled with the Response protobuf object's data
    */
   [[nodiscard]] ContractInfo mapResponse(const proto::Response& response) const override;
 
