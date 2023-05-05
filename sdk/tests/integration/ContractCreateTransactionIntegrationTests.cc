@@ -23,6 +23,8 @@
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
 #include "ContractId.h"
+#include "ContractInfo.h"
+#include "ContractInfoQuery.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
 #include "FileId.h"
@@ -30,7 +32,6 @@
 #include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
-#include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 #include "impl/HexConverter.h"
 
@@ -126,6 +127,8 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+  const std::string memo = "[e2e::ContractCreateTransaction]";
+  const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2016);
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
@@ -136,31 +139,39 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
                              .value());
 
   // When
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse =
+  ContractId contractId;
+  EXPECT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
                       .setAdminKey(operatorKey->getPublicKey())
                       .setGas(100000ULL)
-                      .setAutoRenewPeriod(std::chrono::hours(2016))
+                      .setAutoRenewPeriod(autoRenewPeriod)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
-                      .setMemo("[e2e::ContractCreateTransaction]")
+                      .setMemo(memo)
                       .setAutoRenewAccountId(AccountId(2ULL))
                       .setStakedAccountId(AccountId(2ULL))
                       .setDeclineStakingReward(true)
-                      .execute(getTestClient()));
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient())
+                      .getContractId()
+                      .value());
 
   // Then
-  TransactionReceipt txReceipt;
-  EXPECT_NO_THROW(txReceipt = txResponse.getReceipt(getTestClient()));
-  EXPECT_TRUE(txReceipt.getContractId().has_value());
-  // TODO: ContractInfoQuery
+  ContractInfo contractInfo;
+  ASSERT_NO_THROW(contractInfo = ContractInfoQuery().setContractId(contractId).execute(getTestClient()));
+  EXPECT_EQ(contractInfo.mContractId, contractId);
+  EXPECT_EQ(contractInfo.mAccountId.toString(), contractId.toString());
+  EXPECT_GT(contractInfo.mExpirationTime, std::chrono::system_clock::now());
+  EXPECT_EQ(contractInfo.mAutoRenewPeriod, autoRenewPeriod);
+  EXPECT_EQ(contractInfo.mStorage, 128ULL);
+  EXPECT_EQ(contractInfo.mMemo, memo);
 
   // Clean up
-  ASSERT_NO_THROW(ContractDeleteTransaction()
-                    .setContractId(txReceipt.getContractId().value())
-                    .setTransferAccountId(AccountId(2ULL))
-                    .execute(getTestClient()));
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
+                                                         .setContractId(contractId)
+                                                         .setTransferAccountId(AccountId(2ULL))
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
   // TODO: FileDeleteTransaction
 }
 
@@ -170,6 +181,8 @@ TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+  const std::string memo = "[e2e::ContractCreateTransaction]";
+  const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2016);
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
@@ -180,26 +193,33 @@ TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
                              .value());
 
   // When
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse =
+  ContractId contractId;
+  EXPECT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setGas(100000ULL)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
-                      .setMemo("[e2e::ContractCreateTransaction]")
-                      .execute(getTestClient()));
+                      .setGas(100000ULL)
+                      .setAutoRenewPeriod(autoRenewPeriod)
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setMemo(memo)
+                      .setAutoRenewAccountId(AccountId(2ULL))
+                      .setStakedAccountId(AccountId(2ULL))
+                      .setDeclineStakingReward(true)
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient())
+                      .getContractId()
+                      .value());
 
   // Then
-  TransactionReceipt txReceipt;
-  EXPECT_NO_THROW(txReceipt = txResponse.getReceipt(getTestClient()));
-  EXPECT_TRUE(txReceipt.getContractId().has_value());
-  // TODO: ContractInfoQuery
+  ContractInfo contractInfo;
+  ASSERT_NO_THROW(contractInfo = ContractInfoQuery().setContractId(contractId).execute(getTestClient()));
+  EXPECT_EQ(contractInfo.mContractId, contractId);
+  EXPECT_EQ(contractInfo.mAccountId.toString(), contractId.toString());
+  EXPECT_GT(contractInfo.mExpirationTime, std::chrono::system_clock::now());
+  EXPECT_EQ(contractInfo.mAutoRenewPeriod, autoRenewPeriod);
+  EXPECT_EQ(contractInfo.mStorage, 128ULL);
+  EXPECT_EQ(contractInfo.mMemo, memo);
 
   // Clean up
-  ASSERT_NO_THROW(ContractDeleteTransaction()
-                    .setContractId(txReceipt.getContractId().value())
-                    .setTransferAccountId(AccountId(2ULL))
-                    .execute(getTestClient()));
   // TODO: FileDeleteTransaction
 }
 
