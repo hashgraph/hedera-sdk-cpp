@@ -89,7 +89,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetContractId)
   ContractDeleteTransaction transaction;
 
   // When
-  transaction.setContractId(getTestContractId());
+  EXPECT_NO_THROW(transaction.setContractId(getTestContractId()));
 
   // Then
   EXPECT_EQ(transaction.getContractId(), getTestContractId());
@@ -100,7 +100,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetContractIdFrozen)
 {
   // Given
   ContractDeleteTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setContractId(getTestContractId()), IllegalStateException);
@@ -113,7 +113,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetTransferAccountId)
   ContractDeleteTransaction transaction;
 
   // When
-  transaction.setTransferAccountId(getTestTransferAccountId());
+  EXPECT_NO_THROW(transaction.setTransferAccountId(getTestTransferAccountId()));
 
   // Then
   EXPECT_EQ(transaction.getTransferAccountId(), getTestTransferAccountId());
@@ -124,7 +124,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetTransferAccountIdFrozen)
 {
   // Given
   ContractDeleteTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTransferAccountId(getTestTransferAccountId()), IllegalStateException);
@@ -137,7 +137,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetTransferContractId)
   ContractDeleteTransaction transaction;
 
   // When
-  transaction.setTransferContractId(getTestTransferContractId());
+  EXPECT_NO_THROW(transaction.setTransferContractId(getTestTransferContractId()));
 
   // Then
   EXPECT_EQ(transaction.getTransferContractId(), getTestTransferContractId());
@@ -148,7 +148,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetTransferContractIdFrozen)
 {
   // Given
   ContractDeleteTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTransferContractId(getTestTransferContractId()), IllegalStateException);
@@ -159,10 +159,10 @@ TEST_F(ContractDeleteTransactionTest, ResetTransferAccountIdWhenSettingTransferC
 {
   // Given
   ContractDeleteTransaction transaction;
-  transaction.setTransferAccountId(getTestTransferAccountId());
+  ASSERT_NO_THROW(transaction.setTransferAccountId(getTestTransferAccountId()));
 
   // When
-  transaction.setTransferContractId(getTestTransferContractId());
+  EXPECT_NO_THROW(transaction.setTransferContractId(getTestTransferContractId()));
 
   // Then
   EXPECT_FALSE(transaction.getTransferAccountId().has_value());
@@ -173,10 +173,10 @@ TEST_F(ContractDeleteTransactionTest, ResetTransferContractIdWhenSettingTransfer
 {
   // Given
   ContractDeleteTransaction transaction;
-  transaction.setTransferContractId(getTestTransferContractId());
+  ASSERT_NO_THROW(transaction.setTransferContractId(getTestTransferContractId()));
 
   // When
-  transaction.setTransferAccountId(getTestTransferAccountId());
+  EXPECT_NO_THROW(transaction.setTransferAccountId(getTestTransferAccountId()));
 
   // Then
   EXPECT_FALSE(transaction.getTransferContractId().has_value());
