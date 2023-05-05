@@ -97,7 +97,7 @@ ContractCreateTransaction& ContractCreateTransaction::setBytecodeFileId(const Fi
 {
   requireNotFrozen();
   mBytecodeFileId = fileId;
-  mBytecode.clear();
+  mBytecode.reset();
   return *this;
 }
 
@@ -231,9 +231,10 @@ proto::ContractCreateTransactionBody* ContractCreateTransaction::build() const
   {
     body->set_allocated_fileid(mBytecodeFileId->toProtobuf().release());
   }
-  else
+
+  else if (mBytecode.has_value())
   {
-    body->set_allocated_initcode(new std::string(internal::Utilities::byteVectorToString(mBytecode)));
+    body->set_initcode(internal::Utilities::byteVectorToString(*mBytecode));
   }
 
   if (mAdminKey)
@@ -244,9 +245,8 @@ proto::ContractCreateTransactionBody* ContractCreateTransaction::build() const
   body->set_gas(static_cast<int64_t>(mGas));
   body->set_initialbalance(mInitialBalance.toTinybars());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
-  body->set_allocated_constructorparameters(
-    new std::string(internal::Utilities::byteVectorToString(mConstructorParameters)));
-  body->set_allocated_memo(new std::string(mMemo));
+  body->set_constructorparameters(internal::Utilities::byteVectorToString(mConstructorParameters));
+  body->set_memo(mMemo);
   body->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
 
   if (mAutoRenewAccountId.has_value())
@@ -259,7 +259,7 @@ proto::ContractCreateTransactionBody* ContractCreateTransaction::build() const
     body->set_allocated_staked_account_id(mStakedAccountId->toProtobuf().release());
   }
 
-  if (mStakedNodeId.has_value())
+  else if (mStakedNodeId.has_value())
   {
     body->set_staked_node_id(static_cast<int64_t>(*mStakedNodeId));
   }
