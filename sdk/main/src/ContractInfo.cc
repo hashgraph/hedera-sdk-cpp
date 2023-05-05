@@ -60,8 +60,8 @@ ContractInfo ContractInfo::fromProtobuf(const proto::ContractGetInfoResponse_Con
 
   contractInfo.mStorage = proto.storage();
   contractInfo.mMemo = proto.memo();
-  contractInfo.mBalance = Hbar(static_cast<int64_t>(proto.balance()));
-  contractInfo.mDeleted = proto.deleted();
+  contractInfo.mBalance = Hbar(static_cast<int64_t>(proto.balance()), HbarUnit::TINYBAR());
+  contractInfo.mIsDeleted = proto.deleted();
   contractInfo.mLedgerId = LedgerId(internal::Utilities::stringToByteVector(proto.ledger_id()));
 
   if (proto.has_auto_renew_account_id())

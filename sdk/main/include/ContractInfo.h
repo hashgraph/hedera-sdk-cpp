@@ -105,7 +105,7 @@ public:
   /**
    * Has this contract been deleted?
    */
-  bool mDeleted = false;
+  bool mIsDeleted = false;
 
   /**
    * The ledger ID from which the response was returned.
