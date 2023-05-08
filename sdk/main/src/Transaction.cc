@@ -26,7 +26,7 @@
 #include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
-#include "ECDSAsecp256k1PublicKey.h"
+#include "ContractExecuteTransaction.h"
 #include "ED25519PublicKey.h"
 #include "FileCreateTransaction.h"
 #include "PrivateKey.h"
@@ -427,6 +427,7 @@ template class Transaction<AccountDeleteTransaction>;
 template class Transaction<AccountUpdateTransaction>;
 template class Transaction<ContractCreateTransaction>;
 template class Transaction<ContractDeleteTransaction>;
+template class Transaction<ContractExecuteTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<TransferTransaction>;
 
