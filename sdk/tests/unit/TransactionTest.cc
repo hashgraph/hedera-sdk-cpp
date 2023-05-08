@@ -25,6 +25,7 @@
 #include "AccountUpdateTransaction.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
+#include "ContractUpdateTransaction.h"
 #include "FileCreateTransaction.h"
 #include "TransferTransaction.h"
 #include "impl/Utilities.h"
@@ -587,4 +588,63 @@ TEST_F(TransactionTest, FileCreateTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 8);
   EXPECT_NO_THROW(const FileCreateTransaction fileCreateTransaction = std::get<8>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, ContractUpdateTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractupdateinstance(new proto::ContractUpdateTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 9);
+  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<9>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, ContractUpdateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractupdateinstance(new proto::ContractUpdateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<FileCreateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 9);
+  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<9>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, ContractUpdateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractupdateinstance(new proto::ContractUpdateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 9);
+  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<9>(txVariant));
 }
