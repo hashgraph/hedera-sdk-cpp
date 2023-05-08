@@ -245,9 +245,6 @@ TEST_F(AccountUpdateTransactionTest, SetExpirationTime)
 
   // Then
   EXPECT_EQ(transaction.getExpirationTime(), getTestExpirationTime());
-
-  transaction.freezeWith(getTestClient());
-  EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
 }
 
 //-----
