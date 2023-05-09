@@ -27,6 +27,7 @@
 #include "Defaults.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
 #include "TransactionReceipt.h"

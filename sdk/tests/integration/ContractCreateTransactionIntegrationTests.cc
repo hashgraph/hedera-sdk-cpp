@@ -27,6 +27,7 @@
 #include "ContractInfoQuery.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
@@ -167,12 +168,14 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
   EXPECT_EQ(contractInfo.mMemo, memo);
 
   // Clean up
-  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
-                                                         .setContractId(contractId)
-                                                         .setTransferAccountId(AccountId(2ULL))
-                                                         .execute(getTestClient())
-                                                         .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()
+                                .setContractId(contractId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -220,7 +223,8 @@ TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
   EXPECT_EQ(contractInfo.mMemo, memo);
 
   // Clean up
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -250,7 +254,8 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoGas)
                ReceiptStatusException); // INSUFFICIENT_GAS
 
   // Clean up
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -279,7 +284,8 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoConst
                ReceiptStatusException); // CONTRACT_REVERT_EXECUTED
 
   // Clean up
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
