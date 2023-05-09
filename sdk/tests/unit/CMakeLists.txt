@@ -30,6 +30,7 @@ add_executable(${TEST_PROJECT_NAME}
         EvmAddressTest.cc
         ExchangeRateTest.cc
         FileCreateTransactionTest.cc
+        FileDeleteTransactionTest.cc
         FileIdTest.cc
         HbarAllowanceTest.cc
         HbarTest.cc
