@@ -109,6 +109,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
       return mSmartContractStub->contractCallLocalMethod(&context, query, response);
     case proto::Query::QueryCase::kContractGetBytecode:
       return mSmartContractStub->ContractGetBytecode(&context, query, response);
+    case proto::Query::QueryCase::kContractGetInfo:
+      return mSmartContractStub->getContractInfo(&context, query, response);
     case proto::Query::QueryCase::kCryptogetAccountBalance:
       return mCryptoStub->cryptoGetBalance(&context, query, response);
     case proto::Query::QueryCase::kCryptoGetAccountRecords:
@@ -169,6 +171,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mCryptoStub->updateAccount(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileCreate:
       return mFileStub->createFile(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kFileDelete:
+      return mFileStub->deleteFile(&context, transaction, response);
     default:
       // This should never happen
       throw std::invalid_argument("Unrecognized gRPC transaction method case");

@@ -26,10 +26,10 @@
 #include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
-#include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
 #include "EthereumTransaction.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "PrivateKey.h"
 #include "Status.h"
 #include "TransactionId.h"
@@ -62,6 +62,7 @@ std::pair<int,
                        ContractCreateTransaction,
                        ContractDeleteTransaction,
                        FileCreateTransaction,
+                       FileDeleteTransaction,
                        EthereumTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
@@ -122,8 +123,10 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 7, ContractDeleteTransaction(txBody) };
     case proto::TransactionBody::kFileCreate:
       return { 8, FileCreateTransaction(txBody) };
+    case proto::TransactionBody::kFileDelete:
+      return { 9, FileDeleteTransaction(txBody) };
     case proto::TransactionBody::kEthereumTransaction:
-      return { 9, EthereumTransaction(txBody) };
+      return { 10, EthereumTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -433,6 +436,7 @@ template class Transaction<ContractCreateTransaction>;
 template class Transaction<ContractDeleteTransaction>;
 template class Transaction<EthereumTransaction>;
 template class Transaction<FileCreateTransaction>;
+template class Transaction<FileDeleteTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera

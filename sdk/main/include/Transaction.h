@@ -44,6 +44,7 @@ class ContractCreateTransaction;
 class ContractDeleteTransaction;
 class EthereumTransaction;
 class FileCreateTransaction;
+class FileDeleteTransaction;
 class PrivateKey;
 class TransactionResponse;
 class TransferTransaction;
@@ -110,6 +111,7 @@ public:
                                               ContractCreateTransaction,
                                               ContractDeleteTransaction,
                                               FileCreateTransaction,
+                                              FileDeleteTransaction,
                                               EthereumTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);
 
