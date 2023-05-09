@@ -56,6 +56,7 @@ EthereumTransaction& EthereumTransaction::setEthereumData(const std::vector<std:
 {
   requireNotFrozen();
   mEthereumData = ethereumData;
+  mCallDataFileId.reset();
   return *this;
 }
 
@@ -64,6 +65,7 @@ EthereumTransaction& EthereumTransaction::setCallDataFileId(const FileId& fileId
 {
   requireNotFrozen();
   mCallDataFileId = fileId;
+  mEthereumData.reset();
   return *this;
 }
 

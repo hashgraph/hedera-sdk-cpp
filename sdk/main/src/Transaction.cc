@@ -28,6 +28,7 @@
 #include "ContractDeleteTransaction.h"
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
+#include "EthereumTransaction.h"
 #include "FileCreateTransaction.h"
 #include "PrivateKey.h"
 #include "Status.h"
@@ -427,6 +428,7 @@ template class Transaction<AccountDeleteTransaction>;
 template class Transaction<AccountUpdateTransaction>;
 template class Transaction<ContractCreateTransaction>;
 template class Transaction<ContractDeleteTransaction>;
+template class Transaction<EthereumTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<TransferTransaction>;
 
