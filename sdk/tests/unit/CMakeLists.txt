@@ -21,6 +21,8 @@ add_executable(${TEST_PROJECT_NAME}
         ContractFunctionResultTest.cc
         ContractFunctionSelectorTest.cc
         ContractIdTest.cc
+        ContractInfoQueryTest.cc
+        ContractInfoTest.cc
         ContractLogInfoTest.cc
         ContractUpdateTransactionTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
@@ -30,6 +32,7 @@ add_executable(${TEST_PROJECT_NAME}
         EvmAddressTest.cc
         ExchangeRateTest.cc
         FileCreateTransactionTest.cc
+        FileDeleteTransactionTest.cc
         FileIdTest.cc
         HbarAllowanceTest.cc
         HbarTest.cc

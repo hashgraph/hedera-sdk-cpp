@@ -27,13 +27,13 @@
 #include "ContractId.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
-#include "exceptions/ReceiptStatusException.h"
 #include "impl/HexConverter.h"
 
 #include <filesystem>
@@ -164,7 +164,8 @@ TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -204,7 +205,8 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractF
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -244,7 +246,8 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotS
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -284,5 +287,6 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractI
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }

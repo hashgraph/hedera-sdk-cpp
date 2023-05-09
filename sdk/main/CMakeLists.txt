@@ -27,8 +27,8 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractFunctionParameters.cc
         src/ContractFunctionResult.cc
         src/ContractFunctionSelector.cc
-        #    src/ContractInfo.cc
-        #    src/ContractInfoQuery.cc
+        src/ContractInfo.cc
+        src/ContractInfoQuery.cc
         src/ContractLogInfo.cc
         src/ContractUpdateTransaction.cc
         src/ECDSAsecp256k1PrivateKey.cc
@@ -43,6 +43,7 @@ add_library(${PROJECT_NAME} STATIC
         #    src/FileAppendTransaction.cc
         #    src/FileContentsQuery.cc
         src/FileCreateTransaction.cc
+        src/FileDeleteTransaction.cc
         src/FileId.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc

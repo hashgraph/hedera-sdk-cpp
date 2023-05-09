@@ -30,6 +30,7 @@
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "PrivateKey.h"
 #include "Status.h"
 #include "TransactionId.h"
@@ -62,6 +63,7 @@ std::pair<int,
                        ContractCreateTransaction,
                        ContractDeleteTransaction,
                        FileCreateTransaction,
+                       FileDeleteTransaction,
                        ContractUpdateTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
@@ -122,8 +124,10 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 7, ContractDeleteTransaction(txBody) };
     case proto::TransactionBody::kFileCreate:
       return { 8, FileCreateTransaction(txBody) };
+    case proto::TransactionBody::kFileDelete:
+      return { 9, FileDeleteTransaction(txBody) };
     case proto::TransactionBody::kContractUpdateInstance:
-      return { 9, ContractUpdateTransaction(txBody) };
+      return { 10, ContractUpdateTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -383,7 +387,8 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
     shouldRegenerate = *mTransactionIdRegenerationPolicy;
   }
 
-  // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has been
+  // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has
+  // been
   else if (const std::optional<bool> clientTxIdRegenPolicy = client.getTransactionIdRegenerationPolicy();
            clientTxIdRegenPolicy)
   {
@@ -433,6 +438,7 @@ template class Transaction<ContractCreateTransaction>;
 template class Transaction<ContractDeleteTransaction>;
 template class Transaction<ContractUpdateTransaction>;
 template class Transaction<FileCreateTransaction>;
+template class Transaction<FileDeleteTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera
