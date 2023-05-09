@@ -28,6 +28,7 @@
 #include "ContractId.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
@@ -174,7 +175,8 @@ TEST_F(ContractExecuteTransactionIntegrationTest, ExecuteContractExecuteTransact
                                 .setTransferAccountId(AccountId(2ULL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -225,12 +227,14 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoFun
                ReceiptStatusException); // CONTRACT_REVERT_EXECUTED
 
   // Clean up
-  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
-                                                         .setContractId(contractId)
-                                                         .setTransferAccountId(AccountId(2ULL))
-                                                         .execute(getTestClient())
-                                                         .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()
+                                .setContractId(contractId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -269,10 +273,12 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoGas
                ReceiptStatusException); // INSUFFICIENT_GAS
 
   // Clean up
-  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
-                                                         .setContractId(contractId)
-                                                         .setTransferAccountId(AccountId(2ULL))
-                                                         .execute(getTestClient())
-                                                         .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()
+                                .setContractId(contractId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
