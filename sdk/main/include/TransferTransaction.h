@@ -200,6 +200,7 @@ private:
   friend class AccountRecordsQuery;
   friend class ContractByteCodeQuery;
   friend class ContractCallQuery;
+  friend class ContractInfoQuery;
   friend class TransactionRecordQuery;
 
   /**

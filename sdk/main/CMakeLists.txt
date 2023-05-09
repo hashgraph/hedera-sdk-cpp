@@ -27,8 +27,8 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractFunctionParameters.cc
         src/ContractFunctionResult.cc
         src/ContractFunctionSelector.cc
-        #    src/ContractInfo.cc
-        #    src/ContractInfoQuery.cc
+        src/ContractInfo.cc
+        src/ContractInfoQuery.cc
         src/ContractLogInfo.cc
         #    src/ContractUpdateTransaction.cc
         src/ECDSAsecp256k1PrivateKey.cc
