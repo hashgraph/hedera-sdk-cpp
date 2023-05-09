@@ -163,12 +163,14 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
   EXPECT_EQ(contractInfo.mMemo, memo);
 
   // Clean up
-  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
-                                                         .setContractId(contractId)
-                                                         .setTransferAccountId(AccountId(2ULL))
-                                                         .execute(getTestClient())
-                                                         .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()
+                                .setContractId(contractId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -211,7 +213,8 @@ TEST_F(ContractInfoQueryIntegrationTest, CanQueryContractInfoWhenAdminKeyIsNull)
   EXPECT_EQ(contractInfo.mMemo, memo);
 
   // Clean up
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
