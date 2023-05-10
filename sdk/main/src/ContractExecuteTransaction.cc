@@ -18,143 +18,107 @@
  *
  */
 #include "ContractExecuteTransaction.h"
+#include "Client.h"
+#include "impl/Node.h"
+#include "impl/Utilities.h"
 
-#include "ContractFunctionParameters.h"
-
+#include <grpcpp/client_context.h>
 #include <proto/contract_call.pb.h>
+#include <proto/transaction.pb.h>
+#include <proto/transaction_response.pb.h>
 
 namespace Hedera
 {
 //-----
-ContractExecuteTransaction::ContractExecuteTransaction()
-  : Transaction()
-  , mContractId()
-  , mGas(0LL)
-  , mPayableAmount(0LL)
-  , mFunctionParameters(std::string())
+ContractExecuteTransaction::ContractExecuteTransaction(const proto::TransactionBody& transactionBody)
 {
-}
-
-//-----
-ContractExecuteTransaction::ContractExecuteTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  : Transaction(transactions)
-{
-  initFromTransactionBody();
-}
-
-//-----
-ContractExecuteTransaction::ContractExecuteTransaction(
-  const proto::TransactionBody& transaction)
-{
-  initFromTransactionBody();
-}
-
-//-----
-void
-ContractExecuteTransaction::validateChecksums(const Client& client) const
-{
-  if (mContractId.isValid())
+  if (!transactionBody.has_contractcall())
   {
-    mContractId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-proto::ContractCallTransactionBody
-ContractExecuteTransaction::build() const
-{
-  proto::ContractCallTransactionBody body;
-
-  if (mContractId.isValid())
-  {
-    body.set_allocated_contractid(mContractId.getValue().toProtobuf());
+    throw std::invalid_argument("Transaction body doesn't contain ContractCall data");
   }
 
-  body.set_gas(mGas);
-  body.set_amount(mPayableAmount.toTinybars());
-  body.set_functionparameters(mFunctionParameters);
+  const proto::ContractCallTransactionBody& body = transactionBody.contractcall();
 
-  return body;
+  if (body.has_contractid())
+  {
+    mContractId = ContractId::fromProtobuf(body.contractid());
+  }
+
+  mGas = static_cast<uint64_t>(body.gas());
+  mPayableAmount = Hbar(body.amount(), HbarUnit::TINYBAR());
+  mFunctionParameters = internal::Utilities::stringToByteVector(body.functionparameters());
 }
 
 //-----
-ContractExecuteTransaction&
-ContractExecuteTransaction::setContractId(const ContractId& contractId)
+ContractExecuteTransaction& ContractExecuteTransaction::setContractId(const ContractId& contractId)
 {
   requireNotFrozen();
-
-  mContractId.setValue(contractId);
+  mContractId = contractId;
   return *this;
 }
 
 //-----
-ContractExecuteTransaction&
-ContractExecuteTransaction::setGas(const int64_t& gas)
+ContractExecuteTransaction& ContractExecuteTransaction::setGas(const uint64_t& gas)
 {
   requireNotFrozen();
-
   mGas = gas;
   return *this;
 }
 
 //-----
-ContractExecuteTransaction&
-ContractExecuteTransaction::setPayableAmount(const Hbar& amount)
+ContractExecuteTransaction& ContractExecuteTransaction::setPayableAmount(const Hbar& amount)
 {
   requireNotFrozen();
-
   mPayableAmount = amount;
   return *this;
 }
 
 //-----
-ContractExecuteTransaction&
-ContractExecuteTransaction::setFunctionParameters(
-  const std::string& functionParameters)
+ContractExecuteTransaction& ContractExecuteTransaction::setFunctionParameters(const std::vector<std::byte>& parameters)
 {
   requireNotFrozen();
-
-  mFunctionParameters = functionParameters;
+  mFunctionParameters = parameters;
   return *this;
 }
 
 //-----
-ContractExecuteTransaction&
-ContractExecuteTransaction::setFunction(const std::string name)
+ContractExecuteTransaction& ContractExecuteTransaction::setFunction(std::string_view name,
+                                                                    const ContractFunctionParameters& parameters)
 {
-  return setFunction(name, ContractFunctionParameters());
+  requireNotFrozen();
+  mFunctionParameters = parameters.toBytes(name);
+  return *this;
 }
 
 //-----
-ContractExecuteTransaction&
-ContractExecuteTransaction::setFunction(
-  const std::string& name,
-  const ContractFunctionParameters& params)
+proto::Transaction ContractExecuteTransaction::makeRequest(const Client& client,
+                                                           const std::shared_ptr<internal::Node>&) const
 {
-  return setFunctionParameters(params.toByteArray(name));
+  proto::TransactionBody transactionBody = generateTransactionBody(client);
+  transactionBody.set_allocated_contractcall(build());
+
+  return signTransaction(transactionBody, client);
 }
 
 //-----
-void
-ContractExecuteTransaction::initFromTransactionBody()
+grpc::Status ContractExecuteTransaction::submitRequest(const Client& client,
+                                                       const std::chrono::system_clock::time_point& deadline,
+                                                       const std::shared_ptr<internal::Node>& node,
+                                                       proto::TransactionResponse* response) const
 {
-  if (mSourceTransactionBody.has_contractcall())
-  {
-    const proto::ContractCallTransactionBody& body =
-      mSourceTransactionBody.contractcall();
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kContractCall, makeRequest(client, node), deadline, response);
+}
 
-    if (body.has_contractid())
-    {
-      mContractId.setValue(ContractId::fromProtobuf(body.contractid()));
-    }
-
-    mGas = body.gas();
-    mPayableAmount = Hbar::fromTinybars(body.amount());
-    mFunctionParameters = body.functionparameters();
-  }
+//-----
+proto::ContractCallTransactionBody* ContractExecuteTransaction::build() const
+{
+  auto body = std::make_unique<proto::ContractCallTransactionBody>();
+  body->set_allocated_contractid(mContractId.toProtobuf().release());
+  body->set_gas(static_cast<int64_t>(mGas));
+  body->set_amount(mPayableAmount.toTinybars());
+  body->set_functionparameters(internal::Utilities::byteVectorToString(mFunctionParameters));
+  return body.release();
 }
 
 } // namespace Hedera

@@ -26,6 +26,7 @@
 #include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
+#include "ContractExecuteTransaction.h"
 #include "ED25519PublicKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
@@ -61,7 +62,8 @@ std::pair<int,
                        ContractCreateTransaction,
                        ContractDeleteTransaction,
                        FileCreateTransaction,
-                       FileDeleteTransaction>>
+                       FileDeleteTransaction,
+                       ContractExecuteTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -123,6 +125,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 8, FileCreateTransaction(txBody) };
     case proto::TransactionBody::kFileDelete:
       return { 9, FileDeleteTransaction(txBody) };
+    case proto::TransactionBody::kContractCall:
+      return { 10, ContractExecuteTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -382,7 +386,8 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
     shouldRegenerate = *mTransactionIdRegenerationPolicy;
   }
 
-  // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has been
+  // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has
+  // been
   else if (const std::optional<bool> clientTxIdRegenPolicy = client.getTransactionIdRegenerationPolicy();
            clientTxIdRegenPolicy)
   {
@@ -430,6 +435,7 @@ template class Transaction<AccountDeleteTransaction>;
 template class Transaction<AccountUpdateTransaction>;
 template class Transaction<ContractCreateTransaction>;
 template class Transaction<ContractDeleteTransaction>;
+template class Transaction<ContractExecuteTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<TransferTransaction>;
