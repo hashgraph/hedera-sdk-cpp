@@ -110,7 +110,7 @@ public:
    * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    * @throws std::length_error If the memo is more than 100 characters.
    */
-  ContractUpdateTransaction& setMemo(std::string_view memo);
+  ContractUpdateTransaction& setContractMemo(std::string_view memo);
 
   /**
    * Set the new maximum automatic token associations the contract can have.
@@ -203,7 +203,7 @@ public:
    *
    * @return The new memo for the contract. Returns uninitialized if a new memo has not yet been set.
    */
-  [[nodiscard]] inline std::optional<std::string> getMemo() const { return mMemo; }
+  [[nodiscard]] inline std::optional<std::string> getContractMemo() const { return mContractMemo; }
 
   /**
    * Get the new maximum automatic token associations for the contract.
@@ -307,7 +307,7 @@ private:
   /**
    * The new memo for the contract (UTF-8 encoding max 100 bytes).
    */
-  std::optional<std::string> mMemo;
+  std::optional<std::string> mContractMemo;
 
   /**
    * The new maximum automatic token associations for the contract. Only allows values up to a maximum value of 5000.

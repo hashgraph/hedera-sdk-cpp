@@ -158,7 +158,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
                                 .setContractId(contractId)
                                 .setAdminKey(newAdminKey->getPublicKey())
                                 .setAutoRenewPeriod(newAutoRenewPeriod)
-                                .setMemo(newMemo)
+                                .setContractMemo(newMemo)
                                 .setDeclineStakingReward(true)
                                 .freezeWith(getTestClient())
                                 .sign(newAdminKey.get())
@@ -216,7 +216,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, CannotModifyImmutableContract)
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = ContractUpdateTransaction()
                                                       .setContractId(contractId)
-                                                      .setMemo("new memo")
+                                                      .setContractMemo("new memo")
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
                ReceiptStatusException); // MODIFYING_IMMUTABLE_CONTRACT

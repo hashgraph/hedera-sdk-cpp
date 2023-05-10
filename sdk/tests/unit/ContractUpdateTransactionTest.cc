@@ -48,7 +48,7 @@ protected:
   {
     return mTestAutoRenewPeriod;
   }
-  [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
+  [[nodiscard]] inline const std::string& getTestContractMemo() const { return mTestContractMemo; }
   [[nodiscard]] inline uint32_t getTestMaximumAutomaticTokenAssociations() const
   {
     return mTestMaximumAutomaticTokenAssociations;
@@ -64,7 +64,7 @@ private:
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const std::shared_ptr<PublicKey> mTestAdminKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(2);
-  const std::string mTestMemo = "test contract memo";
+  const std::string mTestContractMemo = "test contract memo";
   const uint32_t mTestMaximumAutomaticTokenAssociations = 3U;
   const AccountId mTestAutoRenewAccountId = AccountId(4ULL);
   const AccountId mTestStakedAccountId = AccountId(5ULL);
@@ -85,7 +85,7 @@ TEST_F(ContractUpdateTransactionTest, ConstructContractUpdateTransactionFromTran
   body->set_allocated_staked_account_id(getTestStakedAccountId().toProtobuf().release());
 
   auto stringValue = std::make_unique<google::protobuf::StringValue>();
-  stringValue->set_value(getTestMemo());
+  stringValue->set_value(getTestContractMemo());
   body->set_allocated_memowrapper(stringValue.release());
 
   auto int32Value = std::make_unique<google::protobuf::Int32Value>();
@@ -110,8 +110,8 @@ TEST_F(ContractUpdateTransactionTest, ConstructContractUpdateTransactionFromTran
   EXPECT_EQ(contractUpdateTransaction.getAdminKey()->toStringDer(), getTestAdminKey()->toStringDer());
   ASSERT_TRUE(contractUpdateTransaction.getAutoRenewPeriod().has_value());
   EXPECT_EQ(contractUpdateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
-  ASSERT_TRUE(contractUpdateTransaction.getMemo().has_value());
-  EXPECT_EQ(contractUpdateTransaction.getMemo(), getTestMemo());
+  ASSERT_TRUE(contractUpdateTransaction.getContractMemo().has_value());
+  EXPECT_EQ(contractUpdateTransaction.getContractMemo(), getTestContractMemo());
   ASSERT_TRUE(contractUpdateTransaction.getMaxAutomaticTokenAssociations().has_value());
   EXPECT_EQ(contractUpdateTransaction.getMaxAutomaticTokenAssociations(), getTestMaximumAutomaticTokenAssociations());
   ASSERT_TRUE(contractUpdateTransaction.getAutoRenewAccountId().has_value());
@@ -148,7 +148,7 @@ TEST_F(ContractUpdateTransactionTest, SetContractIdFrozen)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetExpirationTime)
+TEST_F(ContractUpdateTransactionTest, GetSetExpirationTime)
 {
   // Given
   ContractUpdateTransaction transaction;
@@ -172,7 +172,7 @@ TEST_F(ContractUpdateTransactionTest, SetExpirationTimeFrozen)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetAdminKey)
+TEST_F(ContractUpdateTransactionTest, GetSetAdminKey)
 {
   // Given
   ContractUpdateTransaction transaction;
@@ -196,7 +196,7 @@ TEST_F(ContractUpdateTransactionTest, SetAdminKeyFrozen)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetAutoRenewPeriod)
+TEST_F(ContractUpdateTransactionTest, GetSetAutoRenewPeriod)
 {
   // Given
   ContractUpdateTransaction transaction;
@@ -220,41 +220,41 @@ TEST_F(ContractUpdateTransactionTest, SetAutoRenewPeriodFrozen)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetMemo)
+TEST_F(ContractUpdateTransactionTest, GetSetContractMemo)
 {
   // Given
   ContractUpdateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setMemo(getTestMemo()));
+  EXPECT_NO_THROW(transaction.setContractMemo(getTestContractMemo()));
 
   // Then
-  EXPECT_EQ(transaction.getMemo(), getTestMemo());
+  EXPECT_EQ(transaction.getContractMemo(), getTestContractMemo());
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetMemoTooLarge)
+TEST_F(ContractUpdateTransactionTest, SetContractMemoTooLarge)
 {
   // Given
   ContractUpdateTransaction transaction;
 
   // When / Then
-  EXPECT_THROW(transaction.setMemo(std::string(101, 'a')), std::length_error);
+  EXPECT_THROW(transaction.setContractMemo(std::string(101, 'a')), std::length_error);
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetAccountMemoFrozen)
+TEST_F(ContractUpdateTransactionTest, SetContractMemoFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
   ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
-  EXPECT_THROW(transaction.setMemo(getTestMemo()), IllegalStateException);
+  EXPECT_THROW(transaction.setContractMemo(getTestContractMemo()), IllegalStateException);
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetMaxAutomaticTokenAssociations)
+TEST_F(ContractUpdateTransactionTest, GetSetMaxAutomaticTokenAssociations)
 {
   // Given
   ContractUpdateTransaction transaction;
@@ -277,7 +277,7 @@ TEST_F(ContractUpdateTransactionTest, SetMaxAutomaticTokenAssociationsTooMany)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetMaxAutomaticTokenAssociationsFrozen)
+TEST_F(ContractUpdateTransactionTest, GetSetMaxAutomaticTokenAssociationsFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
@@ -289,7 +289,7 @@ TEST_F(ContractUpdateTransactionTest, SetMaxAutomaticTokenAssociationsFrozen)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetAutoRenewAccountId)
+TEST_F(ContractUpdateTransactionTest, GetSetAutoRenewAccountId)
 {
   // Given
   ContractUpdateTransaction transaction;
@@ -313,7 +313,7 @@ TEST_F(ContractUpdateTransactionTest, SetAutoRenewAccountIdFrozen)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetStakedAccountId)
+TEST_F(ContractUpdateTransactionTest, GetSetStakedAccountId)
 {
   // Given
   ContractUpdateTransaction transaction;
@@ -337,7 +337,7 @@ TEST_F(ContractUpdateTransactionTest, SetStakedAccountIdFrozen)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetStakedNodeId)
+TEST_F(ContractUpdateTransactionTest, GetSetStakedNodeId)
 {
   // Given
   ContractUpdateTransaction transaction;
@@ -361,7 +361,7 @@ TEST_F(ContractUpdateTransactionTest, SetStakedNodeIdFrozen)
 }
 
 //-----
-TEST_F(ContractUpdateTransactionTest, SetStakingRewardPolicy)
+TEST_F(ContractUpdateTransactionTest, GetSetStakingRewardPolicy)
 {
   // Given
   ContractUpdateTransaction transaction;

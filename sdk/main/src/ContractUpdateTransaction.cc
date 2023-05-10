@@ -61,7 +61,7 @@ ContractUpdateTransaction::ContractUpdateTransaction(const proto::TransactionBod
 
   if (body.has_memowrapper())
   {
-    mMemo = body.memowrapper().value();
+    mContractMemo = body.memowrapper().value();
   }
 
   if (body.has_max_automatic_token_associations())
@@ -125,7 +125,7 @@ ContractUpdateTransaction& ContractUpdateTransaction::setAutoRenewPeriod(
 }
 
 //-----
-ContractUpdateTransaction& ContractUpdateTransaction::setMemo(std::string_view memo)
+ContractUpdateTransaction& ContractUpdateTransaction::setContractMemo(std::string_view memo)
 {
   requireNotFrozen();
 
@@ -134,7 +134,7 @@ ContractUpdateTransaction& ContractUpdateTransaction::setMemo(std::string_view m
     throw std::length_error("Contract memo is too large. Must be smaller than 100 bytes");
   }
 
-  mMemo = memo;
+  mContractMemo = memo;
   return *this;
 }
 
@@ -228,10 +228,10 @@ proto::ContractUpdateTransactionBody* ContractUpdateTransaction::build() const
     body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod.value()));
   }
 
-  if (mMemo.has_value())
+  if (mContractMemo.has_value())
   {
     auto value = std::make_unique<google::protobuf::StringValue>();
-    value->set_value(mMemo.value());
+    value->set_value(mContractMemo.value());
     body->set_allocated_memowrapper(value.release());
   }
 
