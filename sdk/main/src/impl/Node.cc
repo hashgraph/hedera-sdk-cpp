@@ -153,6 +153,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mSmartContractStub->createContract(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractDeleteInstance:
       return mSmartContractStub->deleteContract(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kContractUpdateInstance:
+      return mSmartContractStub->updateContract(&context, transaction, response);
     case proto::TransactionBody::DataCase::kCryptoAddLiveHash:
       return mCryptoStub->addLiveHash(&context, transaction, response);
     case proto::TransactionBody::DataCase::kCryptoApproveAllowance:
