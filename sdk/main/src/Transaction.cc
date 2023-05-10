@@ -26,6 +26,7 @@
 #include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
+#include "ContractExecuteTransaction.h"
 #include "ED25519PublicKey.h"
 #include "EthereumTransaction.h"
 #include "FileCreateTransaction.h"
@@ -63,6 +64,7 @@ std::pair<int,
                        ContractDeleteTransaction,
                        FileCreateTransaction,
                        FileDeleteTransaction,
+                       ContractExecuteTransaction,
                        EthereumTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
@@ -125,8 +127,10 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 8, FileCreateTransaction(txBody) };
     case proto::TransactionBody::kFileDelete:
       return { 9, FileDeleteTransaction(txBody) };
+    case proto::TransactionBody::kContractCall:
+      return { 10, ContractExecuteTransaction(txBody) };
     case proto::TransactionBody::kEthereumTransaction:
-      return { 10, EthereumTransaction(txBody) };
+      return { 11, EthereumTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -386,7 +390,8 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
     shouldRegenerate = *mTransactionIdRegenerationPolicy;
   }
 
-  // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has been
+  // Follow the Client's policy if this Transaction's policy hasn't been explicitly set and the Client's policy has
+  // been
   else if (const std::optional<bool> clientTxIdRegenPolicy = client.getTransactionIdRegenerationPolicy();
            clientTxIdRegenPolicy)
   {
@@ -434,6 +439,7 @@ template class Transaction<AccountDeleteTransaction>;
 template class Transaction<AccountUpdateTransaction>;
 template class Transaction<ContractCreateTransaction>;
 template class Transaction<ContractDeleteTransaction>;
+template class Transaction<ContractExecuteTransaction>;
 template class Transaction<EthereumTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;

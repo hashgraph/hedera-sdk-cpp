@@ -147,6 +147,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
 
   switch (funcEnum)
   {
+    case proto::TransactionBody::DataCase::kContractCall:
+      return mSmartContractStub->contractCallMethod(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractCreateInstance:
       return mSmartContractStub->createContract(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractDeleteInstance:
