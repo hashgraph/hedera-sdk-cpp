@@ -25,6 +25,7 @@
 #include "AccountUpdateTransaction.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
+#include "ContractExecuteTransaction.h"
 #include "ContractUpdateTransaction.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
@@ -49,11 +50,9 @@ TEST_F(TransactionTest, AccountCreateTransactionFromTransactionBodyBytes)
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptocreateaccount(new proto::CryptoCreateTransactionBody);
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
-  const auto [index, txVariant] =
-    Transaction<AccountCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+  const auto [index, txVariant] = Transaction<AccountCreateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 0);
@@ -110,11 +109,9 @@ TEST_F(TransactionTest, TransferTransactionFromTransactionBodyBytes)
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptotransfer(new proto::CryptoTransferTransactionBody);
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
   const auto [index, txVariant] =
-    Transaction<TransferTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+    Transaction<TransferTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 1);
@@ -171,11 +168,9 @@ TEST_F(TransactionTest, AccountUpdateTransactionFromTransactionBodyByte)
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptoupdateaccount(new proto::CryptoUpdateTransactionBody);
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
-  const auto [index, txVariant] =
-    Transaction<AccountUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+  const auto [index, txVariant] = Transaction<AccountUpdateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 2);
@@ -232,11 +227,9 @@ TEST_F(TransactionTest, AccountDeleteTransactionFromTransactionBodyBytes)
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptodelete(new proto::CryptoDeleteTransactionBody);
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
-  const auto [index, txVariant] =
-    Transaction<AccountDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+  const auto [index, txVariant] = Transaction<AccountDeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 3);
@@ -293,11 +286,9 @@ TEST_F(TransactionTest, AccountApproveAllowanceFromTransactionBodyBytes)
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptoapproveallowance(new proto::CryptoApproveAllowanceTransactionBody);
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
-  const auto [index, txVariant] =
-    Transaction<AccountAllowanceApproveTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+  const auto [index, txVariant] = Transaction<AccountAllowanceApproveTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 4);
@@ -354,11 +345,9 @@ TEST_F(TransactionTest, AccountDeleteAllowanceFromTransactionBodyBytes)
   proto::TransactionBody txBody;
   txBody.set_allocated_cryptodeleteallowance(new proto::CryptoDeleteAllowanceTransactionBody);
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
-  const auto [index, txVariant] =
-    Transaction<AccountAllowanceDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+  const auto [index, txVariant] = Transaction<AccountAllowanceDeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 5);
@@ -415,11 +404,9 @@ TEST_F(TransactionTest, ContractCreateTransactionFromTransactionBodyBytes)
   proto::TransactionBody txBody;
   txBody.set_allocated_contractcreateinstance(new proto::ContractCreateTransactionBody);
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
-  const auto [index, txVariant] =
-    Transaction<ContractCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+  const auto [index, txVariant] = Transaction<ContractCreateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 6);
@@ -476,11 +463,9 @@ TEST_F(TransactionTest, ContractDeleteTransactionFromTransactionBodyBytes)
   proto::TransactionBody txBody;
   txBody.set_allocated_contractdeleteinstance(new proto::ContractDeleteTransactionBody());
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
-  const auto [index, txVariant] =
-    Transaction<ContractDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+  const auto [index, txVariant] = Transaction<ContractDeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 7);
@@ -537,11 +522,9 @@ TEST_F(TransactionTest, FileCreateTransactionFromTransactionBodyBytes)
   proto::TransactionBody txBody;
   txBody.set_allocated_filecreate(new proto::FileCreateTransactionBody);
 
-  const std::string serialized = txBody.SerializeAsString();
-
   // When
   const auto [index, txVariant] =
-    Transaction<FileCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(serialized));
+    Transaction<FileCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
   ASSERT_EQ(index, 8);
@@ -651,6 +634,65 @@ TEST_F(TransactionTest, FileDeleteTransactionFromTransactionBytes)
 }
 
 //-----
+TEST_F(TransactionTest, ContractExecuteTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractcall(new proto::ContractCallTransactionBody);
+
+  // When
+  const auto [index, txVariant] = Transaction<ContractExecuteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 10);
+  EXPECT_NO_THROW(const ContractExecuteTransaction contractExecuteTransaction = std::get<10>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, ContractExecuteTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractcall(new proto::ContractCallTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<ContractExecuteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 10);
+  EXPECT_NO_THROW(const ContractExecuteTransaction contractExecuteTransaction = std::get<10>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, ContractExecuteTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_contractcall(new proto::ContractCallTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<ContractExecuteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 10);
+  EXPECT_NO_THROW(const ContractExecuteTransaction contractExecuteTransaction = std::get<10>(txVariant));
+}
+
+//-----
 TEST_F(TransactionTest, ContractUpdateTransactionFromTransactionBodyBytes)
 {
   // Given
@@ -662,8 +704,8 @@ TEST_F(TransactionTest, ContractUpdateTransactionFromTransactionBodyBytes)
     internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 10);
-  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<10>(txVariant));
+  ASSERT_EQ(index, 11);
+  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<11>(txVariant));
 }
 
 //-----
@@ -682,8 +724,8 @@ TEST_F(TransactionTest, ContractUpdateTransactionFromSignedTransactionBytes)
     internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 10);
-  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<10>(txVariant));
+  ASSERT_EQ(index, 11);
+  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<11>(txVariant));
 }
 
 //-----
@@ -705,6 +747,6 @@ TEST_F(TransactionTest, ContractUpdateTransactionFromTransactionBytes)
     Transaction<ContractUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 10);
-  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<10>(txVariant));
+  ASSERT_EQ(index, 11);
+  EXPECT_NO_THROW(const ContractUpdateTransaction contractUpdateTransaction = std::get<11>(txVariant));
 }
