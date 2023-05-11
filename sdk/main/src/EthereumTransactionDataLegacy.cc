@@ -86,6 +86,7 @@ std::vector<std::byte> EthereumTransactionDataLegacy::toBytes() const
                      RLPValue(internal::Utilities::byteVectorToString(mGasLimit)),
                      RLPValue(internal::Utilities::byteVectorToString(mTo)),
                      RLPValue(internal::Utilities::byteVectorToString(mValue)),
+                     RLPValue(internal::Utilities::byteVectorToString(mCallData)),
                      RLPValue(internal::Utilities::byteVectorToString(mV)),
                      RLPValue(internal::Utilities::byteVectorToString(mR)),
                      RLPValue(internal::Utilities::byteVectorToString(mS)) });
@@ -99,8 +100,10 @@ std::string EthereumTransactionDataLegacy::toString() const
          "\nmGasPrice: " + internal::HexConverter::bytesToHex(mGasPrice) +
          "\nmGasLimit: " + internal::HexConverter::bytesToHex(mGasLimit) +
          "\nmTo: " + internal::HexConverter::bytesToHex(mTo) +
-         "\nmValue: " + internal::HexConverter::bytesToHex(mValue) + "\nmV: " + internal::HexConverter::bytesToHex(mV) +
-         "\nmR: " + internal::HexConverter::bytesToHex(mR) + "\nmS: " + internal::HexConverter::bytesToHex(mS);
+         "\nmValue: " + internal::HexConverter::bytesToHex(mValue) +
+         "\nmCallData: " + internal::HexConverter::bytesToHex(mCallData) +
+         "\nmV: " + internal::HexConverter::bytesToHex(mV) + "\nmR: " + internal::HexConverter::bytesToHex(mR) +
+         "\nmS: " + internal::HexConverter::bytesToHex(mS);
 }
 
 } // namespace Hedera

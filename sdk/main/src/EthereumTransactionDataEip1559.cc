@@ -57,14 +57,21 @@ EthereumTransactionDataEip1559::EthereumTransactionDataEip1559(std::vector<std::
 //-----
 EthereumTransactionDataEip1559 EthereumTransactionDataEip1559::fromBytes(const std::vector<std::byte>& bytes)
 {
+  if (bytes.empty() || bytes.at(0) != std::byte(0x02))
+  {
+    throw std::invalid_argument(
+      "Input byte array is malformed, It should be 0x02 followed by 12 RLP-encoded elements as a list");
+  }
+
   RLPValue list;
   size_t consumed;
   size_t wanted;
-  list.read(internal::Utilities::toTypePtr<const unsigned char>(bytes.data()), bytes.size(), consumed, wanted);
+  list.read(internal::Utilities::toTypePtr<const unsigned char>(internal::Utilities::removePrefix(bytes, 1).data()),
+            bytes.size() - 1,
+            consumed,
+            wanted);
 
-  if (!list.isArray() || list.size() != 2 || list.getValues().at(0).empty() ||
-      internal::Utilities::stringToByteVector(list.getValues().at(0).get_str()).at(0) != std::byte(0x02) ||
-      !list.getValues().at(1).isArray() || list.getValues().at(1).size() != 12)
+  if (!list.isArray() || list.size() != 12)
   {
     throw std::invalid_argument(
       "Input byte array is malformed. It should be 0x02 followed by 12 RLP-encoded elements as a list");
@@ -88,10 +95,7 @@ EthereumTransactionDataEip1559 EthereumTransactionDataEip1559::fromBytes(const s
 std::vector<std::byte> EthereumTransactionDataEip1559::toBytes() const
 {
   RLPValue bytes(RLPValue::VType::VARR);
-  bytes.push_back(RLPValue(internal::Utilities::byteVectorToString({ std::byte(0x02) })));
-
-  RLPValue array(RLPValue::VType::VARR);
-  array.push_backV({ RLPValue(internal::Utilities::byteVectorToString(mChainId)),
+  bytes.push_backV({ RLPValue(internal::Utilities::byteVectorToString(mChainId)),
                      RLPValue(internal::Utilities::byteVectorToString(mNonce)),
                      RLPValue(internal::Utilities::byteVectorToString(mMaxPriorityGas)),
                      RLPValue(internal::Utilities::byteVectorToString(mMaxGas)),
@@ -103,9 +107,9 @@ std::vector<std::byte> EthereumTransactionDataEip1559::toBytes() const
                      RLPValue(internal::Utilities::byteVectorToString(mRecoveryId)),
                      RLPValue(internal::Utilities::byteVectorToString(mR)),
                      RLPValue(internal::Utilities::byteVectorToString(mS)) });
-  bytes.push_back(array);
 
-  return internal::Utilities::stringToByteVector(bytes.write());
+  return internal::Utilities::concatenateVectors(
+    { { std::byte(0x02) }, internal::Utilities::stringToByteVector(bytes.write()) });
 }
 
 //-----
