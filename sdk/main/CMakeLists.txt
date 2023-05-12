@@ -37,22 +37,22 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractCallQuery.cc
         src/ContractCreateTransaction.cc
         src/ContractDeleteTransaction.cc
-        #    src/ContractExecuteTransaction.cc
+        src/ContractExecuteTransaction.cc
         src/ContractFunctionParameters.cc
         src/ContractFunctionResult.cc
         src/ContractFunctionSelector.cc
         src/ContractInfo.cc
         src/ContractInfoQuery.cc
         src/ContractLogInfo.cc
-        #    src/ContractUpdateTransaction.cc
+        src/ContractUpdateTransaction.cc
         src/ECDSAsecp256k1PrivateKey.cc
         src/ECDSAsecp256k1PublicKey.cc
         src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
+        src/EthereumTransaction.cc
         src/EthereumTransactionData.cc
-        src/EthereumTransactionDataLegacy.cc
         src/EthereumTransactionDataEip1559.cc
-        #    src/EthereumTransaction.cc
+        src/EthereumTransactionDataLegacy.cc
         src/EvmAddress.cc
         src/ExchangeRate.cc
         src/ExchangeRateSet.cc

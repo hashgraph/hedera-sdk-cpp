@@ -147,10 +147,14 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
 
   switch (funcEnum)
   {
+    case proto::TransactionBody::DataCase::kContractCall:
+      return mSmartContractStub->contractCallMethod(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractCreateInstance:
       return mSmartContractStub->createContract(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractDeleteInstance:
       return mSmartContractStub->deleteContract(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kContractUpdateInstance:
+      return mSmartContractStub->updateContract(&context, transaction, response);
     case proto::TransactionBody::DataCase::kCryptoAddLiveHash:
       return mCryptoStub->addLiveHash(&context, transaction, response);
     case proto::TransactionBody::DataCase::kCryptoApproveAllowance:
@@ -167,6 +171,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mCryptoStub->cryptoTransfer(&context, transaction, response);
     case proto::TransactionBody::DataCase::kCryptoUpdateAccount:
       return mCryptoStub->updateAccount(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kEthereumTransaction:
+      return mSmartContractStub->callEthereum(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileCreate:
       return mFileStub->createFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileDelete:

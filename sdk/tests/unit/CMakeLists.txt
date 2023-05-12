@@ -17,6 +17,7 @@ add_executable(${TEST_PROJECT_NAME}
         ContractCallQueryTest.cc
         ContractCreateTransactionTest.cc
         ContractDeleteTransactionTest.cc
+        ContractExecuteTransactionTest.cc
         ContractFunctionParametersTest.cc
         ContractFunctionResultTest.cc
         ContractFunctionSelectorTest.cc
@@ -24,10 +25,12 @@ add_executable(${TEST_PROJECT_NAME}
         ContractInfoQueryTest.cc
         ContractInfoTest.cc
         ContractLogInfoTest.cc
+        ContractUpdateTransactionTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
         ECDSAsecp256k1PublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        EthereumTransactionTest.cc
         EthereumTransactionDataEip1559Test.cc
         EthereumTransactionDataLegacyTest.cc
         EvmAddressTest.cc
