@@ -33,7 +33,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
-#include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <filesystem>
 #include <fstream>
@@ -130,7 +130,7 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()
@@ -183,7 +183,7 @@ TEST_F(ContractInfoQueryIntegrationTest, CanQueryContractInfoWhenAdminKeyIsNull)
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()

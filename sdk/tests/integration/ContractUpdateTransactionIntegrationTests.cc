@@ -33,7 +33,7 @@
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
-#include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <chrono>
 #include <filesystem>
@@ -133,7 +133,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()
@@ -197,7 +197,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, CannotModifyImmutableContract)
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()

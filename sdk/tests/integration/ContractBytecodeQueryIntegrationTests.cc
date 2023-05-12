@@ -33,7 +33,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
-#include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <filesystem>
 #include <fstream>
@@ -129,7 +129,7 @@ TEST_F(ContractBytecodeQueryIntegrationTest, ExecuteContractBytecodeQuery)
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()
