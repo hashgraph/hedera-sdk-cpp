@@ -72,8 +72,6 @@ TEST_F(EthereumTransactionDataEip1559Test, ToBytes)
   // When
   const std::vector<std::byte> dataBytes = EthereumTransactionDataEip1559::fromBytes(transactionBytes).toBytes();
 
-  std::cout << getTestTransaction() << std::endl;
-  std::cout << internal::HexConverter::bytesToHex(dataBytes) << std::endl;
   // Then
   EXPECT_EQ(dataBytes, transactionBytes);
 }
