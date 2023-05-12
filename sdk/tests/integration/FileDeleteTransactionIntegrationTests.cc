@@ -22,6 +22,8 @@
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
+#include "FileInfo.h"
+#include "FileInfoQuery.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
 #include "TransactionReceipt.h"
@@ -104,10 +106,14 @@ TEST_F(FileDeleteTransactionIntegrationTest, ExecuteFileDeleteTransaction)
                              .getFileId()
                              .value());
 
-  // When / Then
+  // When
   EXPECT_NO_THROW(const TransactionReceipt txReceipt =
                     FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
-  // TODO: FileInfoQuery
+
+  // Then
+  FileInfo fileInfo;
+  ASSERT_NO_THROW(fileInfo = FileInfoQuery().setFileId(fileId).execute(getTestClient()));
+  EXPECT_TRUE(fileInfo.mIsDeleted);
 }
 
 //-----
