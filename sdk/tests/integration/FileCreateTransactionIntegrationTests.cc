@@ -28,7 +28,6 @@
 #include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
-#include "exceptions/ReceiptStatusException.h"
 #include "impl/Utilities.h"
 
 #include <filesystem>
