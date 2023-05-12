@@ -38,3 +38,6 @@ endif ()
 
 file(COPY ${PROJECT_SOURCE_DIR}/config/local_node.json
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+file(COPY ${PROJECT_SOURCE_DIR}/config/hello_world.json
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+
