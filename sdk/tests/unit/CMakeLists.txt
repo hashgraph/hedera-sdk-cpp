@@ -30,6 +30,7 @@ add_executable(${TEST_PROJECT_NAME}
         ECDSAsecp256k1PublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        EthereumTransactionTest.cc
         EvmAddressTest.cc
         ExchangeRateTest.cc
         FileCreateTransactionTest.cc

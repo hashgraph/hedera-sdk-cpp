@@ -39,6 +39,7 @@
 #include "ContractInfo.h"
 #include "ContractInfoQuery.h"
 #include "ContractUpdateTransaction.h"
+#include "EthereumTransaction.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "TransactionReceipt.h"
@@ -332,6 +333,7 @@ template class Executable<ContractUpdateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+template class Executable<EthereumTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FileCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FileDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>;
