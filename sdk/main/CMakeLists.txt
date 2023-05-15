@@ -62,6 +62,8 @@ add_library(${PROJECT_NAME} STATIC
         src/FileCreateTransaction.cc
         src/FileDeleteTransaction.cc
         src/FileId.cc
+        src/FileInfo.cc
+        src/FileInfoQuery.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc
         src/LedgerId.cc

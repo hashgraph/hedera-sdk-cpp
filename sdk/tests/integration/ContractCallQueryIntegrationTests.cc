@@ -34,7 +34,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
-#include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <filesystem>
 #include <fstream>
@@ -130,7 +130,7 @@ TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()
@@ -177,7 +177,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractF
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()
@@ -218,7 +218,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotS
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()
@@ -259,7 +259,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractI
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKey(operatorKey->getPublicKey())
-                             .setContents(internal::HexConverter::hexToBytes(getTestSmartContractBytecode()))
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()

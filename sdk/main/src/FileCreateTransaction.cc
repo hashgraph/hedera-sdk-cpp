@@ -126,8 +126,7 @@ proto::FileCreateTransactionBody* FileCreateTransaction::build() const
     body->set_allocated_keys(keyList.release());
   }
 
-  // Contents should be converted to hex
-  body->set_contents(internal::HexConverter::bytesToHex(mContents));
+  body->set_contents(internal::Utilities::byteVectorToString(mContents));
   body->set_memo(mFileMemo);
 
   return body.release();

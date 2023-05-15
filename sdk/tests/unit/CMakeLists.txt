@@ -38,6 +38,8 @@ add_executable(${TEST_PROJECT_NAME}
         FileCreateTransactionTest.cc
         FileDeleteTransactionTest.cc
         FileIdTest.cc
+        FileInfoQueryTest.cc
+        FileInfoTest.cc
         HbarAllowanceTest.cc
         HbarTest.cc
         HbarTransferTest.cc

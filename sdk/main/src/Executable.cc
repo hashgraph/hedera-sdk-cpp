@@ -42,6 +42,8 @@
 #include "EthereumTransaction.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
+#include "FileInfo.h"
+#include "FileInfoQuery.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
 #include "TransactionRecord.h"
@@ -336,6 +338,7 @@ template class Executable<ContractUpdateTransaction,
 template class Executable<EthereumTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FileCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FileDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<FileInfoQuery, proto::Query, proto::Response, FileInfo>;
 template class Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>;
 template class Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>;
 template class Executable<TransferTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
