@@ -18,6 +18,7 @@
  *
  */
 #include "AccountCreateTransaction.h"
+#include "AccountDeleteTransaction.h"
 #include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ED25519PrivateKey.h"
@@ -96,7 +97,8 @@ private:
 TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteAccountCreateTransaction)
 {
   // Given
-  const auto testPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
+  const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const auto testPublicKey = testPrivateKey->getPublicKey();
 
   // When
   TransactionReceipt txReceipt;
@@ -104,10 +106,21 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteAccountCreateTransaction)
     txReceipt = AccountCreateTransaction().setKey(testPublicKey).execute(getTestClient()).getReceipt(getTestClient()));
 
   // Then
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = txReceipt.getAccountId().value());
+
   EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
   EXPECT_TRUE(txReceipt.getAccountId().has_value());
   EXPECT_TRUE(txReceipt.getExchangeRates().has_value());
   EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(testPrivateKey.get())
+                    .execute(getTestClient()));
 }
 
 //-----
