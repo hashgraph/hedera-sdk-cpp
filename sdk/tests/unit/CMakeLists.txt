@@ -31,6 +31,8 @@ add_executable(${TEST_PROJECT_NAME}
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
         EthereumTransactionTest.cc
+        EthereumTransactionDataEip1559Test.cc
+        EthereumTransactionDataLegacyTest.cc
         EvmAddressTest.cc
         ExchangeRateTest.cc
         FileCreateTransactionTest.cc

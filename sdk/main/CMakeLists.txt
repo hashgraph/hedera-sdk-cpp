@@ -3,6 +3,20 @@ FetchContent_Declare(valuable
         GIT_REPOSITORY https://github.com/LoopPerfect/valuable.git)
 FetchContent_MakeAvailable(valuable)
 
+FetchContent_Declare(rlpvalue
+        GIT_REPOSITORY https://github.com/bloq/rlpvalue.git
+        GIT_TAG master)
+FetchContent_GetProperties(rlpvalue)
+if (NOT rlpvalue_POPULATED)
+    FetchContent_Populate(rlpvalue)
+    add_library(rlpvalue STATIC
+            ${rlpvalue_SOURCE_DIR}/lib/rlpvalue.cpp
+            ${rlpvalue_SOURCE_DIR}/lib/rlpvalue_get.cpp
+            ${rlpvalue_SOURCE_DIR}/lib/rlpvalue_read.cpp
+            ${rlpvalue_SOURCE_DIR}/lib/rlpvalue_write.cpp)
+    target_include_directories(rlpvalue PUBLIC ${rlpvalue_SOURCE_DIR}/include)
+endif ()
+
 add_library(${PROJECT_NAME} STATIC
         src/AccountAllowanceApproveTransaction.cc
         src/AccountAllowanceDeleteTransaction.cc
@@ -36,6 +50,9 @@ add_library(${PROJECT_NAME} STATIC
         src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
         src/EthereumTransaction.cc
+        src/EthereumTransactionData.cc
+        src/EthereumTransactionDataEip1559.cc
+        src/EthereumTransactionDataLegacy.cc
         src/EvmAddress.cc
         src/ExchangeRate.cc
         src/ExchangeRateSet.cc
@@ -92,6 +109,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${valuable_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${rlpvalue_SOURCE_DIR}/include)
 
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
@@ -99,6 +117,7 @@ if (APPLE)
 endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
+target_link_libraries(${PROJECT_NAME} PRIVATE rlpvalue)
 
 if (NOT WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
