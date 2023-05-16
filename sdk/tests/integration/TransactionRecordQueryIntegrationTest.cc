@@ -20,6 +20,7 @@
 #include "AccountCreateTransaction.h"
 #include "Client.h"
 #include "ContractCreateTransaction.h"
+#include "ContractDeleteTransaction.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
@@ -183,16 +184,15 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteFileCreateAndDeleteTransact
 }
 
 //-----
-TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateTransaction)
+TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateAndDeleteTransactions)
 {
   // Given
   const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
     json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
       .get<std::string>());
 
-  const std::unique_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(
+  const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
-  const std::shared_ptr<PublicKey> operatorPublicKey = operatorPrivateKey->getPublicKey();
 
   FileId fileId;
   TransactionReceipt txReceipt;
@@ -200,7 +200,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateTransaction)
 
   // When
   ASSERT_NO_THROW(txReceipt = FileCreateTransaction()
-                                .setKey(operatorPublicKey)
+                                .setKey(operatorKey->getPublicKey())
                                 .setContents(contents)
                                 .setMaxTransactionFee(Hbar(2LL))
                                 .execute(getTestClient())
@@ -211,7 +211,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateTransaction)
   ASSERT_NO_THROW(txRecord = ContractCreateTransaction()
                                .setGas(500000ULL)
                                .setBytecodeFileId(fileId)
-                               .setAdminKey(operatorPublicKey)
+                               .setAdminKey(operatorKey->getPublicKey())
                                .setMaxTransactionFee(Hbar(16LL))
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
@@ -222,4 +222,12 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateTransaction)
   EXPECT_FALSE(txRecord.getReceipt()->getFileId().has_value());
   EXPECT_TRUE(txRecord.getReceipt()->getContractId().has_value());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
+
+  // Clean up
+  const ContractId contractId = txRecord.getReceipt()->getContractId().value();
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
+                                                         .setContractId(contractId)
+                                                         .setTransferAccountId(AccountId(2ULL))
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
 }
