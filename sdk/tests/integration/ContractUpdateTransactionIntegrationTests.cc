@@ -23,9 +23,12 @@
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
 #include "ContractId.h"
+#include "ContractInfo.h"
+#include "ContractInfoQuery.h"
 #include "ContractUpdateTransaction.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
@@ -166,7 +169,14 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
                                 .getReceipt(getTestClient()));
 
   // Then
-  // TODO: ContractInfoQuery
+  ContractInfo contractInfo;
+  ASSERT_NO_THROW(contractInfo = ContractInfoQuery().setContractId(contractId).execute(getTestClient()));
+
+  ASSERT_NE(contractInfo.mAdminKey, nullptr);
+  EXPECT_EQ(contractInfo.mAdminKey->toBytesDer(), newAdminKey->getPublicKey()->toBytesDer());
+  EXPECT_EQ(contractInfo.mAutoRenewPeriod, newAutoRenewPeriod);
+  EXPECT_EQ(contractInfo.mMemo, newMemo);
+  EXPECT_TRUE(contractInfo.mStakingInfo.getDeclineReward());
 
   // Clean up
   ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()
@@ -176,7 +186,8 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
                                 .sign(newAdminKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -222,5 +233,6 @@ TEST_F(ContractUpdateTransactionIntegrationTest, CannotModifyImmutableContract)
                ReceiptStatusException); // MODIFYING_IMMUTABLE_CONTRACT
 
   // Clean up
-  // TODO: FileDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
