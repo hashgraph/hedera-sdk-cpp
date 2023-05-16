@@ -95,8 +95,8 @@ private:
   const AccountId mTestAccountId = AccountId::fromString("0.0.1023");
 };
 
-// Tests invoking of method execute() from TransactionReceiptQuery.
-TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteAccountCreateTransaction)
+//-----
+TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteAccountCreateTransactionAndCheckExchangeRates)
 {
   // Given
   const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
@@ -113,7 +113,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteAccountCreateTransaction)
 
   EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
   EXPECT_TRUE(txReceipt.getAccountId().has_value());
-  EXPECT_TRUE(txReceipt.getExchangeRates().has_value());
+  ASSERT_TRUE(txReceipt.getExchangeRates().has_value());
   EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
 
   // Clean up
