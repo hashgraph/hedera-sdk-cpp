@@ -29,7 +29,7 @@
 #include "Hbar.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
-#include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <filesystem>
 #include <fstream>
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
   client.setOperator(operatorId, operatorKey);
 
   // Get the contract's bytecode
-  const std::vector<std::byte> byteCode = internal::HexConverter::hexToBytes(
+  const std::vector<std::byte> byteCode = internal::Utilities::stringToByteVector(
     json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
       .get<std::string>());
 

@@ -22,7 +22,6 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileId.h"
-#include "PublicKey.h"
 #include "Status.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
