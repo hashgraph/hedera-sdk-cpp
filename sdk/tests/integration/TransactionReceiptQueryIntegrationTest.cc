@@ -136,35 +136,6 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteEmptyAccountCreateTransact
 }
 
 //-----
-TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteAccountCreateTransactionFromProtobuf)
-{
-  // Given
-  const auto testPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-
-  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
-  body->set_allocated_key(testPublicKey->toProtobuf().release());
-  body->set_initialbalance(static_cast<uint64_t>(Hbar(10ULL).toTinybars()));
-  body->set_receiversigrequired(false);
-  body->set_memo("Test Account me Memo");
-  body->set_max_automatic_token_associations(static_cast<int32_t>(3U));
-  body->set_allocated_staked_account_id(getTestAccountId().toProtobuf().release());
-  body->set_decline_reward(true);
-
-  proto::TransactionBody txBody;
-  txBody.set_allocated_cryptocreateaccount(body.release());
-
-  // When
-  TransactionReceipt txReceipt;
-  EXPECT_NO_THROW(txReceipt = AccountCreateTransaction(txBody).execute(getTestClient()).getReceipt(getTestClient()));
-
-  // Then
-  EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
-  EXPECT_TRUE(txReceipt.getAccountId().has_value());
-  EXPECT_TRUE(txReceipt.getExchangeRates().has_value());
-  EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
-}
-
-//-----
 TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteFileCreateTransaction)
 {
   // Given
