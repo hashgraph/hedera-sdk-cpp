@@ -22,13 +22,14 @@
 #include "ContractCreateTransaction.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
+#include "FileDeleteTransaction.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionRecordQuery.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
-#include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <filesystem>
 #include <fstream>
@@ -157,33 +158,35 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteAccountCreateTransactionFro
 }
 
 //-----
-TEST_F(TransactionRecordQueryIntegrationTest, ExecuteFileCreateTransaction)
+TEST_F(TransactionRecordQueryIntegrationTest, ExecuteFileCreateAndDeleteTransactions)
 {
   // Given
-  const std::vector<std::byte> byteCode = internal::HexConverter::hexToBytes(
-    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
-      .get<std::string>());
-
-  const std::unique_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(
+  const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
-  const std::shared_ptr<PublicKey> operatorPublicKey = operatorPrivateKey->getPublicKey();
 
   // When
   TransactionRecord txRecord;
-  ASSERT_NO_THROW(txRecord = FileCreateTransaction().execute(getTestClient()).getRecord(getTestClient()));
+  EXPECT_NO_THROW(
+    txRecord =
+      FileCreateTransaction().setKey(operatorKey->getPublicKey()).execute(getTestClient()).getRecord(getTestClient()));
+  const FileId fileId = txRecord.getReceipt()->getFileId().value();
 
   // Then
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
   EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
-  ASSERT_TRUE(txRecord.getReceipt()->getFileId().has_value());
+  EXPECT_TRUE(txRecord.getReceipt().has_value());
+  EXPECT_TRUE(txRecord.getReceipt()->getFileId().has_value());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
+
+  // Clean up
+  ASSERT_NO_THROW(txRecord =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getRecord(getTestClient()));
 }
 
 //-----
 TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateTransaction)
 {
   // Given
-  const std::vector<std::byte> byteCode = internal::HexConverter::hexToBytes(
+  const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
     json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
       .get<std::string>());
 
@@ -198,7 +201,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateTransaction)
   // When
   ASSERT_NO_THROW(txReceipt = FileCreateTransaction()
                                 .setKey(operatorPublicKey)
-                                .setContents(byteCode)
+                                .setContents(contents)
                                 .setMaxTransactionFee(Hbar(2LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -216,7 +219,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateTransaction)
   // Then
   EXPECT_TRUE(txRecord.getReceipt().has_value());
   EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
-  ASSERT_FALSE(txRecord.getReceipt()->getFileId().has_value());
-  ASSERT_TRUE(txRecord.getReceipt()->getContractId().has_value());
+  EXPECT_FALSE(txRecord.getReceipt()->getFileId().has_value());
+  EXPECT_TRUE(txRecord.getReceipt()->getContractId().has_value());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
 }
