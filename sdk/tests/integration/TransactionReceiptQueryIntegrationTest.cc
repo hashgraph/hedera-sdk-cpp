@@ -141,14 +141,20 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteEmptyAccountCreateTransact
 TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteFileCreateAndDeleteTransactions)
 {
   // Given
+  const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
+    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
+      .get<std::string>());
+
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
 
   // When
   TransactionReceipt txReceipt;
-  EXPECT_NO_THROW(
-    txReceipt =
-      FileCreateTransaction().setKey(operatorKey->getPublicKey()).execute(getTestClient()).getReceipt(getTestClient()));
+  EXPECT_NO_THROW(txReceipt = FileCreateTransaction()
+                                .setKey(operatorKey->getPublicKey())
+                                .setContents(contents)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
   const FileId fileId = txReceipt.getFileId().value();
 
   // Then
@@ -173,20 +179,17 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteContractCreateAndDeleteTra
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
 
   FileId fileId;
-  TransactionReceipt txReceiptFile;
   TransactionReceipt txReceiptContract;
+  ASSERT_NO_THROW(fileId = FileCreateTransaction()
+                             .setKey(operatorKey->getPublicKey())
+                             .setContents(contents)
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient())
+                             .getFileId()
+                             .value());
 
   // When
-  ASSERT_NO_THROW(txReceiptFile = FileCreateTransaction()
-                                    .setKey(operatorKey->getPublicKey())
-                                    .setContents(contents)
-                                    .setMaxTransactionFee(Hbar(2LL))
-                                    .execute(getTestClient())
-                                    .getReceipt(getTestClient()));
-
-  ASSERT_NO_THROW(fileId = txReceiptFile.getFileId().value());
-
-  ASSERT_NO_THROW(txReceiptContract = ContractCreateTransaction()
+  EXPECT_NO_THROW(txReceiptContract = ContractCreateTransaction()
                                         .setGas(500000ULL)
                                         .setBytecodeFileId(fileId)
                                         .setAdminKey(operatorKey->getPublicKey())
