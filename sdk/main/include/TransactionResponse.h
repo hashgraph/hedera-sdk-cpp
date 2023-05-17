@@ -136,6 +136,13 @@ public:
    */
   [[nodiscard]] inline bool getValidateStatus() const { return mValidateStatus; }
 
+  /**
+   * Get the ID of this TransactionResponse's corresponding Transaction.
+   *
+   * @return The ID of the Transaction.
+   */
+  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
+
 private:
   /**
    * Allow Transactions to adjust this TransactionResponse's mTransactionId.
