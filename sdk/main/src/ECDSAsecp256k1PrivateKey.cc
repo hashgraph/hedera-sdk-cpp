@@ -35,6 +35,7 @@
 
 #include <openssl/ec.h>
 #include <openssl/x509.h>
+#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
@@ -161,9 +162,15 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromSeed(con
 }
 
 //-----
-std::unique_ptr<PrivateKey> ECDSAsecp256k1PrivateKey::clone() const
+std::unique_ptr<Key> ECDSAsecp256k1PrivateKey::clone() const
 {
   return std::make_unique<ECDSAsecp256k1PrivateKey>(*this);
+}
+
+//-----
+std::unique_ptr<proto::Key> ECDSAsecp256k1PrivateKey::toProtobuf() const
+{
+  return getPublicKey()->toProtobuf();
 }
 
 //-----

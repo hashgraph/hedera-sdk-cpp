@@ -20,9 +20,10 @@
 #ifndef HEDERA_SDK_CPP_KEYLIST_H_
 #define HEDERA_SDK_CPP_KEYLIST_H_
 
-#include "PublicKey.h"
+#include "Key.h"
 
 #include <memory>
+#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace proto
@@ -43,7 +44,7 @@ namespace Hedera
  * the list are the same. When a user signs a transaction with the repeated key it will account for two out of the three
  * keys required signature.
  */
-class KeyList
+class KeyList : public Key
 {
 public:
   /**
@@ -56,20 +57,26 @@ public:
   [[nodiscard]] static KeyList fromProtobuf(const proto::KeyList& proto);
 
   /**
-   * Construct a KeyList object from a list of PublicKeys.
+   * Construct a KeyList object from a list of Keys.
    *
-   * @param keys The list of PublicKeys to add to this KeyList.
+   * @param keys The list of Keys to add to this KeyList.
    * @return The created KeyList object.
    */
-  [[nodiscard]] static KeyList of(const std::vector<std::shared_ptr<PublicKey>>& keys);
+  [[nodiscard]] static KeyList of(const std::vector<const Key*>& keys);
 
   /**
-   * Construct a Key protobuf object from this KeyList object.
+   * Derived from Key. Create a clone of this KeyList object.
    *
-   * @return A pointer to a created Key protobuf object filled with this KeyList object's data.
-   * @throws OpenSSLException If OpenSSL is unable to serialize any key in this KeyList.
+   * @return A pointer to the created clone of this KeyList.
    */
-  [[nodiscard]] std::unique_ptr<proto::Key> toProtobufKey() const;
+  [[nodiscard]] std::unique_ptr<Key> clone() const override;
+
+  /**
+   * Derived from Key. Construct a Key protobuf object from this KeyList object.
+   *
+   * @return A pointer to the created Key protobuf object filled with this KeyList object's data.
+   */
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
   /**
    * Construct a KeyList protobuf object from this KeyList object.
@@ -77,7 +84,7 @@ public:
    * @return A pointer to a created KeyList protobuf object filled with this KeyList object's data.
    * @throws OpenSSLException If OpenSSL is unable to serialize any key in this KeyList.
    */
-  [[nodiscard]] std::unique_ptr<proto::KeyList> toProtobuf() const;
+  [[nodiscard]] std::unique_ptr<proto::KeyList> toProtobufKeyList() const;
 
   /**
    * Get the number of keys in this KeyList.
@@ -99,21 +106,21 @@ public:
    * @param key The key to determine if this KeyList contains.
    * @return \c TRUE if this KeyList contains the input key, otherwise \c FALSE.
    */
-  [[nodiscard]] bool contains(const std::shared_ptr<PublicKey>& key) const;
+  [[nodiscard]] bool contains(const Key* key) const;
 
   /**
    * Add a key to this KeyList.
    *
    * @param key The key to add to this KeyList.
    */
-  void push_back(const std::shared_ptr<PublicKey>& key);
+  void push_back(const Key* key);
 
   /**
    * Remove a key from this KeyList. Does nothing if the input key is not a part of this KeyList.
    *
    * @param key The key to remove from this KeyList.
    */
-  void remove(const std::shared_ptr<PublicKey>& key);
+  void remove(const Key* key);
 
   /**
    * Remove all keys from this KeyList.
@@ -122,9 +129,9 @@ public:
 
 private:
   /**
-   * The list of PublicKeys that all must sign transactions.
+   * The list of Keys that all must sign transactions.
    */
-  std::vector<std::shared_ptr<PublicKey>> mKeys;
+  std::vector<valuable::value_ptr<Key, KeyCloner>> mKeys;
 };
 
 } // namespace Hedera

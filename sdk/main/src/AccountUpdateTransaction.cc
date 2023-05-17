@@ -46,7 +46,7 @@ AccountUpdateTransaction::AccountUpdateTransaction(const proto::TransactionBody&
 
   if (body.has_key())
   {
-    mKey = PublicKey::fromProtobuf(body.key());
+    mKey = valuable::value_ptr<Key>(Key::fromProtobuf(body.key()).release());
   }
 
   if (body.has_receiversigrequiredwrapper())
@@ -100,11 +100,11 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAccountId(const AccountId
 }
 
 //-----
-AccountUpdateTransaction& AccountUpdateTransaction::setKey(const std::shared_ptr<PublicKey>& publicKey)
+AccountUpdateTransaction& AccountUpdateTransaction::setKey(const Key* key)
 {
   requireNotFrozen();
 
-  mKey = publicKey;
+  mKey = valuable::value_ptr<Key>(key->clone().release());
   return *this;
 }
 

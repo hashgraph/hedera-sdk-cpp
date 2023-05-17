@@ -32,30 +32,39 @@ KeyList KeyList::fromProtobuf(const proto::KeyList& proto)
 
   for (int i = 0; i < proto.keys_size(); ++i)
   {
-    keyList.mKeys.push_back(PublicKey::fromProtobuf(proto.keys(i)));
+    keyList.mKeys.emplace_back(Key::fromProtobuf(proto.keys(i)).release());
   }
 
   return keyList;
 }
 
 //-----
-KeyList KeyList::of(const std::vector<std::shared_ptr<PublicKey>>& keys)
+KeyList KeyList::of(const std::vector<const Key*>& keys)
 {
   KeyList keyList;
-  keyList.mKeys = keys;
+  std::transform(keys.cbegin(),
+                 keys.cend(),
+                 std::back_inserter(keyList.mKeys),
+                 [](const Key* key) { return valuable::value_ptr<Key, KeyCloner>(key->clone().release()); });
   return keyList;
 }
 
 //-----
-std::unique_ptr<proto::Key> KeyList::toProtobufKey() const
+std::unique_ptr<Key> KeyList::clone() const
+{
+  return std::make_unique<KeyList>(*this);
+}
+
+//-----
+std::unique_ptr<proto::Key> KeyList::toProtobuf() const
 {
   auto key = std::make_unique<proto::Key>();
-  key->set_allocated_keylist(toProtobuf().release());
+  key->set_allocated_keylist(toProtobufKeyList().release());
   return key;
 }
 
 //-----
-std::unique_ptr<proto::KeyList> KeyList::toProtobuf() const
+std::unique_ptr<proto::KeyList> KeyList::toProtobufKeyList() const
 {
   auto keyList = std::make_unique<proto::KeyList>();
 
@@ -80,29 +89,29 @@ bool KeyList::empty() const
 }
 
 //-----
-bool KeyList::contains(const std::shared_ptr<PublicKey>& key) const
+bool KeyList::contains(const Key* key) const
 {
-  const std::vector<std::byte> keyBytes = key->toBytesDer();
+  const std::vector<std::byte> keyBytes = key->toBytes();
   return std::any_of(mKeys.cbegin(),
                      mKeys.cend(),
-                     [&keyBytes](const std::shared_ptr<PublicKey>& listKey)
-                     { return listKey->toBytesDer() == keyBytes; });
+                     [&keyBytes](const valuable::value_ptr<Key, KeyCloner>& listKey)
+                     { return listKey->toBytes() == keyBytes; });
 }
 
 //-----
-void KeyList::push_back(const std::shared_ptr<PublicKey>& key)
+void KeyList::push_back(const Key* key)
 {
-  mKeys.push_back(key);
+  mKeys.emplace_back(key->clone().release());
 }
 
 //-----
-void KeyList::remove(const std::shared_ptr<PublicKey>& key)
+void KeyList::remove(const Key* key)
 {
-  const std::vector<std::byte> keyBytes = key->toBytesDer();
+  const std::vector<std::byte> keyBytes = key->toBytes();
   const auto eraseIter = std::remove_if(mKeys.begin(),
                                         mKeys.end(),
-                                        [&keyBytes](const std::shared_ptr<PublicKey>& listKey)
-                                        { return listKey->toBytesDer() == keyBytes; });
+                                        [&keyBytes](const valuable::value_ptr<Key, KeyCloner>& listKey)
+                                        { return listKey->toBytes() == keyBytes; });
 
   // Erasing an element pointed to by an iterator that equals end() is undefined, so this check is necessary.
   if (eraseIter != mKeys.end())

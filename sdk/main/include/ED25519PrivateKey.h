@@ -101,11 +101,20 @@ public:
   [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> fromSeed(const std::vector<std::byte>& seed);
 
   /**
-   * Derived from PrivateKey. Create a clone of this ED25519PrivateKey object.
+   * Derived from Key. Create a clone of this ED25519PrivateKey object.
    *
    * @return A pointer to the created clone of this ED25519PrivateKey.
    */
-  [[nodiscard]] std::unique_ptr<PrivateKey> clone() const override;
+  [[nodiscard]] std::unique_ptr<Key> clone() const override;
+
+  /**
+   * Derived from Key. Construct a Key protobuf object from this ED25519PrivateKey object's ED25519PublicKey.
+   *
+   * @return A pointer to a created Key protobuf object filled with this ED25519PrivateKey object's ED25519PublicKey
+   *         data.
+   * @throws OpenSSLException If OpenSSL is unable to serialize this ED25519PrivateKey object's ED25519PublicKey.
+   */
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
   /**
    * Derived from PrivateKey. Derive a child ED25519PrivateKey from this ED25519PrivateKey.

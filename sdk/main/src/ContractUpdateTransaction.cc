@@ -51,7 +51,7 @@ ContractUpdateTransaction::ContractUpdateTransaction(const proto::TransactionBod
 
   if (body.has_adminkey())
   {
-    mAdminKey = PublicKey::fromProtobuf(body.adminkey());
+    mAdminKey = valuable::value_ptr<Key>(Key::fromProtobuf(body.adminkey()).release());
   }
 
   if (body.has_autorenewperiod())
@@ -108,10 +108,10 @@ ContractUpdateTransaction& ContractUpdateTransaction::setExpirationTime(
 }
 
 //-----
-ContractUpdateTransaction& ContractUpdateTransaction::setAdminKey(const std::shared_ptr<PublicKey>& adminKey)
+ContractUpdateTransaction& ContractUpdateTransaction::setAdminKey(const Key* adminKey)
 {
   requireNotFrozen();
-  mAdminKey = adminKey;
+  mAdminKey = valuable::value_ptr<Key>(adminKey->clone().release());
   return *this;
 }
 

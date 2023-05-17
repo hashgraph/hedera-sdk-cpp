@@ -23,8 +23,8 @@
 #include "AccountId.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
+#include "Key.h"
 #include "LedgerId.h"
-#include "PublicKey.h"
 #include "StakingInfo.h"
 
 #include <chrono>
@@ -52,123 +52,6 @@ public:
    * @return The constructed AccountInfo object.
    */
   [[nodiscard]] static AccountInfo fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& proto);
-
-  /**
-   * Get the ID of the queried account.
-   *
-   * @return The ID of the queried account.
-   */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
-
-  /**
-   * Get the contract account ID comprising of both the contract instance and the cryptocurrency account owned by the
-   * contract instance, in the format used by Solidity.
-   *
-   * @return The contract account ID.
-   */
-  [[nodiscard]] inline std::string getContractAccountId() const { return mContractAccountId; }
-
-  /**
-   * Get the deleted status of the queried account.
-   *
-   * @return \c TRUE if the account has been deleted, otherwise \c FALSE.
-   */
-  [[nodiscard]] inline bool getIsDeleted() const { return mIsDeleted; }
-
-  /**
-   * Get the total amount of Hbar proxy staked to the queried account.
-   *
-   * @return The total amount of Hbar proxy staked to the queried account
-   */
-  [[nodiscard]] inline Hbar getProxyReceived() const { return mProxyReceived; }
-
-  /**
-   * Get the key for the queried account.
-   *
-   * @return A pointer to the key for the queried account.
-   */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
-
-  /**
-   * Get the current balance of the queried account.
-   *
-   * @return The current balance of the queried account.
-   */
-  [[nodiscard]] inline Hbar getBalance() const { return mBalance; }
-
-  /**
-   * Get the receiver signature policy for the queried account.
-   *
-   * @return \c TRUE if the queried account's key must sign any transaction being deposited into it (in addition to all
-   *         withdrawals), otherwise \c FALSE.
-   */
-  [[nodiscard]] inline bool getReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
-
-  /**
-   * Get the time at which the queried account will expire.
-   *
-   * @return The time at which the queried account will expire.
-   */
-  [[nodiscard]] inline std::chrono::system_clock::time_point getExpirationTime() const { return mExpirationTime; }
-
-  /**
-   * Get the duration of time the queried account uses to automatically extend its expiration period.
-   *
-   * @return The duration of time the queried account uses to automatically extend its expiration period.
-   */
-  [[nodiscard]] inline std::chrono::duration<double> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
-
-  /**
-   * Get the queried account's memo.
-   *
-   * @return The queried account's memo.
-   */
-  [[nodiscard]] inline std::string getMemo() const { return mMemo; }
-
-  /**
-   * Get the number of NFTs owned by the queried account.
-   *
-   * @return The number of NFTs owned by the queried account.
-   */
-  [[nodiscard]] inline uint64_t getOwnedNfts() const { return mOwnedNfts; }
-
-  /**
-   * Get the maximum number of tokens with which the queried account can be associated.
-   *
-   * @return The maximum number of tokens with which the queried account can be associated.
-   */
-  [[nodiscard]] inline uint32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
-
-  /**
-   * Get the PublicKey being used as an alias for the queried account.
-   *
-   * @return A pointer to the PublicKey being used as an alias for the queried account.
-   */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getPublicKeyAlias() const { return mPublicKeyAlias; }
-
-  /**
-   * Get the EvmAddress being used as an alias for the queried account.
-   *
-   * @return The EvmAddress being used as an alias for the queried account. Uninitialized if no EvmAddress is being used
-   * as an alias for the queried account.
-   */
-  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddressAlias() const { return mEvmAddressAlias; }
-
-  /**
-   * Get the ID of the ledger from which this AccountInfo was received.
-   *
-   * @return The ID of the ledger from which this AccountInfo was received.
-   */
-  [[nodiscard]] inline LedgerId getLedgerId() const { return mLedgerId; }
-
-  /**
-   * Get the staking metadata for the queried account.
-   *
-   * @return The staking metadata for the queried account.
-   */
-  [[nodiscard]] inline StakingInfo getStakingInfo() const { return mStakingInfo; }
-
-private:
   /**
    * The ID of the queried account.
    */
@@ -195,7 +78,7 @@ private:
    * The key for the account, which must sign in order to transfer out, or to modify the account in any way other than
    * extending its expiration date.
    */
-  std::shared_ptr<PublicKey> mKey = nullptr;
+  std::unique_ptr<Key> mKey = nullptr;
 
   /**
    * The current balance of the queried account.

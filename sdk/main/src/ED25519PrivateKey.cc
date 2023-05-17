@@ -18,6 +18,7 @@
  *
  */
 #include "ED25519PrivateKey.h"
+#include "ED25519PublicKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "exceptions/UninitializedException.h"
@@ -30,6 +31,7 @@
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
 #include <openssl/x509.h>
+#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
@@ -152,9 +154,15 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromSeed(const std::vector
 }
 
 //-----
-std::unique_ptr<PrivateKey> ED25519PrivateKey::clone() const
+std::unique_ptr<Key> ED25519PrivateKey::clone() const
 {
   return std::make_unique<ED25519PrivateKey>(*this);
+}
+
+//-----
+std::unique_ptr<proto::Key> ED25519PrivateKey::toProtobuf() const
+{
+  return getPublicKey()->toProtobuf();
 }
 
 //-----

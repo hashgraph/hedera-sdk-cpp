@@ -20,6 +20,8 @@
 #ifndef HEDERA_SDK_CPP_PUBLIC_KEY_H_
 #define HEDERA_SDK_CPP_PUBLIC_KEY_H_
 
+#include "Key.h"
+
 #include <memory>
 #include <string>
 #include <string_view>
@@ -41,21 +43,13 @@ namespace Hedera
 /**
  * A generic class representing a public key.
  */
-class PublicKey
+class PublicKey : public Key
 {
 public:
   /**
    * Default destructor, but must define after PublicKeyImpl is defined (in source file).
    */
-  virtual ~PublicKey();
-
-  /**
-   * Construct a PublicKey object from a Key protobuf object.
-   *
-   * @param proto The Key protobuf object from which to create a PublicKey object.
-   * @return A pointer to the created PublicKey object. Nullptr if the key type is not recognized.
-   */
-  [[nodiscard]] static std::shared_ptr<PublicKey> fromProtobuf(const proto::Key& proto);
+  ~PublicKey() override;
 
   /**
    * Construct a PublicKey object from a hex-encoded, DER-encoded key string.
@@ -65,7 +59,7 @@ public:
    * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
    *                         from the input hex string.
    */
-  [[nodiscard]] static std::shared_ptr<PublicKey> fromStringDer(std::string_view key);
+  [[nodiscard]] static std::unique_ptr<PublicKey> fromStringDer(std::string_view key);
 
   /**
    * Construct a PublicKey object from a DER-encoded byte vector.
@@ -75,21 +69,7 @@ public:
    * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
    *                         from the input byte array.
    */
-  [[nodiscard]] static std::shared_ptr<PublicKey> fromBytesDer(const std::vector<std::byte>& bytes);
-
-  /**
-   * Create a clone of this PublicKey object.
-   *
-   * @return A pointer to the created clone of this PublicKey.
-   */
-  [[nodiscard]] virtual std::unique_ptr<PublicKey> clone() const = 0;
-
-  /**
-   * Construct a Key protobuf object from this PublicKey object.
-   *
-   * @return A pointer to the created Key protobuf object filled with this PublicKey object's data.
-   */
-  [[nodiscard]] virtual std::unique_ptr<proto::Key> toProtobuf() const = 0;
+  [[nodiscard]] static std::unique_ptr<PublicKey> fromBytesDer(const std::vector<std::byte>& bytes);
 
   /**
    * Verify that a signature was made by the PrivateKey which corresponds to this PublicKey.

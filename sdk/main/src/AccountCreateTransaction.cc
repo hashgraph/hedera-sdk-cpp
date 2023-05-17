@@ -51,7 +51,7 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
 
   if (body.has_key())
   {
-    mKey = PublicKey::fromProtobuf(body.key());
+    mKey = valuable::value_ptr<Key>(Key::fromProtobuf(body.key()).release());
   }
 
   mInitialBalance = Hbar(static_cast<int64_t>(body.initialbalance()), HbarUnit::TINYBAR());
@@ -84,11 +84,11 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
+AccountCreateTransaction& AccountCreateTransaction::setKey(const Key* key)
 {
   requireNotFrozen();
 
-  mKey = key;
+  mKey = valuable::value_ptr<Key>(key->clone().release());
   return *this;
 }
 

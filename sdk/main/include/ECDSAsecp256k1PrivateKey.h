@@ -121,11 +121,22 @@ public:
   [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PrivateKey> fromSeed(const std::vector<std::byte>& seed);
 
   /**
-   * Derived from PrivateKey. Create a clone of this ECDSAsecp256k1PrivateKey object.
+   * Derived from Key. Create a clone of this ECDSAsecp256k1PrivateKey object.
    *
    * @return A pointer to the created clone of this ECDSAsecp256k1PrivateKey.
    */
-  [[nodiscard]] std::unique_ptr<PrivateKey> clone() const override;
+  [[nodiscard]] std::unique_ptr<Key> clone() const override;
+
+  /**
+   * Derived from Key. Construct a Key protobuf object from this ECDSAsecp256k1PrivateKey object's
+   * ECDSAsecp256k1PublicKey.
+   *
+   * @return A pointer to a created Key protobuf object filled with this ECDSAsecp256k1PrivateKey object's
+   *         ECDSAsecp256k1PublicKey data.
+   * @throws OpenSSLException If OpenSSL is unable to serialize this ECDSAsecp256k1PrivateKey object's
+   *                          ECDSAsecp256k1PublicKey.
+   */
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
   /**
    * Derived from PrivateKey. Derive a child ECDSAsecp256k1PrivateKey from this ECDSAsecp256k1PrivateKey.

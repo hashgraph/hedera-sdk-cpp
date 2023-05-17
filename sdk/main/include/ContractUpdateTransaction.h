@@ -22,7 +22,7 @@
 
 #include "AccountId.h"
 #include "ContractId.h"
-#include "PublicKey.h"
+#include "Key.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -30,6 +30,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <valuable/value-ptr.hpp>
 
 namespace proto
 {
@@ -91,7 +92,7 @@ public:
    * @return A reference to this ContractUpdateTransaction object with the newly-set admin key.
    * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setAdminKey(const std::shared_ptr<PublicKey>& adminKey);
+  ContractUpdateTransaction& setAdminKey(const Key* adminKey);
 
   /**
    * Set a new auto renew period for the contract.
@@ -185,7 +186,7 @@ public:
    * @return A pointer to the new admin key to be used for the contract. Returns nullptr if the key has not yet been
    *         set.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getAdminKey() const { return mAdminKey; }
+  [[nodiscard]] inline const Key* getAdminKey() const { return mAdminKey.get(); }
 
   /**
    * Get the new auto renew period for the contract.
@@ -297,7 +298,7 @@ private:
   /**
    * The new admin key to be used for the contract.
    */
-  std::shared_ptr<PublicKey> mAdminKey = nullptr;
+  valuable::value_ptr<Key> mAdminKey;
 
   /**
    * The new auto renew period for the contract.

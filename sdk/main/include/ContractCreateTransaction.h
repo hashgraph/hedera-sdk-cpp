@@ -23,7 +23,7 @@
 #include "AccountId.h"
 #include "FileId.h"
 #include "Hbar.h"
-#include "PublicKey.h"
+#include "Key.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -32,6 +32,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace proto
@@ -137,7 +138,7 @@ public:
    * @return A reference to this ContractCreateTransaction object with the newly-set admin key.
    * @throws IllegalStateException If this ContractCreateTransaction is frozen.
    */
-  ContractCreateTransaction& setAdminKey(const std::shared_ptr<PublicKey>& key);
+  ContractCreateTransaction& setAdminKey(const Key* key);
 
   /**
    * Set the amount of gas required to run the constructor of the new smart contract instance.
@@ -260,7 +261,7 @@ public:
    * @return A pointer to the admin key for the new smart contract instance. Return nullptr if the admin key has not yet
    *         been set.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getAdminKey() const { return mAdminKey; }
+  [[nodiscard]] inline const Key* getAdminKey() const { return mAdminKey.get(); }
 
   /**
    * Get the amount of gas required to run the constructor of the new smart contract instance.
@@ -387,7 +388,7 @@ private:
   /**
    * The admin key for the new smart contract instance.
    */
-  std::shared_ptr<PublicKey> mAdminKey = nullptr;
+  valuable::value_ptr<Key> mAdminKey;
 
   /**
    * The amount of gas required to run the constructor of the new smart contract instance.

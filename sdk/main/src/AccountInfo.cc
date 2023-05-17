@@ -43,7 +43,7 @@ AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_Account
 
   if (proto.has_key())
   {
-    accountInfo.mKey = PublicKey::fromProtobuf(proto.key());
+    accountInfo.mKey = Key::fromProtobuf(proto.key());
   }
 
   accountInfo.mBalance = Hbar(static_cast<int64_t>(proto.balance()), HbarUnit::TINYBAR());

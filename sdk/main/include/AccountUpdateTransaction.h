@@ -27,6 +27,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <valuable/value-ptr.hpp>
 
 namespace proto
 {
@@ -67,14 +68,14 @@ public:
   AccountUpdateTransaction& setAccountId(const AccountId& accountId);
 
   /**
-   * Set a new public key for the account. The key must sign each transfer out of the account. If
-   * mReceiverSignatureRequired is true, then it must also sign any transfer into the account.
+   * Set a new key for the account. The key must sign each transfer out of the account. If mReceiverSignatureRequired is
+   * true, then it must also sign any transfer into the account.
    *
-   * @param publicKey The desired new public key for the account.
-   * @return A reference to this AccountUpdateTransaction object with the newly-set public key.
+   * @param publicKey The desired new key for the account.
+   * @return A reference to this AccountUpdateTransaction object with the newly-set key.
    * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
-  AccountUpdateTransaction& setKey(const std::shared_ptr<PublicKey>& publicKey);
+  AccountUpdateTransaction& setKey(const Key* key);
 
   /**
    * Set a new transfer receiver signature policy for the account.
@@ -168,7 +169,7 @@ public:
    *
    * @return A pointer to the new public key to be used for the account. Nullptr if the key has not yet been set.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
+  [[nodiscard]] inline const Key* getKey() const { return mKey.get(); }
 
   /**
    * Get the new Hbar transfer receiver signature policy to be used by the account.
@@ -282,7 +283,7 @@ private:
    * The new key to use to sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
    * also sign any transfer into the account.
    */
-  std::shared_ptr<PublicKey> mKey = nullptr;
+  valuable::value_ptr<Key> mKey;
 
   /**
    * If \c TRUE, the account will have to sign any transaction being deposited into it (in addition to all withdrawals).

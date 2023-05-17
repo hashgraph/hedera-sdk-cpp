@@ -24,7 +24,7 @@
 #include "Defaults.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
-#include "PublicKey.h"
+#include "Key.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -32,6 +32,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <valuable/value-ptr.hpp>
 
 namespace proto
 {
@@ -83,14 +84,14 @@ public:
   explicit AccountCreateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Set the public key for the new account. The key that must sign each transfer out of the account. If
+   * Set the key for the new account. The key that must sign each transfer out of the account. If
    * mReceiverSignatureRequired is true, then it must also sign any transfer into the account.
    *
-   * @param publicKey The desired public key for the new account.
-   * @return A reference to this AccountCreateTransaction object with the newly-set public key.
+   * @param key The desired key for the new account.
+   * @return A reference to this AccountCreateTransaction object with the newly-set key.
    * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
-  AccountCreateTransaction& setKey(const std::shared_ptr<PublicKey>& publicKey);
+  AccountCreateTransaction& setKey(const Key* key);
 
   /**
    * Set the initial amount to transfer into the new account from the paying account.
@@ -183,11 +184,11 @@ public:
   AccountCreateTransaction& setAlias(const EvmAddress& address);
 
   /**
-   * Get the public key to be used for the new account.
+   * Get the key to be used for the new account.
    *
-   * @return A pointer to the public key to be used for the new account. Nullptr if the key has not yet been set.
+   * @return A pointer to the key to be used for the new account. Nullptr if the key has not yet been set.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
+  [[nodiscard]] inline const Key* getKey() const { return mKey.get(); }
 
   /**
    * Get the initial balance to be transferred into the new account upon creation (from the paying account).
@@ -294,7 +295,7 @@ private:
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
    * also sign any transfer into the account.
    */
-  std::shared_ptr<PublicKey> mKey = nullptr;
+  valuable::value_ptr<Key> mKey;
 
   /**
    * The initial amount to transfer into the new account.

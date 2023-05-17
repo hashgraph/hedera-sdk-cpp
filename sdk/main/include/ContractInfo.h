@@ -23,8 +23,8 @@
 #include "AccountId.h"
 #include "ContractId.h"
 #include "Hbar.h"
+#include "Key.h"
 #include "LedgerId.h"
-#include "PublicKey.h"
 #include "StakingInfo.h"
 
 #include <chrono>
@@ -74,7 +74,7 @@ public:
   /**
    * Pointer to the admin key that can be used to modify the state of the contract.
    */
-  std::shared_ptr<PublicKey> mAdminKey = nullptr;
+  std::unique_ptr<Key> mAdminKey = nullptr;
 
   /**
    * The expiration time of the queried contract and its account.

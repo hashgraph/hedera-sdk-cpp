@@ -59,7 +59,7 @@ ContractCreateTransaction::ContractCreateTransaction(const proto::TransactionBod
 
   if (body.has_adminkey())
   {
-    mAdminKey = PublicKey::fromProtobuf(body.adminkey());
+    mAdminKey = valuable::value_ptr(Key::fromProtobuf(body.adminkey()).release());
   }
 
   mGas = static_cast<uint64_t>(body.gas());
@@ -111,10 +111,10 @@ ContractCreateTransaction& ContractCreateTransaction::setBytecode(const std::vec
 }
 
 //-----
-ContractCreateTransaction& ContractCreateTransaction::setAdminKey(const std::shared_ptr<PublicKey>& key)
+ContractCreateTransaction& ContractCreateTransaction::setAdminKey(const Key* key)
 {
   requireNotFrozen();
-  mAdminKey = key;
+  mAdminKey = valuable::value_ptr<Key>(key->clone().release());
   return *this;
 }
 

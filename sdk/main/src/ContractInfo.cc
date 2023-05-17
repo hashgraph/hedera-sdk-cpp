@@ -45,7 +45,7 @@ ContractInfo ContractInfo::fromProtobuf(const proto::ContractGetInfoResponse_Con
 
   if (proto.has_adminkey())
   {
-    contractInfo.mAdminKey = PublicKey::fromProtobuf(proto.adminkey());
+    contractInfo.mAdminKey = Key::fromProtobuf(proto.adminkey());
   }
 
   if (proto.has_expirationtime())
