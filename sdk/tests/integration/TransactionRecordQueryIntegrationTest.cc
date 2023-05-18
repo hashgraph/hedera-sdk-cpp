@@ -18,6 +18,7 @@
  *
  */
 #include "AccountCreateTransaction.h"
+#include "AccountDeleteTransaction.h"
 #include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
@@ -93,6 +94,32 @@ private:
 
   const AccountId mTestAccountId = AccountId::fromString("0.0.1023");
 };
+
+//-----
+TEST_F(TransactionRecordQueryIntegrationTest, CanGetTransactionRecord)
+{
+  // Given
+  const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const auto testPublicKey = testPrivateKey->getPublicKey();
+
+  TransactionResponse testTxResponse;
+  ASSERT_NO_THROW(testTxResponse = AccountCreateTransaction().setKey(testPublicKey).execute(getTestClient()));
+
+  // When / Then
+  TransactionRecord txRecord;
+  EXPECT_NO_THROW(
+    txRecord = TransactionRecordQuery().setTransactionId(testTxResponse.getTransactionId()).execute(getTestClient()));
+
+  // Clean up
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = txRecord.getReceipt()->getAccountId().value());
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(testPrivateKey.get())
+                    .execute(getTestClient()));
+}
 
 // Tests invoking of method execute() from TransactionRecordQuery.
 TEST_F(TransactionRecordQueryIntegrationTest, ExecuteAccountCreateTransaction)
