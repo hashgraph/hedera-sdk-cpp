@@ -115,7 +115,6 @@ TEST_F(ContractInfoTest, FromProtobuf)
   EXPECT_EQ(contractInfo.mContractId, getTestContractId());
   EXPECT_EQ(contractInfo.mAccountId, getTestAccountId());
   EXPECT_EQ(contractInfo.mContractAccountId, getTestContractAccountId());
-  ASSERT_NE(contractInfo.mAdminKey, nullptr);
   EXPECT_EQ(contractInfo.mAdminKey->toBytes(), getTestAdminKey()->toBytes());
   EXPECT_EQ(contractInfo.mExpirationTime, getTestExpirationTime());
   EXPECT_EQ(contractInfo.mAutoRenewPeriod, getTestAutoRenewPeriod());

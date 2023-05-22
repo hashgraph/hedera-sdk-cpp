@@ -26,6 +26,7 @@
 #include "Key.h"
 #include "LedgerId.h"
 #include "StakingInfo.h"
+#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <cstdint>
@@ -74,7 +75,7 @@ public:
   /**
    * Pointer to the admin key that can be used to modify the state of the contract.
    */
-  std::unique_ptr<Key> mAdminKey = nullptr;
+  ValuePtr<Key, KeyCloner> mAdminKey;
 
   /**
    * The expiration time of the queried contract and its account.

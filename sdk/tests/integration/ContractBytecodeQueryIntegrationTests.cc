@@ -128,7 +128,7 @@ TEST_F(ContractBytecodeQueryIntegrationTest, ExecuteContractBytecodeQuery)
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys(KeyList::of({ operatorKey->getPublicKey().get() }))
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())

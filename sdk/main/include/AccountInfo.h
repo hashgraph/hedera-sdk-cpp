@@ -78,7 +78,7 @@ public:
    * The key for the account, which must sign in order to transfer out, or to modify the account in any way other than
    * extending its expiration date.
    */
-  std::unique_ptr<Key> mKey = nullptr;
+  ValuePtr<Key, KeyCloner> mKey;
 
   /**
    * The current balance of the queried account.

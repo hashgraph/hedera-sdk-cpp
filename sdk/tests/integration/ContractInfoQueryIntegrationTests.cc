@@ -129,7 +129,7 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
   const std::string memo = "[e2e::Contract]";
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys(KeyList::of({ operatorKey->getPublicKey().get() }))
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -155,7 +155,6 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
   // Then
   EXPECT_EQ(contractInfo.mContractId, contractId);
   EXPECT_EQ(contractInfo.mAccountId.toString(), contractId.toString());
-  ASSERT_NE(contractInfo.mAdminKey, nullptr);
   EXPECT_EQ(contractInfo.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
   EXPECT_GT(contractInfo.mExpirationTime, std::chrono::system_clock::now());
   EXPECT_EQ(contractInfo.mAutoRenewPeriod, DEFAULT_AUTO_RENEW_PERIOD);
@@ -182,7 +181,7 @@ TEST_F(ContractInfoQueryIntegrationTest, CanQueryContractInfoWhenAdminKeyIsNull)
   const std::string memo = "[e2e::Contract]";
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys(KeyList::of({ operatorKey->getPublicKey().get() }))
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
