@@ -89,7 +89,7 @@ TEST_F(ContractInfoTest, FromProtobuf)
   protoContractInfo.set_allocated_accountid(getTestAccountId().toProtobuf().release());
   protoContractInfo.set_contractaccountid(getTestContractAccountId());
   protoContractInfo.set_deleted(getTestIsDeleted());
-  protoContractInfo.set_allocated_adminkey(getTestAdminKey()->toProtobuf().release());
+  protoContractInfo.set_allocated_adminkey(getTestAdminKey()->toProtobufKey().release());
   protoContractInfo.set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
   protoContractInfo.set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
   protoContractInfo.set_storage(static_cast<int64_t>(getTestStorage()));
@@ -116,7 +116,7 @@ TEST_F(ContractInfoTest, FromProtobuf)
   EXPECT_EQ(contractInfo.mAccountId, getTestAccountId());
   EXPECT_EQ(contractInfo.mContractAccountId, getTestContractAccountId());
   ASSERT_NE(contractInfo.mAdminKey, nullptr);
-  EXPECT_EQ(contractInfo.mAdminKey->toBytesDer(), getTestAdminKey()->toBytesDer());
+  EXPECT_EQ(contractInfo.mAdminKey->toBytes(), getTestAdminKey()->toBytes());
   EXPECT_EQ(contractInfo.mExpirationTime, getTestExpirationTime());
   EXPECT_EQ(contractInfo.mAutoRenewPeriod, getTestAutoRenewPeriod());
   EXPECT_EQ(contractInfo.mStorage, getTestStorage());

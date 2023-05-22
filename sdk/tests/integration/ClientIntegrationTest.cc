@@ -101,10 +101,10 @@ TEST_F(ClientIntegrationTest, ConnectToLocalNode)
 
   // When
   Client client = Client::forNetwork(networkMap);
-  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
 
   TransactionResponse txResp =
-    AccountCreateTransaction().setKey(testPublicKey).setInitialBalance(testInitialHbarBalance).execute(client);
+    AccountCreateTransaction().setKey(testPublicKey.get()).setInitialBalance(testInitialHbarBalance).execute(client);
 
   const AccountId newAccountId = txResp.getReceipt(client).getAccountId().value();
 

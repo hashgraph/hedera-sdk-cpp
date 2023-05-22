@@ -160,9 +160,9 @@ std::unique_ptr<Key> ED25519PrivateKey::clone() const
 }
 
 //-----
-std::unique_ptr<proto::Key> ED25519PrivateKey::toProtobuf() const
+std::unique_ptr<proto::Key> ED25519PrivateKey::toProtobufKey() const
 {
-  return getPublicKey()->toProtobuf();
+  return getPublicKey()->toProtobufKey();
 }
 
 //-----
@@ -213,6 +213,12 @@ std::string ED25519PrivateKey::toStringDer() const
 std::string ED25519PrivateKey::toStringRaw() const
 {
   return internal::HexConverter::bytesToHex(toBytesRaw());
+}
+
+//-----
+std::vector<std::byte> ED25519PrivateKey::toBytes() const
+{
+  return toBytesRaw();
 }
 
 //-----

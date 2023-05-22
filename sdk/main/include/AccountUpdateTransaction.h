@@ -23,11 +23,11 @@
 #include "AccountId.h"
 #include "PublicKey.h"
 #include "Transaction.h"
+#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <memory>
 #include <string>
-#include <valuable/value-ptr.hpp>
 
 namespace proto
 {
@@ -283,7 +283,7 @@ private:
    * The new key to use to sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
    * also sign any transfer into the account.
    */
-  valuable::value_ptr<Key> mKey;
+  ValuePtr<Key, KeyCloner> mKey;
 
   /**
    * If \c TRUE, the account will have to sign any transaction being deposited into it (in addition to all withdrawals).

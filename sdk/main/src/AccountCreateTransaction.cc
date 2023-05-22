@@ -51,7 +51,7 @@ AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody&
 
   if (body.has_key())
   {
-    mKey = valuable::value_ptr<Key>(Key::fromProtobuf(body.key()).release());
+    mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.key()).release());
   }
 
   mInitialBalance = Hbar(static_cast<int64_t>(body.initialbalance()), HbarUnit::TINYBAR());
@@ -88,7 +88,7 @@ AccountCreateTransaction& AccountCreateTransaction::setKey(const Key* key)
 {
   requireNotFrozen();
 
-  mKey = valuable::value_ptr<Key>(key->clone().release());
+  mKey = ValuePtr<Key, KeyCloner>(key->clone().release());
   return *this;
 }
 
@@ -213,7 +213,7 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   if (mKey)
   {
-    body->set_allocated_key(mKey->toProtobuf().release());
+    body->set_allocated_key(mKey->toProtobufKey().release());
   }
 
   body->set_initialbalance(mInitialBalance.toTinybars());

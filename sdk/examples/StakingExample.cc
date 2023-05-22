@@ -41,7 +41,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
+  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]).get());
 
   // Generate a ED25519 private, public key pair
   const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
   // Create an account and stake to account ID 0.0.3.
   const AccountId newAccountId = *AccountCreateTransaction()
-                                    .setKey(publicKey)
+                                    .setKey(publicKey.get())
                                     .setInitialBalance(Hbar(1LL))
                                     .setStakedAccountId(AccountId(3ULL))
                                     .execute(client)
@@ -64,8 +64,8 @@ int main(int argc, char** argv)
   // Query the account info, it should show the staked account ID to be 0.0.3.
   const AccountInfo accountInfo = AccountInfoQuery().setAccountId(newAccountId).execute(client);
   std::cout << "Account ID " << newAccountId.toString() << " is staked to: "
-            << ((accountInfo.getStakingInfo().getStakedAccountId().has_value())
-                  ? accountInfo.getStakingInfo().getStakedAccountId()->toString()
+            << ((accountInfo.mStakingInfo.getStakedAccountId().has_value())
+                  ? accountInfo.mStakingInfo.getStakedAccountId()->toString()
                   : "NOT STAKED")
             << std::endl;
 

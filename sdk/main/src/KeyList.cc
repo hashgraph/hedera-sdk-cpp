@@ -18,6 +18,7 @@
  *
  */
 #include "KeyList.h"
+#include "impl/ValuePtr.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -45,7 +46,7 @@ KeyList KeyList::of(const std::vector<const Key*>& keys)
   std::transform(keys.cbegin(),
                  keys.cend(),
                  std::back_inserter(keyList.mKeys),
-                 [](const Key* key) { return valuable::value_ptr<Key, KeyCloner>(key->clone().release()); });
+                 [](const Key* key) { return ValuePtr<Key, KeyCloner>(*key); });
   return keyList;
 }
 
@@ -56,21 +57,21 @@ std::unique_ptr<Key> KeyList::clone() const
 }
 
 //-----
-std::unique_ptr<proto::Key> KeyList::toProtobuf() const
+std::unique_ptr<proto::Key> KeyList::toProtobufKey() const
 {
   auto key = std::make_unique<proto::Key>();
-  key->set_allocated_keylist(toProtobufKeyList().release());
+  key->set_allocated_keylist(toProtobuf().release());
   return key;
 }
 
 //-----
-std::unique_ptr<proto::KeyList> KeyList::toProtobufKeyList() const
+std::unique_ptr<proto::KeyList> KeyList::toProtobuf() const
 {
   auto keyList = std::make_unique<proto::KeyList>();
 
   for (const auto& key : mKeys)
   {
-    *keyList->add_keys() = *key->toProtobuf();
+    *keyList->add_keys() = *key->toProtobufKey();
   }
 
   return keyList;
@@ -94,8 +95,7 @@ bool KeyList::contains(const Key* key) const
   const std::vector<std::byte> keyBytes = key->toBytes();
   return std::any_of(mKeys.cbegin(),
                      mKeys.cend(),
-                     [&keyBytes](const valuable::value_ptr<Key, KeyCloner>& listKey)
-                     { return listKey->toBytes() == keyBytes; });
+                     [&keyBytes](const ValuePtr<Key, KeyCloner>& listKey) { return listKey->toBytes() == keyBytes; });
 }
 
 //-----
@@ -108,10 +108,10 @@ void KeyList::push_back(const Key* key)
 void KeyList::remove(const Key* key)
 {
   const std::vector<std::byte> keyBytes = key->toBytes();
-  const auto eraseIter = std::remove_if(mKeys.begin(),
-                                        mKeys.end(),
-                                        [&keyBytes](const valuable::value_ptr<Key, KeyCloner>& listKey)
-                                        { return listKey->toBytes() == keyBytes; });
+  const auto eraseIter =
+    std::remove_if(mKeys.begin(),
+                   mKeys.end(),
+                   [&keyBytes](const ValuePtr<Key, KeyCloner>& listKey) { return listKey->toBytes() == keyBytes; });
 
   // Erasing an element pointed to by an iterator that equals end() is undefined, so this check is necessary.
   if (eraseIter != mKeys.end())

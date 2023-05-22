@@ -285,7 +285,7 @@ std::unique_ptr<Key> ECDSAsecp256k1PublicKey::clone() const
 }
 
 //----
-std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobuf() const
+std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobufKey() const
 {
   auto keyProtobuf = std::make_unique<proto::Key>();
   keyProtobuf->set_ecdsa_secp256k1(internal::Utilities::byteVectorToString(toBytesRaw()));
@@ -391,6 +391,12 @@ std::string ECDSAsecp256k1PublicKey::toStringDer() const
 std::string ECDSAsecp256k1PublicKey::toStringRaw() const
 {
   return internal::HexConverter::bytesToHex(toBytesRaw());
+}
+
+//-----
+std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytes() const
+{
+  return toBytesDer();
 }
 
 //-----

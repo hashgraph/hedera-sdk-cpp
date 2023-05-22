@@ -21,9 +21,9 @@
 #define HEDERA_SDK_CPP_KEYLIST_H_
 
 #include "Key.h"
+#include "impl/ValuePtr.h"
 
 #include <memory>
-#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace proto
@@ -76,7 +76,7 @@ public:
    *
    * @return A pointer to the created Key protobuf object filled with this KeyList object's data.
    */
-  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobufKey() const override;
 
   /**
    * Construct a KeyList protobuf object from this KeyList object.
@@ -84,7 +84,7 @@ public:
    * @return A pointer to a created KeyList protobuf object filled with this KeyList object's data.
    * @throws OpenSSLException If OpenSSL is unable to serialize any key in this KeyList.
    */
-  [[nodiscard]] std::unique_ptr<proto::KeyList> toProtobufKeyList() const;
+  [[nodiscard]] std::unique_ptr<proto::KeyList> toProtobuf() const;
 
   /**
    * Get the number of keys in this KeyList.
@@ -131,7 +131,7 @@ private:
   /**
    * The list of Keys that all must sign transactions.
    */
-  std::vector<valuable::value_ptr<Key, KeyCloner>> mKeys;
+  std::vector<ValuePtr<Key, KeyCloner>> mKeys;
 };
 
 } // namespace Hedera

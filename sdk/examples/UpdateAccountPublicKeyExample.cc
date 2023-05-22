@@ -27,6 +27,7 @@
 #include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "impl/HexConverter.h"
 
 #include <iostream>
 
@@ -43,15 +44,17 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
+  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]).get());
 
   // Generate an ECDSAsecp256k1 public key to use for the new account
   const std::shared_ptr<PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
 
   // Create a new account with an initial balance of 1000 tinybars. The only required field here is the key.
-  TransactionResponse txResp =
-    AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(1000ULL, HbarUnit::TINYBAR())).execute(client);
+  TransactionResponse txResp = AccountCreateTransaction()
+                                 .setKey(publicKey.get())
+                                 .setInitialBalance(Hbar(1000ULL, HbarUnit::TINYBAR()))
+                                 .execute(client);
 
   // Get the receipt when it becomes available
   TransactionReceipt txReceipt = txResp.getReceipt(client);
@@ -68,7 +71,7 @@ int main(int argc, char** argv)
   std::cout << "Updating account to use new public key: " << newPublicKey->toStringDer() << std::endl;
   txResp = AccountUpdateTransaction()
              .setAccountId(newAccountId)
-             .setKey(newPublicKey)
+             .setKey(newPublicKey.get())
              .freezeWith(client)
              .sign(privateKey.get())
              .sign(newPrivateKey.get())
@@ -79,7 +82,8 @@ int main(int argc, char** argv)
 
   // Query for the new account key
   const AccountInfo accountInfo = AccountInfoQuery().setAccountId(newAccountId).execute(client);
-  std::cout << "New queried public key: " << accountInfo.getKey()->toStringDer() << std::endl;
+  std::cout << "New queried public key: " << internal::HexConverter::bytesToHex(accountInfo.mKey->toBytes())
+            << std::endl;
 
   return 0;
 }

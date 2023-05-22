@@ -78,7 +78,7 @@ protected:
     networkMap.insert(std::pair<std::string, AccountId>(nodeAddressString, accountId));
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -92,7 +92,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteRequestToTestnetNode)
   const auto testPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
 
   AccountCreateTransaction testAccountCreateTransaction;
-  testAccountCreateTransaction.setKey(testPublicKey);
+  testAccountCreateTransaction.setKey(testPublicKey.get());
 
   const TransactionResponse txResponse = testAccountCreateTransaction.execute(getTestClient());
 

@@ -136,7 +136,7 @@ public:
    * @throws OpenSSLException If OpenSSL is unable to serialize this ECDSAsecp256k1PrivateKey object's
    *                          ECDSAsecp256k1PublicKey.
    */
-  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobufKey() const override;
 
   /**
    * Derived from PrivateKey. Derive a child ECDSAsecp256k1PrivateKey from this ECDSAsecp256k1PrivateKey.
@@ -171,6 +171,14 @@ public:
    * @return The hex-encoded string of the raw bytes of this ECDSAsecp256k1PrivateKey.
    */
   [[nodiscard]] std::string toStringRaw() const override;
+
+  /**
+   * Derived from Key. Get the byte representation of this ECDSAsecp256k1PrivateKey. Returns the same result as
+   * toBytesDer().
+   *
+   * @return The DER-encoded bytes of this ECDSAsecp256k1PrivateKey.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const override;
 
   /**
    * Derived from PrivateKey. Get the DER-encoded bytes of this ECDSAsecp256k1PrivateKey.

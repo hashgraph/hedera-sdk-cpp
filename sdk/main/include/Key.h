@@ -60,7 +60,7 @@ public:
    *
    * @return A pointer to the created Key protobuf object filled with this Key object's data.
    */
-  [[nodiscard]] virtual std::unique_ptr<proto::Key> toProtobuf() const = 0;
+  [[nodiscard]] virtual std::unique_ptr<proto::Key> toProtobufKey() const = 0;
 
   /**
    * Get the byte representation of this Key.
@@ -87,6 +87,7 @@ protected:
 struct KeyCloner
 {
   Key* operator()(const Key& key) const { return key.clone().release(); }
+  Key* operator()(const Key* key) const { return key ? key->clone().release() : nullptr; }
 };
 
 } // namespace Hedera

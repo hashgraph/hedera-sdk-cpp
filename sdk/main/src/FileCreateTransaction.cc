@@ -18,7 +18,6 @@
  *
  */
 #include "FileCreateTransaction.h"
-#include "impl/HexConverter.h"
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
@@ -126,7 +125,7 @@ proto::FileCreateTransactionBody* FileCreateTransaction::build() const
 {
   auto body = std::make_unique<proto::FileCreateTransactionBody>();
   body->set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(mExpirationTime));
-  body->set_allocated_keys(mKeys.toProtobufKeyList().release());
+  body->set_allocated_keys(mKeys.toProtobuf().release());
   body->set_contents(internal::Utilities::byteVectorToString(mContents));
   body->set_memo(mFileMemo);
   return body.release();

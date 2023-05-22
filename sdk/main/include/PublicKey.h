@@ -21,11 +21,11 @@
 #define HEDERA_SDK_CPP_PUBLIC_KEY_H_
 
 #include "Key.h"
+#include "impl/ValuePtr.h"
 
 #include <memory>
 #include <string>
 #include <string_view>
-#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace proto
@@ -137,7 +137,7 @@ private:
    * Implementation object used to hide implementation details and internal headers.
    */
   struct PublicKeyImpl;
-  valuable::value_ptr<PublicKeyImpl> mImpl;
+  ValuePtr<PublicKeyImpl> mImpl;
 };
 
 } // namespace Hedera

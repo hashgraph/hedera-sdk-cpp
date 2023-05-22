@@ -114,7 +114,7 @@ public:
    *         data.
    * @throws OpenSSLException If OpenSSL is unable to serialize this ED25519PrivateKey object's ED25519PublicKey.
    */
-  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobufKey() const override;
 
   /**
    * Derived from PrivateKey. Derive a child ED25519PrivateKey from this ED25519PrivateKey.
@@ -149,6 +149,13 @@ public:
    * @return The hex-encoded string of the raw bytes of this ED25519PrivateKey.
    */
   [[nodiscard]] std::string toStringRaw() const override;
+
+  /**
+   * Derived from Key. Get the byte representation of this ED25519PrivateKey. Returns the same result as toBytesRaw().
+   *
+   * @return The DER-encoded bytes of this ED25519PrivateKey.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const override;
 
   /**
    * Derived from PrivateKey. Get the DER-encoded bytes of this ED25519PrivateKey.

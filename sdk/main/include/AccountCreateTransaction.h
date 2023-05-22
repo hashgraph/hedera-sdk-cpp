@@ -26,13 +26,13 @@
 #include "Hbar.h"
 #include "Key.h"
 #include "Transaction.h"
+#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <valuable/value-ptr.hpp>
 
 namespace proto
 {
@@ -295,7 +295,7 @@ private:
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
    * also sign any transfer into the account.
    */
-  valuable::value_ptr<Key> mKey;
+  ValuePtr<Key, KeyCloner> mKey;
 
   /**
    * The initial amount to transfer into the new account.

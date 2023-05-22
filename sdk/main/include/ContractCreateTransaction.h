@@ -25,6 +25,7 @@
 #include "Hbar.h"
 #include "Key.h"
 #include "Transaction.h"
+#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <cstddef>
@@ -32,7 +33,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace proto
@@ -388,7 +388,7 @@ private:
   /**
    * The admin key for the new smart contract instance.
    */
-  valuable::value_ptr<Key> mAdminKey;
+  ValuePtr<Key, KeyCloner> mAdminKey;
 
   /**
    * The amount of gas required to run the constructor of the new smart contract instance.

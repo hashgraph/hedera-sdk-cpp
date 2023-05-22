@@ -1,8 +1,3 @@
-include(FetchContent)
-FetchContent_Declare(valuable
-        GIT_REPOSITORY https://github.com/LoopPerfect/valuable.git)
-FetchContent_MakeAvailable(valuable)
-
 FetchContent_Declare(rlpvalue
         GIT_REPOSITORY https://github.com/bloq/rlpvalue.git
         GIT_TAG master)
@@ -110,7 +105,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
-target_include_directories(${PROJECT_NAME} PUBLIC ${valuable_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${rlpvalue_SOURCE_DIR}/include)
 
 if (APPLE)

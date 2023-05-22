@@ -108,7 +108,7 @@ std::unique_ptr<Key> ED25519PublicKey::clone() const
 }
 
 //----
-std::unique_ptr<proto::Key> ED25519PublicKey::toProtobuf() const
+std::unique_ptr<proto::Key> ED25519PublicKey::toProtobufKey() const
 {
   auto keyProtobuf = std::make_unique<proto::Key>();
   keyProtobuf->set_ed25519(internal::Utilities::byteVectorToString(toBytesRaw()));
@@ -155,6 +155,12 @@ std::string ED25519PublicKey::toStringDer() const
 std::string ED25519PublicKey::toStringRaw() const
 {
   return internal::HexConverter::bytesToHex(toBytesRaw());
+}
+
+//-----
+std::vector<std::byte> ED25519PublicKey::toBytes() const
+{
+  return toBytesRaw();
 }
 
 //-----

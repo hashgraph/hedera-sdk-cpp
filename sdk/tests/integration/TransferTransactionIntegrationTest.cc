@@ -92,7 +92,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -134,7 +134,7 @@ TEST_F(TransferTransactionIntegrationTest, TransferOutOfNonOperatorAccount)
   const Hbar amount(1LL);
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey())
+                                .setKey(privateKey->getPublicKey().get())
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -183,7 +183,7 @@ TEST_F(TransferTransactionIntegrationTest, CanTransferHbarWithAliasID)
   // Then
   AccountInfo accountInfo;
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(aliasId).execute(getTestClient()));
-  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), evmAddress.toBytes());
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.mContractAccountId), evmAddress.toBytes());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -205,14 +205,14 @@ TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
   AccountId allowerId;
   AccountId alloweeId;
   ASSERT_NO_THROW(allowerId = AccountCreateTransaction()
-                                .setKey(allowerKey->getPublicKey())
+                                .setKey(allowerKey->getPublicKey().get())
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .getAccountId()
                                 .value());
   ASSERT_NO_THROW(alloweeId = AccountCreateTransaction()
-                                .setKey(alloweeKey->getPublicKey())
+                                .setKey(alloweeKey->getPublicKey().get())
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())

@@ -21,11 +21,11 @@
 #define HEDERA_SDK_CPP_PRIVATE_KEY_H_
 
 #include "Key.h"
+#include "impl/ValuePtr.h"
 
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace Hedera
@@ -146,7 +146,7 @@ private:
    * Implementation object used to hide implementation details and internal headers.
    */
   struct PrivateKeyImpl;
-  valuable::value_ptr<PrivateKeyImpl> mImpl;
+  ValuePtr<PrivateKeyImpl> mImpl;
 };
 
 } // namespace Hedera

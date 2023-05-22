@@ -24,13 +24,13 @@
 #include "ContractId.h"
 #include "Key.h"
 #include "Transaction.h"
+#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <valuable/value-ptr.hpp>
 
 namespace proto
 {
@@ -298,7 +298,7 @@ private:
   /**
    * The new admin key to be used for the contract.
    */
-  valuable::value_ptr<Key> mAdminKey;
+  ValuePtr<Key, KeyCloner> mAdminKey;
 
   /**
    * The new auto renew period for the contract.

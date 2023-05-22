@@ -25,6 +25,7 @@
 #include "PublicKey.h"
 #include "exceptions/UninitializedException.h"
 #include "impl/Network.h"
+#include "impl/ValuePtr.h"
 
 #include <stdexcept>
 
@@ -41,7 +42,7 @@ struct Client::ClientImpl
   std::optional<AccountId> mOperatorAccountId;
 
   // Pointer to the private key this Client should use to sign transactions.
-  std::unique_ptr<PrivateKey> mOperatorPrivateKey = nullptr;
+  ValuePtr<PrivateKey, KeyCloner> mOperatorPrivateKey;
 
   // The maximum fee this Client is willing to pay for transactions.
   std::optional<Hbar> mMaxTransactionFee;
@@ -129,16 +130,11 @@ Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& netw
 }
 
 //-----
-Client& Client::setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>& privateKey)
-{
-  return setOperator(accountId, std::move(privateKey));
-}
-
-//-----
-Client& Client::setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>&& privateKey)
+Client& Client::setOperator(const AccountId& accountId, const PrivateKey* privateKey)
 {
   mImpl->mOperatorAccountId = accountId;
-  mImpl->mOperatorPrivateKey = std::move(privateKey);
+  mImpl->mOperatorPrivateKey =
+    ValuePtr<PrivateKey, KeyCloner>(dynamic_cast<PrivateKey*>(privateKey->clone().release()));
 
   return *this;
 }
