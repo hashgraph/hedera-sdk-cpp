@@ -19,9 +19,10 @@
  */
 #include "EthereumTransactionDataEip1559.h"
 #include "impl/HexConverter.h"
+#include "impl/RLPItem.h"
 #include "impl/Utilities.h"
 
-#include <rlpvalue.h>
+#include <iostream>
 #include <stdexcept>
 
 namespace Hedera
@@ -63,53 +64,47 @@ EthereumTransactionDataEip1559 EthereumTransactionDataEip1559::fromBytes(const s
       "Input byte array is malformed, It should be 0x02 followed by 12 RLP-encoded elements as a list");
   }
 
-  RLPValue list;
-  size_t consumed;
-  size_t wanted;
-  list.read(internal::Utilities::toTypePtr<const unsigned char>(internal::Utilities::removePrefix(bytes, 1).data()),
-            bytes.size() - 1,
-            consumed,
-            wanted);
+  RLPItem item;
+  item.read(internal::Utilities::removePrefix(bytes, 1));
 
-  if (!list.isArray() || list.size() != 12)
+  if (!item.isType(RLPItem::RLPType::LIST_TYPE) || item.size() != 12)
   {
     throw std::invalid_argument(
       "Input byte array is malformed. It should be 0x02 followed by 12 RLP-encoded elements as a list");
   }
 
-  return EthereumTransactionDataEip1559(internal::Utilities::stringToByteVector(list.getValues().at(0).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(1).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(2).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(3).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(4).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(5).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(6).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(7).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(8).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(9).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(10).getValStr()),
-                                        internal::Utilities::stringToByteVector(list.getValues().at(11).getValStr()));
+  return EthereumTransactionDataEip1559(item.getValues().at(0).getValue(),
+                                        item.getValues().at(1).getValue(),
+                                        item.getValues().at(2).getValue(),
+                                        item.getValues().at(3).getValue(),
+                                        item.getValues().at(4).getValue(),
+                                        item.getValues().at(5).getValue(),
+                                        item.getValues().at(6).getValue(),
+                                        item.getValues().at(7).getValue(),
+                                        item.getValues().at(8).getValue(),
+                                        item.getValues().at(9).getValue(),
+                                        item.getValues().at(10).getValue(),
+                                        item.getValues().at(11).getValue());
 }
 
 //-----
 std::vector<std::byte> EthereumTransactionDataEip1559::toBytes() const
 {
-  RLPValue bytes(RLPValue::VType::VARR);
-  bytes.push_backV({ RLPValue(internal::Utilities::byteVectorToString(mChainId)),
-                     RLPValue(internal::Utilities::byteVectorToString(mNonce)),
-                     RLPValue(internal::Utilities::byteVectorToString(mMaxPriorityGas)),
-                     RLPValue(internal::Utilities::byteVectorToString(mMaxGas)),
-                     RLPValue(internal::Utilities::byteVectorToString(mGasLimit)),
-                     RLPValue(internal::Utilities::byteVectorToString(mTo)),
-                     RLPValue(internal::Utilities::byteVectorToString(mValue)),
-                     RLPValue(internal::Utilities::byteVectorToString(mCallData)),
-                     RLPValue(),
-                     RLPValue(internal::Utilities::byteVectorToString(mRecoveryId)),
-                     RLPValue(internal::Utilities::byteVectorToString(mR)),
-                     RLPValue(internal::Utilities::byteVectorToString(mS)) });
+  RLPItem list(RLPItem::RLPType::LIST_TYPE);
+  list.pushBack(mChainId);
+  list.pushBack(mNonce);
+  list.pushBack(mMaxPriorityGas);
+  list.pushBack(mMaxGas);
+  list.pushBack(mGasLimit);
+  list.pushBack(mTo);
+  list.pushBack(mValue);
+  list.pushBack(mCallData);
+  list.pushBack(RLPItem());
+  list.pushBack(mRecoveryId);
+  list.pushBack(mR);
+  list.pushBack(mS);
 
-  return internal::Utilities::concatenateVectors(
-    { { std::byte(0x02) }, internal::Utilities::stringToByteVector(bytes.write()) });
+  return internal::Utilities::concatenateVectors({ { std::byte(0x02) }, list.write() });
 }
 
 //-----
