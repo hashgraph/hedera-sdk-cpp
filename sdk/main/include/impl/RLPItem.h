@@ -128,10 +128,19 @@ public:
    * Decode a byte array to to this RLPItem.
    *
    * @param bytes The byte array to decode.
+   * @throws std::invalid_argument If the input byte array is malformed and cannot be decoded.
    */
   void read(const std::vector<std::byte>& bytes);
 
 private:
+  /**
+   * Decode a byte array and put its values in this RLPItem. Helper function used by 'read()'.
+   *
+   * @param bytes The byte array to decode.
+   * @param index The index to begin decoding.
+   */
+  void decodeBytes(const std::vector<std::byte>& bytes, long& index);
+
   /**
    * The type of RLPItem this RLPItem is.
    */

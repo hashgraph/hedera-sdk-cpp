@@ -22,7 +22,6 @@
 #include "impl/RLPItem.h"
 #include "impl/Utilities.h"
 
-#include <iostream>
 #include <stdexcept>
 
 namespace Hedera
@@ -67,7 +66,7 @@ EthereumTransactionDataEip1559 EthereumTransactionDataEip1559::fromBytes(const s
   RLPItem item;
   item.read(internal::Utilities::removePrefix(bytes, 1));
 
-  if (!item.isType(RLPItem::RLPType::LIST_TYPE) || item.size() != 12)
+  if (!item.isType(RLPItem::RLPType::LIST_TYPE) || item.getValues().size() != 12)
   {
     throw std::invalid_argument(
       "Input byte array is malformed. It should be 0x02 followed by 12 RLP-encoded elements as a list");

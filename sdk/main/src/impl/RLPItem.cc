@@ -20,6 +20,8 @@
 #include "impl/RLPItem.h"
 #include "impl/Utilities.h"
 
+#include <stdexcept>
+
 namespace Hedera
 {
 namespace
@@ -49,64 +51,6 @@ std::vector<std::byte> encodeLength(size_t num, std::byte offset)
     const std::vector<std::byte> encodedLength = encodeBinary(num);
     return internal::Utilities::concatenateVectors(
       { { std::byte(encodedLength.size() + static_cast<unsigned char>(offset) + 55) }, encodedLength });
-  }
-}
-
-//-----
-size_t toInteger(const std::vector<std::byte>& bytes)
-{
-  if (bytes.size() == 1)
-  {
-    return static_cast<size_t>(bytes.at(0));
-  }
-  else
-  {
-    size_t size = 0;
-    for (const std::byte& byte : bytes)
-    {
-      size <<= 8;
-      size |= static_cast<unsigned char>(byte);
-    }
-
-    return size;
-  }
-}
-
-//-----
-std::tuple<long, long, RLPItem::RLPType> decodeLength(const std::vector<std::byte>& bytes)
-{
-  if (bytes.empty())
-  {
-    return { 0, 0, RLPItem::RLPType::VALUE_TYPE };
-  }
-
-  const std::byte prefix = bytes.at(0);
-
-  if (prefix < std::byte(0x7F))
-  {
-    return { 0, 1, RLPItem::RLPType::VALUE_TYPE };
-  }
-  else if (prefix <= std::byte(0xB7))
-  {
-    return { 1, static_cast<unsigned char>(prefix) - 0x80, RLPItem::RLPType::VALUE_TYPE };
-  }
-  else if (prefix <= std::byte(0xBF))
-  {
-    const long lenOfStrLen = static_cast<unsigned char>(prefix) - 0xB7;
-    return { 1 + lenOfStrLen,
-             toInteger({ bytes.cbegin() + 1, bytes.cbegin() + 1 + lenOfStrLen }),
-             RLPItem::RLPType::VALUE_TYPE };
-  }
-  else if (prefix <= std::byte(0xF7))
-  {
-    return { 1, static_cast<unsigned char>(prefix) - 0xC0, RLPItem::RLPType::LIST_TYPE };
-  }
-  else
-  {
-    const long lenOfListLen = static_cast<unsigned char>(prefix) - 0xF7;
-    return { 1 + lenOfListLen,
-             toInteger({ bytes.cbegin() + 1, bytes.cbegin() + 1 + lenOfListLen }),
-             RLPItem::RLPType::LIST_TYPE };
   }
 }
 
@@ -156,8 +100,11 @@ void RLPItem::assign(std::string_view value)
 //-----
 void RLPItem::setType(RLPItem::RLPType type)
 {
-  clear();
-  mType = type;
+  if (mType != type)
+  {
+    clear();
+    mType = type;
+  }
 }
 
 //-----
@@ -230,24 +177,93 @@ void RLPItem::read(const std::vector<std::byte>& bytes)
     return;
   }
 
-  const auto [offset, len, type] = decodeLength(bytes);
-  if (type == RLPType::VALUE_TYPE)
+  try
   {
-    mValue = { bytes.cbegin() + offset, bytes.cbegin() + offset + len };
+    long index = 0;
+    decodeBytes(bytes, index);
   }
-  else
+  catch (const std::exception&)
   {
-    long bytesConsumed = offset;
-    while (bytesConsumed < len)
-    {
-      RLPItem item;
-      item.read({ bytes.cbegin() + bytesConsumed, bytes.cbegin() + len });
-      bytesConsumed -= static_cast<long>(item.size());
-      mValues.push_back(item);
-    }
+    throw std::invalid_argument("Input byte array does not follow RLP encoding standards and cannot be read");
+  }
+}
+
+//-----
+void RLPItem::decodeBytes(const std::vector<std::byte>& bytes, long& index)
+{
+  const std::byte prefix = bytes.at(index);
+  ++index;
+
+  // Single byte case
+  if (prefix < std::byte(0x80))
+  {
+    mValue = { prefix };
+    mType = RLPType::VALUE_TYPE;
   }
 
-  mType = type;
+  // Short string (<56 bytes) case
+  else if (prefix < std::byte(0xB8))
+  {
+    const long stringLength = static_cast<long>(prefix) - 0x80;
+    mValue = { bytes.cbegin() + index, bytes.cbegin() + index + stringLength };
+    mType = RLPType::VALUE_TYPE;
+    index += stringLength;
+  }
+
+  // Long string (>56 bytes) case
+  else if (prefix < std::byte(0xC0))
+  {
+    const long stringLengthLength = static_cast<long>(prefix) - 0xB7;
+    long stringLength = 0;
+    for (int i = 0; i < stringLengthLength; ++i)
+    {
+      stringLength <<= 8;
+      stringLength += static_cast<long>(bytes.at(index));
+      ++index;
+    }
+
+    mValue = { bytes.cbegin() + index, bytes.cbegin() + index + stringLength };
+    mType = RLPType::VALUE_TYPE;
+    index += stringLength;
+  }
+
+  // Short list (<56 bytes) case
+  else if (prefix < std::byte(0xF7))
+  {
+    const long listLength = static_cast<long>(prefix) - 0xC0;
+    const long startIndex = index;
+    while (index < startIndex + listLength)
+    {
+      RLPItem item;
+      item.decodeBytes(bytes, index);
+      mValues.push_back(item);
+    }
+
+    mType = RLPType::LIST_TYPE;
+  }
+
+  // Long list (>56 bytes) case
+  else
+  {
+    const long listLengthLength = static_cast<long>(prefix) - 0xF7;
+    long listLength = 0;
+    for (int i = 0; i < listLengthLength; ++i)
+    {
+      listLength <<= 8;
+      listLength += static_cast<long>(bytes.at(index));
+      ++index;
+    }
+
+    const long startIndex = index;
+    while (index < startIndex + listLength)
+    {
+      RLPItem item;
+      item.decodeBytes(bytes, index);
+      mValues.push_back(item);
+    }
+
+    mType = RLPType::LIST_TYPE;
+  }
 }
 
 } // namespace Hedera
