@@ -179,6 +179,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mFileStub->createFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileDelete:
       return mFileStub->deleteFile(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kFileUpdate:
+      return mFileStub->updateFile(&context, transaction, response);
     default:
       // This should never happen
       throw std::invalid_argument("Unrecognized gRPC transaction method case");
