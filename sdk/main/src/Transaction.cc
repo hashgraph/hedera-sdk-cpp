@@ -32,6 +32,7 @@
 #include "EthereumTransaction.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
+#include "FileUpdateTransaction.h"
 #include "PrivateKey.h"
 #include "Status.h"
 #include "TransactionId.h"
@@ -448,6 +449,7 @@ template class Transaction<ContractUpdateTransaction>;
 template class Transaction<EthereumTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
+template class Transaction<FileUpdateTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera
