@@ -1,0 +1,120 @@
+/*-
+ *
+ * Hedera C++ SDK
+ *
+ * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#include "KeyList.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <proto/basic_types.pb.h>
+
+namespace Hedera
+{
+//-----
+KeyList KeyList::fromProtobuf(const proto::KeyList& proto)
+{
+  KeyList keyList;
+
+  for (int i = 0; i < proto.keys_size(); ++i)
+  {
+    keyList.mKeys.push_back(PublicKey::fromProtobuf(proto.keys(i)));
+  }
+
+  return keyList;
+}
+
+//-----
+KeyList KeyList::of(const std::vector<std::shared_ptr<PublicKey>>& keys)
+{
+  KeyList keyList;
+  keyList.mKeys = keys;
+  return keyList;
+}
+
+//-----
+std::unique_ptr<proto::Key> KeyList::toProtobufKey() const
+{
+  auto key = std::make_unique<proto::Key>();
+  key->set_allocated_keylist(toProtobuf().release());
+  return key;
+}
+
+//-----
+std::unique_ptr<proto::KeyList> KeyList::toProtobuf() const
+{
+  auto keyList = std::make_unique<proto::KeyList>();
+
+  for (const auto& key : mKeys)
+  {
+    *keyList->add_keys() = *key->toProtobuf();
+  }
+
+  return keyList;
+}
+
+//-----
+size_t KeyList::size() const
+{
+  return mKeys.size();
+}
+
+//-----
+bool KeyList::empty() const
+{
+  return mKeys.empty();
+}
+
+//-----
+bool KeyList::contains(const std::shared_ptr<PublicKey>& key) const
+{
+  const std::vector<std::byte> keyBytes = key->toBytesDer();
+  return std::any_of(mKeys.cbegin(),
+                     mKeys.cend(),
+                     [&keyBytes](const std::shared_ptr<PublicKey>& listKey)
+                     { return listKey->toBytesDer() == keyBytes; });
+}
+
+//-----
+void KeyList::push_back(const std::shared_ptr<PublicKey>& key)
+{
+  mKeys.push_back(key);
+}
+
+//-----
+void KeyList::remove(const std::shared_ptr<PublicKey>& key)
+{
+  const std::vector<std::byte> keyBytes = key->toBytesDer();
+  const auto eraseIter = std::remove_if(mKeys.begin(),
+                                        mKeys.end(),
+                                        [&keyBytes](const std::shared_ptr<PublicKey>& listKey)
+                                        { return listKey->toBytesDer() == keyBytes; });
+
+  // Erasing an element pointed to by an iterator that equals end() is undefined, so this check is necessary.
+  if (eraseIter != mKeys.end())
+  {
+    mKeys.erase(eraseIter, mKeys.end());
+  }
+}
+
+//-----
+void KeyList::clear()
+{
+  mKeys.clear();
+}
+
+} // namespace Hedera
