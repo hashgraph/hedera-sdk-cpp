@@ -18,77 +18,69 @@
  *
  */
 #include "FileContentsQuery.h"
+#include "Client.h"
+#include "Status.h"
+#include "TransferTransaction.h"
+#include "impl/Node.h"
+#include "impl/Utilities.h"
 
 #include <proto/file_get_contents.pb.h>
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
-#include <proto/response_header.pb.h>
 
 namespace Hedera
 {
 //-----
-FileContentsQuery::FileContentsQuery()
-  : Query()
-  , mFileId()
+FileContentsQuery& FileContentsQuery::setFileId(const FileId& fileId)
 {
-}
-
-//-----
-void
-FileContentsQuery::validateChecksums(const Client& client) const
-{
-  if (mFileId.isValid())
-  {
-    mFileId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void
-FileContentsQuery::onMakeRequest(proto::Query* query,
-                                 proto::QueryHeader* header) const
-{
-  proto::FileGetContentsQuery* getContentsQuery =
-    query->mutable_filegetcontents();
-
-  if (mFileId.isValid())
-  {
-    getContentsQuery->set_allocated_fileid(mFileId.getValue().toProtobuf());
-  }
-
-  getContentsQuery->set_allocated_header(header);
-}
-
-//-----
-proto::ResponseHeader
-FileContentsQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->filegetcontents().header();
-}
-
-//-----
-proto::QueryHeader
-FileContentsQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.filegetcontents().header();
-}
-
-//-----
-std::string
-FileContentsQuery::mapResponse(const proto::Response& response,
-                               const AccountId& accountId,
-                               const proto::Query& query) const
-{
-  return response.filegetcontents().filecontents().contents();
-}
-
-//----
-FileContentsQuery&
-FileContentsQuery::setFileId(const FileId& fileId)
-{
-  mFileId.setValue(fileId);
+  mFileId = fileId;
   return *this;
+}
+
+//-----
+proto::Query FileContentsQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
+{
+  proto::Query query;
+  proto::FileGetContentsQuery* getFileContentsQuery = query.mutable_filegetcontents();
+
+  proto::QueryHeader* header = getFileContentsQuery->mutable_header();
+  header->set_responsetype(proto::ANSWER_ONLY);
+
+  TransferTransaction tx = TransferTransaction()
+                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
+                             .setNodeAccountIds({ node->getAccountId() })
+                             .setMaxTransactionFee(Hbar(1LL))
+                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
+                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
+  tx.onSelectNode(node);
+  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
+
+  getFileContentsQuery->set_allocated_fileid(mFileId.toProtobuf().release());
+
+  return query;
+}
+
+//-----
+FileContents FileContentsQuery::mapResponse(const proto::Response& response) const
+{
+  return internal::Utilities::stringToByteVector(response.filegetcontents().filecontents().contents());
+}
+
+//-----
+Status FileContentsQuery::mapResponseStatus(const proto::Response& response) const
+{
+  return gProtobufResponseCodeToStatus.at(
+    response.contractgetbytecoderesponse().header().nodetransactionprecheckcode());
+}
+
+//-----
+grpc::Status FileContentsQuery::submitRequest(const Client& client,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              proto::Response* response) const
+{
+  return node->submitQuery(proto::Query::QueryCase::kFileGetContents, makeRequest(client, node), deadline, response);
 }
 
 } // namespace Hedera
