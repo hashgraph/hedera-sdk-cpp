@@ -20,6 +20,7 @@
 #include "impl/RLPItem.h"
 #include "impl/Utilities.h"
 
+#include <algorithm>
 #include <stdexcept>
 
 namespace Hedera
