@@ -88,6 +88,20 @@ ContractId ContractId::fromProtobuf(const proto::ContractID& proto)
 }
 
 //-----
+std::unique_ptr<Key> ContractId::clone() const
+{
+  return std::make_unique<ContractId>(*this);
+}
+
+//-----
+std::unique_ptr<proto::Key> ContractId::toProtobufKey() const
+{
+  auto proto = std::make_unique<proto::Key>();
+  proto->set_allocated_contractid(toProtobuf().release());
+  return proto;
+}
+
+//-----
 std::unique_ptr<proto::ContractID> ContractId::toProtobuf() const
 {
   auto proto = std::make_unique<proto::ContractID>();

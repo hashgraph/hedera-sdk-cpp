@@ -21,8 +21,8 @@
 #define HEDERA_SDK_CPP_FILE_INFO_H_
 
 #include "FileId.h"
+#include "KeyList.h"
 #include "LedgerId.h"
-#include "PublicKey.h"
 
 #include <chrono>
 #include <cstdint>
@@ -71,9 +71,9 @@ public:
   bool mIsDeleted = false;
 
   /**
-   * The admin key for the file.
+   * The admin keys for the file.
    */
-  std::shared_ptr<PublicKey> mKey = nullptr;
+  KeyList mAdminKeys;
 
   /**
    * The memo associated with the file.

@@ -42,11 +42,11 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
+  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]).get());
 
   // Create a new file.
   const FileId fileId = FileCreateTransaction()
-                          .setKey(client.getOperatorPublicKey())
+                          .setKeys({ client.getOperatorPublicKey().get() })
                           .setContents(internal::Utilities::stringToByteVector("Hedera Hashgraph is great!"))
                           .execute(client)
                           .getReceipt(client)

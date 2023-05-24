@@ -156,11 +156,13 @@ TEST_F(ECDSAsecp256k1PrivateKeyTest, Clone)
     ECDSAsecp256k1PrivateKey::fromString(getTestPrivateKeyHexString());
 
   // When
-  const std::unique_ptr<PrivateKey> clonedPrivateKey = privateKey->clone();
+  const std::unique_ptr<Key> clonedPrivateKey = privateKey->clone();
 
   // Then
   ASSERT_NE(clonedPrivateKey, nullptr);
-  EXPECT_EQ(privateKey->toStringRaw(), getTestPrivateKeyHexString());
+  EXPECT_EQ(clonedPrivateKey->toBytes(),
+            internal::Utilities::concatenateVectors(
+              { ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES, getTestPrivateKeyBytes() }));
 }
 
 //-----

@@ -20,6 +20,7 @@
 #include "FileCreateTransaction.h"
 #include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "KeyList.h"
 #include "PublicKey.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/TimestampConverter.h"
@@ -40,22 +41,24 @@ using namespace Hedera;
 class FileCreateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey()); }
+  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
   {
     return mTestExpirationTime;
   }
-  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestKey() const { return mTestKey; }
+  [[nodiscard]] inline const KeyList& getTestKeyList() const { return mTestKeyList; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestContents() const { return mTestContents; }
   [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
 
 private:
   Client mClient;
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
-  const std::shared_ptr<PublicKey> mTestKey = PublicKey::fromStringDer(
-    "302A300506032B6570032100BCAF3153262A767B281CC8C888DB3E097C83D690AEF01B8C1BE64D3DE11AACC3");
+  const KeyList mTestKeyList =
+    KeyList::of({ PublicKey::fromStringDer(
+                    "302A300506032B6570032100BCAF3153262A767B281CC8C888DB3E097C83D690AEF01B8C1BE64D3DE11AACC3")
+                    .get() });
   const std::vector<std::byte> mTestContents = { std::byte(0x08), std::byte(0x09), std::byte(0x10) };
   const std::string mTestMemo = "test file memo";
 };
@@ -66,7 +69,7 @@ TEST_F(FileCreateTransactionTest, ConstructFileCreateTransactionFromTransactionB
   // Given
   auto body = std::make_unique<proto::FileCreateTransactionBody>();
   body->set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
-  *body->mutable_keys()->add_keys() = *getTestKey()->toProtobuf();
+  body->set_allocated_keys(getTestKeyList().toProtobuf().release());
   body->set_contents(internal::Utilities::byteVectorToString(getTestContents()));
   body->set_memo(getTestMemo());
 
@@ -78,7 +81,7 @@ TEST_F(FileCreateTransactionTest, ConstructFileCreateTransactionFromTransactionB
 
   // Then
   EXPECT_EQ(fileCreateTransaction.getExpirationTime(), getTestExpirationTime());
-  EXPECT_EQ(fileCreateTransaction.getKey()->toBytesDer(), getTestKey()->toBytesDer());
+  EXPECT_EQ(fileCreateTransaction.getKeys().toBytes(), getTestKeyList().toBytes());
   EXPECT_EQ(fileCreateTransaction.getContents(), getTestContents());
   EXPECT_EQ(fileCreateTransaction.getFileMemo(), getTestMemo());
 }
@@ -114,10 +117,10 @@ TEST_F(FileCreateTransactionTest, GetSetKey)
   FileCreateTransaction transaction;
 
   // When
-  transaction.setKey(getTestKey());
+  transaction.setKeys(getTestKeyList());
 
   // Then
-  EXPECT_EQ(transaction.getKey()->toBytesDer(), getTestKey()->toBytesDer());
+  EXPECT_EQ(transaction.getKeys().toBytes(), getTestKeyList().toBytes());
 }
 
 //-----
@@ -128,7 +131,7 @@ TEST_F(FileCreateTransactionTest, GetSetKeyFrozen)
   transaction.freezeWith(getTestClient());
 
   // When / Then
-  EXPECT_THROW(transaction.setKey(getTestKey()), IllegalStateException);
+  EXPECT_THROW(transaction.setKeys(getTestKeyList()), IllegalStateException);
 }
 
 //-----

@@ -60,7 +60,7 @@ namespace
 } // namespace
 
 //-----
-std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view key)
+std::unique_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view key)
 {
   if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != KEY_SIZE * 2)
   {
@@ -71,7 +71,7 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view 
 
   try
   {
-    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
+    return std::make_unique<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -81,7 +81,7 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view 
 }
 
 //-----
-std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<std::byte>& bytes)
+std::unique_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<std::byte>& bytes)
 {
   if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != KEY_SIZE)
   {
@@ -92,7 +92,7 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<
 
   try
   {
-    return std::make_shared<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(bytes)));
+    return std::make_unique<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(bytes)));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -102,9 +102,17 @@ std::shared_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<
 }
 
 //-----
-std::unique_ptr<PublicKey> ED25519PublicKey::clone() const
+std::unique_ptr<Key> ED25519PublicKey::clone() const
 {
   return std::make_unique<ED25519PublicKey>(*this);
+}
+
+//----
+std::unique_ptr<proto::Key> ED25519PublicKey::toProtobufKey() const
+{
+  auto keyProtobuf = std::make_unique<proto::Key>();
+  keyProtobuf->set_ed25519(internal::Utilities::byteVectorToString(toBytesRaw()));
+  return keyProtobuf;
 }
 
 //-----
@@ -150,6 +158,12 @@ std::string ED25519PublicKey::toStringRaw() const
 }
 
 //-----
+std::vector<std::byte> ED25519PublicKey::toBytes() const
+{
+  return toBytesRaw();
+}
+
+//-----
 std::vector<std::byte> ED25519PublicKey::toBytesDer() const
 {
   int bytesLength = i2d_PUBKEY(getInternalKey().get(), nullptr);
@@ -169,14 +183,6 @@ std::vector<std::byte> ED25519PublicKey::toBytesDer() const
 std::vector<std::byte> ED25519PublicKey::toBytesRaw() const
 {
   return internal::Utilities::removePrefix(toBytesDer(), static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()));
-}
-
-//----
-std::unique_ptr<proto::Key> ED25519PublicKey::toProtobuf() const
-{
-  auto keyProtobuf = std::make_unique<proto::Key>();
-  keyProtobuf->set_allocated_ed25519(new std::string(internal::Utilities::byteVectorToString(toBytesRaw())));
-  return keyProtobuf;
 }
 
 //-----

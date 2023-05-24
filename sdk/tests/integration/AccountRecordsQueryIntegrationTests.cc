@@ -86,7 +86,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -102,7 +102,7 @@ TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
   const Hbar amount(1LL);
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey())
+                                .setKey(privateKey->getPublicKey().get())
                                 .setInitialBalance(amount)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())

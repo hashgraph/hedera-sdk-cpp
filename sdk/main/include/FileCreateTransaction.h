@@ -21,7 +21,8 @@
 #define HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_
 
 #include "Defaults.h"
-#include "PublicKey.h"
+#include "Key.h"
+#include "KeyList.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -75,15 +76,15 @@ public:
   FileCreateTransaction& setExpirationTime(const std::chrono::system_clock::time_point& expirationTime);
 
   /**
-   * Set the corresponding PublicKey of the PrivateKey that must sign when mutating the new file via
-   * FileAppendTransactions or FileUpdateTransactions. If no key is provided, then the file is immutable and any of the
-   * aforementioned transactions will fail.
+   * Set the Keys that must sign when mutating the new file via FileAppendTransactions or FileUpdateTransactions. If no
+   * keys are provided, then the file is immutable and any of the aforementioned transactions will fail.
    *
-   * @param key The key that must sign any Transaction that edits the created file.
-   * @return A reference to this FileCreateTransaction object with the newly-set key.
+   * @param keys The keys that must sign any Transaction that edits the created file.
+   * @return A reference to this FileCreateTransaction object with the newly-set keys.
    * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
-  FileCreateTransaction& setKey(const std::shared_ptr<PublicKey>& key);
+  FileCreateTransaction& setKeys(const std::vector<const Key*>& keys);
+  FileCreateTransaction& setKeys(const KeyList& keys);
 
   /**
    * Set the contents of the new file. The contents cannot exceed 4096 bytes. A FileAppendTransaction must be used to
@@ -114,11 +115,11 @@ public:
   [[nodiscard]] inline std::chrono::system_clock::time_point getExpirationTime() const { return mExpirationTime; }
 
   /**
-   * Get the corresponding PublicKey of the PrivateKey that must sign Transactions to mutate the new file.
+   * Get the Keys that must sign Transactions to mutate the new file.
    *
-   * @return The key that must sign Transactions to mutate the new file.
+   * @return The Keys that must sign Transactions to mutate the new file.
    */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getKey() const { return mKey; }
+  [[nodiscard]] inline KeyList getKeys() const { return mKeys; }
 
   /**
    * Get the contents of the new file.
@@ -176,9 +177,9 @@ private:
   std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now() + DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
-   * The key that must sign Transactions to mutate the new file.
+   * The keys that must sign Transactions to mutate the new file.
    */
-  std::shared_ptr<PublicKey> mKey = nullptr;
+  KeyList mKeys;
 
   /**
    * The contents of the new file.

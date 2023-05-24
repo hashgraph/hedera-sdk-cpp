@@ -87,7 +87,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -127,7 +127,7 @@ TEST_F(ContractDeleteTransactionIntegrationTest, DeleteContractWithAdminKey)
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setBytecode({})
-                      .setAdminKey(operatorKey->getPublicKey())
+                      .setAdminKey(operatorKey->getPublicKey().get())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())

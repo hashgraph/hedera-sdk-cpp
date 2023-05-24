@@ -101,8 +101,7 @@ public:
    *                   to this Client.
    * @return A reference to this Client object with the newly-set operator account ID and private key.
    */
-  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>& privateKey);
-  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>&& privateKey);
+  Client& setOperator(const AccountId& accountId, const PrivateKey* privateKey);
 
   /**
    * Sign an arbitrary array of bytes with this Client's operator.

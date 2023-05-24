@@ -84,7 +84,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -104,11 +104,12 @@ TEST_F(FileCreateTransactionIntegrationTest, ExecuteFileCreateTransaction)
   ASSERT_NO_THROW(contents = internal::Utilities::stringToByteVector("[e2e::FileCreateTransaction]"));
 
   const std::string memo = "test file memo";
+  const KeyList keys = KeyList::of({ operatorKey->getPublicKey().get() });
 
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = FileCreateTransaction()
-                                .setKey(operatorKey->getPublicKey())
+                                .setKeys(keys)
                                 .setContents(contents)
                                 .setFileMemo(memo)
                                 .execute(getTestClient())
@@ -123,8 +124,7 @@ TEST_F(FileCreateTransactionIntegrationTest, ExecuteFileCreateTransaction)
 
   EXPECT_EQ(fileInfo.mSize, contents.size());
   EXPECT_FALSE(fileInfo.mIsDeleted);
-  ASSERT_NE(fileInfo.mKey, nullptr);
-  EXPECT_EQ(fileInfo.mKey->toBytesDer(), operatorKey->getPublicKey()->toBytesDer());
+  EXPECT_EQ(fileInfo.mAdminKeys.toBytes(), keys.toBytes());
   EXPECT_EQ(fileInfo.mMemo, memo);
 
   // Clean up
@@ -141,11 +141,12 @@ TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoContents)
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
 
+  const KeyList keys = KeyList::of({ operatorKey->getPublicKey().get() });
+
   // When
   TransactionReceipt txReceipt;
-  EXPECT_NO_THROW(
-    txReceipt =
-      FileCreateTransaction().setKey(operatorKey->getPublicKey()).execute(getTestClient()).getReceipt(getTestClient()));
+  EXPECT_NO_THROW(txReceipt =
+                    FileCreateTransaction().setKeys(keys).execute(getTestClient()).getReceipt(getTestClient()));
 
   // Then
   FileId fileId;
@@ -156,8 +157,7 @@ TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoContents)
 
   EXPECT_EQ(fileInfo.mSize, 0);
   EXPECT_FALSE(fileInfo.mIsDeleted);
-  ASSERT_NE(fileInfo.mKey, nullptr);
-  EXPECT_EQ(fileInfo.mKey->toBytesDer(), operatorKey->getPublicKey()->toBytesDer());
+  EXPECT_EQ(fileInfo.mAdminKeys.toBytes(), keys.toBytes());
 
   // Clean up
   ASSERT_NO_THROW(txReceipt =
@@ -180,5 +180,5 @@ TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoKey)
 
   EXPECT_EQ(fileInfo.mSize, 0);
   EXPECT_FALSE(fileInfo.mIsDeleted);
-  EXPECT_EQ(fileInfo.mKey, nullptr);
+  EXPECT_TRUE(fileInfo.mAdminKeys.empty());
 }
