@@ -27,7 +27,12 @@ namespace Hedera
 {
 namespace
 {
-//-----
+/*
+ * Get the raw byte-representation of a number.
+ *
+ * @param num The number of which to get the byte-representation.
+ * @return The byte-representation of the input number.
+ */
 std::vector<std::byte> encodeBinary(size_t num)
 {
   std::vector<std::byte> bytes;
@@ -40,18 +45,24 @@ std::vector<std::byte> encodeBinary(size_t num)
   return bytes;
 }
 
-//-----
-std::vector<std::byte> encodeLength(size_t num, std::byte offset)
+/*
+ * Encode a number to its byte-representation, given an offset.
+ *
+ * @param num    The number to encode.
+ * @param offset The offset of the length.
+ * @return The byte-encoding of the number.
+ */
+std::vector<std::byte> encodeLength(size_t num, unsigned char offset)
 {
   if (num < 56)
   {
-    return { std::byte(static_cast<unsigned char>(offset) + num) };
+    return { std::byte(offset + num) };
   }
   else
   {
     const std::vector<std::byte> encodedLength = encodeBinary(num);
     return internal::Utilities::concatenateVectors(
-      { { std::byte(encodedLength.size() + static_cast<unsigned char>(offset) + 55) }, encodedLength });
+      { { std::byte(encodedLength.size() + offset + 55) }, encodedLength });
   }
 }
 
@@ -152,7 +163,7 @@ std::vector<std::byte> RLPItem::write() const
     }
     else
     {
-      return internal::Utilities::concatenateVectors({ { encodeLength(mValue.size(), std::byte(0x80)) }, mValue });
+      return internal::Utilities::concatenateVectors({ { encodeLength(mValue.size(), 0x80) }, mValue });
     }
   }
 
@@ -164,7 +175,7 @@ std::vector<std::byte> RLPItem::write() const
       bytes = internal::Utilities::concatenateVectors({ bytes, item.write() });
     }
 
-    return internal::Utilities::concatenateVectors({ { encodeLength(bytes.size(), std::byte(0xC0)) }, bytes });
+    return internal::Utilities::concatenateVectors({ { encodeLength(bytes.size(), 0xC0) }, bytes });
   }
 }
 

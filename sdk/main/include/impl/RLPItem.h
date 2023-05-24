@@ -121,6 +121,8 @@ public:
 
   /**
    * Encode this RLPItem to a byte array.
+   *
+   * @return This RLPItem RLP-encoded to a byte array.
    */
   [[nodiscard]] std::vector<std::byte> write() const;
 
