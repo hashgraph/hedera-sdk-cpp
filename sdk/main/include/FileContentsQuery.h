@@ -24,6 +24,7 @@
 #include "Query.h"
 
 #include <cstddef>
+#include <optional>
 #include <vector>
 
 namespace Hedera

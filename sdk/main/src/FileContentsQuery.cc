@@ -57,7 +57,7 @@ proto::Query FileContentsQuery::makeRequest(const Client& client, const std::sha
   header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
 
   getFileContentsQuery->set_allocated_fileid(mFileId.toProtobuf().release());
-
+  
   return query;
 }
 
