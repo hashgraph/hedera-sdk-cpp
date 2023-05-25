@@ -87,7 +87,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -107,10 +107,11 @@ TEST_F(FileInfoQueryIntegrationTest, ExecuteFileInfoQuery)
   ASSERT_NO_THROW(contents = internal::Utilities::stringToByteVector("[e2e::FileCreateTransaction]"));
 
   const std::string memo = "test file memo";
+  const KeyList keys = KeyList::of({ operatorKey->getPublicKey().get() });
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKey(operatorKey->getPublicKey())
+                             .setKeys(keys)
                              .setContents(contents)
                              .setFileMemo(memo)
                              .execute(getTestClient())
@@ -127,8 +128,7 @@ TEST_F(FileInfoQueryIntegrationTest, ExecuteFileInfoQuery)
   EXPECT_EQ(fileInfo.mSize, contents.size());
   EXPECT_GE(fileInfo.mExpirationTime, std::chrono::system_clock::now());
   EXPECT_FALSE(fileInfo.mIsDeleted);
-  ASSERT_NE(fileInfo.mKey, nullptr);
-  EXPECT_EQ(fileInfo.mKey->toBytesDer(), operatorKey->getPublicKey()->toBytesDer());
+  EXPECT_EQ(fileInfo.mAdminKeys.toBytes(), keys.toBytes());
   EXPECT_EQ(fileInfo.mMemo, memo);
 
   // Clean up
@@ -161,5 +161,5 @@ TEST_F(FileInfoQueryIntegrationTest, CanQueryFileWithNoAdminKeyOrContents)
   EXPECT_EQ(fileInfo.mSize, 0);
   EXPECT_GE(fileInfo.mExpirationTime, std::chrono::system_clock::now());
   EXPECT_FALSE(fileInfo.mIsDeleted);
-  ASSERT_EQ(fileInfo.mKey, nullptr);
+  EXPECT_TRUE(fileInfo.mAdminKeys.empty());
 }

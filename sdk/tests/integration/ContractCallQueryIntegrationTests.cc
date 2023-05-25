@@ -91,7 +91,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -129,7 +129,7 @@ TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKey(operatorKey->getPublicKey())
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -138,7 +138,7 @@ TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setAdminKey(operatorKey->getPublicKey())
+                      .setAdminKey(operatorKey->getPublicKey().get())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
@@ -176,7 +176,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractF
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKey(operatorKey->getPublicKey())
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -185,7 +185,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractF
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setAdminKey(operatorKey->getPublicKey())
+                      .setAdminKey(operatorKey->getPublicKey().get())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
@@ -217,7 +217,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotS
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKey(operatorKey->getPublicKey())
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -226,7 +226,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotS
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setAdminKey(operatorKey->getPublicKey())
+                      .setAdminKey(operatorKey->getPublicKey().get())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
@@ -258,7 +258,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractI
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKey(operatorKey->getPublicKey())
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -267,7 +267,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractI
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setAdminKey(operatorKey->getPublicKey())
+                      .setAdminKey(operatorKey->getPublicKey().get())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)

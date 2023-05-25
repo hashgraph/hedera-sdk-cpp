@@ -35,7 +35,7 @@ using namespace Hedera;
 class ContractUpdateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey()); }
+  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
@@ -79,7 +79,7 @@ TEST_F(ContractUpdateTransactionTest, ConstructContractUpdateTransactionFromTran
   auto body = std::make_unique<proto::ContractUpdateTransactionBody>();
   body->set_allocated_contractid(getTestContractId().toProtobuf().release());
   body->set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
-  body->set_allocated_adminkey(getTestAdminKey()->toProtobuf().release());
+  body->set_allocated_adminkey(getTestAdminKey()->toProtobufKey().release());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
   body->set_allocated_auto_renew_account_id(getTestAutoRenewAccountId().toProtobuf().release());
   body->set_allocated_staked_account_id(getTestStakedAccountId().toProtobuf().release());
@@ -107,7 +107,7 @@ TEST_F(ContractUpdateTransactionTest, ConstructContractUpdateTransactionFromTran
   ASSERT_TRUE(contractUpdateTransaction.getExpirationTime().has_value());
   EXPECT_EQ(contractUpdateTransaction.getExpirationTime(), getTestExpirationTime());
   ASSERT_NE(contractUpdateTransaction.getAdminKey(), nullptr);
-  EXPECT_EQ(contractUpdateTransaction.getAdminKey()->toStringDer(), getTestAdminKey()->toStringDer());
+  EXPECT_EQ(contractUpdateTransaction.getAdminKey()->toBytes(), getTestAdminKey()->toBytes());
   ASSERT_TRUE(contractUpdateTransaction.getAutoRenewPeriod().has_value());
   EXPECT_EQ(contractUpdateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
   ASSERT_TRUE(contractUpdateTransaction.getContractMemo().has_value());
@@ -178,10 +178,10 @@ TEST_F(ContractUpdateTransactionTest, GetSetAdminKey)
   ContractUpdateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setAdminKey(getTestAdminKey()));
+  EXPECT_NO_THROW(transaction.setAdminKey(getTestAdminKey().get()));
 
   // Then
-  EXPECT_EQ(transaction.getAdminKey()->toStringDer(), getTestAdminKey()->toStringDer());
+  EXPECT_EQ(transaction.getAdminKey()->toBytes(), getTestAdminKey()->toBytes());
 }
 
 //-----
@@ -192,7 +192,7 @@ TEST_F(ContractUpdateTransactionTest, SetAdminKeyFrozen)
   ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
-  EXPECT_THROW(transaction.setAdminKey(getTestAdminKey()), IllegalStateException);
+  EXPECT_THROW(transaction.setAdminKey(getTestAdminKey().get()), IllegalStateException);
 }
 
 //-----

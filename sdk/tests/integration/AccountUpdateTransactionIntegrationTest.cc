@@ -87,7 +87,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -112,7 +112,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(initialPrivateKey->getPublicKey())
+                                .setKey(initialPrivateKey->getPublicKey().get())
                                 .setAutoRenewPeriod(std::chrono::seconds(2592000))
                                 .setAccountMemo("test account memo")
                                 .setMaxAutomaticTokenAssociations(10U)
@@ -126,7 +126,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountUpdateTransaction()
                                  .setAccountId(accountId)
-                                 .setKey(newPrivateKey->getPublicKey())
+                                 .setKey(newPrivateKey->getPublicKey().get())
                                  .setReceiverSignatureRequired(newReceiverSignatureRequired)
                                  .setAutoRenewPeriod(newAutoRenewPeriod)
                                  .setExpirationTime(newExpirationTime)
@@ -144,18 +144,18 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = txResponse.getReceipt(getTestClient()));
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
-  EXPECT_EQ(accountInfo.getAccountId(), accountId);
-  EXPECT_FALSE(accountInfo.getIsDeleted());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), newPrivateKey->getPublicKey()->toBytesDer());
-  EXPECT_EQ(accountInfo.getReceiverSignatureRequired(), newReceiverSignatureRequired);
+  EXPECT_EQ(accountInfo.mAccountId, accountId);
+  EXPECT_FALSE(accountInfo.mIsDeleted);
+  EXPECT_EQ(accountInfo.mKey->toBytes(), newPrivateKey->getPublicKey()->toBytes());
+  EXPECT_EQ(accountInfo.mReceiverSignatureRequired, newReceiverSignatureRequired);
   // Can't do direct time comparison due to system clock precision limitations
-  EXPECT_LE(accountInfo.getExpirationTime(), newExpirationTime);
-  EXPECT_EQ(accountInfo.getAutoRenewPeriod(), newAutoRenewPeriod);
-  EXPECT_EQ(accountInfo.getMemo(), newAccountMemo);
-  EXPECT_EQ(accountInfo.getMaxAutomaticTokenAssociations(), newMaxAutomaticTokenAssociations);
-  ASSERT_TRUE(accountInfo.getStakingInfo().getStakedNodeId().has_value());
-  EXPECT_EQ(accountInfo.getStakingInfo().getStakedNodeId(), newStakedNodeId);
-  EXPECT_EQ(accountInfo.getStakingInfo().getDeclineReward(), newDeclineStakingRewards);
+  EXPECT_LE(accountInfo.mExpirationTime, newExpirationTime);
+  EXPECT_EQ(accountInfo.mAutoRenewPeriod, newAutoRenewPeriod);
+  EXPECT_EQ(accountInfo.mMemo, newAccountMemo);
+  EXPECT_EQ(accountInfo.mMaxAutomaticTokenAssociations, newMaxAutomaticTokenAssociations);
+  ASSERT_TRUE(accountInfo.mStakingInfo.getStakedNodeId().has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.getStakedNodeId(), newStakedNodeId);
+  EXPECT_EQ(accountInfo.mStakingInfo.getDeclineReward(), newDeclineStakingRewards);
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -174,7 +174,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutSignat
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey())
+                                .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .getAccountId()
@@ -203,7 +203,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutAccoun
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey())
+                                .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .getAccountId()
@@ -233,7 +233,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteWithOnlyAccountId)
   const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey())
+                                .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .getAccountId()
@@ -265,7 +265,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, InvalidAutoRenewPeriod)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey())
+                                .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .getAccountId()

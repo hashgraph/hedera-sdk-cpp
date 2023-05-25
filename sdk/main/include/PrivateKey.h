@@ -20,10 +20,12 @@
 #ifndef HEDERA_SDK_CPP_PRIVATE_KEY_H_
 #define HEDERA_SDK_CPP_PRIVATE_KEY_H_
 
+#include "Key.h"
+#include "impl/ValuePtr.h"
+
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <valuable/value-ptr.hpp>
 #include <vector>
 
 namespace Hedera
@@ -41,7 +43,7 @@ namespace Hedera
 /**
  * A generic class representing a private key.
  */
-class PrivateKey
+class PrivateKey : public Key
 {
 public:
   /**
@@ -52,14 +54,7 @@ public:
   /**
    * Default destructor, but must define after PrivateKeyImpl is defined (in source file).
    */
-  virtual ~PrivateKey();
-
-  /**
-   * Create a clone of this PrivateKey object.
-   *
-   * @return A pointer to the created clone of this PrivateKey.
-   */
-  [[nodiscard]] virtual std::unique_ptr<PrivateKey> clone() const = 0;
+  ~PrivateKey() override;
 
   /**
    * Derive a child PrivateKey from this PrivateKey.
@@ -151,7 +146,7 @@ private:
    * Implementation object used to hide implementation details and internal headers.
    */
   struct PrivateKeyImpl;
-  valuable::value_ptr<PrivateKeyImpl> mImpl;
+  ValuePtr<PrivateKeyImpl> mImpl;
 };
 
 } // namespace Hedera

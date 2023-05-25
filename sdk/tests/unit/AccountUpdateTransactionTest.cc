@@ -34,7 +34,10 @@ using namespace Hedera;
 class AccountUpdateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(getTestAccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey()); }
+  void SetUp() override
+  {
+    mClient.setOperator(getTestAccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get());
+  }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
@@ -90,7 +93,7 @@ TEST_F(AccountUpdateTransactionTest, ConstructAccountUpdateTransactionFromTransa
   // Given
   auto body = std::make_unique<proto::CryptoUpdateTransactionBody>();
   body->set_allocated_accountidtoupdate(getTestAccountId().toProtobuf().release());
-  body->set_allocated_key(getTestPublicKey()->toProtobuf().release());
+  body->set_allocated_key(getTestPublicKey()->toProtobufKey().release());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
   body->set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
   body->set_allocated_staked_account_id(getTestAccountId().toProtobuf().release());
@@ -120,7 +123,7 @@ TEST_F(AccountUpdateTransactionTest, ConstructAccountUpdateTransactionFromTransa
   // Then
   EXPECT_EQ(accountUpdateTransaction.getAccountId(), getTestAccountId());
   ASSERT_NE(accountUpdateTransaction.getKey(), nullptr);
-  EXPECT_EQ(accountUpdateTransaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
+  EXPECT_EQ(accountUpdateTransaction.getKey()->toBytes(), getTestPublicKey()->toBytes());
   ASSERT_TRUE(accountUpdateTransaction.getReceiverSignatureRequired().has_value());
   EXPECT_EQ(accountUpdateTransaction.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
   ASSERT_TRUE(accountUpdateTransaction.getAutoRenewPeriod().has_value());
@@ -169,10 +172,10 @@ TEST_F(AccountUpdateTransactionTest, SetKey)
   AccountUpdateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setKey(getTestPublicKey()));
+  EXPECT_NO_THROW(transaction.setKey(getTestPublicKey().get()));
 
   // Then
-  EXPECT_EQ(transaction.getKey()->toStringDer(), getTestPublicKey()->toStringDer());
+  EXPECT_EQ(transaction.getKey()->toBytes(), getTestPublicKey()->toBytes());
 }
 
 //-----
@@ -183,7 +186,7 @@ TEST_F(AccountUpdateTransactionTest, SetKeyFrozen)
   ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
-  EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
+  EXPECT_THROW(transaction.setKey(getTestPublicKey().get()), IllegalStateException);
 }
 
 //-----

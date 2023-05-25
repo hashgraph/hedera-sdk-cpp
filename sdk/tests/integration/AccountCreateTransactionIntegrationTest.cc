@@ -90,7 +90,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -113,7 +113,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
   // When
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
-                                 .setKey(testPublicKey)
+                                 .setKey(testPublicKey.get())
                                  .setInitialBalance(testInitialBalance)
                                  .setReceiverSignatureRequired(true)
                                  .setAutoRenewPeriod(testAutoRenewPeriod)
@@ -131,15 +131,15 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
   ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
-  EXPECT_EQ(accountInfo.getAccountId(), accountId);
-  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), testEvmAddress.toBytes());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), testPublicKey->toBytesDer());
-  EXPECT_EQ(accountInfo.getBalance(), testInitialBalance);
-  EXPECT_EQ(accountInfo.getAutoRenewPeriod(), testAutoRenewPeriod);
-  EXPECT_EQ(accountInfo.getMemo(), testMemo);
-  EXPECT_EQ(accountInfo.getMaxAutomaticTokenAssociations(), testMaxAutomaticTokenAssociations);
-  EXPECT_TRUE(accountInfo.getStakingInfo().getDeclineReward());
-  EXPECT_FALSE(accountInfo.getStakingInfo().getStakedAccountId().has_value());
+  EXPECT_EQ(accountInfo.mAccountId, accountId);
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.mContractAccountId), testEvmAddress.toBytes());
+  EXPECT_EQ(accountInfo.mKey->toBytes(), testPublicKey->toBytes());
+  EXPECT_EQ(accountInfo.mBalance, testInitialBalance);
+  EXPECT_EQ(accountInfo.mAutoRenewPeriod, testAutoRenewPeriod);
+  EXPECT_EQ(accountInfo.mMemo, testMemo);
+  EXPECT_EQ(accountInfo.mMaxAutomaticTokenAssociations, testMaxAutomaticTokenAssociations);
+  EXPECT_TRUE(accountInfo.mStakingInfo.getDeclineReward());
+  EXPECT_FALSE(accountInfo.mStakingInfo.getStakedAccountId().has_value());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -165,12 +165,12 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
   TransactionResponse txResponseStakedNodeId;
 
   EXPECT_NO_THROW(txResponseStakedAccountId = AccountCreateTransaction()
-                                                .setKey(testPublicKey)
+                                                .setKey(testPublicKey.get())
                                                 .setStakedAccountId(operatorAccountId)
                                                 .freezeWith(getTestClient())
                                                 .execute(getTestClient()));
   EXPECT_NO_THROW(txResponseStakedNodeId = AccountCreateTransaction()
-                                             .setKey(testPublicKey)
+                                             .setKey(testPublicKey.get())
                                              .setStakedNodeId(nodeId)
                                              .freezeWith(getTestClient())
                                              .execute(getTestClient()));
@@ -184,18 +184,18 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
   ASSERT_NO_THROW(accountIdStakedNodeId = txResponseStakedNodeId.getReceipt(getTestClient()).getAccountId().value());
 
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountIdStakedAccountId).execute(getTestClient()));
-  EXPECT_EQ(accountInfo.getAccountId(), accountIdStakedAccountId);
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), testPublicKey->toBytesDer());
-  ASSERT_TRUE(accountInfo.getStakingInfo().getStakedAccountId().has_value());
-  EXPECT_EQ(accountInfo.getStakingInfo().getStakedAccountId(), operatorAccountId);
-  EXPECT_FALSE(accountInfo.getStakingInfo().getStakedNodeId().has_value());
+  EXPECT_EQ(accountInfo.mAccountId, accountIdStakedAccountId);
+  EXPECT_EQ(accountInfo.mKey->toBytes(), testPublicKey->toBytes());
+  ASSERT_TRUE(accountInfo.mStakingInfo.getStakedAccountId().has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.getStakedAccountId(), operatorAccountId);
+  EXPECT_FALSE(accountInfo.mStakingInfo.getStakedNodeId().has_value());
 
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountIdStakedNodeId).execute(getTestClient()));
-  EXPECT_EQ(accountInfo.getAccountId(), accountIdStakedNodeId);
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), testPublicKey->toBytesDer());
-  EXPECT_FALSE(accountInfo.getStakingInfo().getStakedAccountId().has_value());
-  ASSERT_TRUE(accountInfo.getStakingInfo().getStakedNodeId().has_value());
-  EXPECT_EQ(accountInfo.getStakingInfo().getStakedNodeId(), nodeId);
+  EXPECT_EQ(accountInfo.mAccountId, accountIdStakedNodeId);
+  EXPECT_EQ(accountInfo.mKey->toBytes(), testPublicKey->toBytes());
+  EXPECT_FALSE(accountInfo.mStakingInfo.getStakedAccountId().has_value());
+  ASSERT_TRUE(accountInfo.mStakingInfo.getStakedNodeId().has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.getStakedNodeId(), nodeId);
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -220,7 +220,8 @@ TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
 
   // When
   TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = AccountCreateTransaction().setKey(testKey->getPublicKey()).execute(getTestClient()));
+  EXPECT_NO_THROW(txResponse =
+                    AccountCreateTransaction().setKey(testKey->getPublicKey().get()).execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -228,12 +229,12 @@ TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
   ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
-  EXPECT_EQ(accountInfo.getAccountId(), accountId);
-  EXPECT_FALSE(accountInfo.getIsDeleted());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), testKey->getPublicKey()->toBytesDer());
-  EXPECT_EQ(accountInfo.getBalance(), Hbar(0LL));
-  EXPECT_EQ(accountInfo.getAutoRenewPeriod(), DEFAULT_AUTO_RENEW_PERIOD);
-  EXPECT_EQ(accountInfo.getProxyReceived(), Hbar(0LL));
+  EXPECT_EQ(accountInfo.mAccountId, accountId);
+  EXPECT_FALSE(accountInfo.mIsDeleted);
+  EXPECT_EQ(accountInfo.mKey->toBytes(), testKey->getPublicKey()->toBytes());
+  EXPECT_EQ(accountInfo.mBalance, Hbar(0LL));
+  EXPECT_EQ(accountInfo.mAutoRenewPeriod, DEFAULT_AUTO_RENEW_PERIOD);
+  EXPECT_EQ(accountInfo.mProxyReceived, Hbar(0LL));
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -255,7 +256,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
 
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminPublicKey)
+                                     .setKey(adminPublicKey.get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .getAccountId()
@@ -263,8 +264,8 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
 
   // When
   TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse =
-                    AccountCreateTransaction().setKey(adminPublicKey).setAlias(evmAddress).execute(getTestClient()));
+  EXPECT_NO_THROW(
+    txResponse = AccountCreateTransaction().setKey(adminPublicKey.get()).setAlias(evmAddress).execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -272,9 +273,9 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
   ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
-  EXPECT_EQ(accountInfo.getAccountId(), accountId);
-  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), evmAddress.toBytes());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), adminPublicKey->toBytesDer());
+  EXPECT_EQ(accountInfo.mAccountId, accountId);
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.mContractAccountId), evmAddress.toBytes());
+  EXPECT_EQ(accountInfo.mKey->toBytes(), adminPublicKey->toBytes());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -302,7 +303,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
 
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminKeyPublicKey)
+                                     .setKey(adminKeyPublicKey.get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .getAccountId()
@@ -312,7 +313,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
                                  .setReceiverSignatureRequired(true)
-                                 .setKey(adminKeyPublicKey)
+                                 .setKey(adminKeyPublicKey.get())
                                  .setAlias(evmAddress)
                                  .freezeWith(getTestClient())
                                  .sign(adminKeyPrivateKey.get())
@@ -324,9 +325,9 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
   ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
-  EXPECT_EQ(accountInfo.getAccountId(), accountId);
-  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), evmAddress.toBytes());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), adminKeyPublicKey->toBytesDer());
+  EXPECT_EQ(accountInfo.mAccountId, accountId);
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.mContractAccountId), evmAddress.toBytes());
+  EXPECT_EQ(accountInfo.mKey->toBytes(), adminKeyPublicKey->toBytes());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -354,7 +355,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWit
 
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminKeyPublicKey)
+                                     .setKey(adminKeyPublicKey.get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .getAccountId()
@@ -363,7 +364,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWit
   // When
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountCreateTransaction()
                                                       .setReceiverSignatureRequired(true)
-                                                      .setKey(adminKeyPublicKey)
+                                                      .setKey(adminKeyPublicKey.get())
                                                       .setAlias(evmAddress)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -385,7 +386,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
   const std::unique_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminPrivateKey->getPublicKey())
+                                     .setKey(adminPrivateKey->getPublicKey().get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .getAccountId()
@@ -399,7 +400,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
                                  .setReceiverSignatureRequired(true)
-                                 .setKey(adminPrivateKey->getPublicKey())
+                                 .setKey(adminPrivateKey->getPublicKey().get())
                                  .setAlias(alias)
                                  .freezeWith(getTestClient())
                                  .sign(adminPrivateKey.get())
@@ -412,9 +413,9 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
   ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
-  EXPECT_EQ(accountInfo.getAccountId(), accountId);
-  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.getContractAccountId()), alias.toBytes());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), adminPrivateKey->getPublicKey()->toBytesDer());
+  EXPECT_EQ(accountInfo.mAccountId, accountId);
+  EXPECT_EQ(internal::HexConverter::hexToBytes(accountInfo.mContractAccountId), alias.toBytes());
+  EXPECT_EQ(accountInfo.mKey->toBytes(), adminPrivateKey->getPublicKey()->toBytes());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -439,7 +440,7 @@ TEST_F(AccountCreateTransactionIntegrationTest,
   const std::unique_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminPrivateKey->getPublicKey())
+                                     .setKey(adminPrivateKey->getPublicKey().get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .getAccountId()
@@ -452,7 +453,7 @@ TEST_F(AccountCreateTransactionIntegrationTest,
   // When
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountCreateTransaction()
                                                       .setReceiverSignatureRequired(true)
-                                                      .setKey(adminPrivateKey->getPublicKey())
+                                                      .setKey(adminPrivateKey->getPublicKey().get())
                                                       .setAlias(alias)
                                                       .freezeWith(getTestClient())
                                                       .sign(aliasPrivateKey.get())

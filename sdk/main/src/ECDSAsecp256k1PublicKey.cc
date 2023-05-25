@@ -107,7 +107,7 @@ namespace
 } // namespace
 
 //-----
-std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std::string_view key)
+std::unique_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std::string_view key)
 {
   if ((key.size() != COMPRESSED_KEY_SIZE * 2) && (key.size() != UNCOMPRESSED_KEY_SIZE * 2) &&
       (key.size() != COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size()) &&
@@ -122,7 +122,7 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std
 
   try
   {
-    return std::make_shared<ECDSAsecp256k1PublicKey>(
+    return std::make_unique<ECDSAsecp256k1PublicKey>(
       ECDSAsecp256k1PublicKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
   }
   catch (const OpenSSLException& openSSLException)
@@ -133,7 +133,7 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std
 }
 
 //-----
-std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytes(const std::vector<std::byte>& bytes)
+std::unique_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytes(const std::vector<std::byte>& bytes)
 {
   if ((bytes.size() != COMPRESSED_KEY_SIZE) && (bytes.size() != UNCOMPRESSED_KEY_SIZE) &&
       (bytes.size() != COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()) &&
@@ -149,7 +149,7 @@ std::shared_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytes(cons
 
   try
   {
-    return std::make_shared<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PublicKey(bytesToPKEY(bytes)));
+    return std::make_unique<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PublicKey(bytesToPKEY(bytes)));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -279,9 +279,17 @@ std::vector<std::byte> ECDSAsecp256k1PublicKey::uncompressBytes(const std::vecto
 }
 
 //-----
-std::unique_ptr<PublicKey> ECDSAsecp256k1PublicKey::clone() const
+std::unique_ptr<Key> ECDSAsecp256k1PublicKey::clone() const
 {
   return std::make_unique<ECDSAsecp256k1PublicKey>(*this);
+}
+
+//----
+std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobufKey() const
+{
+  auto keyProtobuf = std::make_unique<proto::Key>();
+  keyProtobuf->set_ecdsa_secp256k1(internal::Utilities::byteVectorToString(toBytesRaw()));
+  return keyProtobuf;
 }
 
 //-----
@@ -386,6 +394,12 @@ std::string ECDSAsecp256k1PublicKey::toStringRaw() const
 }
 
 //-----
+std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytes() const
+{
+  return toBytesDer();
+}
+
+//-----
 std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytesDer() const
 {
   return internal::Utilities::concatenateVectors({ DER_ENCODED_COMPRESSED_PREFIX_BYTES, toBytesRaw() });
@@ -407,14 +421,6 @@ std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytesRaw() const
   // Don't return the algorithm identification bytes, and compress
   return compressBytes({ publicKeyBytes.cbegin() + static_cast<long>(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()),
                          publicKeyBytes.cend() });
-}
-
-//----
-std::unique_ptr<proto::Key> ECDSAsecp256k1PublicKey::toProtobuf() const
-{
-  auto keyProtobuf = std::make_unique<proto::Key>();
-  keyProtobuf->set_allocated_ecdsa_secp256k1(new std::string(internal::Utilities::byteVectorToString(toBytesRaw())));
-  return keyProtobuf;
 }
 
 //-----

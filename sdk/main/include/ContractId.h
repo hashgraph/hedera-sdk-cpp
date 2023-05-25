@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_CONTRACT_ID_H_
 
 #include "EvmAddress.h"
+#include "Key.h"
 
 #include <memory>
 #include <optional>
@@ -35,7 +36,7 @@ namespace Hedera
 /**
  * The ID for a smart contract instance.
  */
-class ContractId
+class ContractId : public Key
 {
 public:
   ContractId() = default;
@@ -93,7 +94,21 @@ public:
   [[nodiscard]] static ContractId fromProtobuf(const proto::ContractID& id);
 
   /**
-   * Construct an ContractID protobuf object from this ContractId object.
+   * Derived from Key. Create a clone of this ContractId object.
+   *
+   * @return A pointer to the created clone of this ContractId.
+   */
+  [[nodiscard]] std::unique_ptr<Key> clone() const override;
+
+  /**
+   * Derived from Key. Construct a Key protobuf object from this ContractId object.
+   *
+   * @return A pointer to the created Key protobuf object filled with this ContractId object's data.
+   */
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobufKey() const override;
+
+  /**
+   * Construct a ContractID protobuf object from this ContractId object.
    *
    * @return A pointer to the created ContractID protobuf object filled with this ContractId object's data.
    */
