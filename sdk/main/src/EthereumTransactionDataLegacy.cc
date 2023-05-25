@@ -19,9 +19,8 @@
  */
 #include "EthereumTransactionDataLegacy.h"
 #include "impl/HexConverter.h"
-#include "impl/Utilities.h"
+#include "impl/RLPItem.h"
 
-#include <rlpvalue.h>
 #include <stdexcept>
 
 namespace Hedera
@@ -36,7 +35,7 @@ EthereumTransactionDataLegacy::EthereumTransactionDataLegacy(std::vector<std::by
                                                              std::vector<std::byte> v,
                                                              std::vector<std::byte> r,
                                                              std::vector<std::byte> s)
-  : EthereumTransactionData(callData)
+  : EthereumTransactionData(std::move(callData))
   , mNonce(std::move(nonce))
   , mGasPrice(std::move(gasPrice))
   , mGasLimit(std::move(gasLimit))
@@ -51,46 +50,45 @@ EthereumTransactionDataLegacy::EthereumTransactionDataLegacy(std::vector<std::by
 //-----
 EthereumTransactionDataLegacy EthereumTransactionDataLegacy::fromBytes(const std::vector<std::byte>& bytes)
 {
-  RLPValue list;
-  size_t consumed;
-  size_t wanted;
-  list.read(internal::Utilities::toTypePtr<const unsigned char>(bytes.data()), bytes.size(), consumed, wanted);
+  RLPItem item;
+  item.read(bytes);
 
-  if (!list.isArray())
+  if (!item.isType(RLPItem::RLPType::LIST_TYPE))
   {
     throw std::invalid_argument("Input byte array does not represent a list of RLP-encoded elements");
   }
 
-  else if (list.getValues().size() != 9)
+  else if (item.getValues().size() != 9)
   {
     throw std::invalid_argument("Input byte array does not contain 9 RLP-encoded elements");
   }
 
-  return EthereumTransactionDataLegacy(internal::Utilities::stringToByteVector(list.getValues().at(0).getValStr()),
-                                       internal::Utilities::stringToByteVector(list.getValues().at(1).getValStr()),
-                                       internal::Utilities::stringToByteVector(list.getValues().at(2).getValStr()),
-                                       internal::Utilities::stringToByteVector(list.getValues().at(3).getValStr()),
-                                       internal::Utilities::stringToByteVector(list.getValues().at(4).getValStr()),
-                                       internal::Utilities::stringToByteVector(list.getValues().at(5).getValStr()),
-                                       internal::Utilities::stringToByteVector(list.getValues().at(6).getValStr()),
-                                       internal::Utilities::stringToByteVector(list.getValues().at(7).getValStr()),
-                                       internal::Utilities::stringToByteVector(list.getValues().at(8).getValStr()));
+  return EthereumTransactionDataLegacy(item.getValues().at(0).getValue(),
+                                       item.getValues().at(1).getValue(),
+                                       item.getValues().at(2).getValue(),
+                                       item.getValues().at(3).getValue(),
+                                       item.getValues().at(4).getValue(),
+                                       item.getValues().at(5).getValue(),
+                                       item.getValues().at(6).getValue(),
+                                       item.getValues().at(7).getValue(),
+                                       item.getValues().at(8).getValue());
 }
 
 //-----
 std::vector<std::byte> EthereumTransactionDataLegacy::toBytes() const
 {
-  RLPValue bytes(RLPValue::VType::VARR);
-  bytes.push_backV({ RLPValue(internal::Utilities::byteVectorToString(mNonce)),
-                     RLPValue(internal::Utilities::byteVectorToString(mGasPrice)),
-                     RLPValue(internal::Utilities::byteVectorToString(mGasLimit)),
-                     RLPValue(internal::Utilities::byteVectorToString(mTo)),
-                     RLPValue(internal::Utilities::byteVectorToString(mValue)),
-                     RLPValue(internal::Utilities::byteVectorToString(mCallData)),
-                     RLPValue(internal::Utilities::byteVectorToString(mV)),
-                     RLPValue(internal::Utilities::byteVectorToString(mR)),
-                     RLPValue(internal::Utilities::byteVectorToString(mS)) });
-  return internal::Utilities::stringToByteVector(bytes.write());
+  RLPItem item(RLPItem::RLPType::LIST_TYPE);
+  item.pushBack(mNonce);
+  item.pushBack(mGasPrice);
+  item.pushBack(mGasLimit);
+  item.pushBack(mTo);
+  item.pushBack(mValue);
+  item.pushBack(mCallData);
+  item.pushBack(mV);
+  item.pushBack(mR);
+  item.pushBack(mS);
+
+  return item.write();
 }
 
 //-----
