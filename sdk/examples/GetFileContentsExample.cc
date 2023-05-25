@@ -22,7 +22,6 @@
 #include "FileContentsQuery.h"
 #include "FileCreateTransaction.h"
 #include "FileId.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
@@ -42,14 +41,14 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
+  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]).get());
 
   // Content to be stored in the file
   const std::vector<std::byte> contents = internal::Utilities::stringToByteVector("Hedera is great!");
 
   // Create a new file with the contents
   FileId fileId = FileCreateTransaction()
-                    .setKey(client.getOperatorPublicKey())
+                    .setKeys({ client.getOperatorPublicKey().get() })
                     .setContents(contents)
                     .execute(client)
                     .getReceipt(client)
