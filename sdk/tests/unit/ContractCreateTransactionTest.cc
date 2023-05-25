@@ -37,7 +37,7 @@ using namespace Hedera;
 class ContractCreateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey()); }
+  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
@@ -84,7 +84,7 @@ TEST_F(ContractCreateTransactionTest, ConstructContractCreateTransactionFromTran
   // Given
   auto body = std::make_unique<proto::ContractCreateTransactionBody>();
   body->set_allocated_fileid(getTestFileId().toProtobuf().release());
-  body->set_allocated_adminkey(getTestAdminKey()->toProtobuf().release());
+  body->set_allocated_adminkey(getTestAdminKey()->toProtobufKey().release());
   body->set_gas(static_cast<int64_t>(getTestGas()));
   body->set_initialbalance(getTestInitialBalance().toTinybars());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
@@ -106,7 +106,7 @@ TEST_F(ContractCreateTransactionTest, ConstructContractCreateTransactionFromTran
   ASSERT_TRUE(contractCreateTransaction.getFileId().has_value());
   EXPECT_EQ(contractCreateTransaction.getFileId(), getTestFileId());
   EXPECT_FALSE(contractCreateTransaction.getInitCode().has_value());
-  EXPECT_EQ(contractCreateTransaction.getAdminKey()->toStringDer(), getTestAdminKey()->toStringDer());
+  EXPECT_EQ(contractCreateTransaction.getAdminKey()->toBytes(), getTestAdminKey()->toBytes());
   EXPECT_EQ(contractCreateTransaction.getGas(), getTestGas());
   EXPECT_EQ(contractCreateTransaction.getInitialBalance(), getTestInitialBalance());
   EXPECT_EQ(contractCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
@@ -176,10 +176,10 @@ TEST_F(ContractCreateTransactionTest, GetSetAdminKey)
   ContractCreateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setAdminKey(getTestAdminKey()));
+  EXPECT_NO_THROW(transaction.setAdminKey(getTestAdminKey().get()));
 
   // Then
-  EXPECT_EQ(transaction.getAdminKey()->toBytesRaw(), getTestAdminKey()->toBytesRaw());
+  EXPECT_EQ(transaction.getAdminKey()->toBytes(), getTestAdminKey()->toBytes());
 }
 
 //-----
@@ -190,7 +190,7 @@ TEST_F(ContractCreateTransactionTest, GetSetAdminKeyFrozen)
   ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
-  EXPECT_THROW(transaction.setAdminKey(getTestAdminKey()), IllegalStateException);
+  EXPECT_THROW(transaction.setAdminKey(getTestAdminKey().get()), IllegalStateException);
 }
 
 //-----

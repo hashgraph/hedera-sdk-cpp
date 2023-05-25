@@ -94,7 +94,7 @@ public:
    * @return A pointer to an ECDSAsecp256k1PublicKey representing the input hex string.
    * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input hex string.
    */
-  [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromString(std::string_view key);
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PublicKey> fromString(std::string_view key);
 
   /**
    * Construct an ECDSAsecp256k1PublicKey object from a byte vector (DER-encoded or raw).
@@ -103,7 +103,7 @@ public:
    * @return A pointer to an ECDSAsecp256k1PublicKey representing the input bytes.
    * @throws BadKeyException If an ECDSAsecp256k1PublicKey cannot be realized from the input bytes.
    */
-  [[nodiscard]] static std::shared_ptr<ECDSAsecp256k1PublicKey> fromBytes(const std::vector<std::byte>& bytes);
+  [[nodiscard]] static std::unique_ptr<ECDSAsecp256k1PublicKey> fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Converts an uncompressed ECDSAsecp256k1PublicKey byte vector to a compressed ECDSAsecp256k1PublicKey byte vector.
@@ -126,11 +126,19 @@ public:
   [[nodiscard]] static std::vector<std::byte> uncompressBytes(const std::vector<std::byte>& compressedBytes);
 
   /**
-   * Derived from PublicKey. Create a clone of this ECDSAsecp256k1PublicKey object.
+   * Derived from Key. Create a clone of this ECDSAsecp256k1PublicKey object.
    *
    * @return A pointer to the created clone of this ECDSAsecp256k1PublicKey.
    */
-  [[nodiscard]] std::unique_ptr<PublicKey> clone() const override;
+  [[nodiscard]] std::unique_ptr<Key> clone() const override;
+
+  /**
+   * Derived from Key. Construct a Key protobuf object from this ECDSAsecp256k1PublicKey object.
+   *
+   * @return A pointer to a created Key protobuf object filled with this ECDSAsecp256k1PublicKey object's data.
+   * @throws OpenSSLException If OpenSSL is unable to serialize this ECDSAsecp256k1PublicKey.
+   */
+  [[nodiscard]] std::unique_ptr<proto::Key> toProtobufKey() const override;
 
   /**
    * Derived from PublicKey. Verify that a signature was made by the ECDSAsecp256k1PrivateKey which corresponds to this
@@ -159,6 +167,14 @@ public:
   [[nodiscard]] std::string toStringRaw() const override;
 
   /**
+   * Derived from Key. Get the byte representation of this ECDSAsecp256k1PublicKey. Returns the same result as
+   * toBytesDer().
+   *
+   * @return The DER-encoded bytes of this ECDSAsecp256k1PublicKey.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const override;
+
+  /**
    * Derived from PublicKey. Get the DER-encoded bytes of this ECDSAsecp256k1PublicKey.
    *
    * @return The DER-encoded bytes of this ECDSAsecp256k1PublicKey.
@@ -171,14 +187,6 @@ public:
    * @return The raw bytes of this ECDSAsecp256k1PublicKey.
    */
   [[nodiscard]] std::vector<std::byte> toBytesRaw() const override;
-
-  /**
-   * Derived from PublicKey. Construct a Key protobuf object from this ECDSAsecp256k1PublicKey object.
-   *
-   * @return A pointer to a created Key protobuf object filled with this ECDSAsecp256k1PublicKey object's data.
-   * @throws OpenSSLException If OpenSSL is unable to serialize this ECDSAsecp256k1PublicKey.
-   */
-  [[nodiscard]] std::unique_ptr<proto::Key> toProtobuf() const override;
 
   /**
    * Construct an EvmAddress from this ECDSAsecp256k1PublicKey. The constructed EvmAddress will be the last 20 bytes of

@@ -244,13 +244,10 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, Clone)
     ECDSAsecp256k1PublicKey::fromBytes(getTestUncompressedPublicKeyBytes());
 
   // When
-  const std::unique_ptr<PublicKey> clonedPublicKey = publicKey->clone();
+  const std::unique_ptr<Key> clonedPublicKey = publicKey->clone();
 
   // Then
-  EXPECT_EQ(publicKey->toStringDer(), clonedPublicKey->toStringDer());
-  EXPECT_EQ(publicKey->toStringRaw(), clonedPublicKey->toStringRaw());
-  EXPECT_EQ(publicKey->toBytesDer(), clonedPublicKey->toBytesDer());
-  EXPECT_EQ(publicKey->toBytesRaw(), clonedPublicKey->toBytesRaw());
+  EXPECT_EQ(clonedPublicKey->toBytes(), clonedPublicKey->toBytes());
 }
 
 //-----
@@ -379,7 +376,7 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, PublicKeyToProtobuf)
     ECDSAsecp256k1PublicKey::fromBytes(getTestUncompressedPublicKeyBytes());
 
   // When
-  const std::unique_ptr<proto::Key> protobufKey = publicKey->toProtobuf();
+  const std::unique_ptr<proto::Key> protobufKey = publicKey->toProtobufKey();
 
   // Then
   ASSERT_NE(protobufKey, nullptr);
@@ -395,20 +392,16 @@ TEST_F(ECDSAsecp256k1PublicKeyTest, PublicKeyFromProtobuf)
 {
   // Given
   const std::unique_ptr<proto::Key> protobufKey =
-    ECDSAsecp256k1PublicKey::fromBytes(getTestUncompressedPublicKeyBytes())->toProtobuf();
+    ECDSAsecp256k1PublicKey::fromBytes(getTestUncompressedPublicKeyBytes())->toProtobufKey();
 
   // When
-  const std::shared_ptr<PublicKey> publicKey = PublicKey::fromProtobuf(*protobufKey);
+  const std::shared_ptr<Key> publicKey = Key::fromProtobuf(*protobufKey);
 
   // Then
   ASSERT_NE(publicKey, nullptr);
-  EXPECT_EQ(publicKey->toStringDer(),
-            ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX + getTestCompressedPublicKeyHex());
-  EXPECT_EQ(publicKey->toStringRaw(), getTestCompressedPublicKeyHex());
-  EXPECT_EQ(publicKey->toBytesDer(),
+  EXPECT_EQ(publicKey->toBytes(),
             concatenateVectors(
               { ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES, getTestCompressedPublicKeyBytes() }));
-  EXPECT_EQ(publicKey->toBytesRaw(), getTestCompressedPublicKeyBytes());
 }
 
 //-----

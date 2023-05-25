@@ -33,7 +33,10 @@ using namespace Hedera;
 class TransferTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(getTestAccountId1(), ECDSAsecp256k1PrivateKey::generatePrivateKey()); }
+  void SetUp() override
+  {
+    mClient.setOperator(getTestAccountId1(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get());
+  }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestAccountId1() const { return mAccountId1; }

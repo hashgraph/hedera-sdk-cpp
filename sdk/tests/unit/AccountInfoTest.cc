@@ -99,7 +99,7 @@ TEST_F(AccountInfoTest, FromProtobuf)
   protoAccountInfo.set_allocated_contractaccountid(new std::string(getTestContractAccountId()));
   protoAccountInfo.set_deleted(getTestIsDeleted());
   protoAccountInfo.set_proxyreceived(getTestProxyReceived().toTinybars());
-  protoAccountInfo.set_allocated_key(getTestPublicKey()->toProtobuf().release());
+  protoAccountInfo.set_allocated_key(getTestPublicKey()->toProtobufKey().release());
   protoAccountInfo.set_balance(static_cast<uint64_t>(getTestBalance().toTinybars()));
   protoAccountInfo.set_receiversigrequired(getTestReceiverSignatureRequired());
   protoAccountInfo.set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
@@ -122,25 +122,25 @@ TEST_F(AccountInfoTest, FromProtobuf)
   const AccountInfo accountInfo = AccountInfo::fromProtobuf(protoAccountInfo);
 
   // Then
-  EXPECT_EQ(accountInfo.getAccountId(), getTestAccountId());
-  EXPECT_EQ(accountInfo.getContractAccountId(), getTestContractAccountId());
-  EXPECT_EQ(accountInfo.getIsDeleted(), getTestIsDeleted());
-  EXPECT_EQ(accountInfo.getProxyReceived(), getTestProxyReceived());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), getTestPublicKey()->toBytesDer());
-  EXPECT_EQ(accountInfo.getBalance(), getTestBalance());
-  EXPECT_EQ(accountInfo.getReceiverSignatureRequired(), getTestReceiverSignatureRequired());
-  EXPECT_EQ(accountInfo.getExpirationTime(), getTestExpirationTime());
-  EXPECT_EQ(accountInfo.getAutoRenewPeriod(), getTestAutoRenewPeriod());
-  EXPECT_EQ(accountInfo.getMemo(), getTestMemo());
-  EXPECT_EQ(accountInfo.getOwnedNfts(), getTestOwnedNfts());
-  EXPECT_EQ(accountInfo.getMaxAutomaticTokenAssociations(), getTestMaxAutomaticTokenAssociations());
-  EXPECT_EQ(accountInfo.getPublicKeyAlias()->toBytesDer(), getTestPublicKeyAlias()->toBytesDer());
-  EXPECT_EQ(accountInfo.getLedgerId().toBytes(), getTestLedgerId().toBytes());
-  EXPECT_EQ(accountInfo.getStakingInfo().getDeclineReward(), getTestDeclineReward());
-  EXPECT_EQ(accountInfo.getStakingInfo().getStakePeriodStart(), getTestStakePeriodStart());
-  EXPECT_EQ(accountInfo.getStakingInfo().getPendingReward(), getTestPendingReward());
-  EXPECT_EQ(accountInfo.getStakingInfo().getStakedToMe(), getTestStakedToMe());
-  ASSERT_TRUE(accountInfo.getStakingInfo().getStakedAccountId().has_value());
-  EXPECT_EQ(accountInfo.getStakingInfo().getStakedAccountId(), getTestStakedAccountId());
-  EXPECT_FALSE(accountInfo.getStakingInfo().getStakedNodeId().has_value());
+  EXPECT_EQ(accountInfo.mAccountId, getTestAccountId());
+  EXPECT_EQ(accountInfo.mContractAccountId, getTestContractAccountId());
+  EXPECT_EQ(accountInfo.mIsDeleted, getTestIsDeleted());
+  EXPECT_EQ(accountInfo.mProxyReceived, getTestProxyReceived());
+  EXPECT_EQ(accountInfo.mKey->toBytes(), getTestPublicKey()->toBytes());
+  EXPECT_EQ(accountInfo.mBalance, getTestBalance());
+  EXPECT_EQ(accountInfo.mReceiverSignatureRequired, getTestReceiverSignatureRequired());
+  EXPECT_EQ(accountInfo.mExpirationTime, getTestExpirationTime());
+  EXPECT_EQ(accountInfo.mAutoRenewPeriod, getTestAutoRenewPeriod());
+  EXPECT_EQ(accountInfo.mMemo, getTestMemo());
+  EXPECT_EQ(accountInfo.mOwnedNfts, getTestOwnedNfts());
+  EXPECT_EQ(accountInfo.mMaxAutomaticTokenAssociations, getTestMaxAutomaticTokenAssociations());
+  EXPECT_EQ(accountInfo.mPublicKeyAlias->toBytesDer(), getTestPublicKeyAlias()->toBytesDer());
+  EXPECT_EQ(accountInfo.mLedgerId.toBytes(), getTestLedgerId().toBytes());
+  EXPECT_EQ(accountInfo.mStakingInfo.getDeclineReward(), getTestDeclineReward());
+  EXPECT_EQ(accountInfo.mStakingInfo.getStakePeriodStart(), getTestStakePeriodStart());
+  EXPECT_EQ(accountInfo.mStakingInfo.getPendingReward(), getTestPendingReward());
+  EXPECT_EQ(accountInfo.mStakingInfo.getStakedToMe(), getTestStakedToMe());
+  ASSERT_TRUE(accountInfo.mStakingInfo.getStakedAccountId().has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.getStakedAccountId(), getTestStakedAccountId());
+  EXPECT_FALSE(accountInfo.mStakingInfo.getStakedNodeId().has_value());
 }

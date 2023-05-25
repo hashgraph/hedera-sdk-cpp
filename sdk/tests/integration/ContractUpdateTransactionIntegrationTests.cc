@@ -94,7 +94,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -135,7 +135,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   const std::string newMemo = "[e2e::ContractUpdateTransaction]";
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKey(operatorKey->getPublicKey())
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -145,7 +145,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   EXPECT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
-                      .setAdminKey(operatorKey->getPublicKey())
+                      .setAdminKey(operatorKey->getPublicKey().get())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setAutoRenewAccountId(AccountId(2ULL))
@@ -159,7 +159,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = ContractUpdateTransaction()
                                 .setContractId(contractId)
-                                .setAdminKey(newAdminKey->getPublicKey())
+                                .setAdminKey(newAdminKey->getPublicKey().get())
                                 .setAutoRenewPeriod(newAutoRenewPeriod)
                                 .setContractMemo(newMemo)
                                 .setDeclineStakingReward(true)
@@ -172,8 +172,8 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   ContractInfo contractInfo;
   ASSERT_NO_THROW(contractInfo = ContractInfoQuery().setContractId(contractId).execute(getTestClient()));
 
-  ASSERT_NE(contractInfo.mAdminKey, nullptr);
-  EXPECT_EQ(contractInfo.mAdminKey->toBytesDer(), newAdminKey->getPublicKey()->toBytesDer());
+  ASSERT_NE(contractInfo.mAdminKey.get(), nullptr);
+  EXPECT_EQ(contractInfo.mAdminKey->toBytes(), newAdminKey->getPublicKey()->toBytes());
   EXPECT_EQ(contractInfo.mAutoRenewPeriod, newAutoRenewPeriod);
   EXPECT_EQ(contractInfo.mMemo, newMemo);
   EXPECT_TRUE(contractInfo.mStakingInfo.getDeclineReward());
@@ -207,7 +207,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, CannotModifyImmutableContract)
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKey(operatorKey->getPublicKey())
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())

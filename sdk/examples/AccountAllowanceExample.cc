@@ -24,7 +24,6 @@
 #include "AccountDeleteTransaction.h"
 #include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
-#include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
 #include "PublicKey.h"
 #include "TransactionReceipt.h"
@@ -48,7 +47,7 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorAccountId = AccountId::fromString(argv[1]);
-  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]));
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]).get());
 
   // Generate ECDSAsecp256k1 key combinations for Alice, Bob, and Charlie.
   const std::unique_ptr<PrivateKey> alicePrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
@@ -66,7 +65,7 @@ int main(int argc, char** argv)
 
   // Generate accounts for Alice, Bob, and Charlie, giving each 5 Hbar.
   const AccountId aliceAccountId = AccountCreateTransaction()
-                                     .setKey(alicePublicKey)
+                                     .setKey(alicePublicKey.get())
                                      .setInitialBalance(Hbar(5LL))
                                      .execute(client)
                                      .getReceipt(client)
@@ -77,7 +76,7 @@ int main(int argc, char** argv)
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
 
   const AccountId bobAccountId = AccountCreateTransaction()
-                                   .setKey(bobPublicKey)
+                                   .setKey(bobPublicKey.get())
                                    .setInitialBalance(Hbar(5LL))
                                    .execute(client)
                                    .getReceipt(client)
@@ -88,7 +87,7 @@ int main(int argc, char** argv)
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
 
   const AccountId charlieAccountId = AccountCreateTransaction()
-                                       .setKey(charliePublicKey)
+                                       .setKey(charliePublicKey.get())
                                        .setInitialBalance(Hbar(5LL))
                                        .execute(client)
                                        .getReceipt(client)
@@ -138,6 +137,9 @@ int main(int argc, char** argv)
                   .sign(bobPrivateKey.get())
                   .execute(client)
                   .getReceipt(client);
+    std::cout << "Transfer of 2 Hbar from Alice to Charlie, using Bob's allowance: "
+              << gStatusToString.at(txReceipt.getStatus()) << std::endl
+              << std::endl;
   }
   catch (const ReceiptStatusException& ex)
   {

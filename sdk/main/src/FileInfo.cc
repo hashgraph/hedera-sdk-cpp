@@ -18,6 +18,7 @@
  *
  */
 #include "FileInfo.h"
+#include "KeyList.h"
 #include "exceptions/BadKeyException.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
@@ -45,9 +46,9 @@ FileInfo FileInfo::fromProtobuf(const proto::FileGetInfoResponse_FileInfo& proto
 
   fileInfo.mIsDeleted = proto.deleted();
 
-  if (proto.has_keys() && proto.keys().keys_size() > 0)
+  if (proto.has_keys())
   {
-    fileInfo.mKey = PublicKey::fromProtobuf(proto.keys().keys(0));
+    fileInfo.mAdminKeys = KeyList::fromProtobuf(proto.keys());
   }
 
   fileInfo.mMemo = proto.memo();

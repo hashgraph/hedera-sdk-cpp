@@ -85,7 +85,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -102,14 +102,14 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
   AccountId allowerAccountId;
   AccountId alloweeAccountId;
   ASSERT_NO_THROW(allowerAccountId = AccountCreateTransaction()
-                                       .setKey(allowerKey->getPublicKey())
+                                       .setKey(allowerKey->getPublicKey().get())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
                                        .getAccountId()
                                        .value());
   ASSERT_NO_THROW(alloweeAccountId = AccountCreateTransaction()
-                                       .setKey(alloweeKey->getPublicKey())
+                                       .setKey(alloweeKey->getPublicKey().get())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
@@ -152,14 +152,14 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, CannotAllowAllowanceWi
   AccountId allowerAccountId;
   AccountId alloweeAccountId;
   ASSERT_NO_THROW(allowerAccountId = AccountCreateTransaction()
-                                       .setKey(allowerKey->getPublicKey())
+                                       .setKey(allowerKey->getPublicKey().get())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
                                        .getAccountId()
                                        .value());
   ASSERT_NO_THROW(alloweeAccountId = AccountCreateTransaction()
-                                       .setKey(alloweeKey->getPublicKey())
+                                       .setKey(alloweeKey->getPublicKey().get())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())

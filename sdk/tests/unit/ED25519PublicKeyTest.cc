@@ -150,13 +150,10 @@ TEST_F(ED25519PublicKeyTest, Clone)
   const std::shared_ptr<ED25519PublicKey> publicKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes());
 
   // When
-  const std::unique_ptr<PublicKey> clonedPublicKey = publicKey->clone();
+  const std::unique_ptr<Key> clonedPublicKey = publicKey->clone();
 
   // Then
-  EXPECT_EQ(publicKey->toStringDer(), clonedPublicKey->toStringDer());
-  EXPECT_EQ(publicKey->toStringRaw(), clonedPublicKey->toStringRaw());
-  EXPECT_EQ(publicKey->toBytesDer(), clonedPublicKey->toBytesDer());
-  EXPECT_EQ(publicKey->toBytesRaw(), clonedPublicKey->toBytesRaw());
+  EXPECT_EQ(clonedPublicKey->toBytes(), publicKey->toBytes());
 }
 
 //-----
@@ -238,7 +235,7 @@ TEST_F(ED25519PublicKeyTest, PublicKeyToProtobuf)
   const std::shared_ptr<ED25519PublicKey> publicKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes());
 
   // When
-  const std::unique_ptr<proto::Key> protobufKey = publicKey->toProtobuf();
+  const std::unique_ptr<proto::Key> protobufKey = publicKey->toProtobufKey();
 
   // Then
   ASSERT_NE(protobufKey, nullptr);
@@ -253,16 +250,12 @@ TEST_F(ED25519PublicKeyTest, PublicKeyToProtobuf)
 TEST_F(ED25519PublicKeyTest, PublicKeyFromProtobuf)
 {
   // Given
-  const std::unique_ptr<proto::Key> protobufKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes())->toProtobuf();
+  const std::unique_ptr<proto::Key> protobufKey = ED25519PublicKey::fromBytes(getTestPublicKeyBytes())->toProtobufKey();
 
   // When
-  const std::shared_ptr<PublicKey> publicKey = PublicKey::fromProtobuf(*protobufKey);
+  const std::shared_ptr<Key> publicKey = Key::fromProtobuf(*protobufKey);
 
   // Then
   ASSERT_NE(publicKey, nullptr);
-  EXPECT_EQ(publicKey->toStringDer(), ED25519PublicKey::DER_ENCODED_PREFIX_HEX + getTestPublicKeyHex());
-  EXPECT_EQ(publicKey->toStringRaw(), getTestPublicKeyHex());
-  EXPECT_EQ(publicKey->toBytesDer(),
-            concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, getTestPublicKeyBytes() }));
-  EXPECT_EQ(publicKey->toBytesRaw(), getTestPublicKeyBytes());
+  EXPECT_EQ(publicKey->toBytes(), getTestPublicKeyBytes());
 }

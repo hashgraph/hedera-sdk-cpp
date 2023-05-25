@@ -18,7 +18,6 @@
  *
  */
 #include "FileCreateTransaction.h"
-#include "impl/HexConverter.h"
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
@@ -51,9 +50,9 @@ FileCreateTransaction::FileCreateTransaction(const proto::TransactionBody& trans
     mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
   }
 
-  if (body.has_keys() && body.keys().keys_size() > 0)
+  if (body.has_keys())
   {
-    mKey = PublicKey::fromProtobuf(body.keys().keys(0));
+    mKeys = KeyList::fromProtobuf(body.keys());
   }
 
   mContents = internal::Utilities::stringToByteVector(body.contents());
@@ -70,10 +69,18 @@ FileCreateTransaction& FileCreateTransaction::setExpirationTime(
 }
 
 //-----
-FileCreateTransaction& FileCreateTransaction::setKey(const std::shared_ptr<PublicKey>& key)
+FileCreateTransaction& FileCreateTransaction::setKeys(const std::vector<const Key*>& keys)
 {
   requireNotFrozen();
-  mKey = key;
+  mKeys = KeyList::of(keys);
+  return *this;
+}
+
+//-----
+FileCreateTransaction& FileCreateTransaction::setKeys(const KeyList& keys)
+{
+  requireNotFrozen();
+  mKeys = keys;
   return *this;
 }
 
@@ -118,17 +125,9 @@ proto::FileCreateTransactionBody* FileCreateTransaction::build() const
 {
   auto body = std::make_unique<proto::FileCreateTransactionBody>();
   body->set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(mExpirationTime));
-
-  if (mKey)
-  {
-    auto keyList = std::make_unique<proto::KeyList>();
-    *keyList->add_keys() = *mKey->toProtobuf();
-    body->set_allocated_keys(keyList.release());
-  }
-
+  body->set_allocated_keys(mKeys.toProtobuf().release());
   body->set_contents(internal::Utilities::byteVectorToString(mContents));
   body->set_memo(mFileMemo);
-
   return body.release();
 }
 

@@ -190,6 +190,49 @@ TEST_F(ContractIdTest, FromProtobuf)
 }
 
 //-----
+TEST_F(ContractIdTest, Clone)
+{
+  // Given
+  const ContractId contractIdContractNum(getTestShardNum(), getTestRealmNum(), getTestContractNum());
+  const ContractId contractIdEvmAddress(getTestShardNum(), getTestRealmNum(), getTestEvmAddress());
+
+  // When
+  const std::unique_ptr<Key> clonedContractIdContractNum = contractIdContractNum.clone();
+  const std::unique_ptr<Key> clonedContractIdEvmAddress = contractIdEvmAddress.clone();
+
+  // Then
+  EXPECT_EQ(clonedContractIdContractNum->toBytes(), contractIdContractNum.toBytes());
+  EXPECT_EQ(clonedContractIdEvmAddress->toBytes(), contractIdEvmAddress.toBytes());
+}
+
+//-----
+TEST_F(ContractIdTest, ToProtobufKey)
+{
+  // Given
+  const ContractId contractIdContractNum(getTestShardNum(), getTestRealmNum(), getTestContractNum());
+  const ContractId contractIdEvmAddress(getTestShardNum(), getTestRealmNum(), getTestEvmAddress());
+
+  // When
+  const std::unique_ptr<proto::Key> protoContractIdContractNum = contractIdContractNum.toProtobufKey();
+  const std::unique_ptr<proto::Key> protoContractIdEvmAddress = contractIdEvmAddress.toProtobufKey();
+
+  // Then
+  ASSERT_TRUE(protoContractIdContractNum->has_contractid());
+  ASSERT_TRUE(protoContractIdEvmAddress->has_contractid());
+
+  EXPECT_EQ(protoContractIdContractNum->contractid().shardnum(), static_cast<int64_t>(getTestShardNum()));
+  EXPECT_EQ(protoContractIdContractNum->contractid().realmnum(), static_cast<int64_t>(getTestRealmNum()));
+  ASSERT_EQ(protoContractIdContractNum->contractid().contract_case(), proto::ContractID::ContractCase::kContractNum);
+  EXPECT_EQ(protoContractIdContractNum->contractid().contractnum(), static_cast<int64_t>(getTestContractNum()));
+
+  EXPECT_EQ(protoContractIdEvmAddress->contractid().shardnum(), static_cast<int64_t>(getTestShardNum()));
+  EXPECT_EQ(protoContractIdEvmAddress->contractid().realmnum(), static_cast<int64_t>(getTestRealmNum()));
+  ASSERT_EQ(protoContractIdEvmAddress->contractid().contract_case(), proto::ContractID::ContractCase::kEvmAddress);
+  EXPECT_EQ(protoContractIdEvmAddress->contractid().evm_address(),
+            internal::Utilities::byteVectorToString(getTestEvmAddress().toBytes()));
+}
+
+//-----
 TEST_F(ContractIdTest, ToProtobuf)
 {
   // Given

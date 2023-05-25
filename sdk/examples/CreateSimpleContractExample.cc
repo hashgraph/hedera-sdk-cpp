@@ -53,7 +53,7 @@ int main(int argc, char** argv)
   const AccountId operatorId = AccountId::fromString(argv[1]);
   std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(argv[2]);
   const std::shared_ptr<PublicKey> operatorPublicKey = operatorKey->getPublicKey();
-  client.setOperator(operatorId, operatorKey);
+  client.setOperator(operatorId, operatorKey.get());
 
   // Get the contract's bytecode
   const std::vector<std::byte> byteCode = internal::Utilities::stringToByteVector(
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
   // Create the contract's bytecode file
   TransactionReceipt txReceipt = FileCreateTransaction()
-                                   .setKey(operatorPublicKey)
+                                   .setKeys({ operatorPublicKey.get() })
                                    .setContents(byteCode)
                                    .setMaxTransactionFee(Hbar(2LL))
                                    .execute(client)
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   txReceipt = ContractCreateTransaction()
                 .setGas(500000ULL)
                 .setBytecodeFileId(fileId)
-                .setAdminKey(operatorPublicKey)
+                .setAdminKey(operatorPublicKey.get())
                 .setMaxTransactionFee(Hbar(16LL))
                 .execute(client)
                 .getReceipt(client);

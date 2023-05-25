@@ -17,19 +17,14 @@
  * limitations under the License.
  *
  */
-#include "AccountBalance.h"
-#include "AccountBalanceQuery.h"
 #include "AccountId.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
-#include "Hbar.h"
-#include "PrivateKey.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
 #include <iostream>
-#include <memory>
 
 using namespace Hedera;
 
@@ -47,7 +42,7 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorId = AccountId::fromString(argv[1]);
-  client.setOperator(operatorId, ED25519PrivateKey::fromString(argv[2]));
+  client.setOperator(operatorId, ED25519PrivateKey::fromString(argv[2]).get());
   const TokenId tokenId = TokenId::fromString(argv[3]);
   const AccountId recipientId = AccountId::fromString(argv[4]);
 
