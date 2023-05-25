@@ -164,7 +164,10 @@ TEST_F(FileUpdateTransactionTest, GetSetKeys)
   // Then
   ASSERT_TRUE(transactionWithKeyVector.getKeys().has_value());
   ASSERT_TRUE(transactionWithKeyList.getKeys().has_value());
-  EXPECT_EQ(transactionWithKeyVector.getKeys()->toBytes(), transactionWithKeyList.getKeys()->toBytes());
+
+  const std::vector<std::byte> testKeyListBytes = getTestKeyList().toBytes();
+  EXPECT_EQ(transactionWithKeyVector.getKeys()->toBytes(), testKeyListBytes);
+  EXPECT_EQ(transactionWithKeyList.getKeys()->toBytes(), testKeyListBytes);
 }
 
 //-----

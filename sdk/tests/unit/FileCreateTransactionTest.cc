@@ -126,7 +126,9 @@ TEST_F(FileCreateTransactionTest, GetSetKeys)
   transactionWithKeyList.setKeys(getTestKeyList());
 
   // Then
-  EXPECT_EQ(transactionWithKeyVector.getKeys().toBytes(), transactionWithKeyList.getKeys().toBytes());
+  const std::vector<std::byte> testKeyListBytes = getTestKeyList().toBytes();
+  EXPECT_EQ(transactionWithKeyVector.getKeys().toBytes(), testKeyListBytes);
+  EXPECT_EQ(transactionWithKeyList.getKeys().toBytes(), testKeyListBytes);
 }
 
 //-----
