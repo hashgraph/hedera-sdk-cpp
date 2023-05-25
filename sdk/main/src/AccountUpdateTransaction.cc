@@ -46,7 +46,7 @@ AccountUpdateTransaction::AccountUpdateTransaction(const proto::TransactionBody&
 
   if (body.has_key())
   {
-    mKey = PublicKey::fromProtobuf(body.key());
+    mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.key()).release());
   }
 
   if (body.has_receiversigrequiredwrapper())
@@ -100,11 +100,11 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAccountId(const AccountId
 }
 
 //-----
-AccountUpdateTransaction& AccountUpdateTransaction::setKey(const std::shared_ptr<PublicKey>& publicKey)
+AccountUpdateTransaction& AccountUpdateTransaction::setKey(const Key* key)
 {
   requireNotFrozen();
 
-  mKey = publicKey;
+  mKey = ValuePtr<Key, KeyCloner>(key->clone().release());
   return *this;
 }
 
@@ -223,7 +223,7 @@ proto::CryptoUpdateTransactionBody* AccountUpdateTransaction::build() const
 
   if (mKey)
   {
-    body->set_allocated_key(mKey->toProtobuf().release());
+    body->set_allocated_key(mKey->toProtobufKey().release());
   }
 
   if (mReceiverSignatureRequired.has_value())

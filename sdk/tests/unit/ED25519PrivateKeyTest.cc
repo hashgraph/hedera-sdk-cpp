@@ -152,11 +152,11 @@ TEST_F(ED25519PrivateKeyTest, Clone)
   const std::unique_ptr<ED25519PrivateKey> privateKey = ED25519PrivateKey::fromString(getTestPrivateKeyHexString());
 
   // When
-  const std::unique_ptr<PrivateKey> clonedPrivateKey = privateKey->clone();
+  const std::unique_ptr<Key> clonedPrivateKey = privateKey->clone();
 
   // Then
   ASSERT_NE(clonedPrivateKey, nullptr);
-  EXPECT_EQ(privateKey->toStringRaw(), getTestPrivateKeyHexString());
+  EXPECT_EQ(clonedPrivateKey->toBytes(), getTestPrivateKeyBytes());
 }
 
 //-----

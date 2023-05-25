@@ -97,7 +97,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -119,7 +119,7 @@ TEST_F(TransactionIntegrationTest, ExecuteTransactionRegenerateTransactionId)
 {
   // Given
   AccountCreateTransaction accountCreateTransaction = AccountCreateTransaction()
-                                                        .setKey(getTestPublicKey())
+                                                        .setKey(getTestPublicKey().get())
                                                         .setTransactionId(TransactionId::generate(AccountId(2ULL)))
                                                         .setValidTransactionDuration(std::chrono::seconds(30))
                                                         .freezeWith(getTestClient());
@@ -135,12 +135,12 @@ TEST_F(TransactionIntegrationTest, ExecuteTransactionRegenerateTransactionId)
   ASSERT_NO_THROW(accountId = txReceipt.getAccountId().value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
-  EXPECT_EQ(accountInfo.getAccountId(), accountId);
-  EXPECT_FALSE(accountInfo.getIsDeleted());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), getTestPublicKey()->toBytesDer());
-  EXPECT_EQ(accountInfo.getBalance(), Hbar(0LL));
-  EXPECT_EQ(accountInfo.getAutoRenewPeriod(), DEFAULT_AUTO_RENEW_PERIOD);
-  EXPECT_EQ(accountInfo.getProxyReceived(), Hbar(0LL));
+  EXPECT_EQ(accountInfo.mAccountId, accountId);
+  EXPECT_FALSE(accountInfo.mIsDeleted);
+  EXPECT_EQ(accountInfo.mKey->toBytes(), getTestPublicKey()->toBytes());
+  EXPECT_EQ(accountInfo.mBalance, Hbar(0LL));
+  EXPECT_EQ(accountInfo.mAutoRenewPeriod, DEFAULT_AUTO_RENEW_PERIOD);
+  EXPECT_EQ(accountInfo.mProxyReceived, Hbar(0LL));
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()

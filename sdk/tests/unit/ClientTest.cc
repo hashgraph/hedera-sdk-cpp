@@ -64,7 +64,7 @@ TEST_F(ClientTest, ConstructClient)
 TEST_F(ClientTest, MoveClient)
 {
   Client client;
-  client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
+  client.setOperator(getTestAccountId(), getTestPrivateKey().get());
 
   Client client2 = std::move(client);
   EXPECT_EQ(*client2.getOperatorAccountId(), getTestAccountId());
@@ -75,12 +75,12 @@ TEST_F(ClientTest, MoveClient)
 TEST_F(ClientTest, SetOperator)
 {
   Client client;
-  client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
+  client.setOperator(getTestAccountId(), getTestPrivateKey().get());
 
   EXPECT_EQ(*client.getOperatorAccountId(), getTestAccountId());
   EXPECT_EQ(client.getOperatorPublicKey()->toStringDer(), getTestPrivateKey()->getPublicKey()->toStringDer());
 
-  client.setOperator(getTestAccountId(), ED25519PrivateKey::generatePrivateKey());
+  client.setOperator(getTestAccountId(), ED25519PrivateKey::generatePrivateKey().get());
 
   // No way to grab the string value of the rvalue, just make it's not empty
   EXPECT_FALSE(client.getOperatorPublicKey()->toStringDer().empty());
@@ -94,7 +94,7 @@ TEST_F(ClientTest, SignWithOperator)
   Client client;
   EXPECT_THROW(auto bytes = client.sign(bytesToSign), UninitializedException);
 
-  client.setOperator(getTestAccountId(), getTestPrivateKey()->clone());
+  client.setOperator(getTestAccountId(), getTestPrivateKey().get());
   EXPECT_TRUE(getTestPrivateKey()->getPublicKey()->verifySignature(client.sign(bytesToSign), bytesToSign));
 }
 

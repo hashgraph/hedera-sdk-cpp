@@ -83,7 +83,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -97,7 +97,7 @@ TEST_F(AccountDeleteTransactionIntegrationTest, ExecuteAccountDeleteTransaction)
   const std::unique_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(key->getPublicKey())
+                                .setKey(key->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .getAccountId()
@@ -132,7 +132,7 @@ TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteAccountWithoutSignat
   const std::unique_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(key->getPublicKey())
+                                .setKey(key->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .getAccountId()

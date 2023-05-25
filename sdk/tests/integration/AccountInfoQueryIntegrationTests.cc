@@ -85,7 +85,7 @@ protected:
     networkMap.try_emplace(nodeAddressString, accountId);
 
     mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
+    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
   }
 
 private:
@@ -100,7 +100,7 @@ TEST_F(AccountInfoQueryIntegrationTest, ExecuteAccountInfoQuery)
   const Hbar balance(2LL);
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey())
+                                .setKey(privateKey->getPublicKey().get())
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -112,12 +112,12 @@ TEST_F(AccountInfoQueryIntegrationTest, ExecuteAccountInfoQuery)
   EXPECT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
   // Then
-  EXPECT_EQ(accountInfo.getAccountId(), accountId);
-  EXPECT_FALSE(accountInfo.getIsDeleted());
-  EXPECT_EQ(accountInfo.getKey()->toBytesDer(), privateKey->getPublicKey()->toBytesDer());
-  EXPECT_EQ(accountInfo.getBalance(), balance);
-  EXPECT_EQ(accountInfo.getAutoRenewPeriod(), DEFAULT_AUTO_RENEW_PERIOD);
-  EXPECT_EQ(accountInfo.getProxyReceived(), Hbar(0LL));
+  EXPECT_EQ(accountInfo.mAccountId, accountId);
+  EXPECT_FALSE(accountInfo.mIsDeleted);
+  EXPECT_EQ(accountInfo.mKey->toBytes(), privateKey->getPublicKey()->toBytes());
+  EXPECT_EQ(accountInfo.mBalance, balance);
+  EXPECT_EQ(accountInfo.mAutoRenewPeriod, DEFAULT_AUTO_RENEW_PERIOD);
+  EXPECT_EQ(accountInfo.mProxyReceived, Hbar(0LL));
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -142,7 +142,7 @@ TEST_F(AccountInfoQueryIntegrationTest, CannotQueryDeletedAccount)
   const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey())
+                                .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .getAccountId()

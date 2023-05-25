@@ -36,7 +36,7 @@ using namespace Hedera;
 class AccountAllowanceApproveTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(1ULL), ECDSAsecp256k1PrivateKey::generatePrivateKey()); }
+  void SetUp() override { mClient.setOperator(AccountId(1ULL), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestOwnerAccountId() const { return mOwnerAccountId; }
