@@ -62,7 +62,7 @@ public:
    * @param keys The list of Keys to add to this KeyList.
    * @return The created KeyList object.
    */
-  [[nodiscard]] static KeyList of(const std::vector<const Key*>& keys);
+  [[nodiscard]] static KeyList of(const std::vector<Key*>& keys);
 
   /**
    * Derived from Key. Create a clone of this KeyList object.

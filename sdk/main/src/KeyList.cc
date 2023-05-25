@@ -40,13 +40,13 @@ KeyList KeyList::fromProtobuf(const proto::KeyList& proto)
 }
 
 //-----
-KeyList KeyList::of(const std::vector<const Key*>& keys)
+KeyList KeyList::of(const std::vector<Key*>& keys)
 {
   KeyList keyList;
   std::transform(keys.cbegin(),
                  keys.cend(),
                  std::back_inserter(keyList.mKeys),
-                 [](const Key* key) { return ValuePtr<Key, KeyCloner>(*key); });
+                 [](const Key* key) { return ValuePtr<Key, KeyCloner>(KeyCloner()(key)); });
   return keyList;
 }
 
