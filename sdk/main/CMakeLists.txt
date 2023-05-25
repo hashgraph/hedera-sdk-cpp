@@ -66,6 +66,7 @@ add_library(${PROJECT_NAME} STATIC
         src/FileInfoQuery.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc
+        src/KeyList.cc
         src/LedgerId.cc
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
