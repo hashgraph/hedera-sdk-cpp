@@ -81,7 +81,7 @@ FileUpdateTransaction& FileUpdateTransaction::setExpirationTime(
 }
 
 //-----
-FileUpdateTransaction& FileUpdateTransaction::setKeys(const std::vector<const Key*>& keys)
+FileUpdateTransaction& FileUpdateTransaction::setKeys(const std::vector<Key*>& keys)
 {
   requireNotFrozen();
   mKeys = KeyList::of(keys);
