@@ -20,9 +20,7 @@
 #include "EthereumTransactionData.h"
 #include "EthereumTransactionDataEip1559.h"
 #include "EthereumTransactionDataLegacy.h"
-#include "impl/Utilities.h"
-
-#include <rlpvalue.h>
+#include "impl/RLPItem.h"
 
 namespace Hedera
 {
@@ -35,12 +33,10 @@ EthereumTransactionData::EthereumTransactionData(std::vector<std::byte> callData
 //-----
 std::unique_ptr<EthereumTransactionData> EthereumTransactionData::fromBytes(const std::vector<std::byte>& bytes)
 {
-  RLPValue rlpValue;
-  size_t consumed;
-  size_t wanted;
-  rlpValue.read(internal::Utilities::toTypePtr<const unsigned char>(bytes.data()), bytes.size(), consumed, wanted);
+  RLPItem rlpItem;
+  rlpItem.read(bytes);
 
-  if (rlpValue.isArray())
+  if (rlpItem.isType(RLPItem::RLPType::LIST_TYPE))
   {
     return std::make_unique<EthereumTransactionDataLegacy>(EthereumTransactionDataLegacy::fromBytes(bytes));
   }
