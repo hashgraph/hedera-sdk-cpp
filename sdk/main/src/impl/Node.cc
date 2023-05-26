@@ -121,6 +121,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
       return mCryptoStub->getLiveHash(&context, query, response);
     case proto::Query::QueryCase::kCryptoGetProxyStakers:
       return mCryptoStub->getStakersByAccountID(&context, query, response);
+    case proto::Query::QueryCase::kFileGetContents:
+      return mFileStub->getFileContent(&context, query, response);
     case proto::Query::QueryCase::kFileGetInfo:
       return mFileStub->getFileInfo(&context, query, response);
     case proto::Query::QueryCase::kTransactionGetReceipt:

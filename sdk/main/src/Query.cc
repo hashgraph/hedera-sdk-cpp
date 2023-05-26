@@ -26,6 +26,7 @@
 #include "ContractFunctionResult.h"
 #include "ContractInfo.h"
 #include "ContractInfoQuery.h"
+#include "FileContentsQuery.h"
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
 #include "TransactionReceipt.h"
@@ -42,6 +43,7 @@ template class Query<AccountBalanceQuery, AccountBalance>;
 template class Query<AccountRecordsQuery, AccountRecords>;
 template class Query<ContractCallQuery, ContractFunctionResult>;
 template class Query<ContractInfoQuery, ContractInfo>;
+template class Query<FileContentsQuery, FileContents>;
 template class Query<FileInfoQuery, FileInfo>;
 template class Query<TransactionReceiptQuery, TransactionReceipt>;
 template class Query<TransactionRecordQuery, TransactionRecord>;
