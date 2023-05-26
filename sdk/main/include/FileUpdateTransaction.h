@@ -88,7 +88,7 @@ public:
    * @return A reference to this FileUpdateTransaction object with the newly-set keys.
    * @throws IllegalStateException If this FileUpdateTransaction is frozen.
    */
-  FileUpdateTransaction& setKeys(const std::vector<const Key*>& keys);
+  FileUpdateTransaction& setKeys(const std::vector<Key*>& keys);
   FileUpdateTransaction& setKeys(const KeyList& keys);
 
   /**

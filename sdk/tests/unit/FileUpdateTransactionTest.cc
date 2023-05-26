@@ -19,9 +19,8 @@
  */
 #include "FileUpdateTransaction.h"
 #include "Client.h"
-#include "ECDSAsecp256k1PrivateKey.h"
+#include "ED25519PrivateKey.h"
 #include "KeyList.h"
-#include "PublicKey.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
@@ -40,7 +39,7 @@ using namespace Hedera;
 class FileUpdateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
+  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
@@ -48,18 +47,24 @@ protected:
   {
     return mTestExpirationTime;
   }
+  [[nodiscard]] inline const std::vector<Key*>& getTestKeyVector() const { return mTestKeyVector; }
   [[nodiscard]] inline const KeyList& getTestKeyList() const { return mTestKeyList; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestContents() const { return mTestContents; }
   [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
 
 private:
   Client mClient;
+  const std::unique_ptr<ED25519PrivateKey> mPrivateKey1 = ED25519PrivateKey::fromString(
+    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10");
+  const std::unique_ptr<ED25519PrivateKey> mPrivateKey2 = ED25519PrivateKey::fromString(
+    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e11");
+  const std::unique_ptr<ED25519PrivateKey> mPrivateKey3 = ED25519PrivateKey::fromString(
+    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e12");
+
   const FileId mTestFileId = FileId(1ULL);
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
-  const KeyList mTestKeyList =
-    KeyList::of({ PublicKey::fromStringDer(
-                    "302A300506032B6570032100BCAF3153262A767B281CC8C888DB3E097C83D690AEF01B8C1BE64D3DE11AACC3")
-                    .get() });
+  const std::vector<Key*> mTestKeyVector = { mPrivateKey1.get(), mPrivateKey2.get(), mPrivateKey3.get() };
+  const KeyList mTestKeyList = KeyList::of(mTestKeyVector);
   const std::vector<std::byte> mTestContents = { std::byte(0x08), std::byte(0x09), std::byte(0x10) };
   const std::string mTestMemo = "test file memo";
 };
@@ -130,6 +135,7 @@ TEST_F(FileUpdateTransactionTest, GetSetExpirationTime)
   transaction.setExpirationTime(getTestExpirationTime());
 
   // Then
+  ASSERT_TRUE(transaction.getExpirationTime().has_value());
   EXPECT_EQ(transaction.getExpirationTime(), getTestExpirationTime());
 }
 
@@ -148,13 +154,20 @@ TEST_F(FileUpdateTransactionTest, GetSetExpirationTimeFrozen)
 TEST_F(FileUpdateTransactionTest, GetSetKeys)
 {
   // Given
-  FileUpdateTransaction transaction;
+  FileUpdateTransaction transactionWithKeyVector;
+  FileUpdateTransaction transactionWithKeyList;
 
   // When
-  transaction.setKeys(getTestKeyList());
+  transactionWithKeyVector.setKeys(getTestKeyVector());
+  transactionWithKeyList.setKeys(getTestKeyList());
 
   // Then
-  EXPECT_EQ(transaction.getKeys()->toBytes(), getTestKeyList().toBytes());
+  ASSERT_TRUE(transactionWithKeyVector.getKeys().has_value());
+  ASSERT_TRUE(transactionWithKeyList.getKeys().has_value());
+
+  const std::vector<std::byte> testKeyListBytes = getTestKeyList().toBytes();
+  EXPECT_EQ(transactionWithKeyVector.getKeys()->toBytes(), testKeyListBytes);
+  EXPECT_EQ(transactionWithKeyList.getKeys()->toBytes(), testKeyListBytes);
 }
 
 //-----
@@ -166,6 +179,7 @@ TEST_F(FileUpdateTransactionTest, GetSetKeysFrozen)
 
   // When / Then
   EXPECT_THROW(transaction.setKeys(getTestKeyList()), IllegalStateException);
+  EXPECT_THROW(transaction.setKeys(getTestKeyVector()), IllegalStateException);
 }
 
 //-----
@@ -180,6 +194,8 @@ TEST_F(FileUpdateTransactionTest, GetSetContents)
   transactionStr.setContents(internal::Utilities::byteVectorToString(getTestContents()));
 
   // Then
+  ASSERT_TRUE(transactionBytes.getContents().has_value());
+  ASSERT_TRUE(transactionStr.getContents().has_value());
   EXPECT_EQ(transactionBytes.getContents(), getTestContents());
   EXPECT_EQ(transactionStr.getContents(), getTestContents());
 }
@@ -207,6 +223,7 @@ TEST_F(FileUpdateTransactionTest, GetSetMemo)
   transaction.setFileMemo(getTestMemo());
 
   // Then
+  ASSERT_TRUE(transaction.getFileMemo().has_value());
   EXPECT_EQ(transaction.getFileMemo(), getTestMemo());
 }
 
