@@ -99,11 +99,11 @@ private:
 TEST_F(TransactionReceiptQueryIntegrationTest, CanGetTransactionReceipt)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
-  const auto testPublicKey = testPrivateKey->getPublicKey();
+  const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
 
   TransactionResponse testTxResponse;
-  ASSERT_NO_THROW(testTxResponse = AccountCreateTransaction().setKey(testPublicKey).execute(getTestClient()));
+  ASSERT_NO_THROW(testTxResponse = AccountCreateTransaction().setKey(testPublicKey.get()).execute(getTestClient()));
 
   // When / Then
   TransactionReceipt txReceipt;
@@ -131,7 +131,8 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteAccountCreateTransactionAn
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(
-    txReceipt = AccountCreateTransaction().setKey(testPublicKey).execute(getTestClient()).getReceipt(getTestClient()));
+    txReceipt =
+      AccountCreateTransaction().setKey(testPublicKey.get()).execute(getTestClient()).getReceipt(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -177,7 +178,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteFileCreateAndDeleteTransac
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = FileCreateTransaction()
-                                .setKey(operatorKey->getPublicKey())
+                                .setKeys({ operatorKey->getPublicKey().get() })
                                 .setContents(contents)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -207,7 +208,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteContractCreateAndDeleteTra
   FileId fileId;
   TransactionReceipt txReceiptContract;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKey(operatorKey->getPublicKey())
+                             .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(contents)
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -218,7 +219,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, ExecuteContractCreateAndDeleteTra
   EXPECT_NO_THROW(txReceiptContract = ContractCreateTransaction()
                                         .setGas(500000ULL)
                                         .setBytecodeFileId(fileId)
-                                        .setAdminKey(operatorKey->getPublicKey())
+                                        .setAdminKey(operatorKey->getPublicKey().get())
                                         .setMaxTransactionFee(Hbar(16LL))
                                         .execute(getTestClient())
                                         .getReceipt(getTestClient()));

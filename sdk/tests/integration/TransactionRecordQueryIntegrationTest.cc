@@ -99,11 +99,11 @@ private:
 TEST_F(TransactionRecordQueryIntegrationTest, CanGetTransactionRecord)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
-  const auto testPublicKey = testPrivateKey->getPublicKey();
+  const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
 
   TransactionResponse testTxResponse;
-  ASSERT_NO_THROW(testTxResponse = AccountCreateTransaction().setKey(testPublicKey).execute(getTestClient()));
+  ASSERT_NO_THROW(testTxResponse = AccountCreateTransaction().setKey(testPublicKey.get()).execute(getTestClient()));
 
   // When / Then
   TransactionRecord txRecord;
@@ -131,7 +131,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteAccountCreateTransaction)
   // When
   TransactionRecord txRecord;
   EXPECT_NO_THROW(txRecord = AccountCreateTransaction()
-                               .setKey(testPublicKey)
+                               .setKey(testPublicKey.get())
                                .setTransactionMemo(testMemo)
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
@@ -160,7 +160,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteAccountCreateTransactionFro
   const auto testPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
 
   auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
-  body->set_allocated_key(testPublicKey->toProtobuf().release());
+  body->set_allocated_key(testPublicKey.get()->toProtobufKey().release());
   body->set_initialbalance(static_cast<uint64_t>(Hbar(10ULL).toTinybars()));
   body->set_receiversigrequired(false);
   body->set_memo("Test memo for CryptoCreateTransactionBody");
@@ -194,9 +194,10 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteFileCreateAndDeleteTransact
 
   // When
   TransactionRecord txRecord;
-  EXPECT_NO_THROW(
-    txRecord =
-      FileCreateTransaction().setKey(operatorKey->getPublicKey()).execute(getTestClient()).getRecord(getTestClient()));
+  EXPECT_NO_THROW(txRecord = FileCreateTransaction()
+                               .setKeys({ operatorKey->getPublicKey().get() })
+                               .execute(getTestClient())
+                               .getRecord(getTestClient()));
   const FileId fileId = txRecord.getReceipt()->getFileId().value();
 
   // Then
@@ -227,7 +228,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateAndDeleteTran
 
   // When
   ASSERT_NO_THROW(txReceipt = FileCreateTransaction()
-                                .setKey(operatorKey->getPublicKey())
+                                .setKeys({ operatorKey->getPublicKey().get() })
                                 .setContents(contents)
                                 .setMaxTransactionFee(Hbar(2LL))
                                 .execute(getTestClient())
@@ -238,7 +239,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, ExecuteContractCreateAndDeleteTran
   ASSERT_NO_THROW(txRecord = ContractCreateTransaction()
                                .setGas(500000ULL)
                                .setBytecodeFileId(fileId)
-                               .setAdminKey(operatorKey->getPublicKey())
+                               .setAdminKey(operatorKey->getPublicKey().get())
                                .setMaxTransactionFee(Hbar(16LL))
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
