@@ -27,7 +27,6 @@
 #include "FileDeleteTransaction.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
-#include "TransactionReceiptQuery.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"

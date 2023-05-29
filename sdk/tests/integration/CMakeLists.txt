@@ -24,6 +24,7 @@ add_executable(${TEST_PROJECT_NAME}
         TransactionIntegrationTest.cc
         TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc
+        TransactionRecordIntegrationTest.cc
         TransactionRecordQueryIntegrationTest.cc
         TransferTransactionIntegrationTest.cc)
 
