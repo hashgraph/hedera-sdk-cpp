@@ -22,6 +22,7 @@ add_executable(${TEST_PROJECT_NAME}
         FileUpdateTransactionIntegrationTests.cc
         JSONIntegrationTest.cc
         TransactionIntegrationTest.cc
+        TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc
         TransactionRecordQueryIntegrationTest.cc
         TransferTransactionIntegrationTest.cc)
