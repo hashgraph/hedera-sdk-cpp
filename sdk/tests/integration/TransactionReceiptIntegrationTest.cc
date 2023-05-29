@@ -95,37 +95,6 @@ private:
 };
 
 //-----
-TEST_F(TransactionReceiptIntegrationTest, ExecuteAccountCreateTransactionAndCheckExchangeRates)
-{
-  // Given
-  const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
-  const auto testPublicKey = testPrivateKey->getPublicKey();
-
-  // When
-  TransactionReceipt txReceipt;
-  ASSERT_NO_THROW(
-    txReceipt =
-      AccountCreateTransaction().setKey(testPublicKey.get()).execute(getTestClient()).getReceipt(getTestClient()));
-
-  // Then
-  AccountId accountId;
-  ASSERT_NO_THROW(accountId = txReceipt.getAccountId().value());
-  ASSERT_TRUE(txReceipt.getExchangeRates().has_value());
-
-  EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
-  EXPECT_TRUE(txReceipt.getAccountId().has_value());
-  EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
-
-  // Clean up
-  ASSERT_NO_THROW(AccountDeleteTransaction()
-                    .setDeleteAccountId(accountId)
-                    .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
-                    .sign(testPrivateKey.get())
-                    .execute(getTestClient()));
-}
-
-//-----
 TEST_F(TransactionReceiptIntegrationTest, ExecuteEmptyAccountCreateTransaction)
 {
   // Given / When
@@ -138,7 +107,42 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteEmptyAccountCreateTransaction)
 }
 
 //-----
-TEST_F(TransactionReceiptIntegrationTest, ExecuteFileCreateAndDeleteTransactions)
+TEST_F(TransactionReceiptIntegrationTest, ExecuteAccountCreateTransactionAndCheckTransactionReceipt)
+{
+  // Given
+  const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const auto testPublicKey = testPrivateKey->getPublicKey();
+
+  // When
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(
+    txReceipt =
+      AccountCreateTransaction().setKey(testPublicKey.get()).execute(getTestClient()).getReceipt(getTestClient()));
+
+  // Then
+  EXPECT_NO_THROW(txReceipt.validateStatus());
+  EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
+  EXPECT_TRUE(txReceipt.getAccountId().has_value());
+  EXPECT_FALSE(txReceipt.getFileId().has_value());
+  EXPECT_FALSE(txReceipt.getContractId().has_value());
+  ASSERT_TRUE(txReceipt.getExchangeRates().has_value());
+  EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
+
+  auto exchangeRate = txReceipt.getExchangeRates().value().getCurrentExchangeRate();
+
+  // Clean up
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = txReceipt.getAccountId().value());
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(testPrivateKey.get())
+                    .execute(getTestClient()));
+}
+
+//-----
+TEST_F(TransactionReceiptIntegrationTest, ExecuteFileCreateTransactionAndCheckTransactionReceipt)
 {
   // Given
   const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
@@ -150,25 +154,29 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteFileCreateAndDeleteTransactions
 
   // When
   TransactionReceipt txReceipt;
-  EXPECT_NO_THROW(txReceipt = FileCreateTransaction()
+  ASSERT_NO_THROW(txReceipt = FileCreateTransaction()
                                 .setKeys({ operatorKey->getPublicKey().get() })
                                 .setContents(contents)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
-  const FileId fileId = txReceipt.getFileId().value();
 
   // Then
+  EXPECT_NO_THROW(txReceipt.validateStatus());
   EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
-  EXPECT_FALSE(txReceipt.getAccountId().has_value());
   EXPECT_TRUE(txReceipt.getFileId().has_value());
+  EXPECT_FALSE(txReceipt.getAccountId().has_value());
+  EXPECT_FALSE(txReceipt.getContractId().has_value());
+  ASSERT_TRUE(txReceipt.getExchangeRates().has_value());
+  EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
 
   // Clean up
+  const FileId fileId = txReceipt.getFileId().value();
   ASSERT_NO_THROW(txReceipt =
                     FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
-TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateAndDeleteTransaction)
+TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateTransactionAndCheckTransactionReceipt)
 {
   // Given
   const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
@@ -179,7 +187,6 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateAndDeleteTransact
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
 
   FileId fileId;
-  TransactionReceipt txReceiptContract;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey().get() })
                              .setContents(contents)
@@ -189,21 +196,26 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateAndDeleteTransact
                              .value());
 
   // When
-  EXPECT_NO_THROW(txReceiptContract = ContractCreateTransaction()
-                                        .setGas(500000ULL)
-                                        .setBytecodeFileId(fileId)
-                                        .setAdminKey(operatorKey->getPublicKey().get())
-                                        .setMaxTransactionFee(Hbar(16LL))
-                                        .execute(getTestClient())
-                                        .getReceipt(getTestClient()));
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt = ContractCreateTransaction()
+                                .setGas(500000ULL)
+                                .setBytecodeFileId(fileId)
+                                .setAdminKey(operatorKey->getPublicKey().get())
+                                .setMaxTransactionFee(Hbar(16LL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
 
   // Then
-  EXPECT_EQ(txReceiptContract.getStatus(), Status::SUCCESS);
-  EXPECT_FALSE(txReceiptContract.getAccountId().has_value());
-  EXPECT_TRUE(txReceiptContract.getContractId().has_value());
+  EXPECT_NO_THROW(txReceipt.validateStatus());
+  EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
+  EXPECT_TRUE(txReceipt.getContractId().has_value());
+  EXPECT_FALSE(txReceipt.getAccountId().has_value());
+  EXPECT_FALSE(txReceipt.getFileId().has_value());
+  ASSERT_TRUE(txReceipt.getExchangeRates().has_value());
+  EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
 
   // Clean up
-  const ContractId contractId = txReceiptContract.getContractId().value();
+  const ContractId contractId = txReceipt.getContractId().value();
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
                                                          .setContractId(contractId)
                                                          .setTransferAccountId(AccountId(2ULL))
