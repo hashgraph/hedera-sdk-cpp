@@ -96,6 +96,8 @@ private:
 };
 
 //-----
+// Inspired by
+// https://github.com/hashgraph/hedera-sdk-java/blob/1831673561b07557fb9bb86fc6d345b3ad3feb3b/sdk/src/integrationTest/java/ReceiptQueryIntegrationTest.java#LL33C3-L33C3
 TEST_F(TransactionRecordQueryIntegrationTest, CanGetTransactionRecord)
 {
   // Given
