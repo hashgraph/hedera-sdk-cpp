@@ -216,4 +216,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateTransactionAndChe
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
+
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
