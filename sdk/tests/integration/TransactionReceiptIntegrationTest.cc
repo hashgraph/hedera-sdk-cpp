@@ -169,12 +169,17 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteFileCreateTransactionAndCheckTr
 TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateTransactionAndCheckTransactionReceipt)
 {
   // Given
+  const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
+    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
+      .get<std::string>());
+
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey().get() })
+                             .setContents(contents)
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .getFileId()
