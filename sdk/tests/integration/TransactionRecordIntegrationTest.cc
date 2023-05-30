@@ -94,28 +94,6 @@ private:
   const AccountId mTestAccountId = AccountId::fromString("0.0.1023");
 };
 
-// Tests invoking of method execute() from TransactionRecord.
-TEST_F(TransactionRecordIntegrationTest, ExecuteAccountCreateTransaction)
-{
-  // Given
-  const auto testMemo = "Test memo for TransactionRecord.";
-  const auto testPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-
-  // When
-  TransactionRecord txRecord;
-  EXPECT_NO_THROW(txRecord = AccountCreateTransaction()
-                               .setKey(testPublicKey.get())
-                               .setTransactionMemo(testMemo)
-                               .execute(getTestClient())
-                               .getRecord(getTestClient()));
-
-  // Then
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
-  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
-}
-
 //-----
 TEST_F(TransactionRecordIntegrationTest, ExecuteEmptyAccountCreateTransaction)
 {
@@ -126,42 +104,53 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteEmptyAccountCreateTransaction)
 }
 
 //-----
-TEST_F(TransactionRecordIntegrationTest, ExecuteAccountCreateTransactionFromProtobuf)
+TEST_F(TransactionRecordIntegrationTest, ExecuteAccountCreateTransactionAndCheckTransactionRecord)
 {
   // Given
-  const auto testTransactionMemo = "Test memo for CryptoCreateTransactionBody";
-  const auto testPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-
-  auto body = std::make_unique<proto::CryptoCreateTransactionBody>();
-  body->set_allocated_key(testPublicKey.get()->toProtobufKey().release());
-  body->set_initialbalance(static_cast<uint64_t>(Hbar(10ULL).toTinybars()));
-  body->set_receiversigrequired(false);
-  body->set_memo("Test memo for CryptoCreateTransactionBody");
-  body->set_max_automatic_token_associations(static_cast<int32_t>(3U));
-  body->set_allocated_staked_account_id(getTestAccountId().toProtobuf().release());
-  body->set_decline_reward(true);
-
-  proto::TransactionBody txBody;
-  txBody.set_allocated_cryptocreateaccount(body.release());
+  const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const auto testPublicKey = testPrivateKey->getPublicKey();
+  const auto testMemo = "Test memo for TransactionRecord.";
 
   // When
   TransactionRecord txRecord;
-  EXPECT_NO_THROW(txRecord = AccountCreateTransaction(txBody)
-                               .setTransactionMemo(testTransactionMemo)
+  EXPECT_NO_THROW(txRecord = AccountCreateTransaction()
+                               .setKey(testPublicKey.get())
+                               .setTransactionMemo(testMemo)
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
 
   // Then
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
+  EXPECT_NO_THROW(txRecord.getReceipt()->validateStatus());
+  EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
   EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
+  EXPECT_TRUE(txRecord.getReceipt().has_value());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_EQ(txRecord.getTransactionMemo(), testTransactionMemo);
+  EXPECT_TRUE(txRecord.getReceipt()->getAccountId().has_value());
+  EXPECT_FALSE(txRecord.getReceipt()->getFileId().has_value());
+  EXPECT_FALSE(txRecord.getReceipt()->getContractId().has_value());
+  ASSERT_TRUE(txRecord.getReceipt()->getExchangeRates().has_value());
+  EXPECT_TRUE(txRecord.getReceipt()->getExchangeRates().value().getCurrentExchangeRate().has_value());
+
+  // Clean up
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = txRecord.getReceipt()->getAccountId().value());
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(getTestClient())
+                    .sign(testPrivateKey.get())
+                    .execute(getTestClient()));
 }
 
 //-----
-TEST_F(TransactionRecordIntegrationTest, ExecuteFileCreateAndDeleteTransactions)
+TEST_F(TransactionRecordIntegrationTest, ExecuteFileCreateTransactionAndCheckTransactionRecord)
 {
   // Given
+  const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
+    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
+      .get<std::string>());
+
+  const auto testMemo = "Test memo for TransactionRecord.";
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
 
@@ -169,49 +158,57 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteFileCreateAndDeleteTransactions)
   TransactionRecord txRecord;
   EXPECT_NO_THROW(txRecord = FileCreateTransaction()
                                .setKeys({ operatorKey->getPublicKey().get() })
+                               .setContents(contents)
+                               .setTransactionMemo(testMemo)
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
-  const FileId fileId = txRecord.getReceipt()->getFileId().value();
 
   // Then
+  EXPECT_NO_THROW(txRecord.getReceipt()->validateStatus());
+  EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
   EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
   EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getFileId().has_value());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
+  EXPECT_TRUE(txRecord.getReceipt()->getFileId().has_value());
+  EXPECT_FALSE(txRecord.getReceipt()->getAccountId().has_value());
+  EXPECT_FALSE(txRecord.getReceipt()->getContractId().has_value());
+  ASSERT_TRUE(txRecord.getReceipt()->getExchangeRates().has_value());
+  EXPECT_TRUE(txRecord.getReceipt()->getExchangeRates().value().getCurrentExchangeRate().has_value());
 
   // Clean up
-  ASSERT_NO_THROW(txRecord =
-                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getRecord(getTestClient()));
+  const FileId fileId = txRecord.getReceipt()->getFileId().value();
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
-TEST_F(TransactionRecordIntegrationTest, ExecuteContractCreateAndDeleteTransactions)
+TEST_F(TransactionRecordIntegrationTest, ExecuteContractCreateTransactionAndCheckTransactionRecord)
 {
   // Given
   const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
     json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
       .get<std::string>());
 
+  const auto testMemo = "Test memo for TransactionRecord.";
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
 
   FileId fileId;
-  TransactionReceipt txReceipt;
-  TransactionRecord txRecord;
+  ASSERT_NO_THROW(fileId = FileCreateTransaction()
+                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setContents(contents)
+                             .setMaxTransactionFee(Hbar(2LL))
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient())
+                             .getFileId()
+                             .value());
 
   // When
-  ASSERT_NO_THROW(txReceipt = FileCreateTransaction()
-                                .setKeys({ operatorKey->getPublicKey().get() })
-                                .setContents(contents)
-                                .setMaxTransactionFee(Hbar(2LL))
-                                .execute(getTestClient())
-                                .getReceipt(getTestClient()));
-
-  ASSERT_NO_THROW(fileId = txReceipt.getFileId().value());
-
+  TransactionRecord txRecord;
   ASSERT_NO_THROW(txRecord = ContractCreateTransaction()
                                .setGas(500000ULL)
                                .setBytecodeFileId(fileId)
+                               .setTransactionMemo(testMemo)
                                .setAdminKey(operatorKey->getPublicKey().get())
                                .setMaxTransactionFee(Hbar(16LL))
                                .execute(getTestClient())
@@ -220,9 +217,13 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteContractCreateAndDeleteTransacti
   // Then
   EXPECT_TRUE(txRecord.getReceipt().has_value());
   EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
-  EXPECT_FALSE(txRecord.getReceipt()->getFileId().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getContractId().has_value());
+  EXPECT_TRUE(txRecord.getReceipt().has_value());
   EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
+  EXPECT_TRUE(txRecord.getReceipt()->getContractId().has_value());
+  EXPECT_FALSE(txRecord.getReceipt()->getFileId().has_value());
+  EXPECT_FALSE(txRecord.getReceipt()->getAccountId().has_value());
+  ASSERT_TRUE(txRecord.getReceipt()->getExchangeRates().has_value());
+  EXPECT_TRUE(txRecord.getReceipt()->getExchangeRates().value().getCurrentExchangeRate().has_value());
 
   // Clean up
   const ContractId contractId = txRecord.getReceipt()->getContractId().value();
