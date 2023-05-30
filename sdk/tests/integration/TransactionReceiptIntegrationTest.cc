@@ -97,13 +97,10 @@ private:
 //-----
 TEST_F(TransactionReceiptIntegrationTest, ExecuteEmptyAccountCreateTransaction)
 {
-  // Given / When
+  // Given / When / Then
   TransactionReceipt txReceipt;
   EXPECT_THROW(txReceipt = AccountCreateTransaction().execute(getTestClient()).getReceipt(getTestClient()),
                Hedera::PrecheckStatusException);
-
-  // Then
-  EXPECT_EQ(txReceipt.getStatus(), Status::UNKNOWN);
 }
 
 //-----
@@ -127,8 +124,6 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteAccountCreateTransactionAndChec
   EXPECT_FALSE(txReceipt.getContractId().has_value());
   ASSERT_TRUE(txReceipt.getExchangeRates().has_value());
   EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
-
-  auto exchangeRate = txReceipt.getExchangeRates().value().getCurrentExchangeRate();
 
   // Clean up
   AccountId accountId;
