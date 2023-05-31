@@ -28,6 +28,7 @@
 #include "ContractExecuteTransaction.h"
 #include "ContractUpdateTransaction.h"
 #include "EthereumTransaction.h"
+#include "FileAppendTransaction.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "TransferTransaction.h"
@@ -809,4 +810,63 @@ TEST_F(TransactionTest, EthereumTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 12);
   EXPECT_NO_THROW(const EthereumTransaction ethereumTransaction = std::get<12>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, FileAppendTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_fileappend(new proto::FileAppendTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileAppendTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 13);
+  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<13>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, FileAppendTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_fileappend(new proto::FileAppendTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileAppendTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 13);
+  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<13>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, FileAppendTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_fileappend(new proto::FileAppendTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileAppendTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 13);
+  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<13>(txVariant));
 }
