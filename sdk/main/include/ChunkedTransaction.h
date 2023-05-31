@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,57 +17,148 @@
  * limitations under the License.
  *
  */
-#ifndef CHUNKED_TRANSACTION_H_
-#define CHUNKED_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_CHUNKED_TRANSACTION_H_
+#define HEDERA_SDK_CPP_CHUNKED_TRANSACTION_H_
 
 #include "Transaction.h"
 
-#include <unordered_map>
+#include <chrono>
+#include <cstddef>
+#include <string_view>
+#include <vector>
 
 namespace Hedera
 {
-class AccountId;
-class TransactionId;
-}
-
-namespace proto
-{
-class TransactionBody;
+class Client;
+class TransactionResponse;
 }
 
 namespace Hedera
 {
-template<typename T>
-class ChunkedTransaction : public Transaction<T>
+/**
+ * Base class for all transactions that require being divided into chunks.
+ *
+ * @tparam SdkRequestType The SDK request type.
+ */
+template<typename SdkRequestType>
+class ChunkedTransaction : public Transaction<SdkRequestType>
 {
 public:
-  void setChunkSize(int chunkSize) { return; }
+  /**
+   * Derived from Executable. Execute this ChunkedTransaction. This should NOT be used if multiple chunks are being sent
+   * (i.e. data.size() > mMaxChunkSize); opt to use `executeAll()` instead.
+   *
+   * @param client The Client to use to submit this ChunkedTransaction.
+   * @return The TransactionResponse object sent from the Hedera network that contains the result of the first chunked
+   *         request.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  TransactionResponse execute(const Client& client) override;
 
-protected:
-  ChunkedTransaction() {}
+  /**
+   * Derived from Executable. Execute this ChunkedTransaction with a specific timeout. This should NOT be used if
+   * multiple chunks are being sent (i.e. data.size() > mMaxChunkSize); opt to use `executeAll()` instead.
+   *
+   * @param client The Client to use to submit this ChunkedTransaction.
+   * @param timeout The desired timeout for the execution of this ChunkedTransaction.
+   * @return The TransactionResponse object sent from the Hedera network that contains the result of the first chunked
+   *         request.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  TransactionResponse execute(const Client& client, const std::chrono::duration<double>& timeout) override;
 
-  ChunkedTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  {
-  }
+  /**
+   * Execute all chunks of this ChunkedTransaction.
+   *
+   * @param client The Client to use to submit this ChunkedTransaction.
+   * @return The list of TransactionResponse objects sent from the Hedera network that contains the result of the
+   *         requests.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::vector<TransactionResponse> executeAll(const Client& client);
 
-  ChunkedTransaction(const proto::TransactionBody& transaction) {}
+  /**
+   * Execute all chunks of this ChunkedTransaction with a specific timeout.
+   *
+   * @param client The Client to use to submit this ChunkedTransaction.
+   * @param timeout The desired timeout for the execution of this ChunkedTransaction.
+   * @return The list of TransactionResponse objects sent from the Hedera network that contains the result of the
+   *         requests.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::vector<TransactionResponse> executeAll(const Client& client, const std::chrono::duration<double>& timeout);
+
+  /**
+   * Set the data for this ChunkedTransaction.
+   *
+   * @param data The data for this ChunkedTransaction.
+   * @return A reference to this derived ChunkedTransaction object with the newly-set data.
+   */
+  SdkRequestType& setData(const std::vector<std::byte>& data);
+  SdkRequestType& setData(std::string_view data);
+
+  /**
+   * Set the maximum number of chunks for this ChunkedTransaction.
+   *
+   * @param chunks The maximum number of chunks for this ChunkedTransaction.
+   * @return A reference to this derived ChunkedTransaction object with the newly-set chunk maximum.
+   */
+  SdkRequestType& setMaxChunks(unsigned int chunks);
+
+  /**
+   * Set the size of each chunk, in bytes, for this ChunkedTransaction.
+   *
+   * @param size The size of each chunk, in bytes, for this ChunkedTransaction.
+   * @return A reference to this derived ChunkedTransaction object with the newly-set chunk size.
+   */
+  SdkRequestType& setChunkSize(unsigned int size);
+
+  /**
+   * Get the data for this ChunkedTransaction.
+   *
+   * @return The data for this ChunkedTransaction.
+   */
+  [[nodiscard]] inline std::vector<std::byte> getData() const { return mData; }
+
+  /**
+   * Get the maximum number of chunks for this ChunkedTransaction.
+   *
+   * @return The maximum number of chunks for this ChunkedTransaction.
+   */
+  [[nodiscard]] inline unsigned int getMaxChunks() const { return mMaxChunks; }
+
+  /**
+   * Get the size of each chunk, in bytes, for this ChunkedTransaction.
+   *
+   * @return The size of each chunk, in bytes, for this ChunkedTransaction.
+   */
+  [[nodiscard]] inline unsigned int getChunkSize() const { return mChunkSize; }
 
 private:
   /**
-   * The size of a chunk
+   * This ChunkedTransaction's data.
    */
-  int mChunkSize = 1024;
+  std::vector<std::byte> mData;
 
   /**
-   * The maximum number of chunks this message will get broken up into when its
-   * frozen.
+   * The size of this ChunkedTransaction's chunks, in bytes.
    */
-  int mMaxChunks = 20;
+  unsigned int mChunkSize = 1024U;
+
+  /**
+   * The maximum number of chunks into which this ChunkedTransaction will get broken up.
+   */
+  unsigned int mMaxChunks = 20U;
 };
 
 } // namespace Hedera
 
-#endif // CHUNKED_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_CHUNKED_TRANSACTION_H_
