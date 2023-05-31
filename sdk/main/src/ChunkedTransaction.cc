@@ -19,6 +19,7 @@
  */
 #include "ChunkedTransaction.h"
 #include "Client.h"
+#include "FileAppendTransaction.h"
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
 
@@ -117,5 +118,10 @@ SdkRequestType& ChunkedTransaction<SdkRequestType>::setChunkSize(unsigned int si
   mChunkSize = size;
   return static_cast<SdkRequestType&>(*this);
 }
+
+/**
+ * Explicit template instantiations.
+ */
+template class ChunkedTransaction<FileAppendTransaction>;
 
 } // namespace Hedera

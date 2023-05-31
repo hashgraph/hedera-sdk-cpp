@@ -35,6 +35,7 @@ add_executable(${TEST_PROJECT_NAME}
         EthereumTransactionDataLegacyTest.cc
         EvmAddressTest.cc
         ExchangeRateTest.cc
+        FileAppendTransactionTest.cc
         FileContentsQueryTest.cc
         FileCreateTransactionTest.cc
         FileDeleteTransactionTest.cc

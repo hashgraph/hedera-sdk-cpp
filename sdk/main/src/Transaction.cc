@@ -30,6 +30,7 @@
 #include "ContractUpdateTransaction.h"
 #include "ED25519PublicKey.h"
 #include "EthereumTransaction.h"
+#include "FileAppendTransaction.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
@@ -447,6 +448,7 @@ template class Transaction<ContractDeleteTransaction>;
 template class Transaction<ContractExecuteTransaction>;
 template class Transaction<ContractUpdateTransaction>;
 template class Transaction<EthereumTransaction>;
+template class Transaction<FileAppendTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
