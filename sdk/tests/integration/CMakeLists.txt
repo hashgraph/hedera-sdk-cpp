@@ -22,7 +22,9 @@ add_executable(${TEST_PROJECT_NAME}
         FileUpdateTransactionIntegrationTests.cc
         JSONIntegrationTest.cc
         TransactionIntegrationTest.cc
+        TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc
+        TransactionRecordIntegrationTest.cc
         TransactionRecordQueryIntegrationTest.cc
         TransferTransactionIntegrationTest.cc)
 
@@ -38,3 +40,6 @@ endif ()
 
 file(COPY ${PROJECT_SOURCE_DIR}/config/local_node.json
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+file(COPY ${PROJECT_SOURCE_DIR}/config/hello_world.json
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+
