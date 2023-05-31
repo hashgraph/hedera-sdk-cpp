@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,130 +17,127 @@
  * limitations under the License.
  *
  */
-#ifndef FILE_APPEND_TRANSACTION_H_
-#define FILE_APPEND_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_FILE_APPEND_TRANSACTION_H_
+#define HEDERA_SDK_CPP_FILE_APPEND_TRANSACTION_H_
 
 #include "ChunkedTransaction.h"
 #include "FileId.h"
 
-#include "helper/InitType.h"
-
-#include <proto/file_append.pb.h>
-
-#include <string>
-
-namespace Hedera
-{
-class AccountId;
-class TransactionId;
-}
+#include <cstddef>
+#include <string_view>
+#include <vector>
 
 namespace proto
 {
+class FileAppendTransactionBody;
 class TransactionBody;
 }
 
 namespace Hedera
 {
 /**
- * Append the given contents to the end of the specified file. If a file is too
- * big to create with a single FileCreateTransaction, then it can be created
- * with the first part of its contents, and then appended as many times as
- * necessary to create the entire file. This transaction must be signed by all
- * initial M-of-M KeyList keys. If keys contains additional KeyList or
- * ThresholdKey then M-of-M secondary KeyList or ThresholdKey signing
- * requirements must be meet.
+ * A transaction that appends new file content to the end of an existing file. The contents of the file can be viewed by
+ * submitting a FileContentsQuery request.
+ *
+ * Transaction Signing Requirements:
+ *  - The key on the file is required to sign the transaction if different than the client operator account key.
  */
 class FileAppendTransaction : public ChunkedTransaction<FileAppendTransaction>
 {
 public:
   /**
-   * Constructor.
+   * Default constructor. Sets the maximum transaction fee to 5 Hbars and chunk size to 2048 bytes.
    */
   FileAppendTransaction();
 
   /**
-   * Construct from a map of transaction ID's to their corresponding account
-   * ID's and protobuf transactions.
+   * Construct from a TransactionBody protobuf object.
    *
-   * @param transactions Map of transaction IDs to their corresponding account
-   *                     ID's and protobuf transactions.
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a FileAppend transaction.
    */
-  explicit FileAppendTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+  explicit FileAppendTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Construct from a protobuf transaction object.
+   * Set the ID of the file to which to append.
    *
-   * @param transaction The protobuf transaction object from which to construct
-   *                    this transaction.
-   */
-  explicit FileAppendTransaction(const proto::TransactionBody& transaction);
-
-  /**
-   * Derived from ChunkedTransaction. Validate the checksums.
-   *
-   * @param client The client with which to validate the checksums.
-   */
-  virtual void validateChecksums(const Client& client) const override;
-
-  /**
-   * Build an ethereum transaction protobuf message based on the data in
-   * this class.
-   *
-   * @return An ethereum transaction protobuf message.
-   */
-  proto::FileAppendTransactionBody build() const;
-
-  /**
-   * Set the ID of the file to which contents should be appended.
-   *
-   * @param fileId The ID of the file to which should be appended.
-   * @return Reference to this FileAppendTransaction object.
+   * @param fileId The ID of the file to which to append.
+   * @return A reference to this FileAppendTransaction object with the newly-set file ID.
+   * @throws IllegalStateException If this FileAppendTransaction is frozen.
    */
   FileAppendTransaction& setFileId(const FileId& fileId);
 
   /**
-   * Set the contents to append to the file.
+   * Set the contents to append.
    *
-   * @param contents The contents to append to the file.
-   * @return Reference to this FileAppendTransaction object.
+   * @param contents The contents of the new file.
+   * @return A reference to this FileAppendTransaction object with the newly-set contents.
+   * @throws IllegalStateException If this FileAppendTransaction is frozen.
    */
-  FileAppendTransaction& setContents(const std::string& contents);
+  FileAppendTransaction& setContents(const std::vector<std::byte>& contents);
+  FileAppendTransaction& setContents(std::string_view contents);
 
   /**
-   * Extract the file ID.
+   * Get the ID of the file to which to append.
    *
-   * @return The file ID.
+   * @return The ID of the file to which to append.
    */
-  inline InitType<FileId> getFileId() const { return mFileId; }
+  [[nodiscard]] inline FileId getFileId() const { return mFileId; }
 
   /**
-   * Extract the contents to append to the file.
+   * Get the contents to append.
    *
-   * @return The contents to append to the file.
+   * @return The contents to append.
    */
-  inline InitType<std::string> getContents() const { return mContents; }
+  [[nodiscard]] inline std::vector<std::byte> getContents() const { return mContents; }
 
 private:
   /**
-   * Initialize from the transaction body.
+   * Derived from Executable. Construct a Transaction protobuf object from this FileAppendTransaction object.
+   *
+   * @param client The Client trying to construct this FileAppendTransaction.
+   * @param node   The Node to which this FileAppendTransaction will be sent. This is unused.
+   * @return A Transaction protobuf object filled with this FileAppendTransaction object's data.
+   * @throws UninitializedException If the input client has no operator with which to sign this
+   *                                FileAppendTransaction.
    */
-  void initFromTransactionBody();
+  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
+                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
 
   /**
-   * The file to which the bytes will be appended.
+   * Derived from Executable. Submit this FileAppendTransaction to a Node.
+   *
+   * @param client   The Client submitting this FileAppendTransaction.
+   * @param deadline The deadline for submitting this FileAppendTransaction.
+   * @param node     Pointer to the Node to which this FileAppendTransaction should be submitted.
+   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
+   *                 information from the gRPC server.
+   * @return The gRPC status of the submission.
    */
-  InitType<FileId> mFileId;
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::TransactionResponse* response) const override;
 
   /**
-   * The bytes that will be appended to the end of the specified file.
+   * Build a FileAppendTransactionBody protobuf object from this FileAppendTransaction object.
+   *
+   * @return A pointer to a FileAppendTransactionBody protobuf object filled with this FileAppendTransaction object's
+   *         data.
    */
-  std::string mContents;
+  [[nodiscard]] proto::FileAppendTransactionBody* build() const;
+
+  /**
+   * The ID of the file to which to append.
+   */
+  FileId mFileId;
+
+  /**
+   * The contents of the new file.
+   */
+  std::vector<std::byte> mContents;
 };
 
 } // namespace Hedera
 
-#endif // FILE_APPEND_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_FILE_APPEND_TRANSACTION_H_
