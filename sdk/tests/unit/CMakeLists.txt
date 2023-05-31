@@ -12,6 +12,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountRecordsQueryTest.cc
         AccountRecordsTest.cc
         AccountUpdateTransactionTest.cc
+        ChunkedTransactionTest.cc
         ClientTest.cc
         ContractByteCodeQueryTest.cc
         ContractCallQueryTest.cc
