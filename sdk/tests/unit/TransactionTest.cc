@@ -31,6 +31,7 @@
 #include "FileAppendTransaction.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
+#include "FileUpdateTransaction.h"
 #include "TransferTransaction.h"
 #include "impl/Utilities.h"
 
@@ -813,6 +814,64 @@ TEST_F(TransactionTest, EthereumTransactionFromTransactionBytes)
 }
 
 //-----
+TEST_F(TransactionTest, FileUpdateTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_fileupdate(new proto::FileUpdateTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 13);
+  EXPECT_NO_THROW(const FileUpdateTransaction fileUpdateTransaction = std::get<13>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, FileUpdateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_fileupdate(new proto::FileUpdateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 13);
+  EXPECT_NO_THROW(const FileUpdateTransaction fileUpdateTransaction = std::get<13>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, FileUpdateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_fileupdate(new proto::FileUpdateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<FileUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 13);
+  EXPECT_NO_THROW(const FileUpdateTransaction fileUpdateTransaction = std::get<13>(txVariant));
+}
+
 TEST_F(TransactionTest, FileAppendTransactionFromTransactionBodyBytes)
 {
   // Given
@@ -824,8 +883,8 @@ TEST_F(TransactionTest, FileAppendTransactionFromTransactionBodyBytes)
     Transaction<FileAppendTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 13);
-  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<13>(txVariant));
+  ASSERT_EQ(index, 14);
+  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<14>(txVariant));
 }
 
 //-----
@@ -844,8 +903,8 @@ TEST_F(TransactionTest, FileAppendTransactionFromSignedTransactionBytes)
     Transaction<FileAppendTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 13);
-  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<13>(txVariant));
+  ASSERT_EQ(index, 14);
+  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<14>(txVariant));
 }
 
 //-----
@@ -867,6 +926,6 @@ TEST_F(TransactionTest, FileAppendTransactionFromTransactionBytes)
     Transaction<FileAppendTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 13);
-  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<13>(txVariant));
+  ASSERT_EQ(index, 14);
+  EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<14>(txVariant));
 }
