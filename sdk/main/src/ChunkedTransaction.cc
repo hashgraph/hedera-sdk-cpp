@@ -25,7 +25,6 @@
 #include "impl/Utilities.h"
 
 #include <algorithm>
-#include <iostream>
 
 namespace Hedera
 {

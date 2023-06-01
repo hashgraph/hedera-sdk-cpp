@@ -46,7 +46,8 @@ class FileAppendTransaction : public ChunkedTransaction<FileAppendTransaction>
 {
 public:
   /**
-   * Default constructor. Sets the maximum transaction fee to 5 Hbars and chunk size to 2048 bytes.
+   * Default constructor. Sets the maximum transaction fee to 5 Hbars, chunk size to 2048 bytes, and sets the receipt
+   * retrieval policy to always retrieve receipts between chunk submissions.
    */
   FileAppendTransaction();
 
