@@ -33,6 +33,7 @@ FileAppendTransaction::FileAppendTransaction()
 {
   setMaxTransactionFee(Hbar(5LL));
   setChunkSize(2048U);
+  setShouldGetReceipt(true);
 }
 
 //-----

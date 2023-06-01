@@ -20,10 +20,12 @@
 #include "ChunkedTransaction.h"
 #include "Client.h"
 #include "FileAppendTransaction.h"
+#include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace Hedera
 {
@@ -71,6 +73,12 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
       Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::execute(
         client, timeout));
 
+    // Wait for the transaction to fully complete, if configured
+    if (mShouldGetReceipt)
+    {
+      const TransactionReceipt txReceipt = responses.back().getReceipt(client);
+    }
+
     // Generate a new transaction ID with the same account ID (to prevent DUPLICATE_TRANSACTION errors)
     Transaction<SdkRequestType>::setTransactionId(
       TransactionId::generate(Transaction<SdkRequestType>::getTransactionId().getAccountId()));
@@ -116,6 +124,13 @@ SdkRequestType& ChunkedTransaction<SdkRequestType>::setChunkSize(unsigned int si
   Transaction<SdkRequestType>::requireNotFrozen();
   mChunkSize = size;
   return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
+void ChunkedTransaction<SdkRequestType>::setShouldGetReceipt(bool retrieveReceipt)
+{
+  mShouldGetReceipt = retrieveReceipt;
 }
 
 /**
