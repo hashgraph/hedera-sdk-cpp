@@ -69,12 +69,8 @@ int main(int argc, char** argv)
                                                          .setMaxTransactionFee(Hbar(1000))
                                                          .executeAll(client);
 
-  // Make sure all chunks get executed by getting the receipts.
-  for (int i = 0; i < txResponses.size(); ++i)
-  {
-    const TransactionReceipt txReceipt = txResponses.at(i).getReceipt(client);
-    std::cout << "Chunk #" << i << ": " << gStatusToString.at(txReceipt.getStatus()) << std::endl;
-  }
+  // Since FileAppendTransactions get the receipts between chunks, there's no need to check here that all chunks were
+  // completely processed.
 
   // Check the new file size.
   std::cout << "The new file size is " << FileInfoQuery().setFileId(fileId).execute(client).mSize << std::endl;
