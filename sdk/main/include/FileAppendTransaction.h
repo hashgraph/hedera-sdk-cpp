@@ -89,7 +89,7 @@ public:
    *
    * @return The contents to append.
    */
-  [[nodiscard]] inline std::vector<std::byte> getContents() const { return mContents; }
+  [[nodiscard]] inline std::vector<std::byte> getContents() const { return getData(); }
 
 private:
   /**
@@ -131,11 +131,6 @@ private:
    * The ID of the file to which to append.
    */
   FileId mFileId;
-
-  /**
-   * The contents of the new file.
-   */
-  std::vector<std::byte> mContents;
 };
 
 } // namespace Hedera

@@ -50,7 +50,7 @@ FileAppendTransaction::FileAppendTransaction(const proto::TransactionBody& trans
     mFileId = FileId::fromProtobuf(body.fileid());
   }
 
-  mContents = internal::Utilities::stringToByteVector(body.contents());
+  setData(internal::Utilities::stringToByteVector(body.contents()));
 }
 
 //-----
@@ -65,7 +65,7 @@ FileAppendTransaction& FileAppendTransaction::setFileId(const FileId& fileId)
 FileAppendTransaction& FileAppendTransaction::setContents(const std::vector<std::byte>& contents)
 {
   requireNotFrozen();
-  mContents = contents;
+  setData(contents);
   return *this;
 }
 
@@ -73,7 +73,7 @@ FileAppendTransaction& FileAppendTransaction::setContents(const std::vector<std:
 FileAppendTransaction& FileAppendTransaction::setContents(std::string_view contents)
 {
   requireNotFrozen();
-  mContents = internal::Utilities::stringToByteVector(contents);
+  setData(internal::Utilities::stringToByteVector(contents));
   return *this;
 }
 
@@ -102,7 +102,7 @@ proto::FileAppendTransactionBody* FileAppendTransaction::build() const
 {
   auto body = std::make_unique<proto::FileAppendTransactionBody>();
   body->set_allocated_fileid(mFileId.toProtobuf().release());
-  body->set_contents(internal::Utilities::byteVectorToString(mContents));
+  body->set_contents(internal::Utilities::byteVectorToString(getData()));
   return body.release();
 }
 
