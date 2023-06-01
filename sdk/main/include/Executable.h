@@ -69,7 +69,7 @@ public:
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  SdkResponseType execute(const Client& client);
+  virtual SdkResponseType execute(const Client& client);
 
   /**
    * Submit this Executable to a Hedera network with a specific timeout.
@@ -81,7 +81,7 @@ public:
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  SdkResponseType execute(const Client& client, const std::chrono::duration<double>& timeout);
+  virtual SdkResponseType execute(const Client& client, const std::chrono::duration<double>& timeout);
 
   /**
    * Set the desired account IDs of nodes to which this transaction will be submitted.
