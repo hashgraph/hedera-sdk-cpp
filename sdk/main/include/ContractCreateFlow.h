@@ -83,6 +83,7 @@ public:
    *
    * @param byteCode The bytecode for the new smart contract instance.
    * @return A reference to this ContractCreateFlow object with the newly-set bytecode.
+   * @throws OpenSSLException If input bytecode string is not hex-encoded.
    */
   ContractCreateFlow& setBytecode(const std::vector<std::byte>& byteCode);
   ContractCreateFlow& setBytecode(std::string_view byteCode);
