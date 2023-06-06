@@ -17,6 +17,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractId.cc
         src/ContractByteCodeQuery.cc
         src/ContractCallQuery.cc
+        src/ContractCreateFlow.cc
         src/ContractCreateTransaction.cc
         src/ContractDeleteTransaction.cc
         src/ContractExecuteTransaction.cc

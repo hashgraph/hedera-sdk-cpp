@@ -240,6 +240,14 @@ std::shared_ptr<PublicKey> Client::getOperatorPublicKey() const
 }
 
 //-----
+std::function<std::vector<std::byte>(const std::vector<std::byte>&)> Client::getOperatorSigner() const
+{
+  return mImpl->mOperatorPrivateKey ? [this](const std::vector<std::byte>& vec)
+  { return this->mImpl->mOperatorPrivateKey->sign(vec); }
+                                    : std::function<std::vector<std::byte>(const std::vector<std::byte>&)>();
+}
+
+//-----
 std::chrono::duration<double> Client::getRequestTimeout() const
 {
   return mImpl->mRequestTimeout;
