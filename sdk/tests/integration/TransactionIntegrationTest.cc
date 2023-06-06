@@ -21,6 +21,7 @@
 #include "AccountDeleteTransaction.h"
 #include "AccountInfo.h"
 #include "AccountInfoQuery.h"
+#include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "Defaults.h"
 #include "ED25519PrivateKey.h"
@@ -34,17 +35,13 @@
 #include "impl/DurationConverter.h"
 #include "impl/Utilities.h"
 
-#include <filesystem>
-#include <fstream>
 #include <gtest/gtest.h>
-#include <iostream>
 #include <nlohmann/json.hpp>
 #include <proto/transaction_body.pb.h>
 
-using json = nlohmann::json;
 using namespace Hedera;
 
-class TransactionIntegrationTest : public ::testing::Test
+class TransactionIntegrationTest : public BaseIntegrationTest
 {
 protected:
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
@@ -57,49 +54,6 @@ protected:
   [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
   [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
 
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
-
-  void SetUp() override
-  {
-    const auto accountId = AccountId::fromString("0.0.3");
-    const std::string_view accountIdStr = "0.0.3";
-    const std::string_view networkTag = "network";
-    const std::string_view operatorTag = "operator";
-    const std::string_view accountIdTag = "accountId";
-    const std::string_view privateKeyTag = "privateKey";
-
-    const std::string testPathToJSON = (std::filesystem::current_path() / "local_node.json").string();
-    const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
-    const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
-
-    AccountId operatorAccountId;
-    std::string operatorAccountPrivateKey;
-    std::ifstream testInputFile(testPathToJSON, std::ios::in);
-    std::string nodeAddressString;
-    json jsonData = json::parse(testInputFile);
-
-    if (jsonData[networkTag][accountIdStr].is_string())
-    {
-      nodeAddressString = jsonData[networkTag][accountIdStr];
-    }
-
-    if (jsonData[operatorTag][accountIdTag].is_string() && jsonData[operatorTag][privateKeyTag].is_string())
-    {
-      std::string operatorAccountIdStr = jsonData[operatorTag][accountIdTag];
-
-      operatorAccountId = AccountId::fromString(operatorAccountIdStr);
-      operatorAccountPrivateKey = jsonData[operatorTag][privateKeyTag];
-    }
-
-    testInputFile.close();
-
-    std::unordered_map<std::string, AccountId> networkMap;
-    networkMap.try_emplace(nodeAddressString, accountId);
-
-    mClient = Client::forNetwork(networkMap);
-    mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
-  }
-
 private:
   const std::shared_ptr<PublicKey> mPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
   const Hbar mInitialBalance = Hbar(1000ULL, HbarUnit::TINYBAR());
@@ -110,8 +64,6 @@ private:
   const AccountId mAccountId = AccountId::fromString("0.0.1023");
   const bool mDeclineStakingReward = true;
   const EvmAddress mEvmAddress = EvmAddress::fromString("303132333435363738396162636465666768696a");
-
-  Client mClient;
 };
 
 //-----
