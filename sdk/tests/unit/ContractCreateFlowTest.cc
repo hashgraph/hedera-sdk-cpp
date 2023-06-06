@@ -24,7 +24,7 @@
 #include "FileId.h"
 #include "PublicKey.h"
 #include "impl/DurationConverter.h"
-#include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <cstddef>
 #include <gtest/gtest.h>
@@ -88,7 +88,7 @@ TEST_F(ContractCreateFlowTest, GetSetBytecode)
 
   // When
   EXPECT_NO_THROW(flowBytes.setBytecode(getTestBytecode()));
-  EXPECT_NO_THROW(flowStr.setBytecode(internal::HexConverter::bytesToHex(getTestBytecode())));
+  EXPECT_NO_THROW(flowStr.setBytecode(internal::Utilities::byteVectorToString(getTestBytecode())));
 
   // Then
   EXPECT_EQ(flowBytes.getBytecode(), getTestBytecode());

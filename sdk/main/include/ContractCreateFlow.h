@@ -235,7 +235,7 @@ public:
    * @param signer The callback function to use to sign the ContractCreateTransaction.
    * @return A reference to this ContractCreateFlow object with the newly-set public key and signer function.
    */
-  ContractCreateFlow& signWith(const PublicKey* key,
+  ContractCreateFlow& signWith(const std::shared_ptr<PublicKey>& key,
                                const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer);
 
   /**
@@ -433,7 +433,7 @@ private:
   /**
    * The PublicKey associated with the signer function to sign the ContractCreateTransaction.
    */
-  ValuePtr<PublicKey, KeyCloner> mPublicKey;
+  std::shared_ptr<PublicKey> mPublicKey;
 
   /**
    * The signer function to use to sign the ContractCreateTransaction.

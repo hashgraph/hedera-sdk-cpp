@@ -28,8 +28,9 @@
 #include "PrivateKey.h"
 #include "TransactionReceipt.h"
 #include "exceptions/UninitializedException.h"
-#include "impl/HexConverter.h"
 #include "impl/Utilities.h"
+
+#include <iostream>
 
 namespace Hedera
 {
@@ -126,11 +127,11 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
   }
   else if (mPublicKey && mSigner.has_value())
   {
-    contractCreateTransaction.signWith(std::shared_ptr<PublicKey>(mPublicKey.get()), mSigner.value());
+    contractCreateTransaction.signWith(mPublicKey, mSigner.value());
   }
 
   // Submit the ContractCreateTransaction.
-  const TransactionResponse txResponse = contractCreateTransaction.execute(client, timeout);
+  TransactionResponse txResponse = contractCreateTransaction.execute(client, timeout);
 
   // Make sure the transaction reaches consensus.
   const TransactionReceipt txReceipt = txResponse.getReceipt(client, timeout);
@@ -151,7 +152,7 @@ ContractCreateFlow& ContractCreateFlow::setBytecode(const std::vector<std::byte>
 //-----
 ContractCreateFlow& ContractCreateFlow::setBytecode(std::string_view byteCode)
 {
-  mBytecode = internal::HexConverter::hexToBytes(byteCode);
+  mBytecode = internal::Utilities::stringToByteVector(byteCode);
   return *this;
 }
 
@@ -266,18 +267,18 @@ ContractCreateFlow& ContractCreateFlow::freezeWith(const Client& client)
 ContractCreateFlow& ContractCreateFlow::sign(const PrivateKey* key)
 {
   mPrivateKey = ValuePtr<PrivateKey, KeyCloner>(dynamic_cast<PrivateKey*>(key->clone().release()));
-  mPublicKey = ValuePtr<PublicKey, KeyCloner>();
+  mPublicKey = nullptr;
   mSigner.reset();
   return *this;
 }
 
 //-----
 ContractCreateFlow& ContractCreateFlow::signWith(
-  const PublicKey* key,
+  const std::shared_ptr<PublicKey>& key,
   const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer)
 {
   mPrivateKey = ValuePtr<PrivateKey, KeyCloner>();
-  mPublicKey = ValuePtr<PublicKey, KeyCloner>(dynamic_cast<PublicKey*>(key->clone().release()));
+  mPublicKey = key;
   mSigner = signer;
   return *this;
 }
@@ -291,8 +292,7 @@ ContractCreateFlow& ContractCreateFlow::signWithOperator(const Client& client)
   }
 
   mPrivateKey = ValuePtr<PrivateKey, KeyCloner>();
-  mPublicKey =
-    ValuePtr<PublicKey, KeyCloner>(dynamic_cast<PublicKey*>(client.getOperatorPublicKey()->clone().release()));
+  mPublicKey = client.getOperatorPublicKey();
   mSigner = client.getOperatorSigner();
   return *this;
 }
