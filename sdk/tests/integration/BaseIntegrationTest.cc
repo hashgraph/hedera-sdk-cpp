@@ -27,6 +27,9 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 using json = nlohmann::json;
 using namespace std;
