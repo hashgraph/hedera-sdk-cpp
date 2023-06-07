@@ -142,6 +142,23 @@ public:
    */
   [[nodiscard]] inline unsigned int getChunkSize() const { return mChunkSize; }
 
+protected:
+  /**
+   * Set the receipt retrieval policy for this ChunkedTransaction.
+   *
+   * @param retrieveReceipt \c TRUE if this ChunkedTransaction should retrieve a receipt after each submitted chunk,
+   *                        otherwise \c FALSE.
+   */
+  void setShouldGetReceipt(bool retrieveReceipt);
+
+  /**
+   * Get the receipt retrieval policy for this ChunkedTransaction.
+   *
+   * @param retrieveReceipt \c TRUE if this ChunkedTransaction should retrieve a receipt after each submitted chunk,
+   *                        otherwise \c FALSE.
+   */
+  [[nodiscard]] inline bool getShouldGetReceipt() const { return mShouldGetReceipt; }
+
 private:
   /**
    * This ChunkedTransaction's data.
@@ -157,6 +174,11 @@ private:
    * The maximum number of chunks into which this ChunkedTransaction will get broken up.
    */
   unsigned int mMaxChunks = 20U;
+
+  /**
+   * Should this ChunkedTransaction get a receipt for each submitted chunk?
+   */
+  bool mShouldGetReceipt = false;
 };
 
 } // namespace Hedera

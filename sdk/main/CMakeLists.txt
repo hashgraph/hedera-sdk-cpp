@@ -40,7 +40,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ExchangeRate.cc
         src/ExchangeRateSet.cc
         src/Executable.cc
-        #    src/FileAppendTransaction.cc
+        src/FileAppendTransaction.cc
         src/FileContentsQuery.cc
         src/FileCreateTransaction.cc
         src/FileDeleteTransaction.cc

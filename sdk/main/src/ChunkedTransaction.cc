@@ -19,6 +19,8 @@
  */
 #include "ChunkedTransaction.h"
 #include "Client.h"
+#include "FileAppendTransaction.h"
+#include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
 
@@ -56,24 +58,29 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
 {
   std::vector<TransactionResponse> responses;
   std::vector<std::byte> allData = std::move(mData);
+  mData.clear();
+  mData.reserve(mChunkSize);
 
   for (long byte = 0; byte < allData.size(); byte += mChunkSize)
   {
-    // Move the next chunk into mData (making sure not to move more bytes than are left)
-    mData.insert(mData.cbegin(),
-                 std::make_move_iterator(allData.cbegin() + byte),
-                 std::make_move_iterator(
-                   allData.cbegin() + byte +
-                   ((mChunkSize + byte > allData.size()) ? mChunkSize + byte - allData.size() : mChunkSize)));
+    // Copy the next chunk into mData (making sure not to copy more bytes than are left)
+    mData = { allData.cbegin() + byte,
+              allData.cbegin() + byte + ((mChunkSize + byte > allData.size()) ? allData.size() - byte : mChunkSize) };
 
     // Execute this chunk
     responses.push_back(
       Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::execute(
         client, timeout));
 
-    // Move the chunk back into fullData
-    allData.insert(
-      allData.cbegin() + byte, std::make_move_iterator(mData.cbegin()), std::make_move_iterator(mData.cend()));
+    // Wait for the transaction to fully complete, if configured
+    if (mShouldGetReceipt)
+    {
+      const TransactionReceipt txReceipt = responses.back().getReceipt(client);
+    }
+
+    // Generate a new transaction ID with the same account ID (to prevent DUPLICATE_TRANSACTION errors)
+    Transaction<SdkRequestType>::setTransactionId(
+      TransactionId::generate(Transaction<SdkRequestType>::getTransactionId().getAccountId()));
   }
 
   // Move fullData back into mData
@@ -117,5 +124,17 @@ SdkRequestType& ChunkedTransaction<SdkRequestType>::setChunkSize(unsigned int si
   mChunkSize = size;
   return static_cast<SdkRequestType&>(*this);
 }
+
+//-----
+template<typename SdkRequestType>
+void ChunkedTransaction<SdkRequestType>::setShouldGetReceipt(bool retrieveReceipt)
+{
+  mShouldGetReceipt = retrieveReceipt;
+}
+
+/**
+ * Explicit template instantiations.
+ */
+template class ChunkedTransaction<FileAppendTransaction>;
 
 } // namespace Hedera
