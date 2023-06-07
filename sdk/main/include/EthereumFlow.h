@@ -37,7 +37,7 @@ namespace Hedera
 {
 /**
  * A helper class to execute an EthereumTransaction. This will use FileCreateTransaction and FileAppendTransaction as
- * necessary to create the file followed by an EthereumTransaction to execute the EthereumData.
+ * necessary to create a file with the call data followed by an EthereumTransaction to execute the EthereumData.
  */
 class EthereumFlow
 {
