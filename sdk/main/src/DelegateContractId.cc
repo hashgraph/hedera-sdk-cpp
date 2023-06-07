@@ -62,7 +62,7 @@ DelegateContractId DelegateContractId::fromString(std::string_view id)
   // Grab the three strings
   const std::string_view shardStr = id.substr(0, firstDot);
   const std::string_view realmStr = id.substr(firstDot + 1, secondDot - firstDot - 1);
-  const std::string_view accountNumStr = id.substr(secondDot + 1, id.size() - secondDot - 1);
+  const std::string_view contractNumStr = id.substr(secondDot + 1, id.size() - secondDot - 1);
 
   // Convert the shard number
   auto result = std::from_chars(shardStr.data(), shardStr.data() + shardStr.size(), shardNum);
@@ -79,8 +79,8 @@ DelegateContractId DelegateContractId::fromString(std::string_view id)
   }
 
   // Convert the contract number.
-  result = std::from_chars(accountNumStr.data(), accountNumStr.data() + accountNumStr.size(), contractNum);
-  if (result.ec != std::errc() || result.ptr != accountNumStr.data() + accountNumStr.size())
+  result = std::from_chars(contractNumStr.data(), contractNumStr.data() + contractNumStr.size(), contractNum);
+  if (result.ec != std::errc() || result.ptr != contractNumStr.data() + contractNumStr.size())
   {
     throw std::invalid_argument("Input account ID string is malformed");
   }
