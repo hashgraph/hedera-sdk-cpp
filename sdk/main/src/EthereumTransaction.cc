@@ -56,7 +56,6 @@ EthereumTransaction& EthereumTransaction::setEthereumData(const std::vector<std:
 {
   requireNotFrozen();
   mEthereumData = ethereumData;
-  mCallDataFileId.reset();
   return *this;
 }
 
@@ -65,7 +64,6 @@ EthereumTransaction& EthereumTransaction::setCallDataFileId(const FileId& fileId
 {
   requireNotFrozen();
   mCallDataFileId = fileId;
-  mEthereumData.reset();
   return *this;
 }
 
@@ -101,12 +99,9 @@ proto::EthereumTransactionBody* EthereumTransaction::build() const
 {
   auto body = std::make_unique<proto::EthereumTransactionBody>();
 
-  if (mEthereumData.has_value())
-  {
-    body->set_ethereum_data(internal::Utilities::byteVectorToString(mEthereumData.value()));
-  }
+  body->set_ethereum_data(internal::Utilities::byteVectorToString(mEthereumData));
 
-  else if (mCallDataFileId.has_value())
+  if (mCallDataFileId.has_value())
   {
     body->set_allocated_call_data(mCallDataFileId->toProtobuf().release());
   }
