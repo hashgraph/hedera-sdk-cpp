@@ -73,6 +73,7 @@ public:
    *
    * @param data The ethereum data to set.
    * @return A reference to this EthereumFlow object with the newly-set ethereum data.
+   * @throws std::invalid_argument If the input data is not RLP-encoded Ethereum data.
    */
   EthereumFlow& setEthereumData(const std::vector<std::byte>& data);
 

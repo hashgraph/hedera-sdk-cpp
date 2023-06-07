@@ -38,14 +38,11 @@ EthereumTransaction::EthereumTransaction(const proto::TransactionBody& transacti
 
   const proto::EthereumTransactionBody& body = transactionBody.ethereumtransaction();
 
+  mEthereumData = internal::Utilities::stringToByteVector(body.ethereum_data());
+
   if (body.has_call_data())
   {
     mCallDataFileId = FileId::fromProtobuf(body.call_data());
-  }
-
-  else if (!body.ethereum_data().empty())
-  {
-    mEthereumData = internal::Utilities::stringToByteVector(body.ethereum_data());
   }
 
   mMaxGasAllowance = Hbar(body.max_gas_allowance(), HbarUnit::TINYBAR());
