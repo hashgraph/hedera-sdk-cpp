@@ -12,6 +12,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountRecordsQueryTest.cc
         AccountRecordsTest.cc
         AccountUpdateTransactionTest.cc
+        ChunkedTransactionTest.cc
         ClientTest.cc
         ContractByteCodeQueryTest.cc
         ContractCallQueryTest.cc
@@ -35,6 +36,7 @@ add_executable(${TEST_PROJECT_NAME}
         EthereumTransactionDataLegacyTest.cc
         EvmAddressTest.cc
         ExchangeRateTest.cc
+        FileAppendTransactionTest.cc
         FileContentsQueryTest.cc
         FileCreateTransactionTest.cc
         FileDeleteTransactionTest.cc

@@ -177,6 +177,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mCryptoStub->updateAccount(&context, transaction, response);
     case proto::TransactionBody::DataCase::kEthereumTransaction:
       return mSmartContractStub->callEthereum(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kFileAppend:
+      return mFileStub->appendContent(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileCreate:
       return mFileStub->createFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileDelete:

@@ -18,89 +18,93 @@
  *
  */
 #include "FileAppendTransaction.h"
+#include "impl/Node.h"
+#include "impl/Utilities.h"
 
-#include "Hbar.h"
+#include <grpcpp/client_context.h>
+#include <proto/file_append.pb.h>
+#include <proto/transaction.pb.h>
+#include <proto/transaction_body.pb.h>
 
 namespace Hedera
 {
 //-----
 FileAppendTransaction::FileAppendTransaction()
-  : ChunkedTransaction()
-  , mFileId()
-  , mContents()
 {
-  mDefaultMaxTransactionFee = Hbar(5LL);
-  setChunkSize(2048);
+  setMaxTransactionFee(Hbar(5LL));
+  setChunkSize(2048U);
+  setShouldGetReceipt(true);
 }
 
 //-----
-FileAppendTransaction::FileAppendTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  : ChunkedTransaction(transactions)
+FileAppendTransaction::FileAppendTransaction(const proto::TransactionBody& transactionBody)
 {
-  initFromTransactionBody();
-}
-
-//-----
-FileAppendTransaction::FileAppendTransaction(
-  const proto::TransactionBody& transaction)
-  : ChunkedTransaction(transaction)
-{
-  initFromTransactionBody();
-}
-
-//-----
-void
-FileAppendTransaction::validateChecksums(const Client& client) const
-{
-  if (mFileId.isValid())
+  if (!transactionBody.has_fileappend())
   {
-    mFileId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-proto::FileAppendTransactionBody
-FileAppendTransaction::build() const
-{
-  proto::FileAppendTransactionBody body;
-
-  if (mFileId.isValid())
-  {
-    body.set_allocated_fileid(mFileId.getValue().toProtobuf());
+    throw std::invalid_argument("Transaction body doesn't contain FileAppend data");
   }
 
-  body.set_contents(mContents);
+  const proto::FileAppendTransactionBody& body = transactionBody.fileappend();
 
-  return body;
+  if (body.has_fileid())
+  {
+    mFileId = FileId::fromProtobuf(body.fileid());
+  }
+
+  setData(internal::Utilities::stringToByteVector(body.contents()));
 }
 
 //-----
-FileAppendTransaction&
-FileAppendTransaction::setFileId(const FileId& fileId)
+FileAppendTransaction& FileAppendTransaction::setFileId(const FileId& fileId)
 {
   requireNotFrozen();
-
-  mFileId.setValue(fileId);
+  mFileId = fileId;
   return *this;
 }
 
 //-----
-FileAppendTransaction&
-FileAppendTransaction::setContents(const std::string& contents)
+FileAppendTransaction& FileAppendTransaction::setContents(const std::vector<std::byte>& contents)
 {
   requireNotFrozen();
-
-  mContents = contents;
+  setData(contents);
   return *this;
 }
 
 //-----
-void
-FileAppendTransaction::initFromTransactionBody()
+FileAppendTransaction& FileAppendTransaction::setContents(std::string_view contents)
 {
+  requireNotFrozen();
+  setData(internal::Utilities::stringToByteVector(contents));
+  return *this;
+}
+
+//-----
+proto::Transaction FileAppendTransaction::makeRequest(const Client& client,
+                                                      const std::shared_ptr<internal::Node>&) const
+{
+  proto::TransactionBody transactionBody = generateTransactionBody(client);
+  transactionBody.set_allocated_fileappend(build());
+
+  return signTransaction(transactionBody, client);
+}
+
+//-----
+grpc::Status FileAppendTransaction::submitRequest(const Client& client,
+                                                  const std::chrono::system_clock::time_point& deadline,
+                                                  const std::shared_ptr<internal::Node>& node,
+                                                  proto::TransactionResponse* response) const
+{
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kFileAppend, makeRequest(client, node), deadline, response);
+}
+
+//-----
+proto::FileAppendTransactionBody* FileAppendTransaction::build() const
+{
+  auto body = std::make_unique<proto::FileAppendTransactionBody>();
+  body->set_allocated_fileid(mFileId.toProtobuf().release());
+  body->set_contents(internal::Utilities::byteVectorToString(getData()));
+  return body.release();
 }
 
 } // namespace Hedera

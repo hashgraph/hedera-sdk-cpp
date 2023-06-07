@@ -15,6 +15,7 @@ add_executable(${TEST_PROJECT_NAME}
         ContractUpdateTransactionIntegrationTests.cc
         ClientIntegrationTest.cc
         ContractInfoQueryIntegrationTests.cc
+        FileAppendTransactionIntegrationTests.cc
         FileContentsQueryIntegrationTest.cc
         FileCreateTransactionIntegrationTests.cc
         FileDeleteTransactionIntegrationTests.cc

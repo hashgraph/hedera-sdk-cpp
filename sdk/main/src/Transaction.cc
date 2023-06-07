@@ -30,6 +30,7 @@
 #include "ContractUpdateTransaction.h"
 #include "ED25519PublicKey.h"
 #include "EthereumTransaction.h"
+#include "FileAppendTransaction.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
@@ -69,7 +70,8 @@ std::pair<int,
                        ContractExecuteTransaction,
                        ContractUpdateTransaction,
                        EthereumTransaction,
-                       FileUpdateTransaction>>
+                       FileUpdateTransaction,
+                       FileAppendTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -139,6 +141,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 12, EthereumTransaction(txBody) };
     case proto::TransactionBody::kFileUpdate:
       return { 13, FileUpdateTransaction(txBody) };
+    case proto::TransactionBody::kFileAppend:
+      return { 14, FileAppendTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -450,6 +454,7 @@ template class Transaction<ContractDeleteTransaction>;
 template class Transaction<ContractExecuteTransaction>;
 template class Transaction<ContractUpdateTransaction>;
 template class Transaction<EthereumTransaction>;
+template class Transaction<FileAppendTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
