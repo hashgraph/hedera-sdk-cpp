@@ -20,19 +20,12 @@
 #include "BaseIntegrationTest.h"
 #include "AccountId.h"
 #include "Client.h"
-#include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 
-#include <filesystem>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
-#include <string>
-#include <string_view>
-#include <unordered_map>
 
 using json = nlohmann::json;
-using namespace std;
 
 namespace Hedera
 {
@@ -47,8 +40,6 @@ void BaseIntegrationTest::SetUp()
   const std::string_view privateKeyTag = "privateKey";
 
   const std::string testPathToJSON = (std::filesystem::current_path() / "local_node.json").string();
-  const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
-  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
 
   AccountId operatorAccountId;
   std::string operatorAccountPrivateKey;
