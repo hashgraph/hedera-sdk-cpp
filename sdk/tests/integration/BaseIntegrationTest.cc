@@ -26,46 +26,51 @@
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
+using namespace std;
 
 namespace Hedera
 {
 //-----
 void BaseIntegrationTest::SetUp()
 {
-  const auto accountId = AccountId::fromString("0.0.3");
-  const std::string_view accountIdStr = "0.0.3";
-  const std::string_view networkTag = "network";
-  const std::string_view operatorTag = "operator";
-  const std::string_view accountIdTag = "accountId";
-  const std::string_view privateKeyTag = "privateKey";
+  const string_view networkTag = "network";
+  const string_view operatorTag = "operator";
+  const string_view accountIdTag = "accountId";
+  const string_view privateKeyTag = "privateKey";
 
-  const std::string testPathToJSON = (std::filesystem::current_path() / "local_node.json").string();
+  const string testPathToJSON = (filesystem::current_path() / "local_node.json").string();
+
+  ifstream testInputFile(testPathToJSON, ios::in);
+
+  unordered_map<string, string> networksMap;
+  unordered_map<string, AccountId> networkAccountsMap;
+  unordered_map<string, string>::iterator it;
+
+  json jsonData = json::parse(testInputFile);
+  jsonData[networkTag].get_to(networksMap);
+
+  for (it = networksMap.begin(); it != networksMap.end(); it++)
+  {
+    const string_view accountIdStr = (*it).first;
+    const string nodeAddressString = (*it).second;
+
+    networkAccountsMap.try_emplace(nodeAddressString, AccountId::fromString(accountIdStr));
+  }
 
   AccountId operatorAccountId;
-  std::string operatorAccountPrivateKey;
-  std::ifstream testInputFile(testPathToJSON, std::ios::in);
-  std::string nodeAddressString;
-  json jsonData = json::parse(testInputFile);
-
-  if (jsonData[networkTag][accountIdStr].is_string())
-  {
-    nodeAddressString = jsonData[networkTag][accountIdStr];
-  }
+  string operatorAccountPrivateKey;
 
   if (jsonData[operatorTag][accountIdTag].is_string() && jsonData[operatorTag][privateKeyTag].is_string())
   {
-    std::string operatorAccountIdStr = jsonData[operatorTag][accountIdTag];
+    string operatorAccountIdStr = jsonData[operatorTag][accountIdTag];
+    operatorAccountPrivateKey = jsonData[operatorTag][privateKeyTag];
 
     operatorAccountId = AccountId::fromString(operatorAccountIdStr);
-    operatorAccountPrivateKey = jsonData[operatorTag][privateKeyTag];
   }
 
   testInputFile.close();
 
-  std::unordered_map<std::string, AccountId> networkMap;
-  networkMap.try_emplace(nodeAddressString, accountId);
-
-  mClient = Client::forNetwork(networkMap);
+  mClient = Client::forNetwork(networkAccountsMap);
   mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
 }
 
