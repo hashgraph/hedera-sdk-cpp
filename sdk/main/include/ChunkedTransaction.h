@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_CHUNKED_TRANSACTION_H_
 #define HEDERA_SDK_CPP_CHUNKED_TRANSACTION_H_
 
+#include "Defaults.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -173,7 +174,7 @@ private:
   /**
    * The maximum number of chunks into which this ChunkedTransaction will get broken up.
    */
-  unsigned int mMaxChunks = 20U;
+  unsigned int mMaxChunks = DEFAULT_MAX_CHUNKS;
 
   /**
    * Should this ChunkedTransaction get a receipt for each submitted chunk?

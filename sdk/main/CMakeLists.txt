@@ -17,6 +17,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractId.cc
         src/ContractByteCodeQuery.cc
         src/ContractCallQuery.cc
+        src/ContractCreateFlow.cc
         src/ContractCreateTransaction.cc
         src/ContractDeleteTransaction.cc
         src/ContractExecuteTransaction.cc
@@ -27,6 +28,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractInfoQuery.cc
         src/ContractLogInfo.cc
         src/ContractUpdateTransaction.cc
+        src/DelegateContractId.cc
         src/ECDSAsecp256k1PrivateKey.cc
         src/ECDSAsecp256k1PublicKey.cc
         src/ED25519PrivateKey.cc
