@@ -23,6 +23,7 @@
 #include "AccountId.h"
 #include "Defaults.h"
 #include "Key.h"
+#include "TokenType.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -189,6 +190,14 @@ public:
   TokenCreateTransaction& setMemo(std::string_view memo);
 
   /**
+   * Set the desired type for the new token.
+   *
+   * @param type The desired type for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set token type.
+   */
+  TokenCreateTransaction& setType(TokenType type);
+
+  /**
    * Get the desired name for the new token.
    *
    * @return The desired name for the new token.
@@ -293,6 +302,13 @@ public:
    */
   [[nodiscard]] inline std::string getMemo() const { return mMemo; }
 
+  /**
+   * Get the desired type for the new token.
+   *
+   * @return The desired type for the new token.
+   */
+  [[nodiscard]] inline TokenType getTokenType() const { return mTokenType; }
+
 private:
   /**
    * The publicly visible name of the token. The token name is specified as a string of UTF-8 characters in Unicode.
@@ -381,6 +397,11 @@ private:
    * The memo associated with the token (UTF-8 encoding max 100 bytes).
    */
   std::string mMemo;
+
+  /**
+   * IWA compatibility. Specifies the token type.
+   */
+  TokenType mTokenType = TokenType::FUNGIBLE_COMMON;
 };
 
 } // namespace Hedera
