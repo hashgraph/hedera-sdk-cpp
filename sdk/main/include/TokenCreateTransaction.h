@@ -23,6 +23,7 @@
 #include "AccountId.h"
 #include "Defaults.h"
 #include "Key.h"
+#include "TokenSupplyType.h"
 #include "TokenType.h"
 #include "Transaction.h"
 
@@ -195,7 +196,31 @@ public:
    * @param type The desired type for the new token.
    * @return A reference to this TokenCreateTransaction with the newly-set token type.
    */
-  TokenCreateTransaction& setType(TokenType type);
+  TokenCreateTransaction& setTokenType(TokenType type);
+
+  /**
+   * Set the desired supply type for the new token.
+   *
+   * @param type The desired supply type for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set supply type.
+   */
+  TokenCreateTransaction& setSupplyType(TokenSupplyType type);
+
+  /**
+   * Set the desired maximum supply for the new token.
+   *
+   * @param max The desired maximum supply for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set maximum supply.
+   */
+  TokenCreateTransaction& setMaxSupply(const uint64_t& max);
+
+  /**
+   * Set the desired fee schedule key for the new token.
+   *
+   * @param key The desired fee schedule key for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set fee schedule key.
+   */
+  TokenCreateTransaction& setFeeScheduleKey(const std::shared_ptr<Key>& key);
 
   /**
    * Get the desired name for the new token.
@@ -309,6 +334,27 @@ public:
    */
   [[nodiscard]] inline TokenType getTokenType() const { return mTokenType; }
 
+  /**
+   * Get the desired token supply type for the new token.
+   *
+   * @return The desired token supply type for the new token.
+   */
+  [[nodiscard]] inline TokenSupplyType getSupplyType() const { return mSupplyType; }
+
+  /**
+   * Get the desired maximum supply for the new token.
+   *
+   * @return The desired maximum supply for the new token.
+   */
+  [[nodiscard]] inline uint64_t getMaxSupply() const { return mMaxSupply; }
+
+  /**
+   * Get the desired fee schedule key for the new token.
+   *
+   * @return The desired fee schedule key for the new token.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getFeeScheduleKey() const { return mSupplyKey; }
+
 private:
   /**
    * The publicly visible name of the token. The token name is specified as a string of UTF-8 characters in Unicode.
@@ -328,14 +374,14 @@ private:
    * For tokens of type FUNGIBLE_COMMON, the number of decimal places by which a token is divisible. This field can
    * never be changed. For tokens of type NON_FUNGIBLE_UNIQUE, this must be 0.
    */
-  uint32_t mDecimals = 0;
+  uint32_t mDecimals = 0U;
 
   /**
    * The initial supply of FUNGIBLE_COMMON tokens to be put in circulation. The initial supply is sent to the
    * Treasury Account. The supply is in the lowest denomination possible. For tokens of type NON_FUNGIBLE_UNIQUE, this
    * must be 0.
    */
-  uint64_t mInitialSupply = 0;
+  uint64_t mInitialSupply = 0ULL;
 
   /**
    * The account which will act as a treasure for the token. This account will receive the specified initial supply or
@@ -402,6 +448,23 @@ private:
    * IWA compatibility. Specifies the token type.
    */
   TokenType mTokenType = TokenType::FUNGIBLE_COMMON;
+
+  /**
+   * IWA compatibility. Specifies the token supply type.
+   */
+  TokenSupplyType mSupplyType = TokenSupplyType::INFINITE;
+
+  /**
+   * IWA Compatibility. Depends on TokenSupplyType. For tokens of type FUNGIBLE_COMMON - the maximum number of tokens
+   * that can be in circulation. For tokens of type NON_FUNGIBLE_UNIQUE - the maximum number of NFTs (serial numbers)
+   * that can be minted. This field can never be changed.
+   */
+  uint64_t mMaxSupply = 0ULL;
+
+  /**
+   * The Key which can change the token's custom fee schedule. This Key must sign a TokenFeeScheduleUpdate transaction.
+   */
+  std::shared_ptr<Key> mFeeScheduleKey = nullptr;
 };
 
 } // namespace Hedera
