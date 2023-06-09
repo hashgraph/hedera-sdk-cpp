@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_CLIENT_H_
 
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <unordered_map>
@@ -210,6 +211,13 @@ public:
    * @return A pointer to the public key of this Client's operator. Nullptr if the operator has not yet been set.
    */
   [[nodiscard]] std::shared_ptr<PublicKey> getOperatorPublicKey() const;
+
+  /**
+   * Get the signer function of this Client's operator.
+   *
+   * @return The signer function of this Client's operator.
+   */
+  [[nodiscard]] std::function<std::vector<std::byte>(const std::vector<std::byte>&)> getOperatorSigner() const;
 
   /**
    * Get the length of time a request sent by this Client can be processed before it times out.
