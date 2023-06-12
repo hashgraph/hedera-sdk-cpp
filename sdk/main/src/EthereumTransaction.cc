@@ -38,14 +38,11 @@ EthereumTransaction::EthereumTransaction(const proto::TransactionBody& transacti
 
   const proto::EthereumTransactionBody& body = transactionBody.ethereumtransaction();
 
+  mEthereumData = internal::Utilities::stringToByteVector(body.ethereum_data());
+
   if (body.has_call_data())
   {
     mCallDataFileId = FileId::fromProtobuf(body.call_data());
-  }
-
-  else if (!body.ethereum_data().empty())
-  {
-    mEthereumData = internal::Utilities::stringToByteVector(body.ethereum_data());
   }
 
   mMaxGasAllowance = Hbar(body.max_gas_allowance(), HbarUnit::TINYBAR());
@@ -56,7 +53,6 @@ EthereumTransaction& EthereumTransaction::setEthereumData(const std::vector<std:
 {
   requireNotFrozen();
   mEthereumData = ethereumData;
-  mCallDataFileId.reset();
   return *this;
 }
 
@@ -65,7 +61,6 @@ EthereumTransaction& EthereumTransaction::setCallDataFileId(const FileId& fileId
 {
   requireNotFrozen();
   mCallDataFileId = fileId;
-  mEthereumData.reset();
   return *this;
 }
 
@@ -101,12 +96,9 @@ proto::EthereumTransactionBody* EthereumTransaction::build() const
 {
   auto body = std::make_unique<proto::EthereumTransactionBody>();
 
-  if (mEthereumData.has_value())
-  {
-    body->set_ethereum_data(internal::Utilities::byteVectorToString(mEthereumData.value()));
-  }
+  body->set_ethereum_data(internal::Utilities::byteVectorToString(mEthereumData));
 
-  else if (mCallDataFileId.has_value())
+  if (mCallDataFileId.has_value())
   {
     body->set_allocated_call_data(mCallDataFileId->toProtobuf().release());
   }

@@ -55,35 +55,22 @@ private:
 TEST_F(EthereumTransactionTest, ConstructEthereumTransactionFromTransactionBodyProtobuf)
 {
   // Given
-  auto bodyWithEthereumData = std::make_unique<proto::EthereumTransactionBody>();
-  auto bodyWithCallDataFileId = std::make_unique<proto::EthereumTransactionBody>();
+  auto body = std::make_unique<proto::EthereumTransactionBody>();
+  body->set_ethereum_data(internal::Utilities::byteVectorToString(getTestEthereumData()));
+  body->set_allocated_call_data(getTestCallDataFileId().toProtobuf().release());
+  body->set_max_gas_allowance(getTestMaxGasAllowance().toTinybars());
 
-  bodyWithEthereumData->set_max_gas_allowance(getTestMaxGasAllowance().toTinybars());
-  bodyWithCallDataFileId->set_max_gas_allowance(getTestMaxGasAllowance().toTinybars());
-
-  bodyWithEthereumData->set_ethereum_data(internal::Utilities::byteVectorToString(getTestEthereumData()));
-  bodyWithCallDataFileId->set_allocated_call_data(getTestCallDataFileId().toProtobuf().release());
-
-  proto::TransactionBody txBodyEthereumData;
-  proto::TransactionBody txBodyCallDataFileId;
-
-  txBodyEthereumData.set_allocated_ethereumtransaction(bodyWithEthereumData.release());
-  txBodyCallDataFileId.set_allocated_ethereumtransaction(bodyWithCallDataFileId.release());
+  proto::TransactionBody txBody;
+  txBody.set_allocated_ethereumtransaction(body.release());
 
   // When
-  const EthereumTransaction ethereumTransactionEthereumData(txBodyEthereumData);
-  const EthereumTransaction ethereumTransactionCallDataFileId(txBodyCallDataFileId);
+  const EthereumTransaction ethereumTransaction(txBody);
 
   // Then
-  ASSERT_TRUE(ethereumTransactionEthereumData.getEthereumData().has_value());
-  EXPECT_EQ(ethereumTransactionEthereumData.getEthereumData(), getTestEthereumData());
-  EXPECT_FALSE(ethereumTransactionEthereumData.getCallDataFileId().has_value());
-  EXPECT_EQ(ethereumTransactionEthereumData.getMaxGasAllowance(), getTestMaxGasAllowance());
-
-  EXPECT_FALSE(ethereumTransactionCallDataFileId.getEthereumData().has_value());
-  ASSERT_TRUE(ethereumTransactionCallDataFileId.getCallDataFileId().has_value());
-  EXPECT_EQ(ethereumTransactionCallDataFileId.getCallDataFileId(), getTestCallDataFileId());
-  EXPECT_EQ(ethereumTransactionCallDataFileId.getMaxGasAllowance(), getTestMaxGasAllowance());
+  EXPECT_EQ(ethereumTransaction.getEthereumData(), getTestEthereumData());
+  ASSERT_TRUE(ethereumTransaction.getCallDataFileId().has_value());
+  EXPECT_EQ(ethereumTransaction.getCallDataFileId(), getTestCallDataFileId());
+  EXPECT_EQ(ethereumTransaction.getMaxGasAllowance(), getTestMaxGasAllowance());
 }
 
 //-----
@@ -96,7 +83,6 @@ TEST_F(EthereumTransactionTest, GetSetEthereumData)
   EXPECT_NO_THROW(transaction.setEthereumData(getTestEthereumData()));
 
   // Then
-  ASSERT_TRUE(transaction.getEthereumData().has_value());
   EXPECT_EQ(transaction.getEthereumData(), getTestEthereumData());
 }
 
@@ -109,7 +95,6 @@ TEST_F(EthereumTransactionTest, GetSetEthereumDataFrozen)
 
   // When / Then
   EXPECT_THROW(transaction.setEthereumData(getTestEthereumData()), IllegalStateException);
-  EXPECT_FALSE(transaction.getEthereumData().has_value());
 }
 
 //-----
@@ -122,7 +107,6 @@ TEST_F(EthereumTransactionTest, GetSetCallDataFileId)
   EXPECT_NO_THROW(transaction.setCallDataFileId(getTestCallDataFileId()));
 
   // Then
-  ASSERT_TRUE(transaction.getCallDataFileId().has_value());
   EXPECT_EQ(transaction.getCallDataFileId(), getTestCallDataFileId());
 }
 
@@ -135,7 +119,6 @@ TEST_F(EthereumTransactionTest, GetSetCallDataFileIdFrozen)
 
   // When / Then
   EXPECT_THROW(transaction.setCallDataFileId(getTestCallDataFileId()), IllegalStateException);
-  EXPECT_FALSE(transaction.getCallDataFileId().has_value());
 }
 
 //-----
@@ -160,34 +143,4 @@ TEST_F(EthereumTransactionTest, GetSetMaxGasAllowanceFrozen)
 
   // When / Then
   EXPECT_THROW(transaction.setMaxGasAllowance(getTestMaxGasAllowance()), IllegalStateException);
-}
-
-//-----
-TEST_F(EthereumTransactionTest, ResetEthereumData)
-{
-  // Given
-  EthereumTransaction transaction;
-  ASSERT_NO_THROW(transaction.setEthereumData(getTestEthereumData()));
-
-  // When
-  EXPECT_NO_THROW(transaction.setCallDataFileId(getTestCallDataFileId()));
-
-  // Then
-  EXPECT_FALSE(transaction.getEthereumData().has_value());
-  EXPECT_TRUE(transaction.getCallDataFileId().has_value());
-}
-
-//-----
-TEST_F(EthereumTransactionTest, ResetCallDataFileId)
-{
-  // Given
-  EthereumTransaction transaction;
-  ASSERT_NO_THROW(transaction.setCallDataFileId(getTestCallDataFileId()));
-
-  // When
-  EXPECT_NO_THROW(transaction.setEthereumData(getTestEthereumData()));
-
-  // Then
-  EXPECT_TRUE(transaction.getEthereumData().has_value());
-  EXPECT_FALSE(transaction.getCallDataFileId().has_value());
 }
