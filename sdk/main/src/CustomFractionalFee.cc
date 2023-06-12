@@ -20,6 +20,7 @@
 #include "CustomFractionalFee.h"
 
 #include <proto/custom_fees.pb.h>
+#include <stdexcept>
 
 namespace Hedera
 {
@@ -70,6 +71,11 @@ CustomFractionalFee& CustomFractionalFee::setNumerator(const int64_t& numerator)
 //-----
 CustomFractionalFee& CustomFractionalFee::setDenominator(const int64_t& denominator)
 {
+  if (denominator == 0LL)
+  {
+    throw std::invalid_argument("Denominator cannot be 0");
+  }
+
   mDenominator = denominator;
   return *this;
 }
@@ -89,7 +95,7 @@ CustomFractionalFee& CustomFractionalFee::setMaximumAmount(const uint64_t& amoun
 }
 
 //-----
-CustomFractionalFee& CustomFractionalFee::setFeeAssessmentMethod(Hedera::FeeAssessmentMethod method)
+CustomFractionalFee& CustomFractionalFee::setAssessmentMethod(Hedera::FeeAssessmentMethod method)
 {
   mAssessmentMethod = method;
   return *this;

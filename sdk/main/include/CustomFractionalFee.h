@@ -106,7 +106,7 @@ public:
    * @param method The desired fee assessment method.
    * @return A reference ot this CustomFractionalFee object, with the newly-set fee assessment method.
    */
-  CustomFractionalFee& setFeeAssessmentMethod(FeeAssessmentMethod method);
+  CustomFractionalFee& setAssessmentMethod(FeeAssessmentMethod method);
 
   /**
    * Get the desired numerator of the fractional amount of the transferred units to assess as a part of this
@@ -156,7 +156,7 @@ private:
   /**
    * The denominator of the fractional amount of the transferred units to assess as a part of this CustomFractionalFee.
    */
-  int64_t mDenominator = 0LL;
+  int64_t mDenominator = 1LL;
 
   /**
    * The desired minimum amount to assess as a part of this CustomFractionalFee
@@ -171,7 +171,7 @@ private:
   /**
    * How is this CustomFractionalFee assessed?
    */
-  FeeAssessmentMethod mAssessmentMethod;
+  FeeAssessmentMethod mAssessmentMethod = FeeAssessmentMethod::INCLUSIVE;
 };
 
 } // namespace Hedera
