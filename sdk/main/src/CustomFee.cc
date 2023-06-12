@@ -36,4 +36,13 @@ std::unique_ptr<CustomFee> CustomFee::fromProtobuf(const proto::CustomFee& proto
   }
 }
 
+//-----
+std::unique_ptr<proto::CustomFee> CustomFee::initProtobuf() const
+{
+  auto fee = std::make_unique<proto::CustomFee>();
+  fee->set_allocated_fee_collector_account_id(mFeeCollectorAccountId.toProtobuf().release());
+  fee->set_all_collectors_are_exempt(mAllCollectorsAreExempt);
+  return fee;
+}
+
 } // namespace Hedera

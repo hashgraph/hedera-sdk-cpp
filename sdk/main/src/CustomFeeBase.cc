@@ -18,6 +18,7 @@
  *
  */
 #include "CustomFeeBase.h"
+#include "CustomFixedFee.h"
 
 #include <proto/custom_fees.pb.h>
 
@@ -39,14 +40,9 @@ FeeType& CustomFeeBase<FeeType>::setAllCollectorsAreExempt(bool exempt)
   return static_cast<FeeType&>(*this);
 }
 
-//-----
-template<typename FeeType>
-std::unique_ptr<proto::CustomFee> CustomFeeBase<FeeType>::initProtobuf() const
-{
-  auto fee = std::make_unique<proto::CustomFee>();
-  fee->set_allocated_fee_collector_account_id(mFeeCollectorAccountId.toProtobuf().release());
-  fee->set_all_collectors_are_exempt(mAllCollectorsAreExempt);
-  return fee;
-}
+/**
+ * Explicit template instantiations
+ */
+template class CustomFeeBase<CustomFixedFee>;
 
 } // namespace Hedera

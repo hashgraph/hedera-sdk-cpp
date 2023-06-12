@@ -33,8 +33,6 @@ template<typename FeeType>
 class CustomFeeBase : public CustomFee
 {
 public:
-  virtual ~CustomFeeBase() = default;
-
   /**
    * Set the ID of the desired fee collector account.
    *
@@ -51,20 +49,6 @@ public:
    */
   FeeType& setAllCollectorsAreExempt(bool exempt);
 
-  /**
-   * Get the ID of the desired fee collector account.
-   *
-   * @return The ID of the desired fee collector account.
-   */
-  [[nodiscard]] inline AccountId getFeeCollectorAccountId() const { return mFeeCollectorAccountId; }
-
-  /**
-   * Get the fee collector exemption policy.
-   *
-   * @return \c TRUE if fee collectors are currently configured to be exempt from this CustomFee, otherwise \c FALSE.
-   */
-  [[nodiscard]] inline bool getAllCollectorsAreExempt() const { return mAllCollectorsAreExempt; }
-
 protected:
   /**
    * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
@@ -74,25 +58,6 @@ protected:
   CustomFeeBase& operator=(const CustomFeeBase&) = default;
   CustomFeeBase(CustomFeeBase&&) noexcept = default;
   CustomFeeBase& operator=(CustomFeeBase&&) noexcept = default;
-
-  /**
-   * Create the initial protobuf CustomFee object, populated with this CustomFee's private members, to be used by
-   * derived classes' toProtobuf() functions.
-   *
-   * @return A pointer to CustomFee protobuf object filled-in with this CustomFee's private members.
-   */
-  [[nodiscard]] std::unique_ptr<proto::CustomFee> initProtobuf() const;
-
-private:
-  /**
-   * The ID of the account that should receive the fee.
-   */
-  AccountId mFeeCollectorAccountId;
-
-  /**
-   * Should all token fee collection accounts be exempt from this fee?
-   */
-  bool mAllCollectorsAreExempt = false;
 };
 
 } // namespace Hedera
