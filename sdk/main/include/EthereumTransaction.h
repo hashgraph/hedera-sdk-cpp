@@ -57,8 +57,7 @@ public:
   explicit EthereumTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Set the raw Ethereum transaction (RLP encoded type 0, 1, and 2). This is mutually exclusive with mCallDataFileId
-   * and will reset the value of mCallDataFileId if it is set.
+   * Set the raw Ethereum transaction (RLP encoded type 0, 1, and 2).
    *
    * @param ethereumData The raw Ethereum transaction.
    * @return A reference to this EthereumTransaction object with the newly-set ethereum data.
@@ -67,8 +66,7 @@ public:
   EthereumTransaction& setEthereumData(const std::vector<std::byte>& ethereumData);
 
   /**
-   * Set the ID of the file that contains the call data. This is mutually exclusive with mEthereumData and will reset
-   * the value of mEthereumData if it is set.
+   * Set the ID of the file that contains the call data.
    *
    * @param fileId The ID of the file that contains the call data.
    * @return A reference to this EthereumTransaction object with the newly-set call data file ID.
@@ -90,16 +88,14 @@ public:
   /**
    * Get the raw Ethereum transaction.
    *
-   * @return The raw Ethereum transaction. Returns uninitialized if a value has not yet been set, or if a call data file
-   *         ID has been set most recently.
+   * @return The raw Ethereum transaction.
    */
-  [[nodiscard]] inline std::optional<std::vector<std::byte>> getEthereumData() const { return mEthereumData; }
+  [[nodiscard]] inline std::vector<std::byte> getEthereumData() const { return mEthereumData; }
 
   /**
    * Get the ID of the file that contains the call data.
    *
-   * @return The ID of the file that contains the call data. Returns uninitialized if a value has not yet been set, or
-   *         if ethereum data has been set most recently.
+   * @return The ID of the file that contains the call data. Returns uninitialized if a value has not been set.
    */
   [[nodiscard]] inline std::optional<FileId> getCallDataFileId() const { return mCallDataFileId; }
 
@@ -150,7 +146,7 @@ private:
   /**
    * The raw Ethereum transaction (RLP encoded type 0, 1, and 2).
    */
-  std::optional<std::vector<std::byte>> mEthereumData;
+  std::vector<std::byte> mEthereumData;
 
   /**
    * The ID of the file that contains the call data.
