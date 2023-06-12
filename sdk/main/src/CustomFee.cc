@@ -18,6 +18,7 @@
  *
  */
 #include "CustomFee.h"
+#include "CustomFixedFee.h"
 
 #include <proto/custom_fees.pb.h>
 
@@ -25,10 +26,29 @@ namespace Hedera
 {
 //-----
 template<typename FeeType>
-std::unique_ptr<CustomFee<FeeType>> CustomFee<FeeType>::fromProtobuf(const proto::CustomFee& proto)
+std::unique_ptr<FeeType> CustomFee<FeeType>::fromProtobuf(const proto::CustomFee& proto)
 {
-  // TODO
-  return std::unique_ptr<CustomFee<FeeType>>();
+  auto fee = std::make_unique<FeeType>();
+
+  switch (proto.fee_case())
+  {
+    case proto::CustomFee::FeeCase::kFixedFee:
+    {
+      fee = CustomFixedFee::fromProtobuf(proto.fixed_fee());
+      break;
+    }
+
+    default:
+      return fee;
+  }
+
+  if (proto.has_fee_collector_account_id())
+  {
+    fee->mFeeCollectorAccountId = AccountId::fromProtobuf(proto.fee_collector_account_id());
+  }
+
+  fee->mAllCollectorsAreExempt = proto.all_collectors_are_exempt();
+  return fee;
 }
 
 //-----
@@ -45,6 +65,16 @@ FeeType& CustomFee<FeeType>::setAllCollectorsAreExempt(bool exempt)
 {
   mAllCollectorsAreExempt = exempt;
   return static_cast<FeeType&>(*this);
+}
+
+//-----
+template<typename FeeType>
+std::unique_ptr<proto::CustomFee> CustomFee<FeeType>::initProtobuf() const
+{
+  auto fee = std::make_unique<proto::CustomFee>();
+  fee->set_allocated_fee_collector_account_id(mFeeCollectorAccountId.toProtobuf().release());
+  fee->set_all_collectors_are_exempt(mAllCollectorsAreExempt);
+  return fee;
 }
 
 } // namespace Hedera

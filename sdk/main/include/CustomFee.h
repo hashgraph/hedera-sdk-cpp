@@ -48,14 +48,21 @@ public:
    * @param proto The CustomFee protobuf object from which to create an CustomFee object.
    * @return A pointer to the constructed CustomFee object.
    */
-  [[nodiscard]] static std::unique_ptr<CustomFee<FeeType>> fromProtobuf(const proto::CustomFee& proto);
+  [[nodiscard]] static std::unique_ptr<FeeType> fromProtobuf(const proto::CustomFee& proto);
 
   /**
    * Create a clone of this CustomFee object.
    *
    * @return A pointer to the created clone of this CustomFee.
    */
-  [[nodiscard]] virtual std::unique_ptr<CustomFee> clone() const = 0;
+  [[nodiscard]] virtual std::unique_ptr<FeeType> clone() const = 0;
+
+  /**
+   * Construct a CustomFee protobuf object from this CustomFee object.
+   *
+   * @return A pointer to the created CustomFee protobuf object filled with this CustomFee object's data.
+   */
+  [[nodiscard]] virtual std::unique_ptr<proto::CustomFee> toProtobuf() const = 0;
 
   /**
    * Set the ID of the desired fee collector account.
@@ -96,6 +103,14 @@ protected:
   CustomFee& operator=(const CustomFee&) = default;
   CustomFee(CustomFee&&) noexcept = default;
   CustomFee& operator=(CustomFee&&) noexcept = default;
+
+  /**
+   * Create the initial protobuf CustomFee object, populated with this CustomFee's private members, to be used by
+   * derived classes' toProtobuf() functions.
+   *
+   * @return A pointer to CustomFee protobuf object filled-in with this CustomFee's private members.
+   */
+  [[nodiscard]] std::unique_ptr<proto::CustomFee> initProtobuf() const;
 
 private:
   /**
