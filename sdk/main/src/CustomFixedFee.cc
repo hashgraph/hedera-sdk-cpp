@@ -24,21 +24,21 @@
 namespace Hedera
 {
 //-----
-std::unique_ptr<CustomFixedFee> CustomFixedFee::fromProtobuf(const proto::FixedFee& proto)
+CustomFixedFee CustomFixedFee::fromProtobuf(const proto::FixedFee& proto)
 {
-  auto fee = std::make_unique<CustomFixedFee>();
-  fee->mAmount = static_cast<uint64_t>(proto.amount());
+  CustomFixedFee customFixedFee;
+  customFixedFee.mAmount = static_cast<uint64_t>(proto.amount());
 
   if (proto.has_denominating_token_id())
   {
-    fee->mDenominatingTokenId = TokenId::fromProtobuf(proto.denominating_token_id());
+    customFixedFee.mDenominatingTokenId = TokenId::fromProtobuf(proto.denominating_token_id());
   }
 
-  return fee;
+  return customFixedFee;
 }
 
 //-----
-std::unique_ptr<CustomFixedFee> CustomFixedFee::clone() const
+std::unique_ptr<CustomFee> CustomFixedFee::clone() const
 {
   return std::make_unique<CustomFixedFee>(*this);
 }

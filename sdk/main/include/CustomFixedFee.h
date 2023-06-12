@@ -20,7 +20,7 @@
 #ifndef HEDERA_SDK_CPP_CUSTOM_FIXED_FEE_H_
 #define HEDERA_SDK_CPP_CUSTOM_FIXED_FEE_H_
 
-#include "CustomFee.h"
+#include "CustomFeeBase.h"
 #include "Hbar.h"
 #include "TokenId.h"
 
@@ -38,7 +38,7 @@ namespace Hedera
  * A fixed number of units (Hbar or token) to assess as a fee during a CryptoTransfer that transfers units of the token
  * to which this fixed fee is attached.
  */
-class CustomFixedFee : public CustomFee<CustomFixedFee>
+class CustomFixedFee : public CustomFeeBase<CustomFixedFee>
 {
 public:
   /**
@@ -47,14 +47,14 @@ public:
    * @param proto The FixedFee protobuf object from which to create an CustomFixedFee object.
    * @return A pointer to the constructed CustomFixedFee object.
    */
-  [[nodiscard]] static std::unique_ptr<CustomFixedFee> fromProtobuf(const proto::FixedFee& proto);
+  [[nodiscard]] static CustomFixedFee fromProtobuf(const proto::FixedFee& proto);
 
   /**
    * Derived from CustomFee. Create a clone of this CustomFixedFee object.
    *
    * @return A pointer to the created clone of this CustomFixedFee.
    */
-  [[nodiscard]] std::unique_ptr<CustomFixedFee> clone() const override;
+  [[nodiscard]] std::unique_ptr<CustomFee> clone() const override;
 
   /**
    * Derived from CustomFee. Construct a CustomFee protobuf object from this CustomFixedFee object.
