@@ -61,6 +61,9 @@ target_link_libraries(${TRANSFER_CRYPTO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_TOKENS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 
+target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE} DESTINATION examples FILES_MATCHING PATTERN *)
 
 install(TARGETS
