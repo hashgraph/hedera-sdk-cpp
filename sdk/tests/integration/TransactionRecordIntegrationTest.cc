@@ -33,13 +33,8 @@
 #include "exceptions/PrecheckStatusException.h"
 #include "impl/Utilities.h"
 
-#include <filesystem>
-#include <fstream>
 #include <gtest/gtest.h>
-#include <nlohmann/json.hpp>
-#include <proto/transaction_body.pb.h>
 
-using json = nlohmann::json;
 using namespace Hedera;
 
 class TransactionRecordIntegrationTest : public BaseIntegrationTest
@@ -137,10 +132,6 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteFileCreateTransactionAndCheckTra
 TEST_F(TransactionRecordIntegrationTest, ExecuteContractCreateTransactionAndCheckTransactionRecord)
 {
   // Given
-  const std::vector<std::byte> contents = internal::Utilities::stringToByteVector(
-    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
-      .get<std::string>());
-
   const auto testMemo = "Test memo for TransactionRecord.";
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
@@ -148,7 +139,7 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteContractCreateTransactionAndChec
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey().get() })
-                             .setContents(contents)
+                             .setContents(getTestFileContent())
                              .setMaxTransactionFee(Hbar(2LL))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
