@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_BASE_INTEGRATION_TEST_H_
 #define HEDERA_SDK_CPP_BASE_INTEGRATION_TEST_H_
 
+#include "AccountId.h"
 #include "Client.h"
 
 #include <gtest/gtest.h>
@@ -32,6 +33,7 @@ class BaseIntegrationTest : public testing::Test
 {
 protected:
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
+  [[nodiscard]] inline const AccountId& getDefaultTestAccountId() const { return mDefaultTestAccountId; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestFileContent() const { return mFileContent; }
   [[nodiscard]] inline const std::string& getTestSmartContractBytecode() const { return mTestContractBytecodeHex; }
 
@@ -40,6 +42,7 @@ protected:
 private:
   Client mClient;
   std::vector<std::byte> mFileContent;
+  const AccountId mDefaultTestAccountId = AccountId::fromString("0.0.1023");
   const std::string mTestContractBytecodeHex =
     "608060405234801561001057600080fd5b506040516104d73803806104d78339818101604052602081101561003357600080fd5b8101908080"
     "51604051939291908464010000000082111561005357600080fd5b90830190602082018581111561006857600080fd5b825164010000000081"

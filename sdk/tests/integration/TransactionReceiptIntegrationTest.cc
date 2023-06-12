@@ -39,11 +39,6 @@ using namespace Hedera;
 
 class TransactionReceiptIntegrationTest : public BaseIntegrationTest
 {
-protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
-
-private:
-  const AccountId mTestAccountId = AccountId::fromString("0.0.1023");
 };
 
 //-----

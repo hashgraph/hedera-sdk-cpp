@@ -49,7 +49,6 @@ protected:
   [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const { return mAutoRenewPeriod; }
   [[nodiscard]] inline const std::string& getTestAccountMemo() const { return mAccountMemo; }
   [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
   [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
 
@@ -60,7 +59,7 @@ private:
   const std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(3);
   const std::string mAccountMemo = "Test Account Memo";
   const uint32_t mMaxTokenAssociations = 3U;
-  const AccountId mAccountId = AccountId::fromString("0.0.1023");
+
   const bool mDeclineStakingReward = true;
   const EvmAddress mEvmAddress = EvmAddress::fromString("303132333435363738396162636465666768696a");
 };
