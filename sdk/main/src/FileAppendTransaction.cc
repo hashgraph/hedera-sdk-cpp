@@ -32,7 +32,7 @@ namespace Hedera
 FileAppendTransaction::FileAppendTransaction()
 {
   setMaxTransactionFee(Hbar(5LL));
-  setChunkSize(2048U);
+  setChunkSize(DEFAULT_CHUNK_SIZE);
   setShouldGetReceipt(true);
 }
 

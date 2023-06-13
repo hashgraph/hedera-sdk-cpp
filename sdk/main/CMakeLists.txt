@@ -32,11 +32,13 @@ add_library(${PROJECT_NAME} STATIC
         src/CustomFeeBase.cc
         src/CustomFixedFee.cc
         src/CustomFractionalFee.cc
+        src/CustomRoyaltyFee.cc
         src/DelegateContractId.cc
         src/ECDSAsecp256k1PrivateKey.cc
         src/ECDSAsecp256k1PublicKey.cc
         src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
+        src/EthereumFlow.cc
         src/EthereumTransaction.cc
         src/EthereumTransactionData.cc
         src/EthereumTransactionDataEip1559.cc

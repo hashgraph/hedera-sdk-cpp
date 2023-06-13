@@ -30,11 +30,13 @@ add_executable(${TEST_PROJECT_NAME}
         ContractUpdateTransactionTest.cc
         CustomFixedFeeTest.cc
         CustomFractionalFeeTest.cc
+        CustomRoyaltyFeeTest.cc
         DelegateContractIdTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
         ECDSAsecp256k1PublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        EthereumFlowTest.cc
         EthereumTransactionTest.cc
         EthereumTransactionDataEip1559Test.cc
         EthereumTransactionDataLegacyTest.cc

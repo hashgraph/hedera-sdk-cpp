@@ -53,6 +53,15 @@ std::unique_ptr<proto::CustomFee> CustomFixedFee::toProtobuf() const
 }
 
 //-----
+std::unique_ptr<proto::FixedFee> CustomFixedFee::toFixedFeeProtobuf() const
+{
+  auto fee = std::make_unique<proto::FixedFee>();
+  fee->set_amount(static_cast<int64_t>(mAmount));
+  fee->set_allocated_denominating_token_id(mDenominatingTokenId->toProtobuf().release());
+  return fee;
+}
+
+//-----
 CustomFixedFee& CustomFixedFee::setAmount(const uint64_t& amount)
 {
   mAmount = amount;

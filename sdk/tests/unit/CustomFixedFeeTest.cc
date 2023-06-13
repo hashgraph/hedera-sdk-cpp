@@ -100,6 +100,24 @@ TEST_F(CustomFixedFeeTest, ToProtobuf)
 }
 
 //-----
+TEST_F(CustomFixedFeeTest, ToFixedFeeProtobuf)
+{
+  // Given
+  CustomFixedFee customFixedFee;
+  customFixedFee.setAmount(getTestAmount());
+  customFixedFee.setDenominatingTokenId(getTestTokenId());
+
+  // When
+  std::unique_ptr<proto::FixedFee> protoFixedFee = customFixedFee.toFixedFeeProtobuf();
+
+  // Then
+  EXPECT_EQ(protoFixedFee->amount(), getTestAmount());
+  EXPECT_EQ(protoFixedFee->denominating_token_id().shardnum(), getTestTokenId().getShardNum());
+  EXPECT_EQ(protoFixedFee->denominating_token_id().realmnum(), getTestTokenId().getRealmNum());
+  EXPECT_EQ(protoFixedFee->denominating_token_id().tokennum(), getTestTokenId().getTokenNum());
+}
+
+//-----
 TEST_F(CustomFixedFeeTest, GetSetAmount)
 {
   // Given
