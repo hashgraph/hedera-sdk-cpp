@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_TOKEN_CREATE_TRANSACTION_H_
 
 #include "AccountId.h"
+#include "CustomFee.h"
 #include "Defaults.h"
 #include "Key.h"
 #include "TokenSupplyType.h"
@@ -32,9 +33,11 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace proto
 {
+class TokenCreateTransactionBody;
 class TransactionBody;
 }
 
@@ -44,7 +47,7 @@ namespace Hedera
  * Create a new fungible or non-fungible token (NFT) on the Hedera network. After you submit the transaction to the
  * Hedera network, you can obtain the new token ID by requesting the receipt.
  *
- * For non-fungible tokens, the token ID represents a NFT class. Once the token is created, you will have to mint each
+ * For non-fungible tokens, the token ID represents an NFT class. Once the token is created, you will have to mint each
  * NFT using the token mint operation.
  *
  * Transaction Signing Requirements:
@@ -223,6 +226,23 @@ public:
   TokenCreateTransaction& setFeeScheduleKey(const std::shared_ptr<Key>& key);
 
   /**
+   * Set the desired custom fees to be assessed during a TransferTransaction that transfers units of the new token.
+   *
+   * @param fees The desired custom fees to be assessed during a TransferTransaction that transfers units of the new
+   *             token.
+   * @return A reference to this TokenCreateTransaction with the newly-set fee custom fees.
+   */
+  TokenCreateTransaction& setCustomFees(const std::vector<std::shared_ptr<CustomFee>>& fees);
+
+  /**
+   * Set the desired pause key for the new token.
+   *
+   * @param key The desired pause key for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set pause key.
+   */
+  TokenCreateTransaction& setPauseKey(const std::shared_ptr<Key>& key);
+
+  /**
    * Get the desired name for the new token.
    *
    * @return The desired name for the new token.
@@ -355,7 +375,49 @@ public:
    */
   [[nodiscard]] inline std::shared_ptr<Key> getFeeScheduleKey() const { return mSupplyKey; }
 
+  /**
+   * Get the desired custom fees to be assessed during a TransferTransaction that transfers units of the new token.
+   *
+   * @return The desired custom fees to be assessed during a TransferTransaction that transfers units of the new token.
+   */
+  [[nodiscard]] inline std::vector<std::shared_ptr<CustomFee>> getCustomFees() const { return mCustomFees; }
+
 private:
+  /**
+   * Derived from Executable. Construct a Transaction protobuf object from this TokenCreateTransaction object.
+   *
+   * @param client The Client trying to construct this TokenCreateTransaction.
+   * @param node   The Node to which this TokenCreateTransaction will be sent. This is unused.
+   * @return A Transaction protobuf object filled with this TokenCreateTransaction object's data.
+   * @throws UninitializedException If the input client has no operator with which to sign this
+   *                                TokenCreateTransaction.
+   */
+  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
+                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
+
+  /**
+   * Derived from Executable. Submit this TokenCreateTransaction to a Node.
+   *
+   * @param client   The Client submitting this TokenCreateTransaction.
+   * @param deadline The deadline for submitting this TokenCreateTransaction.
+   * @param node     Pointer to the Node to which this TokenCreateTransaction should be submitted.
+   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
+   *                 information from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const Client& client,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           proto::TransactionResponse* response) const override;
+
+  /**
+   * Build a TokenCreateTransactionBody protobuf object from this TokenCreateTransaction object.
+   *
+   * @return A pointer to a TokenCreateTransactionBody protobuf object filled with this TokenCreateTransaction object's
+   *         data.
+   */
+  [[nodiscard]] proto::TokenCreateTransactionBody* build() const;
+
   /**
    * The publicly visible name of the token. The token name is specified as a string of UTF-8 characters in Unicode.
    * UTF-8 encoding of this Unicode cannot contain the 0 byte (NUL). The token name is not unique. Maximum of 100
@@ -384,30 +446,31 @@ private:
   uint64_t mInitialSupply = 0ULL;
 
   /**
-   * The account which will act as a treasure for the token. This account will receive the specified initial supply or
+   * The account which will act as a treasury for the token. This account will receive the specified initial supply or
    * the newly minted NFTs in the case for NON_FUNGIBLE_UNIQUE type.
    */
   AccountId mTreasury;
 
   /**
-   * The Key which can perform update/delete operations on the token. If empty, the token can be perceived as immutable
-   * (not being able to be updated/deleted).
+   * The Key which can perform update/delete operations on the token. If nullptr, the token can be perceived as
+   * immutable (not being able to be updated/deleted).
    */
   std::shared_ptr<Key> mAdminKey = nullptr;
 
   /**
-   * The Key which can grant or revoke KYC of an account for the token's transactions. If empty, KYC is not required,
+   * The Key which can grant or revoke KYC of an account for the token's transactions. If nullptr, KYC is not required,
    * and KYC grant or revoke operations are not possible.
    */
   std::shared_ptr<Key> mKycKey = nullptr;
 
   /**
-   * The Key which can sign to freeze or unfreeze an account for token transactions. If empty, freezing is not possible.
+   * The Key which can sign to freeze or unfreeze an account for token transactions. If nullptr, freezing is not
+   * possible.
    */
   std::shared_ptr<Key> mFreezeKey = nullptr;
 
   /**
-   * The Key which can wipe the token balance of an account. If empty, wipe is not possible.
+   * The Key which can wipe the token balance of an account. If nullptr, wipe is not possible.
    */
   std::shared_ptr<Key> mWipeKey = nullptr;
 
@@ -465,6 +528,17 @@ private:
    * The Key which can change the token's custom fee schedule. This Key must sign a TokenFeeScheduleUpdate transaction.
    */
   std::shared_ptr<Key> mFeeScheduleKey = nullptr;
+
+  /**
+   * The custom fees to be assessed during a TransferTransaction that transfers units of the new token.
+   */
+  std::vector<std::shared_ptr<CustomFee>> mCustomFees;
+
+  /**
+   * The Key which can pause and unpause the new token. If nullptr, the token pause status defaults to
+   * PauseNotApplicable, otherwise Unpaused.
+   */
+  std::shared_ptr<Key> mPauseKey = nullptr;
 };
 
 } // namespace Hedera
