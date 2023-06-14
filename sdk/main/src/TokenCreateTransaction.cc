@@ -54,7 +54,7 @@ TokenCreateTransaction::TokenCreateTransaction(const proto::TransactionBody& tra
 
   if (body.has_treasury())
   {
-    mTreasury = AccountId::fromProtobuf(body.treasury());
+    mTreasuryAccountId = AccountId::fromProtobuf(body.treasury());
   }
 
   if (body.has_adminkey())
@@ -153,10 +153,10 @@ TokenCreateTransaction& TokenCreateTransaction::setInitialSupply(const uint64_t&
 }
 
 //-----
-TokenCreateTransaction& TokenCreateTransaction::setTreasury(const AccountId& accountId)
+TokenCreateTransaction& TokenCreateTransaction::setTreasuryAccountId(const AccountId& accountId)
 {
   requireNotFrozen();
-  mTreasury = accountId;
+  mTreasuryAccountId = accountId;
   return *this;
 }
 
@@ -317,7 +317,7 @@ proto::TokenCreateTransactionBody* TokenCreateTransaction::build() const
   body->set_symbol(mSymbol);
   body->set_decimals(mDecimals);
   body->set_initialsupply(mInitialSupply);
-  body->set_allocated_treasury(mTreasury.toProtobuf().release());
+  body->set_allocated_treasury(mTreasuryAccountId.toProtobuf().release());
 
   if (mAdminKey)
   {

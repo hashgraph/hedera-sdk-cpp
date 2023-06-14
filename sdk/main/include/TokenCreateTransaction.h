@@ -111,7 +111,7 @@ public:
    * @param accountId The ID of the desired treasury account for the new token.
    * @return A reference to this TokenCreateTransaction with the newly-set treasury account ID.
    */
-  TokenCreateTransaction& setTreasury(const AccountId& accountId);
+  TokenCreateTransaction& setTreasuryAccountId(const AccountId& accountId);
 
   /**
    * Set the desired admin key for the new token.
@@ -275,7 +275,7 @@ public:
    *
    * @return The ID of the desired treasury account for the supply of new tokens.
    */
-  [[nodiscard]] inline AccountId getTreasuryAccount() const { return mTreasury; }
+  [[nodiscard]] inline AccountId getTreasuryAccountId() const { return mTreasuryAccountId; }
 
   /**
    * Get the desired admin key for the new token.
@@ -373,7 +373,7 @@ public:
    *
    * @return The desired fee schedule key for the new token.
    */
-  [[nodiscard]] inline std::shared_ptr<Key> getFeeScheduleKey() const { return mSupplyKey; }
+  [[nodiscard]] inline std::shared_ptr<Key> getFeeScheduleKey() const { return mFeeScheduleKey; }
 
   /**
    * Get the desired custom fees to be assessed during a TransferTransaction that transfers units of the new token.
@@ -381,6 +381,13 @@ public:
    * @return The desired custom fees to be assessed during a TransferTransaction that transfers units of the new token.
    */
   [[nodiscard]] inline std::vector<std::shared_ptr<CustomFee>> getCustomFees() const { return mCustomFees; }
+
+  /**
+   * Get the desired pause key for the new token.
+   *
+   * @return The desired pause key for the new token.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getPauseKey() const { return mPauseKey; }
 
 private:
   /**
@@ -449,7 +456,7 @@ private:
    * The account which will act as a treasury for the token. This account will receive the specified initial supply or
    * the newly minted NFTs in the case for NON_FUNGIBLE_UNIQUE type.
    */
-  AccountId mTreasury;
+  AccountId mTreasuryAccountId;
 
   /**
    * The Key which can perform update/delete operations on the token. If nullptr, the token can be perceived as
