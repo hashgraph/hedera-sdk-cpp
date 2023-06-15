@@ -317,7 +317,11 @@ proto::TokenCreateTransactionBody* TokenCreateTransaction::build() const
   body->set_symbol(mSymbol);
   body->set_decimals(mDecimals);
   body->set_initialsupply(mInitialSupply);
-  body->set_allocated_treasury(mTreasuryAccountId.toProtobuf().release());
+
+  if (mTreasuryAccountId.has_value())
+  {
+    body->set_allocated_treasury(mTreasuryAccountId->toProtobuf().release());
+  }
 
   if (mAdminKey)
   {
@@ -346,7 +350,12 @@ proto::TokenCreateTransactionBody* TokenCreateTransaction::build() const
 
   body->set_freezedefault(mFreezeDefault);
   body->set_allocated_expiry(internal::TimestampConverter::toProtobuf(mExpirationTime));
-  body->set_allocated_autorenewaccount(mAutoRenewAccountId.toProtobuf().release());
+
+  if (mAutoRenewAccountId.has_value())
+  {
+    body->set_allocated_autorenewaccount(mAutoRenewAccountId->toProtobuf().release());
+  }
+
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
   body->set_memo(mMemo);
   body->set_tokentype(gTokenTypeToProtobufTokenType.at(mTokenType));

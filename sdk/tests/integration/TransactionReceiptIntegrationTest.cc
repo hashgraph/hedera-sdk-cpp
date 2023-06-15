@@ -25,8 +25,10 @@
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
+#include "TokenCreateTransaction.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
+#include "TransactionReceiptQuery.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -143,4 +145,38 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateTransactionAndChe
 
   ASSERT_NO_THROW(txReceipt =
                     FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
+}
+
+//-----
+TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckTransactionReceipt)
+{
+  // Given
+  std::unique_ptr<PrivateKey> operatorKey;
+  ASSERT_NO_THROW(
+    operatorKey = ED25519PrivateKey::fromString(
+      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+
+  TransactionResponse txResponse;
+  ASSERT_NO_THROW(txResponse = TokenCreateTransaction()
+                                 .setName("test token name")
+                                 .setSymbol("test token symbol")
+                                 .setTreasuryAccountId(AccountId(2ULL))
+                                 .execute(getTestClient()));
+
+  // When
+  TransactionReceipt txReceipt;
+  EXPECT_NO_THROW(txReceipt =
+                    TransactionReceiptQuery().setTransactionId(txResponse.getTransactionId()).execute(getTestClient()));
+
+  // Then
+  EXPECT_EQ(txReceipt.getStatus(), Status::SUCCESS);
+  EXPECT_FALSE(txReceipt.getAccountId().has_value());
+  EXPECT_FALSE(txReceipt.getContractId().has_value());
+  EXPECT_FALSE(txReceipt.getFileId().has_value());
+  ASSERT_TRUE(txReceipt.getExchangeRates().has_value());
+  EXPECT_TRUE(txReceipt.getExchangeRates().value().getCurrentExchangeRate().has_value());
+  EXPECT_TRUE(txReceipt.getTokenId().has_value());
+
+  // Clean up
+  // TODO: TokenDeleteTransaction
 }

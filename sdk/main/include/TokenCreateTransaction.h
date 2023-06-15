@@ -273,9 +273,10 @@ public:
   /**
    * Get the ID of the desired treasury account for the supply of new tokens.
    *
-   * @return The ID of the desired treasury account for the supply of new tokens.
+   * @return The ID of the desired treasury account for the supply of new tokens. Returns uninitialized if no treasury
+   *         account has been set yet.
    */
-  [[nodiscard]] inline AccountId getTreasuryAccountId() const { return mTreasuryAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getTreasuryAccountId() const { return mTreasuryAccountId; }
 
   /**
    * Get the desired admin key for the new token.
@@ -329,9 +330,10 @@ public:
   /**
    * Get the ID of the desired auto-renew account for the new token.
    *
-   * @return The ID of the desired auto-renew account for the new token.
+   * @return The ID of the desired auto-renew account for the new token. Returns uninitialized if no auto-renew account
+   *         ID has been set yet.
    */
-  [[nodiscard]] inline AccountId getAutoRenewAccountId() const { return mAutoRenewAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getAutoRenewAccountId() const { return mAutoRenewAccountId; }
 
   /**
    * Get the desired auto-renew period for the new token.
@@ -456,7 +458,7 @@ private:
    * The account which will act as a treasury for the token. This account will receive the specified initial supply or
    * the newly minted NFTs in the case for NON_FUNGIBLE_UNIQUE type.
    */
-  AccountId mTreasuryAccountId;
+  std::optional<AccountId> mTreasuryAccountId;
 
   /**
    * The Key which can perform update/delete operations on the token. If nullptr, the token can be perceived as
@@ -496,13 +498,13 @@ private:
    * The epoch second at which the token should expire. If mAutoRenewAccountId and mAutoRenewPeriod are specified, this
    * is coerced to the current epoch second plus the mAutoRenewPeriod.
    */
-  std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now();
+  std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now() + DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The ID of the account which will be automatically charged to renew the token's expiration, at the interval
    * specified in mAutoRenewPeriod.
    */
-  AccountId mAutoRenewAccountId;
+  std::optional<AccountId> mAutoRenewAccountId;
 
   /**
    * The interval at which the auto-renew account will be charged to extend the token's expiry.

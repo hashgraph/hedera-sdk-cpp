@@ -81,6 +81,11 @@ void Node::shutdown()
     mFileStub.reset();
   }
 
+  if (mTokenStub)
+  {
+    mTokenStub.reset();
+  }
+
   if (mChannel)
   {
     mChannel.reset();
@@ -185,6 +190,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mFileStub->deleteFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileUpdate:
       return mFileStub->updateFile(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenCreation:
+      return mTokenStub->createToken(&context, transaction, response);
     default:
       // This should never happen
       throw std::invalid_argument("Unrecognized gRPC transaction method case");
@@ -295,6 +302,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
         mCryptoStub = proto::CryptoService::NewStub(mChannel);
         mFileStub = proto::FileService::NewStub(mChannel);
         mSmartContractStub = proto::SmartContractService::NewStub(mChannel);
+        mTokenStub = proto::TokenService::NewStub(mChannel);
         mIsInitialized = true;
 
         return true;
