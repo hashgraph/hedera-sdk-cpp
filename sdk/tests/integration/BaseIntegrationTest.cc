@@ -21,9 +21,13 @@
 #include "AccountId.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
+#include "impl/Utilities.h"
 
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 using json = nlohmann::json;
 using namespace std;
@@ -72,6 +76,10 @@ void BaseIntegrationTest::SetUp()
 
   mClient = Client::forNetwork(networkAccountsMap);
   mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
+
+  mFileContent = internal::Utilities::stringToByteVector(
+    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
+      .get<std::string>());
 }
 
 } // namespace Hedera
