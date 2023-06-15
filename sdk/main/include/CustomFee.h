@@ -36,7 +36,6 @@ namespace Hedera
  * fee is attached. A custom fee may be either fixed, fractional, or a royalty, and must specify a fee collector account
  * to receive the assessed fees. Only positive fees may be assessed.
  */
-template<typename FeeType>
 class CustomFee
 {
 public:
@@ -48,7 +47,7 @@ public:
    * @param proto The CustomFee protobuf object from which to create an CustomFee object.
    * @return A pointer to the constructed CustomFee object.
    */
-  [[nodiscard]] static std::unique_ptr<CustomFee<FeeType>> fromProtobuf(const proto::CustomFee& proto);
+  [[nodiscard]] static std::unique_ptr<CustomFee> fromProtobuf(const proto::CustomFee& proto);
 
   /**
    * Create a clone of this CustomFee object.
@@ -56,22 +55,6 @@ public:
    * @return A pointer to the created clone of this CustomFee.
    */
   [[nodiscard]] virtual std::unique_ptr<CustomFee> clone() const = 0;
-
-  /**
-   * Set the ID of the desired fee collector account.
-   *
-   * @param accountId The ID of the desired fee collector account.
-   * @return A reference to this derived CustomFee object, with the newly-set fee collector account ID.
-   */
-  FeeType& setFeeCollectorAccountId(const AccountId& accountId);
-
-  /**
-   * Set the fee collector exemption policy.
-   *
-   * @param exempt \c TRUE if fee collectors should be exempt from this CustomFee, otherwise \c FALSE.
-   * @return A reference ot this derived CustomFee object, with the newly-set fee collector exemption policy.
-   */
-  FeeType& setAllCollectorsAreExempt(bool exempt);
 
   /**
    * Get the ID of the desired fee collector account.
@@ -97,7 +80,6 @@ protected:
   CustomFee(CustomFee&&) noexcept = default;
   CustomFee& operator=(CustomFee&&) noexcept = default;
 
-private:
   /**
    * The ID of the account that should receive the fee.
    */

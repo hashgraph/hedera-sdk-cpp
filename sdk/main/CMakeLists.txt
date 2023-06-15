@@ -29,6 +29,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractLogInfo.cc
         src/ContractUpdateTransaction.cc
         src/CustomFee.cc
+        src/CustomFeeBase.cc
         src/DelegateContractId.cc
         src/ECDSAsecp256k1PrivateKey.cc
         src/ECDSAsecp256k1PublicKey.cc

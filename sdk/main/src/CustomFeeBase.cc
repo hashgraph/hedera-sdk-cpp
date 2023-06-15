@@ -17,17 +17,24 @@
  * limitations under the License.
  *
  */
-#include "CustomFee.h"
-
-#include <proto/custom_fees.pb.h>
+#include "CustomFeeBase.h"
 
 namespace Hedera
 {
 //-----
-std::unique_ptr<CustomFee> CustomFee::fromProtobuf(const proto::CustomFee& proto)
+template<typename FeeType>
+FeeType& CustomFeeBase<FeeType>::setFeeCollectorAccountId(const AccountId& accountId)
 {
-  // TODO
-  return {};
+  mFeeCollectorAccountId = accountId;
+  return static_cast<FeeType&>(*this);
+}
+
+//-----
+template<typename FeeType>
+FeeType& CustomFeeBase<FeeType>::setAllCollectorsAreExempt(bool exempt)
+{
+  mAllCollectorsAreExempt = exempt;
+  return static_cast<FeeType&>(*this);
 }
 
 } // namespace Hedera
