@@ -34,6 +34,7 @@ add_executable(${TEST_PROJECT_NAME}
         ECDSAsecp256k1PublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        EthereumFlowTest.cc
         EthereumTransactionTest.cc
         EthereumTransactionDataEip1559Test.cc
         EthereumTransactionDataLegacyTest.cc
@@ -60,7 +61,9 @@ add_executable(${TEST_PROJECT_NAME}
         TokenNftAllowanceTest.cc
         TokenNftRemoveAllowanceTest.cc
         TokenNftTransferTest.cc
+        TokenSupplyTypeTest.cc
         TokenTransferTest.cc
+        TokenTypeTest.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
