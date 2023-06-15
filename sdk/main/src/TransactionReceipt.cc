@@ -50,6 +50,11 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
     receipt.mExchangeRates = ExchangeRateSet::fromProtobuf(proto.exchangerate());
   }
 
+  if (proto.has_tokenid())
+  {
+    receipt.mTokenId = TokenId::fromProtobuf(proto.tokenid());
+  }
+
   return receipt;
 }
 
