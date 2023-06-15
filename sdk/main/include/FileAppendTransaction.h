@@ -46,6 +46,11 @@ class FileAppendTransaction : public ChunkedTransaction<FileAppendTransaction>
 {
 public:
   /**
+   * The default chunk size for a FileAppendTransaction.
+   */
+  static constexpr unsigned int DEFAULT_CHUNK_SIZE = 4096U;
+   
+  /**
    * Default constructor. Sets the maximum transaction fee to 5 Hbars, chunk size to 2048 bytes, and sets the receipt
    * retrieval policy to always retrieve receipts between chunk submissions.
    */
