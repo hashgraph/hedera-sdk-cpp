@@ -18,6 +18,7 @@
  *
  */
 #include "CustomFee.h"
+#include "CustomFixedFee.h"
 
 #include <proto/custom_fees.pb.h>
 
@@ -26,8 +27,22 @@ namespace Hedera
 //-----
 std::unique_ptr<CustomFee> CustomFee::fromProtobuf(const proto::CustomFee& proto)
 {
-  // TODO
-  return {};
+  switch (proto.fee_case())
+  {
+    case proto::CustomFee::FeeCase::kFixedFee:
+      return std::make_unique<CustomFixedFee>(CustomFixedFee::fromProtobuf(proto.fixed_fee()));
+    default:
+      throw std::invalid_argument("Fee protobuf case not recognized");
+  }
+}
+
+//-----
+std::unique_ptr<proto::CustomFee> CustomFee::initProtobuf() const
+{
+  auto fee = std::make_unique<proto::CustomFee>();
+  fee->set_allocated_fee_collector_account_id(mFeeCollectorAccountId.toProtobuf().release());
+  fee->set_all_collectors_are_exempt(mAllCollectorsAreExempt);
+  return fee;
 }
 
 } // namespace Hedera

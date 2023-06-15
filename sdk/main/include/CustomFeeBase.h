@@ -34,7 +34,7 @@ class CustomFeeBase : public CustomFee
 {
 public:
   virtual ~CustomFeeBase() = default;
-
+  
   /**
    * Set the ID of the desired fee collector account.
    *

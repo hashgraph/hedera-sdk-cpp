@@ -18,6 +18,9 @@
  *
  */
 #include "CustomFeeBase.h"
+#include "CustomFixedFee.h"
+
+#include <proto/custom_fees.pb.h>
 
 namespace Hedera
 {
@@ -36,5 +39,10 @@ FeeType& CustomFeeBase<FeeType>::setAllCollectorsAreExempt(bool exempt)
   mAllCollectorsAreExempt = exempt;
   return static_cast<FeeType&>(*this);
 }
+
+/**
+ * Explicit template instantiations
+ */
+template class CustomFeeBase<CustomFixedFee>;
 
 } // namespace Hedera
