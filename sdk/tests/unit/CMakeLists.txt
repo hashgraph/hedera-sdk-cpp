@@ -41,6 +41,7 @@ add_executable(${TEST_PROJECT_NAME}
         EthereumTransactionDataLegacyTest.cc
         EvmAddressTest.cc
         ExchangeRateTest.cc
+        FeeAssessmentMethodTest.cc
         FileAppendTransactionTest.cc
         FileContentsQueryTest.cc
         FileCreateTransactionTest.cc
@@ -62,7 +63,9 @@ add_executable(${TEST_PROJECT_NAME}
         TokenNftAllowanceTest.cc
         TokenNftRemoveAllowanceTest.cc
         TokenNftTransferTest.cc
+        TokenSupplyTypeTest.cc
         TokenTransferTest.cc
+        TokenTypeTest.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
