@@ -30,6 +30,7 @@ add_executable(${TEST_PROJECT_NAME}
         ContractUpdateTransactionTest.cc
         CustomFixedFeeTest.cc
         CustomRoyaltyFeeTest.cc
+        CustomFractionalFeeTest.cc
         DelegateContractIdTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
         ECDSAsecp256k1PublicKeyTest.cc

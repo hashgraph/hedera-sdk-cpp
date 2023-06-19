@@ -19,6 +19,7 @@
  */
 #include "CustomFeeBase.h"
 #include "CustomFixedFee.h"
+#include "CustomFractionalFee.h"
 #include "CustomRoyaltyFee.h"
 
 #include <proto/custom_fees.pb.h>
@@ -46,5 +47,6 @@ FeeType& CustomFeeBase<FeeType>::setAllCollectorsAreExempt(bool exempt)
  */
 template class CustomFeeBase<CustomFixedFee>;
 template class CustomFeeBase<CustomRoyaltyFee>;
+template class CustomFeeBase<CustomFractionalFee>;
 
 } // namespace Hedera

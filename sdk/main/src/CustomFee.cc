@@ -19,6 +19,7 @@
  */
 #include "CustomFee.h"
 #include "CustomFixedFee.h"
+#include "CustomFractionalFee.h"
 #include "CustomRoyaltyFee.h"
 
 #include <proto/custom_fees.pb.h>
@@ -34,6 +35,8 @@ std::unique_ptr<CustomFee> CustomFee::fromProtobuf(const proto::CustomFee& proto
       return std::make_unique<CustomFixedFee>(CustomFixedFee::fromProtobuf(proto.fixed_fee()));
     case proto::CustomFee::FeeCase::kRoyaltyFee:
       return std::make_unique<CustomRoyaltyFee>(CustomRoyaltyFee::fromProtobuf(proto.royalty_fee()));
+    case proto::CustomFee::FeeCase::kFractionalFee:
+      return std::make_unique<CustomFractionalFee>(CustomFractionalFee::fromProtobuf(proto.fractional_fee()));
     default:
       throw std::invalid_argument("Fee protobuf case not recognized");
   }
