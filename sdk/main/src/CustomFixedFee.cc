@@ -62,7 +62,7 @@ std::unique_ptr<proto::FixedFee> CustomFixedFee::toFixedFeeProtobuf() const
   {
     fee->set_allocated_denominating_token_id(mDenominatingTokenId->toProtobuf().release());
   }
-  
+
   return fee;
 }
 
