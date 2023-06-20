@@ -74,6 +74,7 @@ std::pair<int,
                        EthereumTransaction,
                        FileUpdateTransaction,
                        FileAppendTransaction,
+                       TokenCreateTransaction,
                        TokenDeleteTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
@@ -146,8 +147,10 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 13, FileUpdateTransaction(txBody) };
     case proto::TransactionBody::kFileAppend:
       return { 14, FileAppendTransaction(txBody) };
+    case proto::TransactionBody::kTokenCreation:
+      return { 15, TokenCreateTransaction(txBody) };
     case proto::TransactionBody::kTokenDeletion:
-      return { 15, TokenDeleteTransaction(txBody) };
+      return { 16, TokenDeleteTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
