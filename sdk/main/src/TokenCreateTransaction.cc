@@ -47,8 +47,8 @@ TokenCreateTransaction::TokenCreateTransaction(const proto::TransactionBody& tra
 
   const proto::TokenCreateTransactionBody& body = transactionBody.tokencreation();
 
-  mName = body.name();
-  mSymbol = body.symbol();
+  mTokenName = body.name();
+  mTokenSymbol = body.symbol();
   mDecimals = body.decimals();
   mInitialSupply = body.initialsupply();
 
@@ -99,7 +99,7 @@ TokenCreateTransaction::TokenCreateTransaction(const proto::TransactionBody& tra
     mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
   }
 
-  mMemo = body.memo();
+  mTokenMemo = body.memo();
   mTokenType = gProtobufTokenTypeToTokenType.at(body.tokentype());
   mSupplyType = gProtobufTokenSupplyTypeToTokenSupplyType.at(body.supplytype());
   mMaxSupply = static_cast<uint64_t>(body.maxsupply());
@@ -121,18 +121,18 @@ TokenCreateTransaction::TokenCreateTransaction(const proto::TransactionBody& tra
 }
 
 //-----
-TokenCreateTransaction& TokenCreateTransaction::setName(std::string_view name)
+TokenCreateTransaction& TokenCreateTransaction::setTokenName(std::string_view name)
 {
   requireNotFrozen();
-  mName = name;
+  mTokenName = name;
   return *this;
 }
 
 //-----
-TokenCreateTransaction& TokenCreateTransaction::setSymbol(std::string_view symbol)
+TokenCreateTransaction& TokenCreateTransaction::setTokenSymbol(std::string_view symbol)
 {
   requireNotFrozen();
-  mSymbol = symbol;
+  mTokenSymbol = symbol;
   return *this;
 }
 
@@ -234,10 +234,10 @@ TokenCreateTransaction& TokenCreateTransaction::setAutoRenewPeriod(const std::ch
 }
 
 //-----
-TokenCreateTransaction& TokenCreateTransaction::setMemo(std::string_view memo)
+TokenCreateTransaction& TokenCreateTransaction::setTokenMemo(std::string_view memo)
 {
   requireNotFrozen();
-  mMemo = memo;
+  mTokenMemo = memo;
   return *this;
 }
 
@@ -313,8 +313,8 @@ grpc::Status TokenCreateTransaction::submitRequest(const Client& client,
 proto::TokenCreateTransactionBody* TokenCreateTransaction::build() const
 {
   auto body = std::make_unique<proto::TokenCreateTransactionBody>();
-  body->set_name(mName);
-  body->set_symbol(mSymbol);
+  body->set_name(mTokenName);
+  body->set_symbol(mTokenSymbol);
   body->set_decimals(mDecimals);
   body->set_initialsupply(mInitialSupply);
 
@@ -357,7 +357,7 @@ proto::TokenCreateTransactionBody* TokenCreateTransaction::build() const
   }
 
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
-  body->set_memo(mMemo);
+  body->set_memo(mTokenMemo);
   body->set_tokentype(gTokenTypeToProtobufTokenType.at(mTokenType));
   body->set_supplytype(gTokenSupplyTypeToProtobufTokenSupplyType.at(mSupplyType));
   body->set_maxsupply(static_cast<int64_t>(mMaxSupply));

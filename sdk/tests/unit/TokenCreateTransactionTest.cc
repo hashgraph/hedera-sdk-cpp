@@ -47,8 +47,8 @@ protected:
   void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
-  [[nodiscard]] inline const std::string& getTestName() const { return mTestName; }
-  [[nodiscard]] inline const std::string& getTestSymbol() const { return mTestSymbol; }
+  [[nodiscard]] inline const std::string& getTestTokenName() const { return mTestTokenName; }
+  [[nodiscard]] inline const std::string& getTestTokenSymbol() const { return mTestTokenSymbol; }
   [[nodiscard]] inline uint32_t getTestDecimals() const { return mTestDecimals; }
   [[nodiscard]] inline const uint64_t& getTestInitialSupply() const { return mTestInitialSupply; }
   [[nodiscard]] inline const AccountId& getTestTreasuryAccountId() const { return mTestTreasuryAccountId; }
@@ -67,7 +67,7 @@ protected:
   {
     return mTestAutoRenewPeriod;
   }
-  [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
+  [[nodiscard]] inline const std::string& getTestTokenMemo() const { return mTestTokenMemo; }
   [[nodiscard]] inline TokenType getTestTokenType() const { return mTestTokenType; }
   [[nodiscard]] inline TokenSupplyType getTestTokenSupplyType() const { return mTestTokenSupplyType; }
   [[nodiscard]] inline const uint64_t& getTestMaxSupply() const { return mTestMaxSupply; }
@@ -80,8 +80,8 @@ protected:
 
 private:
   Client mClient;
-  const std::string mTestName = "test name";
-  const std::string mTestSymbol = "test symbol";
+  const std::string mTestTokenName = "test name";
+  const std::string mTestTokenSymbol = "test symbol";
   const uint32_t mTestDecimals = 1U;
   const uint64_t mTestInitialSupply = 2ULL;
   const AccountId mTestTreasuryAccountId = AccountId(3ULL, 4ULL, 5ULL);
@@ -94,7 +94,7 @@ private:
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const AccountId mTestAutoRenewAccountId = AccountId(6ULL, 7ULL, 8ULL);
   const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(9);
-  const std::string mTestMemo = "test memo";
+  const std::string mTestTokenMemo = "test memo";
   const TokenType mTestTokenType = TokenType::NON_FUNGIBLE_UNIQUE;
   const TokenSupplyType mTestTokenSupplyType = TokenSupplyType::FINITE;
   const uint64_t mTestMaxSupply = 10ULL;
@@ -110,8 +110,8 @@ TEST_F(TokenCreateTransactionTest, ConstructTokenCreateTransactionFromTransactio
 {
   // Given
   auto body = std::make_unique<proto::TokenCreateTransactionBody>();
-  body->set_name(getTestName());
-  body->set_symbol(getTestSymbol());
+  body->set_name(getTestTokenName());
+  body->set_symbol(getTestTokenSymbol());
   body->set_decimals(getTestDecimals());
   body->set_initialsupply(getTestInitialSupply());
   body->set_allocated_treasury(getTestTreasuryAccountId().toProtobuf().release());
@@ -124,7 +124,7 @@ TEST_F(TokenCreateTransactionTest, ConstructTokenCreateTransactionFromTransactio
   body->set_allocated_expiry(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
   body->set_allocated_autorenewaccount(getTestAutoRenewAccountId().toProtobuf().release());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
-  body->set_memo(getTestMemo());
+  body->set_memo(getTestTokenMemo());
   body->set_tokentype(gTokenTypeToProtobufTokenType.at(getTestTokenType()));
   body->set_supplytype(gTokenSupplyTypeToProtobufTokenSupplyType.at(getTestTokenSupplyType()));
   body->set_maxsupply(static_cast<int64_t>(getTestMaxSupply()));
@@ -144,8 +144,8 @@ TEST_F(TokenCreateTransactionTest, ConstructTokenCreateTransactionFromTransactio
   const TokenCreateTransaction tokenCreateTransaction(txBody);
 
   // Then
-  EXPECT_EQ(tokenCreateTransaction.getName(), getTestName());
-  EXPECT_EQ(tokenCreateTransaction.getSymbol(), getTestSymbol());
+  EXPECT_EQ(tokenCreateTransaction.getTokenName(), getTestTokenName());
+  EXPECT_EQ(tokenCreateTransaction.getTokenSymbol(), getTestTokenSymbol());
   EXPECT_EQ(tokenCreateTransaction.getDecimals(), getTestDecimals());
   EXPECT_EQ(tokenCreateTransaction.getInitialSupply(), getTestInitialSupply());
   EXPECT_EQ(tokenCreateTransaction.getTreasuryAccountId(), getTestTreasuryAccountId());
@@ -158,7 +158,7 @@ TEST_F(TokenCreateTransactionTest, ConstructTokenCreateTransactionFromTransactio
   EXPECT_EQ(tokenCreateTransaction.getExpirationTime(), getTestExpirationTime());
   EXPECT_EQ(tokenCreateTransaction.getAutoRenewAccountId(), getTestAutoRenewAccountId());
   EXPECT_EQ(tokenCreateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
-  EXPECT_EQ(tokenCreateTransaction.getMemo(), getTestMemo());
+  EXPECT_EQ(tokenCreateTransaction.getTokenMemo(), getTestTokenMemo());
   EXPECT_EQ(tokenCreateTransaction.getTokenType(), getTestTokenType());
   EXPECT_EQ(tokenCreateTransaction.getSupplyType(), getTestTokenSupplyType());
   EXPECT_EQ(tokenCreateTransaction.getMaxSupply(), getTestMaxSupply());
@@ -186,10 +186,10 @@ TEST_F(TokenCreateTransactionTest, GetSetName)
   TokenCreateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setName(getTestName()));
+  EXPECT_NO_THROW(transaction.setTokenName(getTestTokenName()));
 
   // Then
-  EXPECT_EQ(transaction.getName(), getTestName());
+  EXPECT_EQ(transaction.getTokenName(), getTestTokenName());
 }
 
 //-----
@@ -200,7 +200,7 @@ TEST_F(TokenCreateTransactionTest, GetSetNameFrozen)
   ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
-  EXPECT_THROW(transaction.setName(getTestName()), IllegalStateException);
+  EXPECT_THROW(transaction.setTokenName(getTestTokenName()), IllegalStateException);
 }
 
 //-----
@@ -210,10 +210,10 @@ TEST_F(TokenCreateTransactionTest, GetSetSymbol)
   TokenCreateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setSymbol(getTestSymbol()));
+  EXPECT_NO_THROW(transaction.setTokenSymbol(getTestTokenSymbol()));
 
   // Then
-  EXPECT_EQ(transaction.getSymbol(), getTestSymbol());
+  EXPECT_EQ(transaction.getTokenSymbol(), getTestTokenSymbol());
 }
 
 //-----
@@ -224,7 +224,7 @@ TEST_F(TokenCreateTransactionTest, GetSetSymbolFrozen)
   ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
-  EXPECT_THROW(transaction.setSymbol(getTestSymbol()), IllegalStateException);
+  EXPECT_THROW(transaction.setTokenSymbol(getTestTokenSymbol()), IllegalStateException);
 }
 
 //-----
@@ -522,10 +522,10 @@ TEST_F(TokenCreateTransactionTest, GetSetMemo)
   TokenCreateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setMemo(getTestMemo()));
+  EXPECT_NO_THROW(transaction.setTokenMemo(getTestTokenMemo()));
 
   // Then
-  EXPECT_EQ(transaction.getMemo(), getTestMemo());
+  EXPECT_EQ(transaction.getTokenMemo(), getTestTokenMemo());
 }
 
 //-----
@@ -536,7 +536,7 @@ TEST_F(TokenCreateTransactionTest, GetSetMemoFrozen)
   ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
 
   // When / Then
-  EXPECT_THROW(transaction.setMemo(getTestMemo()), IllegalStateException);
+  EXPECT_THROW(transaction.setTokenMemo(getTestTokenMemo()), IllegalStateException);
 }
 
 //-----

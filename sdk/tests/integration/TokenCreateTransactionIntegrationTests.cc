@@ -56,8 +56,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, ExecuteTokenCreateTransaction)
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = TokenCreateTransaction()
-                                .setName("ffff")
-                                .setSymbol("F")
+                                .setTokenName("ffff")
+                                .setTokenSymbol("F")
                                 .setDecimals(3)
                                 .setInitialSupply(100000)
                                 .setTreasuryAccountId(AccountId(2ULL))
@@ -84,8 +84,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithMinimalPropertie
   // Given / When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = TokenCreateTransaction()
-                                .setName("ffff")
-                                .setSymbol("F")
+                                .setTokenName("ffff")
+                                .setTokenSymbol("F")
                                 .setTreasuryAccountId(AccountId(2ULL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -103,7 +103,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoName)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
-                                                      .setSymbol("F")
+                                                      .setTokenSymbol("F")
                                                       .setTreasuryAccountId(AccountId(2ULL))
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -115,7 +115,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoSymbol)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
-                                                      .setName("ffff")
+                                                      .setTokenName("ffff")
                                                       .setTreasuryAccountId(AccountId(2ULL))
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -126,10 +126,12 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoSymbol)
 TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoTreasuryAccount)
 {
   // Given / When / Then
-  EXPECT_THROW(
-    const TransactionReceipt txReceipt =
-      TokenCreateTransaction().setName("ffff").setSymbol("F").execute(getTestClient()).getReceipt(getTestClient()),
-    PrecheckStatusException); // INVALID_TREASURY_ACCOUNT_FOR_TOKEN
+  EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
+                                                      .setTokenName("ffff")
+                                                      .setTokenSymbol("F")
+                                                      .execute(getTestClient())
+                                                      .getReceipt(getTestClient()),
+               PrecheckStatusException); // INVALID_TREASURY_ACCOUNT_FOR_TOKEN
 }
 
 //-----
@@ -149,8 +151,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutTreasuryAc
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
-                                                      .setName("ffff")
-                                                      .setSymbol("F")
+                                                      .setTokenName("ffff")
+                                                      .setTokenSymbol("F")
                                                       .setTreasuryAccountId(accountId)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -175,8 +177,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutAdminKeySi
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
-                                                      .setName("ffff")
-                                                      .setSymbol("F")
+                                                      .setTokenName("ffff")
+                                                      .setTokenSymbol("F")
                                                       .setTreasuryAccountId(AccountId(2ULL))
                                                       .setAdminKey(adminKey)
                                                       .execute(getTestClient())
@@ -201,8 +203,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithCustomFees)
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = TokenCreateTransaction()
-                                .setName("ffff")
-                                .setSymbol("F")
+                                .setTokenName("ffff")
+                                .setTokenSymbol("F")
                                 .setTreasuryAccountId(AccountId(2ULL))
                                 .setCustomFees(fees)
                                 .execute(getTestClient())
@@ -232,8 +234,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithMoreThanTenCu
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
-                                                      .setName("ffff")
-                                                      .setSymbol("F")
+                                                      .setTokenName("ffff")
+                                                      .setTokenSymbol("F")
                                                       .setTreasuryAccountId(AccountId(2ULL))
                                                       .setAdminKey(operatorKey)
                                                       .setCustomFees(fees)
@@ -259,8 +261,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomF
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = TokenCreateTransaction()
-                                .setName("ffff")
-                                .setSymbol("F")
+                                .setTokenName("ffff")
+                                .setTokenSymbol("F")
                                 .setTreasuryAccountId(AccountId(2ULL))
                                 .setAdminKey(operatorKey)
                                 .setCustomFees(fees)
@@ -298,8 +300,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomF
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = TokenCreateTransaction()
-                                .setName("ffff")
-                                .setSymbol("F")
+                                .setTokenName("ffff")
+                                .setTokenSymbol("F")
                                 .setTreasuryAccountId(AccountId(2ULL))
                                 .setAdminKey(operatorKey)
                                 .setCustomFees(fees)
@@ -329,8 +331,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithCustomFractio
   EXPECT_THROW(
     const TransactionReceipt txReceipt =
       TokenCreateTransaction()
-        .setName("ffff")
-        .setSymbol("F")
+        .setTokenName("ffff")
+        .setTokenSymbol("F")
         .setTreasuryAccountId(AccountId(2ULL))
         .setAdminKey(operatorKey)
         .setCustomFees({ std::make_shared<CustomFractionalFee>(CustomFractionalFee()
@@ -358,8 +360,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithInvalidFeeCol
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
                  TokenCreateTransaction()
-                   .setName("ffff")
-                   .setSymbol("F")
+                   .setTokenName("ffff")
+                   .setTokenSymbol("F")
                    .setTreasuryAccountId(AccountId(2ULL))
                    .setAdminKey(operatorKey)
                    .setCustomFees({ std::make_shared<CustomFixedFee>(CustomFixedFee().setAmount(1LL)) })
@@ -382,8 +384,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNegativeCusto
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
                  TokenCreateTransaction()
-                   .setName("ffff")
-                   .setSymbol("F")
+                   .setTokenName("ffff")
+                   .setTokenSymbol("F")
                    .setTreasuryAccountId(AccountId(2ULL))
                    .setAdminKey(operatorKey)
                    .setCustomFees({ std::make_shared<CustomFixedFee>(
@@ -407,8 +409,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNft)
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = TokenCreateTransaction()
-                                .setName("ffff")
-                                .setSymbol("F")
+                                .setTokenName("ffff")
+                                .setTokenSymbol("F")
                                 .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
                                 .setTreasuryAccountId(AccountId(2ULL))
                                 .setAdminKey(operatorKey)
@@ -443,8 +445,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNftWithRoyaltyFee)
   EXPECT_NO_THROW(
     txReceipt =
       TokenCreateTransaction()
-        .setName("ffff")
-        .setSymbol("F")
+        .setTokenName("ffff")
+        .setTokenSymbol("F")
         .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
         .setTreasuryAccountId(AccountId(2ULL))
         .setAdminKey(operatorKey)

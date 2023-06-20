@@ -77,7 +77,7 @@ public:
    * @param name The desired name for the new token.
    * @return A reference to this TokenCreateTransaction with the newly-set token name.
    */
-  TokenCreateTransaction& setName(std::string_view name);
+  TokenCreateTransaction& setTokenName(std::string_view name);
 
   /**
    * Set the desired symbol for the new token.
@@ -85,7 +85,7 @@ public:
    * @param symbol The desired symbol for the new token.
    * @return A reference to this TokenCreateTransaction with the newly-set token symbol.
    */
-  TokenCreateTransaction& setSymbol(std::string_view symbol);
+  TokenCreateTransaction& setTokenSymbol(std::string_view symbol);
 
   /**
    * Set the desired number of decimals for the new FUNGIBLE_COMMON token. If the new token is to be of type
@@ -191,7 +191,7 @@ public:
    * @param memo The desired memo for the new token.
    * @return A reference to this TokenCreateTransaction with the newly-set memo.
    */
-  TokenCreateTransaction& setMemo(std::string_view memo);
+  TokenCreateTransaction& setTokenMemo(std::string_view memo);
 
   /**
    * Set the desired type for the new token.
@@ -247,14 +247,14 @@ public:
    *
    * @return The desired name for the new token.
    */
-  [[nodiscard]] inline std::string getName() const { return mName; }
+  [[nodiscard]] inline std::string getTokenName() const { return mTokenName; }
 
   /**
    * Get the desired symbol for the new token.
    *
    * @return The desired symbol for the new token.
    */
-  [[nodiscard]] inline std::string getSymbol() const { return mSymbol; }
+  [[nodiscard]] inline std::string getTokenSymbol() const { return mTokenSymbol; }
 
   /**
    * Get the desired number of decimals for the new token.
@@ -347,7 +347,7 @@ public:
    *
    * @return The desired memo for the new token.
    */
-  [[nodiscard]] inline std::string getMemo() const { return mMemo; }
+  [[nodiscard]] inline std::string getTokenMemo() const { return mTokenMemo; }
 
   /**
    * Get the desired type for the new token.
@@ -432,14 +432,14 @@ private:
    * UTF-8 encoding of this Unicode cannot contain the 0 byte (NUL). The token name is not unique. Maximum of 100
    * characters.
    */
-  std::string mName;
+  std::string mTokenName;
 
   /**
    * The publicly visible token symbol. The token symbol is specified as a string of UTF-8 characters in Unicode. UTF-8
    * encoding of this Unicode cannot contain the 0 byte (NUL). The token symbol is not unique. Maximum of 100
    * characters.
    */
-  std::string mSymbol;
+  std::string mTokenSymbol;
 
   /**
    * For tokens of type FUNGIBLE_COMMON, the number of decimal places by which a token is divisible. This field can
@@ -514,7 +514,7 @@ private:
   /**
    * The memo associated with the token (UTF-8 encoding max 100 bytes).
    */
-  std::string mMemo;
+  std::string mTokenMemo;
 
   /**
    * IWA compatibility. Specifies the token type.

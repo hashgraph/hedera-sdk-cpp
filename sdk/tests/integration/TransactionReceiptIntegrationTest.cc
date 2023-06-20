@@ -158,8 +158,8 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckT
 
   TransactionResponse txResponse;
   ASSERT_NO_THROW(txResponse = TokenCreateTransaction()
-                                 .setName("test token name")
-                                 .setSymbol("test token symbol")
+                                 .setTokenName("test token name")
+                                 .setTokenSymbol("test token symbol")
                                  .setTreasuryAccountId(AccountId(2ULL))
                                  .execute(getTestClient()));
 
