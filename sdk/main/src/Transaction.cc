@@ -36,6 +36,7 @@
 #include "FileUpdateTransaction.h"
 #include "PrivateKey.h"
 #include "Status.h"
+#include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
@@ -462,6 +463,7 @@ template class Transaction<FileAppendTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
+template class Transaction<TokenCreateTransaction>;
 template class Transaction<TokenDeleteTransaction>;
 template class Transaction<TransferTransaction>;
 

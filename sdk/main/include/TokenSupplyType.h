@@ -51,6 +51,11 @@ enum class TokenSupplyType
 extern const std::unordered_map<proto::TokenSupplyType, TokenSupplyType> gProtobufTokenSupplyTypeToTokenSupplyType;
 
 /**
+ * Map of TokenSupplyTypes to the corresponding protobuf TokenSupplyType.
+ */
+extern const std::unordered_map<TokenSupplyType, proto::TokenSupplyType> gTokenSupplyTypeToProtobufTokenSupplyType;
+
+/**
  * Map of TokenSupplyType to its corresponding string.
  */
 [[maybe_unused]] extern const std::unordered_map<TokenSupplyType, const char*> gTokenSupplyTypeToString;

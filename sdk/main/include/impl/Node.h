@@ -23,6 +23,7 @@
 #include <proto/crypto_service.grpc.pb.h>
 #include <proto/file_service.grpc.pb.h>
 #include <proto/smart_contract_service.grpc.pb.h>
+#include <proto/token_service.grpc.pb.h>
 
 #include "Defaults.h"
 #include "impl/NodeAddress.h"
@@ -206,6 +207,11 @@ private:
    * Pointer to the gRPC stub used to communicate with the smart contract service living on the remote node.
    */
   std::unique_ptr<proto::SmartContractService::Stub> mSmartContractStub = nullptr;
+
+  /**
+   * Pointer to the gRPC stub used to communicate with the token service living on the remote node.
+   */
+  std::unique_ptr<proto::TokenService::Stub> mTokenStub = nullptr;
 
   /**
    * The TLS behavior this Node should use to communicate with its remote node.

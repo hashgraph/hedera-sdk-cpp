@@ -30,6 +30,12 @@ const std::unordered_map<proto::TokenSupplyType, TokenSupplyType> gProtobufToken
 };
 
 //-----
+const std::unordered_map<TokenSupplyType, proto::TokenSupplyType> gTokenSupplyTypeToProtobufTokenSupplyType = {
+  {TokenSupplyType::INFINITE, proto::TokenSupplyType::INFINITE},
+  { TokenSupplyType::FINITE,  proto::TokenSupplyType::FINITE  }
+};
+
+//-----
 const std::unordered_map<TokenSupplyType, const char*> gTokenSupplyTypeToString = {
   {TokenSupplyType::INFINITE, "INFINITE"},
   { TokenSupplyType::FINITE,  "FINITE"  }

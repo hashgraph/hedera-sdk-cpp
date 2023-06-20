@@ -31,6 +31,8 @@ add_library(${PROJECT_NAME} STATIC
         src/CustomFee.cc
         src/CustomFeeBase.cc
         src/CustomFixedFee.cc
+        src/CustomFractionalFee.cc
+        src/CustomRoyaltyFee.cc
         src/DelegateContractId.cc
         src/ECDSAsecp256k1PrivateKey.cc
         src/ECDSAsecp256k1PublicKey.cc
@@ -67,6 +69,7 @@ add_library(${PROJECT_NAME} STATIC
         src/StakingInfo.cc
         src/Status.cc
         src/TokenAllowance.cc
+        src/TokenCreateTransaction.cc
         src/TokenDeleteTransaction.cc
         src/TokenId.cc
         src/TokenNftAllowance.cc

@@ -29,6 +29,8 @@ add_executable(${TEST_PROJECT_NAME}
         ContractLogInfoTest.cc
         ContractUpdateTransactionTest.cc
         CustomFixedFeeTest.cc
+        CustomFractionalFeeTest.cc
+        CustomRoyaltyFeeTest.cc
         DelegateContractIdTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
         ECDSAsecp256k1PublicKeyTest.cc
@@ -58,6 +60,7 @@ add_executable(${TEST_PROJECT_NAME}
         NodeAddressTest.cc
         StakingInfoTest.cc
         TokenAllowanceTest.cc
+        TokenCreateTransactionTest.cc
         TokenDeleteTransactionTest.cc
         TokenIdTest.cc
         TokenNftAllowanceTest.cc

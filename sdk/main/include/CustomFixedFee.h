@@ -64,6 +64,13 @@ public:
   [[nodiscard]] std::unique_ptr<proto::CustomFee> toProtobuf() const override;
 
   /**
+   * Construct a FixedFee protobuf object from this CustomFixedFee object.
+   *
+   * @return A pointer to the created FixedFee protobuf object filled with this CustomFixedFee object's data.
+   */
+  [[nodiscard]] std::unique_ptr<proto::FixedFee> toFixedFeeProtobuf() const;
+
+  /**
    * Set the desired fee amount.
    *
    * @param amount The desired fee amount.
