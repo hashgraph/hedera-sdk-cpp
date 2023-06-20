@@ -46,7 +46,7 @@ FeeType& CustomFeeBase<FeeType>::setAllCollectorsAreExempt(bool exempt)
  * Explicit template instantiations
  */
 template class CustomFeeBase<CustomFixedFee>;
-template class CustomFeeBase<CustomRoyaltyFee>;
 template class CustomFeeBase<CustomFractionalFee>;
+template class CustomFeeBase<CustomRoyaltyFee>;
 
 } // namespace Hedera

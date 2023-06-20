@@ -58,6 +58,11 @@ enum class TokenType
 extern const std::unordered_map<proto::TokenType, TokenType> gProtobufTokenTypeToTokenType;
 
 /**
+ * Map of TokenTypes to the corresponding protobuf TokenType.
+ */
+extern const std::unordered_map<TokenType, proto::TokenType> gTokenTypeToProtobufTokenType;
+
+/**
  * Map of TokenType to its corresponding string.
  */
 [[maybe_unused]] extern const std::unordered_map<TokenType, const char*> gTokenTypeToString;

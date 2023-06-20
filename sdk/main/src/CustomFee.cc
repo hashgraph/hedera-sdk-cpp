@@ -33,10 +33,10 @@ std::unique_ptr<CustomFee> CustomFee::fromProtobuf(const proto::CustomFee& proto
   {
     case proto::CustomFee::FeeCase::kFixedFee:
       return std::make_unique<CustomFixedFee>(CustomFixedFee::fromProtobuf(proto.fixed_fee()));
-    case proto::CustomFee::FeeCase::kRoyaltyFee:
-      return std::make_unique<CustomRoyaltyFee>(CustomRoyaltyFee::fromProtobuf(proto.royalty_fee()));
     case proto::CustomFee::FeeCase::kFractionalFee:
       return std::make_unique<CustomFractionalFee>(CustomFractionalFee::fromProtobuf(proto.fractional_fee()));
+    case proto::CustomFee::FeeCase::kRoyaltyFee:
+      return std::make_unique<CustomRoyaltyFee>(CustomRoyaltyFee::fromProtobuf(proto.royalty_fee()));
     default:
       throw std::invalid_argument("Fee protobuf case not recognized");
   }

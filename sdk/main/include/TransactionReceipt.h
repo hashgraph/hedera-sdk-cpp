@@ -25,6 +25,7 @@
 #include "ExchangeRateSet.h"
 #include "FileId.h"
 #include "Status.h"
+#include "TokenId.h"
 
 #include <optional>
 
@@ -98,6 +99,15 @@ public:
    */
   [[nodiscard]] inline std::optional<ExchangeRateSet> getExchangeRates() const { return mExchangeRates; }
 
+  /**
+   * Get the ID of the token that was created as a result of the submitted transaction. Only valid is this
+   * TransactionReceipt is for an TokenCreateTransaction.
+   *
+   * @return The ID of the created token. Uninitialized if the corresponding Transaction was not an
+   * TokenCreateTransaction.
+   */
+  [[nodiscard]] inline std::optional<TokenId> getTokenId() const { return mTokenId; };
+
 private:
   /**
    * The consensus status of the transaction; is UNKNOWN if consensus has not been reached, or if the associated
@@ -124,6 +134,11 @@ private:
    * The exchange rates in effect when the transaction reached consensus.
    */
   std::optional<ExchangeRateSet> mExchangeRates;
+
+  /**
+   * In the receipt of a TokenCreate, the ID of the newly created token.
+   */
+  std::optional<TokenId> mTokenId;
 };
 
 } // namespace Hedera
