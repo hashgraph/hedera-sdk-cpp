@@ -48,7 +48,12 @@ std::unique_ptr<proto::CustomFee> CustomFixedFee::toProtobuf() const
 {
   std::unique_ptr<proto::CustomFee> fee = initProtobuf();
   fee->mutable_fixed_fee()->set_amount(static_cast<int64_t>(mAmount));
-  fee->mutable_fixed_fee()->set_allocated_denominating_token_id(mDenominatingTokenId->toProtobuf().release());
+
+  if (mDenominatingTokenId.has_value())
+  {
+    fee->mutable_fixed_fee()->set_allocated_denominating_token_id(mDenominatingTokenId->toProtobuf().release());
+  }
+  
   return fee;
 }
 

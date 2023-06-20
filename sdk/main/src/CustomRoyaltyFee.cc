@@ -54,7 +54,12 @@ std::unique_ptr<proto::CustomFee> CustomRoyaltyFee::toProtobuf() const
   std::unique_ptr<proto::CustomFee> fee = initProtobuf();
   fee->mutable_royalty_fee()->mutable_exchange_value_fraction()->set_numerator(mNumerator);
   fee->mutable_royalty_fee()->mutable_exchange_value_fraction()->set_denominator(mDenominator);
-  fee->mutable_royalty_fee()->set_allocated_fallback_fee(mFallbackFee->toFixedFeeProtobuf().release());
+
+  if (mFallbackFee.has_value())
+  {
+    fee->mutable_royalty_fee()->set_allocated_fallback_fee(mFallbackFee->toFixedFeeProtobuf().release());
+  }
+  
   return fee;
 }
 
