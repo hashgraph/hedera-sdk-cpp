@@ -56,7 +56,7 @@ int main(int argc, char** argv)
   TransactionRecord txRecord = txResponse.getRecord(client);
 
   std::cout << "List of token transfers received in TransactionRecord:" << std::endl;
-  for (const TokenTransfer& transfer : txRecord.getTokenTransferList())
+  for (const TokenTransfer& transfer : txRecord.mTokenTransferList)
   {
     std::cout << "---TRANSFER---" << std::endl;
     std::cout << " - Token ID: " << transfer.getTokenId().toString() << std::endl;

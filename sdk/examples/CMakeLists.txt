@@ -4,6 +4,7 @@ set(CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-simple-contract-e
 set(CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-stateful-contract-example)
 set(DELETE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-delete-account-example)
 set(DELETE_FILE_EXAMPLE_NAME ${PROJECT_NAME}-delete-file-example)
+set(EXEMPT_CUSTOM_FEES_EXAMPLE_NAME ${PROJECT_NAME}-exempt-custom-fees-example)
 set(FILE_APPEND_CHUNKED_EXAMPLE_NAME ${PROJECT_NAME}-file-append-chunked-example)
 set(GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME ${PROJECT_NAME}-generate-private-key-from-mnemonic-example)
 set(GET_ACCOUNT_BALANCE_EXAMPLE_NAME ${PROJECT_NAME}-get-account-balance-example)
@@ -19,6 +20,7 @@ add_executable(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} CreateSimpleContractExampl
 add_executable(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} CreateStatefulContractExample.cc)
 add_executable(${DELETE_ACCOUNT_EXAMPLE_NAME} DeleteAccountExample.cc)
 add_executable(${DELETE_FILE_EXAMPLE_NAME} DeleteFileExample.cc)
+add_executable(${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME} ExemptCustomFeesExample.cc)
 add_executable(${FILE_APPEND_CHUNKED_EXAMPLE_NAME} FileAppendChunkedExample.cc)
 add_executable(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} GeneratePrivateKeyFromMnemonic.cc)
 add_executable(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} GetAccountBalanceExample.cc)
@@ -52,6 +54,7 @@ target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NA
 target_link_libraries(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${DELETE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${DELETE_FILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${FILE_APPEND_CHUNKED_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -70,6 +73,7 @@ install(TARGETS
         ${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME}
         ${DELETE_ACCOUNT_EXAMPLE_NAME}
         ${DELETE_FILE_EXAMPLE_NAME}
+        ${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME}
         ${FILE_APPEND_CHUNKED_EXAMPLE_NAME}
         ${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME}
         ${GET_ACCOUNT_BALANCE_EXAMPLE_NAME}
