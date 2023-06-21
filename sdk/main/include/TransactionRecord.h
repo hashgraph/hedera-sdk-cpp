@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_TRANSACTION_RECORD_H_
 
 #include "AccountId.h"
+#include "AssessedCustomFee.h"
 #include "ContractFunctionResult.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
@@ -58,96 +59,6 @@ public:
    */
   [[nodiscard]] static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
 
-  /**
-   * Get the receipt of the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction receipt. Uninitialized if no receipt has been generated yet.
-   */
-  [[nodiscard]] inline std::optional<TransactionReceipt> getReceipt() const { return mReceipt; }
-
-  /**
-   * Get the hash of the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction hash.
-   */
-  [[nodiscard]] inline std::string getTransactionHash() const { return mTransactionHash; }
-
-  /**
-   * Get the timestamp of when the transaction with which this TransactionRecord is associated reached consensus.
-   *
-   * @return The consensus timestamp. Uninitialized if the transaction has not yet reached consensus.
-   */
-  [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getConsensusTimestamp() const
-  {
-    return mConsensusTimestamp;
-  }
-
-  /**
-   * Get the ID of the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction ID.
-   */
-  [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionID; }
-
-  /**
-   * Get the memo of the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction memo.
-   */
-  [[nodiscard]] inline std::string getTransactionMemo() const { return mMemo; }
-
-  /**
-   * Get the fee that was paid to execute the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction fee.
-   */
-  [[nodiscard]] inline uint64_t getTransactionFee() const { return mTransactionFee; }
-
-  /**
-   * Get the result of the executed smart contract function or the result of the executed smart contract constructor.
-   *
-   * @return The result of the executed smart contract function or the result of the executed smart contract
-   *         constructor. Uninitialized if the corresponding Transaction did not involve executing a smart contract.
-   */
-  [[nodiscard]] inline std::optional<ContractFunctionResult> getContractFunctionResult() const
-  {
-    return mContractFunctionResult;
-  }
-
-  /**
-   * Get the list of all crypto transfers that occurred during the execution of the transaction with which this
-   * TransactionRecord is associated.
-   *
-   * @return A list of IDs for accounts that sent/received a crypto transfer, as well as the amount that was
-   *         transferred.
-   */
-  [[nodiscard]] inline std::vector<HbarTransfer> getHbarTransferList() const { return mHbarTransferList; }
-
-  /**
-   * Get the list of all fungible token transfers that occurred during the execution of the transaction with which this
-   * TransactionRecord is associated.
-   *
-   * @return A list of token IDs, account IDs, and amounts for each transfer that occurred.
-   */
-  [[nodiscard]] inline std::vector<TokenTransfer> getTokenTransferList() const { return mTokenTransferList; }
-
-  /**
-   * Get the list of all NFT transfers that occurred during the execution of the transaction with which this
-   * TransactionRecord is associated.
-   *
-   * @return A list of NFT IDs and account IDs for each transfer that occurred.
-   */
-  [[nodiscard]] inline std::vector<TokenNftTransfer> getNftTransferList() const { return mNftTransferList; }
-
-  /**
-   * Get the EVM address of the account created by the transaction with which this TransactionRecord is associated.
-   *
-   * @return The EVM address of the account created by the transaction with which this TransactionRecord is associated.
-   *         Uninitialized if no account was created by the transaction.
-   */
-  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddress() const { return mEvmAddress; }
-
-private:
   /**
    * The status (reach consensus, or failed, or is unknown) and the ID of any new account/file/instance created.
    */
@@ -199,6 +110,12 @@ private:
    * All NFT transfers as a result of this transaction.
    */
   std::vector<TokenNftTransfer> mNftTransferList;
+
+  /**
+   * All custom fees that were assessed during a CryptoTransfer, and must be paid if the transaction status resolved to
+   * SUCCESS.
+   */
+  std::vector<AssessedCustomFee> mAssessedCustomFees;
 
   /**
    * The new default EVM address of the account created by transaction with which this TransactionRecord is
