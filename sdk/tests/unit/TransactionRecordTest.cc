@@ -33,13 +33,13 @@ class TransactionRecordTest : public ::testing::Test
 {
 };
 
-// Tests deserialization of proto::TransactionRecord -> Hedera::TransactionRecord.
-TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
+//-----
+TEST_F(TransactionRecordTest, FromProtobuf)
 {
   // Given
   const auto accountIdTo = AccountId(3ULL);
   const auto accountIdFrom = AccountId(4ULL);
-  const int64_t transferAmount = 10LL;
+  const int64_t amount = 10LL;
   const std::string txHash = "txHash";
   const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
   const std::string txMemo = "txMemo";
@@ -69,22 +69,22 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
 
   proto::AccountAmount* aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
   aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
-  aa->set_amount(-transferAmount);
+  aa->set_amount(-amount);
 
   aa = protoTransactionRecord.mutable_transferlist()->add_accountamounts();
   aa->set_allocated_accountid(accountIdTo.toProtobuf().release());
-  aa->set_amount(transferAmount);
+  aa->set_amount(amount);
 
   proto::TokenTransferList* list = protoTransactionRecord.add_tokentransferlists();
   list->set_allocated_token(tokenId.toProtobuf().release());
 
   aa = list->add_transfers();
   aa->set_allocated_accountid(accountIdTo.toProtobuf().release());
-  aa->set_amount(transferAmount);
+  aa->set_amount(amount);
 
   aa = list->add_transfers();
   aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
-  aa->set_amount(-transferAmount);
+  aa->set_amount(-amount);
 
   list = protoTransactionRecord.add_tokentransferlists();
   list->set_allocated_token(nftId.getTokenId().toProtobuf().release());
@@ -94,50 +94,65 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
   nft->set_allocated_senderaccountid(accountIdFrom.toProtobuf().release());
   nft->set_allocated_receiveraccountid(accountIdTo.toProtobuf().release());
 
+  proto::AssessedCustomFee* assessedCustomFee = protoTransactionRecord.add_assessed_custom_fees();
+  assessedCustomFee->set_amount(amount);
+  assessedCustomFee->set_allocated_token_id(tokenId.toProtobuf().release());
+  assessedCustomFee->set_allocated_fee_collector_account_id(accountIdFrom.toProtobuf().release());
+  *assessedCustomFee->add_effective_payer_account_id() = *accountIdFrom.toProtobuf();
+  *assessedCustomFee->add_effective_payer_account_id() = *accountIdTo.toProtobuf();
+
   // When
   const TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
 
   // Then
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getAccountId());
-  EXPECT_EQ(*txRecord.getReceipt()->getAccountId(), accountIdFrom);
+  ASSERT_TRUE(txRecord.mReceipt.has_value());
+  ASSERT_TRUE(txRecord.mReceipt->getAccountId().has_value());
+  EXPECT_EQ(txRecord.mReceipt->getAccountId(), accountIdFrom);
 
-  EXPECT_EQ(txRecord.getTransactionHash(), txHash);
+  EXPECT_EQ(txRecord.mTransactionHash, txHash);
 
-  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_EQ(txRecord.getConsensusTimestamp()->time_since_epoch().count(), now.time_since_epoch().count());
+  ASSERT_TRUE(txRecord.mConsensusTimestamp.has_value());
+  EXPECT_EQ(txRecord.mConsensusTimestamp->time_since_epoch().count(), now.time_since_epoch().count());
 
-  EXPECT_TRUE(txRecord.getTransactionId().has_value());
-  EXPECT_EQ(txRecord.getTransactionId()->getAccountId(), accountIdFrom);
-  EXPECT_GE(txRecord.getTransactionId()->getValidTransactionTime(), now);
+  ASSERT_TRUE(txRecord.mTransactionID.has_value());
+  EXPECT_EQ(txRecord.mTransactionID->getAccountId(), accountIdFrom);
+  EXPECT_GE(txRecord.mTransactionID->getValidTransactionTime(), now);
 
-  EXPECT_EQ(txRecord.getTransactionMemo(), txMemo);
+  EXPECT_EQ(txRecord.mMemo, txMemo);
 
-  EXPECT_EQ(txRecord.getTransactionFee(), txFee);
+  EXPECT_EQ(txRecord.mTransactionFee, txFee);
 
-  ASSERT_TRUE(txRecord.getContractFunctionResult().has_value());
-  EXPECT_EQ(txRecord.getContractFunctionResult()->mContractId, contractId);
-  EXPECT_EQ(txRecord.getContractFunctionResult()->mContractCallResult, contractCallResult);
+  ASSERT_TRUE(txRecord.mContractFunctionResult.has_value());
+  EXPECT_EQ(txRecord.mContractFunctionResult->mContractId, contractId);
+  EXPECT_EQ(txRecord.mContractFunctionResult->mContractCallResult, contractCallResult);
 
-  EXPECT_EQ(txRecord.getHbarTransferList().size(), 2);
-  EXPECT_EQ(txRecord.getHbarTransferList().at(0).getAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.getHbarTransferList().at(0).getAmount().toTinybars(), -transferAmount);
-  EXPECT_EQ(txRecord.getHbarTransferList().at(1).getAccountId(), accountIdTo);
-  EXPECT_EQ(txRecord.getHbarTransferList().at(1).getAmount().toTinybars(), transferAmount);
+  ASSERT_EQ(txRecord.mHbarTransferList.size(), 2);
+  EXPECT_EQ(txRecord.mHbarTransferList.at(0).getAccountId(), accountIdFrom);
+  EXPECT_EQ(txRecord.mHbarTransferList.at(0).getAmount().toTinybars(), -amount);
+  EXPECT_EQ(txRecord.mHbarTransferList.at(1).getAccountId(), accountIdTo);
+  EXPECT_EQ(txRecord.mHbarTransferList.at(1).getAmount().toTinybars(), amount);
 
-  EXPECT_EQ(txRecord.getTokenTransferList().size(), 2);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getTokenId(), tokenId);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getAccountId(), accountIdTo);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(0).getAmount(), transferAmount);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getTokenId(), tokenId);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.getTokenTransferList().at(1).getAmount(), -transferAmount);
+  ASSERT_EQ(txRecord.mTokenTransferList.size(), 2);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(0).getTokenId(), tokenId);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(0).getAccountId(), accountIdTo);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(0).getAmount(), amount);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(1).getTokenId(), tokenId);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(1).getAccountId(), accountIdFrom);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(1).getAmount(), -amount);
 
-  EXPECT_EQ(txRecord.getNftTransferList().size(), 1);
-  EXPECT_EQ(txRecord.getNftTransferList().at(0).getNftId(), nftId);
-  EXPECT_EQ(txRecord.getNftTransferList().at(0).getSenderAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.getNftTransferList().at(0).getReceiverAccountId(), accountIdTo);
+  ASSERT_EQ(txRecord.mNftTransferList.size(), 1);
+  EXPECT_EQ(txRecord.mNftTransferList.at(0).getNftId(), nftId);
+  EXPECT_EQ(txRecord.mNftTransferList.at(0).getSenderAccountId(), accountIdFrom);
+  EXPECT_EQ(txRecord.mNftTransferList.at(0).getReceiverAccountId(), accountIdTo);
 
-  EXPECT_TRUE(txRecord.getEvmAddress().has_value());
-  EXPECT_EQ(txRecord.getEvmAddress()->toBytes(), testEvmAddressBytes);
+  ASSERT_EQ(txRecord.mAssessedCustomFees.size(), 1);
+  EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mAmount, amount);
+  EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mTokenId, tokenId);
+  EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mFeeCollectorAccountId, accountIdFrom);
+  ASSERT_EQ(txRecord.mAssessedCustomFees.at(0).mPayerAccountIdList.size(), 2);
+  EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mPayerAccountIdList.at(0), accountIdFrom);
+  EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mPayerAccountIdList.at(1), accountIdTo);
+
+  ASSERT_TRUE(txRecord.mEvmAddress.has_value());
+  EXPECT_EQ(txRecord.mEvmAddress->toBytes(), testEvmAddressBytes);
 }
