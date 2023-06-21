@@ -101,6 +101,10 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   *assessedCustomFee->add_effective_payer_account_id() = *accountIdFrom.toProtobuf();
   *assessedCustomFee->add_effective_payer_account_id() = *accountIdTo.toProtobuf();
 
+  proto::TokenAssociation* tokenAssociation = protoTransactionRecord.add_automatic_token_associations();
+  tokenAssociation->set_allocated_account_id(accountIdFrom.toProtobuf().release());
+  tokenAssociation->set_allocated_token_id(tokenId.toProtobuf().release());
+
   // When
   const TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
 
@@ -152,6 +156,10 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   ASSERT_EQ(txRecord.mAssessedCustomFees.at(0).mPayerAccountIdList.size(), 2);
   EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mPayerAccountIdList.at(0), accountIdFrom);
   EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mPayerAccountIdList.at(1), accountIdTo);
+
+  ASSERT_EQ(txRecord.mTokenAssociations.size(), 1);
+  EXPECT_EQ(txRecord.mTokenAssociations.at(0).mAccountId, accountIdFrom);
+  EXPECT_EQ(txRecord.mTokenAssociations.at(0).mTokenId, tokenId);
 
   ASSERT_TRUE(txRecord.mEvmAddress.has_value());
   EXPECT_EQ(txRecord.mEvmAddress->toBytes(), testEvmAddressBytes);

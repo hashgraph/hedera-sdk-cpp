@@ -26,6 +26,7 @@
 #include "EvmAddress.h"
 #include "Hbar.h"
 #include "HbarTransfer.h"
+#include "TokenAssociation.h"
 #include "TokenNftTransfer.h"
 #include "TokenTransfer.h"
 #include "TransactionId.h"
@@ -116,6 +117,11 @@ public:
    * SUCCESS.
    */
   std::vector<AssessedCustomFee> mAssessedCustomFees;
+
+  /**
+   * All token associations implicitly created while handling this transaction.
+   */
+  std::vector<TokenAssociation> mTokenAssociations;
 
   /**
    * The new default EVM address of the account created by transaction with which this TransactionRecord is
