@@ -24,6 +24,7 @@
 #include "TokenId.h"
 #include "Transaction.h"
 
+#include <optional>
 #include <vector>
 
 namespace proto
@@ -94,9 +95,10 @@ public:
   /**
    * Get the ID of the account to be associated with the provided tokens.
    *
-   * @return The ID of the account to be associated with the provided tokens.
+   * @return The ID of the account to be associated with the provided tokens. Returns uninitialized if no account ID has
+   *         been set.
    */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getAccountId() const { return mAccountId; }
 
   /**
    * Get the IDs of the tokens to be associated with the provided account.
@@ -144,7 +146,7 @@ private:
   /**
    * The ID of the account to be associated with the provided tokens.
    */
-  AccountId mAccountId;
+  std::optional<AccountId> mAccountId;
 
   /**
    * The IDs of the tokens to be associated with the provided account.

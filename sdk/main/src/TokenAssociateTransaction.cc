@@ -89,7 +89,11 @@ grpc::Status TokenAssociateTransaction::submitRequest(const Client& client,
 proto::TokenAssociateTransactionBody* TokenAssociateTransaction::build() const
 {
   auto body = std::make_unique<proto::TokenAssociateTransactionBody>();
-  body->set_allocated_account(mAccountId.toProtobuf().release());
+
+  if (mAccountId.has_value())
+  {
+    body->set_allocated_account(mAccountId->toProtobuf().release());
+  }
 
   for (const auto& token : mTokenIds)
   {
