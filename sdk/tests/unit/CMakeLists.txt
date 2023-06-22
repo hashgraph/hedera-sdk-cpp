@@ -16,6 +16,7 @@ add_executable(${TEST_PROJECT_NAME}
         ClientTest.cc
         ContractByteCodeQueryTest.cc
         ContractCallQueryTest.cc
+        ContractCreateFlowTest.cc
         ContractCreateTransactionTest.cc
         ContractDeleteTransactionTest.cc
         ContractExecuteTransactionTest.cc
@@ -27,15 +28,21 @@ add_executable(${TEST_PROJECT_NAME}
         ContractInfoTest.cc
         ContractLogInfoTest.cc
         ContractUpdateTransactionTest.cc
+        CustomFixedFeeTest.cc
+        CustomFractionalFeeTest.cc
+        CustomRoyaltyFeeTest.cc
+        DelegateContractIdTest.cc
         ECDSAsecp256k1PrivateKeyTest.cc
         ECDSAsecp256k1PublicKeyTest.cc
         ED25519PrivateKeyTest.cc
         ED25519PublicKeyTest.cc
+        EthereumFlowTest.cc
         EthereumTransactionTest.cc
         EthereumTransactionDataEip1559Test.cc
         EthereumTransactionDataLegacyTest.cc
         EvmAddressTest.cc
         ExchangeRateTest.cc
+        FeeAssessmentMethodTest.cc
         FileAppendTransactionTest.cc
         FileContentsQueryTest.cc
         FileCreateTransactionTest.cc
@@ -53,11 +60,14 @@ add_executable(${TEST_PROJECT_NAME}
         NodeAddressTest.cc
         StakingInfoTest.cc
         TokenAllowanceTest.cc
+        TokenCreateTransactionTest.cc
         TokenIdTest.cc
         TokenNftAllowanceTest.cc
         TokenNftRemoveAllowanceTest.cc
         TokenNftTransferTest.cc
+        TokenSupplyTypeTest.cc
         TokenTransferTest.cc
+        TokenTypeTest.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc

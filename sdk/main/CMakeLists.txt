@@ -17,6 +17,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractId.cc
         src/ContractByteCodeQuery.cc
         src/ContractCallQuery.cc
+        src/ContractCreateFlow.cc
         src/ContractCreateTransaction.cc
         src/ContractDeleteTransaction.cc
         src/ContractExecuteTransaction.cc
@@ -27,10 +28,17 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractInfoQuery.cc
         src/ContractLogInfo.cc
         src/ContractUpdateTransaction.cc
+        src/CustomFee.cc
+        src/CustomFeeBase.cc
+        src/CustomFixedFee.cc
+        src/CustomFractionalFee.cc
+        src/CustomRoyaltyFee.cc
+        src/DelegateContractId.cc
         src/ECDSAsecp256k1PrivateKey.cc
         src/ECDSAsecp256k1PublicKey.cc
         src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
+        src/EthereumFlow.cc
         src/EthereumTransaction.cc
         src/EthereumTransactionData.cc
         src/EthereumTransactionDataEip1559.cc
@@ -61,11 +69,14 @@ add_library(${PROJECT_NAME} STATIC
         src/StakingInfo.cc
         src/Status.cc
         src/TokenAllowance.cc
+        src/TokenCreateTransaction.cc
         src/TokenId.cc
         src/TokenNftAllowance.cc
         src/TokenNftRemoveAllowance.cc
         src/TokenNftTransfer.cc
+        src/TokenSupplyType.cc
         src/TokenTransfer.cc
+        src/TokenType.cc
         src/Transaction.cc
         src/TransactionId.cc
         src/TransactionReceipt.cc

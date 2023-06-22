@@ -11,7 +11,7 @@ if (WIN32)
     set(OPENSSL_LIBRARY_EXTENSION .lib)
 else ()
     set(OPENSSL_BUILD_COMMAND make)
-    set(OPENSSL_INSTALL_COMMAND make install)
+    set(OPENSSL_INSTALL_COMMAND make install_sw)
     set(OPENSSL_LIBRARY_EXTENSION .a)
 endif ()
 
@@ -28,6 +28,7 @@ ExternalProject_Add(OpenSSL
         SOURCE_DIR ${OPENSSL_SOURCE_DIR}
         GIT_REPOSITORY https://github.com/openssl/openssl.git
         GIT_TAG master
+        GIT_SHALLOW TRUE
         USES_TERMINAL_DOWNLOAD TRUE
         CONFIGURE_COMMAND ${OPENSSL_CONFIGURE_COMMAND} --prefix=${OPENSSL_INSTALL_DIR} --openssldir=${OPENSSL_INSTALL_DIR}
         BUILD_COMMAND ${OPENSSL_BUILD_COMMAND}

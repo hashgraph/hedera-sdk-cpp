@@ -32,11 +32,13 @@ protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
+  [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
 
 private:
   const AccountId mTestAccountId = AccountId(1ULL);
   const FileId mTestFileId = FileId(2ULL);
   const ContractId mTestContractId = ContractId(3ULL);
+  const TokenId mTestTokenId = TokenId(4ULL);
 };
 
 //-----
@@ -51,6 +53,7 @@ TEST_F(TransactionReceiptTest, ConstructTransactionReceipt)
   EXPECT_FALSE(transactionReceipt.getFileId().has_value());
   EXPECT_FALSE(transactionReceipt.getContractId().has_value());
   EXPECT_FALSE(transactionReceipt.getExchangeRates().has_value());
+  EXPECT_FALSE(transactionReceipt.getTokenId().has_value());
 }
 
 //-----
@@ -62,6 +65,7 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   protoTxReceipt.set_allocated_accountid(getTestAccountId().toProtobuf().release());
   protoTxReceipt.set_allocated_fileid(getTestFileId().toProtobuf().release());
   protoTxReceipt.set_allocated_contractid(getTestContractId().toProtobuf().release());
+  protoTxReceipt.set_allocated_tokenid(getTestTokenId().toProtobuf().release());
 
   const int32_t value = 6;
   const int32_t secs = 100;
@@ -96,4 +100,6 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime().has_value());
   EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime(),
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
+  ASSERT_TRUE(txRx.getTokenId().has_value());
+  EXPECT_EQ(txRx.getTokenId(), getTestTokenId());
 }

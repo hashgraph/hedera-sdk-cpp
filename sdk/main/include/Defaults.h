@@ -46,6 +46,11 @@ constexpr auto DEFAULT_MAX_TRANSACTION_FEE = Hbar(2LL);
  * The default auto-renew period.
  */
 constexpr auto DEFAULT_AUTO_RENEW_PERIOD = std::chrono::hours(2160);
+/**
+ * The default number of chunks for a ChunkedTransaction.
+ */
+constexpr auto DEFAULT_MAX_CHUNKS = 20U;
+
 }
 
 #endif // HEDERA_SDK_CPP_DEFAULTS_H_
