@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-#include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
@@ -27,7 +26,6 @@
 #include "FileInfoQuery.h"
 #include "FileUpdateTransaction.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/ReceiptStatusException.h"
@@ -68,8 +66,7 @@ TEST_F(FileUpdateTransactionIntegrationTest, ExecuteFileUpdateTransaction)
                              .setFileMemo(memo)
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   TransactionReceipt txReceipt;
@@ -110,8 +107,7 @@ TEST_F(FileUpdateTransactionIntegrationTest, CannotUpdateImmutableFile)
                              .setContents(internal::Utilities::stringToByteVector("[e2e::FileCreateTransaction]"))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = FileUpdateTransaction()

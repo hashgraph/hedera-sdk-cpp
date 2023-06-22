@@ -30,7 +30,6 @@
 #include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -56,8 +55,7 @@ TEST_F(ContractBytecodeQueryIntegrationTest, ExecuteContractBytecodeQuery)
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -67,8 +65,7 @@ TEST_F(ContractBytecodeQueryIntegrationTest, ExecuteContractBytecodeQuery)
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When
   ContractByteCode contractByteCode;

@@ -27,11 +27,9 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "TransactionId.h"
-#include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionRecordQuery.h"
 #include "TransactionResponse.h"
-#include "exceptions/PrecheckStatusException.h"
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
@@ -60,7 +58,7 @@ TEST_F(TransactionRecordQueryIntegrationTest, CanGetTransactionRecord)
 
   // Clean up
   AccountId accountId;
-  ASSERT_NO_THROW(accountId = txRecord.getReceipt()->getAccountId().value());
+  ASSERT_NO_THROW(accountId = txRecord.getReceipt()->mAccountId.value());
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))

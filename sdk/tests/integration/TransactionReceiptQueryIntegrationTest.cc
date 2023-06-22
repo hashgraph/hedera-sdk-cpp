@@ -59,7 +59,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, CanGetTransactionReceipt)
 
   // Clean up
   AccountId accountId;
-  ASSERT_NO_THROW(accountId = txReceipt.getAccountId().value());
+  ASSERT_NO_THROW(accountId = txReceipt.mAccountId.value());
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))

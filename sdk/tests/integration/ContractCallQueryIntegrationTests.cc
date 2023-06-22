@@ -31,7 +31,6 @@
 #include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -57,8 +56,7 @@ TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -68,8 +66,7 @@ TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When
   ContractFunctionResult contractFunctionResult;
@@ -104,8 +101,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractF
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -115,8 +111,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractF
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When / Then
   EXPECT_THROW(const ContractFunctionResult contractFunctionResult =
@@ -145,8 +140,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotS
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -156,8 +150,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotS
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When / Then
   EXPECT_THROW(const ContractFunctionResult contractFunctionResult =
@@ -186,8 +179,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractI
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -197,8 +189,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractI
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When / Then
   EXPECT_THROW(const ContractFunctionResult contractFunctionResult =

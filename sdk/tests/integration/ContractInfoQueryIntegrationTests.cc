@@ -30,7 +30,6 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -57,8 +56,7 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -69,8 +67,7 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
                       .setMemo(memo)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When
   ContractInfo contractInfo;
@@ -109,8 +106,7 @@ TEST_F(ContractInfoQueryIntegrationTest, CanQueryContractInfoWhenAdminKeyIsNull)
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -120,8 +116,7 @@ TEST_F(ContractInfoQueryIntegrationTest, CanQueryContractInfoWhenAdminKeyIsNull)
                       .setMemo(memo)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When
   ContractInfo contractInfo;

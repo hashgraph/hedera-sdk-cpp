@@ -68,15 +68,15 @@ int main(int argc, char** argv)
                                    .setMaxTransactionFee(Hbar(2LL))
                                    .execute(client)
                                    .getReceipt(client);
-  std::cout << "FileCreateTransaction execution completed with status: " << gStatusToString.at(txReceipt.getStatus())
+  std::cout << "FileCreateTransaction execution completed with status: " << gStatusToString.at(txReceipt.mStatus)
             << std::endl;
-  if (!txReceipt.getFileId().has_value())
+  if (!txReceipt.mFileId.has_value())
   {
     std::cout << "No file created!" << std::endl;
     return 1;
   }
 
-  const FileId fileId = txReceipt.getFileId().value();
+  const FileId fileId = txReceipt.mFileId.value();
   std::cout << "Contract bytecode file created with ID " << fileId.toString() << std::endl;
 
   // Create the actual contract
@@ -86,15 +86,15 @@ int main(int argc, char** argv)
                 .setConstructorParameters(ContractFunctionParameters().addString("hello from hedera!").toBytes())
                 .execute(client)
                 .getReceipt(client);
-  std::cout << "ContractCreateTransaction execution completed with status: "
-            << gStatusToString.at(txReceipt.getStatus()) << std::endl;
-  if (!txReceipt.getContractId().has_value())
+  std::cout << "ContractCreateTransaction execution completed with status: " << gStatusToString.at(txReceipt.mStatus)
+            << std::endl;
+  if (!txReceipt.mContractId.has_value())
   {
     std::cout << "No contract created!" << std::endl;
     return 1;
   }
 
-  const ContractId contractId = txReceipt.getContractId().value();
+  const ContractId contractId = txReceipt.mContractId.value();
   std::cout << "Smart contract created with ID " << contractId.toString() << std::endl;
 
   // Call the get_message contract function
@@ -118,8 +118,8 @@ int main(int argc, char** argv)
                 .setFunction("set_message", ContractFunctionParameters().addString("hello from hedera again!"))
                 .execute(client)
                 .getReceipt(client);
-  std::cout << "ContractExecuteTransaction execution completed with status: "
-            << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+  std::cout << "ContractExecuteTransaction execution completed with status: " << gStatusToString.at(txReceipt.mStatus)
+            << std::endl;
 
   // Query again
   std::cout << "Calling get_message() again..." << std::endl;

@@ -99,8 +99,8 @@ TEST_F(TransactionRecordTest, ProtobufTransactionRecord)
 
   // Then
   EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getAccountId());
-  EXPECT_EQ(*txRecord.getReceipt()->getAccountId(), accountIdFrom);
+  EXPECT_TRUE(txRecord.getReceipt()->mAccountId);
+  EXPECT_EQ(*txRecord.getReceipt()->mAccountId, accountIdFrom);
 
   EXPECT_EQ(txRecord.getTransactionHash(), txHash);
 

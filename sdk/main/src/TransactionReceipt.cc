@@ -55,6 +55,13 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
     receipt.mTokenId = TokenId::fromProtobuf(proto.tokenid());
   }
 
+  receipt.mNewTotalSupply = proto.newtotalsupply();
+
+  for (int i = 0; i < proto.serialnumbers_size(); ++i)
+  {
+    receipt.mSerialNumbers.push_back(proto.serialnumbers(i));
+  }
+
   return receipt;
 }
 

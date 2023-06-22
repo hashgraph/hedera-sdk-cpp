@@ -27,7 +27,6 @@
 #include "Defaults.h"
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -52,8 +51,7 @@ TEST_F(AccountInfoQueryIntegrationTest, ExecuteAccountInfoQuery)
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When
   AccountInfo accountInfo;
@@ -93,8 +91,7 @@ TEST_F(AccountInfoQueryIntegrationTest, CannotQueryDeletedAccount)
                                 .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))

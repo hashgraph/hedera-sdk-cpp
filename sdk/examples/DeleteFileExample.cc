@@ -50,13 +50,12 @@ int main(int argc, char** argv)
                           .setContents(internal::Utilities::stringToByteVector("Hedera Hashgraph is great!"))
                           .execute(client)
                           .getReceipt(client)
-                          .getFileId()
-                          .value();
+                          .mFileId.value();
   std::cout << "Created new file with ID " << fileId.toString() << std::endl;
 
   // Delete the newly-created file.
   const TransactionReceipt txReceipt = FileDeleteTransaction().setFileId(fileId).execute(client).getReceipt(client);
-  std::cout << "Deleted file with response code: " << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+  std::cout << "Deleted file with response code: " << gStatusToString.at(txReceipt.mStatus) << std::endl;
 
   return 0;
 }

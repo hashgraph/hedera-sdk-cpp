@@ -61,8 +61,7 @@ TransactionResponse EthereumFlow::execute(const Client& client, const std::chron
                        mEthereumData->mCallData.cbegin() + FileAppendTransaction::DEFAULT_CHUNK_SIZE })
         .execute(client, timeout)
         .getReceipt(client, timeout)
-        .getFileId()
-        .value();
+        .mFileId.value();
 
     FileAppendTransaction()
       .setFileId(fileId)

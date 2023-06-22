@@ -52,8 +52,7 @@ int main(int argc, char** argv)
                     .setContents(contents)
                     .execute(client)
                     .getReceipt(client)
-                    .getFileId()
-                    .value();
+                    .mFileId.value();
   std::cout << "The created file ID is: " << fileId.toString() << std::endl;
 
   // Get the file contents

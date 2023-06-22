@@ -72,7 +72,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, ExecuteTokenCreateTransaction)
 
   // Then
   TokenId tokenId;
-  EXPECT_NO_THROW(tokenId = txReceipt.getTokenId().value());
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
   // TODO: TokenDeleteTransaction
@@ -92,7 +92,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithMinimalPropertie
 
   // Then
   TokenId tokenId;
-  EXPECT_NO_THROW(tokenId = txReceipt.getTokenId().value());
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
   // TODO: TokenDeleteTransaction
@@ -146,8 +146,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutTreasuryAc
                                 .setKey(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
@@ -212,7 +211,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithCustomFees)
 
   // Then
   TokenId tokenId;
-  EXPECT_NO_THROW(tokenId = txReceipt.getTokenId().value());
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
   // TODO: TokenDeleteTransaction
@@ -271,7 +270,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomF
 
   // Then
   TokenId tokenId;
-  EXPECT_NO_THROW(tokenId = txReceipt.getTokenId().value());
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
   // TODO: TokenDeleteTransaction
@@ -310,7 +309,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomF
 
   // Then
   TokenId tokenId;
-  EXPECT_NO_THROW(tokenId = txReceipt.getTokenId().value());
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
   // TODO: TokenDeleteTransaction
@@ -423,7 +422,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNft)
 
   // Then
   TokenId tokenId;
-  EXPECT_NO_THROW(tokenId = txReceipt.getTokenId().value());
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
   // TODO: TokenDeleteTransaction
@@ -461,7 +460,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNftWithRoyaltyFee)
 
   // Then
   TokenId tokenId;
-  EXPECT_NO_THROW(tokenId = txReceipt.getTokenId().value());
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
   // TODO: TokenDeleteTransaction

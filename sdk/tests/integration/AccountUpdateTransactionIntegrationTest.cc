@@ -28,7 +28,6 @@
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -67,8 +66,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
                                 .setStakedAccountId(AccountId(2ULL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When
   TransactionResponse txResponse;
@@ -125,8 +123,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutSignat
                                 .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When / Then
   EXPECT_THROW(
@@ -154,8 +151,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutAccoun
                                 .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountUpdateTransaction()
@@ -184,8 +180,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteWithOnlyAccountId)
                                 .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When / Then
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = AccountUpdateTransaction()
@@ -216,8 +211,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, InvalidAutoRenewPeriod)
                                 .setKey(privateKey->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionResponse txResponse = AccountUpdateTransaction()
