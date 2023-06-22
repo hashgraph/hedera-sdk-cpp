@@ -50,6 +50,7 @@ class FileCreateTransaction;
 class FileDeleteTransaction;
 class FileUpdateTransaction;
 class PrivateKey;
+class TokenMintTransaction;
 class TransactionResponse;
 class TransferTransaction;
 }
@@ -120,7 +121,8 @@ public:
                                               ContractUpdateTransaction,
                                               EthereumTransaction,
                                               FileUpdateTransaction,
-                                              FileAppendTransaction>>
+                                              FileAppendTransaction,
+                                              TokenMintTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);
 
   /**
