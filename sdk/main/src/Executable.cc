@@ -47,6 +47,7 @@
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
 #include "FileUpdateTransaction.h"
+#include "TokenAssociateTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TransactionReceipt.h"
@@ -347,6 +348,10 @@ template class Executable<FileCreateTransaction, proto::Transaction, proto::Tran
 template class Executable<FileDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FileInfoQuery, proto::Query, proto::Response, FileInfo>;
 template class Executable<FileUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TokenAssociateTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TokenCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenMintTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>;
