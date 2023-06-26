@@ -261,10 +261,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
 
   for (const HbarTransfer& transfer : mHbarTransfers)
   {
-    proto::AccountAmount* amount = body->mutable_transfers()->add_accountamounts();
-    amount->set_allocated_accountid(transfer.getAccountId().toProtobuf().release());
-    amount->set_amount(transfer.getAmount().toTinybars());
-    amount->set_is_approval(transfer.getApproval());
+    *body->mutable_transfers()->add_accountamounts() = *transfer.toProtobuf();
   }
 
   for (const TokenTransfer& transfer : mTokenTransfers)
@@ -282,9 +279,8 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
     if (!list)
     {
       list = body->add_tokentransfers();
+      list->set_allocated_token(transfer.getTokenId().toProtobuf().release());
     }
-
-    list->set_allocated_token(transfer.getTokenId().toProtobuf().release());
 
     proto::AccountAmount* amount = list->add_transfers();
     amount->set_allocated_accountid(transfer.getAccountId().toProtobuf().release());
@@ -292,7 +288,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
     amount->set_is_approval(transfer.getApproval());
 
     // Shouldn't ever overwrite a different value here because it is checked when the transfer is added to this
-    // TransferTransaction
+    // TransferTransaction.
     list->mutable_expected_decimals()->set_value(transfer.getExpectedDecimals());
   }
 
@@ -311,13 +307,10 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
     if (!list)
     {
       list = body->add_tokentransfers();
+      list->set_allocated_token(transfer.getNftId().getTokenId().toProtobuf().release());
     }
 
-    proto::NftTransfer* nft = list->add_nfttransfers();
-    nft->set_allocated_senderaccountid(transfer.getSenderAccountId().toProtobuf().release());
-    nft->set_allocated_receiveraccountid(transfer.getReceiverAccountId().toProtobuf().release());
-    nft->set_serialnumber(static_cast<int64_t>(transfer.getNftId().getSerialNum()));
-    nft->set_is_approval(transfer.getApproval());
+    *list->add_nfttransfers() = *transfer.toProtobuf();
   }
 
   return body.release();

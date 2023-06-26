@@ -46,18 +46,22 @@ public:
   /**
    * Construct with a token ID, owner, spender, list of serial numbers, and approval policy.
    *
-   * @param tokenId       The ID of the token NFT type that is being approved to be spent.
-   * @param owner         The ID of the account approving an allowance of its NFTs.
-   * @param spender       The ID of the account being allowed to spend the NFTs.
-   * @param serialNumbers A list serial numbers of the NFT that is being allowed to be spent.
-   * @param allowAll      \c TRUE to allow the spender access to all of the owner's NFTs of the designated token ID,
-   *                      \c FALSE to revoke the spender's access to all of the owner's NFTs of the designated token ID.
+   * @param tokenId           The ID of the token NFT type that is being approved to be spent.
+   * @param owner             The ID of the account approving an allowance of its NFTs.
+   * @param spender           The ID of the account being allowed to spend the NFTs.
+   * @param serialNumbers     A list serial numbers of the NFT that is being allowed to be spent.
+   * @param allowAll          \c TRUE to allow the spender access to all of the owner's NFTs of the designated token ID,
+   *                          \c FALSE to revoke the spender's access to all of the owner's NFTs of the designated token
+   *                          ID.
+   * @param delegatingSpender The ID of the account who has an 'approveForAll' allowance and is granting approval to
+   *                          spend an NFT to the spender.
    */
   TokenNftAllowance(const TokenId& tokenId,
                     AccountId owner,
                     AccountId spender,
                     std::vector<uint64_t> serialNumbers,
-                    std::optional<bool> allowAll = std::optional<bool>());
+                    std::optional<bool> allowAll = std::optional<bool>(),
+                    std::optional<AccountId> delegatingSpender = std::optional<AccountId>());
 
   /**
    * Construct a TokenNftAllowance object from a NftAllowance protobuf object.
@@ -117,6 +121,15 @@ public:
   TokenNftAllowance& approveForAll(bool allowAll);
 
   /**
+   * Set the ID of the account that is delegating the allowance to spend the NFT. This account should have an
+   * 'approveForAll' allowance.
+   *
+   * @param accountId The ID of the account that is delegating a spending allowance to the spender account.
+   * @return A reference to this TokenNftAllowance object with the newly-set delegate spender account ID.
+   */
+  TokenNftAllowance& setDelegatingSpenderAccountId(const AccountId& accountId);
+
+  /**
    * Get the ID of the token NFT type that is being approved to be spent.
    *
    * @return The ID of the token NFT type that is being approved to be spent.
@@ -149,7 +162,7 @@ public:
    * future).
    *
    * @return \c TRUE if this TokenNftAllowance allows the spender access to all of the owner's NFTs (currently owned and
-   * in the future). Uninitialized if behavior has not been set.
+   *         in the future). Uninitialized if behavior has not been set.
    */
   [[nodiscard]] inline std::optional<bool> getApprovedForAll() const { return mApprovedForAll; }
 
@@ -158,7 +171,7 @@ public:
    * number to another spender.
    *
    * @return The ID of the spender account who is granted approved-for-all access and is granting approval of an NFT
-   * serial number to another spender. Uninitialized if no delegating spender exists for this allowance.
+   *         serial number to another spender. Uninitialized if no delegating spender exists for this allowance.
    */
   [[nodiscard]] inline std::optional<AccountId> getDelegateSpender() const { return mDelegatingSpenderAccountId; }
 
@@ -189,8 +202,7 @@ private:
   std::optional<bool> mApprovedForAll;
 
   /**
-   * The ID of the spender account who is granted an approved-for-all allowance and granting approval on an NFT serial
-   * to another spender.
+   * The ID of the account who has an 'approveForAll' allowance and is granting approval to spend an NFT to the spender.
    */
   std::optional<AccountId> mDelegatingSpenderAccountId;
 };
