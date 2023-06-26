@@ -26,6 +26,7 @@
 #include "PrivateKey.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenCreateTransaction.h"
+#include "TokenDeleteTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
@@ -102,7 +103,8 @@ TEST_F(TokenAssociateTransactionIntegrationTest, ExecuteTokenAssociateTransactio
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -212,5 +214,6 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CannotAssociateTokensWhenAccoun
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
