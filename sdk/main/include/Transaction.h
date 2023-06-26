@@ -51,6 +51,8 @@ class FileDeleteTransaction;
 class FileUpdateTransaction;
 class PrivateKey;
 class TokenAssociateTransaction;
+class TokenCreateTransaction;
+class TokenDeleteTransaction;
 class TokenMintTransaction;
 class TransactionResponse;
 class TransferTransaction;
@@ -123,6 +125,8 @@ public:
                                               EthereumTransaction,
                                               FileUpdateTransaction,
                                               FileAppendTransaction,
+                                              TokenCreateTransaction,
+                                              TokenDeleteTransaction,
                                               TokenAssociateTransaction,
                                               TokenMintTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);

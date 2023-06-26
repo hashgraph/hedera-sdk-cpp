@@ -57,10 +57,8 @@ TEST_F(TransactionRecordQueryIntegrationTest, CanGetTransactionRecord)
     txRecord = TransactionRecordQuery().setTransactionId(testTxResponse.getTransactionId()).execute(getTestClient()));
 
   // Clean up
-  AccountId accountId;
-  ASSERT_NO_THROW(accountId = txRecord.getReceipt()->mAccountId.value());
   ASSERT_NO_THROW(AccountDeleteTransaction()
-                    .setDeleteAccountId(accountId)
+                    .setDeleteAccountId(txRecord.mReceipt->mAccountId.value())
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(getTestClient())
                     .sign(testPrivateKey.get())

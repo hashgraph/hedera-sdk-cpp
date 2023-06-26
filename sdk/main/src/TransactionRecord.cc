@@ -105,6 +105,11 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
     }
   }
 
+  for (int i = 0; i < proto.assessed_custom_fees_size(); ++i)
+  {
+    transactionRecord.mAssessedCustomFees.push_back(AssessedCustomFee::fromProtobuf(proto.assessed_custom_fees(i)));
+  }
+
   if (!proto.evm_address().empty())
   {
     transactionRecord.mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.evm_address()));

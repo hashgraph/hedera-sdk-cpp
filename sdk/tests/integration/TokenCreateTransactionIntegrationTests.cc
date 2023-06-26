@@ -28,6 +28,7 @@
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
 #include "TokenCreateTransaction.h"
+#include "TokenDeleteTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -75,7 +76,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, ExecuteTokenCreateTransaction)
   EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -93,9 +95,6 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithMinimalPropertie
   // Then
   TokenId tokenId;
   EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
-
-  // Clean up
-  // TODO: TokenDeleteTransaction
 }
 
 //-----
@@ -212,9 +211,6 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithCustomFees)
   // Then
   TokenId tokenId;
   EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
-
-  // Clean up
-  // TODO: TokenDeleteTransaction
 }
 
 //-----
@@ -273,7 +269,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomF
   EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -312,7 +309,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomF
   EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -425,7 +423,8 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNft)
   EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -463,5 +462,6 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNftWithRoyaltyFee)
   EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }

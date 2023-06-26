@@ -34,7 +34,7 @@ namespace Hedera
 //-----
 TokenCreateTransaction::TokenCreateTransaction()
 {
-  setMaxTransactionFee(Hbar(40LL));
+  setMaxTransactionFee(Hbar(50LL));
 }
 
 //-----
