@@ -26,6 +26,7 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "TokenCreateTransaction.h"
+#include "TokenDeleteTransaction.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
@@ -150,7 +151,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateTransactionAndChe
 TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckTransactionReceipt)
 {
   // Given
-  std::unique_ptr<PrivateKey> operatorKey;
+  std::shared_ptr<PrivateKey> operatorKey;
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
@@ -160,6 +161,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckT
                                  .setTokenName("test token name")
                                  .setTokenSymbol("test token symbol")
                                  .setTreasuryAccountId(AccountId(2ULL))
+                                 .setAdminKey(operatorKey)
                                  .execute(getTestClient()));
 
   // When
@@ -177,5 +179,8 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckT
   EXPECT_TRUE(txReceipt.mTokenId.has_value());
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt = TokenDeleteTransaction()
+                                .setTokenId(txReceipt.mTokenId.value())
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
 }
