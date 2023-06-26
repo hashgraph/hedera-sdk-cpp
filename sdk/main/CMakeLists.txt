@@ -70,6 +70,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Status.cc
         src/TokenAllowance.cc
         src/TokenCreateTransaction.cc
+        src/TokenDeleteTransaction.cc
         src/TokenId.cc
         src/TokenNftAllowance.cc
         src/TokenNftRemoveAllowance.cc
