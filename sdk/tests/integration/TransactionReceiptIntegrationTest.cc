@@ -163,6 +163,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckT
                                  .setTokenSymbol("test token symbol")
                                  .setAdminKey(operatorKey)
                                  .setTreasuryAccountId(AccountId(2ULL))
+                                 .setAdminKey(operatorKey)
                                  .execute(getTestClient()));
 
   // When

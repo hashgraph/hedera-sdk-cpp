@@ -109,7 +109,7 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
 
   for (int i = 0; i < proto.automatic_token_associations_size(); ++i)
   {
-    transactionRecord.mTokenAssociations.push_back(
+    transactionRecord.mAutomaticTokenAssociations.push_back(
       TokenAssociation::fromProtobuf(proto.automatic_token_associations(i)));
   }
 

@@ -121,7 +121,7 @@ public:
   /**
    * All token associations implicitly created while handling this transaction.
    */
-  std::vector<TokenAssociation> mTokenAssociations;
+  std::vector<TokenAssociation> mAutomaticTokenAssociations;
 
   /**
    * The new default EVM address of the account created by transaction with which this TransactionRecord is

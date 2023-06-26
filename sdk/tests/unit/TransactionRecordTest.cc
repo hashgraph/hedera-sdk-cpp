@@ -157,9 +157,9 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mPayerAccountIdList.at(0), accountIdFrom);
   EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mPayerAccountIdList.at(1), accountIdTo);
 
-  ASSERT_EQ(txRecord.mTokenAssociations.size(), 1);
-  EXPECT_EQ(txRecord.mTokenAssociations.at(0).mAccountId, accountIdFrom);
-  EXPECT_EQ(txRecord.mTokenAssociations.at(0).mTokenId, tokenId);
+  ASSERT_EQ(txRecord.mAutomaticTokenAssociations.size(), 1);
+  EXPECT_EQ(txRecord.mAutomaticTokenAssociations.at(0).mAccountId, accountIdFrom);
+  EXPECT_EQ(txRecord.mAutomaticTokenAssociations.at(0).mTokenId, tokenId);
 
   ASSERT_TRUE(txRecord.mEvmAddress.has_value());
   EXPECT_EQ(txRecord.mEvmAddress->toBytes(), testEvmAddressBytes);
