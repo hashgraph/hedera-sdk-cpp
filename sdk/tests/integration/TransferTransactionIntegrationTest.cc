@@ -64,7 +64,7 @@ TEST_F(TransferTransactionIntegrationTest, ExecuteTransferTransaction)
   // Then
   TransactionRecord txRecord;
   ASSERT_NO_THROW(txRecord = txResponse.getRecord(getTestClient()));
-  EXPECT_EQ(txRecord.getHbarTransferList().size(), 2);
+  EXPECT_EQ(txRecord.mHbarTransferList.size(), 2);
 }
 
 //-----
@@ -101,7 +101,7 @@ TEST_F(TransferTransactionIntegrationTest, TransferOutOfNonOperatorAccount)
                                .getRecord(getTestClient()));
 
   // Then
-  EXPECT_EQ(txRecord.getHbarTransferList().size(), 2);
+  EXPECT_EQ(txRecord.mHbarTransferList.size(), 2);
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -187,7 +187,7 @@ TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
 
   // Then
   bool transferFound = false;
-  for (const auto& transfer : txRecord.getHbarTransferList())
+  for (const auto& transfer : txRecord.mHbarTransferList)
   {
     if (transfer.getAccountId() == allowerId && transfer.getAmount() == amount.negated())
     {
