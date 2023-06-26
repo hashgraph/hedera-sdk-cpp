@@ -39,6 +39,7 @@
 #include "TokenAssociateTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
+#include "TokenUpdateTransaction.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
@@ -473,6 +474,7 @@ template class Transaction<FileUpdateTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenCreateTransaction>;
 template class Transaction<TokenDeleteTransaction>;
+template class Transaction<TokenUpdateTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera
