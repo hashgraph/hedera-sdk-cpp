@@ -12,6 +12,7 @@ add_library(${PROJECT_NAME} STATIC
         src/AccountRecordsQuery.cc
         #    src/AccountStakersQuery.cc
         src/AccountUpdateTransaction.cc
+        src/AssessedCustomFee.cc
         src/ChunkedTransaction.cc
         src/Client.cc
         src/ContractId.cc
@@ -71,6 +72,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenAllowance.cc
         src/TokenAssociateTransaction.cc
         src/TokenCreateTransaction.cc
+        src/TokenDeleteTransaction.cc
         src/TokenId.cc
         src/TokenNftAllowance.cc
         src/TokenNftRemoveAllowance.cc

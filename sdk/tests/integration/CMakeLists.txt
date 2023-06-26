@@ -26,6 +26,7 @@ add_executable(${TEST_PROJECT_NAME}
         JSONIntegrationTest.cc
         TokenAssociateTransactionIntegrationTests.cc
         TokenCreateTransactionIntegrationTests.cc
+        TokenDeleteTransactionIntegrationTests.cc
         TransactionIntegrationTest.cc
         TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc

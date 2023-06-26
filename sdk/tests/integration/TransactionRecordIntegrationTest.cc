@@ -67,20 +67,20 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteAccountCreateTransactionAndCheck
                                .getRecord(getTestClient()));
 
   // Then
-  EXPECT_NO_THROW(txRecord.getReceipt()->validateStatus());
-  EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
-  EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getAccountId().has_value());
-  EXPECT_FALSE(txRecord.getReceipt()->getFileId().has_value());
-  EXPECT_FALSE(txRecord.getReceipt()->getContractId().has_value());
-  ASSERT_TRUE(txRecord.getReceipt()->getExchangeRates().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getExchangeRates().value().getCurrentExchangeRate().has_value());
+  EXPECT_NO_THROW(txRecord.mReceipt->validateStatus());
+  EXPECT_EQ(txRecord.mMemo, testMemo);
+  EXPECT_EQ(txRecord.mReceipt->getStatus(), Status::SUCCESS);
+  EXPECT_TRUE(txRecord.mReceipt.has_value());
+  EXPECT_TRUE(txRecord.mConsensusTimestamp.has_value());
+  EXPECT_TRUE(txRecord.mReceipt->getAccountId().has_value());
+  EXPECT_FALSE(txRecord.mReceipt->getFileId().has_value());
+  EXPECT_FALSE(txRecord.mReceipt->getContractId().has_value());
+  ASSERT_TRUE(txRecord.mReceipt->getExchangeRates().has_value());
+  EXPECT_TRUE(txRecord.mReceipt->getExchangeRates().value().getCurrentExchangeRate().has_value());
 
   // Clean up
   AccountId accountId;
-  ASSERT_NO_THROW(accountId = txRecord.getReceipt()->getAccountId().value());
+  ASSERT_NO_THROW(accountId = txRecord.mReceipt->getAccountId().value());
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
@@ -106,19 +106,19 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteFileCreateTransactionAndCheckTra
                                .getRecord(getTestClient()));
 
   // Then
-  EXPECT_NO_THROW(txRecord.getReceipt()->validateStatus());
-  EXPECT_EQ(txRecord.getTransactionMemo(), testMemo);
-  EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getFileId().has_value());
-  EXPECT_FALSE(txRecord.getReceipt()->getAccountId().has_value());
-  EXPECT_FALSE(txRecord.getReceipt()->getContractId().has_value());
-  ASSERT_TRUE(txRecord.getReceipt()->getExchangeRates().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getExchangeRates().value().getCurrentExchangeRate().has_value());
+  EXPECT_NO_THROW(txRecord.mReceipt->validateStatus());
+  EXPECT_EQ(txRecord.mMemo, testMemo);
+  EXPECT_EQ(txRecord.mReceipt->getStatus(), Status::SUCCESS);
+  EXPECT_TRUE(txRecord.mReceipt.has_value());
+  EXPECT_TRUE(txRecord.mConsensusTimestamp.has_value());
+  EXPECT_TRUE(txRecord.mReceipt->getFileId().has_value());
+  EXPECT_FALSE(txRecord.mReceipt->getAccountId().has_value());
+  EXPECT_FALSE(txRecord.mReceipt->getContractId().has_value());
+  ASSERT_TRUE(txRecord.mReceipt->getExchangeRates().has_value());
+  EXPECT_TRUE(txRecord.mReceipt->getExchangeRates().value().getCurrentExchangeRate().has_value());
 
   // Clean up
-  const FileId fileId = txRecord.getReceipt()->getFileId().value();
+  const FileId fileId = txRecord.mReceipt->getFileId().value();
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =
                     FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
@@ -153,18 +153,18 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteContractCreateTransactionAndChec
                                .getRecord(getTestClient()));
 
   // Then
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_EQ(txRecord.getReceipt()->getStatus(), Status::SUCCESS);
-  EXPECT_TRUE(txRecord.getReceipt().has_value());
-  EXPECT_TRUE(txRecord.getConsensusTimestamp().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getContractId().has_value());
-  EXPECT_FALSE(txRecord.getReceipt()->getFileId().has_value());
-  EXPECT_FALSE(txRecord.getReceipt()->getAccountId().has_value());
-  ASSERT_TRUE(txRecord.getReceipt()->getExchangeRates().has_value());
-  EXPECT_TRUE(txRecord.getReceipt()->getExchangeRates().value().getCurrentExchangeRate().has_value());
+  EXPECT_TRUE(txRecord.mReceipt.has_value());
+  EXPECT_EQ(txRecord.mReceipt->getStatus(), Status::SUCCESS);
+  EXPECT_TRUE(txRecord.mReceipt.has_value());
+  EXPECT_TRUE(txRecord.mConsensusTimestamp.has_value());
+  EXPECT_TRUE(txRecord.mReceipt->getContractId().has_value());
+  EXPECT_FALSE(txRecord.mReceipt->getFileId().has_value());
+  EXPECT_FALSE(txRecord.mReceipt->getAccountId().has_value());
+  ASSERT_TRUE(txRecord.mReceipt->getExchangeRates().has_value());
+  EXPECT_TRUE(txRecord.mReceipt->getExchangeRates().value().getCurrentExchangeRate().has_value());
 
   // Clean up
-  const ContractId contractId = txRecord.getReceipt()->getContractId().value();
+  const ContractId contractId = txRecord.mReceipt->getContractId().value();
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
                                                          .setContractId(contractId)
                                                          .setTransferAccountId(AccountId(2ULL))

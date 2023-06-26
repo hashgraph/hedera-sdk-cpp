@@ -12,6 +12,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountRecordsQueryTest.cc
         AccountRecordsTest.cc
         AccountUpdateTransactionTest.cc
+        AssessedCustomFeesTest.cc
         ChunkedTransactionTest.cc
         ClientTest.cc
         ContractByteCodeQueryTest.cc
@@ -62,6 +63,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenAllowanceTest.cc
         TokenAssociateTransactionUnitTests.cc
         TokenCreateTransactionTest.cc
+        TokenDeleteTransactionTest.cc
         TokenIdTest.cc
         TokenNftAllowanceTest.cc
         TokenNftRemoveAllowanceTest.cc

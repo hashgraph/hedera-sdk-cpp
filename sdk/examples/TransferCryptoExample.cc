@@ -73,7 +73,7 @@ int main(int argc, char** argv)
             << std::endl;
   std::cout << "Recipient balance after transfer: " << recipientBalanceAfter.toTinybars()
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
-  std::cout << "HbarTransfer memo: " << txRecord.getTransactionMemo() << std::endl;
+  std::cout << "HbarTransfer memo: " << txRecord.mMemo << std::endl;
 
   return 0;
 }
