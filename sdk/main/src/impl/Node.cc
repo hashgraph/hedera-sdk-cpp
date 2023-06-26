@@ -190,6 +190,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mFileStub->deleteFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileUpdate:
       return mFileStub->updateFile(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenAssociate:
+      return mTokenStub->associateTokens(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenCreation:
       return mTokenStub->createToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenDeletion:

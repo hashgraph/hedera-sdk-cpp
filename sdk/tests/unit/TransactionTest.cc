@@ -32,6 +32,7 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
+#include "TokenAssociateTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TransferTransaction.h"
@@ -932,6 +933,7 @@ TEST_F(TransactionTest, FileAppendTransactionFromTransactionBytes)
   EXPECT_NO_THROW(const FileAppendTransaction fileAppendTransaction = std::get<14>(txVariant));
 }
 
+//-----
 TEST_F(TransactionTest, TokenCreateTransactionFromTransactionBodyBytes)
 {
   // Given
@@ -1046,4 +1048,63 @@ TEST_F(TransactionTest, TokenDeleteTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 16);
   EXPECT_NO_THROW(const TokenDeleteTransaction tokenDeleteTransaction = std::get<16>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenAssociateTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenassociate(new proto::TokenAssociateTransactionBody);
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenAssociateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 17);
+  EXPECT_NO_THROW(const TokenAssociateTransaction tokenAssociateTransaction = std::get<17>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenAssociateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenassociate(new proto::TokenAssociateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenAssociateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 17);
+  EXPECT_NO_THROW(const TokenAssociateTransaction tokenAssociateTransaction = std::get<17>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenAssociateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenassociate(new proto::TokenAssociateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenAssociateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 17);
+  EXPECT_NO_THROW(const TokenAssociateTransaction tokenAssociateTransaction = std::get<17>(txVariant));
 }
