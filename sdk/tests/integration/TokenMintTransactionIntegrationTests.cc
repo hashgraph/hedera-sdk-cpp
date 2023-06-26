@@ -21,6 +21,7 @@
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
 #include "TokenCreateTransaction.h"
+#include "TokenDeleteTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
@@ -76,7 +77,8 @@ TEST_F(TokenMintTransactionIntegrationTest, ExecuteTokenMintTransaction)
   EXPECT_EQ(txReceipt.mNewTotalSupply, initialAmount + mintAmount);
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -108,7 +110,8 @@ TEST_F(TokenMintTransactionIntegrationTest, CannotMintMoreTokensThanMaxSupply)
     ReceiptStatusException); // TOKEN_MAX_SUPPLY_REACHED
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -118,9 +121,6 @@ TEST_F(TokenMintTransactionIntegrationTest, CannotMintTokensWhenTokenIdIsNotSet)
   EXPECT_THROW(const TransactionReceipt txReceipt =
                  TokenMintTransaction().setAmount(6ULL).execute(getTestClient()).getReceipt(getTestClient()),
                PrecheckStatusException); // INVALID_TOKEN_ID
-
-  // Clean up
-  // TODO: TokenDeleteTransaction
 }
 
 //-----
@@ -159,7 +159,8 @@ TEST_F(TokenMintTransactionIntegrationTest, CanMintTokensWhenAmountIsNotSet)
   EXPECT_EQ(txReceipt.mNewTotalSupply, initialAmount);
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -197,7 +198,8 @@ TEST_F(TokenMintTransactionIntegrationTest, CannotMintTokensWhenSupplyKeyDoesNot
     ReceiptStatusException); // INVALID_SIGNATURE
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -241,7 +243,8 @@ TEST_F(TokenMintTransactionIntegrationTest, CanMintNfts)
   EXPECT_EQ(txReceipt.mSerialNumbers.size(), nftsMetadata.size());
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
@@ -277,5 +280,6 @@ TEST_F(TokenMintTransactionIntegrationTest, CannotMintNftsIfMetadataIsTooBig)
                PrecheckStatusException); // METADATA_TOO_LONG
 
   // Clean up
-  // TODO: TokenDeleteTransaction
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    TokenDeleteTransaction().setTokenId(tokenId).execute(getTestClient()).getReceipt(getTestClient()));
 }
