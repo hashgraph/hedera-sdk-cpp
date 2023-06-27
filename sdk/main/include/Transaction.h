@@ -53,6 +53,7 @@ class PrivateKey;
 class TokenAssociateTransaction;
 class TokenCreateTransaction;
 class TokenDeleteTransaction;
+class TokenUpdateTransaction;
 class TransactionResponse;
 class TransferTransaction;
 }
@@ -126,7 +127,8 @@ public:
                                               FileAppendTransaction,
                                               TokenCreateTransaction,
                                               TokenDeleteTransaction,
-                                              TokenAssociateTransaction>>
+                                              TokenAssociateTransaction,
+                                              TokenUpdateTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);
 
   /**

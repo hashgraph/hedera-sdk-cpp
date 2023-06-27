@@ -78,7 +78,8 @@ std::pair<int,
                        FileAppendTransaction,
                        TokenCreateTransaction,
                        TokenDeleteTransaction,
-                       TokenAssociateTransaction>>
+                       TokenAssociateTransaction,
+                       TokenUpdateTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -156,6 +157,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 16, TokenDeleteTransaction(txBody) };
     case proto::TransactionBody::kTokenAssociate:
       return { 17, TokenAssociateTransaction(txBody) };
+    case proto::TransactionBody::kTokenUpdate:
+      return { 18, TokenUpdateTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
