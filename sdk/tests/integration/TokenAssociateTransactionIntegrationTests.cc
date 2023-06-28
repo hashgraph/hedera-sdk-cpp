@@ -82,18 +82,15 @@ TEST_F(TokenAssociateTransactionIntegrationTest, ExecuteTokenAssociateTransactio
                               .getTokenId()
                               .value());
 
-  // When
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = TokenAssociateTransaction()
-                                 .setAccountId(accountId)
-                                 .setTokenIds({ tokenId })
-                                 .freezeWith(getTestClient())
-                                 .sign(accountKey.get())
-                                 .execute(getTestClient()));
-
-  // Then
-  const TransactionRecord txRecord = txResponse.getRecord(getTestClient());
-  // TODO: TokenAssociation
+  // When / Then
+  TransactionReceipt txResponse;
+  EXPECT_NO_THROW(const TransactionReceipt txReceipt = TokenAssociateTransaction()
+                                                         .setAccountId(accountId)
+                                                         .setTokenIds({ tokenId })
+                                                         .freezeWith(getTestClient())
+                                                         .sign(accountKey.get())
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()

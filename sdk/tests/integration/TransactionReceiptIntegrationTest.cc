@@ -161,6 +161,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckT
   ASSERT_NO_THROW(txResponse = TokenCreateTransaction()
                                  .setTokenName("test token name")
                                  .setTokenSymbol("test token symbol")
+                                 .setAdminKey(operatorKey)
                                  .setTreasuryAccountId(AccountId(2ULL))
                                  .setAdminKey(operatorKey)
                                  .execute(getTestClient()));
