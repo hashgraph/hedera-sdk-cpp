@@ -17,17 +17,14 @@
  * limitations under the License.
  *
  */
-#include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
-#include "Defaults.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -64,8 +61,7 @@ TEST_F(FileInfoQueryIntegrationTest, ExecuteFileInfoQuery)
                              .setFileMemo(memo)
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   FileInfo fileInfo;
@@ -98,7 +94,7 @@ TEST_F(FileInfoQueryIntegrationTest, CanQueryFileWithNoAdminKeyOrContents)
   // Given
   FileId fileId;
   ASSERT_NO_THROW(fileId =
-                    FileCreateTransaction().execute(getTestClient()).getReceipt(getTestClient()).getFileId().value());
+                    FileCreateTransaction().execute(getTestClient()).getReceipt(getTestClient()).mFileId.value());
 
   // When
   FileInfo fileInfo;

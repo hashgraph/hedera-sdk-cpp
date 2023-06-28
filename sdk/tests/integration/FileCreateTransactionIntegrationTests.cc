@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-#include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
@@ -26,7 +25,6 @@
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
@@ -65,7 +63,7 @@ TEST_F(FileCreateTransactionIntegrationTest, ExecuteFileCreateTransaction)
 
   // Then
   FileId fileId;
-  ASSERT_NO_THROW(fileId = txReceipt.getFileId().value());
+  ASSERT_NO_THROW(fileId = txReceipt.mFileId.value());
 
   FileInfo fileInfo;
   ASSERT_NO_THROW(fileInfo = FileInfoQuery().setFileId(fileId).execute(getTestClient()));
@@ -98,7 +96,7 @@ TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoContents)
 
   // Then
   FileId fileId;
-  ASSERT_NO_THROW(fileId = txReceipt.getFileId().value());
+  ASSERT_NO_THROW(fileId = txReceipt.mFileId.value());
 
   FileInfo fileInfo;
   ASSERT_NO_THROW(fileInfo = FileInfoQuery().setFileId(fileId).execute(getTestClient()));
@@ -121,7 +119,7 @@ TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoKey)
 
   // Then
   FileId fileId;
-  ASSERT_NO_THROW(fileId = txReceipt.getFileId().value());
+  ASSERT_NO_THROW(fileId = txReceipt.mFileId.value());
 
   FileInfo fileInfo;
   ASSERT_NO_THROW(fileInfo = FileInfoQuery().setFileId(fileId).execute(getTestClient()));

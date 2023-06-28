@@ -59,7 +59,7 @@ int main(int argc, char** argv)
   // Get the receipt when it becomes available
   TransactionReceipt txReceipt = txResp.getReceipt(client);
 
-  const AccountId newAccountId = txReceipt.getAccountId().value();
+  const AccountId newAccountId = txReceipt.mAccountId.value();
   std::cout << "Created new account with ID " << newAccountId.toString() << " and public key "
             << publicKey->toStringDer() << std::endl;
 
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
              .execute(client);
 
   txReceipt = txResp.getReceipt(client);
-  std::cout << "Transaction response: " << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+  std::cout << "Transaction response: " << gStatusToString.at(txReceipt.mStatus) << std::endl;
 
   // Query for the new account key
   const AccountInfo accountInfo = AccountInfoQuery().setAccountId(newAccountId).execute(client);

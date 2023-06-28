@@ -32,7 +32,6 @@
 #include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/ReceiptStatusException.h"
@@ -60,8 +59,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, ExecuteContractExecuteTransact
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -71,8 +69,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, ExecuteContractExecuteTransact
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When
   TransactionReceipt txReceipt;
@@ -127,8 +124,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoFun
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -138,8 +134,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoFun
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = ContractExecuteTransaction()
@@ -172,8 +167,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoGas
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
@@ -183,8 +177,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoGas
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =

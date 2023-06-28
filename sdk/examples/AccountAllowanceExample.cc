@@ -69,8 +69,7 @@ int main(int argc, char** argv)
                                      .setInitialBalance(Hbar(5LL))
                                      .execute(client)
                                      .getReceipt(client)
-                                     .getAccountId()
-                                     .value();
+                                     .mAccountId.value();
   std::cout << "Generated Alice account ID " << aliceAccountId.toString() << " and initialized with "
             << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).getBalance().toTinybars()
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
@@ -80,8 +79,7 @@ int main(int argc, char** argv)
                                    .setInitialBalance(Hbar(5LL))
                                    .execute(client)
                                    .getReceipt(client)
-                                   .getAccountId()
-                                   .value();
+                                   .mAccountId.value();
   std::cout << "Generated Bob account ID " << bobAccountId.toString() << " and initialized with "
             << AccountBalanceQuery().setAccountId(bobAccountId).execute(client).getBalance().toTinybars()
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
@@ -91,8 +89,7 @@ int main(int argc, char** argv)
                                        .setInitialBalance(Hbar(5LL))
                                        .execute(client)
                                        .getReceipt(client)
-                                       .getAccountId()
-                                       .value();
+                                       .mAccountId.value();
   std::cout << "Generated Charlie account ID " << charlieAccountId.toString() << " and initialized with "
             << AccountBalanceQuery().setAccountId(charlieAccountId).execute(client).getBalance().toTinybars()
             << HbarUnit::TINYBAR().getSymbol() << std::endl
@@ -105,7 +102,7 @@ int main(int argc, char** argv)
                                    .sign(alicePrivateKey.get())
                                    .execute(client)
                                    .getReceipt(client);
-  std::cout << "Alice 2 Hbar allowance approval transaction status: " << gStatusToString.at(txReceipt.getStatus())
+  std::cout << "Alice 2 Hbar allowance approval transaction status: " << gStatusToString.at(txReceipt.mStatus)
             << std::endl
             << std::endl;
 
@@ -121,7 +118,7 @@ int main(int argc, char** argv)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Transfer of 1 Hbar from Alice to Charlie, using Bob's allowance: "
-            << gStatusToString.at(txReceipt.getStatus()) << std::endl
+            << gStatusToString.at(txReceipt.mStatus) << std::endl
             << std::endl;
 
   std::cout << "Going to attempt to transfer another 2 Hbar from Alice to Charlie using Bob's allowance. "
@@ -138,7 +135,7 @@ int main(int argc, char** argv)
                   .execute(client)
                   .getReceipt(client);
     std::cout << "Transfer of 2 Hbar from Alice to Charlie, using Bob's allowance: "
-              << gStatusToString.at(txReceipt.getStatus()) << std::endl
+              << gStatusToString.at(txReceipt.mStatus) << std::endl
               << std::endl;
   }
   catch (const ReceiptStatusException& ex)
@@ -154,7 +151,7 @@ int main(int argc, char** argv)
                 .sign(alicePrivateKey.get())
                 .execute(client)
                 .getReceipt(client);
-  std::cout << "Alice 3 Hbar allowance approval transaction status: " << gStatusToString.at(txReceipt.getStatus())
+  std::cout << "Alice 3 Hbar allowance approval transaction status: " << gStatusToString.at(txReceipt.mStatus)
             << std::endl
             << std::endl;
 
@@ -170,7 +167,7 @@ int main(int argc, char** argv)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Transfer of 2 Hbar from Alice to Charlie, using Bob's allowance: "
-            << gStatusToString.at(txReceipt.getStatus()) << std::endl
+            << gStatusToString.at(txReceipt.mStatus) << std::endl
             << std::endl;
 
   std::cout << "Alice's final account balance: "
@@ -191,8 +188,7 @@ int main(int argc, char** argv)
                 .sign(alicePrivateKey.get())
                 .execute(client)
                 .getReceipt(client);
-  std::cout << "Alice allowance deletion for Bob: " << gStatusToString.at(txReceipt.getStatus()) << std::endl
-            << std::endl;
+  std::cout << "Alice allowance deletion for Bob: " << gStatusToString.at(txReceipt.mStatus) << std::endl << std::endl;
 
   std::cout << "Deleting created accounts.." << std::endl;
   txReceipt = AccountDeleteTransaction()
@@ -202,7 +198,7 @@ int main(int argc, char** argv)
                 .sign(alicePrivateKey.get())
                 .execute(client)
                 .getReceipt(client);
-  std::cout << "Alice account deletion: " << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+  std::cout << "Alice account deletion: " << gStatusToString.at(txReceipt.mStatus) << std::endl;
 
   txReceipt = AccountDeleteTransaction()
                 .setDeleteAccountId(bobAccountId)
@@ -211,7 +207,7 @@ int main(int argc, char** argv)
                 .sign(bobPrivateKey.get())
                 .execute(client)
                 .getReceipt(client);
-  std::cout << "Bob account deletion: " << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+  std::cout << "Bob account deletion: " << gStatusToString.at(txReceipt.mStatus) << std::endl;
 
   txReceipt = AccountDeleteTransaction()
                 .setDeleteAccountId(charlieAccountId)
@@ -220,7 +216,7 @@ int main(int argc, char** argv)
                 .sign(charliePrivateKey.get())
                 .execute(client)
                 .getReceipt(client);
-  std::cout << "Charlie account deletion: " << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+  std::cout << "Charlie account deletion: " << gStatusToString.at(txReceipt.mStatus) << std::endl;
 
   return 0;
 }

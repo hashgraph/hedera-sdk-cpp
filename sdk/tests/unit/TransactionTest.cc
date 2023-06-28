@@ -35,6 +35,7 @@
 #include "TokenAssociateTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
+#include "TokenMintTransaction.h"
 #include "TransferTransaction.h"
 #include "impl/Utilities.h"
 
@@ -992,6 +993,7 @@ TEST_F(TransactionTest, TokenCreateTransactionFromTransactionBytes)
   EXPECT_NO_THROW(const TokenCreateTransaction tokenCreateTransaction = std::get<15>(txVariant));
 }
 
+//-----
 TEST_F(TransactionTest, TokenDeleteTransactionFromTransactionBodyBytes)
 {
   // Given
@@ -1107,4 +1109,63 @@ TEST_F(TransactionTest, TokenAssociateTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 17);
   EXPECT_NO_THROW(const TokenAssociateTransaction tokenAssociateTransaction = std::get<17>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenMintTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenmint(new proto::TokenMintTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenMintTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 18);
+  EXPECT_NO_THROW(const TokenMintTransaction tokenMintTransaction = std::get<18>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenMintTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenmint(new proto::TokenMintTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenMintTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 18);
+  EXPECT_NO_THROW(const TokenMintTransaction tokenMintTransaction = std::get<18>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenMintTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenmint(new proto::TokenMintTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenMintTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 18);
+  EXPECT_NO_THROW(const TokenMintTransaction tokenMintTransaction = std::get<18>(txVariant));
 }

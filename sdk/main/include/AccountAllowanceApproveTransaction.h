@@ -116,15 +116,19 @@ public:
   /**
    * Add an NFT allowance to this AccountAllowanceApproveTransaction.
    *
-   * @param nftId            The ID of the NFT of which to approve the spending.
-   * @param ownerAccountId   The ID of the account that is allowing the spending of the NFT.
-   * @param spenderAccountId The ID of the account that is being allowed to spend the owning account's NFT.
+   * @param nftId                      The ID of the NFT of which to approve the spending.
+   * @param ownerAccountId             The ID of the account that is allowing the spending of the NFT.
+   * @param spenderAccountId           The ID of the account that is being allowed to spend the owning account's NFT.
+   * @param delegatingSpenderAccountId The ID of the account who has an 'approveForAll' allowance from the owner, and is
+   *                                   granting approval to the spender to spend on their behalf.
    * @return A reference to this AccountAllowanceApproveTransaction object with the added NFT allowance.
    * @throws IllegalStateException If this AccountAllowanceApproveTransaction is frozen.
    */
-  AccountAllowanceApproveTransaction& approveTokenNftAllowance(const NftId& nftId,
-                                                               const AccountId& ownerAccountId,
-                                                               const AccountId& spenderAccountId);
+  AccountAllowanceApproveTransaction& approveTokenNftAllowance(
+    const NftId& nftId,
+    const AccountId& ownerAccountId,
+    const AccountId& spenderAccountId,
+    const AccountId& delegatingSpenderAccountId = AccountId());
 
   /**
    * Add an allowance for all NFTs of a specific token ID to this AccountAllowanceApproveTransaction.
@@ -138,6 +142,19 @@ public:
   AccountAllowanceApproveTransaction& approveNftAllowanceAllSerials(const TokenId& tokenId,
                                                                     const AccountId& ownerAccountId,
                                                                     const AccountId& spenderAccountId);
+
+  /**
+   * Remove all allowances for all NFTs of a specific token ID for a spender.
+   *
+   * @param tokenId          The ID of the NFT tokens of which to revoke the allowance.
+   * @param ownerAccountId   The ID of the account that is revoking the spending of its NFTs.
+   * @param spenderAccountId The ID of the account that is no longer allowed to spend the owning account's NFTs.
+   * @return A reference to this AccountAllowanceApproveTransaction object with the deleted NFT allowances.
+   * @throws IllegalStateException If this AccountAllowanceApproveTransaction is frozen.
+   */
+  AccountAllowanceApproveTransaction& deleteNftAllowanceAllSerials(const TokenId& tokenId,
+                                                                   const AccountId& ownerAccountId,
+                                                                   const AccountId& spenderAccountId);
 
   /**
    * Get the list of Hbar allowance approvals added to this AccountAllowanceApproveTransaction.

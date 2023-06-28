@@ -91,8 +91,7 @@ TEST_F(AccountBalanceQueryIntegrationTest, ContractId)
                                  .setGas(500000ULL)
                                  .execute(getTestClient())
                                  .getReceipt(getTestClient())
-                                 .getContractId()
-                                 .value());
+                                 .mContractId.value());
   AccountBalance accountBalance;
 
   // When
