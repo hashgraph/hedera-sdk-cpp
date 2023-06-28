@@ -196,6 +196,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->createToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenDeletion:
       return mTokenStub->deleteToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenMint:
+      return mTokenStub->mintToken(&context, transaction, response);
     default:
       // This should never happen
       throw std::invalid_argument("Unrecognized gRPC transaction method case");

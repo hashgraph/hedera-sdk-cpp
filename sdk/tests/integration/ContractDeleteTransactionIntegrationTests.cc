@@ -26,7 +26,6 @@
 #include "ContractId.h"
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
@@ -56,8 +55,7 @@ TEST_F(ContractDeleteTransactionIntegrationTest, DeleteContractWithAdminKey)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When / Then
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()
@@ -81,8 +79,7 @@ TEST_F(ContractDeleteTransactionIntegrationTest, CannotDeleteContractWithNoAdmin
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = ContractDeleteTransaction()

@@ -78,7 +78,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
   // Then
   AccountId accountId;
   AccountInfo accountInfo;
-  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).mAccountId.value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
   EXPECT_EQ(accountInfo.mAccountId, accountId);
@@ -129,9 +129,8 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
   AccountId accountIdStakedAccountId;
   AccountId accountIdStakedNodeId;
   AccountInfo accountInfo;
-  ASSERT_NO_THROW(accountIdStakedAccountId =
-                    txResponseStakedAccountId.getReceipt(getTestClient()).getAccountId().value());
-  ASSERT_NO_THROW(accountIdStakedNodeId = txResponseStakedNodeId.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountIdStakedAccountId = txResponseStakedAccountId.getReceipt(getTestClient()).mAccountId.value());
+  ASSERT_NO_THROW(accountIdStakedNodeId = txResponseStakedNodeId.getReceipt(getTestClient()).mAccountId.value());
 
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountIdStakedAccountId).execute(getTestClient()));
   EXPECT_EQ(accountInfo.mAccountId, accountIdStakedAccountId);
@@ -176,7 +175,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
   // Then
   AccountId accountId;
   AccountInfo accountInfo;
-  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).mAccountId.value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
   EXPECT_EQ(accountInfo.mAccountId, accountId);
@@ -209,8 +208,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
                                      .setKey(adminPublicKey.get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
-                                     .getAccountId()
-                                     .value());
+                                     .mAccountId.value());
 
   // When
   TransactionResponse txResponse;
@@ -220,7 +218,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
   // Then
   AccountId accountId;
   AccountInfo accountInfo;
-  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).mAccountId.value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
   EXPECT_EQ(accountInfo.mAccountId, accountId);
@@ -256,8 +254,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
                                      .setKey(adminKeyPublicKey.get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
-                                     .getAccountId()
-                                     .value());
+                                     .mAccountId.value());
 
   // When
   TransactionResponse txResponse;
@@ -272,7 +269,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
   // Then
   AccountId accountId;
   AccountInfo accountInfo;
-  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).mAccountId.value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
   EXPECT_EQ(accountInfo.mAccountId, accountId);
@@ -308,8 +305,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWit
                                      .setKey(adminKeyPublicKey.get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
-                                     .getAccountId()
-                                     .value());
+                                     .mAccountId.value());
 
   // When
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountCreateTransaction()
@@ -339,8 +335,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
                                      .setKey(adminPrivateKey->getPublicKey().get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
-                                     .getAccountId()
-                                     .value());
+                                     .mAccountId.value());
 
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> aliasPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const EvmAddress alias =
@@ -360,7 +355,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
   // Then
   AccountId accountId;
   AccountInfo accountInfo;
-  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).getAccountId().value());
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).mAccountId.value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
   EXPECT_EQ(accountInfo.mAccountId, accountId);
@@ -393,8 +388,7 @@ TEST_F(AccountCreateTransactionIntegrationTest,
                                      .setKey(adminPrivateKey->getPublicKey().get())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
-                                     .getAccountId()
-                                     .value());
+                                     .mAccountId.value());
 
   const std::unique_ptr<ECDSAsecp256k1PrivateKey> aliasPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const EvmAddress alias =

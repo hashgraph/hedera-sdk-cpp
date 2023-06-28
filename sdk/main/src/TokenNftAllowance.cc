@@ -28,12 +28,14 @@ TokenNftAllowance::TokenNftAllowance(const TokenId& tokenId,
                                      AccountId owner,
                                      AccountId spender,
                                      std::vector<uint64_t> serialNumbers,
-                                     std::optional<bool> allowAll)
+                                     std::optional<bool> allowAll,
+                                     std::optional<AccountId> delegatingSpender)
   : mTokenId(tokenId)
   , mOwnerAccountId(std::move(owner))
   , mSpenderAccountId(std::move(spender))
   , mSerialNumbers(std::move(serialNumbers))
   , mApprovedForAll(allowAll)
+  , mDelegatingSpenderAccountId(std::move(delegatingSpender))
 {
 }
 
@@ -140,6 +142,13 @@ TokenNftAllowance& TokenNftAllowance::approveForAll(bool allowAll)
     mSerialNumbers.clear();
   }
 
+  return *this;
+}
+
+//-----
+TokenNftAllowance& TokenNftAllowance::setDelegatingSpenderAccountId(const AccountId& accountId)
+{
+  mDelegatingSpenderAccountId = accountId;
   return *this;
 }
 

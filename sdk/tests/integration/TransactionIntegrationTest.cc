@@ -22,7 +22,6 @@
 #include "AccountInfo.h"
 #include "AccountInfoQuery.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "Defaults.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
@@ -31,7 +30,6 @@
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
-#include "exceptions/PrecheckStatusException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Utilities.h"
 
@@ -82,7 +80,7 @@ TEST_F(TransactionIntegrationTest, ExecuteTransactionRegenerateTransactionId)
   AccountId accountId;
   AccountInfo accountInfo;
   ASSERT_NO_THROW(txReceipt = txResponse.getReceipt(getTestClient()));
-  ASSERT_NO_THROW(accountId = txReceipt.getAccountId().value());
+  ASSERT_NO_THROW(accountId = txReceipt.mAccountId.value());
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountId).execute(getTestClient()));
 
   EXPECT_EQ(accountInfo.mAccountId, accountId);

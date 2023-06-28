@@ -110,8 +110,8 @@ TEST_F(TransactionRecordTest, FromProtobuf)
 
   // Then
   ASSERT_TRUE(txRecord.mReceipt.has_value());
-  ASSERT_TRUE(txRecord.mReceipt->getAccountId().has_value());
-  EXPECT_EQ(txRecord.mReceipt->getAccountId(), accountIdFrom);
+  ASSERT_TRUE(txRecord.mReceipt->mAccountId.has_value());
+  EXPECT_EQ(txRecord.mReceipt->mAccountId, accountIdFrom);
 
   EXPECT_EQ(txRecord.mTransactionHash, txHash);
 

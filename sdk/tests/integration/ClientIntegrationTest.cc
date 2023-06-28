@@ -106,7 +106,7 @@ TEST_F(ClientIntegrationTest, ConnectToLocalNode)
   TransactionResponse txResp =
     AccountCreateTransaction().setKey(testPublicKey.get()).setInitialBalance(testInitialHbarBalance).execute(client);
 
-  const AccountId newAccountId = txResp.getReceipt(client).getAccountId().value();
+  const AccountId newAccountId = txResp.getReceipt(client).mAccountId.value();
 
   // Then
   EXPECT_EQ(client.getOperatorAccountId()->toString(), operatorAccountId.toString());

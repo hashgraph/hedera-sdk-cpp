@@ -60,7 +60,7 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
     fileCreateTransaction.setNodeAccountIds(mNodeAccountIds);
   }
 
-  const FileId fileId = fileCreateTransaction.execute(client, timeout).getReceipt(client, timeout).getFileId().value();
+  const FileId fileId = fileCreateTransaction.execute(client, timeout).getReceipt(client, timeout).mFileId.value();
 
   // Append to the file if needed.
   if (!appendedByteCode.empty())

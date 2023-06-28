@@ -57,7 +57,7 @@ int main(int argc, char** argv)
                                     .setStakedAccountId(AccountId(3ULL))
                                     .execute(client)
                                     .getReceipt(client)
-                                    .getAccountId();
+                                    .mAccountId;
 
   std::cout << "Created new account with ID " << newAccountId.toString() << std::endl;
 

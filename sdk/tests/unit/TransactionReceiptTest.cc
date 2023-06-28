@@ -33,12 +33,16 @@ protected:
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
+  [[nodiscard]] inline const uint64_t& getTestNewTotalSupply() const { return mTestNewTotalSupply; }
+  [[nodiscard]] inline const std::vector<int64_t>& getTestSerialNumbers() const { return mTestSerialNumbers; }
 
 private:
   const AccountId mTestAccountId = AccountId(1ULL);
   const FileId mTestFileId = FileId(2ULL);
   const ContractId mTestContractId = ContractId(3ULL);
   const TokenId mTestTokenId = TokenId(4ULL);
+  const uint64_t mTestNewTotalSupply = 5ULL;
+  const std::vector<int64_t> mTestSerialNumbers = { 6LL, 7LL, 8LL };
 };
 
 //-----
@@ -48,12 +52,12 @@ TEST_F(TransactionReceiptTest, ConstructTransactionReceipt)
   const TransactionReceipt transactionReceipt;
 
   // Then
-  EXPECT_EQ(transactionReceipt.getStatus(), Status::UNKNOWN);
-  EXPECT_FALSE(transactionReceipt.getAccountId().has_value());
-  EXPECT_FALSE(transactionReceipt.getFileId().has_value());
-  EXPECT_FALSE(transactionReceipt.getContractId().has_value());
-  EXPECT_FALSE(transactionReceipt.getExchangeRates().has_value());
-  EXPECT_FALSE(transactionReceipt.getTokenId().has_value());
+  EXPECT_EQ(transactionReceipt.mStatus, Status::UNKNOWN);
+  EXPECT_FALSE(transactionReceipt.mAccountId.has_value());
+  EXPECT_FALSE(transactionReceipt.mFileId.has_value());
+  EXPECT_FALSE(transactionReceipt.mContractId.has_value());
+  EXPECT_FALSE(transactionReceipt.mExchangeRates.has_value());
+  EXPECT_FALSE(transactionReceipt.mTokenId.has_value());
 }
 
 //-----
@@ -78,28 +82,38 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   protoExRateSet->mutable_nextrate()->set_centequiv(value);
   protoExRateSet->mutable_nextrate()->mutable_expirationtime()->set_seconds(secs);
 
+  protoTxReceipt.set_newtotalsupply(getTestNewTotalSupply());
+
+  for (const auto& serialNum : getTestSerialNumbers())
+  {
+    protoTxReceipt.add_serialnumbers(serialNum);
+  }
+
   // When
   const TransactionReceipt txRx = TransactionReceipt::fromProtobuf(protoTxReceipt);
 
   // Then
-  EXPECT_EQ(txRx.getStatus(), Status::SUCCESS);
-  ASSERT_TRUE(txRx.getAccountId().has_value());
-  EXPECT_EQ(txRx.getAccountId(), getTestAccountId());
-  ASSERT_TRUE(txRx.getFileId().has_value());
-  EXPECT_EQ(txRx.getFileId(), getTestFileId());
-  ASSERT_TRUE(txRx.getContractId().has_value());
-  EXPECT_EQ(txRx.getContractId(), getTestContractId());
-  ASSERT_TRUE(txRx.getExchangeRates().has_value());
-  ASSERT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getCurrentExchangeRate(), value / value);
-  ASSERT_TRUE(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getCurrentExchangeRate()->getExpirationTime(),
+  EXPECT_EQ(txRx.mStatus, Status::SUCCESS);
+  ASSERT_TRUE(txRx.mAccountId.has_value());
+  EXPECT_EQ(txRx.mAccountId, getTestAccountId());
+  ASSERT_TRUE(txRx.mFileId.has_value());
+  EXPECT_EQ(txRx.mFileId, getTestFileId());
+  ASSERT_TRUE(txRx.mContractId.has_value());
+  EXPECT_EQ(txRx.mContractId, getTestContractId());
+  ASSERT_TRUE(txRx.mExchangeRates.has_value());
+  ASSERT_TRUE(txRx.mExchangeRates->getCurrentExchangeRate().has_value());
+  EXPECT_EQ(txRx.mExchangeRates->getCurrentExchangeRate()->getCurrentExchangeRate(), value / value);
+  ASSERT_TRUE(txRx.mExchangeRates->getCurrentExchangeRate()->getExpirationTime().has_value());
+  EXPECT_EQ(txRx.mExchangeRates->getCurrentExchangeRate()->getExpirationTime(),
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
-  EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getCurrentExchangeRate(), value / value);
-  EXPECT_TRUE(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime().has_value());
-  EXPECT_EQ(txRx.getExchangeRates()->getNextExchangeRate()->getExpirationTime(),
+  EXPECT_TRUE(txRx.mExchangeRates->getNextExchangeRate().has_value());
+  EXPECT_EQ(txRx.mExchangeRates->getNextExchangeRate()->getCurrentExchangeRate(), value / value);
+  EXPECT_TRUE(txRx.mExchangeRates->getNextExchangeRate()->getExpirationTime().has_value());
+  EXPECT_EQ(txRx.mExchangeRates->getNextExchangeRate()->getExpirationTime(),
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
-  ASSERT_TRUE(txRx.getTokenId().has_value());
-  EXPECT_EQ(txRx.getTokenId(), getTestTokenId());
+  ASSERT_TRUE(txRx.mTokenId.has_value());
+  EXPECT_EQ(txRx.mTokenId, getTestTokenId());
+  ASSERT_TRUE(txRx.mNewTotalSupply.has_value());
+  EXPECT_EQ(txRx.mNewTotalSupply, getTestNewTotalSupply());
+  EXPECT_EQ(txRx.mSerialNumbers.size(), getTestSerialNumbers().size());
 }

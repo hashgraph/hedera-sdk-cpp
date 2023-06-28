@@ -71,8 +71,7 @@ int main(int argc, char** argv)
                                      .sign(firstAccountPrivateKey.get())
                                      .execute(client)
                                      .getReceipt(client)
-                                     .getAccountId()
-                                     .value();
+                                     .mAccountId.value();
   std::cout << "Generated account with ID: " << firstAccountId.toString() << std::endl;
 
   const std::shared_ptr<ED25519PrivateKey> secondAccountPrivateKey = ED25519PrivateKey::generatePrivateKey();
@@ -83,8 +82,7 @@ int main(int argc, char** argv)
                                       .sign(secondAccountPrivateKey.get())
                                       .execute(client)
                                       .getReceipt(client)
-                                      .getAccountId()
-                                      .value();
+                                      .mAccountId.value();
   std::cout << "Generated account with ID: " << secondAccountId.toString() << std::endl;
 
   const std::shared_ptr<ED25519PrivateKey> thirdAccountPrivateKey = ED25519PrivateKey::generatePrivateKey();
@@ -95,8 +93,7 @@ int main(int argc, char** argv)
                                      .sign(thirdAccountPrivateKey.get())
                                      .execute(client)
                                      .getReceipt(client)
-                                     .getAccountId()
-                                     .value();
+                                     .mAccountId.value();
   std::cout << "Generated account with ID: " << thirdAccountId.toString() << std::endl;
 
   /**
@@ -137,8 +134,7 @@ int main(int argc, char** argv)
       .sign(thirdAccountPrivateKey.get())
       .execute(client)
       .getReceipt(client)
-      .getTokenId()
-      .value();
+      .mTokenId.value();
   std::cout << "Created token with ID: " << createdTokenId.toString() << std::endl;
 
   /**
@@ -152,7 +148,7 @@ int main(int argc, char** argv)
                                    .addTokenTransfer(createdTokenId, secondAccountId, 10000LL)
                                    .execute(client)
                                    .getReceipt(client);
-  std::cout << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+  std::cout << gStatusToString.at(txReceipt.mStatus) << std::endl;
 
   std::cout << "Transfer 10,000 units from account B to account A: ";
   TransactionRecord txRecord = TransferTransaction()
@@ -162,7 +158,7 @@ int main(int argc, char** argv)
                                  .sign(secondAccountPrivateKey.get())
                                  .execute(client)
                                  .getRecord(client);
-  std::cout << gStatusToString.at(txRecord.mReceipt->getStatus()) << std::endl;
+  std::cout << gStatusToString.at(txRecord.mReceipt->mStatus) << std::endl;
 
   /**
    * Step 4: Show that the fee collector accounts in the custom fee list of the token that was created was not charged a

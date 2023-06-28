@@ -31,7 +31,6 @@
 #include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/ReceiptStatusException.h"
@@ -60,8 +59,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   ContractId contractId;
@@ -78,8 +76,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
                       .setDeclineStakingReward(true)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // Then
   ContractInfo contractInfo;
@@ -116,8 +113,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   ContractId contractId;
@@ -133,8 +129,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
                       .setDeclineStakingReward(true)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
-                      .getContractId()
-                      .value());
+                      .mContractId.value());
 
   // Then
   ContractInfo contractInfo;
@@ -163,8 +158,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoGas)
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
@@ -194,8 +188,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoConst
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = ContractCreateTransaction()

@@ -39,6 +39,7 @@
 #include "TokenAssociateTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
+#include "TokenMintTransaction.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
@@ -77,7 +78,8 @@ std::pair<int,
                        FileAppendTransaction,
                        TokenCreateTransaction,
                        TokenDeleteTransaction,
-                       TokenAssociateTransaction>>
+                       TokenAssociateTransaction,
+                       TokenMintTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -155,6 +157,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 16, TokenDeleteTransaction(txBody) };
     case proto::TransactionBody::kTokenAssociate:
       return { 17, TokenAssociateTransaction(txBody) };
+    case proto::TransactionBody::kTokenMint:
+      return { 18, TokenMintTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -473,6 +477,7 @@ template class Transaction<FileUpdateTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenCreateTransaction>;
 template class Transaction<TokenDeleteTransaction>;
+template class Transaction<TokenMintTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera

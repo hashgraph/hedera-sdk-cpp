@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-#include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ContractCreateFlow.h"
@@ -27,8 +26,6 @@
 #include "ContractInfo.h"
 #include "ContractInfoQuery.h"
 #include "ED25519PrivateKey.h"
-#include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/ReceiptStatusException.h"
@@ -57,7 +54,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlow)
   // Then
   ContractId contractId;
   ContractInfo contractInfo;
-  ASSERT_NO_THROW(contractId = txResponse.getReceipt(getTestClient()).getContractId().value());
+  ASSERT_NO_THROW(contractId = txResponse.getReceipt(getTestClient()).mContractId.value());
   ASSERT_NO_THROW(contractInfo = ContractInfoQuery().setContractId(contractId).execute(getTestClient()));
   EXPECT_EQ(contractInfo.mContractId, contractId);
 
@@ -107,7 +104,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPrivateKe
   // Then
   ContractId contractId;
   ContractInfo contractInfo;
-  ASSERT_NO_THROW(contractId = txResponse.getReceipt(getTestClient()).getContractId().value());
+  ASSERT_NO_THROW(contractId = txResponse.getReceipt(getTestClient()).mContractId.value());
   ASSERT_NO_THROW(contractInfo = ContractInfoQuery().setContractId(contractId).execute(getTestClient()));
   EXPECT_EQ(contractInfo.mContractId, contractId);
 
@@ -144,7 +141,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPublicKey
   // Then
   ContractId contractId;
   ContractInfo contractInfo;
-  ASSERT_NO_THROW(contractId = txResponse.getReceipt(getTestClient()).getContractId().value());
+  ASSERT_NO_THROW(contractId = txResponse.getReceipt(getTestClient()).mContractId.value());
   ASSERT_NO_THROW(contractInfo = ContractInfoQuery().setContractId(contractId).execute(getTestClient()));
   EXPECT_EQ(contractInfo.mContractId, contractId);
 

@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-#include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
@@ -26,7 +25,6 @@
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/ReceiptStatusException.h"
@@ -51,8 +49,7 @@ TEST_F(FileDeleteTransactionIntegrationTest, ExecuteFileDeleteTransaction)
                              .setContents({})
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   EXPECT_NO_THROW(const TransactionReceipt txReceipt =
@@ -71,7 +68,7 @@ TEST_F(FileDeleteTransactionIntegrationTest, CannotDeleteFileWithNoAdminKey)
   FileId fileId;
   ASSERT_NO_THROW(
     fileId =
-      FileCreateTransaction().setContents({}).execute(getTestClient()).getReceipt(getTestClient()).getFileId().value());
+      FileCreateTransaction().setContents({}).execute(getTestClient()).getReceipt(getTestClient()).mFileId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =

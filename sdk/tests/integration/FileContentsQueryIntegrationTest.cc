@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-#include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
@@ -26,11 +25,8 @@
 #include "FileDeleteTransaction.h"
 #include "FileId.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
-#include "exceptions/PrecheckStatusException.h"
-#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 
@@ -57,8 +53,7 @@ TEST_F(FileContentsQueryIntegrationTest, ExecuteFileContentsQuery)
                              .setContents(getTestFileContents())
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   FileContents fileContents;
@@ -83,8 +78,7 @@ TEST_F(FileContentsQueryIntegrationTest, CanQueryEmptyFileContents)
                              .setKeys({ operatorKey->getPublicKey().get() })
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   FileContents fileContents;
