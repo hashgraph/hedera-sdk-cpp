@@ -22,7 +22,6 @@
 
 #include "AccountId.h"
 #include "CustomFee.h"
-#include "Defaults.h"
 #include "Key.h"
 #include "LedgerId.h"
 #include "TokenId.h"
@@ -164,12 +163,12 @@ public:
   /**
    * The interval at which the auto-renew account will be charged to extend the token's expiry.
    */
-  std::chrono::duration<double> mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
+  std::chrono::duration<double> mAutoRenewPeriod;
 
   /**
    * The epoch second at which the token should expire.
    */
-  std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now() + DEFAULT_AUTO_RENEW_PERIOD;
+  std::chrono::system_clock::time_point mExpirationTime;
 
   /**
    * The memo associated with the token (UTF-8 encoding max 100 bytes).
