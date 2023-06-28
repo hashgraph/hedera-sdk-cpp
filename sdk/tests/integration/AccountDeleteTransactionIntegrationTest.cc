@@ -48,8 +48,7 @@ TEST_F(AccountDeleteTransactionIntegrationTest, ExecuteAccountDeleteTransaction)
                                 .setKey(key->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When
   TransactionResponse txResponse;
@@ -83,8 +82,7 @@ TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteAccountWithoutSignat
                                 .setKey(key->getPublicKey().get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When / Then
   TransactionReceipt txReceipt;

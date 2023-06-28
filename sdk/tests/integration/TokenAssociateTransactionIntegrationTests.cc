@@ -61,8 +61,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, ExecuteTokenAssociateTransactio
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   TokenId tokenId;
   ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
@@ -79,21 +78,17 @@ TEST_F(TokenAssociateTransactionIntegrationTest, ExecuteTokenAssociateTransactio
                               .setFeeScheduleKey(operatorKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
-                              .getTokenId()
-                              .value());
+                              .mTokenId.value());
 
-  // When
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = TokenAssociateTransaction()
-                                 .setAccountId(accountId)
-                                 .setTokenIds({ tokenId })
-                                 .freezeWith(getTestClient())
-                                 .sign(accountKey.get())
-                                 .execute(getTestClient()));
-
-  // Then
-  const TransactionRecord txRecord = txResponse.getRecord(getTestClient());
-  // TODO: TokenAssociation
+  // When / Then
+  TransactionReceipt txResponse;
+  EXPECT_NO_THROW(const TransactionReceipt txReceipt = TokenAssociateTransaction()
+                                                         .setAccountId(accountId)
+                                                         .setTokenIds({ tokenId })
+                                                         .freezeWith(getTestClient())
+                                                         .sign(accountKey.get())
+                                                         .execute(getTestClient())
+                                                         .getReceipt(getTestClient()));
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
@@ -127,8 +122,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CanAssociateAccountWithNoTokens
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When / Then
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = TokenAssociateTransaction()
@@ -177,8 +171,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CannotAssociateTokensWhenAccoun
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   TokenId tokenId;
   ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
@@ -195,8 +188,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CannotAssociateTokensWhenAccoun
                               .setFeeScheduleKey(operatorKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
-                              .getTokenId()
-                              .value());
+                              .mTokenId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenAssociateTransaction()

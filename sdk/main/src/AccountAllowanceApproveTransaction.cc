@@ -89,7 +89,8 @@ AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveT
 AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveTokenNftAllowance(
   const NftId& nftId,
   const AccountId& ownerAccountId,
-  const AccountId& spenderAccountId)
+  const AccountId& spenderAccountId,
+  const AccountId& delegatingAccountId)
 {
   requireNotFrozen();
 
@@ -104,8 +105,12 @@ AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveT
     }
   }
 
-  mNftAllowances.emplace_back(
-    nftId.getTokenId(), ownerAccountId, spenderAccountId, std::vector<uint64_t>{ nftId.getSerialNum() });
+  mNftAllowances.emplace_back(nftId.getTokenId(),
+                              ownerAccountId,
+                              spenderAccountId,
+                              std::vector<uint64_t>{ nftId.getSerialNum() },
+                              std::optional<bool>(),
+                              (delegatingAccountId == AccountId()) ? std::optional<AccountId>() : delegatingAccountId);
   return *this;
 }
 
@@ -128,6 +133,17 @@ AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveN
   }
 
   mNftAllowances.emplace_back(tokenId, ownerAccountId, spenderAccountId, std::vector<uint64_t>{}, true);
+  return *this;
+}
+
+//-----
+AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::deleteNftAllowanceAllSerials(
+  const TokenId& tokenId,
+  const AccountId& ownerAccountId,
+  const AccountId& spenderAccountId)
+{
+  requireNotFrozen();
+  mNftAllowances.emplace_back(tokenId, ownerAccountId, spenderAccountId, std::vector<uint64_t>{}, false);
   return *this;
 }
 
@@ -158,44 +174,17 @@ proto::CryptoApproveAllowanceTransactionBody* AccountAllowanceApproveTransaction
 
   for (const HbarAllowance& allowance : mHbarAllowances)
   {
-    proto::CryptoAllowance* cryptoAllowance = body->add_cryptoallowances();
-    cryptoAllowance->set_allocated_owner(allowance.getOwnerAccountId().toProtobuf().release());
-    cryptoAllowance->set_allocated_spender(allowance.getSpenderAccountId().toProtobuf().release());
-    cryptoAllowance->set_amount(allowance.getAmount().toTinybars());
+    *body->add_cryptoallowances() = *allowance.toProtobuf();
   }
 
   for (const TokenAllowance& allowance : mTokenAllowances)
   {
-    proto::TokenAllowance* tokenAllowance = body->add_tokenallowances();
-    tokenAllowance->set_allocated_tokenid(allowance.getTokenId().toProtobuf().release());
-    tokenAllowance->set_allocated_owner(allowance.getOwnerAccountId().toProtobuf().release());
-    tokenAllowance->set_allocated_spender(allowance.getSpenderAccountId().toProtobuf().release());
-    tokenAllowance->set_amount(static_cast<int64_t>(allowance.getAmount()));
+    *body->add_tokenallowances() = *allowance.toProtobuf();
   }
 
   for (const TokenNftAllowance& allowance : mNftAllowances)
   {
-    proto::NftAllowance* nftAllowance = body->add_nftallowances();
-    nftAllowance->set_allocated_tokenid(allowance.getTokenId().toProtobuf().release());
-    nftAllowance->set_allocated_owner(allowance.getOwnerAccountId().toProtobuf().release());
-    nftAllowance->set_allocated_spender(allowance.getSpenderAccountId().toProtobuf().release());
-
-    for (const uint64_t& serialNumber : allowance.getSerialNumbers())
-    {
-      nftAllowance->add_serial_numbers(static_cast<int64_t>(serialNumber));
-    }
-
-    if (allowance.getApprovedForAll().has_value())
-    {
-      auto value = std::make_unique<google::protobuf::BoolValue>();
-      value->set_value(*allowance.getApprovedForAll());
-      nftAllowance->set_allocated_approved_for_all(value.release());
-    }
-
-    if (allowance.getDelegateSpender().has_value())
-    {
-      nftAllowance->set_allocated_delegating_spender(allowance.getDelegateSpender()->toProtobuf().release());
-    }
+    *body->add_nftallowances() = *allowance.toProtobuf();
   }
 
   return body.release();

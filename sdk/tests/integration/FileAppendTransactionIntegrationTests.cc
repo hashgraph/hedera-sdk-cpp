@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-#include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
@@ -26,7 +25,6 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
@@ -58,8 +56,7 @@ TEST_F(FileAppendTransactionIntegrationTest, ExecuteFileAppendTransaction)
                              .setContents(origContents)
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = FileAppendTransaction()
@@ -234,8 +231,7 @@ TEST_F(FileAppendTransactionIntegrationTest, CanAppendLargeContents)
                              .setContents(origContents)
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
-                             .getFileId()
-                             .value());
+                             .mFileId.value());
 
   // When
   std::vector<TransactionResponse> txResponses;

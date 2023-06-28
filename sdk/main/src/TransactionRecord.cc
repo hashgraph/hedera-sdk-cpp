@@ -63,10 +63,7 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   {
     for (int i = 0; i < proto.transferlist().accountamounts_size(); ++i)
     {
-      HbarTransfer transfer;
-      transfer.setAccountId(AccountId::fromProtobuf(proto.transferlist().accountamounts(i).accountid()));
-      transfer.setAmount(Hbar(proto.transferlist().accountamounts(i).amount(), HbarUnit::TINYBAR()));
-      transactionRecord.mHbarTransferList.push_back(transfer);
+      transactionRecord.mHbarTransferList.push_back(HbarTransfer::fromProtobuf(proto.transferlist().accountamounts(i)));
     }
   }
 
@@ -108,6 +105,12 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   for (int i = 0; i < proto.assessed_custom_fees_size(); ++i)
   {
     transactionRecord.mAssessedCustomFees.push_back(AssessedCustomFee::fromProtobuf(proto.assessed_custom_fees(i)));
+  }
+
+  for (int i = 0; i < proto.automatic_token_associations_size(); ++i)
+  {
+    transactionRecord.mAutomaticTokenAssociations.push_back(
+      TokenAssociation::fromProtobuf(proto.automatic_token_associations(i)));
   }
 
   if (!proto.evm_address().empty())

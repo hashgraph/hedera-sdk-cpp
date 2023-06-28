@@ -28,6 +28,7 @@
 #include "TokenId.h"
 
 #include <optional>
+#include <vector>
 
 namespace proto
 {
@@ -59,57 +60,6 @@ public:
   void validateStatus() const;
 
   /**
-   * Get the transaction status.
-   *
-   * @return The transaction status.
-   */
-  [[nodiscard]] inline Status getStatus() const { return mStatus; }
-
-  /**
-   * Get the ID of the account that was created as a result of the submitted transaction. Only valid is this
-   * TransactionReceipt is for an AccountCreateTransaction.
-   *
-   * @return The ID of the created account. Uninitialized if the corresponding Transaction was not an
-   * AccountCreateTransaction.
-   */
-  [[nodiscard]] inline std::optional<AccountId> getAccountId() const { return mAccountId; };
-
-  /**
-   * Get the ID of the file that was created as a result of the submitted transaction. Only valid is this
-   * TransactionReceipt is for an FileCreateTransaction.
-   *
-   * @return The ID of the created file. Uninitialized if the corresponding Transaction was not an
-   * FileCreateTransaction.
-   */
-  [[nodiscard]] inline std::optional<FileId> getFileId() const { return mFileId; };
-
-  /**
-   * Get the ID of the contract that was created as a result of the submitted transaction. Only valid is this
-   * TransactionReceipt is for an ContractCreateTransaction.
-   *
-   * @return The ID of the created contract. Uninitialized if the corresponding Transaction was not an
-   * ContractCreateTransaction.
-   */
-  [[nodiscard]] inline std::optional<ContractId> getContractId() const { return mContractId; };
-
-  /**
-   * Get the exchange rates in effect when the transaction reached consensus.
-   *
-   * @return The current and next exchange rates.
-   */
-  [[nodiscard]] inline std::optional<ExchangeRateSet> getExchangeRates() const { return mExchangeRates; }
-
-  /**
-   * Get the ID of the token that was created as a result of the submitted transaction. Only valid is this
-   * TransactionReceipt is for an TokenCreateTransaction.
-   *
-   * @return The ID of the created token. Uninitialized if the corresponding Transaction was not an
-   * TokenCreateTransaction.
-   */
-  [[nodiscard]] inline std::optional<TokenId> getTokenId() const { return mTokenId; };
-
-private:
-  /**
    * The consensus status of the transaction; is UNKNOWN if consensus has not been reached, or if the associated
    * transaction did not have a valid payer signature.
    */
@@ -139,6 +89,18 @@ private:
    * In the receipt of a TokenCreate, the ID of the newly created token.
    */
   std::optional<TokenId> mTokenId;
+
+  /**
+   * In the receipt of a TokenMint, TokenWipe, TokenBurn. For FUNGIBLE_COMMON tokens, this is the current total supply
+   * of the token. For NON_FUNGIBLE_UNIQUE tokens, this is the total number of NFTs issued for a given token ID.
+   */
+  std::optional<uint64_t> mNewTotalSupply;
+
+  /**
+   * In the receipt of a TokenMint, for tokens of type NON_FUNGIBLE_COMMON, these are the serial numbers of the
+   * newly-created NFTs.
+   */
+  std::vector<int64_t> mSerialNumbers;
 };
 
 } // namespace Hedera
