@@ -203,6 +203,7 @@ private:
   friend class ContractInfoQuery;
   friend class FileContentsQuery;
   friend class FileInfoQuery;
+  friend class TokenInfoQuery;
   friend class TransactionRecordQuery;
 
   /**
