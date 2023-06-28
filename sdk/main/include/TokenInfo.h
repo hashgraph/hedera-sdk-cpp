@@ -66,6 +66,20 @@ public:
   [[nodiscard]] static TokenInfo fromBytes(const std::vector<std::byte>& bytes);
 
   /**
+   * Construct a TokenInfo protobuf object from this TokenInfo object.
+   *
+   * @return A pointer to the created TokenInfo protobuf object.
+   */
+  [[nodiscard]] std::unique_ptr<proto::TokenInfo> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this TokenInfo object.
+   *
+   * @return The byte array representing this TokenInfo object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
    * The ID of the token.
    */
   TokenId mTokenId;

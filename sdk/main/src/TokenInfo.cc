@@ -129,4 +129,86 @@ TokenInfo TokenInfo::fromProtobuf(const proto::TokenInfo& proto)
   return tokenInfo;
 }
 
+//-----
+TokenInfo TokenInfo::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::TokenInfo proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
+std::unique_ptr<proto::TokenInfo> TokenInfo::toProtobuf() const
+{
+  auto protoTokenInfo = std::make_unique<proto::TokenInfo>();
+  protoTokenInfo->set_allocated_tokenid(mTokenId.toProtobuf().release());
+  protoTokenInfo->set_name(mTokenName);
+  protoTokenInfo->set_symbol(mTokenSymbol);
+  protoTokenInfo->set_decimals(mDecimals);
+  protoTokenInfo->set_totalsupply(mTotalSupply);
+  protoTokenInfo->set_allocated_treasury(mTreasuryAccountId.toProtobuf().release());
+  protoTokenInfo->set_allocated_adminkey(mAdminKey->toProtobufKey().release());
+  protoTokenInfo->set_allocated_kyckey(mKycKey->toProtobufKey().release());
+  protoTokenInfo->set_allocated_freezekey(mFreezeKey->toProtobufKey().release());
+  protoTokenInfo->set_allocated_wipekey(mWipeKey->toProtobufKey().release());
+  protoTokenInfo->set_allocated_supplykey(mSupplyKey->toProtobufKey().release());
+
+  if (mDefaultFreezeStatus.has_value())
+  {
+    protoTokenInfo->set_defaultfreezestatus(mDefaultFreezeStatus.value() ? proto::TokenFreezeStatus::Frozen
+                                                                         : proto::TokenFreezeStatus::Unfrozen);
+  }
+  else
+  {
+    protoTokenInfo->set_defaultfreezestatus(proto::TokenFreezeStatus::FreezeNotApplicable);
+  }
+
+  if (mDefaultKycStatus.has_value())
+  {
+    protoTokenInfo->set_defaultkycstatus(mDefaultKycStatus.value() ? proto::TokenKycStatus::Granted
+                                                                   : proto::TokenKycStatus::Revoked);
+  }
+  else
+  {
+    protoTokenInfo->set_defaultkycstatus(proto::TokenKycStatus::KycNotApplicable);
+  }
+
+  protoTokenInfo->set_deleted(mIsDeleted);
+  protoTokenInfo->set_allocated_autorenewaccount(mAutoRenewAccountId.toProtobuf().release());
+  protoTokenInfo->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
+  protoTokenInfo->set_allocated_expiry(internal::TimestampConverter::toProtobuf(mExpirationTime));
+  protoTokenInfo->set_memo(mTokenMemo);
+  protoTokenInfo->set_tokentype(gTokenTypeToProtobufTokenType.at(mTokenType));
+  protoTokenInfo->set_supplytype(gTokenSupplyTypeToProtobufTokenSupplyType.at(mSupplyType));
+  protoTokenInfo->set_maxsupply(static_cast<int64_t>(mMaxSupply));
+  protoTokenInfo->set_allocated_fee_schedule_key(mFeeScheduleKey->toProtobufKey().release());
+
+  for (const auto& fee : mCustomFees)
+  {
+    *protoTokenInfo->add_custom_fees() = *fee->toProtobuf();
+  }
+
+  protoTokenInfo->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
+
+  if (mPauseStatus.has_value())
+  {
+    protoTokenInfo->set_pause_status(mPauseStatus.value() ? proto::TokenPauseStatus::Paused
+                                                          : proto::TokenPauseStatus::Unpaused);
+  }
+  else
+  {
+    protoTokenInfo->set_pause_status(proto::TokenPauseStatus::PauseNotApplicable);
+  }
+
+  protoTokenInfo->set_ledger_id(internal::Utilities::byteVectorToString(mLedgerId.toBytes()));
+
+  return protoTokenInfo;
+}
+
+//-----
+std::vector<std::byte> TokenInfo::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
 } // namespace Hedera
