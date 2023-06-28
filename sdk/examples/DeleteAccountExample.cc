@@ -58,7 +58,7 @@ int main(int argc, char** argv)
   // Get the receipt when it becomes available
   TransactionReceipt txReceipt = txResp.getReceipt(client);
 
-  const AccountId newAccountId = txReceipt.getAccountId().value();
+  const AccountId newAccountId = txReceipt.mAccountId.value();
   std::cout << "Created new account with ID " << newAccountId.toString() << std::endl;
 
   // Delete the newly-created account
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
                 .execute(client)
                 .getReceipt(client);
 
-  std::cout << "Deleted account with response code: " << gStatusToString.at(txReceipt.getStatus()) << std::endl;
+  std::cout << "Deleted account with response code: " << gStatusToString.at(txReceipt.mStatus) << std::endl;
 
   return 0;
 }

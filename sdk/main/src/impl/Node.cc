@@ -196,6 +196,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->createToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenDeletion:
       return mTokenStub->deleteToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenMint:
+      return mTokenStub->mintToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenUpdate:
       return mTokenStub->updateToken(&context, transaction, response);
     default:

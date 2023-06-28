@@ -54,8 +54,7 @@ TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
                                 .setInitialBalance(amount)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TransferTransaction()
                                                          .addHbarTransfer(operatorAccountId, amount.negated())
                                                          .addHbarTransfer(accountId, amount)

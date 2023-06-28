@@ -63,8 +63,7 @@ TEST_F(TokenDeleteTransactionIntegrationTest, ExecuteTokenDeleteTransaction)
                               .setFeeScheduleKey(operatorKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
-                              .getTokenId()
-                              .value());
+                              .mTokenId.value());
 
   // When
   TransactionResponse txResponse;
@@ -98,8 +97,7 @@ TEST_F(TokenDeleteTransactionIntegrationTest, CannotDeleteTokenWithNoAdminKeySig
                               .sign(adminKey.get())
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
-                              .getTokenId()
-                              .value());
+                              .mTokenId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =

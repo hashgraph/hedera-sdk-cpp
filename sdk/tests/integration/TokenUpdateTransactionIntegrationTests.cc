@@ -65,8 +65,7 @@ TEST_F(TokenUpdateTransactionIntegrationTest, ExecuteTokenUpdateTransaction)
                               .setFeeScheduleKey(operatorKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
-                              .getTokenId()
-                              .value());
+                              .mTokenId.value());
 
   // When
   TransactionReceipt txReceipt;
@@ -101,8 +100,7 @@ TEST_F(TokenUpdateTransactionIntegrationTest, CannotUpdateImmutableKey)
                               .setTreasuryAccountId(AccountId(2ULL))
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
-                              .getTokenId()
-                              .value());
+                              .mTokenId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenUpdateTransaction()

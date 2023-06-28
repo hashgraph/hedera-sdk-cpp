@@ -59,6 +59,7 @@ TEST_F(TokenNftAllowanceTest, ConstructWithTokenIdOwnerSpenderSerialNumbersAppro
   EXPECT_EQ(tokenNftAllowance.getSpenderAccountId(), getTestSpenderAccountId());
   EXPECT_EQ(tokenNftAllowance.getSerialNumbers(), getTestSerialNumbers());
   EXPECT_FALSE(tokenNftAllowance.getApprovedForAll().has_value());
+  EXPECT_FALSE(tokenNftAllowance.getDelegateSpender().has_value());
 }
 
 //-----
@@ -132,6 +133,20 @@ TEST_F(TokenNftAllowanceTest, GetSetApproveForAll)
   // Then
   ASSERT_TRUE(tokenNftAllowance.getApprovedForAll().has_value());
   EXPECT_FALSE(*tokenNftAllowance.getApprovedForAll());
+}
+
+//-----
+TEST_F(TokenNftAllowanceTest, GetSetDelegatingSpenderAccountId)
+{
+  // Given
+  TokenNftAllowance tokenNftAllowance;
+
+  // When
+  tokenNftAllowance.setDelegatingSpenderAccountId(getTestDelegatingSpenderAccountId());
+
+  // Then
+  ASSERT_TRUE(tokenNftAllowance.getDelegateSpender().has_value());
+  EXPECT_EQ(tokenNftAllowance.getDelegateSpender(), getTestDelegatingSpenderAccountId());
 }
 
 //-----

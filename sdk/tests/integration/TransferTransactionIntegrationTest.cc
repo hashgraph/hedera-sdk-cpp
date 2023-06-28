@@ -28,7 +28,6 @@
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
-#include "HbarTransfer.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
@@ -38,7 +37,6 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
-#include <chrono>
 #include <gtest/gtest.h>
 #include <proto/transaction_record.pb.h>
 
@@ -87,8 +85,7 @@ TEST_F(TransferTransactionIntegrationTest, TransferOutOfNonOperatorAccount)
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
 
   // When
   TransactionRecord txRecord;
@@ -158,15 +155,13 @@ TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
   ASSERT_NO_THROW(alloweeId = AccountCreateTransaction()
                                 .setKey(alloweeKey->getPublicKey().get())
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
-                                .getAccountId()
-                                .value());
+                                .mAccountId.value());
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountAllowanceApproveTransaction()
                                                          .approveHbarAllowance(allowerId, alloweeId, amount)
                                                          .freezeWith(getTestClient())

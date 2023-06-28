@@ -26,7 +26,6 @@
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
-#include "PublicKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
@@ -54,15 +53,13 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
-                                       .getAccountId()
-                                       .value());
+                                       .mAccountId.value());
   ASSERT_NO_THROW(alloweeAccountId = AccountCreateTransaction()
                                        .setKey(alloweeKey->getPublicKey().get())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
-                                       .getAccountId()
-                                       .value());
+                                       .mAccountId.value());
 
   // When
   TransactionResponse txResponse;
@@ -104,15 +101,13 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, CannotAllowAllowanceWi
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
-                                       .getAccountId()
-                                       .value());
+                                       .mAccountId.value());
   ASSERT_NO_THROW(alloweeAccountId = AccountCreateTransaction()
                                        .setKey(alloweeKey->getPublicKey().get())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
-                                       .getAccountId()
-                                       .value());
+                                       .mAccountId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountAllowanceApproveTransaction()

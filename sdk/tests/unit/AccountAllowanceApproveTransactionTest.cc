@@ -291,3 +291,37 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceAllSerialsFroz
     transaction.approveNftAllowanceAllSerials(getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId()),
     IllegalStateException);
 }
+
+//-----
+TEST_F(AccountAllowanceApproveTransactionTest, DeleteNftAllowanceAllSerials)
+{
+  // Given
+  AccountAllowanceApproveTransaction transaction;
+
+  // When
+  EXPECT_NO_THROW(
+    transaction.deleteNftAllowanceAllSerials(getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId()));
+
+  // Then
+  ASSERT_EQ(transaction.getNftApprovals().size(), 1);
+  EXPECT_EQ(transaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).getSpenderAccountId(), getTestSpenderAccountId());
+  ASSERT_TRUE(transaction.getNftApprovals().at(0).getSerialNumbers().empty());
+  ASSERT_TRUE(transaction.getNftApprovals().at(0).getApprovedForAll().has_value());
+  EXPECT_FALSE(*transaction.getNftApprovals().at(0).getApprovedForAll());
+  EXPECT_FALSE(transaction.getNftApprovals().at(0).getDelegateSpender());
+}
+
+//-----
+TEST_F(AccountAllowanceApproveTransactionTest, DeleteNftAllowanceAllSerialsFrozen)
+{
+  // Given
+  AccountAllowanceApproveTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(
+    transaction.deleteNftAllowanceAllSerials(getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId()),
+    IllegalStateException);
+}
