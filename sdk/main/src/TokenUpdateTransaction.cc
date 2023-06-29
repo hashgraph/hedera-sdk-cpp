@@ -1,0 +1,332 @@
+/*-
+ *
+ * Hedera C++ SDK
+ *
+ * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#include "TokenUpdateTransaction.h"
+#include "impl/DurationConverter.h"
+#include "impl/Node.h"
+#include "impl/TimestampConverter.h"
+
+#include <grpcpp/client_context.h>
+#include <proto/token_update.pb.h>
+#include <proto/transaction.pb.h>
+#include <proto/transaction_body.pb.h>
+#include <stdexcept>
+
+namespace Hedera
+{
+//-----
+TokenUpdateTransaction::TokenUpdateTransaction(const proto::TransactionBody& transactionBody)
+{
+  if (!transactionBody.has_tokenupdate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenUpdate data");
+  }
+
+  const proto::TokenUpdateTransactionBody& body = transactionBody.tokenupdate();
+
+  if (body.has_token())
+  {
+    mTokenId = TokenId::fromProtobuf(body.token());
+  }
+
+  mTokenName = body.name();
+  mTokenSymbol = body.symbol();
+
+  if (body.has_treasury())
+  {
+    mTreasuryAccountId = AccountId::fromProtobuf(body.treasury());
+  }
+
+  if (body.has_adminkey())
+  {
+    mAdminKey = Key::fromProtobuf(body.adminkey());
+  }
+
+  if (body.has_kyckey())
+  {
+    mKycKey = Key::fromProtobuf(body.kyckey());
+  }
+
+  if (body.has_freezekey())
+  {
+    mFreezeKey = Key::fromProtobuf(body.freezekey());
+  }
+
+  if (body.has_wipekey())
+  {
+    mWipeKey = Key::fromProtobuf(body.wipekey());
+  }
+
+  if (body.has_supplykey())
+  {
+    mSupplyKey = Key::fromProtobuf(body.supplykey());
+  }
+
+  if (body.has_autorenewaccount())
+  {
+    mAutoRenewAccountId = AccountId::fromProtobuf(body.autorenewaccount());
+  }
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  if (body.has_expiry())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expiry());
+  }
+
+  if (body.has_memo())
+  {
+    mTokenMemo = body.memo().value();
+  }
+
+  if (body.has_fee_schedule_key())
+  {
+    mFeeScheduleKey = Key::fromProtobuf(body.fee_schedule_key());
+  }
+
+  if (body.has_pause_key())
+  {
+    mPauseKey = Key::fromProtobuf(body.pause_key());
+  }
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setTokenId(const TokenId& tokenId)
+{
+  requireNotFrozen();
+  mTokenId = tokenId;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setTokenName(std::string_view name)
+{
+  requireNotFrozen();
+  mTokenName = name;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setTokenSymbol(std::string_view symbol)
+{
+  requireNotFrozen();
+  mTokenSymbol = symbol;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setTreasuryAccountId(const AccountId& accountId)
+{
+  requireNotFrozen();
+  mTreasuryAccountId = accountId;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setAdminKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mAdminKey = key;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setKycKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mKycKey = key;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setFreezeKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mFreezeKey = key;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setWipeKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mWipeKey = key;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setSupplyKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mSupplyKey = key;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setAutoRenewAccountId(const AccountId& accountId)
+{
+  requireNotFrozen();
+  mAutoRenewAccountId = accountId;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setAutoRenewPeriod(const std::chrono::duration<double>& period)
+{
+  requireNotFrozen();
+  mAutoRenewPeriod = period;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setExpirationTime(
+  const std::chrono::system_clock::time_point& expiration)
+{
+  requireNotFrozen();
+  mExpirationTime = expiration;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setTokenMemo(std::string_view memo)
+{
+  requireNotFrozen();
+  mTokenMemo = memo;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setFeeScheduleKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mFeeScheduleKey = key;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setPauseKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mPauseKey = key;
+  return *this;
+}
+
+//-----
+proto::Transaction TokenUpdateTransaction::makeRequest(const Client& client,
+                                                       const std::shared_ptr<internal::Node>&) const
+{
+  proto::TransactionBody transactionBody = generateTransactionBody(client);
+  transactionBody.set_allocated_tokenupdate(build());
+
+  return signTransaction(transactionBody, client);
+}
+
+//-----
+grpc::Status TokenUpdateTransaction::submitRequest(const Client& client,
+                                                   const std::chrono::system_clock::time_point& deadline,
+                                                   const std::shared_ptr<internal::Node>& node,
+                                                   proto::TransactionResponse* response) const
+{
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kTokenUpdate, makeRequest(client, node), deadline, response);
+}
+
+//-----
+proto::TokenUpdateTransactionBody* TokenUpdateTransaction::build() const
+{
+  auto body = std::make_unique<proto::TokenUpdateTransactionBody>();
+  body->set_allocated_token(mTokenId.toProtobuf().release());
+
+  if (mTokenName.has_value())
+  {
+    body->set_name(mTokenName.value());
+  }
+
+  if (mTokenSymbol.has_value())
+  {
+    body->set_symbol(mTokenSymbol.value());
+  }
+
+  if (mTreasuryAccountId.has_value())
+  {
+    body->set_allocated_treasury(mTreasuryAccountId->toProtobuf().release());
+  }
+
+  if (mAdminKey)
+  {
+    body->set_allocated_adminkey(mAdminKey->toProtobufKey().release());
+  }
+
+  if (mKycKey)
+  {
+    body->set_allocated_kyckey(mKycKey->toProtobufKey().release());
+  }
+
+  if (mFreezeKey)
+  {
+    body->set_allocated_freezekey(mFreezeKey->toProtobufKey().release());
+  }
+
+  if (mWipeKey)
+  {
+    body->set_allocated_wipekey(mWipeKey->toProtobufKey().release());
+  }
+
+  if (mSupplyKey)
+  {
+    body->set_allocated_supplykey(mSupplyKey->toProtobufKey().release());
+  }
+
+  if (mAutoRenewAccountId.has_value())
+  {
+    body->set_allocated_autorenewaccount(mAutoRenewAccountId->toProtobuf().release());
+  }
+
+  if (mAutoRenewPeriod.has_value())
+  {
+    body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod.value()));
+  }
+
+  if (mExpirationTime.has_value())
+  {
+    body->set_allocated_expiry(internal::TimestampConverter::toProtobuf(mExpirationTime.value()));
+  }
+
+  if (mTokenMemo.has_value())
+  {
+    body->mutable_memo()->set_value(mTokenMemo.value());
+  }
+
+  if (mFeeScheduleKey)
+  {
+    body->set_allocated_fee_schedule_key(mFeeScheduleKey->toProtobufKey().release());
+  }
+
+  if (mPauseKey)
+  {
+    body->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
+  }
+
+  return body.release();
+}
+
+} // namespace Hedera
