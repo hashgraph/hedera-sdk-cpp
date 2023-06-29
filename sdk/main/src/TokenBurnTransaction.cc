@@ -103,7 +103,7 @@ proto::TokenBurnTransactionBody* TokenBurnTransaction::build() const
   {
     body->set_allocated_token(mTokenId.toProtobuf().release());
   }
-  
+
   body->set_amount(mAmount);
 
   for (const auto& num : mSerialNumbers)

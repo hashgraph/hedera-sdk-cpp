@@ -97,6 +97,7 @@ TEST_F(TokenBurnTransactionIntegrationTest, CanBurnTokensWhenAmountIsNotSet)
 {
   // Given
   const uint64_t initialSupply = 100000ULL;
+
   std::shared_ptr<PrivateKey> operatorKey;
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
@@ -166,10 +167,6 @@ TEST_F(TokenBurnTransactionIntegrationTest, CannotBurnTokensIfSupplyKeyDoesNotSi
 TEST_F(TokenBurnTransactionIntegrationTest, CanBurnNfts)
 {
   // Given
-  const std::vector<std::vector<std::byte>> nftMetadata = {
-    { std::byte(0x01) }, { std::byte(0x02) }, { std::byte(0x03) }, { std::byte(0x04) }, { std::byte(0x05) }
-  };
-
   std::shared_ptr<PrivateKey> operatorKey;
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
@@ -188,11 +185,14 @@ TEST_F(TokenBurnTransactionIntegrationTest, CanBurnNfts)
                               .mTokenId.value());
 
   TransactionReceipt txReceipt;
-  ASSERT_NO_THROW(txReceipt = TokenMintTransaction()
-                                .setTokenId(tokenId)
-                                .setMetadata(nftMetadata)
-                                .execute(getTestClient())
-                                .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(
+    txReceipt =
+      TokenMintTransaction()
+        .setTokenId(tokenId)
+        .setMetadata(
+          { { std::byte(0x01) }, { std::byte(0x02) }, { std::byte(0x03) }, { std::byte(0x04) }, { std::byte(0x05) } })
+        .execute(getTestClient())
+        .getReceipt(getTestClient()));
 
   // When
   EXPECT_NO_THROW(txReceipt = TokenBurnTransaction()
