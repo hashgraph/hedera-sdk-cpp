@@ -98,7 +98,12 @@ grpc::Status TokenBurnTransaction::submitRequest(const Client& client,
 proto::TokenBurnTransactionBody* TokenBurnTransaction::build() const
 {
   auto body = std::make_unique<proto::TokenBurnTransactionBody>();
-  body->set_allocated_token(mTokenId.toProtobuf().release());
+
+  if (!(mTokenId == TokenId()))
+  {
+    body->set_allocated_token(mTokenId.toProtobuf().release());
+  }
+  
   body->set_amount(mAmount);
 
   for (const auto& num : mSerialNumbers)

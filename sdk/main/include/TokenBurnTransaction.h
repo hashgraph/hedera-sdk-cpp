@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TOKEN_WIPE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_TOKEN_WIPE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_TOKEN_BURN_TRANSACTION_H_
+#define HEDERA_SDK_CPP_TOKEN_BURN_TRANSACTION_H_
 
 #include "TokenId.h"
 #include "Transaction.h"
@@ -162,4 +162,4 @@ private:
 
 } // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_TOKEN_WIPE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_TOKEN_BURN_TRANSACTION_H_
