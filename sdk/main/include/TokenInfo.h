@@ -28,6 +28,7 @@
 #include "TokenSupplyType.h"
 #include "TokenType.h"
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
