@@ -27,6 +27,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenAssociateTransactionIntegrationTests.cc
         TokenCreateTransactionIntegrationTests.cc
         TokenDeleteTransactionIntegrationTests.cc
+        TokenInfoQueryIntegrationTests.cc
         TokenMintTransactionIntegrationTests.cc
         TokenUpdateTransactionIntegrationTests.cc
         TransactionIntegrationTest.cc
