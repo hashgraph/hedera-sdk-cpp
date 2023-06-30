@@ -126,7 +126,7 @@ TEST_F(CustomFixedFeeTest, GetSetAmount)
 
   // When
   customFixedFeeInt64.setAmount(getTestAmount());
-  customFixedFeeHbar.setAmount(Hbar(static_cast<int64_t>(getTestAmount()), HbarUnit::TINYBAR()));
+  customFixedFeeHbar.setHbarAmount(Hbar(static_cast<int64_t>(getTestAmount()), HbarUnit::TINYBAR()));
 
   // Then
   EXPECT_EQ(customFixedFeeInt64.getAmount(), getTestAmount());

@@ -2,6 +2,7 @@ set(ACCOUNT_ALLOWANCE_EXAMPLE_NAME ${PROJECT_NAME}-account-allowance-example)
 set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
 set(CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-simple-contract-example)
 set(CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-stateful-contract-example)
+set(CUSTOM_FEES_EXAMPLE_NAME ${PROJECT_NAME}-custom-fees-example)
 set(DELETE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-delete-account-example)
 set(DELETE_FILE_EXAMPLE_NAME ${PROJECT_NAME}-delete-file-example)
 set(EXEMPT_CUSTOM_FEES_EXAMPLE_NAME ${PROJECT_NAME}-exempt-custom-fees-example)
@@ -19,6 +20,7 @@ add_executable(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} AccountAllowanceExample.cc)
 add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
 add_executable(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} CreateSimpleContractExample.cc)
 add_executable(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} CreateStatefulContractExample.cc)
+add_executable(${CUSTOM_FEES_EXAMPLE_NAME} CustomFeesExample.cc)
 add_executable(${DELETE_ACCOUNT_EXAMPLE_NAME} DeleteAccountExample.cc)
 add_executable(${DELETE_FILE_EXAMPLE_NAME} DeleteFileExample.cc)
 add_executable(${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME} ExemptCustomFeesExample.cc)
@@ -54,6 +56,7 @@ target_link_libraries(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CUSTOM_FEES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${DELETE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${DELETE_FILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -74,6 +77,7 @@ install(TARGETS
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
         ${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME}
         ${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME}
+        ${CUSTOM_FEES_EXAMPLE_NAME}
         ${DELETE_ACCOUNT_EXAMPLE_NAME}
         ${DELETE_FILE_EXAMPLE_NAME}
         ${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME}

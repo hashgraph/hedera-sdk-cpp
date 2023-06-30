@@ -452,7 +452,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNftWithRoyaltyFee)
         .setCustomFees({ std::make_shared<CustomRoyaltyFee>(CustomRoyaltyFee()
                                                               .setNumerator(1LL)
                                                               .setDenominator(10LL)
-                                                              .setFallbackFee(CustomFixedFee().setAmount(Hbar(1LL)))
+                                                              .setFallbackFee(CustomFixedFee().setHbarAmount(Hbar(1LL)))
                                                               .setFeeCollectorAccountId(AccountId(2ULL))) })
         .execute(getTestClient())
         .getReceipt(getTestClient()));
