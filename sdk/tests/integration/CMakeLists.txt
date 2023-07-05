@@ -25,10 +25,12 @@ add_executable(${TEST_PROJECT_NAME}
         FileUpdateTransactionIntegrationTests.cc
         JSONIntegrationTest.cc
         TokenAssociateTransactionIntegrationTests.cc
+        TokenBurnTransactionIntegrationTests.cc
         TokenCreateTransactionIntegrationTests.cc
         TokenDeleteTransactionIntegrationTests.cc
         TokenInfoQueryIntegrationTests.cc
         TokenMintTransactionIntegrationTests.cc
+        TokenUpdateTransactionIntegrationTests.cc
         TransactionIntegrationTest.cc
         TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc

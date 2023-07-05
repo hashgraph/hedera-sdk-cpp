@@ -63,6 +63,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenAllowanceTest.cc
         TokenAssociateTransactionUnitTests.cc
         TokenAssociationUnitTests.cc
+        TokenBurnTransactionUnitTests.cc
         TokenCreateTransactionTest.cc
         TokenDeleteTransactionTest.cc
         TokenIdTest.cc
@@ -75,6 +76,8 @@ add_executable(${TEST_PROJECT_NAME}
         TokenSupplyTypeTest.cc
         TokenTransferTest.cc
         TokenTypeTest.cc
+        TokenUpdateTransactionUnitTests.cc
+        TokenWipeTransactionUnitTests.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc
         TransactionReceiptTest.cc
