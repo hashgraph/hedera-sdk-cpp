@@ -52,6 +52,7 @@ public:
    * @return The constructed AccountInfo object.
    */
   [[nodiscard]] static AccountInfo fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& proto);
+
   /**
    * The ID of the queried account.
    */
