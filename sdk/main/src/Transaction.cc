@@ -40,6 +40,7 @@
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
+#include "TokenDissociateTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
@@ -85,7 +86,8 @@ std::pair<int,
                        TokenMintTransaction,
                        TokenUpdateTransaction,
                        TokenWipeTransaction,
-                       TokenBurnTransaction>>
+                       TokenBurnTransaction,
+                       TokenDissociateTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -171,6 +173,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 20, TokenWipeTransaction(txBody) };
     case proto::TransactionBody::kTokenBurn:
       return { 21, TokenBurnTransaction(txBody) };
+    case proto::TransactionBody::kTokenDissociate:
+      return { 22, TokenDissociateTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -490,6 +494,7 @@ template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;
 template class Transaction<TokenCreateTransaction>;
 template class Transaction<TokenDeleteTransaction>;
+template class Transaction<TokenDissociateTransaction>;
 template class Transaction<TokenMintTransaction>;
 template class Transaction<TokenUpdateTransaction>;
 template class Transaction<TokenWipeTransaction>;
