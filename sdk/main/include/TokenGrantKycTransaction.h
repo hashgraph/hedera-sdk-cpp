@@ -95,7 +95,7 @@ public:
    *
    * @return The ID of the token for which the account has passed KYC.
    */
-  [[nodiscard]] inline TokenId getTokenIds() const { return mTokenId; }
+  [[nodiscard]] inline TokenId getTokenId() const { return mTokenId; }
 
 private:
   /**
