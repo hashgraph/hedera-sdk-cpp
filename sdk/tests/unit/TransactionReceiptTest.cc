@@ -34,7 +34,7 @@ protected:
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
   [[nodiscard]] inline const uint64_t& getTestNewTotalSupply() const { return mTestNewTotalSupply; }
-  [[nodiscard]] inline const std::vector<int64_t>& getTestSerialNumbers() const { return mTestSerialNumbers; }
+  [[nodiscard]] inline const std::vector<uint64_t>& getTestSerialNumbers() const { return mTestSerialNumbers; }
 
 private:
   const AccountId mTestAccountId = AccountId(1ULL);
@@ -42,7 +42,7 @@ private:
   const ContractId mTestContractId = ContractId(3ULL);
   const TokenId mTestTokenId = TokenId(4ULL);
   const uint64_t mTestNewTotalSupply = 5ULL;
-  const std::vector<int64_t> mTestSerialNumbers = { 6LL, 7LL, 8LL };
+  const std::vector<uint64_t> mTestSerialNumbers = { 6ULL, 7ULL, 8ULL };
 };
 
 //-----
@@ -86,7 +86,7 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
 
   for (const auto& serialNum : getTestSerialNumbers())
   {
-    protoTxReceipt.add_serialnumbers(serialNum);
+    protoTxReceipt.add_serialnumbers(static_cast<int64_t>(serialNum));
   }
 
   // When

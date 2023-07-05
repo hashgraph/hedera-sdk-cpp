@@ -33,6 +33,7 @@
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
 #include "TokenAssociateTransaction.h"
+#include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TokenMintTransaction.h"
@@ -1288,4 +1289,63 @@ TEST_F(TransactionTest, TokenWipeTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 20);
   EXPECT_NO_THROW(const TokenWipeTransaction tokenWipeTransaction = std::get<20>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenBurnTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenburn(new proto::TokenBurnTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenBurnTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 21);
+  EXPECT_NO_THROW(const TokenBurnTransaction tokenBurnTransaction = std::get<21>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenBurnTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenburn(new proto::TokenBurnTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenBurnTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 21);
+  EXPECT_NO_THROW(const TokenBurnTransaction tokenBurnTransaction = std::get<21>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenBurnTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenburn(new proto::TokenBurnTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenBurnTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 21);
+  EXPECT_NO_THROW(const TokenBurnTransaction tokenBurnTransaction = std::get<21>(txVariant));
 }

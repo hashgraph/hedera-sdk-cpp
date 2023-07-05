@@ -100,7 +100,7 @@ public:
    * In the receipt of a TokenMint, for tokens of type NON_FUNGIBLE_COMMON, these are the serial numbers of the
    * newly-created NFTs.
    */
-  std::vector<int64_t> mSerialNumbers;
+  std::vector<uint64_t> mSerialNumbers;
 };
 
 } // namespace Hedera
