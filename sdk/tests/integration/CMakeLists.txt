@@ -30,6 +30,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenGrantKycTransactionIntegrationTests.cc
         TokenMintTransactionIntegrationTests.cc
         TokenUpdateTransactionIntegrationTests.cc
+        TokenWipeTransactionIntegrationTests.cc
         TransactionIntegrationTest.cc
         TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc
