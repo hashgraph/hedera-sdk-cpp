@@ -31,7 +31,7 @@ namespace Hedera
 TokenRevokeKycTransaction::TokenRevokeKycTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenRevokeKycTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokengrantkyc())
+  if (!transactionBody.has_tokenrevokekyc())
   {
     throw std::invalid_argument("Transaction body doesn't contain TokenRevokeKyc data");
   }
