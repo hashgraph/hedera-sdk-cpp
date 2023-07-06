@@ -89,8 +89,17 @@ grpc::Status TokenGrantKycTransaction::submitRequest(const Client& client,
 proto::TokenGrantKycTransactionBody* TokenGrantKycTransaction::build() const
 {
   auto body = std::make_unique<proto::TokenGrantKycTransactionBody>();
-  body->set_allocated_account(mAccountId.toProtobuf().release());
-  body->set_allocated_token(mTokenId.toProtobuf().release());
+
+  if (!(mAccountId == AccountId()))
+  {
+    body->set_allocated_account(mAccountId.toProtobuf().release());
+  }
+
+  if (!(mTokenId == TokenId()))
+  {
+    body->set_allocated_token(mTokenId.toProtobuf().release());
+  }
+
   return body.release();
 }
 
