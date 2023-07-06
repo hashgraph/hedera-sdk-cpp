@@ -77,7 +77,7 @@ public:
    * @return A reference to this CustomFixedFee object, with the newly-set fee amount.
    */
   CustomFixedFee& setAmount(const uint64_t& amount);
-  CustomFixedFee& setAmount(const Hbar& amount);
+  CustomFixedFee& setHbarAmount(const Hbar& amount);
 
   /**
    * Set the ID of the denominating token.

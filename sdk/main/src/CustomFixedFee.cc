@@ -53,7 +53,7 @@ std::unique_ptr<proto::CustomFee> CustomFixedFee::toProtobuf() const
   {
     fee->mutable_fixed_fee()->set_allocated_denominating_token_id(mDenominatingTokenId->toProtobuf().release());
   }
-  
+
   return fee;
 }
 
@@ -79,7 +79,7 @@ CustomFixedFee& CustomFixedFee::setAmount(const uint64_t& amount)
 }
 
 //-----
-CustomFixedFee& CustomFixedFee::setAmount(const Hbar& amount)
+CustomFixedFee& CustomFixedFee::setHbarAmount(const Hbar& amount)
 {
   mDenominatingTokenId.reset();
   mAmount = amount.toTinybars();

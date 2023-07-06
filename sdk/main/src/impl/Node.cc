@@ -130,6 +130,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
       return mFileStub->getFileContent(&context, query, response);
     case proto::Query::QueryCase::kFileGetInfo:
       return mFileStub->getFileInfo(&context, query, response);
+    case proto::Query::QueryCase::kTokenGetInfo:
+      return mTokenStub->getTokenInfo(&context, query, response);
     case proto::Query::QueryCase::kTransactionGetReceipt:
       return mCryptoStub->getTransactionReceipts(&context, query, response);
     case proto::Query::QueryCase::kTransactionGetRecord:
@@ -192,10 +194,16 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mFileStub->updateFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenAssociate:
       return mTokenStub->associateTokens(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenBurn:
+      return mTokenStub->burnToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenCreation:
       return mTokenStub->createToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenDeletion:
       return mTokenStub->deleteToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenDissociate:
+      return mTokenStub->dissociateTokens(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenFeeScheduleUpdate:
+      return mTokenStub->updateTokenFeeSchedule(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenGrantKyc:
       return mTokenStub->grantKycToTokenAccount(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenMint:

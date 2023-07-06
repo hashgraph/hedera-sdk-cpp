@@ -37,8 +37,11 @@
 #include "PrivateKey.h"
 #include "Status.h"
 #include "TokenAssociateTransaction.h"
+#include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
+#include "TokenDissociateTransaction.h"
+#include "TokenFeeScheduleUpdateTransaction.h"
 #include "TokenGrantKycTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TokenUpdateTransaction.h"
@@ -85,6 +88,9 @@ std::pair<int,
                        TokenMintTransaction,
                        TokenUpdateTransaction,
                        TokenWipeTransaction,
+                       TokenBurnTransaction,
+                       TokenDissociateTransaction,
+                       TokenFeeScheduleUpdateTransaction,
                        TokenGrantKycTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
@@ -169,8 +175,14 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 19, TokenUpdateTransaction(txBody) };
     case proto::TransactionBody::kTokenWipe:
       return { 20, TokenWipeTransaction(txBody) };
+    case proto::TransactionBody::kTokenBurn:
+      return { 21, TokenBurnTransaction(txBody) };
+    case proto::TransactionBody::kTokenDissociate:
+      return { 22, TokenDissociateTransaction(txBody) };
+    case proto::TransactionBody::kTokenFeeScheduleUpdate:
+      return { 23, TokenFeeScheduleUpdateTransaction(txBody) };
     case proto::TransactionBody::kTokenGrantKyc:
-      return { 21, TokenGrantKycTransaction(txBody) };
+      return { 24, TokenGrantKycTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -487,8 +499,11 @@ template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
 template class Transaction<TokenAssociateTransaction>;
+template class Transaction<TokenBurnTransaction>;
 template class Transaction<TokenCreateTransaction>;
 template class Transaction<TokenDeleteTransaction>;
+template class Transaction<TokenDissociateTransaction>;
+template class Transaction<TokenFeeScheduleUpdateTransaction>;
 template class Transaction<TokenGrantKycTransaction>;
 template class Transaction<TokenMintTransaction>;
 template class Transaction<TokenUpdateTransaction>;

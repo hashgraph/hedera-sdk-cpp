@@ -33,8 +33,11 @@
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
 #include "TokenAssociateTransaction.h"
+#include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
+#include "TokenDissociateTransaction.h"
+#include "TokenFeeScheduleUpdateTransaction.h"
 #include "TokenGrantKycTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TokenUpdateTransaction.h"
@@ -1292,6 +1295,183 @@ TEST_F(TransactionTest, TokenWipeTransactionFromTransactionBytes)
 }
 
 //-----
+TEST_F(TransactionTest, TokenBurnTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenburn(new proto::TokenBurnTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenBurnTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 21);
+  EXPECT_NO_THROW(const TokenBurnTransaction tokenBurnTransaction = std::get<21>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenBurnTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenburn(new proto::TokenBurnTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenBurnTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 21);
+  EXPECT_NO_THROW(const TokenBurnTransaction tokenBurnTransaction = std::get<21>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenBurnTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenburn(new proto::TokenBurnTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenBurnTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 21);
+  EXPECT_NO_THROW(const TokenBurnTransaction tokenBurnTransaction = std::get<21>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenDissociateTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokendissociate(new proto::TokenDissociateTransactionBody);
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenDissociateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 22);
+  EXPECT_NO_THROW(const TokenDissociateTransaction tokenDissociateTransaction = std::get<22>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenDissociateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokendissociate(new proto::TokenDissociateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenDissociateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 22);
+  EXPECT_NO_THROW(const TokenDissociateTransaction tokenDissociateTransaction = std::get<22>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenDissociateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokendissociate(new proto::TokenDissociateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenDissociateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 22);
+  EXPECT_NO_THROW(const TokenDissociateTransaction tokenDissociateTransaction = std::get<22>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenFeeScheduleUpdateTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_token_fee_schedule_update(new proto::TokenFeeScheduleUpdateTransactionBody);
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenFeeScheduleUpdateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 23);
+  EXPECT_NO_THROW(const TokenFeeScheduleUpdateTransaction tokenFeeScheduleUpdateTransaction = std::get<23>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenFeeScheduleUpdateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_token_fee_schedule_update(new proto::TokenFeeScheduleUpdateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenFeeScheduleUpdateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 23);
+  EXPECT_NO_THROW(const TokenFeeScheduleUpdateTransaction tokenFeeScheduleUpdateTransaction = std::get<23>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenFeeScheduleUpdateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_token_fee_schedule_update(new proto::TokenFeeScheduleUpdateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenFeeScheduleUpdateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 23);
+  EXPECT_NO_THROW(const TokenFeeScheduleUpdateTransaction tokenFeeScheduleUpdateTransaction = std::get<23>(txVariant));
+}
+
+//-----
 TEST_F(TransactionTest, TokenGrantKycTransactionFromTransactionBodyBytes)
 {
   // Given
@@ -1303,8 +1483,8 @@ TEST_F(TransactionTest, TokenGrantKycTransactionFromTransactionBodyBytes)
     internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 21);
-  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<21>(txVariant));
+  ASSERT_EQ(index, 24);
+  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<24>(txVariant));
 }
 
 //-----
@@ -1323,8 +1503,8 @@ TEST_F(TransactionTest, TokenGrantKycTransactionFromSignedTransactionBytes)
     internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 21);
-  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<21>(txVariant));
+  ASSERT_EQ(index, 24);
+  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<24>(txVariant));
 }
 
 //-----
@@ -1346,6 +1526,6 @@ TEST_F(TransactionTest, TokenGrantKycTransactionFromTransactionBytes)
     internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 21);
-  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<21>(txVariant));
+  ASSERT_EQ(index, 24);
+  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<24>(txVariant));
 }
