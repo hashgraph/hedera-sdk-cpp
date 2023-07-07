@@ -206,6 +206,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->updateTokenFeeSchedule(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenMint:
       return mTokenStub->mintToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenUnfreeze:
+      return mTokenStub->unfreezeTokenAccount(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenUpdate:
       return mTokenStub->updateToken(&context, transaction, response);
     default:
