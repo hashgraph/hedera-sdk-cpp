@@ -33,6 +33,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenInfoQueryIntegrationTests.cc
         TokenMintTransactionIntegrationTests.cc
         TokenPauseTransactionIntegrationTests.cc
+        TokenUnpauseTransactionIntegrationTests.cc
         TokenUpdateTransactionIntegrationTests.cc
         TransactionIntegrationTest.cc
         TransactionReceiptIntegrationTest.cc
