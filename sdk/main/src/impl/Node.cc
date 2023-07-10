@@ -132,6 +132,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
       return mFileStub->getFileInfo(&context, query, response);
     case proto::Query::QueryCase::kTokenGetInfo:
       return mTokenStub->getTokenInfo(&context, query, response);
+    case proto::Query::QueryCase::kTokenGetNftInfo:
+      return mTokenStub->getTokenNftInfo(&context, query, response);
     case proto::Query::QueryCase::kTransactionGetReceipt:
       return mCryptoStub->getTransactionReceipts(&context, query, response);
     case proto::Query::QueryCase::kTransactionGetRecord:
