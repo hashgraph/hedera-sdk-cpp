@@ -21,9 +21,6 @@
 #include "impl/Utilities.h"
 
 #include <proto/crypto_approve_allowance.pb.h>
-#include <proto/get_account_details.pb.h>
-
-#include <utility>
 
 namespace Hedera
 {
