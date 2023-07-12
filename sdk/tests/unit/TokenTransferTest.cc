@@ -23,6 +23,7 @@
 #include "TokenId.h"
 
 #include <gtest/gtest.h>
+#include <proto/basic_types.pb.h>
 
 using namespace Hedera;
 
@@ -39,57 +40,95 @@ private:
   const TokenId mTokenId = TokenId(10ULL);
   const AccountId mAccountId = AccountId(200ULL);
   const int64_t mAmount = 3000LL;
-  const uint32_t mExpectedDecimals = 40000;
+  const uint32_t mExpectedDecimals = 40000U;
   const bool mIsApproval = true;
 };
 
 //-----
 TEST_F(TokenTransferTest, DefaultConstruction)
 {
-  TokenTransfer tokenTransfer;
-  EXPECT_EQ(tokenTransfer.getTokenId(), TokenId());
-  EXPECT_EQ(tokenTransfer.getAccountId(), AccountId());
-  EXPECT_EQ(tokenTransfer.getAmount(), 0ULL);
-  EXPECT_EQ(tokenTransfer.getExpectedDecimals(), 0);
-  EXPECT_FALSE(tokenTransfer.getApproval());
+  // Given / When
+  const TokenTransfer tokenTransfer;
+
+  // Then
+  EXPECT_EQ(tokenTransfer.mTokenId, TokenId());
+  EXPECT_EQ(tokenTransfer.mAccountId, AccountId());
+  EXPECT_EQ(tokenTransfer.mAmount, 0ULL);
+  EXPECT_EQ(tokenTransfer.mExpectedDecimals, 0);
+  EXPECT_FALSE(tokenTransfer.mIsApproval);
 }
 
 //-----
-TEST_F(TokenTransferTest, SetGetTokenId)
+TEST_F(TokenTransferTest, ConstructWithTokenIdAccountIdAmountAndApproval)
 {
-  TokenTransfer tokenTransfer;
-  tokenTransfer.setTokenId(getTestTokenId());
-  EXPECT_EQ(tokenTransfer.getTokenId(), getTestTokenId());
+  // Given / When
+  const TokenTransfer tokenTransfer(getTestTokenId(), getTestAccountId(), getTestAmount(), getTestIsApproval());
+
+  // Then
+  EXPECT_EQ(tokenTransfer.mTokenId, getTestTokenId());
+  EXPECT_EQ(tokenTransfer.mAccountId, getTestAccountId());
+  EXPECT_EQ(tokenTransfer.mAmount, getTestAmount());
+  EXPECT_EQ(tokenTransfer.mExpectedDecimals, 0U);
+  EXPECT_EQ(tokenTransfer.mIsApproval, getTestIsApproval());
 }
 
 //-----
-TEST_F(TokenTransferTest, SetGetAccountId)
+TEST_F(TokenTransferTest, ConstructWithTokenIdAccountIdAmountExpectedDecimalsAndApproval)
 {
-  TokenTransfer tokenTransfer;
-  tokenTransfer.setAccountId(getTestAccountId());
-  EXPECT_EQ(tokenTransfer.getAccountId(), getTestAccountId());
+  // Given / When
+  const TokenTransfer tokenTransfer(
+    getTestTokenId(), getTestAccountId(), getTestAmount(), getTestExpectedDecimals(), getTestIsApproval());
+
+  // Then
+  EXPECT_EQ(tokenTransfer.mTokenId, getTestTokenId());
+  EXPECT_EQ(tokenTransfer.mAccountId, getTestAccountId());
+  EXPECT_EQ(tokenTransfer.mAmount, getTestAmount());
+  EXPECT_EQ(tokenTransfer.mExpectedDecimals, getTestExpectedDecimals());
+  EXPECT_EQ(tokenTransfer.mIsApproval, getTestIsApproval());
 }
 
 //-----
-TEST_F(TokenTransferTest, SetGetAmount)
+TEST_F(TokenTransferTest, FromProtobuf)
 {
-  TokenTransfer tokenTransfer;
-  tokenTransfer.setAmount(getTestAmount());
-  EXPECT_EQ(tokenTransfer.getAmount(), getTestAmount());
+  // Given
+  proto::TokenTransferList tokenTransferList;
+  tokenTransferList.set_allocated_token(getTestTokenId().toProtobuf().release());
+
+  proto::AccountAmount* amount = tokenTransferList.add_transfers();
+  amount->set_allocated_accountid(getTestAccountId().toProtobuf().release());
+  amount->set_amount(getTestAmount());
+  amount->set_is_approval(getTestIsApproval());
+
+  auto decimalPtr = std::make_unique<google::protobuf::UInt32Value>();
+  decimalPtr->set_value(getTestExpectedDecimals());
+  tokenTransferList.set_allocated_expected_decimals(decimalPtr.release());
+
+  // When
+  const std::vector<TokenTransfer> tokenTransfers = TokenTransfer::fromProtobuf(tokenTransferList);
+
+  // Then
+  ASSERT_EQ(tokenTransfers.size(), 1);
+  EXPECT_EQ(tokenTransfers.at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(tokenTransfers.at(0).mAccountId, getTestAccountId());
+  EXPECT_EQ(tokenTransfers.at(0).mAmount, getTestAmount());
+  EXPECT_EQ(tokenTransfers.at(0).mExpectedDecimals, getTestExpectedDecimals());
+  EXPECT_EQ(tokenTransfers.at(0).mIsApproval, getTestIsApproval());
 }
 
 //-----
-TEST_F(TokenTransferTest, SetGetExpectedDecimals)
+TEST_F(TokenTransferTest, ToProtobuf)
 {
-  TokenTransfer tokenTransfer;
-  tokenTransfer.setExpectedDecimals(getTestExpectedDecimals());
-  EXPECT_EQ(tokenTransfer.getExpectedDecimals(), getTestExpectedDecimals());
-}
+  // Given
+  const TokenTransfer tokenTransfer(
+    getTestTokenId(), getTestAccountId(), getTestAmount(), getTestExpectedDecimals(), getTestIsApproval());
 
-//-----
-TEST_F(TokenTransferTest, SetGetApproval)
-{
-  TokenTransfer tokenTransfer;
-  tokenTransfer.setApproval(getTestIsApproval());
-  EXPECT_TRUE(tokenTransfer.getApproval());
+  // When
+  const std::unique_ptr<proto::AccountAmount> proto = tokenTransfer.toProtobuf();
+
+  // Then
+  EXPECT_EQ(proto->accountid().shardnum(), getTestAccountId().getShardNum());
+  EXPECT_EQ(proto->accountid().realmnum(), getTestAccountId().getRealmNum());
+  EXPECT_EQ(proto->accountid().accountnum(), getTestAccountId().getAccountNum());
+  EXPECT_EQ(proto->amount(), getTestAmount());
+  EXPECT_EQ(proto->is_approval(), getTestIsApproval());
 }
