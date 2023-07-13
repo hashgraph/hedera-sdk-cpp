@@ -208,6 +208,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->grantKycToTokenAccount(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenMint:
       return mTokenStub->mintToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenRevokeKyc:
+      return mTokenStub->revokeKycFromTokenAccount(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenUpdate:
       return mTokenStub->updateToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenWipe:

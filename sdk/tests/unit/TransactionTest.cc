@@ -40,6 +40,7 @@
 #include "TokenFeeScheduleUpdateTransaction.h"
 #include "TokenGrantKycTransaction.h"
 #include "TokenMintTransaction.h"
+#include "TokenRevokeKycTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
 #include "TransferTransaction.h"
@@ -1528,4 +1529,63 @@ TEST_F(TransactionTest, TokenGrantKycTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 24);
   EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<24>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenRevokeKycTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenrevokekyc(new proto::TokenRevokeKycTransactionBody);
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenRevokeKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 25);
+  EXPECT_NO_THROW(const TokenRevokeKycTransaction tokenRevokeKycTransaction = std::get<25>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenRevokeKycTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenrevokekyc(new proto::TokenRevokeKycTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenRevokeKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 25);
+  EXPECT_NO_THROW(const TokenRevokeKycTransaction tokenRevokeKycTransaction = std::get<25>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenRevokeKycTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenrevokekyc(new proto::TokenRevokeKycTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenRevokeKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 25);
+  EXPECT_NO_THROW(const TokenRevokeKycTransaction tokenRevokeKycTransaction = std::get<25>(txVariant));
 }
