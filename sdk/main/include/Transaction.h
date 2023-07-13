@@ -56,8 +56,10 @@ class TokenCreateTransaction;
 class TokenDeleteTransaction;
 class TokenDissociateTransaction;
 class TokenFeeScheduleUpdateTransaction;
+class TokenGrantKycTransaction;
 class TokenMintTransaction;
 class TokenPauseTransaction;
+class TokenRevokeKycTransaction;
 class TokenUnpauseTransaction;
 class TokenUpdateTransaction;
 class TokenWipeTransaction;
@@ -141,6 +143,8 @@ public:
                                               TokenBurnTransaction,
                                               TokenDissociateTransaction,
                                               TokenFeeScheduleUpdateTransaction,
+                                              TokenGrantKycTransaction,
+                                              TokenRevokeKycTransaction,
                                               TokenPauseTransaction,
                                               TokenUnpauseTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);

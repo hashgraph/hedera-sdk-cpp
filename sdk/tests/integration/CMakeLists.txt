@@ -30,11 +30,14 @@ add_executable(${TEST_PROJECT_NAME}
         TokenDeleteTransactionIntegrationTests.cc
         TokenDissociateTransactionIntegrationTests.cc
         TokenFeeScheduleUpdateTransactionIntegrationTests.cc
+        TokenGrantKycTransactionIntegrationTests.cc
         TokenInfoQueryIntegrationTests.cc
         TokenMintTransactionIntegrationTests.cc
         TokenPauseTransactionIntegrationTests.cc
+        TokenRevokeKycTransactionIntegrationTests.cc
         TokenUnpauseTransactionIntegrationTests.cc
         TokenUpdateTransactionIntegrationTests.cc
+        TokenWipeTransactionIntegrationTests.cc
         TransactionIntegrationTest.cc
         TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc

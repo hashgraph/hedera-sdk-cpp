@@ -38,8 +38,10 @@
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
 #include "TokenFeeScheduleUpdateTransaction.h"
+#include "TokenGrantKycTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TokenPauseTransaction.h"
+#include "TokenRevokeKycTransaction.h"
 #include "TokenUnpauseTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
@@ -1473,6 +1475,124 @@ TEST_F(TransactionTest, TokenFeeScheduleUpdateTransactionFromTransactionBytes)
 }
 
 //-----
+TEST_F(TransactionTest, TokenGrantKycTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokengrantkyc(new proto::TokenGrantKycTransactionBody);
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenGrantKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 24);
+  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<24>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenGrantKycTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokengrantkyc(new proto::TokenGrantKycTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenGrantKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 24);
+  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<24>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenGrantKycTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokengrantkyc(new proto::TokenGrantKycTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenGrantKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 24);
+  EXPECT_NO_THROW(const TokenGrantKycTransaction tokenGrantKycTransaction = std::get<24>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenRevokeKycTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenrevokekyc(new proto::TokenRevokeKycTransactionBody);
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenRevokeKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 25);
+  EXPECT_NO_THROW(const TokenRevokeKycTransaction tokenRevokeKycTransaction = std::get<25>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenRevokeKycTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenrevokekyc(new proto::TokenRevokeKycTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenRevokeKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 25);
+  EXPECT_NO_THROW(const TokenRevokeKycTransaction tokenRevokeKycTransaction = std::get<25>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenRevokeKycTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenrevokekyc(new proto::TokenRevokeKycTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] = Transaction<TokenRevokeKycTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 25);
+  EXPECT_NO_THROW(const TokenRevokeKycTransaction tokenRevokeKycTransaction = std::get<25>(txVariant));
+}
+
+//-----
 TEST_F(TransactionTest, TokenPauseTransactionFromTransactionBodyBytes)
 {
   // Given
@@ -1484,8 +1604,8 @@ TEST_F(TransactionTest, TokenPauseTransactionFromTransactionBodyBytes)
     Transaction<TokenPauseTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 24);
-  EXPECT_NO_THROW(const TokenPauseTransaction tokenPauseTransaction = std::get<24>(txVariant));
+  ASSERT_EQ(index, 26);
+  EXPECT_NO_THROW(const TokenPauseTransaction tokenPauseTransaction = std::get<26>(txVariant));
 }
 
 //-----
@@ -1504,8 +1624,8 @@ TEST_F(TransactionTest, TokenPauseTransactionFromSignedTransactionBytes)
     Transaction<TokenPauseTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 24);
-  EXPECT_NO_THROW(const TokenPauseTransaction tokenPauseTransaction = std::get<24>(txVariant));
+  ASSERT_EQ(index, 26);
+  EXPECT_NO_THROW(const TokenPauseTransaction tokenPauseTransaction = std::get<26>(txVariant));
 }
 
 //-----
@@ -1527,8 +1647,8 @@ TEST_F(TransactionTest, TokenPauseTransactionFromTransactionBytes)
     Transaction<TokenPauseTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 24);
-  EXPECT_NO_THROW(const TokenPauseTransaction tokenPauseTransaction = std::get<24>(txVariant));
+  ASSERT_EQ(index, 26);
+  EXPECT_NO_THROW(const TokenPauseTransaction tokenPauseTransaction = std::get<26>(txVariant));
 }
 
 //-----
@@ -1543,8 +1663,8 @@ TEST_F(TransactionTest, TokenUnpauseTransactionFromTransactionBodyBytes)
     internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 25);
-  EXPECT_NO_THROW(const TokenUnpauseTransaction tokenUnpauseTransaction = std::get<25>(txVariant));
+  ASSERT_EQ(index, 27);
+  EXPECT_NO_THROW(const TokenUnpauseTransaction tokenUnpauseTransaction = std::get<27>(txVariant));
 }
 
 //-----
@@ -1563,8 +1683,8 @@ TEST_F(TransactionTest, TokenUnpauseTransactionFromSignedTransactionBytes)
     internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 25);
-  EXPECT_NO_THROW(const TokenUnpauseTransaction tokenUnpauseTransaction = std::get<25>(txVariant));
+  ASSERT_EQ(index, 27);
+  EXPECT_NO_THROW(const TokenUnpauseTransaction tokenUnpauseTransaction = std::get<27>(txVariant));
 }
 
 //-----
@@ -1586,6 +1706,6 @@ TEST_F(TransactionTest, TokenUnpauseTransactionFromTransactionBytes)
     internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
 
   // Then
-  ASSERT_EQ(index, 25);
-  EXPECT_NO_THROW(const TokenUnpauseTransaction tokenUnpauseTransaction = std::get<25>(txVariant));
+  ASSERT_EQ(index, 27);
+  EXPECT_NO_THROW(const TokenUnpauseTransaction tokenUnpauseTransaction = std::get<27>(txVariant));
 }
