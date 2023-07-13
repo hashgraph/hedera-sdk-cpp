@@ -90,6 +90,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenType.cc
         src/TokenUpdateTransaction.cc
         src/TokenWipeTransaction.cc
+        src/TopicCreateTransaction.cc
         src/Transaction.cc
         src/TransactionId.cc
         src/TransactionReceipt.cc
