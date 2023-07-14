@@ -46,6 +46,7 @@
 #include "TokenMintTransaction.h"
 #include "TokenPauseTransaction.h"
 #include "TokenRevokeKycTransaction.h"
+#include "TokenUnpauseTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
 #include "TransactionId.h"
@@ -95,7 +96,8 @@ std::pair<int,
                        TokenFeeScheduleUpdateTransaction,
                        TokenGrantKycTransaction,
                        TokenRevokeKycTransaction,
-                       TokenPauseTransaction>>
+                       TokenPauseTransaction,
+                       TokenUnpauseTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -191,6 +193,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 25, TokenRevokeKycTransaction(txBody) };
     case proto::TransactionBody::kTokenPause:
       return { 26, TokenPauseTransaction(txBody) };
+    case proto::TransactionBody::kTokenUnpause:
+      return { 27, TokenUnpauseTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -516,6 +520,7 @@ template class Transaction<TokenGrantKycTransaction>;
 template class Transaction<TokenMintTransaction>;
 template class Transaction<TokenPauseTransaction>;
 template class Transaction<TokenRevokeKycTransaction>;
+template class Transaction<TokenUnpauseTransaction>;
 template class Transaction<TokenUpdateTransaction>;
 template class Transaction<TokenWipeTransaction>;
 template class Transaction<TransferTransaction>;

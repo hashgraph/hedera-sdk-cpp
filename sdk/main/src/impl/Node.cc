@@ -212,6 +212,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->pauseToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenRevokeKyc:
       return mTokenStub->revokeKycFromTokenAccount(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenUnpause:
+      return mTokenStub->unpauseToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenUpdate:
       return mTokenStub->updateToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenWipe:
