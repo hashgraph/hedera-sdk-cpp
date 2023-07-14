@@ -38,6 +38,7 @@
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
 #include "TokenFeeScheduleUpdateTransaction.h"
+#include "TokenFreezeTransaction.h"
 #include "TokenGrantKycTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TokenPauseTransaction.h"
@@ -1708,4 +1709,63 @@ TEST_F(TransactionTest, TokenUnpauseTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 27);
   EXPECT_NO_THROW(const TokenUnpauseTransaction tokenUnpauseTransaction = std::get<27>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenFreezeTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenfreeze(new proto::TokenFreezeAccountTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenFreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 28);
+  EXPECT_NO_THROW(const TokenFreezeTransaction tokenFreezeTransaction = std::get<28>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenFreezeTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenfreeze(new proto::TokenFreezeAccountTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenFreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 28);
+  EXPECT_NO_THROW(const TokenFreezeTransaction tokenFreezeTransaction = std::get<28>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TokenFreezeTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_tokenfreeze(new proto::TokenFreezeAccountTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TokenFreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 28);
+  EXPECT_NO_THROW(const TokenFreezeTransaction tokenFreezeTransaction = std::get<28>(txVariant));
 }

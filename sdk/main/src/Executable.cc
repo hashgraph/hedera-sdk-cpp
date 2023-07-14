@@ -53,6 +53,7 @@
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
 #include "TokenFeeScheduleUpdateTransaction.h"
+#include "TokenFreezeTransaction.h"
 #include "TokenGrantKycTransaction.h"
 #include "TokenInfo.h"
 #include "TokenInfoQuery.h"
@@ -375,6 +376,7 @@ template class Executable<TokenFeeScheduleUpdateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+template class Executable<TokenFreezeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenGrantKycTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
