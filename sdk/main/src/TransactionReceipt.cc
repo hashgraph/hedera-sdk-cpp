@@ -59,7 +59,7 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
 
   for (int i = 0; i < proto.serialnumbers_size(); ++i)
   {
-    receipt.mSerialNumbers.push_back(proto.serialnumbers(i));
+    receipt.mSerialNumbers.push_back(static_cast<uint64_t>(proto.serialnumbers(i)));
   }
 
   return receipt;
