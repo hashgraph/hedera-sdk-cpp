@@ -43,7 +43,11 @@
 #include "TokenDissociateTransaction.h"
 #include "TokenFeeScheduleUpdateTransaction.h"
 #include "TokenFreezeTransaction.h"
+#include "TokenGrantKycTransaction.h"
 #include "TokenMintTransaction.h"
+#include "TokenPauseTransaction.h"
+#include "TokenRevokeKycTransaction.h"
+#include "TokenUnpauseTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
 #include "TransactionId.h"
@@ -91,6 +95,10 @@ std::pair<int,
                        TokenBurnTransaction,
                        TokenDissociateTransaction,
                        TokenFeeScheduleUpdateTransaction,
+                       TokenGrantKycTransaction,
+                       TokenRevokeKycTransaction,
+                       TokenPauseTransaction,
+                       TokenUnpauseTransaction,
                        TokenFreezeTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
@@ -181,8 +189,16 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 22, TokenDissociateTransaction(txBody) };
     case proto::TransactionBody::kTokenFeeScheduleUpdate:
       return { 23, TokenFeeScheduleUpdateTransaction(txBody) };
+    case proto::TransactionBody::kTokenGrantKyc:
+      return { 24, TokenGrantKycTransaction(txBody) };
+    case proto::TransactionBody::kTokenRevokeKyc:
+      return { 25, TokenRevokeKycTransaction(txBody) };
+    case proto::TransactionBody::kTokenPause:
+      return { 26, TokenPauseTransaction(txBody) };
+    case proto::TransactionBody::kTokenUnpause:
+      return { 27, TokenUnpauseTransaction(txBody) };
     case proto::TransactionBody::kTokenFreeze:
-      return { 24, TokenFreezeTransaction(txBody) };
+      return { 28, TokenFreezeTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -505,7 +521,11 @@ template class Transaction<TokenDeleteTransaction>;
 template class Transaction<TokenDissociateTransaction>;
 template class Transaction<TokenFeeScheduleUpdateTransaction>;
 template class Transaction<TokenFreezeTransaction>;
+template class Transaction<TokenGrantKycTransaction>;
 template class Transaction<TokenMintTransaction>;
+template class Transaction<TokenPauseTransaction>;
+template class Transaction<TokenRevokeKycTransaction>;
+template class Transaction<TokenUnpauseTransaction>;
 template class Transaction<TokenUpdateTransaction>;
 template class Transaction<TokenWipeTransaction>;
 template class Transaction<TransferTransaction>;
