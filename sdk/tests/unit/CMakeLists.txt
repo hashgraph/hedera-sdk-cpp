@@ -82,6 +82,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenSupplyTypeTest.cc
         TokenTransferTest.cc
         TokenTypeTest.cc
+        TokenUnfreezeTransactionUnitTests.cc
         TokenUnpauseTransactionUnitTests.cc
         TokenUpdateTransactionUnitTests.cc
         TokenWipeTransactionUnitTests.cc

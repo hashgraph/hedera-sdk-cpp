@@ -60,6 +60,7 @@
 #include "TokenMintTransaction.h"
 #include "TokenPauseTransaction.h"
 #include "TokenRevokeKycTransaction.h"
+#include "TokenUnfreezeTransaction.h"
 #include "TokenUnpauseTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
@@ -385,6 +386,10 @@ template class Executable<TokenInfoQuery, proto::Query, proto::Response, TokenIn
 template class Executable<TokenMintTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenPauseTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenRevokeKycTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
+template class Executable<TokenUnfreezeTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
