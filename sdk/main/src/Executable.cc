@@ -53,11 +53,17 @@
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
 #include "TokenFeeScheduleUpdateTransaction.h"
+#include "TokenFreezeTransaction.h"
+#include "TokenGrantKycTransaction.h"
 #include "TokenInfo.h"
 #include "TokenInfoQuery.h"
 #include "TokenMintTransaction.h"
 #include "TokenNftInfo.h"
 #include "TokenNftInfoQuery.h"
+#include "TokenPauseTransaction.h"
+#include "TokenRevokeKycTransaction.h"
+#include "TokenUnfreezeTransaction.h"
+#include "TokenUnpauseTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
 #include "TransactionReceipt.h"
@@ -373,9 +379,24 @@ template class Executable<TokenFeeScheduleUpdateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+template class Executable<TokenFreezeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TokenGrantKycTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TokenInfoQuery, proto::Query, proto::Response, TokenInfo>;
 template class Executable<TokenMintTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenNftInfoQuery, proto::Query, proto::Response, TokenNftInfo>;
+template class Executable<TokenPauseTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TokenRevokeKycTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
+template class Executable<TokenUnfreezeTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
+template class Executable<TokenUnpauseTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenWipeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>;

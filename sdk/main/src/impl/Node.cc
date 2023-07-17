@@ -206,10 +206,24 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->dissociateTokens(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenFeeScheduleUpdate:
       return mTokenStub->updateTokenFeeSchedule(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenFreeze:
+      return mTokenStub->freezeTokenAccount(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenGrantKyc:
+      return mTokenStub->grantKycToTokenAccount(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenMint:
       return mTokenStub->mintToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenPause:
+      return mTokenStub->pauseToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenRevokeKyc:
+      return mTokenStub->revokeKycFromTokenAccount(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenUnfreeze:
+      return mTokenStub->unfreezeTokenAccount(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenUnpause:
+      return mTokenStub->unpauseToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenUpdate:
       return mTokenStub->updateToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenWipe:
+      return mTokenStub->wipeTokenAccount(&context, transaction, response);
     default:
       // This should never happen
       throw std::invalid_argument("Unrecognized gRPC transaction method case");
