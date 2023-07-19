@@ -75,6 +75,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenInfoUnitTests.cc
         TokenMintTransactionUnitTests.cc
         TokenNftAllowanceTest.cc
+        TokenNftInfoQueryUnitTests.cc
         TokenNftTransferTest.cc
         TokenPauseTransactionUnitTests.cc
         TokenRevokeKycTransactionUnitTests.cc

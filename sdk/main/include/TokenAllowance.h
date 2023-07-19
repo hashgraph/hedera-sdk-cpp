@@ -23,8 +23,10 @@
 #include "AccountId.h"
 #include "TokenId.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace proto
 {
@@ -49,7 +51,7 @@ public:
    * @param spender The ID of the account being allowed to spend the tokens.
    * @param amount  The amount of tokens that are being allowed to be spent.
    */
-  TokenAllowance(const TokenId& tokenId, AccountId owner, AccountId spender, const uint64_t& amount);
+  TokenAllowance(const TokenId& tokenId, AccountId owner, AccountId spender, uint64_t amount);
 
   /**
    * Construct a TokenAllowance object from a TokenAllowance protobuf object.
@@ -60,6 +62,14 @@ public:
   [[nodiscard]] static TokenAllowance fromProtobuf(const proto::TokenAllowance& proto);
 
   /**
+   * Construct a TokenAllowance object from a byte array.
+   *
+   * @param bytes The byte array from which to construct an TokenAllowance object.
+   * @return The constructed TokenAllowance object.
+   */
+  [[nodiscard]] static TokenAllowance fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
    * Construct a TokenAllowance protobuf object from this TokenAllowance object.
    *
    * @return A pointer to a constructed TokenAllowance protobuf object filled with this TokenAllowance object's data.
@@ -67,66 +77,12 @@ public:
   [[nodiscard]] std::unique_ptr<proto::TokenAllowance> toProtobuf() const;
 
   /**
-   * Set the ID of the token that is being approved to be spent.
+   * Construct a byte array from this TokenAllowance object.
    *
-   * @param tokenId The ID of the token that is being approved to be spent.
-   * @return A reference to this TokenAllowance object with the newly-set token ID.
+   * @return A byte array representing this TokenAllowance object.
    */
-  TokenAllowance& setTokenId(const TokenId& tokenId);
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
 
-  /**
-   * Set the ID of the account approving an allowance of its tokens.
-   *
-   * @param accountId The ID of the account approving an allowance of its tokens.
-   * @return A reference to this TokenAllowance object with the newly-set owner account ID.
-   */
-  TokenAllowance& setOwnerAccountId(const AccountId& accountId);
-
-  /**
-   * Set the ID of the account being allowed to spend the tokens.
-   *
-   * @param accountId The ID of the account being allowed to spend the tokens.
-   * @return A reference to this TokenAllowance object with the newly-set spender account ID.
-   */
-  TokenAllowance& setSpenderAccountId(const AccountId& accountId);
-
-  /**
-   * Set the amount of tokens that are being allowed to be spent.
-   *
-   * @param amount The amount of tokens that are being allowed to be spent.
-   * @return A reference to this TokenAllowance object with the newly-set amount.
-   */
-  TokenAllowance& setAmount(const uint64_t& amount);
-
-  /**
-   * Get the ID of the token that is being approved to be spent.
-   *
-   * @return The the ID of the token that is being approved to be spent.
-   */
-  [[nodiscard]] inline TokenId getTokenId() const { return mTokenId; }
-
-  /**
-   * Set the ID of the account approving an allowance of its tokens.
-   *
-   * @return The ID of the account approving an allowance of its tokens.
-   */
-  [[nodiscard]] inline AccountId getOwnerAccountId() const { return mOwnerAccountId; }
-
-  /**
-   * Get the ID of the account being allowed to spend the tokens.
-   *
-   * @return The ID of the account being allowed to spend the tokens.
-   */
-  [[nodiscard]] inline AccountId getSpenderAccountId() const { return mSpenderAccountId; }
-
-  /**
-   * Get the amount of tokens that are being allowed to be spent.
-   *
-   * @return The amount of tokens that are being allowed to be spent.
-   */
-  [[nodiscard]] inline uint64_t getAmount() const { return mAmount; }
-
-private:
   /**
    * The ID of the token that is being approved to be spent.
    */

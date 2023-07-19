@@ -31,7 +31,7 @@ protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTokenId; }
   [[nodiscard]] inline const AccountId& getTestOwnerAccountId() const { return mOwnerAccountId; }
   [[nodiscard]] inline const AccountId& getTestSpenderAccountId() const { return mSpenderAccountId; }
-  [[nodiscard]] inline const uint64_t& getTestAmount() const { return mAmount; }
+  [[nodiscard]] inline uint64_t getTestAmount() const { return mAmount; }
 
 private:
   const TokenId mTokenId = TokenId(1ULL);
@@ -48,62 +48,10 @@ TEST_F(TokenAllowanceTest, ConstructWithTokenIdOwnerSpenderAmount)
     getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId(), getTestAmount());
 
   // Then
-  EXPECT_EQ(tokenAllowance.getTokenId(), getTestTokenId());
-  EXPECT_EQ(tokenAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(tokenAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-  EXPECT_EQ(tokenAllowance.getAmount(), getTestAmount());
-}
-
-//-----
-TEST_F(TokenAllowanceTest, GetSetTokenId)
-{
-  // Given
-  TokenAllowance tokenAllowance;
-
-  // When
-  tokenAllowance.setTokenId(getTestTokenId());
-
-  // Then
-  EXPECT_EQ(tokenAllowance.getTokenId(), getTestTokenId());
-}
-
-//-----
-TEST_F(TokenAllowanceTest, GetSetOwnerAccountId)
-{
-  // Given
-  TokenAllowance tokenAllowance;
-
-  // When
-  tokenAllowance.setOwnerAccountId(getTestOwnerAccountId());
-
-  // Then
-  EXPECT_EQ(tokenAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-}
-
-//-----
-TEST_F(TokenAllowanceTest, GetSetSpenderAccountId)
-{
-  // Given
-  TokenAllowance tokenAllowance;
-
-  // When
-  tokenAllowance.setSpenderAccountId(getTestSpenderAccountId());
-
-  // Then
-  EXPECT_EQ(tokenAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-}
-
-//-----
-TEST_F(TokenAllowanceTest, GetSetAmount)
-{
-  // Given
-  TokenAllowance tokenAllowance;
-
-  // When
-  tokenAllowance.setAmount(getTestAmount());
-
-  // Then
-  EXPECT_EQ(tokenAllowance.getAmount(), getTestAmount());
+  EXPECT_EQ(tokenAllowance.mTokenId, getTestTokenId());
+  EXPECT_EQ(tokenAllowance.mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(tokenAllowance.mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(tokenAllowance.mAmount, getTestAmount());
 }
 
 //-----
@@ -114,27 +62,24 @@ TEST_F(TokenAllowanceTest, FromProtobuf)
   protoTokenAllowance.set_allocated_tokenid(getTestTokenId().toProtobuf().release());
   protoTokenAllowance.set_allocated_owner(getTestOwnerAccountId().toProtobuf().release());
   protoTokenAllowance.set_allocated_spender(getTestSpenderAccountId().toProtobuf().release());
-  protoTokenAllowance.set_amount(getTestAmount());
+  protoTokenAllowance.set_amount(static_cast<int64_t>(getTestAmount()));
 
   // When
   const TokenAllowance tokenAllowance = TokenAllowance::fromProtobuf(protoTokenAllowance);
 
   // Then
-  EXPECT_EQ(tokenAllowance.getTokenId(), getTestTokenId());
-  EXPECT_EQ(tokenAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(tokenAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-  EXPECT_EQ(tokenAllowance.getAmount(), getTestAmount());
+  EXPECT_EQ(tokenAllowance.mTokenId, getTestTokenId());
+  EXPECT_EQ(tokenAllowance.mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(tokenAllowance.mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(tokenAllowance.mAmount, getTestAmount());
 }
 
 //-----
 TEST_F(TokenAllowanceTest, ToProtobuf)
 {
   // Given
-  TokenAllowance tokenAllowance;
-  tokenAllowance.setTokenId(getTestTokenId());
-  tokenAllowance.setOwnerAccountId(getTestOwnerAccountId());
-  tokenAllowance.setSpenderAccountId(getTestSpenderAccountId());
-  tokenAllowance.setAmount(getTestAmount());
+  const TokenAllowance tokenAllowance(
+    getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId(), getTestAmount());
 
   // When
   const std::unique_ptr<proto::TokenAllowance> protoTokenAllowance = tokenAllowance.toProtobuf();

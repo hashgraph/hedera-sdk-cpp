@@ -132,6 +132,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
       return mFileStub->getFileInfo(&context, query, response);
     case proto::Query::QueryCase::kTokenGetInfo:
       return mTokenStub->getTokenInfo(&context, query, response);
+    case proto::Query::QueryCase::kTokenGetNftInfo:
+      return mTokenStub->getTokenNftInfo(&context, query, response);
     case proto::Query::QueryCase::kTransactionGetReceipt:
       return mCryptoStub->getTransactionReceipts(&context, query, response);
     case proto::Query::QueryCase::kTransactionGetRecord:
@@ -291,6 +293,10 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
   const std::vector<std::shared_ptr<Endpoint>> endpoints = mAddress->getEndpoints();
 
   std::shared_ptr<grpc::ChannelCredentials> channelCredentials = nullptr;
+
+  grpc::ChannelArguments channelArguments;
+  channelArguments.SetInt(GRPC_ARG_ENABLE_RETRIES, 0);
+
   for (const auto& endpoint : endpoints)
   {
     switch (mTLSBehavior)
@@ -299,6 +305,8 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
       {
         if (NodeAddress::isTlsPort(endpoint->getPort()))
         {
+          channelArguments.SetInt(GRPC_ARG_KEEPALIVE_TIMEOUT_MS, 10000);
+          channelArguments.SetInt(GRPC_ARG_KEEPALIVE_PERMIT_WITHOUT_CALLS, 1);
           channelCredentials = mTlsChannelCredentials;
         }
 
@@ -325,7 +333,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
     {
       shutdown();
 
-      mChannel = grpc::CreateChannel(endpoint->toString(), channelCredentials);
+      mChannel = grpc::CreateCustomChannel(endpoint->toString(), channelCredentials, channelArguments);
 
       if (mChannel->WaitForConnected(deadline))
       {
