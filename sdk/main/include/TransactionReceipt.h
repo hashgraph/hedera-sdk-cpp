@@ -26,6 +26,7 @@
 #include "FileId.h"
 #include "Status.h"
 #include "TokenId.h"
+#include "TopicId.h"
 
 #include <optional>
 #include <vector>
@@ -84,6 +85,11 @@ public:
    * The exchange rates in effect when the transaction reached consensus.
    */
   std::optional<ExchangeRateSet> mExchangeRates;
+
+  /**
+   * In the receipt of a ConsensusCreateTopic, the ID of the newly created topic.
+   */
+  std::optional<TopicId> mTopicId;
 
   /**
    * In the receipt of a TokenCreate, the ID of the newly created token.
