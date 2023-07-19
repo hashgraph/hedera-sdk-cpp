@@ -98,6 +98,12 @@ TopicId TopicId::fromSolidityAddress(std::string_view addr)
 {
   TopicId topicId;
 
+  // Remove hex prefix if it exists.
+  if (const std::string_view prefix = "0x"; addr.substr(0, prefix.size()) == prefix)
+  {
+    addr.remove_prefix(prefix.size());
+  }
+
   if (addr.size() != 40)
   {
     throw std::invalid_argument("Input string doesn't represent a solidity address");
