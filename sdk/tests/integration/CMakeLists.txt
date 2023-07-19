@@ -34,6 +34,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenGrantKycTransactionIntegrationTests.cc
         TokenInfoQueryIntegrationTests.cc
         TokenMintTransactionIntegrationTests.cc
+        TokenNftInfoQueryIntegrationTests.cc
         TokenPauseTransactionIntegrationTests.cc
         TokenRevokeKycTransactionIntegrationTests.cc
         TokenUnfreezeTransactionIntegrationTests.cc
