@@ -37,9 +37,9 @@ jobs:
           - name: Setup Docker Compose
             run: |
               sudo apt-get update
-              sudo apt-get install -y \
+              sudo apt-get install -y --allow-downgrades \
                   ca-certificates \
-                  curl \
+                  curl=7.81.0-1ubuntu1.10 \
                   gnupg \
                   lsb-release
               sudo mkdir -p /etc/apt/keyrings
