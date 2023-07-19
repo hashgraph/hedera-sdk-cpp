@@ -38,7 +38,7 @@ jobs:
             run: |
               sudo apt-get update
               sudo apt-get install -y --allow-downgrades \
-                  ca-certificates=20211016 \
+                  ca-certificates=20230311ubuntu0.22.04.1 \
                   curl \
                   gnupg \
                   lsb-release
