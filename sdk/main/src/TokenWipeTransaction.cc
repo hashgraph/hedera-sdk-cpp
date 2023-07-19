@@ -111,8 +111,17 @@ grpc::Status TokenWipeTransaction::submitRequest(const Client& client,
 proto::TokenWipeAccountTransactionBody* TokenWipeTransaction::build() const
 {
   auto body = std::make_unique<proto::TokenWipeAccountTransactionBody>();
-  body->set_allocated_token(mTokenId.toProtobuf().release());
-  body->set_allocated_account(mAccountId.toProtobuf().release());
+
+  if (!(mTokenId == TokenId()))
+  {
+    body->set_allocated_token(mTokenId.toProtobuf().release());
+  }
+
+  if (!(mAccountId == AccountId()))
+  {
+    body->set_allocated_account(mAccountId.toProtobuf().release());
+  }
+
   body->set_amount(mAmount);
 
   for (const auto& num : mSerialNumbers)
