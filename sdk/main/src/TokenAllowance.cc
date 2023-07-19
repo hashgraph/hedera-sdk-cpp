@@ -18,13 +18,14 @@
  *
  */
 #include "TokenAllowance.h"
+#include "impl/Utilities.h"
 
 #include <proto/crypto_approve_allowance.pb.h>
 
 namespace Hedera
 {
 //-----
-TokenAllowance::TokenAllowance(const TokenId& tokenId, AccountId owner, AccountId spender, const uint64_t& amount)
+TokenAllowance::TokenAllowance(const TokenId& tokenId, AccountId owner, AccountId spender, uint64_t amount)
   : mTokenId(tokenId)
   , mOwnerAccountId(std::move(owner))
   , mSpenderAccountId(std::move(spender))
@@ -35,64 +36,48 @@ TokenAllowance::TokenAllowance(const TokenId& tokenId, AccountId owner, AccountI
 //-----
 TokenAllowance TokenAllowance::fromProtobuf(const proto::TokenAllowance& proto)
 {
-  TokenAllowance allowance;
+  return { proto.has_tokenid() ? TokenId::fromProtobuf(proto.tokenid()) : TokenId(),
+           proto.has_owner() ? AccountId::fromProtobuf(proto.owner()) : AccountId(),
+           proto.has_spender() ? AccountId::fromProtobuf(proto.spender()) : AccountId(),
+           static_cast<uint64_t>(proto.amount()) };
+}
 
-  if (proto.has_tokenid())
-  {
-    allowance.mTokenId = TokenId::fromProtobuf(proto.tokenid());
-  }
-
-  if (proto.has_owner())
-  {
-    allowance.mOwnerAccountId = AccountId::fromProtobuf(proto.owner());
-  }
-
-  if (proto.has_spender())
-  {
-    allowance.mSpenderAccountId = AccountId::fromProtobuf(proto.spender());
-  }
-
-  allowance.mAmount = static_cast<uint64_t>(proto.amount());
-  return allowance;
+//-----
+TokenAllowance TokenAllowance::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::TokenAllowance tokenAllowance;
+  tokenAllowance.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(tokenAllowance);
 }
 
 //-----
 std::unique_ptr<proto::TokenAllowance> TokenAllowance::toProtobuf() const
 {
   auto proto = std::make_unique<proto::TokenAllowance>();
-  proto->set_allocated_tokenid(mTokenId.toProtobuf().release());
-  proto->set_allocated_owner(mOwnerAccountId.toProtobuf().release());
-  proto->set_allocated_spender(mSpenderAccountId.toProtobuf().release());
+
+  if (!(mTokenId == TokenId()))
+  {
+    proto->set_allocated_tokenid(mTokenId.toProtobuf().release());
+  }
+
+  if (!(mOwnerAccountId == AccountId()))
+  {
+    proto->set_allocated_owner(mOwnerAccountId.toProtobuf().release());
+  }
+
+  if (!(mSpenderAccountId == AccountId()))
+  {
+    proto->set_allocated_spender(mSpenderAccountId.toProtobuf().release());
+  }
+
   proto->set_amount(static_cast<int64_t>(mAmount));
   return proto;
 }
 
 //-----
-TokenAllowance& TokenAllowance::setTokenId(const TokenId& tokenId)
+std::vector<std::byte> TokenAllowance::toBytes() const
 {
-  mTokenId = tokenId;
-  return *this;
-}
-
-//-----
-TokenAllowance& TokenAllowance::setOwnerAccountId(const AccountId& accountId)
-{
-  mOwnerAccountId = accountId;
-  return *this;
-}
-
-//-----
-TokenAllowance& TokenAllowance::setSpenderAccountId(const AccountId& accountId)
-{
-  mSpenderAccountId = accountId;
-  return *this;
-}
-
-//-----
-TokenAllowance& TokenAllowance::setAmount(const uint64_t& amount)
-{
-  mAmount = amount;
-  return *this;
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
 } // namespace Hedera

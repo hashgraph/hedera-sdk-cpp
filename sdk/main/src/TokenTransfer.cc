@@ -19,41 +19,60 @@
  */
 #include "TokenTransfer.h"
 
+#include <proto/basic_types.pb.h>
+
 namespace Hedera
 {
 //-----
-TokenTransfer& TokenTransfer::setTokenId(const TokenId& tokenId)
+TokenTransfer::TokenTransfer(const TokenId& tokenId, AccountId accountId, int64_t amount, bool isApproved)
+  : mTokenId(tokenId)
+  , mAccountId(std::move(accountId))
+  , mAmount(amount)
+  , mIsApproval(isApproved)
 {
-  mTokenId = tokenId;
-  return *this;
 }
 
 //-----
-TokenTransfer& TokenTransfer::setAccountId(const AccountId& accountId)
+TokenTransfer::TokenTransfer(const TokenId& tokenId,
+                             AccountId accountId,
+                             int64_t amount,
+                             uint32_t decimals,
+                             bool isApproved)
+  : mTokenId(tokenId)
+  , mAccountId(std::move(accountId))
+  , mAmount(amount)
+  , mExpectedDecimals(decimals)
+  , mIsApproval(isApproved)
 {
-  mAccountId = accountId;
-  return *this;
 }
 
 //-----
-TokenTransfer& TokenTransfer::setAmount(const int64_t& amount)
+std::vector<TokenTransfer> TokenTransfer::fromProtobuf(const proto::TokenTransferList& proto)
 {
-  mAmount = amount;
-  return *this;
+  std::vector<TokenTransfer> transfers;
+  const TokenId tokenId = TokenId::fromProtobuf(proto.token());
+
+  for (int i = 0; i < proto.transfers_size(); ++i)
+  {
+    const proto::AccountAmount& amount = proto.transfers(i);
+    transfers.emplace_back(tokenId,
+                           AccountId::fromProtobuf(amount.accountid()),
+                           amount.amount(),
+                           proto.has_expected_decimals() ? proto.expected_decimals().value() : 0U,
+                           amount.is_approval());
+  }
+
+  return transfers;
 }
 
 //-----
-TokenTransfer& TokenTransfer::setExpectedDecimals(uint32_t decimals)
+std::unique_ptr<proto::AccountAmount> TokenTransfer::toProtobuf() const
 {
-  mExpectedDecimals = decimals;
-  return *this;
-}
-
-//-----
-TokenTransfer& TokenTransfer::setApproval(bool approval)
-{
-  mIsApproval = approval;
-  return *this;
+  auto accountAmount = std::make_unique<proto::AccountAmount>();
+  accountAmount->set_allocated_accountid(mAccountId.toProtobuf().release());
+  accountAmount->set_amount(mAmount);
+  accountAmount->set_is_approval(mIsApproval);
+  return accountAmount;
 }
 
 } // namespace Hedera
