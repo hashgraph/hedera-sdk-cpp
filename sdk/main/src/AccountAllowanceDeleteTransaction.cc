@@ -42,7 +42,18 @@ AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(const proto
 
   for (int i = 0; i < body.nftallowances_size(); ++i)
   {
-    mNftAllowanceDeletions.push_back(TokenNftRemoveAllowance::fromProtobuf(body.nftallowances(i)));
+    std::vector<uint64_t> serialNumbers;
+    serialNumbers.reserve(body.nftallowances(i).serial_numbers_size());
+
+    for (int j = 0; j < body.nftallowances(i).serial_numbers_size(); ++j)
+    {
+      serialNumbers.push_back(static_cast<uint64_t>(body.nftallowances(i).serial_numbers(j)));
+    }
+
+    mNftAllowanceDeletions.emplace_back(TokenId::fromProtobuf(body.nftallowances(i).token_id()),
+                                        AccountId::fromProtobuf(body.nftallowances(i).owner()),
+                                        std::optional<AccountId>(),
+                                        serialNumbers);
   }
 }
 
@@ -54,16 +65,17 @@ AccountAllowanceDeleteTransaction& AccountAllowanceDeleteTransaction::deleteAllT
   requireNotFrozen();
 
   // Add the serial number to the token allowance if there's already an allowance for this token ID, owner, and spender.
-  for (TokenNftRemoveAllowance& allowance : mNftAllowanceDeletions)
+  for (TokenNftAllowance& allowance : mNftAllowanceDeletions)
   {
-    if (allowance.getTokenId() == nftId.getTokenId() && allowance.getOwnerAccountId() == owner)
+    if (allowance.mTokenId == nftId.getTokenId() && allowance.mOwnerAccountId == owner)
     {
-      allowance.addSerialNumber(nftId.getSerialNum());
+      allowance.mSerialNumbers.push_back(nftId.getSerialNum());
       return *this;
     }
   }
 
-  mNftAllowanceDeletions.emplace_back(nftId.getTokenId(), owner, std::vector<uint64_t>{ nftId.getSerialNum() });
+  mNftAllowanceDeletions.emplace_back(
+    nftId.getTokenId(), owner, std::optional<AccountId>(), std::vector<uint64_t>{ nftId.getSerialNum() });
   return *this;
 }
 
@@ -91,13 +103,21 @@ proto::CryptoDeleteAllowanceTransactionBody* AccountAllowanceDeleteTransaction::
 {
   auto body = std::make_unique<proto::CryptoDeleteAllowanceTransactionBody>();
 
-  for (const TokenNftRemoveAllowance& allowance : mNftAllowanceDeletions)
+  for (const TokenNftAllowance& allowance : mNftAllowanceDeletions)
   {
     proto::NftRemoveAllowance* nftRemoveAllowance = body->add_nftallowances();
-    nftRemoveAllowance->set_allocated_token_id(allowance.getTokenId().toProtobuf().release());
-    nftRemoveAllowance->set_allocated_owner(allowance.getOwnerAccountId().toProtobuf().release());
 
-    for (const uint64_t& num : allowance.getSerialNumbers())
+    if (allowance.mTokenId.has_value())
+    {
+      nftRemoveAllowance->set_allocated_token_id(allowance.mTokenId->toProtobuf().release());
+    }
+
+    if (allowance.mOwnerAccountId.has_value())
+    {
+      nftRemoveAllowance->set_allocated_owner(allowance.mOwnerAccountId->toProtobuf().release());
+    }
+
+    for (const uint64_t& num : allowance.mSerialNumbers)
     {
       nftRemoveAllowance->add_serial_numbers(static_cast<int64_t>(num));
     }

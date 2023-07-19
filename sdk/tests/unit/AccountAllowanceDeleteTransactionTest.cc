@@ -81,10 +81,10 @@ TEST_F(AccountAllowanceDeleteTransactionTest, ConstructAccountAllowanceDeleteTra
 
   // Then
   ASSERT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().size(), 1);
-  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getTokenId(), getTestTokenId());
-  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getOwnerAccountId(),
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).mOwnerAccountId,
             getTestOwnerAccountId());
-  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers(),
+  EXPECT_EQ(accountAllowanceDeleteTransaction.getTokenNftAllowanceDeletions().at(0).mSerialNumbers,
             getTestSerialNumbers());
 }
 
@@ -102,9 +102,9 @@ TEST_F(AccountAllowanceDeleteTransactionTest, DeleteNftAllowances)
 
   // Then
   ASSERT_EQ(transaction.getTokenNftAllowanceDeletions().size(), 1);
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).getTokenId(), getTestTokenId());
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers(), getTestSerialNumbers());
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).mSerialNumbers, getTestSerialNumbers());
 }
 
 //-----
@@ -125,20 +125,20 @@ TEST_F(AccountAllowanceDeleteTransactionTest, DeleteNftAllowancesDifferentTokenI
   // Then
   ASSERT_EQ(transaction.getTokenNftAllowanceDeletions().size(), 3);
 
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).getTokenId(), tokenIds.at(0));
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  ASSERT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().size(), 1);
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).getSerialNumbers().at(0), getTestSerialNumbers().at(0));
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).mTokenId, tokenIds.at(0));
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  ASSERT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).mSerialNumbers.size(), 1);
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(0).mSerialNumbers.at(0), getTestSerialNumbers().at(0));
 
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(1).getTokenId(), tokenIds.at(1));
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(1).getOwnerAccountId(), getTestOwnerAccountId());
-  ASSERT_EQ(transaction.getTokenNftAllowanceDeletions().at(1).getSerialNumbers().size(), 1);
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(1).getSerialNumbers().at(0), getTestSerialNumbers().at(1));
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(1).mTokenId, tokenIds.at(1));
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(1).mOwnerAccountId, getTestOwnerAccountId());
+  ASSERT_EQ(transaction.getTokenNftAllowanceDeletions().at(1).mSerialNumbers.size(), 1);
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(1).mSerialNumbers.at(0), getTestSerialNumbers().at(1));
 
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(2).getTokenId(), tokenIds.at(2));
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(2).getOwnerAccountId(), getTestOwnerAccountId());
-  ASSERT_EQ(transaction.getTokenNftAllowanceDeletions().at(2).getSerialNumbers().size(), 1);
-  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(2).getSerialNumbers().at(0), getTestSerialNumbers().at(2));
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(2).mTokenId, tokenIds.at(2));
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(2).mOwnerAccountId, getTestOwnerAccountId());
+  ASSERT_EQ(transaction.getTokenNftAllowanceDeletions().at(2).mSerialNumbers.size(), 1);
+  EXPECT_EQ(transaction.getTokenNftAllowanceDeletions().at(2).mSerialNumbers.at(0), getTestSerialNumbers().at(2));
 }
 
 //-----
