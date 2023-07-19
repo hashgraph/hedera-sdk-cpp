@@ -137,12 +137,12 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   EXPECT_EQ(txRecord.mHbarTransferList.at(1).getAmount().toTinybars(), amount);
 
   ASSERT_EQ(txRecord.mTokenTransferList.size(), 2);
-  EXPECT_EQ(txRecord.mTokenTransferList.at(0).getTokenId(), tokenId);
-  EXPECT_EQ(txRecord.mTokenTransferList.at(0).getAccountId(), accountIdTo);
-  EXPECT_EQ(txRecord.mTokenTransferList.at(0).getAmount(), amount);
-  EXPECT_EQ(txRecord.mTokenTransferList.at(1).getTokenId(), tokenId);
-  EXPECT_EQ(txRecord.mTokenTransferList.at(1).getAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.mTokenTransferList.at(1).getAmount(), -amount);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(0).mTokenId, tokenId);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(0).mAccountId, accountIdTo);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(0).mAmount, amount);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(1).mTokenId, tokenId);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(1).mAccountId, accountIdFrom);
+  EXPECT_EQ(txRecord.mTokenTransferList.at(1).mAmount, -amount);
 
   ASSERT_EQ(txRecord.mNftTransferList.size(), 1);
   EXPECT_EQ(txRecord.mNftTransferList.at(0).getNftId(), nftId);

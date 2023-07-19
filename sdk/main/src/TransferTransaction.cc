@@ -56,12 +56,11 @@ TransferTransaction::TransferTransaction(const proto::TransactionBody& transacti
     for (int j = 0; j < transfer.transfers_size(); ++j)
     {
       const proto::AccountAmount& accountAmount = transfer.transfers(j);
-      mTokenTransfers.push_back(TokenTransfer()
-                                  .setTokenId(tokenId)
-                                  .setAccountId(AccountId::fromProtobuf(accountAmount.accountid()))
-                                  .setAmount(accountAmount.amount())
-                                  .setApproval(accountAmount.is_approval())
-                                  .setExpectedDecimals(transfer.expected_decimals().value()));
+      mTokenTransfers.emplace_back(tokenId,
+                                   AccountId::fromProtobuf(accountAmount.accountid()),
+                                   accountAmount.amount(),
+                                   transfer.expected_decimals().value(),
+                                   accountAmount.is_approval());
     }
 
     for (int j = 0; j < transfer.nfttransfers_size(); ++j)
@@ -92,7 +91,7 @@ TransferTransaction& TransferTransaction::addTokenTransfer(const TokenId& tokenI
 {
   requireNotFrozen();
 
-  doTokenTransfer(TokenTransfer().setTokenId(tokenId).setAccountId(accountId).setAmount(amount).setApproval(false));
+  doTokenTransfer(TokenTransfer(tokenId, accountId, amount, false));
   return *this;
 }
 
@@ -119,12 +118,7 @@ TransferTransaction& TransferTransaction::addTokenTransferWithDecimals(const Tok
 {
   requireNotFrozen();
 
-  doTokenTransfer(TokenTransfer()
-                    .setTokenId(tokenId)
-                    .setAccountId(accountId)
-                    .setAmount(amount)
-                    .setExpectedDecimals(decimals)
-                    .setApproval(false));
+  doTokenTransfer(TokenTransfer(tokenId, accountId, amount, decimals, false));
   return *this;
 }
 
@@ -144,7 +138,7 @@ TransferTransaction& TransferTransaction::addApprovedTokenTransfer(const TokenId
 {
   requireNotFrozen();
 
-  doTokenTransfer(TokenTransfer().setTokenId(tokenId).setAccountId(accountId).setAmount(amount).setApproval(true));
+  doTokenTransfer(TokenTransfer(tokenId, accountId, amount, true));
   return *this;
 }
 
@@ -171,12 +165,7 @@ TransferTransaction& TransferTransaction::addApprovedTokenTransferWithDecimals(c
 {
   requireNotFrozen();
 
-  doTokenTransfer(TokenTransfer()
-                    .setTokenId(tokenId)
-                    .setAccountId(accountId)
-                    .setAmount(amount)
-                    .setExpectedDecimals(decimals)
-                    .setApproval(true));
+  doTokenTransfer(TokenTransfer(tokenId, accountId, amount, decimals, true));
   return *this;
 }
 
@@ -200,7 +189,7 @@ std::unordered_map<TokenId, std::unordered_map<AccountId, int64_t>> TransferTran
 
   for (const TokenTransfer& transfer : mTokenTransfers)
   {
-    tokenTransfers[transfer.getTokenId()][transfer.getAccountId()] += transfer.getAmount();
+    tokenTransfers[transfer.mTokenId][transfer.mAccountId] += transfer.mAmount;
   }
 
   return tokenTransfers;
@@ -226,9 +215,9 @@ std::unordered_map<TokenId, uint32_t> TransferTransaction::getTokenIdDecimals() 
 
   for (const TokenTransfer& transfer : mTokenTransfers)
   {
-    if (transfer.getExpectedDecimals() != 0)
+    if (transfer.mExpectedDecimals != 0U)
     {
-      decimals[transfer.getTokenId()] = transfer.getExpectedDecimals();
+      decimals[transfer.mTokenId] = transfer.mExpectedDecimals;
     }
   }
 
@@ -270,7 +259,7 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
     proto::TokenTransferList* list = nullptr;
     for (int i = 0; i < body->mutable_tokentransfers()->size(); ++i)
     {
-      if (TokenId::fromProtobuf(body->mutable_tokentransfers(i)->token()) == transfer.getTokenId())
+      if (TokenId::fromProtobuf(body->mutable_tokentransfers(i)->token()) == transfer.mTokenId)
       {
         list = body->mutable_tokentransfers(i);
       }
@@ -279,17 +268,17 @@ proto::CryptoTransferTransactionBody* TransferTransaction::build() const
     if (!list)
     {
       list = body->add_tokentransfers();
-      list->set_allocated_token(transfer.getTokenId().toProtobuf().release());
+      list->set_allocated_token(transfer.mTokenId.toProtobuf().release());
     }
 
     proto::AccountAmount* amount = list->add_transfers();
-    amount->set_allocated_accountid(transfer.getAccountId().toProtobuf().release());
-    amount->set_amount(transfer.getAmount());
-    amount->set_is_approval(transfer.getApproval());
+    amount->set_allocated_accountid(transfer.mAccountId.toProtobuf().release());
+    amount->set_amount(transfer.mAmount);
+    amount->set_is_approval(transfer.mIsApproval);
 
     // Shouldn't ever overwrite a different value here because it is checked when the transfer is added to this
     // TransferTransaction.
-    list->mutable_expected_decimals()->set_value(transfer.getExpectedDecimals());
+    list->mutable_expected_decimals()->set_value(transfer.mExpectedDecimals);
   }
 
   for (const TokenNftTransfer& transfer : mNftTransfers)
@@ -348,21 +337,20 @@ void TransferTransaction::doTokenTransfer(const TokenTransfer& transfer)
 {
   for (auto transferIter = mTokenTransfers.begin(); transferIter != mTokenTransfers.end(); ++transferIter)
   {
-    if (transferIter->getTokenId() == transfer.getTokenId() &&
-        transferIter->getAccountId() == transfer.getAccountId() &&
-        transferIter->getApproval() == transfer.getApproval())
+    if (transferIter->mTokenId == transfer.mTokenId && transferIter->mAccountId == transfer.mAccountId &&
+        transferIter->mIsApproval == transfer.mIsApproval)
     {
-      if (transferIter->getExpectedDecimals() != transfer.getExpectedDecimals())
+      if (transferIter->mExpectedDecimals != transfer.mExpectedDecimals)
       {
         throw std::invalid_argument("Expected decimals for token do not match previously set decimals");
       }
-      else if (const int64_t newAmount = transferIter->getAmount() + transfer.getAmount(); newAmount == 0LL)
+      else if (const int64_t newAmount = transferIter->mAmount + transfer.mAmount; newAmount == 0LL)
       {
         mTokenTransfers.erase(transferIter);
       }
       else
       {
-        transferIter->setAmount(newAmount);
+        transferIter->mAmount = newAmount;
       }
 
       return;

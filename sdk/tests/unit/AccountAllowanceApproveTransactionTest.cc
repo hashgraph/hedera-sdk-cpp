@@ -116,11 +116,10 @@ TEST_F(AccountAllowanceApproveTransactionTest, ConstructAccountAllowanceApproveT
   EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getAmount(), getTestAmountHbar());
 
   ASSERT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().size(), 1);
-  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getTokenId(), getTestTokenId());
-  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getSpenderAccountId(),
-            getTestSpenderAccountId());
-  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).getAmount(), getTestAmountHbar().toTinybars());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).mAmount, getTestAmountHbar().toTinybars());
 
   ASSERT_EQ(accountAllowanceApproveTransaction.getNftApprovals().size(), 1);
   EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
@@ -188,10 +187,10 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveTokenAllowance)
 
   // Then
   ASSERT_EQ(transaction.getTokenApprovals().size(), 1);
-  EXPECT_EQ(transaction.getTokenApprovals().at(0).getTokenId(), getTestTokenId());
-  EXPECT_EQ(transaction.getTokenApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(transaction.getTokenApprovals().at(0).getSpenderAccountId(), getTestSpenderAccountId());
-  EXPECT_EQ(transaction.getTokenApprovals().at(0).getAmount(), getTestAmountHbar().toTinybars());
+  EXPECT_EQ(transaction.getTokenApprovals().at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(transaction.getTokenApprovals().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(transaction.getTokenApprovals().at(0).mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(transaction.getTokenApprovals().at(0).mAmount, getTestAmountHbar().toTinybars());
 }
 
 //-----

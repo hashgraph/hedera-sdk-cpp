@@ -23,6 +23,15 @@
 #include "AccountId.h"
 #include "TokenId.h"
 
+#include <memory>
+#include <vector>
+
+namespace proto
+{
+class AccountAmount;
+class TokenTransferList;
+}
+
 namespace Hedera
 {
 /**
@@ -32,83 +41,43 @@ namespace Hedera
 class TokenTransfer
 {
 public:
-  /**
-   * Set the ID of the token being transferred.
-   *
-   * @param tokenId The ID of the token that is being transferred.
-   * @return A reference to this TokenTransfer object with the newly-set token ID.
-   */
-  TokenTransfer& setTokenId(const TokenId& tokenId);
+  TokenTransfer() = default;
 
   /**
-   * Set the ID of the account sending/receiving the token.
+   * Construct with a token ID, account ID, amount, and approval.
    *
-   * @param accountId The ID of the account that is sending/receiving the token.
-   * @return A reference to this TokenTransfer object with the newly-set account ID.
+   * @param tokenId The ID of the token involved with this TokenTransfer.
+   * @param accountId The ID of the account to/from which the token is being transferred.
+   * @param amount The amount of the token being transferred.
+   * @param isApproved \c TRUE if this transfer is approved, otherwise \c FALSE.
    */
-  TokenTransfer& setAccountId(const AccountId& accountId);
+  TokenTransfer(const TokenId& tokenId, AccountId accountId, int64_t amount, bool isApproved);
 
   /**
-   * Set the amount of the token being transferred.
+   * Construct with a token ID, account ID, amount, expected decimals of the token, and approval.
    *
-   * @param amount The amount of the token to transfer.
-   * @return A reference to this TokenTransfer object with the newly-set amount.
+   * @param tokenId The ID of the token involved with this TokenTransfer.
+   * @param accountId The ID of the account to/from which the token is being transferred.
+   * @param amount The amount of the token being transferred.
+   * @param isApproved \c TRUE if this transfer is approved, otherwise \c FALSE.
    */
-  TokenTransfer& setAmount(const int64_t& amount);
+  TokenTransfer(const TokenId& tokenId, AccountId accountId, int64_t amount, uint32_t decimals, bool isApproved);
 
   /**
-   * Set the number of decimals of the transfer amount. (e.g. amount of 10,055 with decimals of 2 means 100.55 of the
-   * token gets transferred).
+   * Construct a list of TokenTransfers objects from a TokenTransferList protobuf object.
    *
-   * @param decimals The number of decimals in the transfer amount.
-   * @return A reference to this TokenTransfer object with the newly-set number of decimals.
+   * @param proto The TokenTransferList protobuf object from which to construct the list of TokenTransfer objects.
+   * @return The list of TokenTransfer objects.
    */
-  TokenTransfer& setExpectedDecimals(uint32_t decimals);
+  [[nodiscard]] static std::vector<TokenTransfer> fromProtobuf(const proto::TokenTransferList& proto);
 
   /**
-   * Set the approval status of this transfer.
+   * Construct an AccountAmount protobuf object from this TokenTransfer object.
    *
-   * @param approval \c TRUE if this is an approved transfer, otherwise \c FALSE.
-   * @return A reference to this TokenTransfer object with the newly-set approval.
+   * @return A pointer to the constructed AccountAmount protobuf object.
    */
-  TokenTransfer& setApproval(bool approval);
+  [[nodiscard]] std::unique_ptr<proto::AccountAmount> toProtobuf() const;
 
-  /**
-   * Get the token ID.
-   *
-   * @return The token ID.
-   */
-  [[nodiscard]] inline TokenId getTokenId() const { return mTokenId; }
-
-  /**
-   * Get the account ID.
-   *
-   * @return The account ID.
-   */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
-
-  /**
-   * Get the amount of token to be transferred.
-   *
-   * @return The amount of token to be transferred.
-   */
-  [[nodiscard]] inline int64_t getAmount() const { return mAmount; }
-
-  /**
-   * Get the expected decimals of the transfer amount.
-   *
-   * @return The expected decimals of the transfer amount.
-   */
-  [[nodiscard]] inline uint32_t getExpectedDecimals() const { return mExpectedDecimals; }
-
-  /**
-   * Determine if this transfer is approved or not.
-   *
-   * @return \c TRUE if this is an approved transfer, otherwise \c FALSE.
-   */
-  [[nodiscard]] inline bool getApproval() const { return mIsApproval; }
-
-private:
   /**
    * The ID of the token being transferred.
    */
