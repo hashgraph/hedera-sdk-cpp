@@ -24,6 +24,8 @@
 #include "ED25519PrivateKey.h"
 #include "TopicCreateTransaction.h"
 #include "TopicDeleteTransaction.h"
+#include "TopicInfo.h"
+#include "TopicInfoQuery.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
@@ -61,7 +63,19 @@ TEST_F(TopicCreateTransactionIntegrationTest, ExecuteTopicCreateTransaction)
                                 .getReceipt(getTestClient()));
 
   // Then
-  // TODO: TopicInfoQuery
+  TopicInfo topicInfo;
+  ASSERT_NO_THROW(topicInfo = TopicInfoQuery().setTopicId(txReceipt.mTopicId.value()).execute(getTestClient()));
+
+  EXPECT_EQ(topicInfo.mTopicId, txReceipt.mTopicId.value());
+  EXPECT_EQ(topicInfo.mMemo, memo);
+  ASSERT_NE(topicInfo.mAdminKey, nullptr);
+  EXPECT_EQ(topicInfo.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
+  ASSERT_NE(topicInfo.mSubmitKey, nullptr);
+  EXPECT_EQ(topicInfo.mSubmitKey->toBytes(), operatorKey->getPublicKey()->toBytes());
+  ASSERT_TRUE(topicInfo.mAutoRenewPeriod.has_value());
+  EXPECT_EQ(topicInfo.mAutoRenewPeriod.value(), autoRenewPeriod);
+  ASSERT_TRUE(topicInfo.mAutoRenewAccountId.has_value());
+  EXPECT_EQ(topicInfo.mAutoRenewAccountId.value(), AccountId(2ULL));
 
   // Clean up
   ASSERT_NO_THROW(txReceipt = TopicDeleteTransaction()
@@ -78,5 +92,5 @@ TEST_F(TopicCreateTransactionIntegrationTest, CanCreateTopicWithNoFieldsSet)
   EXPECT_NO_THROW(txReceipt = TopicCreateTransaction().execute(getTestClient()).getReceipt(getTestClient()));
 
   // Then
-  // TODO: TopicId
+  EXPECT_TRUE(txReceipt.mTopicId.has_value());
 }
