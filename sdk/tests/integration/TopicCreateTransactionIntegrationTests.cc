@@ -23,6 +23,7 @@
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "TopicCreateTransaction.h"
+#include "TopicDeleteTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
@@ -49,20 +50,24 @@ TEST_F(TopicCreateTransactionIntegrationTest, ExecuteTopicCreateTransaction)
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
 
   // When
-  EXPECT_NO_THROW(const TransactionReceipt txReceipt = TopicCreateTransaction()
-                                                         .setMemo(memo)
-                                                         .setAdminKey(operatorKey)
-                                                         .setSubmitKey(operatorKey)
-                                                         .setAutoRenewPeriod(autoRenewPeriod)
-                                                         .setAutoRenewAccountId(AccountId(2ULL))
-                                                         .execute(getTestClient())
-                                                         .getReceipt(getTestClient()));
+  TransactionReceipt txReceipt;
+  EXPECT_NO_THROW(txReceipt = TopicCreateTransaction()
+                                .setMemo(memo)
+                                .setAdminKey(operatorKey)
+                                .setSubmitKey(operatorKey)
+                                .setAutoRenewPeriod(autoRenewPeriod)
+                                .setAutoRenewAccountId(AccountId(2ULL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
 
   // Then
   // TODO: TopicInfoQuery
 
   // Clean up
-  // TODO: TopicDeleteTransaction
+  ASSERT_NO_THROW(txReceipt = TopicDeleteTransaction()
+                                .setTopicId(txReceipt.mTopicId.value())
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
 }
 
 //-----
