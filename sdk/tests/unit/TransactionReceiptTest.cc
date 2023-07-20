@@ -33,6 +33,7 @@ protected:
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
+  [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
   [[nodiscard]] inline const uint64_t& getTestNewTotalSupply() const { return mTestNewTotalSupply; }
   [[nodiscard]] inline const std::vector<uint64_t>& getTestSerialNumbers() const { return mTestSerialNumbers; }
 
@@ -40,9 +41,10 @@ private:
   const AccountId mTestAccountId = AccountId(1ULL);
   const FileId mTestFileId = FileId(2ULL);
   const ContractId mTestContractId = ContractId(3ULL);
-  const TokenId mTestTokenId = TokenId(4ULL);
-  const uint64_t mTestNewTotalSupply = 5ULL;
-  const std::vector<uint64_t> mTestSerialNumbers = { 6ULL, 7ULL, 8ULL };
+  const TopicId mTestTopicId = TopicId(4ULL);
+  const TokenId mTestTokenId = TokenId(5ULL);
+  const uint64_t mTestNewTotalSupply = 6ULL;
+  const std::vector<uint64_t> mTestSerialNumbers = { 7ULL, 8ULL, 9ULL };
 };
 
 //-----
@@ -57,6 +59,7 @@ TEST_F(TransactionReceiptTest, ConstructTransactionReceipt)
   EXPECT_FALSE(transactionReceipt.mFileId.has_value());
   EXPECT_FALSE(transactionReceipt.mContractId.has_value());
   EXPECT_FALSE(transactionReceipt.mExchangeRates.has_value());
+  EXPECT_FALSE(transactionReceipt.mTopicId.has_value());
   EXPECT_FALSE(transactionReceipt.mTokenId.has_value());
 }
 
@@ -69,6 +72,7 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   protoTxReceipt.set_allocated_accountid(getTestAccountId().toProtobuf().release());
   protoTxReceipt.set_allocated_fileid(getTestFileId().toProtobuf().release());
   protoTxReceipt.set_allocated_contractid(getTestContractId().toProtobuf().release());
+  protoTxReceipt.set_allocated_topicid(getTestTopicId().toProtobuf().release());
   protoTxReceipt.set_allocated_tokenid(getTestTokenId().toProtobuf().release());
 
   const int32_t value = 6;
@@ -113,6 +117,8 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
   ASSERT_TRUE(txRx.mTokenId.has_value());
   EXPECT_EQ(txRx.mTokenId, getTestTokenId());
+  ASSERT_TRUE(txRx.mTopicId.has_value());
+  EXPECT_EQ(txRx.mTopicId, getTestTopicId());
   ASSERT_TRUE(txRx.mNewTotalSupply.has_value());
   EXPECT_EQ(txRx.mNewTotalSupply, getTestNewTotalSupply());
   EXPECT_EQ(txRx.mSerialNumbers.size(), getTestSerialNumbers().size());
