@@ -43,6 +43,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenWipeTransactionIntegrationTests.cc
         TopicCreateTransactionIntegrationTests.cc
         TopicDeleteTransactionIntegrationTests.cc
+        TopicInfoQueryIntegrationTests.cc
         TransactionIntegrationTest.cc
         TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc
