@@ -38,6 +38,11 @@ TopicUpdateTransaction::TopicUpdateTransaction(const proto::TransactionBody& tra
 
   const proto::ConsensusUpdateTopicTransactionBody& body = transactionBody.consensusupdatetopic();
 
+  if (body.has_topicid())
+  {
+    mTopicId = TopicId::fromProtobuf(body.topicid());
+  }
+
   if (body.has_memo())
   {
     mMemo = body.memo().value();
@@ -62,6 +67,14 @@ TopicUpdateTransaction::TopicUpdateTransaction(const proto::TransactionBody& tra
   {
     mAutoRenewAccountId = AccountId::fromProtobuf(body.autorenewaccount());
   }
+}
+
+//-----
+TopicUpdateTransaction& TopicUpdateTransaction::setTopicId(const TopicId& topicId)
+{
+  requireNotFrozen();
+  mTopicId = topicId;
+  return *this;
 }
 
 //-----
@@ -127,6 +140,11 @@ grpc::Status TopicUpdateTransaction::submitRequest(const Client& client,
 proto::ConsensusUpdateTopicTransactionBody* TopicUpdateTransaction::build() const
 {
   auto body = std::make_unique<proto::ConsensusUpdateTopicTransactionBody>();
+
+  if (!(mTopicId == TopicId()))
+  {
+    body->set_allocated_topicid(mTopicId.toProtobuf().release());
+  }
 
   if (mMemo.has_value())
   {

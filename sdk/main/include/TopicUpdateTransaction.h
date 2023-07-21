@@ -21,8 +21,8 @@
 #define HEDERA_SDK_CPP_TOPIC_UPDATE_TRANSACTION_H_
 
 #include "AccountId.h"
-#include "Defaults.h"
 #include "Key.h"
+#include "TopicId.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -61,6 +61,15 @@ public:
    * @throws std::invalid_argument If the input TransactionBody does not represent a ConsensusUpdateTopic transaction.
    */
   explicit TopicUpdateTransaction(const proto::TransactionBody& transactionBody);
+
+  /**
+   * Set the ID of the topic to update.
+   *
+   * @param topicId The ID of the topic to update.
+   * @return A reference to this TopicUpdateTransaction object with the newly-set topic ID.
+   * @throws IllegalStateException If this TopicUpdateTransaction is frozen.
+   */
+  TopicUpdateTransaction& setTopicId(const TopicId& topicId);
 
   /**
    * Set a new memo for the topic.
@@ -106,6 +115,13 @@ public:
    * @throws IllegalStateException If this TopicUpdateTransaction is frozen.
    */
   TopicUpdateTransaction& setAutoRenewAccountId(const AccountId& accountId);
+
+  /**
+   * Get the ID of the topic to update.
+   *
+   * @return The ID of the topic to update.
+   */
+  [[nodiscard]] inline TopicId getTopicId() const { return mTopicId; }
 
   /**
    * Get the new memo for the topic.
@@ -180,6 +196,11 @@ private:
    *         object's data.
    */
   [[nodiscard]] proto::ConsensusUpdateTopicTransactionBody* build() const;
+
+  /**
+   * The ID of the topic to update.
+   */
+  TopicId mTopicId;
 
   /**
    * The new publicly visible memo for the topic.

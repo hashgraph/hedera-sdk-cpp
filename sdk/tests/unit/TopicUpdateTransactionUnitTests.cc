@@ -36,6 +36,7 @@ protected:
   void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
+  [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
   [[nodiscard]] inline const std::string& getTestTopicMemo() const { return mTestTopicMemo; }
   [[nodiscard]] inline const std::shared_ptr<ED25519PrivateKey>& getTestAdminKey() const { return mTestAdminKey; }
   [[nodiscard]] inline const std::shared_ptr<ED25519PrivateKey>& getTestSubmitKey() const { return mTestSubmitKey; }
@@ -47,11 +48,12 @@ protected:
 
 private:
   Client mClient;
+  const TopicId mTestTopicId = TopicId(1ULL, 2ULL, 3ULL);
   const std::string mTestTopicMemo = "test topic memo";
   const std::shared_ptr<ED25519PrivateKey> mTestAdminKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<ED25519PrivateKey> mTestSubmitKey = ED25519PrivateKey::generatePrivateKey();
-  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(1);
-  const AccountId mTestAutoRenewAccountId = AccountId(2ULL, 3ULL, 4ULL);
+  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(4);
+  const AccountId mTestAutoRenewAccountId = AccountId(5ULL, 6ULL, 7ULL);
 };
 
 //-----
@@ -59,6 +61,7 @@ TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromTransactio
 {
   // Given
   auto body = std::make_unique<proto::ConsensusUpdateTopicTransactionBody>();
+  body->set_allocated_topicid(getTestTopicId().toProtobuf().release());
   body->mutable_memo()->set_value(getTestTopicMemo());
   body->set_allocated_adminkey(getTestAdminKey()->toProtobufKey().release());
   body->set_allocated_submitkey(getTestSubmitKey()->toProtobufKey().release());
@@ -72,6 +75,7 @@ TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromTransactio
   const TopicUpdateTransaction topicUpdateTransaction(txBody);
 
   // Then
+  EXPECT_EQ(topicUpdateTransaction.getTopicId(), getTestTopicId());
   EXPECT_EQ(topicUpdateTransaction.getMemo(), getTestTopicMemo());
   EXPECT_EQ(topicUpdateTransaction.getAdminKey()->toBytes(), getTestAdminKey()->getPublicKey()->toBytes());
   EXPECT_EQ(topicUpdateTransaction.getSubmitKey()->toBytes(), getTestSubmitKey()->getPublicKey()->toBytes());
@@ -89,6 +93,30 @@ TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromWrongTrans
 
   // When / Then
   EXPECT_THROW(const TopicUpdateTransaction topicCreateTransaction(txBody), std::invalid_argument);
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, GetSetTopicId)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+
+  // When
+  EXPECT_NO_THROW(transaction.setTopicId(getTestTopicId()));
+
+  // Then
+  EXPECT_EQ(transaction.getTopicId(), getTestTopicId());
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, GetSetTopicIdFrozen)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.setTopicId(getTestTopicId()), IllegalStateException);
 }
 
 //-----
