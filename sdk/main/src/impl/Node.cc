@@ -66,6 +66,11 @@ bool Node::connect(const std::chrono::system_clock::time_point& timeout)
 //-----
 void Node::shutdown()
 {
+  if (mConsensusStub)
+  {
+    mConsensusStub.reset();
+  }
+
   if (mCryptoStub)
   {
     mCryptoStub.reset();
@@ -110,6 +115,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
 
   switch (funcEnum)
   {
+    case proto::Query::QueryCase::kConsensusGetTopicInfo:
+      return mConsensusStub->getTopicInfo(&context, query, response);
     case proto::Query::QueryCase::kContractCallLocal:
       return mSmartContractStub->contractCallLocalMethod(&context, query, response);
     case proto::Query::QueryCase::kContractGetBytecode:
@@ -160,6 +167,10 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
 
   switch (funcEnum)
   {
+    case proto::TransactionBody::DataCase::kConsensusCreateTopic:
+      return mConsensusStub->createTopic(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kConsensusDeleteTopic:
+      return mConsensusStub->deleteTopic(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractCall:
       return mSmartContractStub->contractCallMethod(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractCreateInstance:
@@ -337,6 +348,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
 
       if (mChannel->WaitForConnected(deadline))
       {
+        mConsensusStub = proto::ConsensusService::NewStub(mChannel);
         mCryptoStub = proto::CryptoService::NewStub(mChannel);
         mFileStub = proto::FileService::NewStub(mChannel);
         mSmartContractStub = proto::SmartContractService::NewStub(mChannel);
