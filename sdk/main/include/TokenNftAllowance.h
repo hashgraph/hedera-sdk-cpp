@@ -23,6 +23,7 @@
 #include "AccountId.h"
 #include "TokenId.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -31,6 +32,7 @@
 namespace proto
 {
 class NftAllowance;
+class NftRemoveAllowance;
 }
 
 namespace Hedera
@@ -56,12 +58,12 @@ public:
    * @param delegatingSpender The ID of the account who has an 'approveForAll' allowance and is granting approval to
    *                          spend an NFT to the spender.
    */
-  TokenNftAllowance(const TokenId& tokenId,
-                    AccountId owner,
-                    AccountId spender,
-                    std::vector<uint64_t> serialNumbers,
-                    std::optional<bool> allowAll = std::optional<bool>(),
-                    std::optional<AccountId> delegatingSpender = std::optional<AccountId>());
+  TokenNftAllowance(const std::optional<TokenId>& tokenId,
+                    const std::optional<AccountId>& owner,
+                    const std::optional<AccountId>& spender,
+                    const std::vector<uint64_t>& serialNumbers,
+                    const std::optional<bool>& allowAll = std::optional<bool>(),
+                    const std::optional<AccountId>& delegatingSpender = std::optional<AccountId>());
 
   /**
    * Construct a TokenNftAllowance object from a NftAllowance protobuf object.
@@ -72,124 +74,49 @@ public:
   [[nodiscard]] static TokenNftAllowance fromProtobuf(const proto::NftAllowance& proto);
 
   /**
-   * Construct a NftAllowance protobuf object from this TokenNftAllowance object.
+   * Construct a TokenNftAllowance object from a byte array.
+   *
+   * @param bytes The byte array from which to construct an TokenNftAllowance object.
+   * @return The constructed TokenNftAllowance object.
+   */
+  [[nodiscard]] static TokenNftAllowance fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Construct an NftAllowance protobuf object from this TokenNftAllowance object.
    *
    * @return A pointer to a constructed NftAllowance protobuf object filled with this TokenNftAllowance object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::NftAllowance> toProtobuf() const;
 
   /**
-   * Set the ID of the token NFT type that is being approved to be spent.
+   * Construct an NftRemoveAllowance protobuf object from this TokenNftAllowance object.
    *
-   * @param tokenId The ID of the token NFT type that is being approved to be spent.
-   * @return A reference to this TokenNftAllowance object with the newly-set token ID.
+   * @return A pointer to a constructed NftRemoveAllowance protobuf object filled with this TokenNftAllowance object's
+   * data.
    */
-  TokenNftAllowance& setTokenId(const TokenId& tokenId);
+  [[nodiscard]] std::unique_ptr<proto::NftRemoveAllowance> toRemoveProtobuf() const;
 
   /**
-   * Set the ID of the account approving an allowance of its NFTs.
+   * Construct a representative byte array from this TokenNftAllowance object.
    *
-   * @param accountId The ID of the account approving an allowance of its NFTs.
-   * @return A reference to this TokenNftAllowance object with the newly-set owner account ID.
+   * @return A representative byte array of this TokenNftAllowance object.
    */
-  TokenNftAllowance& setOwnerAccountId(const AccountId& accountId);
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
 
-  /**
-   * Set the ID of the account being allowed to spend the NFTs.
-   *
-   * @param accountId The ID of the account being allowed to spend the NFTs.
-   * @return A reference to this TokenNftAllowance object with the newly-set spender account ID.
-   */
-  TokenNftAllowance& setSpenderAccountId(const AccountId& accountId);
-
-  /**
-   * Add a serial number of one of the NFTs the spender is being allowed to spend.
-   *
-   * @param serialNumber The serial number of the NFT that is being allowed to be spent.
-   * @return A reference to this TokenNftAllowance object with the added NFT serial number.
-   */
-  TokenNftAllowance& addSerialNumber(const uint64_t& serialNumber);
-
-  /**
-   * Allow the spender access to all of the owner's NFTs of the designated token ID (currently owned and any in the
-   * future).
-   *
-   * @param allowAll \c TRUE to allow the spender access to all of the owner's NFTs of the designated token ID,
-   *                 \c FALSE to revoke the spender's access to all of the owner's NFTs of the designated token ID.
-   * @return A reference to this TokenNftAllowance object with the newly-set NFT allowance policy.
-   */
-  TokenNftAllowance& approveForAll(bool allowAll);
-
-  /**
-   * Set the ID of the account that is delegating the allowance to spend the NFT. This account should have an
-   * 'approveForAll' allowance.
-   *
-   * @param accountId The ID of the account that is delegating a spending allowance to the spender account.
-   * @return A reference to this TokenNftAllowance object with the newly-set delegate spender account ID.
-   */
-  TokenNftAllowance& setDelegatingSpenderAccountId(const AccountId& accountId);
-
-  /**
-   * Get the ID of the token NFT type that is being approved to be spent.
-   *
-   * @return The ID of the token NFT type that is being approved to be spent.
-   */
-  [[nodiscard]] inline TokenId getTokenId() const { return mTokenId; }
-
-  /**
-   * Set the ID of the account approving an allowance of its tokens.
-   *
-   * @return The ID of the account approving an allowance of its tokens.
-   */
-  [[nodiscard]] inline AccountId getOwnerAccountId() const { return mOwnerAccountId; }
-
-  /**
-   * Get the ID of the account being allowed to spend the tokens.
-   *
-   * @return The ID of the account being allowed to spend the tokens.
-   */
-  [[nodiscard]] inline AccountId getSpenderAccountId() const { return mSpenderAccountId; }
-
-  /**
-   * Get the list of NFT serial numbers that are being allowed to be spent.
-   *
-   * @return The list of NFT serial numbers that are being allowed to be spent.
-   */
-  [[nodiscard]] inline std::vector<uint64_t> getSerialNumbers() const { return mSerialNumbers; }
-
-  /**
-   * Determine if this allowance allows the spender access to all of the owner's NFTs (currently owned and in the
-   * future).
-   *
-   * @return \c TRUE if this TokenNftAllowance allows the spender access to all of the owner's NFTs (currently owned and
-   *         in the future). Uninitialized if behavior has not been set.
-   */
-  [[nodiscard]] inline std::optional<bool> getApprovedForAll() const { return mApprovedForAll; }
-
-  /**
-   * Get the ID of the spender account who is granted approved-for-all access and is granting approval of an NFT serial
-   * number to another spender.
-   *
-   * @return The ID of the spender account who is granted approved-for-all access and is granting approval of an NFT
-   *         serial number to another spender. Uninitialized if no delegating spender exists for this allowance.
-   */
-  [[nodiscard]] inline std::optional<AccountId> getDelegateSpender() const { return mDelegatingSpenderAccountId; }
-
-private:
   /**
    * The ID of the token that is being approved to be spent.
    */
-  TokenId mTokenId;
+  std::optional<TokenId> mTokenId;
 
   /**
    * The ID of the account approving an allowance of its tokens.
    */
-  AccountId mOwnerAccountId;
+  std::optional<AccountId> mOwnerAccountId;
 
   /**
    * The ID of the account being allowed to spend the tokens.
    */
-  AccountId mSpenderAccountId;
+  std::optional<AccountId> mSpenderAccountId;
 
   /**
    * The list of serial numbers that are being allowed to be spent.

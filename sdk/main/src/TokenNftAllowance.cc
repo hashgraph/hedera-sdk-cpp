@@ -18,24 +18,26 @@
  *
  */
 #include "TokenNftAllowance.h"
+#include "impl/Utilities.h"
 
 #include <proto/crypto_approve_allowance.pb.h>
+#include <proto/crypto_delete_allowance.pb.h>
 
 namespace Hedera
 {
 //-----
-TokenNftAllowance::TokenNftAllowance(const TokenId& tokenId,
-                                     AccountId owner,
-                                     AccountId spender,
-                                     std::vector<uint64_t> serialNumbers,
-                                     std::optional<bool> allowAll,
-                                     std::optional<AccountId> delegatingSpender)
+TokenNftAllowance::TokenNftAllowance(const std::optional<TokenId>& tokenId,
+                                     const std::optional<AccountId>& owner,
+                                     const std::optional<AccountId>& spender,
+                                     const std::vector<uint64_t>& serialNumbers,
+                                     const std::optional<bool>& allowAll,
+                                     const std::optional<AccountId>& delegatingSpender)
   : mTokenId(tokenId)
-  , mOwnerAccountId(std::move(owner))
-  , mSpenderAccountId(std::move(spender))
-  , mSerialNumbers(std::move(serialNumbers))
+  , mOwnerAccountId(owner)
+  , mSpenderAccountId(spender)
+  , mSerialNumbers(serialNumbers)
   , mApprovedForAll(allowAll)
-  , mDelegatingSpenderAccountId(std::move(delegatingSpender))
+  , mDelegatingSpenderAccountId(delegatingSpender)
 {
 }
 
@@ -78,12 +80,32 @@ TokenNftAllowance TokenNftAllowance::fromProtobuf(const proto::NftAllowance& pro
 }
 
 //-----
+TokenNftAllowance TokenNftAllowance::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::NftAllowance nftAllowance;
+  nftAllowance.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(nftAllowance);
+}
+
+//-----
 std::unique_ptr<proto::NftAllowance> TokenNftAllowance::toProtobuf() const
 {
   auto proto = std::make_unique<proto::NftAllowance>();
-  proto->set_allocated_tokenid(mTokenId.toProtobuf().release());
-  proto->set_allocated_owner(mOwnerAccountId.toProtobuf().release());
-  proto->set_allocated_spender(mSpenderAccountId.toProtobuf().release());
+
+  if (mTokenId.has_value())
+  {
+    proto->set_allocated_tokenid(mTokenId->toProtobuf().release());
+  }
+
+  if (mOwnerAccountId.has_value())
+  {
+    proto->set_allocated_owner(mOwnerAccountId->toProtobuf().release());
+  }
+
+  if (mSpenderAccountId.has_value())
+  {
+    proto->set_allocated_spender(mSpenderAccountId->toProtobuf().release());
+  }
 
   for (const uint64_t& serialNumber : mSerialNumbers)
   {
@@ -106,50 +128,32 @@ std::unique_ptr<proto::NftAllowance> TokenNftAllowance::toProtobuf() const
 }
 
 //-----
-TokenNftAllowance& TokenNftAllowance::setTokenId(const TokenId& tokenId)
+std::unique_ptr<proto::NftRemoveAllowance> TokenNftAllowance::toRemoveProtobuf() const
 {
-  mTokenId = tokenId;
-  return *this;
-}
+  auto proto = std::make_unique<proto::NftRemoveAllowance>();
 
-//-----
-TokenNftAllowance& TokenNftAllowance::setOwnerAccountId(const AccountId& accountId)
-{
-  mOwnerAccountId = accountId;
-  return *this;
-}
-
-//-----
-TokenNftAllowance& TokenNftAllowance::setSpenderAccountId(const AccountId& accountId)
-{
-  mSpenderAccountId = accountId;
-  return *this;
-}
-
-//-----
-TokenNftAllowance& TokenNftAllowance::addSerialNumber(const uint64_t& serialNumber)
-{
-  mSerialNumbers.push_back(static_cast<int64_t>(serialNumber));
-  return *this;
-}
-
-//-----
-TokenNftAllowance& TokenNftAllowance::approveForAll(bool allowAll)
-{
-  mApprovedForAll = allowAll;
-  if (allowAll)
+  if (mTokenId.has_value())
   {
-    mSerialNumbers.clear();
+    proto->set_allocated_token_id(mTokenId->toProtobuf().release());
   }
 
-  return *this;
+  if (mOwnerAccountId.has_value())
+  {
+    proto->set_allocated_owner(mOwnerAccountId->toProtobuf().release());
+  }
+
+  for (const uint64_t& serialNumber : mSerialNumbers)
+  {
+    proto->add_serial_numbers(static_cast<int64_t>(serialNumber));
+  }
+
+  return proto;
 }
 
 //-----
-TokenNftAllowance& TokenNftAllowance::setDelegatingSpenderAccountId(const AccountId& accountId)
+std::vector<std::byte> TokenNftAllowance::toBytes() const
 {
-  mDelegatingSpenderAccountId = accountId;
-  return *this;
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
 } // namespace Hedera

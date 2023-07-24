@@ -122,14 +122,13 @@ TEST_F(AccountAllowanceApproveTransactionTest, ConstructAccountAllowanceApproveT
   EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).mAmount, getTestAmountHbar().toTinybars());
 
   ASSERT_EQ(accountAllowanceApproveTransaction.getNftApprovals().size(), 1);
-  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
-  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSpenderAccountId(),
-            getTestSpenderAccountId());
-  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).getSerialNumbers(), getTestSerialNumbers());
-  ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll().has_value());
-  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getApprovedForAll(), getTestApprovalForAll());
-  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).getDelegateSpender(),
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getNftApprovals().at(0).mSerialNumbers, getTestSerialNumbers());
+  ASSERT_TRUE(accountAllowanceApproveTransaction.getNftApprovals().at(0).mApprovedForAll.has_value());
+  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).mApprovedForAll, getTestApprovalForAll());
+  EXPECT_EQ(*accountAllowanceApproveTransaction.getNftApprovals().at(0).mDelegatingSpenderAccountId,
             getTestDelegatingSpenderAccountId());
 }
 
@@ -228,20 +227,20 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowance)
   // Then
   ASSERT_EQ(transaction.getNftApprovals().size(), 2);
 
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getSpenderAccountId(), getTestSpenderAccountId());
-  ASSERT_EQ(transaction.getNftApprovals().at(0).getSerialNumbers().size(), getTestSerialNumbers().size());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mSpenderAccountId, getTestSpenderAccountId());
+  ASSERT_EQ(transaction.getNftApprovals().at(0).mSerialNumbers.size(), getTestSerialNumbers().size());
   for (int i = 0; i < getTestSerialNumbers().size(); ++i)
   {
-    EXPECT_EQ(transaction.getNftApprovals().at(0).getSerialNumbers().at(i), getTestSerialNumbers().at(i));
+    EXPECT_EQ(transaction.getNftApprovals().at(0).mSerialNumbers.at(i), getTestSerialNumbers().at(i));
   }
 
-  EXPECT_EQ(transaction.getNftApprovals().at(1).getTokenId(), tokenId);
-  EXPECT_EQ(transaction.getNftApprovals().at(1).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(transaction.getNftApprovals().at(1).getSpenderAccountId(), getTestSpenderAccountId());
-  ASSERT_EQ(transaction.getNftApprovals().at(1).getSerialNumbers().size(), 1);
-  EXPECT_EQ(transaction.getNftApprovals().at(1).getSerialNumbers().at(0), serialNum);
+  EXPECT_EQ(transaction.getNftApprovals().at(1).mTokenId, tokenId);
+  EXPECT_EQ(transaction.getNftApprovals().at(1).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(transaction.getNftApprovals().at(1).mSpenderAccountId, getTestSpenderAccountId());
+  ASSERT_EQ(transaction.getNftApprovals().at(1).mSerialNumbers.size(), 1);
+  EXPECT_EQ(transaction.getNftApprovals().at(1).mSerialNumbers.at(0), serialNum);
 }
 
 //-----
@@ -269,13 +268,13 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceAllSerials)
 
   // Then
   ASSERT_EQ(transaction.getNftApprovals().size(), 1);
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getSpenderAccountId(), getTestSpenderAccountId());
-  ASSERT_TRUE(transaction.getNftApprovals().at(0).getSerialNumbers().empty());
-  ASSERT_TRUE(transaction.getNftApprovals().at(0).getApprovedForAll().has_value());
-  EXPECT_TRUE(*transaction.getNftApprovals().at(0).getApprovedForAll());
-  EXPECT_FALSE(transaction.getNftApprovals().at(0).getDelegateSpender());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mSpenderAccountId, getTestSpenderAccountId());
+  ASSERT_TRUE(transaction.getNftApprovals().at(0).mSerialNumbers.empty());
+  ASSERT_TRUE(transaction.getNftApprovals().at(0).mApprovedForAll.has_value());
+  EXPECT_TRUE(*transaction.getNftApprovals().at(0).mApprovedForAll);
+  EXPECT_FALSE(transaction.getNftApprovals().at(0).mDelegatingSpenderAccountId);
 }
 
 //-----
@@ -303,13 +302,13 @@ TEST_F(AccountAllowanceApproveTransactionTest, DeleteNftAllowanceAllSerials)
 
   // Then
   ASSERT_EQ(transaction.getNftApprovals().size(), 1);
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getTokenId(), getTestTokenId());
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(transaction.getNftApprovals().at(0).getSpenderAccountId(), getTestSpenderAccountId());
-  ASSERT_TRUE(transaction.getNftApprovals().at(0).getSerialNumbers().empty());
-  ASSERT_TRUE(transaction.getNftApprovals().at(0).getApprovedForAll().has_value());
-  EXPECT_FALSE(*transaction.getNftApprovals().at(0).getApprovedForAll());
-  EXPECT_FALSE(transaction.getNftApprovals().at(0).getDelegateSpender());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mTokenId, getTestTokenId());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(transaction.getNftApprovals().at(0).mSpenderAccountId, getTestSpenderAccountId());
+  ASSERT_TRUE(transaction.getNftApprovals().at(0).mSerialNumbers.empty());
+  ASSERT_TRUE(transaction.getNftApprovals().at(0).mApprovedForAll.has_value());
+  EXPECT_FALSE(*transaction.getNftApprovals().at(0).mApprovedForAll);
+  EXPECT_FALSE(transaction.getNftApprovals().at(0).mDelegatingSpenderAccountId);
 }
 
 //-----
