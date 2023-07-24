@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_NODE_H_
 #define HEDERA_SDK_CPP_IMPL_NODE_H_
 
+#include <proto/consensus_service.grpc.pb.h>
 #include <proto/crypto_service.grpc.pb.h>
 #include <proto/file_service.grpc.pb.h>
 #include <proto/smart_contract_service.grpc.pb.h>
@@ -192,6 +193,11 @@ private:
    * Pointer to the gRPC channel used to communicate with the gRPC server living on the remote node.
    */
   std::shared_ptr<grpc::Channel> mChannel = nullptr;
+
+  /**
+   * Pointer to the gRPC stub used to communicate with the consensus service living on the remote node.
+   */
+  std::unique_ptr<proto::ConsensusService::Stub> mConsensusStub = nullptr;
 
   /**
    * Pointer to the gRPC stub used to communicate with the cryptography service living on the remote node.
