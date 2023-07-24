@@ -86,7 +86,6 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenNftAllowance.cc
         src/TokenNftInfo.cc
         src/TokenNftInfoQuery.cc
-        src/TokenNftRemoveAllowance.cc
         src/TokenNftTransfer.cc
         src/TokenPauseTransaction.cc
         src/TokenRevokeKycTransaction.cc
@@ -97,6 +96,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenUnpauseTransaction.cc
         src/TokenUpdateTransaction.cc
         src/TokenWipeTransaction.cc
+        src/TopicCreateTransaction.cc
         src/TopicId.cc
         src/Transaction.cc
         src/TransactionId.cc

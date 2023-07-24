@@ -54,133 +54,12 @@ TEST_F(TokenNftAllowanceTest, ConstructWithTokenIdOwnerSpenderSerialNumbersAppro
     getTestTokenId(), getTestOwnerAccountId(), getTestSpenderAccountId(), getTestSerialNumbers());
 
   // Then
-  EXPECT_EQ(tokenNftAllowance.getTokenId(), getTestTokenId());
-  EXPECT_EQ(tokenNftAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(tokenNftAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-  EXPECT_EQ(tokenNftAllowance.getSerialNumbers(), getTestSerialNumbers());
-  EXPECT_FALSE(tokenNftAllowance.getApprovedForAll().has_value());
-  EXPECT_FALSE(tokenNftAllowance.getDelegateSpender().has_value());
-}
-
-//-----
-TEST_F(TokenNftAllowanceTest, GetSetTokenId)
-{
-  // Given
-  TokenNftAllowance tokenNftAllowance;
-
-  // When
-  tokenNftAllowance.setTokenId(getTestTokenId());
-
-  // Then
-  EXPECT_EQ(tokenNftAllowance.getTokenId(), getTestTokenId());
-}
-
-//-----
-TEST_F(TokenNftAllowanceTest, GetSetOwnerAccountId)
-{
-  // Given
-  TokenNftAllowance tokenNftAllowance;
-
-  // When
-  tokenNftAllowance.setOwnerAccountId(getTestOwnerAccountId());
-
-  // Then
-  EXPECT_EQ(tokenNftAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-}
-
-//-----
-TEST_F(TokenNftAllowanceTest, GetSetSpenderAccountId)
-{
-  // Given
-  TokenNftAllowance tokenNftAllowance;
-
-  // When
-  tokenNftAllowance.setSpenderAccountId(getTestSpenderAccountId());
-
-  // Then
-  EXPECT_EQ(tokenNftAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-}
-
-//-----
-TEST_F(TokenNftAllowanceTest, GetSetSerialNumbers)
-{
-  // Given
-  TokenNftAllowance tokenNftAllowance;
-
-  // When
-  for (const uint64_t& num : getTestSerialNumbers())
-  {
-    tokenNftAllowance.addSerialNumber(num);
-  }
-
-  // Then
-  ASSERT_EQ(tokenNftAllowance.getSerialNumbers().size(), getTestSerialNumbers().size());
-  for (int i = 0; i < getTestSerialNumbers().size(); ++i)
-  {
-    EXPECT_EQ(tokenNftAllowance.getSerialNumbers().at(i), getTestSerialNumbers().at(i));
-  }
-}
-
-//-----
-TEST_F(TokenNftAllowanceTest, GetSetApproveForAll)
-{
-  // Given
-  TokenNftAllowance tokenNftAllowance;
-
-  // When
-  tokenNftAllowance.approveForAll(false);
-
-  // Then
-  ASSERT_TRUE(tokenNftAllowance.getApprovedForAll().has_value());
-  EXPECT_FALSE(*tokenNftAllowance.getApprovedForAll());
-}
-
-//-----
-TEST_F(TokenNftAllowanceTest, GetSetDelegatingSpenderAccountId)
-{
-  // Given
-  TokenNftAllowance tokenNftAllowance;
-
-  // When
-  tokenNftAllowance.setDelegatingSpenderAccountId(getTestDelegatingSpenderAccountId());
-
-  // Then
-  ASSERT_TRUE(tokenNftAllowance.getDelegateSpender().has_value());
-  EXPECT_EQ(tokenNftAllowance.getDelegateSpender(), getTestDelegatingSpenderAccountId());
-}
-
-//-----
-TEST_F(TokenNftAllowanceTest, ClearSerialNumbersIfApprovingAll)
-{
-  // Given
-  TokenNftAllowance tokenNftAllowance;
-  for (const uint64_t& num : getTestSerialNumbers())
-  {
-    tokenNftAllowance.addSerialNumber(num);
-  }
-
-  // When
-  tokenNftAllowance.approveForAll(true);
-
-  // Then
-  EXPECT_TRUE(tokenNftAllowance.getSerialNumbers().empty());
-}
-
-//-----
-TEST_F(TokenNftAllowanceTest, DoNotClearSerialNumbersIfRevokingAll)
-{
-  // Given
-  TokenNftAllowance tokenNftAllowance;
-  for (const uint64_t& num : getTestSerialNumbers())
-  {
-    tokenNftAllowance.addSerialNumber(num);
-  }
-
-  // When
-  tokenNftAllowance.approveForAll(false);
-
-  // Then
-  EXPECT_EQ(tokenNftAllowance.getSerialNumbers().size(), getTestSerialNumbers().size());
+  EXPECT_EQ(tokenNftAllowance.mTokenId, getTestTokenId());
+  EXPECT_EQ(tokenNftAllowance.mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(tokenNftAllowance.mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(tokenNftAllowance.mSerialNumbers, getTestSerialNumbers());
+  EXPECT_FALSE(tokenNftAllowance.mApprovedForAll.has_value());
+  EXPECT_FALSE(tokenNftAllowance.mDelegatingSpenderAccountId.has_value());
 }
 
 //-----
@@ -206,37 +85,32 @@ TEST_F(TokenNftAllowanceTest, FromProtobuf)
   const TokenNftAllowance tokenNftAllowance = TokenNftAllowance::fromProtobuf(protoNftAllowance);
 
   // Then
-  EXPECT_EQ(tokenNftAllowance.getTokenId(), getTestTokenId());
-  EXPECT_EQ(tokenNftAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(tokenNftAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-  ASSERT_TRUE(tokenNftAllowance.getApprovedForAll().has_value());
-  EXPECT_FALSE(*tokenNftAllowance.getApprovedForAll());
+  EXPECT_EQ(tokenNftAllowance.mTokenId, getTestTokenId());
+  EXPECT_EQ(tokenNftAllowance.mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(tokenNftAllowance.mSpenderAccountId, getTestSpenderAccountId());
+  ASSERT_TRUE(tokenNftAllowance.mApprovedForAll.has_value());
+  EXPECT_FALSE(*tokenNftAllowance.mApprovedForAll);
 
-  ASSERT_EQ(tokenNftAllowance.getSerialNumbers().size(), getTestSerialNumbers().size());
+  ASSERT_EQ(tokenNftAllowance.mSerialNumbers.size(), getTestSerialNumbers().size());
   for (int i = 0; i < getTestSerialNumbers().size(); ++i)
   {
-    EXPECT_EQ(tokenNftAllowance.getSerialNumbers().at(i), getTestSerialNumbers().at(i));
+    EXPECT_EQ(tokenNftAllowance.mSerialNumbers.at(i), getTestSerialNumbers().at(i));
   }
 
-  ASSERT_TRUE(tokenNftAllowance.getDelegateSpender().has_value());
-  EXPECT_EQ(*tokenNftAllowance.getDelegateSpender(), getTestDelegatingSpenderAccountId());
+  ASSERT_TRUE(tokenNftAllowance.mDelegatingSpenderAccountId.has_value());
+  EXPECT_EQ(*tokenNftAllowance.mDelegatingSpenderAccountId, getTestDelegatingSpenderAccountId());
 }
 
 //-----
 TEST_F(TokenNftAllowanceTest, ToProtobuf)
 {
   // Given
-  TokenNftAllowance tokenNftAllowance;
-  tokenNftAllowance.setTokenId(getTestTokenId());
-  tokenNftAllowance.setOwnerAccountId(getTestOwnerAccountId());
-  tokenNftAllowance.setSpenderAccountId(getTestSpenderAccountId());
-
-  for (const uint64_t& num : getTestSerialNumbers())
-  {
-    tokenNftAllowance.addSerialNumber(num);
-  }
-
-  tokenNftAllowance.approveForAll(false);
+  const TokenNftAllowance tokenNftAllowance(getTestTokenId(),
+                                            getTestOwnerAccountId(),
+                                            getTestSpenderAccountId(),
+                                            getTestSerialNumbers(),
+                                            false,
+                                            getTestDelegatingSpenderAccountId());
 
   // When
   const std::unique_ptr<proto::NftAllowance> protoNftAllowance = tokenNftAllowance.toProtobuf();
@@ -249,12 +123,15 @@ TEST_F(TokenNftAllowanceTest, ToProtobuf)
   ASSERT_TRUE(protoNftAllowance->has_spender());
   EXPECT_EQ(AccountId::fromProtobuf(protoNftAllowance->spender()), getTestSpenderAccountId());
 
-  ASSERT_EQ(tokenNftAllowance.getSerialNumbers().size(), getTestSerialNumbers().size());
+  ASSERT_EQ(tokenNftAllowance.mSerialNumbers.size(), getTestSerialNumbers().size());
   for (int i = 0; i < getTestSerialNumbers().size(); ++i)
   {
-    EXPECT_EQ(tokenNftAllowance.getSerialNumbers().at(i), getTestSerialNumbers().at(i));
+    EXPECT_EQ(tokenNftAllowance.mSerialNumbers.at(i), getTestSerialNumbers().at(i));
   }
 
-  ASSERT_TRUE(tokenNftAllowance.getApprovedForAll().has_value());
-  EXPECT_FALSE(*tokenNftAllowance.getApprovedForAll());
+  ASSERT_TRUE(tokenNftAllowance.mApprovedForAll.has_value());
+  EXPECT_FALSE(*tokenNftAllowance.mApprovedForAll);
+
+  ASSERT_TRUE(tokenNftAllowance.mDelegatingSpenderAccountId.has_value());
+  EXPECT_EQ(tokenNftAllowance.mDelegatingSpenderAccountId.value(), getTestDelegatingSpenderAccountId());
 }
