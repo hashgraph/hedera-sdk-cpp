@@ -51,6 +51,7 @@
 #include "TokenUnpauseTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
+#include "TopicCreateTransaction.h"
 #include "TopicMessageSubmitTransaction.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
@@ -103,6 +104,7 @@ std::pair<int,
                        TokenUnpauseTransaction,
                        TokenFreezeTransaction,
                        TokenUnfreezeTransaction,
+                       TopicCreateTransaction,
                        TopicMessageSubmitTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
@@ -205,8 +207,10 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 28, TokenFreezeTransaction(txBody) };
     case proto::TransactionBody::kTokenUnfreeze:
       return { 29, TokenUnfreezeTransaction(txBody) };
+    case proto::TransactionBody::kConsensusCreateTopic:
+      return { 30, TopicCreateTransaction(txBody) };
     case proto::TransactionBody::kConsensusSubmitMessage:
-      return { 30, TopicMessageSubmitTransaction(txBody) };
+      return { 31, TopicMessageSubmitTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -537,6 +541,7 @@ template class Transaction<TokenUnfreezeTransaction>;
 template class Transaction<TokenUnpauseTransaction>;
 template class Transaction<TokenUpdateTransaction>;
 template class Transaction<TokenWipeTransaction>;
+template class Transaction<TopicCreateTransaction>;
 template class Transaction<TopicMessageSubmitTransaction>;
 template class Transaction<TransferTransaction>;
 

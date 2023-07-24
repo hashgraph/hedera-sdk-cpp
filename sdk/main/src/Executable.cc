@@ -66,6 +66,7 @@
 #include "TokenUnpauseTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
+#include "TopicCreateTransaction.h"
 #include "TopicMessageSubmitTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
@@ -400,6 +401,7 @@ template class Executable<TokenUnfreezeTransaction,
 template class Executable<TokenUnpauseTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenWipeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TopicCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TopicMessageSubmitTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
