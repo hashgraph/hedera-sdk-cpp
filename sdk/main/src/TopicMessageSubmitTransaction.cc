@@ -31,9 +31,9 @@ namespace Hedera
 //-----
 TopicMessageSubmitTransaction::TopicMessageSubmitTransaction(const proto::TransactionBody& transactionBody)
 {
-  if (!transactionBody.has_token_unpause())
+  if (!transactionBody.has_consensussubmitmessage())
   {
-    throw std::invalid_argument("Transaction body doesn't contain TokenUnpause data");
+    throw std::invalid_argument("Transaction body doesn't contain ConsensusSubmitMessage data");
   }
 
   const proto::ConsensusSubmitMessageTransactionBody& body = transactionBody.consensussubmitmessage();

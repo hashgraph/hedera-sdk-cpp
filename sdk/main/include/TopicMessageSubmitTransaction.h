@@ -79,11 +79,18 @@ public:
   TopicMessageSubmitTransaction& setMessage(std::string_view message);
 
   /**
-   * Get the ID of the topic to unpause.
+   * Get the ID of the topic to which to submit a message.
    *
-   * @return The ID of the topic to unpause.
+   * @return The ID of the topic to which to submit a message.
    */
   [[nodiscard]] inline TopicId getTopicId() const { return mTopicId; }
+
+  /**
+   * Get the message to submit.
+   *
+   * @return The message to submit.
+   */
+  [[nodiscard]] inline std::vector<std::byte> getMessage() const { return getData(); }
 
 private:
   /**

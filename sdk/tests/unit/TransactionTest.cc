@@ -47,6 +47,7 @@
 #include "TokenUnpauseTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
+#include "TopicMessageSubmitTransaction.h"
 #include "TransferTransaction.h"
 #include "impl/Utilities.h"
 
@@ -1828,4 +1829,63 @@ TEST_F(TransactionTest, TokenUnfreezeTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 29);
   EXPECT_NO_THROW(const TokenUnfreezeTransaction tokenUnfreezeTransaction = std::get<29>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TopicMessageSubmitTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensussubmitmessage(new proto::ConsensusSubmitMessageTransactionBody);
+
+  // When
+  const auto [index, txVariant] = Transaction<TopicMessageSubmitTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 30);
+  EXPECT_NO_THROW(const TopicMessageSubmitTransaction topicMessageSubmitTransaction = std::get<30>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TopicMessageSubmitTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensussubmitmessage(new proto::ConsensusSubmitMessageTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] = Transaction<TopicMessageSubmitTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 30);
+  EXPECT_NO_THROW(const TopicMessageSubmitTransaction topicMessageSubmitTransaction = std::get<30>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TopicMessageSubmitTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensussubmitmessage(new proto::ConsensusSubmitMessageTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] = Transaction<TopicMessageSubmitTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 30);
+  EXPECT_NO_THROW(const TopicMessageSubmitTransaction topicMessageSubmitTransaction = std::get<30>(txVariant));
 }
