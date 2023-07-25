@@ -97,10 +97,10 @@ AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveT
   // Add the serial number to the token allowance if there's already an allowance for this token ID, owner, and spender.
   for (TokenNftAllowance& allowance : mNftAllowances)
   {
-    if (allowance.getTokenId() == nftId.getTokenId() && allowance.getOwnerAccountId() == ownerAccountId &&
-        allowance.getSpenderAccountId() == spenderAccountId)
+    if (allowance.mTokenId == nftId.getTokenId() && allowance.mOwnerAccountId == ownerAccountId &&
+        allowance.mSpenderAccountId == spenderAccountId)
     {
-      allowance.addSerialNumber(nftId.getSerialNum());
+      allowance.mSerialNumbers.push_back(nftId.getSerialNum());
       return *this;
     }
   }
@@ -124,10 +124,10 @@ AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveN
 
   for (TokenNftAllowance& allowance : mNftAllowances)
   {
-    if (allowance.getTokenId() == tokenId && allowance.getOwnerAccountId() == ownerAccountId &&
-        allowance.getSpenderAccountId() == spenderAccountId)
+    if (allowance.mTokenId == tokenId && allowance.mOwnerAccountId == ownerAccountId &&
+        allowance.mSpenderAccountId == spenderAccountId)
     {
-      allowance.approveForAll(true);
+      allowance.mApprovedForAll = true;
       return *this;
     }
   }

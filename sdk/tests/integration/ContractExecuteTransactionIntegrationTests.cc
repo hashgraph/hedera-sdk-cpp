@@ -34,6 +34,7 @@
 #include "PrivateKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 #include "impl/Utilities.h"
 
@@ -186,7 +187,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoGas
                    .setFunction("setMessage", ContractFunctionParameters().addString("new message"))
                    .execute(getTestClient())
                    .getReceipt(getTestClient()),
-               ReceiptStatusException); // INSUFFICIENT_GAS
+               PrecheckStatusException); // INSUFFICIENT_GAS
 
   // Clean up
   TransactionReceipt txReceipt;

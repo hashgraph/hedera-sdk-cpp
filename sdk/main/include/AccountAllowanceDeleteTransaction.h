@@ -20,7 +20,7 @@
 #ifndef HEDERA_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 #define HEDERA_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 
-#include "TokenNftRemoveAllowance.h"
+#include "TokenNftAllowance.h"
 #include "Transaction.h"
 
 namespace proto
@@ -70,7 +70,7 @@ public:
    *
    * @return The list of a NFT allowance removals added to this AccountAllowanceDeleteTransaction.
    */
-  [[nodiscard]] inline std::vector<TokenNftRemoveAllowance> getTokenNftAllowanceDeletions() const
+  [[nodiscard]] inline std::vector<TokenNftAllowance> getTokenNftAllowanceDeletions() const
   {
     return mNftAllowanceDeletions;
   }
@@ -115,7 +115,7 @@ private:
   /**
    * The list of NFT allowances to be deleted.
    */
-  std::vector<TokenNftRemoveAllowance> mNftAllowanceDeletions;
+  std::vector<TokenNftAllowance> mNftAllowanceDeletions;
 };
 
 } // namespace Hedera
