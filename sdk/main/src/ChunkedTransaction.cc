@@ -26,6 +26,7 @@
 #include "impl/Utilities.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace Hedera
 {
@@ -63,6 +64,9 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
   mData.reserve(mChunkSize);
 
   const auto totalChunks = static_cast<unsigned int>(std::ceil(static_cast<double>(allData.size()) / mChunkSize));
+
+  // Generate the transaction ID for the first chunk before looping.
+  Transaction<SdkRequestType>::setTransactionId(TransactionId::generate(client.getOperatorAccountId().value()));
 
   for (int chunk = 0; chunk < totalChunks; ++chunk)
   {
