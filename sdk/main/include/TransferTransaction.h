@@ -205,6 +205,7 @@ private:
   friend class FileInfoQuery;
   friend class TokenInfoQuery;
   friend class TokenNftInfoQuery;
+  friend class TopicInfoQuery;
   friend class TransactionRecordQuery;
 
   /**

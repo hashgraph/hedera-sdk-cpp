@@ -115,6 +115,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
 
   switch (funcEnum)
   {
+    case proto::Query::QueryCase::kConsensusGetTopicInfo:
+      return mConsensusStub->getTopicInfo(&context, query, response);
     case proto::Query::QueryCase::kContractCallLocal:
       return mSmartContractStub->contractCallLocalMethod(&context, query, response);
     case proto::Query::QueryCase::kContractGetBytecode:

@@ -99,6 +99,8 @@ add_library(${PROJECT_NAME} STATIC
         src/TopicCreateTransaction.cc
         src/TopicDeleteTransaction.cc
         src/TopicId.cc
+        src/TopicInfo.cc
+        src/TopicInfoQuery.cc
         src/Transaction.cc
         src/TransactionId.cc
         src/TransactionReceipt.cc
