@@ -17,56 +17,56 @@
  * limitations under the License.
  *
  */
-#include "AccountDeleteTransaction.h"
 #include "BaseIntegrationTest.h"
-#include "Defaults.h"
-#include "ECDSAsecp256k1PrivateKey.h"
+#include "Client.h"
+#include "CustomFixedFee.h"
 #include "ED25519PrivateKey.h"
+#include "PrivateKey.h"
 #include "TopicCreateTransaction.h"
 #include "TopicDeleteTransaction.h"
 #include "TopicInfo.h"
 #include "TopicInfoQuery.h"
 #include "TransactionReceipt.h"
-#include "TransactionRecord.h"
 #include "TransactionResponse.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <proto/transaction_body.pb.h>
 
 using namespace Hedera;
 
-class TopicCreateTransactionIntegrationTest : public BaseIntegrationTest
+class TopicInfoQueryIntegrationTest : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TopicCreateTransactionIntegrationTest, ExecuteTopicCreateTransaction)
+TEST_F(TopicInfoQueryIntegrationTest, ExecuteTopicInfoQuery)
 {
   // Given
-  const std::string memo = "topic create test memo";
-  const std::chrono::duration<double> autoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD + std::chrono::hours(10);
+  const std::string memo = "test memo";
+  const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2200);
 
   std::shared_ptr<PrivateKey> operatorKey;
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
 
+  TopicId topicId;
+  ASSERT_NO_THROW(topicId = TopicCreateTransaction()
+                              .setMemo(memo)
+                              .setAdminKey(operatorKey)
+                              .setSubmitKey(operatorKey)
+                              .setAutoRenewPeriod(autoRenewPeriod)
+                              .setAutoRenewAccountId(AccountId(2ULL))
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTopicId.value());
+
   // When
-  TransactionReceipt txReceipt;
-  EXPECT_NO_THROW(txReceipt = TopicCreateTransaction()
-                                .setMemo(memo)
-                                .setAdminKey(operatorKey)
-                                .setSubmitKey(operatorKey)
-                                .setAutoRenewPeriod(autoRenewPeriod)
-                                .setAutoRenewAccountId(AccountId(2ULL))
-                                .execute(getTestClient())
-                                .getReceipt(getTestClient()));
+  TopicInfo topicInfo;
+  EXPECT_NO_THROW(topicInfo = TopicInfoQuery().setTopicId(topicId).execute(getTestClient()));
 
   // Then
-  TopicInfo topicInfo;
-  ASSERT_NO_THROW(topicInfo = TopicInfoQuery().setTopicId(txReceipt.mTopicId.value()).execute(getTestClient()));
-
-  EXPECT_EQ(topicInfo.mTopicId, txReceipt.mTopicId.value());
+  EXPECT_EQ(topicInfo.mTopicId, topicId);
   EXPECT_EQ(topicInfo.mMemo, memo);
   ASSERT_NE(topicInfo.mAdminKey, nullptr);
   EXPECT_EQ(topicInfo.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
@@ -78,19 +78,6 @@ TEST_F(TopicCreateTransactionIntegrationTest, ExecuteTopicCreateTransaction)
   EXPECT_EQ(topicInfo.mAutoRenewAccountId.value(), AccountId(2ULL));
 
   // Clean up
-  ASSERT_NO_THROW(txReceipt = TopicDeleteTransaction()
-                                .setTopicId(txReceipt.mTopicId.value())
-                                .execute(getTestClient())
-                                .getReceipt(getTestClient()));
-}
-
-//-----
-TEST_F(TopicCreateTransactionIntegrationTest, CanCreateTopicWithNoFieldsSet)
-{
-  // Given / When
-  TransactionReceipt txReceipt;
-  EXPECT_NO_THROW(txReceipt = TopicCreateTransaction().execute(getTestClient()).getReceipt(getTestClient()));
-
-  // Then
-  EXPECT_TRUE(txReceipt.mTopicId.has_value());
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    TopicDeleteTransaction().setTopicId(topicId).execute(getTestClient()).getReceipt(getTestClient()));
 }

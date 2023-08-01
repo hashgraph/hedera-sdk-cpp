@@ -33,6 +33,8 @@
 #include "TokenInfoQuery.h"
 #include "TokenNftInfo.h"
 #include "TokenNftInfoQuery.h"
+#include "TopicInfo.h"
+#include "TopicInfoQuery.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
 #include "TransactionRecord.h"
@@ -51,6 +53,7 @@ template class Query<FileContentsQuery, FileContents>;
 template class Query<FileInfoQuery, FileInfo>;
 template class Query<TokenInfoQuery, TokenInfo>;
 template class Query<TokenNftInfoQuery, TokenNftInfo>;
+template class Query<TopicInfoQuery, TopicInfo>;
 template class Query<TransactionReceiptQuery, TransactionReceipt>;
 template class Query<TransactionRecordQuery, TransactionRecord>;
 
