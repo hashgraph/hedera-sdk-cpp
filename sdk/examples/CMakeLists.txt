@@ -1,4 +1,5 @@
 set(ACCOUNT_ALLOWANCE_EXAMPLE_NAME ${PROJECT_NAME}-account-allowance-example)
+set(CONSENSUS_PUB_SUB_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-example)
 set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
 set(CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-simple-contract-example)
 set(CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-stateful-contract-example)
@@ -17,6 +18,7 @@ set(TRANSFER_TOKENS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-tokens-example)
 set(UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME ${PROJECT_NAME}-update-account-public-key-example)
 
 add_executable(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} AccountAllowanceExample.cc)
+add_executable(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} ConsensusPubSubExample.cc)
 add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
 add_executable(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} CreateSimpleContractExample.cc)
 add_executable(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} CreateStatefulContractExample.cc)
@@ -53,6 +55,7 @@ if (WIN32)
 endif ()
 
 target_link_libraries(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -74,6 +77,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE} DESTINATION ex
 
 install(TARGETS
         ${ACCOUNT_ALLOWANCE_EXAMPLE_NAME}
+        ${CONSENSUS_PUB_SUB_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
         ${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME}
         ${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME}

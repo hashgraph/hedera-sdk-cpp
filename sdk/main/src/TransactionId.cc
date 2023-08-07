@@ -66,4 +66,15 @@ std::unique_ptr<proto::TransactionID> TransactionId::toProtobuf() const
   return proto;
 }
 
+//-----
+std::string TransactionId::toString() const
+{
+  const auto secondsSinceEpoch =
+    std::chrono::duration_cast<std::chrono::seconds>(mValidTransactionTime.time_since_epoch());
+  return mAccountId.toString() + '@' + std::to_string(secondsSinceEpoch.count()) + '.' +
+         std::to_string(std::chrono::duration_cast<std::chrono::nanoseconds>(mValidTransactionTime.time_since_epoch() -
+                                                                             secondsSinceEpoch)
+                          .count());
+}
+
 } // namespace Hedera

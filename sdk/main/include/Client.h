@@ -31,6 +31,7 @@ namespace Hedera
 {
 namespace internal
 {
+class MirrorNetwork;
 class Node;
 }
 class AccountId;
@@ -268,6 +269,13 @@ public:
    *         not previously set.
    */
   [[nodiscard]] std::optional<std::chrono::duration<double>> getMaxBackoff() const;
+
+  /**
+   * Get a pointer to the MirrorNetwork being used by this client.
+   *
+   * @return A pointer to the MirrorNetwork being used by this client.
+   */
+  [[nodiscard]] std::shared_ptr<internal::MirrorNetwork> getMirrorNetwork() const;
 
 private:
   /**
