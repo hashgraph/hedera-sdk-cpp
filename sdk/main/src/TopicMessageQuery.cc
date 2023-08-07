@@ -39,7 +39,7 @@ namespace Hedera
 namespace
 {
 // Enum to track the status of the gRPC call.
-enum CallStatus
+enum class CallStatus
 {
   STATUS_CREATE = 0,
   STATUS_PROCESSING = 1,
@@ -50,10 +50,8 @@ enum CallStatus
 std::shared_ptr<internal::MirrorNode> getConnectedMirrorNode(const std::shared_ptr<internal::MirrorNetwork>& network)
 {
   std::shared_ptr<internal::MirrorNode> node = network->getNextMirrorNode();
-  std::cout << "connecting..." << std::endl;
   while (!node->connect(std::chrono::system_clock::now() + std::chrono::seconds(2)))
   {
-    std::cout << "retry" << std::endl;
     node = network->getNextMirrorNode();
   }
 
@@ -87,21 +85,17 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
   void* tag;
 
   // Send the query.
-  std::cout << "Sending query with topic id: " << TopicId::fromProtobuf(query.topicid()).toString() << std::endl;
   auto reader = getConnectedMirrorNode(network)->getConsensusServiceStub()->AsyncsubscribeTopic(
     &context, query, &completionQueue, &callStatus);
 
   // Loop as long as there are valid read operations.
   while (completionQueue.Next(&tag, &ok))
   {
-    std::cout << "loop" << std::endl;
     const auto receivedTagStatus = static_cast<CallStatus>(*internal::Utilities::toTypePtr<long>(tag));
-    std::cout << "Received tag " << receivedTagStatus << std::endl;
     switch (receivedTagStatus)
     {
       case CallStatus::STATUS_CREATE:
       {
-        std::cout << "received create tag" << std::endl;
         if (ok)
         {
           // Update the call status to processing.
@@ -113,18 +107,14 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
       }
       case CallStatus::STATUS_PROCESSING:
       {
-        std::cout << "received processing tag" << std::endl;
         if (ok)
         {
-          std::cout << "response is ok" << std::endl;
           // Read the response.
           reader->Read(&response, &callStatus);
-          std::cout << "contents: " << response.message() << std::endl;
 
           // Adjust the query timestamp and limit, in case a retry is triggered.
           if (response.has_consensustimestamp())
           {
-            std::cout << "has_consensustimestamp" << std::endl;
             std::chrono::system_clock::time_point timestamp =
               internal::TimestampConverter::fromProtobuf(response.consensustimestamp());
 
@@ -135,35 +125,28 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
 
           if (query.limit() > 0ULL)
           {
-            std::cout << "limit" << std::endl;
             query.set_limit(query.limit() - 1ULL);
           }
 
           // Process the received message.
           if (!response.has_chunkinfo() || response.chunkinfo().total() == 1)
           {
-            std::cout << "!response.has_chunkinfo() || response.chunkinfo().total() == 1" << std::endl;
-            std::cout << "calling onNext for one chunk" << std::endl;
             onNext(TopicMessage::ofSingle(response));
-            std::cout << "done calling onNext for one chunk" << std::endl;
           }
           else
           {
-            std::cout << "not !response.has_chunkinfo() || response.chunkinfo().total() == 1" << std::endl;
             const TransactionId transactionId =
               TransactionId::fromProtobuf(response.chunkinfo().initialtransactionid());
             pendingMessages[transactionId].push_back(response);
 
             if (pendingMessages[transactionId].size() == response.chunkinfo().total())
             {
-              std::cout << "calling onNext for multiple chunks" << std::endl;
               onNext(TopicMessage::ofMany(pendingMessages[transactionId]));
             }
           }
         }
         else
         {
-          std::cout << "response is not ok" << std::endl;
           // If there was an error, finish the RPC.
           callStatus = CallStatus::STATUS_FINISH;
           reader->Finish(&grpcStatus, &callStatus);
@@ -173,7 +156,6 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
       }
       case CallStatus::STATUS_FINISH:
       {
-        std::cout << "received finish tag" << std::endl;
         std::cout << grpcStatus.error_code() << std::endl;
         if (grpcStatus.ok())
         {
@@ -189,9 +171,10 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
           std::this_thread::sleep_for(backoff < maxBackoff ? backoff : maxBackoff);
           ++attempt;
 
-          // Resend the query.
+          // Resend the query to a different node.
+          completionQueue.Shutdown();
           reader = getConnectedMirrorNode(network)->getConsensusServiceStub()->AsyncsubscribeTopic(
-            &context, query, &completionQueue, tag);
+            &context, query, &completionQueue, (void*)CallStatus::STATUS_CREATE);
         }
         else
         {
@@ -203,7 +186,6 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
       }
       default:
       {
-        std::cout << "Received unknown tag: " << *internal::Utilities::toTypePtr<long>(tag) << std::endl;
         break;
       }
     }
@@ -328,7 +310,6 @@ SubscriptionHandle TopicMessageQuery::subscribe(const Client& client,
 //-----
 TopicMessageQuery& TopicMessageQuery::setTopicId(const TopicId& topicId)
 {
-  std::cout << "Setting topic id: " << topicId.toString() << std::endl;
   mImpl->mQuery.set_allocated_topicid(topicId.toProtobuf().release());
   return *this;
 }

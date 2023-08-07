@@ -75,7 +75,6 @@ TopicMessage TopicMessage::ofMany(const std::vector<com::hedera::mirror::api::pr
     contents[index] = internal::Utilities::stringToByteVector(proto.message());
   }
 
-  std::cout << "returning" << std::endl;
   return { chunks.back().mConsensusTimestamp,
            internal::Utilities::concatenateVectors(contents),
            chunks.back().mRunningHash,
