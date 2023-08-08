@@ -22,6 +22,7 @@
 
 #include <chrono>
 #include <functional>
+#include <memory>
 
 namespace grpc
 {
