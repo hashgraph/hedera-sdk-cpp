@@ -134,9 +134,15 @@ Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& netw
 {
   Client client;
   client.mImpl->mNetwork = internal::Network::forNetwork(networkMap);
-  client.mImpl->mMirrorNetwork =
-    std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forNetwork({ "127.0.0.1:5600" }));
+  client.mImpl->mMirrorNetwork = nullptr;
   return client;
+}
+
+//-----
+Client& Client::setMirrorNetwork(const std::vector<std::string>& network)
+{
+  mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forNetwork(network));
+  return *this;
 }
 
 //-----

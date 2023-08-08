@@ -94,6 +94,14 @@ public:
   [[nodiscard]] static Client forPreviewnet();
 
   /**
+   * Set the mirror network with which this Client should communicate.
+   *
+   * @param network The list of IPs and ports of the mirror nodes with which this Client should communicate.
+   * @return A reference to this Client object with the newly-set mirror network.
+   */
+  Client& setMirrorNetwork(const std::vector<std::string>& network);
+
+  /**
    * Set the account that will, by default, be paying for requests submitted by this Client. The operator account ID is
    * used to generate the default transaction ID for all transactions executed with this Client. The operator private
    * key is used to sign all transactions executed by this Client.
