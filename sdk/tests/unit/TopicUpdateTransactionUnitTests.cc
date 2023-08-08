@@ -23,6 +23,7 @@
 #include "TopicUpdateTransaction.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/DurationConverter.h"
+#include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
@@ -38,6 +39,10 @@ protected:
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
   [[nodiscard]] inline const std::string& getTestTopicMemo() const { return mTestTopicMemo; }
+  [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
+  {
+    return mTestExpirationTime;
+  }
   [[nodiscard]] inline const std::shared_ptr<ED25519PrivateKey>& getTestAdminKey() const { return mTestAdminKey; }
   [[nodiscard]] inline const std::shared_ptr<ED25519PrivateKey>& getTestSubmitKey() const { return mTestSubmitKey; }
   [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const
@@ -50,6 +55,7 @@ private:
   Client mClient;
   const TopicId mTestTopicId = TopicId(1ULL, 2ULL, 3ULL);
   const std::string mTestTopicMemo = "test topic memo";
+  const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const std::shared_ptr<ED25519PrivateKey> mTestAdminKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<ED25519PrivateKey> mTestSubmitKey = ED25519PrivateKey::generatePrivateKey();
   const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(4);
@@ -63,6 +69,7 @@ TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromTransactio
   auto body = std::make_unique<proto::ConsensusUpdateTopicTransactionBody>();
   body->set_allocated_topicid(getTestTopicId().toProtobuf().release());
   body->mutable_memo()->set_value(getTestTopicMemo());
+  body->set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(getTestExpirationTime()));
   body->set_allocated_adminkey(getTestAdminKey()->toProtobufKey().release());
   body->set_allocated_submitkey(getTestSubmitKey()->toProtobufKey().release());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
@@ -77,6 +84,7 @@ TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromTransactio
   // Then
   EXPECT_EQ(topicUpdateTransaction.getTopicId(), getTestTopicId());
   EXPECT_EQ(topicUpdateTransaction.getMemo(), getTestTopicMemo());
+  EXPECT_EQ(topicUpdateTransaction.getExpirationTime(), getTestExpirationTime());
   EXPECT_EQ(topicUpdateTransaction.getAdminKey()->toBytes(), getTestAdminKey()->getPublicKey()->toBytes());
   EXPECT_EQ(topicUpdateTransaction.getSubmitKey()->toBytes(), getTestSubmitKey()->getPublicKey()->toBytes());
   EXPECT_EQ(topicUpdateTransaction.getAutoRenewPeriod(), getTestAutoRenewPeriod());
@@ -144,6 +152,55 @@ TEST_F(TopicUpdateTransactionTest, GetSetMemoFrozen)
 }
 
 //-----
+TEST_F(TopicUpdateTransactionTest, ClearMemo)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.setMemo(getTestTopicMemo()));
+
+  // When
+  EXPECT_NO_THROW(transaction.clearTopicMemo());
+
+  // Then
+  EXPECT_TRUE(transaction.getMemo()->empty());
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, ClearMemoFrozen)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.clearTopicMemo(), IllegalStateException);
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, GetSetExpirationTime)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+
+  // When
+  EXPECT_NO_THROW(transaction.setExpirationTime(getTestExpirationTime()));
+
+  // Then
+  EXPECT_EQ(transaction.getExpirationTime(), getTestExpirationTime());
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, GetSetExpirationTimeFrozen)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
+}
+
+//-----
 TEST_F(TopicUpdateTransactionTest, GetSetAdminKey)
 {
   // Given
@@ -168,6 +225,30 @@ TEST_F(TopicUpdateTransactionTest, GetSetAdminKeyFrozen)
 }
 
 //-----
+TEST_F(TopicUpdateTransactionTest, ClearAdminKey)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+
+  // When
+  EXPECT_NO_THROW(transaction.clearAdminKey());
+
+  // Then
+  EXPECT_NE(transaction.getAdminKey(), nullptr);
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, ClearAdminKeyFrozen)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.clearAdminKey(), IllegalStateException);
+}
+
+//-----
 TEST_F(TopicUpdateTransactionTest, GetSetSubmitKey)
 {
   // Given
@@ -189,6 +270,30 @@ TEST_F(TopicUpdateTransactionTest, GetSetSubmitKeyFrozen)
 
   // When / Then
   EXPECT_THROW(transaction.setSubmitKey(getTestSubmitKey()), IllegalStateException);
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, ClearSubmitKey)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+
+  // When
+  EXPECT_NO_THROW(transaction.clearSubmitKey());
+
+  // Then
+  EXPECT_NE(transaction.getSubmitKey(), nullptr);
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, ClearSubmitKeyFrozen)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.clearAdminKey(), IllegalStateException);
 }
 
 //-----
@@ -237,4 +342,29 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewAccountIdFrozen)
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewAccountId(getTestAutoRenewAccountId()), IllegalStateException);
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, ClearAutoRenewAccountId)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.setAutoRenewAccountId(getTestAutoRenewAccountId()));
+
+  // When
+  EXPECT_NO_THROW(transaction.clearAutoRenewAccountId());
+
+  // Then
+  EXPECT_EQ(transaction.getAutoRenewAccountId(), AccountId());
+}
+
+//-----
+TEST_F(TopicUpdateTransactionTest, ClearAutoRenewAccountIdFrozen)
+{
+  // Given
+  TopicUpdateTransaction transaction;
+  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+
+  // When / Then
+  EXPECT_THROW(transaction.clearAutoRenewAccountId(), IllegalStateException);
 }

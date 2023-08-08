@@ -81,6 +81,15 @@ public:
   TopicUpdateTransaction& setMemo(std::string_view memo);
 
   /**
+   * Set a new expiration time for the topic.
+   *
+   * @param expiry The new expiration time for the topic.
+   * @return A reference to this TopicUpdateTransaction object with the newly-set expiration time.
+   * @throws IllegalStateException If this TopicUpdateTransaction is frozen.
+   */
+  TopicUpdateTransaction& setExpirationTime(const std::chrono::system_clock::time_point& expiry);
+
+  /**
    * Set a new admin key for the topic.
    *
    * @param key The new admin key for the topic.
@@ -117,6 +126,34 @@ public:
   TopicUpdateTransaction& setAutoRenewAccountId(const AccountId& accountId);
 
   /**
+   * Clear the memo for the topic.
+   *
+   * @return A reference to this TokenUpdateTransaction with the newly-cleared memo.
+   */
+  TopicUpdateTransaction& clearTopicMemo();
+
+  /**
+   * Clear the admin key for the topic.
+   *
+   * @return A reference to this TokenUpdateTransaction with the newly-cleared admin key.
+   */
+  TopicUpdateTransaction& clearAdminKey();
+
+  /**
+   * Clear the submit key for the topic.
+   *
+   * @return A reference to this TokenUpdateTransaction with the newly-cleared submit key.
+   */
+  TopicUpdateTransaction& clearSubmitKey();
+
+  /**
+   * Clear the auto-renew account for the topic.
+   *
+   * @return A reference to this TokenUpdateTransaction with the newly-cleared auto-renew account ID.
+   */
+  TopicUpdateTransaction& clearAutoRenewAccountId();
+
+  /**
    * Get the ID of the topic to update.
    *
    * @return The ID of the topic to update.
@@ -126,28 +163,38 @@ public:
   /**
    * Get the new memo for the topic.
    *
-   * @return The new memo for the topic.
+   * @return The new memo for the topic. Returns uninitialized if the memo has not been set.
    */
   [[nodiscard]] inline std::optional<std::string> getMemo() const { return mMemo; }
 
   /**
+   * Get the new expiration time for the topic.
+   *
+   * @return The new expiration time for the topic. Returns uninitialized if the expiration time has not been set.
+   */
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getExpirationTime() const
+  {
+    return mExpirationTime;
+  }
+
+  /**
    * Get the new admin key for the topic.
    *
-   * @return The new admin key for the topic.
+   * @return The new admin key for the topic. Returns nullptr if the submit key has not been set.
    */
   [[nodiscard]] inline std::shared_ptr<Key> getAdminKey() const { return mAdminKey; }
 
   /**
    * Get the new submit key for the topic.
    *
-   * @return The new submit key for the topic.
+   * @return The new submit key for the topic. Returns nullptr if the submit key has not been set.
    */
   [[nodiscard]] inline std::shared_ptr<Key> getSubmitKey() const { return mSubmitKey; }
 
   /**
    * Get the new auto-renew period for the topic.
    *
-   * @return The new auto-renew period for the topic.
+   * @return The new auto-renew period for the topic. Returns uninitialized if the auto-renew period has not been set.
    */
   [[nodiscard]] inline std::optional<std::chrono::duration<double>> getAutoRenewPeriod() const
   {
@@ -157,8 +204,8 @@ public:
   /**
    * Get the ID of the new auto-renew account for the topic.
    *
-   * @return The ID of the new auto-renew account for the topic. Returns uninitialized if the auto-renew account
-   *         has not been set.
+   * @return The ID of the new auto-renew account for the topic. Returns uninitialized if the auto-renew account has not
+   *         been set.
    */
   [[nodiscard]] inline std::optional<AccountId> getAutoRenewAccountId() const { return mAutoRenewAccountId; }
 
@@ -206,6 +253,11 @@ private:
    * The new publicly visible memo for the topic.
    */
   std::optional<std::string> mMemo;
+
+  /**
+   * The new expiration time for the topic.
+   */
+  std::optional<std::chrono::system_clock::time_point> mExpirationTime;
 
   /**
    * The new key to be used for access control to update or delete the topic.
