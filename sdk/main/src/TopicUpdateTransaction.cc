@@ -18,8 +18,10 @@
  *
  */
 #include "TopicUpdateTransaction.h"
+#include "KeyList.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
+#include "impl/TimestampConverter.h"
 
 #include <grpcpp/client_context.h>
 #include <proto/consensus_update_topic.pb.h>
@@ -46,6 +48,11 @@ TopicUpdateTransaction::TopicUpdateTransaction(const proto::TransactionBody& tra
   if (body.has_memo())
   {
     mMemo = body.memo().value();
+  }
+
+  if (body.has_expirationtime())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
   }
 
   if (body.has_adminkey())
@@ -86,6 +93,14 @@ TopicUpdateTransaction& TopicUpdateTransaction::setMemo(std::string_view memo)
 }
 
 //-----
+TopicUpdateTransaction& TopicUpdateTransaction::setExpirationTime(const std::chrono::system_clock::time_point& expiry)
+{
+  requireNotFrozen();
+  mExpirationTime = expiry;
+  return *this;
+}
+
+//-----
 TopicUpdateTransaction& TopicUpdateTransaction::setAdminKey(const std::shared_ptr<Key>& key)
 {
   requireNotFrozen();
@@ -114,6 +129,38 @@ TopicUpdateTransaction& TopicUpdateTransaction::setAutoRenewAccountId(const Acco
 {
   requireNotFrozen();
   mAutoRenewAccountId = accountId;
+  return *this;
+}
+
+//-----
+TopicUpdateTransaction& TopicUpdateTransaction::clearTopicMemo()
+{
+  requireNotFrozen();
+  mMemo = "";
+  return *this;
+}
+
+//-----
+TopicUpdateTransaction& TopicUpdateTransaction::clearAdminKey()
+{
+  requireNotFrozen();
+  mAdminKey = std::make_unique<KeyList>();
+  return *this;
+}
+
+//-----
+TopicUpdateTransaction& TopicUpdateTransaction::clearSubmitKey()
+{
+  requireNotFrozen();
+  mSubmitKey = std::make_unique<KeyList>();
+  return *this;
+}
+
+//-----
+TopicUpdateTransaction& TopicUpdateTransaction::clearAutoRenewAccountId()
+{
+  requireNotFrozen();
+  mAutoRenewAccountId = AccountId();
   return *this;
 }
 
@@ -149,6 +196,11 @@ proto::ConsensusUpdateTopicTransactionBody* TopicUpdateTransaction::build() cons
   if (mMemo.has_value())
   {
     body->mutable_memo()->set_value(mMemo.value());
+  }
+
+  if (mExpirationTime.has_value())
+  {
+    body->set_allocated_expirationtime(internal::TimestampConverter::toProtobuf(mExpirationTime.value()));
   }
 
   if (mAdminKey)
