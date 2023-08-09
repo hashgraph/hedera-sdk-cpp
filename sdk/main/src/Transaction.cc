@@ -53,6 +53,7 @@
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
 #include "TopicDeleteTransaction.h"
+#include "TopicUpdateTransaction.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
@@ -105,7 +106,8 @@ std::pair<int,
                        TokenFreezeTransaction,
                        TokenUnfreezeTransaction,
                        TopicCreateTransaction,
-                       TopicDeleteTransaction>>
+                       TopicDeleteTransaction,
+                       TopicUpdateTransaction>>
 Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
@@ -211,6 +213,8 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
       return { 30, TopicCreateTransaction(txBody) };
     case proto::TransactionBody::kConsensusDeleteTopic:
       return { 31, TopicDeleteTransaction(txBody) };
+    case proto::TransactionBody::kConsensusUpdateTopic:
+      return { 32, TopicUpdateTransaction(txBody) };
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -543,6 +547,7 @@ template class Transaction<TokenUpdateTransaction>;
 template class Transaction<TokenWipeTransaction>;
 template class Transaction<TopicCreateTransaction>;
 template class Transaction<TopicDeleteTransaction>;
+template class Transaction<TopicUpdateTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera

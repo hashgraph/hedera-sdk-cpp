@@ -171,6 +171,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mConsensusStub->createTopic(&context, transaction, response);
     case proto::TransactionBody::DataCase::kConsensusDeleteTopic:
       return mConsensusStub->deleteTopic(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kConsensusUpdateTopic:
+      return mConsensusStub->updateTopic(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractCall:
       return mSmartContractStub->contractCallMethod(&context, transaction, response);
     case proto::TransactionBody::DataCase::kContractCreateInstance:

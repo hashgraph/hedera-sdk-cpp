@@ -49,6 +49,7 @@
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
 #include "TopicDeleteTransaction.h"
+#include "TopicUpdateTransaction.h"
 #include "TransferTransaction.h"
 #include "impl/Utilities.h"
 
@@ -1948,4 +1949,63 @@ TEST_F(TransactionTest, TopicDeleteTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(index, 31);
   EXPECT_NO_THROW(const TopicDeleteTransaction topicDeleteTransaction = std::get<31>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TopicUpdateTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensusupdatetopic(new proto::ConsensusUpdateTopicTransactionBody);
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TopicUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 32);
+  EXPECT_NO_THROW(const TopicUpdateTransaction topicUpdateTransaction = std::get<32>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TopicUpdateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensusupdatetopic(new proto::ConsensusUpdateTopicTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TopicUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 32);
+  EXPECT_NO_THROW(const TopicUpdateTransaction topicUpdateTransaction = std::get<32>(txVariant));
+}
+
+//-----
+TEST_F(TransactionTest, TopicUpdateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensusupdatetopic(new proto::ConsensusUpdateTopicTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const auto [index, txVariant] =
+    Transaction<TopicUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(index, 32);
+  EXPECT_NO_THROW(const TopicUpdateTransaction topicUpdateTransaction = std::get<32>(txVariant));
 }
