@@ -28,6 +28,7 @@ add_executable(${TEST_PROJECT_NAME}
         ContractInfoQueryTest.cc
         ContractInfoTest.cc
         ContractLogInfoTest.cc
+        ContractNonceInfoUnitTests.cc
         ContractUpdateTransactionTest.cc
         CustomFixedFeeTest.cc
         CustomFractionalFeeTest.cc
