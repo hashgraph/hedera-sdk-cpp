@@ -21,6 +21,7 @@
 #include "AccountId.h"
 #include "ContractId.h"
 #include "ContractLogInfo.h"
+#include "ContractNonceInfo.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
 #include "impl/HexConverter.h"
@@ -63,6 +64,7 @@ protected:
     return mTestFunctionParameters;
   }
   [[nodiscard]] inline const AccountId& getTestSenderAccountId() const { return mTestSenderAccountId; }
+  [[nodiscard]] inline const int64_t& getTestNonce() const { return mTestNonce; }
 
   [[nodiscard]] std::vector<std::byte> getTestCallResultBytes() const
   {
@@ -89,6 +91,7 @@ private:
   const Hbar mTestAmount = Hbar(7LL);
   const std::vector<std::byte> mTestFunctionParameters = { std::byte(0x08), std::byte(0x09), std::byte(0x0A) };
   const AccountId mTestSenderAccountId = AccountId(11ULL);
+  const int64_t mTestNonce = 10L;
 
   const std::string CALL_RESULT_HEX = "00000000000000000000000000000000000000000000000000000000ffffffff"
                                       "7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
@@ -137,6 +140,11 @@ TEST_F(ContractFunctionResultTest, FromProtobuf)
   protoContractFunctionResult.set_functionparameters(
     internal::Utilities::byteVectorToString(getTestFunctionParameters()));
   protoContractFunctionResult.set_allocated_sender_id(getTestSenderAccountId().toProtobuf().release());
+  // protoContractFunctionResult.add_contract_nonces(getTestContractNonceInfo().toProtobuf().release());
+
+  auto protoContractNonceInfo = protoContractFunctionResult.add_contract_nonces();
+  protoContractNonceInfo->set_allocated_contract_id(getTestContractId().toProtobuf().release());
+  protoContractNonceInfo->set_nonce(getTestNonce());
 
   // When
   const ContractFunctionResult contractFunctionResult =
@@ -156,6 +164,9 @@ TEST_F(ContractFunctionResultTest, FromProtobuf)
   EXPECT_EQ(contractFunctionResult.mHbarAmount, getTestAmount());
   EXPECT_EQ(contractFunctionResult.mFunctionParameters, getTestFunctionParameters());
   EXPECT_EQ(contractFunctionResult.mSenderAccountId, getTestSenderAccountId());
+  EXPECT_EQ(contractFunctionResult.mContractNonces.size(), 1);
+  EXPECT_EQ(contractFunctionResult.mContractNonces.front().mContractId, getTestContractId());
+  EXPECT_EQ(contractFunctionResult.mContractNonces.front().mNonce, getTestNonce());
 }
 
 //-----
