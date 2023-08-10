@@ -67,6 +67,7 @@ class TokenUpdateTransaction;
 class TokenWipeTransaction;
 class TopicCreateTransaction;
 class TopicDeleteTransaction;
+class TopicMessageSubmitTransaction;
 class TopicUpdateTransaction;
 class TransactionResponse;
 class TransferTransaction;
@@ -156,7 +157,8 @@ public:
                                               TokenUnfreezeTransaction,
                                               TopicCreateTransaction,
                                               TopicDeleteTransaction,
-                                              TopicUpdateTransaction>>
+                                              TopicUpdateTransaction,
+                                              TopicMessageSubmitTransaction>>
   fromBytes(const std::vector<std::byte>& bytes);
 
   /**

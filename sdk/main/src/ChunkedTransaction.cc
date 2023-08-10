@@ -20,11 +20,13 @@
 #include "ChunkedTransaction.h"
 #include "Client.h"
 #include "FileAppendTransaction.h"
+#include "TopicMessageSubmitTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace Hedera
 {
@@ -61,11 +63,15 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
   mData.clear();
   mData.reserve(mChunkSize);
 
-  for (long byte = 0; byte < allData.size(); byte += mChunkSize)
+  const auto totalChunks = static_cast<unsigned int>(std::ceil(static_cast<double>(allData.size()) / mChunkSize));
+
+  // Generate the transaction ID for the first chunk before looping.
+  Transaction<SdkRequestType>::setTransactionId(TransactionId::generate(client.getOperatorAccountId().value()));
+
+  for (int chunk = 0; chunk < totalChunks; ++chunk)
   {
-    // Copy the next chunk into mData (making sure not to copy more bytes than are left)
-    mData = { allData.cbegin() + byte,
-              allData.cbegin() + byte + ((mChunkSize + byte > allData.size()) ? allData.size() - byte : mChunkSize) };
+    // Create the chunk.
+    createChunk(allData, chunk, totalChunks);
 
     // Execute this chunk
     responses.push_back(
@@ -91,24 +97,6 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& ChunkedTransaction<SdkRequestType>::setData(const std::vector<std::byte>& data)
-{
-  Transaction<SdkRequestType>::requireNotFrozen();
-  mData = data;
-  return static_cast<SdkRequestType&>(*this);
-}
-
-//-----
-template<typename SdkRequestType>
-SdkRequestType& ChunkedTransaction<SdkRequestType>::setData(std::string_view data)
-{
-  Transaction<SdkRequestType>::requireNotFrozen();
-  mData = internal::Utilities::stringToByteVector(data);
-  return static_cast<SdkRequestType&>(*this);
-}
-
-//-----
-template<typename SdkRequestType>
 SdkRequestType& ChunkedTransaction<SdkRequestType>::setMaxChunks(unsigned int chunks)
 {
   Transaction<SdkRequestType>::requireNotFrozen();
@@ -127,6 +115,34 @@ SdkRequestType& ChunkedTransaction<SdkRequestType>::setChunkSize(unsigned int si
 
 //-----
 template<typename SdkRequestType>
+void ChunkedTransaction<SdkRequestType>::createChunk(const std::vector<std::byte>& data, int32_t chunk, int32_t total)
+{
+  const unsigned int startingByteForChunk = mChunkSize * chunk;
+  const auto start = data.cbegin() + startingByteForChunk;
+
+  mData = {
+    start, start + ((mChunkSize + startingByteForChunk > data.size()) ? data.size() - startingByteForChunk : mChunkSize)
+  };
+}
+
+//-----
+template<typename SdkRequestType>
+SdkRequestType& ChunkedTransaction<SdkRequestType>::setData(const std::vector<std::byte>& data)
+{
+  Transaction<SdkRequestType>::requireNotFrozen();
+  mData = data;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
+SdkRequestType& ChunkedTransaction<SdkRequestType>::setData(std::string_view data)
+{
+  return setData(internal::Utilities::stringToByteVector(data));
+}
+
+//-----
+template<typename SdkRequestType>
 void ChunkedTransaction<SdkRequestType>::setShouldGetReceipt(bool retrieveReceipt)
 {
   mShouldGetReceipt = retrieveReceipt;
@@ -136,5 +152,6 @@ void ChunkedTransaction<SdkRequestType>::setShouldGetReceipt(bool retrieveReceip
  * Explicit template instantiations.
  */
 template class ChunkedTransaction<FileAppendTransaction>;
+template class ChunkedTransaction<TopicMessageSubmitTransaction>;
 
 } // namespace Hedera
