@@ -70,10 +70,9 @@ TokenFeeScheduleUpdateTransaction& TokenFeeScheduleUpdateTransaction::setCustomF
 proto::Transaction TokenFeeScheduleUpdateTransaction::makeRequest(const Client& client,
                                                                   const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_token_fee_schedule_update(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -84,6 +83,12 @@ grpc::Status TokenFeeScheduleUpdateTransaction::submitRequest(const Client& clie
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenFeeScheduleUpdate, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenFeeScheduleUpdateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_token_fee_schedule_update(build());
 }
 
 //-----

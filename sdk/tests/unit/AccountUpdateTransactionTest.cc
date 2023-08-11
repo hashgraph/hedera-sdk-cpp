@@ -159,7 +159,7 @@ TEST_F(AccountUpdateTransactionTest, SetAccountIdFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
@@ -183,7 +183,7 @@ TEST_F(AccountUpdateTransactionTest, SetKeyFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setKey(getTestPublicKey().get()), IllegalStateException);
@@ -207,7 +207,7 @@ TEST_F(AccountUpdateTransactionTest, SetReceiverSignatureRequiredFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired()), IllegalStateException);
@@ -231,7 +231,7 @@ TEST_F(AccountUpdateTransactionTest, SetAutoRenewPeriodFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -255,7 +255,7 @@ TEST_F(AccountUpdateTransactionTest, SetExpirationTimeFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -289,7 +289,7 @@ TEST_F(AccountUpdateTransactionTest, SetAccountMemoFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAccountMemo(getTestAccountMemo()), IllegalStateException);
@@ -323,7 +323,7 @@ TEST_F(AccountUpdateTransactionTest, SetMaxAutomaticTokenAssociationsFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()), IllegalStateException);
@@ -347,7 +347,7 @@ TEST_F(AccountUpdateTransactionTest, SetStakedAccountIdFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setStakedAccountId(getTestStakedAccountId()), IllegalStateException);
@@ -371,7 +371,7 @@ TEST_F(AccountUpdateTransactionTest, SetStakedNodeIdFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestStakedNodeId()), IllegalStateException);
@@ -395,7 +395,7 @@ TEST_F(AccountUpdateTransactionTest, SetStakingRewardPolicyFrozen)
 {
   // Given
   AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()), IllegalStateException);

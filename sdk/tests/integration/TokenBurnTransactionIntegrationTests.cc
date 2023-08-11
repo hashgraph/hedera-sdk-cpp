@@ -254,7 +254,7 @@ TEST_F(TokenBurnTransactionIntegrationTest, CannotBurnNftIfNftIsNotOwnedByTreasu
   ASSERT_NO_THROW(txReceipt = TokenAssociateTransaction()
                                 .setTokenIds({ tokenId })
                                 .setAccountId(accountId)
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -276,14 +276,14 @@ TEST_F(TokenBurnTransactionIntegrationTest, CannotBurnNftIfNftIsNotOwnedByTreasu
   // Clean up
   ASSERT_NO_THROW(txReceipt = TransferTransaction()
                                 .addNftTransfer(nftId, accountId, AccountId(2ULL))
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
   ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
                                 .setTransferAccountId(AccountId(2ULL))
                                 .setDeleteAccountId(accountId)
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));

@@ -47,6 +47,7 @@
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
 #include "FileUpdateTransaction.h"
+#include "ScheduleCreateTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -106,6 +107,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::duration<double>& timeout)
 {
+  std::cout << __FUNCTION__ << std::endl;
   setExecutionParameters(client);
   onExecute(client);
 
@@ -145,9 +147,9 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
     // Do node specific tasks
     onSelectNode(node);
-
+    std::cout << "on select done" << std::endl;
     const grpc::Status status = submitRequest(client, timeoutTime, node, &response);
-
+    std::cout << "submitted" << std::endl;
     // Increase backoff for this node but try submitting again for UNAVAILABLE, RESOURCE_EXHAUSTED, and INTERNAL
     // responses.
     if (const grpc::StatusCode errorCode = status.error_code(); errorCode == grpc::StatusCode::UNAVAILABLE ||
@@ -368,6 +370,10 @@ template class Executable<FileCreateTransaction, proto::Transaction, proto::Tran
 template class Executable<FileDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FileInfoQuery, proto::Query, proto::Response, FileInfo>;
 template class Executable<FileUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<ScheduleCreateTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TokenAssociateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,

@@ -44,7 +44,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlow)
 {
   // Given / When
   TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = ContractCreateFlow()
+  ASSERT_NO_THROW(txResponse = ContractCreateFlow()
                                  .setBytecode(getTestSmartContractBytecode())
                                  .setAdminKey(getTestClient().getOperatorPublicKey().get())
                                  .setGas(100000ULL)
@@ -113,7 +113,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPrivateKe
                     ContractDeleteTransaction()
                       .setContractId(contractId)
                       .setTransferAccountId(getTestClient().getOperatorAccountId().value())
-                      .freezeWith(getTestClient())
+                      .freezeWith(&getTestClient())
                       .sign(adminKey.get())
                       .execute(getTestClient())
                       .getReceipt(getTestClient()));
@@ -150,7 +150,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPublicKey
                     ContractDeleteTransaction()
                       .setContractId(contractId)
                       .setTransferAccountId(getTestClient().getOperatorAccountId().value())
-                      .freezeWith(getTestClient())
+                      .freezeWith(&getTestClient())
                       .sign(adminKey.get())
                       .execute(getTestClient())
                       .getReceipt(getTestClient()));

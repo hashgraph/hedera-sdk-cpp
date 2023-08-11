@@ -63,6 +63,7 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
   const FileId fileId = fileCreateTransaction.execute(client, timeout).getReceipt(client, timeout).mFileId.value();
 
   // Append to the file if needed.
+  std::cout << "doing file append" << std::endl;
   if (!appendedByteCode.empty())
   {
     FileAppendTransaction fileAppendTransaction =
@@ -75,6 +76,7 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
 
     fileAppendTransaction.execute(client, timeout);
   }
+  std::cout << "done file append" << std::endl;
 
   // Create the smart contract instance using the bytecode in the file.
   ContractCreateTransaction contractCreateTransaction =
@@ -118,7 +120,7 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
 
   if (mFreezeWithClient != nullptr)
   {
-    contractCreateTransaction.freezeWith(*mFreezeWithClient);
+    contractCreateTransaction.freezeWith(mFreezeWithClient);
   }
 
   if (mPrivateKey)

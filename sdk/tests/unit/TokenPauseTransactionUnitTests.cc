@@ -75,7 +75,7 @@ TEST_F(TokenPauseTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
   TokenPauseTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);

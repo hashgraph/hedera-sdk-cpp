@@ -161,7 +161,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -185,7 +185,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetNameFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenName(getTestTokenName()), IllegalStateException);
@@ -209,7 +209,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetSymbolFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenSymbol(getTestTokenSymbol()), IllegalStateException);
@@ -233,7 +233,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetTreasuryAccountIdFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTreasuryAccountId(getTestTreasuryAccountId()), IllegalStateException);
@@ -257,7 +257,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAdminKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAdminKey(getTestAdminKey()), IllegalStateException);
@@ -281,7 +281,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetKycKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setKycKey(getTestKycKey()), IllegalStateException);
@@ -305,7 +305,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetFreezeKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setFreezeKey(getTestFreezeKey()), IllegalStateException);
@@ -329,7 +329,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetWipeKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setWipeKey(getTestWipeKey()), IllegalStateException);
@@ -353,7 +353,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetSupplyKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setSupplyKey(getTestSupplyKey()), IllegalStateException);
@@ -377,7 +377,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewAccountIdFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewAccountId(getTestAutoRenewAccountId()), IllegalStateException);
@@ -401,7 +401,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewPeriodFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -425,7 +425,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetExpirationTimeFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -449,7 +449,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetMemoFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenMemo(getTestTokenMemo()), IllegalStateException);
@@ -473,7 +473,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetFeeScheduleKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setFeeScheduleKey(getTestFeeScheduleKey()), IllegalStateException);
@@ -497,7 +497,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetPauseKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setPauseKey(getTestPauseKey()), IllegalStateException);

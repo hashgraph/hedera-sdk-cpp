@@ -92,7 +92,7 @@ TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
   TokenFeeScheduleUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -116,7 +116,7 @@ TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetCustomFeesFrozen)
 {
   // Given
   TokenFeeScheduleUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setCustomFees(getTestCustomFees()), IllegalStateException);

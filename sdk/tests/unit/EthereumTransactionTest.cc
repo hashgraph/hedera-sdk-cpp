@@ -91,7 +91,7 @@ TEST_F(EthereumTransactionTest, GetSetEthereumDataFrozen)
 {
   // Given
   EthereumTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setEthereumData(getTestEthereumData()), IllegalStateException);
@@ -115,7 +115,7 @@ TEST_F(EthereumTransactionTest, GetSetCallDataFileIdFrozen)
 {
   // Given
   EthereumTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setCallDataFileId(getTestCallDataFileId()), IllegalStateException);
@@ -139,7 +139,7 @@ TEST_F(EthereumTransactionTest, GetSetMaxGasAllowanceFrozen)
 {
   // Given
   EthereumTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setMaxGasAllowance(getTestMaxGasAllowance()), IllegalStateException);

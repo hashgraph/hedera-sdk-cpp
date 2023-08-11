@@ -84,7 +84,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
                                 .setAutoRenewPeriod(newAutoRenewPeriod)
                                 .setContractMemo(newMemo)
                                 .setDeclineStakingReward(true)
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(newAdminKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -103,7 +103,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()
                                 .setContractId(contractId)
                                 .setTransferAccountId(AccountId(2ULL))
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(newAdminKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));

@@ -82,10 +82,9 @@ FileAppendTransaction& FileAppendTransaction::setContents(std::string_view conte
 proto::Transaction FileAppendTransaction::makeRequest(const Client& client,
                                                       const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_fileappend(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -96,6 +95,12 @@ grpc::Status FileAppendTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kFileAppend, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void FileAppendTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_fileappend(build());
 }
 
 //-----

@@ -139,7 +139,7 @@ TEST_F(ContractCreateTransactionTest, GetSetFileIdFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setBytecodeFileId(getTestFileId()), IllegalStateException);
@@ -163,7 +163,7 @@ TEST_F(ContractCreateTransactionTest, GetSetInitCodeFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setBytecode(getTestBytecode()), IllegalStateException);
@@ -187,7 +187,7 @@ TEST_F(ContractCreateTransactionTest, GetSetAdminKeyFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAdminKey(getTestAdminKey().get()), IllegalStateException);
@@ -211,7 +211,7 @@ TEST_F(ContractCreateTransactionTest, GetSetGasFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setGas(getTestGas()), IllegalStateException);
@@ -235,7 +235,7 @@ TEST_F(ContractCreateTransactionTest, GetSetInitialBalanceFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setInitialBalance(getTestInitialBalance()), IllegalStateException);
@@ -259,7 +259,7 @@ TEST_F(ContractCreateTransactionTest, GetSetAutoRenewPeriodFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -283,7 +283,7 @@ TEST_F(ContractCreateTransactionTest, GetSetConstructorParametersFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setConstructorParameters(getTestConstructorParameters()), IllegalStateException);
@@ -307,7 +307,7 @@ TEST_F(ContractCreateTransactionTest, GetSetMemoFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setMemo(getTestMemo()), IllegalStateException);
@@ -331,7 +331,7 @@ TEST_F(ContractCreateTransactionTest, GetSetMaxAutomaticTokenAssociationsFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()), IllegalStateException);
@@ -355,7 +355,7 @@ TEST_F(ContractCreateTransactionTest, GetSetAutoRenewAccountIdFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewAccountId(getTestAutoRenewAccountId()), IllegalStateException);
@@ -379,7 +379,7 @@ TEST_F(ContractCreateTransactionTest, GetSetStakedAccountIdFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setStakedAccountId(getTestStakedAccountId()), IllegalStateException);
@@ -403,7 +403,7 @@ TEST_F(ContractCreateTransactionTest, GetSetStakedNodeIdFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestStakedNodeId()), IllegalStateException);
@@ -427,7 +427,7 @@ TEST_F(ContractCreateTransactionTest, GetSetDeclineRewardFrozen)
 {
   // Given
   ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()), IllegalStateException);

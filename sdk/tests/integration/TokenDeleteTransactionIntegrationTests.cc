@@ -93,7 +93,7 @@ TEST_F(TokenDeleteTransactionIntegrationTest, CannotDeleteTokenWithNoAdminKeySig
                               .setTokenSymbol("F")
                               .setTreasuryAccountId(AccountId(2ULL))
                               .setAdminKey(adminKey)
-                              .freezeWith(getTestClient())
+                              .freezeWith(&getTestClient())
                               .sign(adminKey.get())
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
@@ -107,7 +107,7 @@ TEST_F(TokenDeleteTransactionIntegrationTest, CannotDeleteTokenWithNoAdminKeySig
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenDeleteTransaction()
                                                          .setTokenId(tokenId)
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(adminKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));

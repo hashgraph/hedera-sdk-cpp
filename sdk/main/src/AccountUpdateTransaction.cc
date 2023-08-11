@@ -198,10 +198,9 @@ AccountUpdateTransaction& AccountUpdateTransaction::setDeclineStakingReward(bool
 proto::Transaction AccountUpdateTransaction::makeRequest(const Client& client,
                                                          const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_cryptoupdateaccount(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -212,6 +211,12 @@ grpc::Status AccountUpdateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kCryptoUpdateAccount, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void AccountUpdateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_cryptoupdateaccount(build());
 }
 
 //-----

@@ -63,7 +63,7 @@ TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TransferTransaction()
                                                          .addHbarTransfer(operatorAccountId, amount)
                                                          .addHbarTransfer(accountId, amount.negated())
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(privateKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -79,7 +79,7 @@ TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(operatorAccountId)
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(privateKey.get())
                     .execute(getTestClient()));
 }

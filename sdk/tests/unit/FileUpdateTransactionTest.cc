@@ -119,7 +119,7 @@ TEST_F(FileUpdateTransactionTest, GetSetFileIdFrozen)
 {
   // Given
   FileUpdateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);
@@ -144,7 +144,7 @@ TEST_F(FileUpdateTransactionTest, GetSetExpirationTimeFrozen)
 {
   // Given
   FileUpdateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -175,7 +175,7 @@ TEST_F(FileUpdateTransactionTest, GetSetKeysFrozen)
 {
   // Given
   FileUpdateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setKeys(getTestKeyList()), IllegalStateException);
@@ -205,7 +205,7 @@ TEST_F(FileUpdateTransactionTest, GetSetContentsFrozen)
 {
   // Given
   FileUpdateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setContents(getTestContents()), IllegalStateException);
@@ -232,7 +232,7 @@ TEST_F(FileUpdateTransactionTest, GetSetMemoFrozen)
 {
   // Given
   FileUpdateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setFileMemo(getTestMemo()), IllegalStateException);

@@ -65,7 +65,7 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountAllowanceApproveTransaction()
                                  .approveHbarAllowance(allowerAccountId, alloweeAccountId, amount)
-                                 .freezeWith(getTestClient())
+                                 .freezeWith(&getTestClient())
                                  .sign(allowerKey.get())
                                  .execute(getTestClient()));
 
@@ -76,13 +76,13 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(allowerAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(allowerKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(alloweeAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(alloweeKey.get())
                     .execute(getTestClient()));
 }
@@ -120,13 +120,13 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, CannotAllowAllowanceWi
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(allowerAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(allowerKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(alloweeAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(alloweeKey.get())
                     .execute(getTestClient()));
 }

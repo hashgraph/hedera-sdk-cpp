@@ -146,7 +146,7 @@ TEST_F(AccountAllowanceDeleteTransactionTest, DeleteNftAllowancesFrozen)
 {
   // Given
   AccountAllowanceDeleteTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.deleteAllTokenNftAllowances(NftId(getTestTokenId(), 10ULL), getTestOwnerAccountId()),

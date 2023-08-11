@@ -25,6 +25,7 @@
 #include "impl/Utilities.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace Hedera
 {
@@ -63,6 +64,7 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
 
   for (long byte = 0; byte < allData.size(); byte += mChunkSize)
   {
+    std::cout << "loop" << std::endl;
     // Copy the next chunk into mData (making sure not to copy more bytes than are left)
     mData = { allData.cbegin() + byte,
               allData.cbegin() + byte + ((mChunkSize + byte > allData.size()) ? allData.size() - byte : mChunkSize) };
@@ -79,6 +81,7 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
     }
 
     // Generate a new transaction ID with the same account ID (to prevent DUPLICATE_TRANSACTION errors)
+    std::cout << "changing transaction id" << std::endl;
     Transaction<SdkRequestType>::setTransactionId(
       TransactionId::generate(Transaction<SdkRequestType>::getTransactionId().getAccountId()));
   }

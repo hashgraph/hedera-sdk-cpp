@@ -49,7 +49,7 @@ public:
    * The default chunk size for a FileAppendTransaction.
    */
   static constexpr unsigned int DEFAULT_CHUNK_SIZE = 4096U;
-   
+
   /**
    * Default constructor. Sets the maximum transaction fee to 5 Hbars, chunk size to 2048 bytes, and sets the receipt
    * retrieval policy to always retrieve receipts between chunk submissions.
@@ -124,6 +124,13 @@ private:
                                            const std::chrono::system_clock::time_point& deadline,
                                            const std::shared_ptr<internal::Node>& node,
                                            proto::TransactionResponse* response) const override;
+  /**
+   * Derived from Transaction. Build and add the FileAppendTransaction protobuf representation to the Transaction
+   * protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
+   */
+  void addToBody(proto::TransactionBody& body) const override;
 
   /**
    * Build a FileAppendTransactionBody protobuf object from this FileAppendTransaction object.

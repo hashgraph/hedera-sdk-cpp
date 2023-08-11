@@ -85,7 +85,7 @@ TEST_F(TopicDeleteTransactionTest, GetSetTopicIdFrozen)
 {
   // Given
   TopicDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTopicId(getTestTopicId()), IllegalStateException);

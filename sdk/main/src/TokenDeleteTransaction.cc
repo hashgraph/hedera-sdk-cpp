@@ -56,10 +56,9 @@ TokenDeleteTransaction& TokenDeleteTransaction::setTokenId(const TokenId& tokenI
 proto::Transaction TokenDeleteTransaction::makeRequest(const Client& client,
                                                        const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokendeletion(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -70,6 +69,12 @@ grpc::Status TokenDeleteTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenDeletion, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenDeleteTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokendeletion(build());
 }
 
 //-----

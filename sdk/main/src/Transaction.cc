@@ -35,6 +35,7 @@
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
 #include "PrivateKey.h"
+#include "ScheduleCreateTransaction.h"
 #include "Status.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
@@ -56,8 +57,9 @@
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "WrappedTransaction.h"
 #include "exceptions/IllegalStateException.h"
-#include "exceptions/UninitializedException.h"
+#include "exceptions/UnsupportedOperationException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 #include "impl/Utilities.h"
@@ -73,40 +75,7 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
-std::pair<int,
-          std::variant<AccountCreateTransaction,
-                       TransferTransaction,
-                       AccountUpdateTransaction,
-                       AccountDeleteTransaction,
-                       AccountAllowanceApproveTransaction,
-                       AccountAllowanceDeleteTransaction,
-                       ContractCreateTransaction,
-                       ContractDeleteTransaction,
-                       FileCreateTransaction,
-                       FileDeleteTransaction,
-                       ContractExecuteTransaction,
-                       ContractUpdateTransaction,
-                       EthereumTransaction,
-                       FileUpdateTransaction,
-                       FileAppendTransaction,
-                       TokenCreateTransaction,
-                       TokenDeleteTransaction,
-                       TokenAssociateTransaction,
-                       TokenMintTransaction,
-                       TokenUpdateTransaction,
-                       TokenWipeTransaction,
-                       TokenBurnTransaction,
-                       TokenDissociateTransaction,
-                       TokenFeeScheduleUpdateTransaction,
-                       TokenGrantKycTransaction,
-                       TokenRevokeKycTransaction,
-                       TokenPauseTransaction,
-                       TokenUnpauseTransaction,
-                       TokenFreezeTransaction,
-                       TokenUnfreezeTransaction,
-                       TopicCreateTransaction,
-                       TopicDeleteTransaction>>
-Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
+WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
 
@@ -147,70 +116,70 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 
   switch (txBody.data_case())
   {
-    case proto::TransactionBody::kCryptoCreateAccount:
-      return { 0, AccountCreateTransaction(txBody) };
-    case proto::TransactionBody::kCryptoTransfer:
-      return { 1, TransferTransaction(txBody) };
-    case proto::TransactionBody::kCryptoUpdateAccount:
-      return { 2, AccountUpdateTransaction(txBody) };
-    case proto::TransactionBody::kCryptoDelete:
-      return { 3, AccountDeleteTransaction(txBody) };
     case proto::TransactionBody::kCryptoApproveAllowance:
-      return { 4, AccountAllowanceApproveTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountAllowanceApproveTransaction(txBody)));
     case proto::TransactionBody::kCryptoDeleteAllowance:
-      return { 5, AccountAllowanceDeleteTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountAllowanceDeleteTransaction(txBody)));
+    case proto::TransactionBody::kCryptoCreateAccount:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountCreateTransaction(txBody)));
+    case proto::TransactionBody::kCryptoDelete:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountDeleteTransaction(txBody)));
+    case proto::TransactionBody::kCryptoUpdateAccount:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountUpdateTransaction(txBody)));
     case proto::TransactionBody::kContractCreateInstance:
-      return { 6, ContractCreateTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(ContractCreateTransaction(txBody)));
     case proto::TransactionBody::kContractDeleteInstance:
-      return { 7, ContractDeleteTransaction(txBody) };
-    case proto::TransactionBody::kFileCreate:
-      return { 8, FileCreateTransaction(txBody) };
-    case proto::TransactionBody::kFileDelete:
-      return { 9, FileDeleteTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(ContractDeleteTransaction(txBody)));
     case proto::TransactionBody::kContractCall:
-      return { 10, ContractExecuteTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(ContractExecuteTransaction(txBody)));
     case proto::TransactionBody::kContractUpdateInstance:
-      return { 11, ContractUpdateTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(ContractUpdateTransaction(txBody)));
     case proto::TransactionBody::kEthereumTransaction:
-      return { 12, EthereumTransaction(txBody) };
-    case proto::TransactionBody::kFileUpdate:
-      return { 13, FileUpdateTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(EthereumTransaction(txBody)));
     case proto::TransactionBody::kFileAppend:
-      return { 14, FileAppendTransaction(txBody) };
-    case proto::TransactionBody::kTokenCreation:
-      return { 15, TokenCreateTransaction(txBody) };
-    case proto::TransactionBody::kTokenDeletion:
-      return { 16, TokenDeleteTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(FileAppendTransaction(txBody)));
+    case proto::TransactionBody::kFileCreate:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(FileCreateTransaction(txBody)));
+    case proto::TransactionBody::kFileDelete:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(FileDeleteTransaction(txBody)));
+    case proto::TransactionBody::kFileUpdate:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(FileUpdateTransaction(txBody)));
     case proto::TransactionBody::kTokenAssociate:
-      return { 17, TokenAssociateTransaction(txBody) };
-    case proto::TransactionBody::kTokenMint:
-      return { 18, TokenMintTransaction(txBody) };
-    case proto::TransactionBody::kTokenUpdate:
-      return { 19, TokenUpdateTransaction(txBody) };
-    case proto::TransactionBody::kTokenWipe:
-      return { 20, TokenWipeTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenAssociateTransaction(txBody)));
     case proto::TransactionBody::kTokenBurn:
-      return { 21, TokenBurnTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenBurnTransaction(txBody)));
+    case proto::TransactionBody::kTokenCreation:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenCreateTransaction(txBody)));
+    case proto::TransactionBody::kTokenDeletion:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenDeleteTransaction(txBody)));
     case proto::TransactionBody::kTokenDissociate:
-      return { 22, TokenDissociateTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenDissociateTransaction(txBody)));
     case proto::TransactionBody::kTokenFeeScheduleUpdate:
-      return { 23, TokenFeeScheduleUpdateTransaction(txBody) };
-    case proto::TransactionBody::kTokenGrantKyc:
-      return { 24, TokenGrantKycTransaction(txBody) };
-    case proto::TransactionBody::kTokenRevokeKyc:
-      return { 25, TokenRevokeKycTransaction(txBody) };
-    case proto::TransactionBody::kTokenPause:
-      return { 26, TokenPauseTransaction(txBody) };
-    case proto::TransactionBody::kTokenUnpause:
-      return { 27, TokenUnpauseTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenFeeScheduleUpdateTransaction(txBody)));
     case proto::TransactionBody::kTokenFreeze:
-      return { 28, TokenFreezeTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenFreezeTransaction(txBody)));
+    case proto::TransactionBody::kTokenGrantKyc:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenGrantKycTransaction(txBody)));
+    case proto::TransactionBody::kTokenMint:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenMintTransaction(txBody)));
+    case proto::TransactionBody::kTokenPause:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenPauseTransaction(txBody)));
+    case proto::TransactionBody::kTokenRevokeKyc:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenRevokeKycTransaction(txBody)));
     case proto::TransactionBody::kTokenUnfreeze:
-      return { 29, TokenUnfreezeTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenUnfreezeTransaction(txBody)));
+    case proto::TransactionBody::kTokenUnpause:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenUnpauseTransaction(txBody)));
+    case proto::TransactionBody::kTokenUpdate:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenUpdateTransaction(txBody)));
+    case proto::TransactionBody::kTokenWipe:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenWipeTransaction(txBody)));
     case proto::TransactionBody::kConsensusCreateTopic:
-      return { 30, TopicCreateTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicCreateTransaction(txBody)));
     case proto::TransactionBody::kConsensusDeleteTopic:
-      return { 31, TopicDeleteTransaction(txBody) };
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicDeleteTransaction(txBody)));
+    case proto::TransactionBody::kCryptoTransfer:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TransferTransaction(txBody)));
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -241,15 +210,179 @@ SdkRequestType& Transaction<SdkRequestType>::signWith(
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client& client)
+SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client* client)
 {
-  if (!client.getOperatorAccountId().has_value())
+  if (mIsFrozen)
   {
-    throw UninitializedException("Client operator has not been initialized and cannot freeze transaction");
+    return static_cast<SdkRequestType&>(*this);
+  }
+
+  if (mTransactionId == TransactionId())
+  {
+    if (!client)
+    {
+      throw IllegalStateException(
+        "If no client is provided to freeze transaction, the transaction ID must be manually set");
+    }
+
+    if (!client->getOperatorAccountId().has_value())
+    {
+      throw IllegalStateException("Client operator has not been initialized and cannot freeze transaction");
+    }
+
+    // Generate a transaction ID with the client.
+    mTransactionId = TransactionId::generate(client->getOperatorAccountId().value());
   }
 
   mIsFrozen = true;
   return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
+ScheduleCreateTransaction Transaction<SdkRequestType>::schedule() const
+{
+  requireNotFrozen();
+  if (!Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+         getNodeAccountIds()
+           .empty())
+  {
+    throw IllegalStateException("Underlying transaction for a scheduled transaction cannot have node account IDs set");
+  }
+
+  proto::TransactionBody body = generateTransactionBody(nullptr);
+  addToBody(body);
+
+  proto::SchedulableTransactionBody schedulableTransactionBody;
+  schedulableTransactionBody.set_transactionfee(body.transactionfee());
+  schedulableTransactionBody.set_memo(body.memo());
+
+  if (body.has_cryptoapproveallowance())
+  {
+    schedulableTransactionBody.set_allocated_cryptoapproveallowance(body.release_cryptoapproveallowance());
+  }
+  else if (body.has_cryptodeleteallowance())
+  {
+    schedulableTransactionBody.set_allocated_cryptodeleteallowance(body.release_cryptodeleteallowance());
+  }
+  else if (body.has_cryptocreateaccount())
+  {
+    schedulableTransactionBody.set_allocated_cryptocreateaccount(body.release_cryptocreateaccount());
+  }
+  else if (body.has_cryptodeleteallowance())
+  {
+    schedulableTransactionBody.set_allocated_cryptodelete(body.release_cryptodelete());
+  }
+  else if (body.has_cryptoupdateaccount())
+  {
+    schedulableTransactionBody.set_allocated_cryptoupdateaccount(body.release_cryptoupdateaccount());
+  }
+  else if (body.has_contractcreateinstance())
+  {
+    schedulableTransactionBody.set_allocated_contractcreateinstance(body.release_contractcreateinstance());
+  }
+  else if (body.has_contractdeleteinstance())
+  {
+    schedulableTransactionBody.set_allocated_contractdeleteinstance(body.release_contractdeleteinstance());
+  }
+  else if (body.has_contractcall())
+  {
+    schedulableTransactionBody.set_allocated_contractcall(body.release_contractcall());
+  }
+  else if (body.has_contractupdateinstance())
+  {
+    schedulableTransactionBody.set_allocated_contractupdateinstance(body.release_contractupdateinstance());
+  }
+  else if (body.has_fileappend())
+  {
+    schedulableTransactionBody.set_allocated_fileappend(body.release_fileappend());
+  }
+  else if (body.has_filecreate())
+  {
+    schedulableTransactionBody.set_allocated_filecreate(body.release_filecreate());
+  }
+  else if (body.has_filedelete())
+  {
+    schedulableTransactionBody.set_allocated_filedelete(body.release_filedelete());
+  }
+  else if (body.has_fileupdate())
+  {
+    schedulableTransactionBody.set_allocated_fileupdate(body.release_fileupdate());
+  }
+  else if (body.has_tokenassociate())
+  {
+    schedulableTransactionBody.set_allocated_tokenassociate(body.release_tokenassociate());
+  }
+  else if (body.has_tokenburn())
+  {
+    schedulableTransactionBody.set_allocated_tokenburn(body.release_tokenburn());
+  }
+  else if (body.has_tokencreation())
+  {
+    schedulableTransactionBody.set_allocated_tokencreation(body.release_tokencreation());
+  }
+  else if (body.has_tokendeletion())
+  {
+    schedulableTransactionBody.set_allocated_tokendeletion(body.release_tokendeletion());
+  }
+  else if (body.has_tokendissociate())
+  {
+    schedulableTransactionBody.set_allocated_tokendissociate(body.release_tokendissociate());
+  }
+  else if (body.has_token_fee_schedule_update())
+  {
+    schedulableTransactionBody.set_allocated_token_fee_schedule_update(body.release_token_fee_schedule_update());
+  }
+  else if (body.has_tokenfreeze())
+  {
+    schedulableTransactionBody.set_allocated_tokenfreeze(body.release_tokenfreeze());
+  }
+  else if (body.has_tokengrantkyc())
+  {
+    schedulableTransactionBody.set_allocated_tokengrantkyc(body.release_tokengrantkyc());
+  }
+  else if (body.has_tokenmint())
+  {
+    schedulableTransactionBody.set_allocated_tokenmint(body.release_tokenmint());
+  }
+  else if (body.has_token_pause())
+  {
+    schedulableTransactionBody.set_allocated_token_pause(body.release_token_pause());
+  }
+  else if (body.has_tokenrevokekyc())
+  {
+    schedulableTransactionBody.set_allocated_tokenrevokekyc(body.release_tokenrevokekyc());
+  }
+  else if (body.has_tokenunfreeze())
+  {
+    schedulableTransactionBody.set_allocated_tokenunfreeze(body.release_tokenunfreeze());
+  }
+  else if (body.has_token_unpause())
+  {
+    schedulableTransactionBody.set_allocated_token_unpause(body.release_token_unpause());
+  }
+  else if (body.has_tokenwipe())
+  {
+    schedulableTransactionBody.set_allocated_tokenwipe(body.release_tokenwipe());
+  }
+  else if (body.has_consensuscreatetopic())
+  {
+    schedulableTransactionBody.set_allocated_consensuscreatetopic(body.release_consensuscreatetopic());
+  }
+  else if (body.has_consensusdeletetopic())
+  {
+    schedulableTransactionBody.set_allocated_consensusdeletetopic(body.release_consensusdeletetopic());
+  }
+  else if (body.has_cryptotransfer())
+  {
+    schedulableTransactionBody.set_allocated_cryptotransfer(body.release_cryptotransfer());
+  }
+  else
+  {
+    throw UnsupportedOperationException("Transaction cannot be scheduled");
+  }
+
+  return ScheduleCreateTransaction().setScheduledTransaction(schedulableTransactionBody);
 }
 
 //-----
@@ -400,7 +533,7 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
 
 //-----
 template<typename SdkRequestType>
-proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(const Client& client) const
+proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(const Client* client) const
 {
   proto::TransactionBody body;
   body.set_allocated_transactionid(mTransactionId.toProtobuf().release());
@@ -423,11 +556,19 @@ void Transaction<SdkRequestType>::requireNotFrozen() const
 
 //-----
 template<typename SdkRequestType>
-Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client& client) const
+Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client* client) const
 {
-  return mMaxTransactionFee              ? *mMaxTransactionFee
-         : client.getMaxTransactionFee() ? *client.getMaxTransactionFee()
-                                         : DEFAULT_MAX_TRANSACTION_FEE;
+  if (mMaxTransactionFee.has_value())
+  {
+    return mMaxTransactionFee.value();
+  }
+
+  if (client && client->getMaxTransactionFee().has_value())
+  {
+    return client->getMaxTransactionFee().value();
+  }
+
+  return DEFAULT_MAX_TRANSACTION_FEE;
 }
 
 //-----
@@ -497,15 +638,9 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
 template<typename SdkRequestType>
 void Transaction<SdkRequestType>::onExecute(const Client& client)
 {
-  if (!client.getOperatorAccountId())
+  if (!mIsFrozen)
   {
-    throw UninitializedException("No client operator private key with which to sign");
-  }
-
-  // Set the transaction ID if it has not already been manually set.
-  if (mTransactionId.getAccountId() == AccountId())
-  {
-    mTransactionId = TransactionId::generate(*client.getOperatorAccountId());
+    freezeWith(&client);
   }
 }
 
@@ -526,6 +661,7 @@ template class Transaction<FileAppendTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
+template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;
 template class Transaction<TokenCreateTransaction>;

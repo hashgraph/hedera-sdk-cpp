@@ -80,7 +80,7 @@ TEST_F(TokenRevokeKycTransactionTest, GetSetAccountIdFrozen)
 {
   // Given
   TokenRevokeKycTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
@@ -104,7 +104,7 @@ TEST_F(TokenRevokeKycTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
   TokenRevokeKycTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
