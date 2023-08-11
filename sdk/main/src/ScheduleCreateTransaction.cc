@@ -236,6 +236,12 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::setScheduledTransaction(co
     case TOPIC_DELETE_TRANSACTION:
       return setScheduledTransaction(
         tx.getTransaction<TopicDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
+    case TOPIC_MESSAGE_SUBMIT_TRANSACTION:
+      return setScheduledTransaction(
+        tx.getTransaction<TopicMessageSubmitTransaction>()->schedule().mImpl->mTransactionToSchedule);
+    case TOPIC_UPDATE_TRANSACTION:
+      return setScheduledTransaction(
+        tx.getTransaction<TopicUpdateTransaction>()->schedule().mImpl->mTransactionToSchedule);
     case TRANSFER_TRANSACTION:
       return setScheduledTransaction(
         tx.getTransaction<TransferTransaction>()->schedule().mImpl->mTransactionToSchedule);
@@ -423,6 +429,14 @@ WrappedTransaction ScheduleCreateTransaction::getScheduledTransaction() const
   else if (mImpl->mTransactionToSchedule.has_consensusdeletetopic())
   {
     *txBody.mutable_consensusdeletetopic() = mImpl->mTransactionToSchedule.consensusdeletetopic();
+  }
+  else if (mImpl->mTransactionToSchedule.has_consensussubmitmessage())
+  {
+    *txBody.mutable_consensussubmitmessage() = mImpl->mTransactionToSchedule.consensussubmitmessage();
+  }
+  else if (mImpl->mTransactionToSchedule.has_consensusupdatetopic())
+  {
+    *txBody.mutable_consensusupdatetopic() = mImpl->mTransactionToSchedule.consensusupdatetopic();
   }
   else if (mImpl->mTransactionToSchedule.has_cryptotransfer())
   {

@@ -52,6 +52,8 @@
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
 #include "TopicDeleteTransaction.h"
+#include "TopicMessageSubmitTransaction.h"
+#include "TopicUpdateTransaction.h"
 #include "TransactionType.h"
 #include "TransferTransaction.h"
 
@@ -105,6 +107,8 @@ public:
                                               TokenWipeTransaction,
                                               TopicCreateTransaction,
                                               TopicDeleteTransaction,
+                                              TopicMessageSubmitTransaction,
+                                              TopicUpdateTransaction,
                                               TransferTransaction>;
 
   WrappedTransaction() = default;
@@ -114,7 +118,7 @@ public:
    *
    * @param transaction The transaction to wrap.
    */
-  explicit WrappedTransaction(const AnyPossibleTransaction& transaction);
+  explicit WrappedTransaction(AnyPossibleTransaction transaction);
 
   /**
    * Construct with a TransactionBody protobuf object.

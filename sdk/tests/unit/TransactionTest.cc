@@ -49,6 +49,8 @@
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
 #include "TopicDeleteTransaction.h"
+#include "TopicMessageSubmitTransaction.h"
+#include "TopicUpdateTransaction.h"
 #include "TransferTransaction.h"
 #include "WrappedTransaction.h"
 #include "impl/Utilities.h"
@@ -1890,6 +1892,124 @@ TEST_F(TransactionTest, TopicDeleteTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_DELETE_TRANSACTION);
   EXPECT_NE(wrappedTx.getTransaction<TopicDeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, TopicMessageSubmitTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensussubmitmessage(new proto::ConsensusSubmitMessageTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<TopicMessageSubmitTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_MESSAGE_SUBMIT_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<TopicMessageSubmitTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, TopicMessageSubmitTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensussubmitmessage(new proto::ConsensusSubmitMessageTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<TopicMessageSubmitTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_MESSAGE_SUBMIT_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<TopicMessageSubmitTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, TopicMessageSubmitTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensussubmitmessage(new proto::ConsensusSubmitMessageTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<TopicMessageSubmitTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_MESSAGE_SUBMIT_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<TopicMessageSubmitTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, TopicUpdateTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensusupdatetopic(new proto::ConsensusUpdateTopicTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<TopicUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_UPDATE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<TopicUpdateTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, TopicUpdateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensusupdatetopic(new proto::ConsensusUpdateTopicTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<TopicUpdateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_UPDATE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<TopicUpdateTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, TopicUpdateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_consensusupdatetopic(new proto::ConsensusUpdateTopicTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<TopicUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_UPDATE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<TopicUpdateTransaction>(), nullptr);
 }
 
 //-----

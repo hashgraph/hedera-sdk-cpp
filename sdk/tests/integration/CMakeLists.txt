@@ -44,6 +44,8 @@ add_executable(${TEST_PROJECT_NAME}
         TopicCreateTransactionIntegrationTests.cc
         TopicDeleteTransactionIntegrationTests.cc
         TopicInfoQueryIntegrationTests.cc
+        TopicMessageSubmitTransactionIntegrationTests.cc
+        TopicUpdateTransactionIntegrationTests.cc
         TransactionIntegrationTest.cc
         TransactionReceiptIntegrationTest.cc
         TransactionReceiptQueryIntegrationTest.cc

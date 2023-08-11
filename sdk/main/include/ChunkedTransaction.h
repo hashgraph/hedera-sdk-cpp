@@ -25,6 +25,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <string_view>
 #include <vector>
 
@@ -98,15 +99,6 @@ public:
   std::vector<TransactionResponse> executeAll(const Client& client, const std::chrono::duration<double>& timeout);
 
   /**
-   * Set the data for this ChunkedTransaction.
-   *
-   * @param data The data for this ChunkedTransaction.
-   * @return A reference to this derived ChunkedTransaction object with the newly-set data.
-   */
-  SdkRequestType& setData(const std::vector<std::byte>& data);
-  SdkRequestType& setData(std::string_view data);
-
-  /**
    * Set the maximum number of chunks for this ChunkedTransaction.
    *
    * @param chunks The maximum number of chunks for this ChunkedTransaction.
@@ -123,13 +115,6 @@ public:
   SdkRequestType& setChunkSize(unsigned int size);
 
   /**
-   * Get the data for this ChunkedTransaction.
-   *
-   * @return The data for this ChunkedTransaction.
-   */
-  [[nodiscard]] inline std::vector<std::byte> getData() const { return mData; }
-
-  /**
    * Get the maximum number of chunks for this ChunkedTransaction.
    *
    * @return The maximum number of chunks for this ChunkedTransaction.
@@ -144,6 +129,31 @@ public:
   [[nodiscard]] inline unsigned int getChunkSize() const { return mChunkSize; }
 
 protected:
+  /**
+   * Create a chunk of this ChunkedTransaction to send.
+   *
+   * @param data  The whole entirety of data to be sent across all chunks.
+   * @param chunk The chunk number to create.
+   * @param total The total number of chunks to create.
+   */
+  virtual void createChunk(const std::vector<std::byte>& data, int32_t chunk, [[maybe_unused]] int32_t total);
+
+  /**
+   * Set the data for this ChunkedTransaction.
+   *
+   * @param data The data for this ChunkedTransaction.
+   * @return A reference to this derived ChunkedTransaction object with the newly-set data.
+   */
+  SdkRequestType& setData(const std::vector<std::byte>& data);
+  SdkRequestType& setData(std::string_view data);
+
+  /**
+   * Get the data for this ChunkedTransaction.
+   *
+   * @return The data for this ChunkedTransaction.
+   */
+  [[nodiscard]] inline std::vector<std::byte> getData() const { return mData; }
+
   /**
    * Set the receipt retrieval policy for this ChunkedTransaction.
    *

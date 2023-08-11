@@ -21,11 +21,13 @@
 
 #include <proto/transaction_body.pb.h>
 
+#include <utility>
+
 namespace Hedera
 {
 //-----
-WrappedTransaction::WrappedTransaction(const AnyPossibleTransaction& transaction)
-  : mTransaction(transaction)
+WrappedTransaction::WrappedTransaction(AnyPossibleTransaction transaction)
+  : mTransaction(std::move(transaction))
 {
 }
 
@@ -64,6 +66,8 @@ WrappedTransaction::WrappedTransaction(const proto::TransactionBody& transaction
   else if (transaction.has_tokenwipe()) mTransaction = TokenWipeTransaction(transaction);
   else if (transaction.has_consensuscreatetopic()) mTransaction = TopicCreateTransaction(transaction);
   else if (transaction.has_consensusdeletetopic()) mTransaction = TopicDeleteTransaction(transaction);
+  else if (transaction.has_consensussubmitmessage()) mTransaction = TopicMessageSubmitTransaction(transaction);
+  else if (transaction.has_consensusupdatetopic()) mTransaction = TopicUpdateTransaction(transaction);
   else if (transaction.has_cryptotransfer()) mTransaction = TransferTransaction(transaction);
   else
   {

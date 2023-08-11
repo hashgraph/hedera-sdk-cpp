@@ -54,6 +54,8 @@
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
 #include "TopicDeleteTransaction.h"
+#include "TopicMessageSubmitTransaction.h"
+#include "TopicUpdateTransaction.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
@@ -178,6 +180,10 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicCreateTransaction(txBody)));
     case proto::TransactionBody::kConsensusDeleteTopic:
       return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicDeleteTransaction(txBody)));
+    case proto::TransactionBody::kConsensusSubmitMessage:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicMessageSubmitTransaction(txBody)));
+    case proto::TransactionBody::kConsensusUpdateTopic:
+      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicUpdateTransaction(txBody)));
     case proto::TransactionBody::kCryptoTransfer:
       return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TransferTransaction(txBody)));
     default:
@@ -679,6 +685,8 @@ template class Transaction<TokenUpdateTransaction>;
 template class Transaction<TokenWipeTransaction>;
 template class Transaction<TopicCreateTransaction>;
 template class Transaction<TopicDeleteTransaction>;
+template class Transaction<TopicMessageSubmitTransaction>;
+template class Transaction<TopicUpdateTransaction>;
 template class Transaction<TransferTransaction>;
 
 } // namespace Hedera
