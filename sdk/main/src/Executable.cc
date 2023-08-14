@@ -109,7 +109,6 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::duration<double>& timeout)
 {
-  std::cout << __FUNCTION__ << std::endl;
   setExecutionParameters(client);
   onExecute(client);
 
@@ -149,9 +148,8 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
     // Do node specific tasks
     onSelectNode(node);
-    std::cout << "on select done" << std::endl;
     const grpc::Status status = submitRequest(client, timeoutTime, node, &response);
-    std::cout << "submitted" << std::endl;
+    
     // Increase backoff for this node but try submitting again for UNAVAILABLE, RESOURCE_EXHAUSTED, and INTERNAL
     // responses.
     if (const grpc::StatusCode errorCode = status.error_code(); errorCode == grpc::StatusCode::UNAVAILABLE ||

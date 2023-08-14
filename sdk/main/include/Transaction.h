@@ -204,8 +204,10 @@ public:
    * Get the desired ID for this Transaction.
    *
    * @return The desired ID for this Transaction.
+   * @throws IllegalStateException If no TransactionId has been generated yet. Freezing the Transaction will generate
+   *                               one.
    */
-  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
+  [[nodiscard]] TransactionId getTransactionId() const;
 
   /**
    * Get the desired transaction ID regeneration policy of this Transaction.

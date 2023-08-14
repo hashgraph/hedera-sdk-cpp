@@ -22,6 +22,7 @@
 
 #include "Defaults.h"
 #include "Transaction.h"
+#include "TransactionId.h"
 
 #include <chrono>
 #include <cstddef>
@@ -130,15 +131,6 @@ public:
 
 protected:
   /**
-   * Create a chunk of this ChunkedTransaction to send.
-   *
-   * @param data  The whole entirety of data to be sent across all chunks.
-   * @param chunk The chunk number to create.
-   * @param total The total number of chunks to create.
-   */
-  virtual void createChunk(const std::vector<std::byte>& data, int32_t chunk, [[maybe_unused]] int32_t total);
-
-  /**
    * Set the data for this ChunkedTransaction.
    *
    * @param data The data for this ChunkedTransaction.
@@ -165,12 +157,34 @@ protected:
   /**
    * Get the receipt retrieval policy for this ChunkedTransaction.
    *
-   * @param retrieveReceipt \c TRUE if this ChunkedTransaction should retrieve a receipt after each submitted chunk,
-   *                        otherwise \c FALSE.
+   * @retrun retrieveReceipt \c TRUE if this ChunkedTransaction should retrieve a receipt after each submitted chunk,
+   *                         otherwise \c FALSE.
    */
   [[nodiscard]] inline bool getShouldGetReceipt() const { return mShouldGetReceipt; }
 
 private:
+  /**
+   * Perform any needed actions for this ChunkedTransaction after it has been chunked.
+   *
+   * @param chunk The chunk number of this chunk.
+   * @param total The total number of chunks being created.
+   * @throws UninitializedException If the client doesn't have an AccountId from which to generate a TransactionId.
+   */
+  virtual void onChunk([[maybe_unused]] int32_t chunk, [[maybe_unused]] int32_t total)
+  { // Intentionally unimplemented, no processing needs to occur by default.
+  }
+
+  /**
+   * Wrapper function needed to execute the Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse,
+   * TransactionResponse> version of execute().
+   *
+   * @param client  The Client to use to submit the ChunkedTransaction.
+   * @param timeout The desired timeout for the execution of the ChunkedTransaction.
+   * @param tx      The ChunkedTransaction to execute.
+   * @return The TransactionResponse object sent from the Hedera network that contains the result of the request.
+   */
+  TransactionResponse wrappedExecute(const Client& client, const std::chrono::duration<double>& timeout);
+
   /**
    * This ChunkedTransaction's data.
    */

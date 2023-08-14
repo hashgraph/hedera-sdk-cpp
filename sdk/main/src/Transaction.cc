@@ -379,6 +379,14 @@ ScheduleCreateTransaction Transaction<SdkRequestType>::schedule() const
   {
     schedulableTransactionBody.set_allocated_consensusdeletetopic(body.release_consensusdeletetopic());
   }
+  else if (body.has_consensussubmitmessage())
+  {
+    schedulableTransactionBody.set_allocated_consensussubmitmessage(body.release_consensussubmitmessage());
+  }
+  else if (body.has_consensusupdatetopic())
+  {
+    schedulableTransactionBody.set_allocated_consensusupdatetopic(body.release_consensusupdatetopic());
+  }
   else if (body.has_cryptotransfer())
   {
     schedulableTransactionBody.set_allocated_cryptotransfer(body.release_cryptotransfer());
@@ -439,6 +447,18 @@ SdkRequestType& Transaction<SdkRequestType>::setRegenerateTransactionIdPolicy(bo
 
   mTransactionIdRegenerationPolicy = regenerate;
   return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
+TransactionId Transaction<SdkRequestType>::getTransactionId() const
+{
+  if (mTransactionId == TransactionId() || !mIsFrozen)
+  {
+    throw IllegalStateException("No transaction ID generated yet. Try freezing the transaction");
+  }
+
+  return mTransactionId;
 }
 
 //-----
@@ -544,7 +564,7 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
   proto::TransactionBody body;
   body.set_allocated_transactionid(mTransactionId.toProtobuf().release());
   body.set_transactionfee(static_cast<uint64_t>(getMaxTransactionFee(client).toTinybars()));
-  body.set_allocated_memo(new std::string(mTransactionMemo));
+  body.set_memo(mTransactionMemo);
   body.set_allocated_transactionvalidduration(internal::DurationConverter::toProtobuf(mTransactionValidDuration));
   body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf().release());
   return body;
@@ -557,6 +577,16 @@ void Transaction<SdkRequestType>::requireNotFrozen() const
   if (mIsFrozen)
   {
     throw IllegalStateException("Transaction is immutable and cannot be edited");
+  }
+}
+
+//-----
+template<typename SdkRequestType>
+void Transaction<SdkRequestType>::onExecute(const Client& client)
+{
+  if (!mIsFrozen)
+  {
+    freezeWith(&client);
   }
 }
 
@@ -627,7 +657,7 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
 
   if (shouldRegenerate)
   {
-    // Regenerate the transaction ID and return RETRY if transaction IDs are allowed to be regenerated
+    // Regenerate the transaction ID and return RETRY if transaction IDs are allowed to be regenerated.
     mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
     return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
       ExecutionStatus::RETRY;
@@ -637,16 +667,6 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
     // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated
     return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
       ExecutionStatus::REQUEST_ERROR;
-  }
-}
-
-//-----
-template<typename SdkRequestType>
-void Transaction<SdkRequestType>::onExecute(const Client& client)
-{
-  if (!mIsFrozen)
-  {
-    freezeWith(&client);
   }
 }
 

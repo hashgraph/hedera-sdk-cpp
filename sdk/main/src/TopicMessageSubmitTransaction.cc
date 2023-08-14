@@ -69,11 +69,8 @@ TopicMessageSubmitTransaction& TopicMessageSubmitTransaction::setMessage(std::st
 }
 
 //-----
-void TopicMessageSubmitTransaction::createChunk(const std::vector<std::byte>& data, int32_t chunk, int32_t total)
+void TopicMessageSubmitTransaction::onChunk(int32_t chunk, int32_t total)
 {
-  // Set up mData for this chunk.
-  ChunkedTransaction<TopicMessageSubmitTransaction>::createChunk(data, chunk, total);
-
   // Copy the variables.
   if (chunk == 0)
   {
