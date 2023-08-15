@@ -225,6 +225,11 @@ private:
   [[nodiscard]] proto::ScheduleCreateTransactionBody* build() const;
 
   /**
+   * Initialize this ScheduleCreateTransaction's implementation object.
+   */
+  void initImpl();
+
+  /**
    * Implementation object used to hide implementation details and internal headers.
    */
   struct ScheduleCreateTransactionImpl;

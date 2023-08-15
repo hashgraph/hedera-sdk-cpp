@@ -57,8 +57,8 @@ struct ScheduleCreateTransaction::ScheduleCreateTransactionImpl
 
 //-----
 ScheduleCreateTransaction::ScheduleCreateTransaction()
-  : mImpl(std::make_unique<ScheduleCreateTransactionImpl>())
 {
+  initImpl();
 }
 
 //-----
@@ -107,6 +107,8 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::operator=(ScheduleCreateTr
 ScheduleCreateTransaction::ScheduleCreateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<ScheduleCreateTransaction>(transactionBody)
 {
+  initImpl();
+
   if (!transactionBody.has_schedulecreate())
   {
     throw std::invalid_argument("Transaction body doesn't contain ScheduleCreate data");
@@ -450,6 +452,36 @@ WrappedTransaction ScheduleCreateTransaction::getScheduledTransaction() const
   return WrappedTransaction(txBody);
 }
 
+//----
+std::string ScheduleCreateTransaction::getScheduleMemo() const
+{
+  return mImpl->mMemo;
+}
+
+//----
+std::shared_ptr<Key> ScheduleCreateTransaction::getAdminKey() const
+{
+  return mImpl->mAdminKey;
+}
+
+//----
+std::optional<AccountId> ScheduleCreateTransaction::getPayerAccountId() const
+{
+  return mImpl->mPayerAccountId;
+}
+
+//----
+std::optional<std::chrono::system_clock::time_point> ScheduleCreateTransaction::getExpirationTime() const
+{
+  return mImpl->mExpirationTime;
+}
+
+//----
+bool ScheduleCreateTransaction::isWaitForExpiry() const
+{
+  return mImpl->mWaitForExpiration;
+}
+
 //-----
 proto::Transaction ScheduleCreateTransaction::makeRequest(const Client& client,
                                                           const std::shared_ptr<internal::Node>&) const
@@ -501,6 +533,12 @@ proto::ScheduleCreateTransactionBody* ScheduleCreateTransaction::build() const
   body->set_wait_for_expiry(mImpl->mWaitForExpiration);
 
   return body.release();
+}
+
+//-----
+void ScheduleCreateTransaction::initImpl()
+{
+  mImpl = std::make_unique<ScheduleCreateTransactionImpl>();
 }
 
 } // namespace Hedera
