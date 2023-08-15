@@ -71,7 +71,6 @@ private:
 TEST_F(ScheduleCreateTransactionTests, ConstructScheduleCreateTransactionFromTransactionBodyProtobuf)
 {
   // Given
-  std::cout << "Given" << std::endl;
   auto body = std::make_unique<proto::ScheduleCreateTransactionBody>();
   *body->mutable_scheduledtransactionbody() = getTestSchedulableTransactionBody();
   body->set_memo(getTestMemo());
@@ -84,11 +83,9 @@ TEST_F(ScheduleCreateTransactionTests, ConstructScheduleCreateTransactionFromTra
   txBody.set_allocated_schedulecreate(body.release());
 
   // When
-  std::cout << "When" << std::endl;
   const ScheduleCreateTransaction scheduleCreateTransaction(txBody);
 
   // Then
-  std::cout << "Then" << std::endl;
   EXPECT_EQ(scheduleCreateTransaction.getScheduledTransaction().getTransactionType(),
             TransactionType::ACCOUNT_ALLOWANCE_APPROVE_TRANSACTION);
   EXPECT_EQ(scheduleCreateTransaction.getScheduleMemo(), getTestMemo());

@@ -119,73 +119,73 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
   switch (txBody.data_case())
   {
     case proto::TransactionBody::kCryptoApproveAllowance:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountAllowanceApproveTransaction(txBody)));
+      return WrappedTransaction(AccountAllowanceApproveTransaction(txBody));
     case proto::TransactionBody::kCryptoDeleteAllowance:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountAllowanceDeleteTransaction(txBody)));
+      return WrappedTransaction(AccountAllowanceDeleteTransaction(txBody));
     case proto::TransactionBody::kCryptoCreateAccount:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountCreateTransaction(txBody)));
+      return WrappedTransaction(AccountCreateTransaction(txBody));
     case proto::TransactionBody::kCryptoDelete:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountDeleteTransaction(txBody)));
+      return WrappedTransaction(AccountDeleteTransaction(txBody));
     case proto::TransactionBody::kCryptoUpdateAccount:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(AccountUpdateTransaction(txBody)));
+      return WrappedTransaction(AccountUpdateTransaction(txBody));
     case proto::TransactionBody::kContractCreateInstance:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(ContractCreateTransaction(txBody)));
+      return WrappedTransaction(ContractCreateTransaction(txBody));
     case proto::TransactionBody::kContractDeleteInstance:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(ContractDeleteTransaction(txBody)));
+      return WrappedTransaction(ContractDeleteTransaction(txBody));
     case proto::TransactionBody::kContractCall:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(ContractExecuteTransaction(txBody)));
+      return WrappedTransaction(ContractExecuteTransaction(txBody));
     case proto::TransactionBody::kContractUpdateInstance:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(ContractUpdateTransaction(txBody)));
+      return WrappedTransaction(ContractUpdateTransaction(txBody));
     case proto::TransactionBody::kEthereumTransaction:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(EthereumTransaction(txBody)));
+      return WrappedTransaction(EthereumTransaction(txBody));
     case proto::TransactionBody::kFileAppend:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(FileAppendTransaction(txBody)));
+      return WrappedTransaction(FileAppendTransaction(txBody));
     case proto::TransactionBody::kFileCreate:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(FileCreateTransaction(txBody)));
+      return WrappedTransaction(FileCreateTransaction(txBody));
     case proto::TransactionBody::kFileDelete:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(FileDeleteTransaction(txBody)));
+      return WrappedTransaction(FileDeleteTransaction(txBody));
     case proto::TransactionBody::kFileUpdate:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(FileUpdateTransaction(txBody)));
+      return WrappedTransaction(FileUpdateTransaction(txBody));
     case proto::TransactionBody::kTokenAssociate:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenAssociateTransaction(txBody)));
+      return WrappedTransaction(TokenAssociateTransaction(txBody));
     case proto::TransactionBody::kTokenBurn:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenBurnTransaction(txBody)));
+      return WrappedTransaction(TokenBurnTransaction(txBody));
     case proto::TransactionBody::kTokenCreation:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenCreateTransaction(txBody)));
+      return WrappedTransaction(TokenCreateTransaction(txBody));
     case proto::TransactionBody::kTokenDeletion:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenDeleteTransaction(txBody)));
+      return WrappedTransaction(TokenDeleteTransaction(txBody));
     case proto::TransactionBody::kTokenDissociate:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenDissociateTransaction(txBody)));
+      return WrappedTransaction(TokenDissociateTransaction(txBody));
     case proto::TransactionBody::kTokenFeeScheduleUpdate:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenFeeScheduleUpdateTransaction(txBody)));
+      return WrappedTransaction(TokenFeeScheduleUpdateTransaction(txBody));
     case proto::TransactionBody::kTokenFreeze:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenFreezeTransaction(txBody)));
+      return WrappedTransaction(TokenFreezeTransaction(txBody));
     case proto::TransactionBody::kTokenGrantKyc:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenGrantKycTransaction(txBody)));
+      return WrappedTransaction(TokenGrantKycTransaction(txBody));
     case proto::TransactionBody::kTokenMint:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenMintTransaction(txBody)));
+      return WrappedTransaction(TokenMintTransaction(txBody));
     case proto::TransactionBody::kTokenPause:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenPauseTransaction(txBody)));
+      return WrappedTransaction(TokenPauseTransaction(txBody));
     case proto::TransactionBody::kTokenRevokeKyc:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenRevokeKycTransaction(txBody)));
+      return WrappedTransaction(TokenRevokeKycTransaction(txBody));
     case proto::TransactionBody::kTokenUnfreeze:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenUnfreezeTransaction(txBody)));
+      return WrappedTransaction(TokenUnfreezeTransaction(txBody));
     case proto::TransactionBody::kTokenUnpause:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenUnpauseTransaction(txBody)));
+      return WrappedTransaction(TokenUnpauseTransaction(txBody));
     case proto::TransactionBody::kTokenUpdate:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenUpdateTransaction(txBody)));
+      return WrappedTransaction(TokenUpdateTransaction(txBody));
     case proto::TransactionBody::kTokenWipe:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TokenWipeTransaction(txBody)));
+      return WrappedTransaction(TokenWipeTransaction(txBody));
     case proto::TransactionBody::kConsensusCreateTopic:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicCreateTransaction(txBody)));
+      return WrappedTransaction(TopicCreateTransaction(txBody));
     case proto::TransactionBody::kConsensusDeleteTopic:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicDeleteTransaction(txBody)));
+      return WrappedTransaction(TopicDeleteTransaction(txBody));
     case proto::TransactionBody::kConsensusSubmitMessage:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicMessageSubmitTransaction(txBody)));
+      return WrappedTransaction(TopicMessageSubmitTransaction(txBody));
     case proto::TransactionBody::kConsensusUpdateTopic:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TopicUpdateTransaction(txBody)));
+      return WrappedTransaction(TopicUpdateTransaction(txBody));
     case proto::TransactionBody::kCryptoTransfer:
-      return WrappedTransaction(WrappedTransaction::AnyPossibleTransaction(TransferTransaction(txBody)));
+      return WrappedTransaction(TransferTransaction(txBody));
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
