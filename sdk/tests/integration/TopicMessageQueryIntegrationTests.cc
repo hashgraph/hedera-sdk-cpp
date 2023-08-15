@@ -60,7 +60,7 @@ TEST_F(TopicMessageQueryIntegrationTest, ExecuteTopicMessageQuery)
                               .mTopicId.value());
 
   // Allow time for new topic to propagate to mirror node.
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
 
   // When
   SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).setStartTime(start).subscribe(
@@ -249,7 +249,7 @@ TEST_F(TopicMessageQueryIntegrationTest, CanReceiveLargeTopicMessage)
                               .mTopicId.value());
 
   // Allow time for new topic to propagate to mirror node.
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
 
   // When
   SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).setStartTime(start).subscribe(
