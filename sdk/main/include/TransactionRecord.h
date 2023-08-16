@@ -113,6 +113,11 @@ public:
   std::vector<TokenNftTransfer> mNftTransferList;
 
   /**
+   * The reference to the scheduled transaction ID that this TransactionRecord represents.
+   */
+  std::optional<ScheduleId> mScheduleRef;
+
+  /**
    * All custom fees that were assessed during a CryptoTransfer, and must be paid if the transaction status resolved to
    * SUCCESS.
    */

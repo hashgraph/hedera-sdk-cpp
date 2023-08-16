@@ -92,6 +92,11 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
     }
   }
 
+  if (proto.has_scheduleref())
+  {
+    transactionRecord.mScheduleRef = ScheduleId::fromProtobuf(proto.scheduleref());
+  }
+
   for (int i = 0; i < proto.assessed_custom_fees_size(); ++i)
   {
     transactionRecord.mAssessedCustomFees.push_back(AssessedCustomFee::fromProtobuf(proto.assessed_custom_fees(i)));
