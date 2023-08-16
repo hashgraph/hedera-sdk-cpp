@@ -68,6 +68,7 @@ add_library(${PROJECT_NAME} STATIC
         src/PublicKey.cc
         src/Query.cc
         src/ScheduleCreateTransaction.cc
+        src/ScheduleId.cc
         src/StakingInfo.cc
         src/Status.cc
         src/TokenAllowance.cc
