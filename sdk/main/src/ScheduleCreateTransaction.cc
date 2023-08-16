@@ -187,6 +187,9 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::setScheduledTransaction(co
     case FILE_UPDATE_TRANSACTION:
       return setScheduledTransaction(
         tx.getTransaction<FileUpdateTransaction>()->schedule().mImpl->mTransactionToSchedule);
+    case SCHEDULE_DELETE_TRANSACTION:
+      return setScheduledTransaction(
+        tx.getTransaction<ScheduleDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
     case TOKEN_ASSOCIATE_TRANSACTION:
       return setScheduledTransaction(
         tx.getTransaction<TokenAssociateTransaction>()->schedule().mImpl->mTransactionToSchedule);
@@ -367,6 +370,10 @@ WrappedTransaction ScheduleCreateTransaction::getScheduledTransaction() const
   else if (mImpl->mTransactionToSchedule.has_fileupdate())
   {
     *txBody.mutable_fileupdate() = mImpl->mTransactionToSchedule.fileupdate();
+  }
+  else if (mImpl->mTransactionToSchedule.has_scheduledelete())
+  {
+    *txBody.mutable_scheduledelete() = mImpl->mTransactionToSchedule.scheduledelete();
   }
   else if (mImpl->mTransactionToSchedule.has_tokenassociate())
   {

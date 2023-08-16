@@ -50,6 +50,7 @@ WrappedTransaction::WrappedTransaction(const proto::TransactionBody& transaction
   else if (transaction.has_filedelete()) mTransaction = FileDeleteTransaction(transaction);
   else if (transaction.has_fileupdate()) mTransaction = FileUpdateTransaction(transaction);
   else if (transaction.has_schedulecreate()) mTransaction = ScheduleCreateTransaction(transaction);
+  else if (transaction.has_scheduledelete()) mTransaction = ScheduleDeleteTransaction(transaction);
   else if (transaction.has_tokenassociate()) mTransaction = TokenAssociateTransaction(transaction);
   else if (transaction.has_tokenburn()) mTransaction = TokenBurnTransaction(transaction);
   else if (transaction.has_tokencreation()) mTransaction = TokenCreateTransaction(transaction);
