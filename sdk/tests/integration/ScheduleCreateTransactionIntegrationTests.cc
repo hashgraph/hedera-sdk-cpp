@@ -23,6 +23,8 @@
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
 #include "ScheduleCreateTransaction.h"
+#include "ScheduleInfo.h"
+#include "ScheduleInfoQuery.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
@@ -70,7 +72,11 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, ExecuteScheduleCreateTransactio
                                 .getReceipt(getTestClient()));
 
   // Then
-  // TODO: ScheduleInfoQuery
+  ASSERT_TRUE(txReceipt.mScheduleId.has_value());
+
+  ScheduleInfo scheduleInfo;
+  EXPECT_NO_THROW(scheduleInfo =
+                    ScheduleInfoQuery().setScheduleId(txReceipt.mScheduleId.value()).execute(getTestClient()));
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
