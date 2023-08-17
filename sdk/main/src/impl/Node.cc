@@ -142,6 +142,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
       return mFileStub->getFileContent(&context, query, response);
     case proto::Query::QueryCase::kFileGetInfo:
       return mFileStub->getFileInfo(&context, query, response);
+    case proto::Query::QueryCase::kScheduleGetInfo:
+      return mScheduleStub->getScheduleInfo(&context, query, response);
     case proto::Query::QueryCase::kTokenGetInfo:
       return mTokenStub->getTokenInfo(&context, query, response);
     case proto::Query::QueryCase::kTokenGetNftInfo:
