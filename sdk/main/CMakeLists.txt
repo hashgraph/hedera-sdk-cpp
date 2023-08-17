@@ -72,6 +72,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ScheduleId.cc
         src/ScheduleInfo.cc
         src/ScheduleInfoQuery.cc
+        src/ScheduleSignTransaction.cc
         src/StakingInfo.cc
         src/Status.cc
         src/TokenAllowance.cc
