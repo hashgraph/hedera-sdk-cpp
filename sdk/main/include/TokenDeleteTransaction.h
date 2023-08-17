@@ -77,6 +77,8 @@ public:
   [[nodiscard]] inline std::optional<TokenId> getTokenId() const { return mTokenId; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TokenDeleteTransaction object.
    *

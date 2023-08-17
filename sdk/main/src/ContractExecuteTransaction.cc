@@ -94,9 +94,7 @@ ContractExecuteTransaction& ContractExecuteTransaction::setFunction(std::string_
 proto::Transaction ContractExecuteTransaction::makeRequest(const Client& client,
                                                            const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody txBody = generateTransactionBody(&client);
-  addToBody(txBody);
-  return signTransaction(txBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----

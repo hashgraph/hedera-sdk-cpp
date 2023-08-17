@@ -148,8 +148,10 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, CannotScheduleTwoIdenticalTrans
 
   ScheduleCreateTransaction scheduleTransaction =
     ScheduleCreateTransaction()
-      .setScheduledTransaction(WrappedTransaction(
-        TransferTransaction().addHbarTransfer(accountId, Hbar(-5LL)).addHbarTransfer(AccountId(2ULL), Hbar(5LL))))
+      .setScheduledTransaction(WrappedTransaction(TransferTransaction()
+                                                    .addHbarTransfer(accountId, Hbar(-5LL))
+                                                    .addHbarTransfer(AccountId(2ULL), Hbar(5LL))
+                                                    .freezeWith(&getTestClient())))
       .setAdminKey(operatorKey)
       .setPayerAccountId(AccountId(2ULL));
 

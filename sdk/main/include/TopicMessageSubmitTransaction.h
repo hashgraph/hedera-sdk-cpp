@@ -94,6 +94,7 @@ public:
 
 private:
   friend class ChunkedTransaction<TopicMessageSubmitTransaction>;
+  friend class WrappedTransaction;
 
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TopicMessageSubmitTransaction object.

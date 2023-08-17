@@ -74,6 +74,8 @@ public:
   [[nodiscard]] inline std::optional<ScheduleId> getScheduleId() const { return mScheduleId; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this ScheduleDeleteTransaction object.
    *

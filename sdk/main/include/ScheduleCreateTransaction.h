@@ -93,7 +93,6 @@ public:
    * @throws UninitializedException If the input WrappedTransaction does not contain a Transaction.
    */
   ScheduleCreateTransaction& setScheduledTransaction(const WrappedTransaction& transaction);
-  ScheduleCreateTransaction& setScheduledTransaction(const proto::SchedulableTransactionBody& transaction);
 
   /**
    * Set the memo of the schedule entity.
@@ -182,6 +181,8 @@ public:
   [[nodiscard]] bool isWaitForExpiry() const;
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this ScheduleCreateTransaction object.
    *

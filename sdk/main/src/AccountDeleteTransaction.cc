@@ -71,9 +71,7 @@ AccountDeleteTransaction& AccountDeleteTransaction::setTransferAccountId(const A
 proto::Transaction AccountDeleteTransaction::makeRequest(const Client& client,
                                                          const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody txBody = generateTransactionBody(&client);
-  addToBody(txBody);
-  return signTransaction(txBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----

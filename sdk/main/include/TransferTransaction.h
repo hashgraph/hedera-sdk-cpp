@@ -203,10 +203,13 @@ private:
   friend class ContractInfoQuery;
   friend class FileContentsQuery;
   friend class FileInfoQuery;
+  friend class ScheduleInfoQuery;
   friend class TokenInfoQuery;
   friend class TokenNftInfoQuery;
   friend class TopicInfoQuery;
   friend class TransactionRecordQuery;
+
+  friend class WrappedTransaction;
 
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TransferTransaction object.

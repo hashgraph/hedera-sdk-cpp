@@ -136,6 +136,8 @@ public:
   [[nodiscard]] inline std::vector<std::byte> getFunctionParameters() const { return mFunctionParameters; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this ContractExecuteTransaction object.
    *

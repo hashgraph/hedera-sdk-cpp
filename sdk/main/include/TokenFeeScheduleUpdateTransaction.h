@@ -91,6 +91,8 @@ public:
   [[nodiscard]] inline std::vector<std::shared_ptr<CustomFee>> getCustomFees() const { return mCustomFees; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TokenFeeScheduleUpdateTransaction
    * object.

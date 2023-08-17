@@ -91,9 +91,7 @@ TokenWipeTransaction& TokenWipeTransaction::setSerialNumbers(const std::vector<u
 //-----
 proto::Transaction TokenWipeTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody txBody = generateTransactionBody(&client);
-  addToBody(txBody);
-  return signTransaction(txBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----

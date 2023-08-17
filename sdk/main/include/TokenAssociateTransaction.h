@@ -108,6 +108,8 @@ public:
   [[nodiscard]] inline std::vector<TokenId> getTokenIds() const { return mTokenIds; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TokenAssociateTransaction object.
    *

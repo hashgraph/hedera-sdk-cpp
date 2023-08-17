@@ -75,6 +75,8 @@ public:
   [[nodiscard]] inline std::optional<TopicId> getTopicId() const { return mTopicId; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TopicDeleteTransaction object.
    *

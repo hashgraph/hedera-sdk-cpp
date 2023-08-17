@@ -256,6 +256,8 @@ public:
   [[nodiscard]] inline std::optional<EvmAddress> getAlias() const { return mAlias; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this AccountCreateTransaction object.
    *

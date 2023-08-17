@@ -112,6 +112,8 @@ public:
   [[nodiscard]] inline std::optional<ContractId> getTransferContractId() const { return mTransferContractId; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this ContractDeleteTransaction object.
    *

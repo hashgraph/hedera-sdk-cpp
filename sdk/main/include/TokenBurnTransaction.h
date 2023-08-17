@@ -107,6 +107,8 @@ public:
   [[nodiscard]] inline std::vector<uint64_t> getSerialNumbers() const { return mSerialNumbers; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TokenBurnTransaction object.
    *
