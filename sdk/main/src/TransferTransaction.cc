@@ -227,10 +227,9 @@ std::unordered_map<TokenId, uint32_t> TransferTransaction::getTokenIdDecimals() 
 //-----
 proto::Transaction TransferTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody body = generateTransactionBody(client);
-  body.set_allocated_cryptotransfer(build());
-
-  return signTransaction(body, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -241,6 +240,12 @@ grpc::Status TransferTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kCryptoTransfer, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TransferTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_cryptotransfer(build());
 }
 
 //-----

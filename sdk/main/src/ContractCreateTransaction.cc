@@ -206,10 +206,9 @@ ContractCreateTransaction& ContractCreateTransaction::setDeclineStakingReward(bo
 proto::Transaction ContractCreateTransaction::makeRequest(const Client& client,
                                                           const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_contractcreateinstance(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -220,6 +219,12 @@ grpc::Status ContractCreateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kContractCreateInstance, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void ContractCreateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_contractcreateinstance(build());
 }
 
 //-----

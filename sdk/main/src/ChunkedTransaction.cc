@@ -23,6 +23,7 @@
 #include "TopicMessageSubmitTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "exceptions/IllegalStateException.h"
 #include "impl/Utilities.h"
 
 #include <algorithm>
@@ -58,25 +59,59 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
   const Client& client,
   const std::chrono::duration<double>& timeout)
 {
+  // Determine how many chunks are going to be required to send this whole ChunkedTransaction and make sure it's within
+  // the set limit.
+  const auto requiredChunks =
+    static_cast<unsigned int>(std::ceil(static_cast<double>(mData.size()) / static_cast<double>(mChunkSize)));
+  if (requiredChunks > mMaxChunks)
+  {
+    throw IllegalStateException("Transaction requires " + std::to_string(requiredChunks) + " but is only allotted " +
+                                std::to_string(mMaxChunks) + ". Try using setMaxChunks()");
+  }
+
+  // Container to hold responses.
   std::vector<TransactionResponse> responses;
-  std::vector<std::byte> allData = std::move(mData);
+
+  // The transaction chunks being sent should all have the same TransactionId besides their valid start time being a
+  // little off. The first TransactionId should be saved so that it can be used to generate the IDs for the other
+  // chunks.
+  TransactionId firstTransactionId;
+
+  // Move the data out to prevent an unnecessary copy of all the data.
+  const std::vector<std::byte> data = std::move(mData);
   mData.clear();
   mData.reserve(mChunkSize);
 
-  const auto totalChunks = static_cast<unsigned int>(std::ceil(static_cast<double>(allData.size()) / mChunkSize));
-
-  // Generate the transaction ID for the first chunk before looping.
-  Transaction<SdkRequestType>::setTransactionId(TransactionId::generate(client.getOperatorAccountId().value()));
-
-  for (int chunk = 0; chunk < totalChunks; ++chunk)
+  for (int chunk = 0; chunk < requiredChunks; ++chunk)
   {
-    // Create the chunk.
-    createChunk(allData, chunk, totalChunks);
+    // Create a copy of this entire transaction. This should carry over all manually-set items, if any.
+    SdkRequestType tx = *static_cast<SdkRequestType*>(this);
 
-    // Execute this chunk
-    responses.push_back(
-      Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::execute(
-        client, timeout));
+    // Create the chunk and set it in the transaction.
+    const unsigned int startingByteForChunk = mChunkSize * chunk;
+    const auto start = data.cbegin() + startingByteForChunk;
+    tx.mData = { start,
+                 start + ((mChunkSize + startingByteForChunk > data.size()) ? data.size() - startingByteForChunk
+                                                                            : mChunkSize) };
+
+    // Adjust the TransactionId if this is not the first chunk.
+    if (chunk != 0)
+    {
+      tx.setTransactionId(TransactionId::withValidStart(
+        firstTransactionId.getAccountId(),
+        firstTransactionId.getValidTransactionTime() +
+          std::chrono::duration<int, std::chrono::system_clock::duration::period>(chunk)));
+    }
+
+    // Get the transaction ready to execute.
+    tx.freezeWith(&client);
+
+    // Do any needed post-chunk processing on the transaction. This is required to happen after freezing so that
+    // TopicMessageSubmitTransaction can read the transaction ID.
+    tx.onChunk(chunk, requiredChunks);
+
+    // Execute the chunk.
+    responses.push_back(tx.wrappedExecute(client, timeout));
 
     // Wait for the transaction to fully complete, if configured
     if (mShouldGetReceipt)
@@ -84,13 +119,14 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
       const TransactionReceipt txReceipt = responses.back().getReceipt(client);
     }
 
-    // Generate a new transaction ID with the same account ID (to prevent DUPLICATE_TRANSACTION errors)
-    Transaction<SdkRequestType>::setTransactionId(
-      TransactionId::generate(Transaction<SdkRequestType>::getTransactionId().getAccountId()));
+    if (chunk == 0 && requiredChunks > 1)
+    {
+      firstTransactionId = tx.getTransactionId();
+    }
   }
 
-  // Move fullData back into mData
-  mData = std::move(allData);
+  // Move the data back into mData.
+  mData = std::move(data);
 
   return responses;
 }
@@ -115,18 +151,6 @@ SdkRequestType& ChunkedTransaction<SdkRequestType>::setChunkSize(unsigned int si
 
 //-----
 template<typename SdkRequestType>
-void ChunkedTransaction<SdkRequestType>::createChunk(const std::vector<std::byte>& data, int32_t chunk, int32_t total)
-{
-  const unsigned int startingByteForChunk = mChunkSize * chunk;
-  const auto start = data.cbegin() + startingByteForChunk;
-
-  mData = {
-    start, start + ((mChunkSize + startingByteForChunk > data.size()) ? data.size() - startingByteForChunk : mChunkSize)
-  };
-}
-
-//-----
-template<typename SdkRequestType>
 SdkRequestType& ChunkedTransaction<SdkRequestType>::setData(const std::vector<std::byte>& data)
 {
   Transaction<SdkRequestType>::requireNotFrozen();
@@ -146,6 +170,14 @@ template<typename SdkRequestType>
 void ChunkedTransaction<SdkRequestType>::setShouldGetReceipt(bool retrieveReceipt)
 {
   mShouldGetReceipt = retrieveReceipt;
+}
+//-----
+template<typename SdkRequestType>
+TransactionResponse ChunkedTransaction<SdkRequestType>::wrappedExecute(const Client& client,
+                                                                       const std::chrono::duration<double>& timeout)
+{
+  return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::execute(
+    client, timeout);
 }
 
 /**

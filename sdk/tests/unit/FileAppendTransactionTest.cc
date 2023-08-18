@@ -87,7 +87,7 @@ TEST_F(FileAppendTransactionTest, GetSetFileIdFrozen)
 {
   // Given
   FileAppendTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);
@@ -114,7 +114,7 @@ TEST_F(FileAppendTransactionTest, GetSetContentsFrozen)
 {
   // Given
   FileAppendTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setContents(getTestContents()), IllegalStateException);

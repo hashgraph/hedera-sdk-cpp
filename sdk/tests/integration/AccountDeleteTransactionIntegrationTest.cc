@@ -55,7 +55,7 @@ TEST_F(AccountDeleteTransactionIntegrationTest, ExecuteAccountDeleteTransaction)
   EXPECT_NO_THROW(txResponse = AccountDeleteTransaction()
                                  .setDeleteAccountId(accountId)
                                  .setTransferAccountId(AccountId(2ULL))
-                                 .freezeWith(getTestClient())
+                                 .freezeWith(&getTestClient())
                                  .sign(key.get())
                                  .execute(getTestClient()));
 
@@ -97,7 +97,7 @@ TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteAccountWithoutSignat
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(key.get())
                     .execute(getTestClient()));
 }

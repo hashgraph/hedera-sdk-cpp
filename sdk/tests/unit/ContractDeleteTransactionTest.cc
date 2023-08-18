@@ -100,7 +100,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetContractIdFrozen)
 {
   // Given
   ContractDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setContractId(getTestContractId()), IllegalStateException);
@@ -124,7 +124,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetTransferAccountIdFrozen)
 {
   // Given
   ContractDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTransferAccountId(getTestTransferAccountId()), IllegalStateException);
@@ -148,7 +148,7 @@ TEST_F(ContractDeleteTransactionTest, GetSetTransferContractIdFrozen)
 {
   // Given
   ContractDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTransferContractId(getTestTransferContractId()), IllegalStateException);

@@ -96,7 +96,7 @@ TEST_F(ContractExecuteTransactionTest, GetSetContractIdFrozen)
 {
   // Given
   ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setContractId(getTestContractId()), IllegalStateException);
@@ -120,7 +120,7 @@ TEST_F(ContractExecuteTransactionTest, GetSetGasFrozen)
 {
   // Given
   ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setGas(getTestGas()), IllegalStateException);
@@ -144,7 +144,7 @@ TEST_F(ContractExecuteTransactionTest, GetSetPayableAmountFrozen)
 {
   // Given
   ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setPayableAmount(getTestPayableAmount()), IllegalStateException);
@@ -168,7 +168,7 @@ TEST_F(ContractExecuteTransactionTest, GetSetFunctionParametersFrozen)
 {
   // Given
   ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setFunctionParameters(getTestFunctionParameters()), IllegalStateException);
@@ -192,7 +192,7 @@ TEST_F(ContractExecuteTransactionTest, GetSetFunctionNameFrozen)
 {
   // Given
   ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setFunction("functionName"), IllegalStateException);

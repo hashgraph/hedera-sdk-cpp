@@ -80,7 +80,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
                                  .setMaxAutomaticTokenAssociations(newMaxAutomaticTokenAssociations)
                                  .setStakedNodeId(newStakedNodeId)
                                  .setDeclineStakingReward(newDeclineStakingRewards)
-                                 .freezeWith(getTestClient())
+                                 .freezeWith(&getTestClient())
                                  .sign(initialPrivateKey.get())
                                  .sign(newPrivateKey.get())
                                  .execute(getTestClient()));
@@ -107,7 +107,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(newPrivateKey.get())
                     .execute(getTestClient()));
 }
@@ -135,7 +135,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutSignat
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(privateKey.get())
                     .execute(getTestClient()));
 }
@@ -155,7 +155,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutAccoun
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountUpdateTransaction()
-                                                      .freezeWith(getTestClient())
+                                                      .freezeWith(&getTestClient())
                                                       .sign(privateKey.get())
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -165,7 +165,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutAccoun
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(privateKey.get())
                     .execute(getTestClient()));
 }
@@ -185,7 +185,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteWithOnlyAccountId)
   // When / Then
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = AccountUpdateTransaction()
                                                          .setAccountId(accountId)
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(privateKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -194,7 +194,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteWithOnlyAccountId)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(privateKey.get())
                     .execute(getTestClient()));
 }
@@ -217,7 +217,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, InvalidAutoRenewPeriod)
   EXPECT_THROW(const TransactionResponse txResponse = AccountUpdateTransaction()
                                                         .setAccountId(accountId)
                                                         .setAutoRenewPeriod(invalidAutoRenewPeriod)
-                                                        .freezeWith(getTestClient())
+                                                        .freezeWith(&getTestClient())
                                                         .sign(privateKey.get())
                                                         .execute(getTestClient()),
                PrecheckStatusException); // AUTORENEW_DURATION_NOT_IN_RANGE
@@ -226,7 +226,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, InvalidAutoRenewPeriod)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(privateKey.get())
                     .execute(getTestClient()));
 }

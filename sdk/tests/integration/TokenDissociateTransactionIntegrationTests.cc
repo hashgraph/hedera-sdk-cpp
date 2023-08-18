@@ -83,7 +83,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransact
   ASSERT_NO_THROW(txReceipt = TokenAssociateTransaction()
                                 .setAccountId(accountId)
                                 .setTokenIds({ tokenId })
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -92,7 +92,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransact
   EXPECT_NO_THROW(txReceipt = TokenDissociateTransaction()
                                 .setAccountId(accountId)
                                 .setTokenIds({ tokenId })
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -101,7 +101,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransact
   ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -133,7 +133,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CanDissociateNoTokens)
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = TokenDissociateTransaction()
                                 .setAccountId(accountId)
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -142,7 +142,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CanDissociateNoTokens)
   ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -171,7 +171,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateWithNoAccountI
   // When / Then
   TransactionReceipt txReceipt;
   EXPECT_THROW(txReceipt = TokenDissociateTransaction()
-                             .freezeWith(getTestClient())
+                             .freezeWith(&getTestClient())
                              .sign(accountKey.get())
                              .execute(getTestClient())
                              .getReceipt(getTestClient()),
@@ -181,7 +181,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateWithNoAccountI
   ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -228,7 +228,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfDissociating
   ASSERT_NO_THROW(txReceipt = TokenAssociateTransaction()
                                 .setAccountId(accountId)
                                 .setTokenIds({ tokenId })
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -245,7 +245,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfDissociating
   ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -295,7 +295,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfNotAssociate
   EXPECT_THROW(txReceipt = TokenDissociateTransaction()
                              .setAccountId(accountId)
                              .setTokenIds({ tokenId })
-                             .freezeWith(getTestClient())
+                             .freezeWith(&getTestClient())
                              .sign(accountKey.get())
                              .execute(getTestClient())
                              .getReceipt(getTestClient()),
@@ -305,7 +305,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfNotAssociate
   ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(accountKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));

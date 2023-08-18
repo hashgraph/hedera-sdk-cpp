@@ -87,10 +87,9 @@ TokenMintTransaction& TokenMintTransaction::addMetadata(const std::vector<std::b
 //-----
 proto::Transaction TokenMintTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokenmint(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -101,6 +100,12 @@ grpc::Status TokenMintTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenMint, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenMintTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokenmint(build());
 }
 
 //-----

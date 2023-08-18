@@ -55,10 +55,9 @@ FileDeleteTransaction& FileDeleteTransaction::setFileId(const FileId& fileId)
 proto::Transaction FileDeleteTransaction::makeRequest(const Client& client,
                                                       const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_filedelete(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -69,6 +68,12 @@ grpc::Status FileDeleteTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kFileDelete, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void FileDeleteTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_filedelete(build());
 }
 
 //-----

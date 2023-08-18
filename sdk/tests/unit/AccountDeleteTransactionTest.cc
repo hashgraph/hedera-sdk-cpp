@@ -90,7 +90,7 @@ TEST_F(AccountDeleteTransactionTest, SetDeleteAccountIdFrozen)
 {
   // Given
   AccountDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setDeleteAccountId(getTestDeleteAccountId()), IllegalStateException);
@@ -114,7 +114,7 @@ TEST_F(AccountDeleteTransactionTest, SetTransferAccountIdFrozen)
 {
   // Given
   AccountDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTransferAccountId(getTestTransferAccountId()), IllegalStateException);

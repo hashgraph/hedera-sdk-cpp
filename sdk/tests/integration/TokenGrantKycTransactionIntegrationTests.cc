@@ -74,7 +74,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, ExecuteTokenGrantKycTransaction)
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenAssociateTransaction()
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -83,7 +83,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, ExecuteTokenGrantKycTransaction)
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()
                                                          .setAccountId(accountId)
                                                          .setTokenId(tokenId)
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -92,7 +92,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, ExecuteTokenGrantKycTransaction)
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .setDeleteAccountId(accountId)
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -123,7 +123,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycToAccountWithNoTok
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()
                                                       .setAccountId(accountId)
-                                                      .freezeWith(getTestClient())
+                                                      .freezeWith(&getTestClient())
                                                       .sign(accountKey.get())
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -133,7 +133,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycToAccountWithNoTok
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .setDeleteAccountId(accountId)
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -205,7 +205,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycToAccountOnTokenIf
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()
                                                       .setAccountId(accountId)
                                                       .setTokenId(tokenId)
-                                                      .freezeWith(getTestClient())
+                                                      .freezeWith(&getTestClient())
                                                       .sign(accountKey.get())
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -215,7 +215,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycToAccountOnTokenIf
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .setDeleteAccountId(accountId)
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));

@@ -23,7 +23,6 @@
 #include "impl/Utilities.h"
 
 #include <grpcpp/client_context.h>
-#include <memory>
 #include <proto/file_update.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>
@@ -124,10 +123,9 @@ FileUpdateTransaction& FileUpdateTransaction::setFileMemo(std::string_view memo)
 proto::Transaction FileUpdateTransaction::makeRequest(const Client& client,
                                                       const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_fileupdate(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -138,6 +136,12 @@ grpc::Status FileUpdateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kFileUpdate, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void FileUpdateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_fileupdate(build());
 }
 
 //-----

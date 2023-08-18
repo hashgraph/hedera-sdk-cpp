@@ -98,7 +98,7 @@ TEST_F(TokenMintTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
   TokenMintTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -122,7 +122,7 @@ TEST_F(TokenMintTransactionTest, GetSetAmountFrozen)
 {
   // Given
   TokenMintTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAmount(getTestAmount()), IllegalStateException);
@@ -146,7 +146,7 @@ TEST_F(TokenMintTransactionTest, GetSetMetadataFrozen)
 {
   // Given
   TokenMintTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setMetadata(getTestMetadataList()), IllegalStateException);

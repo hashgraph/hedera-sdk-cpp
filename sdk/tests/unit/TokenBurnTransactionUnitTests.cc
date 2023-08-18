@@ -87,7 +87,7 @@ TEST_F(TokenBurnTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
   TokenBurnTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -111,7 +111,7 @@ TEST_F(TokenBurnTransactionTest, GetSetAmountFrozen)
 {
   // Given
   TokenBurnTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAmount(getTestAmount()), IllegalStateException);
@@ -135,7 +135,7 @@ TEST_F(TokenBurnTransactionTest, GetSetSerialNumbersFrozen)
 {
   // Given
   TokenBurnTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setSerialNumbers(getTestSerialNumbers()), IllegalStateException);

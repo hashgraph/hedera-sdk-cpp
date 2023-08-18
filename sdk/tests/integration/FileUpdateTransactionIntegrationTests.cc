@@ -75,7 +75,7 @@ TEST_F(FileUpdateTransactionIntegrationTest, ExecuteFileUpdateTransaction)
                                 .setKeys({ newKey->getPublicKey().get() })
                                 .setContents(newContents)
                                 .setFileMemo(newMemo)
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(newKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -92,7 +92,7 @@ TEST_F(FileUpdateTransactionIntegrationTest, ExecuteFileUpdateTransaction)
   // Clean up
   ASSERT_NO_THROW(txReceipt = FileDeleteTransaction()
                                 .setFileId(fileId)
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(newKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));

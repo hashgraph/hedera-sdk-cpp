@@ -56,10 +56,9 @@ TopicDeleteTransaction& TopicDeleteTransaction::setTopicId(const TopicId& TopicI
 proto::Transaction TopicDeleteTransaction::makeRequest(const Client& client,
                                                        const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_consensusdeletetopic(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -70,6 +69,12 @@ grpc::Status TopicDeleteTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kConsensusDeleteTopic, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TopicDeleteTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_consensusdeletetopic(build());
 }
 
 //-----

@@ -65,7 +65,7 @@ int main(int argc, char** argv)
   txReceipt = AccountDeleteTransaction()
                 .setDeleteAccountId(newAccountId)
                 .setTransferAccountId(operatorAccountId)
-                .freezeWith(client)
+                .freezeWith(&client)
                 .sign(privateKey.get())
                 .execute(client)
                 .getReceipt(client);

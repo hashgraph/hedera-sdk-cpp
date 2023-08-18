@@ -129,6 +129,13 @@ private:
                                            const std::chrono::system_clock::time_point& deadline,
                                            const std::shared_ptr<internal::Node>& node,
                                            proto::TransactionResponse* response) const override;
+  /**
+   * Derived from Transaction. Build and add the TokenDissociateTransaction protobuf representation to the Transaction
+   * protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
+   */
+  void addToBody(proto::TransactionBody& body) const override;
 
   /**
    * Build a TokenDissociateTransactionBody protobuf object from this TokenDissociateTransaction object.

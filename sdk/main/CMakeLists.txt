@@ -67,6 +67,7 @@ add_library(${PROJECT_NAME} STATIC
         src/PrivateKey.cc
         src/PublicKey.cc
         src/Query.cc
+        src/ScheduleCreateTransaction.cc
         src/StakingInfo.cc
         src/Status.cc
         src/TokenAllowance.cc
@@ -111,6 +112,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TransactionRecordQuery.cc
         src/TransactionResponse.cc
         src/TransferTransaction.cc
+        src/WrappedTransaction.cc
 
         src/impl/DerivationPathUtils.cc
         src/impl/Endpoint.cc

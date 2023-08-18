@@ -75,10 +75,9 @@ EthereumTransaction& EthereumTransaction::setMaxGasAllowance(const Hbar& maxGasA
 //-----
 proto::Transaction EthereumTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_ethereumtransaction(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -89,6 +88,12 @@ grpc::Status EthereumTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kEthereumTransaction, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void EthereumTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_ethereumtransaction(build());
 }
 
 //-----

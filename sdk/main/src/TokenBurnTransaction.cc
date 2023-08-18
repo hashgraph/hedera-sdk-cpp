@@ -78,10 +78,9 @@ TokenBurnTransaction& TokenBurnTransaction::setSerialNumbers(const std::vector<u
 //-----
 proto::Transaction TokenBurnTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokenburn(build());
-
-  return signTransaction(transactionBody, client);
+  proto::TransactionBody txBody = generateTransactionBody(&client);
+  addToBody(txBody);
+  return signTransaction(txBody, client);
 }
 
 //-----
@@ -92,6 +91,12 @@ grpc::Status TokenBurnTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenBurn, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenBurnTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokenburn(build());
 }
 
 //-----
