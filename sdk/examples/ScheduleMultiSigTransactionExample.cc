@@ -122,11 +122,24 @@ int main(int argc, char** argv)
   if (ScheduleInfoQuery().setScheduleId(scheduleId).execute(client).mExecutionTime.has_value())
   {
     std::cout << "Transfer executed!" << std::endl;
-    return 0;
   }
   else
   {
     std::cout << "Transfer didn't execute!" << std::endl;
     return 1;
   }
+
+  // Delete the created account.
+  std::cout << "Delete created account: "
+            << gStatusToString.at(AccountDeleteTransaction()
+                                    .setDeleteAccountId(accountId)
+                                    .setTransferAccountId(operatorAccountId)
+                                    .freezeWith(&client)
+                                    .sign(key1.get())
+                                    .sign(key2.get())
+                                    .sign(key3.get())
+                                    .execute(client)
+                                    .getReceipt(client)
+                                    .mStatus)
+            << std::endl;
 }
