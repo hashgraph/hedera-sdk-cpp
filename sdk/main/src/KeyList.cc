@@ -27,9 +27,10 @@
 namespace Hedera
 {
 //-----
-KeyList KeyList::fromProtobuf(const proto::KeyList& proto)
+KeyList KeyList::fromProtobuf(const proto::KeyList& proto, int threshold)
 {
   KeyList keyList;
+  keyList.mThreshold = threshold;
 
   for (int i = 0; i < proto.keys_size(); ++i)
   {
@@ -60,7 +61,16 @@ std::unique_ptr<Key> KeyList::clone() const
 std::unique_ptr<proto::Key> KeyList::toProtobufKey() const
 {
   auto key = std::make_unique<proto::Key>();
-  key->set_allocated_keylist(toProtobuf().release());
+  if (mThreshold > 0)
+  {
+    key->mutable_thresholdkey()->set_allocated_keys(toProtobuf().release());
+    key->mutable_thresholdkey()->set_threshold(static_cast<uint32_t>(mThreshold));
+  }
+  else
+  {
+    key->set_allocated_keylist(toProtobuf().release());
+  }
+
   return key;
 }
 
@@ -75,6 +85,13 @@ std::unique_ptr<proto::KeyList> KeyList::toProtobuf() const
   }
 
   return keyList;
+}
+
+//-----
+KeyList& KeyList::setThreshold(int threshold)
+{
+  mThreshold = threshold;
+  return *this;
 }
 
 //-----
