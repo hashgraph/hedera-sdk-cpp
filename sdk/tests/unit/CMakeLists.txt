@@ -60,6 +60,7 @@ add_executable(${TEST_PROJECT_NAME}
         NftIdTest.cc
         NodeAddressTest.cc
         ScheduleCreateTransactionUnitTests.cc
+        ScheduleIdUnitTests.cc
         StakingInfoTest.cc
         TokenAllowanceTest.cc
         TokenAssociateTransactionUnitTests.cc

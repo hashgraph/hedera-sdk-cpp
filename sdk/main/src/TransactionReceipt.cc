@@ -19,6 +19,7 @@
  */
 #include "TransactionReceipt.h"
 #include "exceptions/ReceiptStatusException.h"
+#include "impl/Utilities.h"
 
 #include <proto/transaction_receipt.pb.h>
 
@@ -55,12 +56,37 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
     receipt.mTopicId = TopicId::fromProtobuf(proto.topicid());
   }
 
+  if (proto.topicsequencenumber() != 0ULL)
+  {
+    receipt.mTopicSequenceNumber = proto.topicsequencenumber();
+  }
+
+  if (!proto.topicrunninghash().empty())
+  {
+    receipt.mTopicRunningHash = internal::Utilities::stringToByteVector(proto.topicrunninghash());
+  }
+
+  if (proto.topicrunninghashversion() != 0ULL)
+  {
+    receipt.mTopicRunningHashVersion = proto.topicrunninghashversion();
+  }
+
   if (proto.has_tokenid())
   {
     receipt.mTokenId = TokenId::fromProtobuf(proto.tokenid());
   }
 
   receipt.mNewTotalSupply = proto.newtotalsupply();
+
+  if (proto.has_scheduleid())
+  {
+    receipt.mScheduleId = ScheduleId::fromProtobuf(proto.scheduleid());
+  }
+
+  if (proto.has_scheduledtransactionid())
+  {
+    receipt.mScheduledTransactionId = TransactionId::fromProtobuf(proto.scheduledtransactionid());
+  }
 
   for (int i = 0; i < proto.serialnumbers_size(); ++i)
   {
