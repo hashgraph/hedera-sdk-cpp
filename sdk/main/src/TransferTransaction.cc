@@ -227,9 +227,7 @@ std::unordered_map<TokenId, uint32_t> TransferTransaction::getTokenIdDecimals() 
 //-----
 proto::Transaction TransferTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody txBody = generateTransactionBody(&client);
-  addToBody(txBody);
-  return signTransaction(txBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----

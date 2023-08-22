@@ -392,6 +392,8 @@ public:
   [[nodiscard]] inline std::shared_ptr<Key> getPauseKey() const { return mPauseKey; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TokenCreateTransaction object.
    *

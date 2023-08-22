@@ -98,6 +98,8 @@ public:
   [[nodiscard]] inline std::vector<std::byte> getContents() const { return getData(); }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this FileAppendTransaction object.
    *

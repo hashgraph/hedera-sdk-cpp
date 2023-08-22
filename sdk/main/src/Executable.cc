@@ -49,6 +49,8 @@
 #include "FileUpdateTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
+#include "ScheduleInfo.h"
+#include "ScheduleInfoQuery.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -379,6 +381,7 @@ template class Executable<ScheduleDeleteTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+template class Executable<ScheduleInfoQuery, proto::Query, proto::Response, ScheduleInfo>;
 template class Executable<TokenAssociateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,

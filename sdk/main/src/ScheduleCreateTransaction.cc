@@ -20,12 +20,10 @@
 #include "ScheduleCreateTransaction.h"
 #include "WrappedTransaction.h"
 #include "exceptions/UninitializedException.h"
-#include "exceptions/UnsupportedOperationException.h"
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
 
 #include <grpcpp/client_context.h>
-#include <proto/schedulable_transaction_body.pb.h>
 #include <proto/schedule_create.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>
@@ -36,7 +34,7 @@ namespace Hedera
 struct ScheduleCreateTransaction::ScheduleCreateTransactionImpl
 {
   // The transaction to schedule.
-  proto::SchedulableTransactionBody mTransactionToSchedule;
+  WrappedTransaction mTransactionToSchedule;
 
   // The memo of the schedule entity.
   std::string mMemo;
@@ -118,7 +116,7 @@ ScheduleCreateTransaction::ScheduleCreateTransaction(const proto::TransactionBod
 
   if (body.has_scheduledtransactionbody())
   {
-    mImpl->mTransactionToSchedule = body.scheduledtransactionbody();
+    mImpl->mTransactionToSchedule = WrappedTransaction::fromProtobuf(body.scheduledtransactionbody());
   }
 
   mImpl->mMemo = body.memo();
@@ -145,129 +143,7 @@ ScheduleCreateTransaction::ScheduleCreateTransaction(const proto::TransactionBod
 ScheduleCreateTransaction& ScheduleCreateTransaction::setScheduledTransaction(const WrappedTransaction& tx)
 {
   requireNotFrozen();
-
-  switch (tx.getTransactionType())
-  {
-    case ACCOUNT_ALLOWANCE_APPROVE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<AccountAllowanceApproveTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case ACCOUNT_ALLOWANCE_DELETE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<AccountAllowanceDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case ACCOUNT_CREATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<AccountCreateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case ACCOUNT_DELETE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<AccountDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case ACCOUNT_UPDATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<AccountUpdateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case CONTRACT_CREATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<ContractCreateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case CONTRACT_DELETE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<ContractDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case CONTRACT_EXECUTE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<ContractExecuteTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case CONTRACT_UPDATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<ContractUpdateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case FILE_APPEND_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<FileAppendTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case FILE_CREATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<FileCreateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case FILE_DELETE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<FileDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case FILE_UPDATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<FileUpdateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case SCHEDULE_DELETE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<ScheduleDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_ASSOCIATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenAssociateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_BURN_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenBurnTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_CREATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenCreateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_DELETE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_DISSOCIATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenDissociateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenFeeScheduleUpdateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_FREEZE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenFreezeTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_GRANT_KYC_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenGrantKycTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_MINT_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenMintTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_PAUSE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenPauseTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_REVOKE_KYC_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenRevokeKycTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_UNFREEZE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenUnfreezeTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_UNPAUSE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenUnpauseTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_UPDATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenUpdateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOKEN_WIPE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TokenWipeTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOPIC_CREATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TopicCreateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOPIC_DELETE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TopicDeleteTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOPIC_MESSAGE_SUBMIT_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TopicMessageSubmitTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TOPIC_UPDATE_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TopicUpdateTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case TRANSFER_TRANSACTION:
-      return setScheduledTransaction(
-        tx.getTransaction<TransferTransaction>()->schedule().mImpl->mTransactionToSchedule);
-    case ETHEREUM_TRANSACTION:
-    case SCHEDULE_CREATE_TRANSACTION:
-    {
-      throw UnsupportedOperationException("Cannot schedule input transaction type");
-    }
-    default:
-    {
-      throw UninitializedException("WrappedTransaction does not currently hold a transaction");
-    }
-  }
-}
-
-//-----
-ScheduleCreateTransaction& ScheduleCreateTransaction::setScheduledTransaction(
-  const proto::SchedulableTransactionBody& transaction)
-{
-  requireNotFrozen();
-  mImpl->mTransactionToSchedule = transaction;
+  mImpl->mTransactionToSchedule = tx;
   return *this;
 }
 
@@ -315,148 +191,7 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::setWaitForExpiry(bool wait
 //-----
 WrappedTransaction ScheduleCreateTransaction::getScheduledTransaction() const
 {
-  proto::TransactionBody txBody;
-  txBody.set_transactionfee(mImpl->mTransactionToSchedule.transactionfee());
-  txBody.set_memo(mImpl->mTransactionToSchedule.memo());
-
-  if (mImpl->mTransactionToSchedule.has_cryptoapproveallowance())
-  {
-    *txBody.mutable_cryptoapproveallowance() = mImpl->mTransactionToSchedule.cryptoapproveallowance();
-  }
-  else if (mImpl->mTransactionToSchedule.has_cryptodeleteallowance())
-  {
-    *txBody.mutable_cryptodeleteallowance() = mImpl->mTransactionToSchedule.cryptodeleteallowance();
-  }
-  else if (mImpl->mTransactionToSchedule.has_cryptocreateaccount())
-  {
-    *txBody.mutable_cryptocreateaccount() = mImpl->mTransactionToSchedule.cryptocreateaccount();
-  }
-  else if (mImpl->mTransactionToSchedule.has_cryptodeleteallowance())
-  {
-    *txBody.mutable_cryptodelete() = mImpl->mTransactionToSchedule.cryptodelete();
-  }
-  else if (mImpl->mTransactionToSchedule.has_cryptoupdateaccount())
-  {
-    *txBody.mutable_cryptoupdateaccount() = mImpl->mTransactionToSchedule.cryptoupdateaccount();
-  }
-  else if (mImpl->mTransactionToSchedule.has_contractcreateinstance())
-  {
-    *txBody.mutable_contractcreateinstance() = mImpl->mTransactionToSchedule.contractcreateinstance();
-  }
-  else if (mImpl->mTransactionToSchedule.has_contractdeleteinstance())
-  {
-    *txBody.mutable_contractdeleteinstance() = mImpl->mTransactionToSchedule.contractdeleteinstance();
-  }
-  else if (mImpl->mTransactionToSchedule.has_contractcall())
-  {
-    *txBody.mutable_contractcall() = mImpl->mTransactionToSchedule.contractcall();
-  }
-  else if (mImpl->mTransactionToSchedule.has_contractupdateinstance())
-  {
-    *txBody.mutable_contractupdateinstance() = mImpl->mTransactionToSchedule.contractupdateinstance();
-  }
-  else if (mImpl->mTransactionToSchedule.has_fileappend())
-  {
-    *txBody.mutable_fileappend() = mImpl->mTransactionToSchedule.fileappend();
-  }
-  else if (mImpl->mTransactionToSchedule.has_filecreate())
-  {
-    *txBody.mutable_filecreate() = mImpl->mTransactionToSchedule.filecreate();
-  }
-  else if (mImpl->mTransactionToSchedule.has_filedelete())
-  {
-    *txBody.mutable_filedelete() = mImpl->mTransactionToSchedule.filedelete();
-  }
-  else if (mImpl->mTransactionToSchedule.has_fileupdate())
-  {
-    *txBody.mutable_fileupdate() = mImpl->mTransactionToSchedule.fileupdate();
-  }
-  else if (mImpl->mTransactionToSchedule.has_scheduledelete())
-  {
-    *txBody.mutable_scheduledelete() = mImpl->mTransactionToSchedule.scheduledelete();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokenassociate())
-  {
-    *txBody.mutable_tokenassociate() = mImpl->mTransactionToSchedule.tokenassociate();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokenburn())
-  {
-    *txBody.mutable_tokenburn() = mImpl->mTransactionToSchedule.tokenburn();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokencreation())
-  {
-    *txBody.mutable_tokencreation() = mImpl->mTransactionToSchedule.tokencreation();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokendeletion())
-  {
-    *txBody.mutable_tokendeletion() = mImpl->mTransactionToSchedule.tokendeletion();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokendissociate())
-  {
-    *txBody.mutable_tokendissociate() = mImpl->mTransactionToSchedule.tokendissociate();
-  }
-  else if (mImpl->mTransactionToSchedule.has_token_fee_schedule_update())
-  {
-    *txBody.mutable_token_fee_schedule_update() = mImpl->mTransactionToSchedule.token_fee_schedule_update();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokenfreeze())
-  {
-    *txBody.mutable_tokenfreeze() = mImpl->mTransactionToSchedule.tokenfreeze();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokengrantkyc())
-  {
-    *txBody.mutable_tokengrantkyc() = mImpl->mTransactionToSchedule.tokengrantkyc();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokenmint())
-  {
-    *txBody.mutable_tokenmint() = mImpl->mTransactionToSchedule.tokenmint();
-  }
-  else if (mImpl->mTransactionToSchedule.has_token_pause())
-  {
-    *txBody.mutable_token_pause() = mImpl->mTransactionToSchedule.token_pause();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokenrevokekyc())
-  {
-    *txBody.mutable_tokenrevokekyc() = mImpl->mTransactionToSchedule.tokenrevokekyc();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokenunfreeze())
-  {
-    *txBody.mutable_tokenunfreeze() = mImpl->mTransactionToSchedule.tokenunfreeze();
-  }
-  else if (mImpl->mTransactionToSchedule.has_token_unpause())
-  {
-    *txBody.mutable_token_unpause() = mImpl->mTransactionToSchedule.token_unpause();
-  }
-  else if (mImpl->mTransactionToSchedule.has_tokenwipe())
-  {
-    *txBody.mutable_tokenwipe() = mImpl->mTransactionToSchedule.tokenwipe();
-  }
-  else if (mImpl->mTransactionToSchedule.has_consensuscreatetopic())
-  {
-    *txBody.mutable_consensuscreatetopic() = mImpl->mTransactionToSchedule.consensuscreatetopic();
-  }
-  else if (mImpl->mTransactionToSchedule.has_consensusdeletetopic())
-  {
-    *txBody.mutable_consensusdeletetopic() = mImpl->mTransactionToSchedule.consensusdeletetopic();
-  }
-  else if (mImpl->mTransactionToSchedule.has_consensussubmitmessage())
-  {
-    *txBody.mutable_consensussubmitmessage() = mImpl->mTransactionToSchedule.consensussubmitmessage();
-  }
-  else if (mImpl->mTransactionToSchedule.has_consensusupdatetopic())
-  {
-    *txBody.mutable_consensusupdatetopic() = mImpl->mTransactionToSchedule.consensusupdatetopic();
-  }
-  else if (mImpl->mTransactionToSchedule.has_cryptotransfer())
-  {
-    *txBody.mutable_cryptotransfer() = mImpl->mTransactionToSchedule.cryptotransfer();
-  }
-  else
-  {
-    throw std::invalid_argument("TransactionBody contains no transaction");
-  }
-
-  return WrappedTransaction(txBody);
+  return mImpl->mTransactionToSchedule;
 }
 
 //----
@@ -493,9 +228,7 @@ bool ScheduleCreateTransaction::isWaitForExpiry() const
 proto::Transaction ScheduleCreateTransaction::makeRequest(const Client& client,
                                                           const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody txBody = generateTransactionBody(&client);
-  addToBody(txBody);
-  return signTransaction(txBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -518,8 +251,8 @@ void ScheduleCreateTransaction::addToBody(proto::TransactionBody& body) const
 proto::ScheduleCreateTransactionBody* ScheduleCreateTransaction::build() const
 {
   auto body = std::make_unique<proto::ScheduleCreateTransactionBody>();
-  *body->mutable_scheduledtransactionbody() = mImpl->mTransactionToSchedule;
-
+  
+  body->set_allocated_scheduledtransactionbody(mImpl->mTransactionToSchedule.toSchedulableProtobuf().release());
   body->set_memo(mImpl->mMemo);
 
   if (mImpl->mAdminKey)

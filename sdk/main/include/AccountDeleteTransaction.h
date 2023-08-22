@@ -87,6 +87,8 @@ public:
   [[nodiscard]] inline std::optional<AccountId> getTransferAccountId() const { return mTransferAccountId; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this AccountDeleteTransaction object.
    *

@@ -62,7 +62,6 @@
 #include "TransferTransaction.h"
 #include "WrappedTransaction.h"
 #include "exceptions/IllegalStateException.h"
-#include "exceptions/UnsupportedOperationException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 #include "impl/Utilities.h"
@@ -261,152 +260,8 @@ ScheduleCreateTransaction Transaction<SdkRequestType>::schedule() const
     throw IllegalStateException("Underlying transaction for a scheduled transaction cannot have node account IDs set");
   }
 
-  proto::TransactionBody body = generateTransactionBody(nullptr);
-  addToBody(body);
-
-  proto::SchedulableTransactionBody schedulableTransactionBody;
-  schedulableTransactionBody.set_transactionfee(body.transactionfee());
-  schedulableTransactionBody.set_memo(body.memo());
-
-  if (body.has_cryptoapproveallowance())
-  {
-    schedulableTransactionBody.set_allocated_cryptoapproveallowance(body.release_cryptoapproveallowance());
-  }
-  else if (body.has_cryptodeleteallowance())
-  {
-    schedulableTransactionBody.set_allocated_cryptodeleteallowance(body.release_cryptodeleteallowance());
-  }
-  else if (body.has_cryptocreateaccount())
-  {
-    schedulableTransactionBody.set_allocated_cryptocreateaccount(body.release_cryptocreateaccount());
-  }
-  else if (body.has_cryptodeleteallowance())
-  {
-    schedulableTransactionBody.set_allocated_cryptodelete(body.release_cryptodelete());
-  }
-  else if (body.has_cryptoupdateaccount())
-  {
-    schedulableTransactionBody.set_allocated_cryptoupdateaccount(body.release_cryptoupdateaccount());
-  }
-  else if (body.has_contractcreateinstance())
-  {
-    schedulableTransactionBody.set_allocated_contractcreateinstance(body.release_contractcreateinstance());
-  }
-  else if (body.has_contractdeleteinstance())
-  {
-    schedulableTransactionBody.set_allocated_contractdeleteinstance(body.release_contractdeleteinstance());
-  }
-  else if (body.has_contractcall())
-  {
-    schedulableTransactionBody.set_allocated_contractcall(body.release_contractcall());
-  }
-  else if (body.has_contractupdateinstance())
-  {
-    schedulableTransactionBody.set_allocated_contractupdateinstance(body.release_contractupdateinstance());
-  }
-  else if (body.has_fileappend())
-  {
-    schedulableTransactionBody.set_allocated_fileappend(body.release_fileappend());
-  }
-  else if (body.has_filecreate())
-  {
-    schedulableTransactionBody.set_allocated_filecreate(body.release_filecreate());
-  }
-  else if (body.has_filedelete())
-  {
-    schedulableTransactionBody.set_allocated_filedelete(body.release_filedelete());
-  }
-  else if (body.has_fileupdate())
-  {
-    schedulableTransactionBody.set_allocated_fileupdate(body.release_fileupdate());
-  }
-  else if (body.has_scheduledelete())
-  {
-    schedulableTransactionBody.set_allocated_scheduledelete(body.release_scheduledelete());
-  }
-  else if (body.has_tokenassociate())
-  {
-    schedulableTransactionBody.set_allocated_tokenassociate(body.release_tokenassociate());
-  }
-  else if (body.has_tokenburn())
-  {
-    schedulableTransactionBody.set_allocated_tokenburn(body.release_tokenburn());
-  }
-  else if (body.has_tokencreation())
-  {
-    schedulableTransactionBody.set_allocated_tokencreation(body.release_tokencreation());
-  }
-  else if (body.has_tokendeletion())
-  {
-    schedulableTransactionBody.set_allocated_tokendeletion(body.release_tokendeletion());
-  }
-  else if (body.has_tokendissociate())
-  {
-    schedulableTransactionBody.set_allocated_tokendissociate(body.release_tokendissociate());
-  }
-  else if (body.has_token_fee_schedule_update())
-  {
-    schedulableTransactionBody.set_allocated_token_fee_schedule_update(body.release_token_fee_schedule_update());
-  }
-  else if (body.has_tokenfreeze())
-  {
-    schedulableTransactionBody.set_allocated_tokenfreeze(body.release_tokenfreeze());
-  }
-  else if (body.has_tokengrantkyc())
-  {
-    schedulableTransactionBody.set_allocated_tokengrantkyc(body.release_tokengrantkyc());
-  }
-  else if (body.has_tokenmint())
-  {
-    schedulableTransactionBody.set_allocated_tokenmint(body.release_tokenmint());
-  }
-  else if (body.has_token_pause())
-  {
-    schedulableTransactionBody.set_allocated_token_pause(body.release_token_pause());
-  }
-  else if (body.has_tokenrevokekyc())
-  {
-    schedulableTransactionBody.set_allocated_tokenrevokekyc(body.release_tokenrevokekyc());
-  }
-  else if (body.has_tokenunfreeze())
-  {
-    schedulableTransactionBody.set_allocated_tokenunfreeze(body.release_tokenunfreeze());
-  }
-  else if (body.has_token_unpause())
-  {
-    schedulableTransactionBody.set_allocated_token_unpause(body.release_token_unpause());
-  }
-  else if (body.has_tokenwipe())
-  {
-    schedulableTransactionBody.set_allocated_tokenwipe(body.release_tokenwipe());
-  }
-  else if (body.has_consensuscreatetopic())
-  {
-    schedulableTransactionBody.set_allocated_consensuscreatetopic(body.release_consensuscreatetopic());
-  }
-  else if (body.has_consensusdeletetopic())
-  {
-    schedulableTransactionBody.set_allocated_consensusdeletetopic(body.release_consensusdeletetopic());
-  }
-  else if (body.has_consensussubmitmessage())
-  {
-    schedulableTransactionBody.set_allocated_consensussubmitmessage(body.release_consensussubmitmessage());
-  }
-  else if (body.has_consensusupdatetopic())
-  {
-    schedulableTransactionBody.set_allocated_consensusupdatetopic(body.release_consensusupdatetopic());
-  }
-  else if (body.has_cryptotransfer())
-  {
-    schedulableTransactionBody.set_allocated_cryptotransfer(body.release_cryptotransfer());
-  }
-  else
-  {
-    // ScheduleCreateTransaction and EthereumTransaction cannot be scheduled.
-    throw UnsupportedOperationException("Transaction cannot be scheduled");
-  }
-
-  return ScheduleCreateTransaction().setScheduledTransaction(schedulableTransactionBody);
+  return ScheduleCreateTransaction().setScheduledTransaction(
+    WrappedTransaction::fromProtobuf(generateTransactionBody(nullptr)));
 }
 
 //-----
@@ -577,6 +432,10 @@ proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(cons
   body.set_memo(mTransactionMemo);
   body.set_allocated_transactionvalidduration(internal::DurationConverter::toProtobuf(mTransactionValidDuration));
   body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf().release());
+
+  // Add derived Transaction fields to TransactionBody.
+  addToBody(body);
+
   return body;
 }
 

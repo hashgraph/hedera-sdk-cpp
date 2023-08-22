@@ -62,6 +62,7 @@
 
 namespace proto
 {
+class SchedulableTransactionBody;
 class TransactionBody;
 }
 
@@ -123,11 +124,38 @@ public:
   explicit WrappedTransaction(AnyPossibleTransaction transaction);
 
   /**
-   * Construct with a TransactionBody protobuf object.
+   * Construct a WrappedTransaction object from a TransactionBody protobuf object.
    *
-   * @param transaction The TransactionBody protobuf object to wrap.
+   * @param proto The TransactionBody protobuf object from which to construct a WrappedTransaction object.
+   * @return The constructed WrappedTransaction object.
+   * @throws std::invalid_argument If the input TransactionBody doesn't contain a valid Transaction.
    */
-  explicit WrappedTransaction(const proto::TransactionBody& transaction);
+  [[nodiscard]] static WrappedTransaction fromProtobuf(const proto::TransactionBody& proto);
+
+  /**
+   * Construct a WrappedTransaction object from a SchedulableTransactionBody protobuf object.
+   *
+   * @param proto The SchedulableTransactionBody protobuf object from which to construct a WrappedTransaction object.
+   * @return The constructed WrappedTransaction object.
+   * @throws std::invalid_argument If the input SchedulableTransactionBody doesn't contain a Transaction.
+   */
+  [[nodiscard]] static WrappedTransaction fromProtobuf(const proto::SchedulableTransactionBody& proto);
+
+  /**
+   * Construct a TransactionBody protobuf object from this WrappedTransaction object.
+   *
+   * @return A pointer to the created TransactionBody protobuf object.
+   * @throws UninitializedException If no Transaction is contained within this WrappedTransaction.
+   */
+  [[nodiscard]] std::unique_ptr<proto::TransactionBody> toProtobuf() const;
+
+  /**
+   * Construct a SchedulableTransactionBody protobuf object from this WrappedTransaction object.
+   *
+   * @return A pointer to the created SchedulableTransactionBody protobuf object.
+   * @throws UninitializedException If no Transaction is contained within this WrappedTransaction.
+   */
+  [[nodiscard]] std::unique_ptr<proto::SchedulableTransactionBody> toSchedulableProtobuf() const;
 
   /**
    * Set the transaction to wrap.

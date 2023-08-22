@@ -127,6 +127,8 @@ public:
   [[nodiscard]] inline std::vector<std::vector<std::byte>> getMetadata() const { return mMetadataList; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TokenMintTransaction object.
    *

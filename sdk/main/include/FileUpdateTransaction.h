@@ -151,6 +151,8 @@ public:
   [[nodiscard]] inline std::optional<std::string> getFileMemo() const { return mFileMemo; }
 
 private:
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this FileUpdateTransaction object.
    *
