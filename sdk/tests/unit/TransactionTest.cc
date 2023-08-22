@@ -34,6 +34,7 @@
 #include "FileUpdateTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
+#include "ScheduleSignTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -1009,6 +1010,65 @@ TEST_F(TransactionTest, ScheduleDeleteTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_DELETE_TRANSACTION);
   EXPECT_NE(wrappedTx.getTransaction<ScheduleDeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, ScheduleSignTransactionTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_schedulesign(new proto::ScheduleSignTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<ScheduleSignTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_SIGN_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleSignTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, ScheduleSignTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_schedulesign(new proto::ScheduleSignTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<ScheduleSignTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_SIGN_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleSignTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, ScheduleSignTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_schedulesign(new proto::ScheduleSignTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<ScheduleSignTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_SIGN_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleSignTransaction>(), nullptr);
 }
 
 //-----

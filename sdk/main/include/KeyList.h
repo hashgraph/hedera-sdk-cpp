@@ -50,11 +50,12 @@ public:
   /**
    * Construct a KeyList object from a KeyList protobuf object.
    *
-   * @param proto The KeyList protobuf object from which to create a KeyList object.
+   * @param proto     The KeyList protobuf object from which to create a KeyList object.
+   * @param threshold The optional threshold of Keys that must sign.
    * @return The created KeyList object.
    * @throws BadKeyException If a key in the KeyList protobuf is unable to be created.
    */
-  [[nodiscard]] static KeyList fromProtobuf(const proto::KeyList& proto);
+  [[nodiscard]] static KeyList fromProtobuf(const proto::KeyList& proto, int threshold = -1);
 
   /**
    * Construct a KeyList object from a list of Keys.
@@ -63,6 +64,14 @@ public:
    * @return The created KeyList object.
    */
   [[nodiscard]] static KeyList of(const std::vector<Key*>& keys);
+
+  /**
+   * Construct a Keylist object with a threshold.
+   *
+   * @param threshold The number of Keys in the KeyList that must sign.
+   * @param The created Keylist object.
+   */
+  [[nodiscard]] static KeyList withThreshold(int threshold);
 
   /**
    * Derived from Key. Create a clone of this KeyList object.
@@ -85,6 +94,21 @@ public:
    * @throws OpenSSLException If OpenSSL is unable to serialize any key in this KeyList.
    */
   [[nodiscard]] std::unique_ptr<proto::KeyList> toProtobuf() const;
+
+  /**
+   * Set the threshold for this KeyList.
+   *
+   * @param threshold The threshold for this KeyList.
+   * @return A reference to this KeyList with the newly-set threshold.
+   */
+  KeyList& setThreshold(int threshold);
+
+  /**
+   * Get the threshold for this KeyList.
+   *
+   * @return The threshold number of Keys that must sign.
+   */
+  [[nodiscard]] inline int getThreshold() const { return mThreshold; }
 
   /**
    * Get the number of keys in this KeyList.
@@ -132,6 +156,11 @@ private:
    * The list of Keys that all must sign transactions.
    */
   std::vector<ValuePtr<Key, KeyCloner>> mKeys;
+
+  /**
+   * The threshold number of keys that must sign a transaction. -1 means all keys must sign.
+   */
+  int mThreshold = -1;
 };
 
 } // namespace Hedera

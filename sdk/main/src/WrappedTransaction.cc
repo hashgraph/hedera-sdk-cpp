@@ -97,6 +97,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(ScheduleDeleteTransaction(proto));
   }
+  else if (proto.has_schedulesign())
+  {
+    return WrappedTransaction(ScheduleSignTransaction(proto));
+  }
   else if (proto.has_tokenassociate())
   {
     return WrappedTransaction(TokenAssociateTransaction(proto));
@@ -441,6 +445,11 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
     {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ScheduleDeleteTransaction>()->generateTransactionBody(nullptr));
+    }
+    case SCHEDULE_SIGN_TRANSACTION:
+    {
+      return std::make_unique<proto::TransactionBody>(
+        getTransaction<ScheduleSignTransaction>()->generateTransactionBody(nullptr));
     }
     case TOKEN_ASSOCIATE_TRANSACTION:
     {

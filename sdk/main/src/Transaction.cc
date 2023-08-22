@@ -37,6 +37,7 @@
 #include "PrivateKey.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
+#include "ScheduleSignTransaction.h"
 #include "Status.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
@@ -62,6 +63,7 @@
 #include "TransferTransaction.h"
 #include "WrappedTransaction.h"
 #include "exceptions/IllegalStateException.h"
+#include "exceptions/UnsupportedOperationException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 #include "impl/Utilities.h"
@@ -150,6 +152,8 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(ScheduleCreateTransaction(txBody));
     case proto::TransactionBody::kScheduleDelete:
       return WrappedTransaction(ScheduleDeleteTransaction(txBody));
+    case proto::TransactionBody::kScheduleSign:
+      return WrappedTransaction(ScheduleSignTransaction(txBody));
     case proto::TransactionBody::kTokenAssociate:
       return WrappedTransaction(TokenAssociateTransaction(txBody));
     case proto::TransactionBody::kTokenBurn:
@@ -540,7 +544,7 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
 }
 
 /**
- * Explicit template instantiation.
+ * Explicit template instantiations.
  */
 template class Transaction<AccountAllowanceApproveTransaction>;
 template class Transaction<AccountAllowanceDeleteTransaction>;
@@ -558,6 +562,7 @@ template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<ScheduleDeleteTransaction>;
+template class Transaction<ScheduleSignTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;
 template class Transaction<TokenCreateTransaction>;
