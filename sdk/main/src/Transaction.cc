@@ -36,6 +36,7 @@
 #include "FileUpdateTransaction.h"
 #include "PrivateKey.h"
 #include "ScheduleCreateTransaction.h"
+#include "ScheduleDeleteTransaction.h"
 #include "Status.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
@@ -146,6 +147,10 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(FileDeleteTransaction(txBody));
     case proto::TransactionBody::kFileUpdate:
       return WrappedTransaction(FileUpdateTransaction(txBody));
+    case proto::TransactionBody::kScheduleCreate:
+      return WrappedTransaction(ScheduleCreateTransaction(txBody));
+    case proto::TransactionBody::kScheduleDelete:
+      return WrappedTransaction(ScheduleDeleteTransaction(txBody));
     case proto::TransactionBody::kTokenAssociate:
       return WrappedTransaction(TokenAssociateTransaction(txBody));
     case proto::TransactionBody::kTokenBurn:
@@ -315,6 +320,10 @@ ScheduleCreateTransaction Transaction<SdkRequestType>::schedule() const
   {
     schedulableTransactionBody.set_allocated_fileupdate(body.release_fileupdate());
   }
+  else if (body.has_scheduledelete())
+  {
+    schedulableTransactionBody.set_allocated_scheduledelete(body.release_scheduledelete());
+  }
   else if (body.has_tokenassociate())
   {
     schedulableTransactionBody.set_allocated_tokenassociate(body.release_tokenassociate());
@@ -393,6 +402,7 @@ ScheduleCreateTransaction Transaction<SdkRequestType>::schedule() const
   }
   else
   {
+    // ScheduleCreateTransaction and EthereumTransaction cannot be scheduled.
     throw UnsupportedOperationException("Transaction cannot be scheduled");
   }
 
@@ -688,6 +698,7 @@ template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
+template class Transaction<ScheduleDeleteTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;
 template class Transaction<TokenCreateTransaction>;

@@ -48,6 +48,7 @@
 #include "FileInfoQuery.h"
 #include "FileUpdateTransaction.h"
 #include "ScheduleCreateTransaction.h"
+#include "ScheduleDeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -371,6 +372,10 @@ template class Executable<FileDeleteTransaction, proto::Transaction, proto::Tran
 template class Executable<FileInfoQuery, proto::Query, proto::Response, FileInfo>;
 template class Executable<FileUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<ScheduleCreateTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
+template class Executable<ScheduleDeleteTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
