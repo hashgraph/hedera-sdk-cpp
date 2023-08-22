@@ -894,6 +894,124 @@ TEST_F(TransactionTest, FileUpdateTransactionFromTransactionBytes)
 }
 
 //-----
+TEST_F(TransactionTest, ScheduleCreateTransactionTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_schedulecreate(new proto::ScheduleCreateTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<ScheduleCreateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_CREATE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleCreateTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, ScheduleCreateTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_schedulecreate(new proto::ScheduleCreateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<ScheduleCreateTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_CREATE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleCreateTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, ScheduleCreateTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_schedulecreate(new proto::ScheduleCreateTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<ScheduleCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_CREATE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleCreateTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, ScheduleDeleteTransactionTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_scheduledelete(new proto::ScheduleDeleteTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<ScheduleDeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_DELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleDeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, ScheduleDeleteTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_scheduledelete(new proto::ScheduleDeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<ScheduleDeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_DELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleDeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, ScheduleDeleteTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_scheduledelete(new proto::ScheduleDeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<ScheduleDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_DELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<ScheduleDeleteTransaction>(), nullptr);
+}
+
+//-----
 TEST_F(TransactionTest, TokenAssociateTransactionFromTransactionBodyBytes)
 {
   // Given
@@ -2071,122 +2189,4 @@ TEST_F(TransactionTest, TransferTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TRANSFER_TRANSACTION);
   EXPECT_NE(wrappedTx.getTransaction<TransferTransaction>(), nullptr);
-}
-
-//-----
-TEST_F(TransactionTest, ScheduleCreateTransactionTransactionFromTransactionBodyBytes)
-{
-  // Given
-  proto::TransactionBody txBody;
-  txBody.set_allocated_schedulecreate(new proto::ScheduleCreateTransactionBody);
-
-  // When
-  const WrappedTransaction wrappedTx = Transaction<ScheduleCreateTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
-
-  // Then
-  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_CREATE_TRANSACTION);
-  EXPECT_NE(wrappedTx.getTransaction<ScheduleCreateTransaction>(), nullptr);
-}
-
-//-----
-TEST_F(TransactionTest, ScheduleCreateTransactionFromSignedTransactionBytes)
-{
-  // Given
-  proto::TransactionBody txBody;
-  txBody.set_allocated_schedulecreate(new proto::ScheduleCreateTransactionBody);
-
-  proto::SignedTransaction signedTx;
-  signedTx.set_bodybytes(txBody.SerializeAsString());
-  // SignatureMap not required
-
-  // When
-  const WrappedTransaction wrappedTx = Transaction<ScheduleCreateTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
-
-  // Then
-  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_CREATE_TRANSACTION);
-  EXPECT_NE(wrappedTx.getTransaction<ScheduleCreateTransaction>(), nullptr);
-}
-
-//-----
-TEST_F(TransactionTest, ScheduleCreateTransactionFromTransactionBytes)
-{
-  // Given
-  proto::TransactionBody txBody;
-  txBody.set_allocated_schedulecreate(new proto::ScheduleCreateTransactionBody);
-
-  proto::SignedTransaction signedTx;
-  signedTx.set_bodybytes(txBody.SerializeAsString());
-  // SignatureMap not required
-
-  proto::Transaction tx;
-  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
-
-  // When
-  const WrappedTransaction wrappedTx =
-    Transaction<ScheduleCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
-
-  // Then
-  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_CREATE_TRANSACTION);
-  EXPECT_NE(wrappedTx.getTransaction<ScheduleCreateTransaction>(), nullptr);
-}
-
-//-----
-TEST_F(TransactionTest, ScheduleDeleteTransactionTransactionFromTransactionBodyBytes)
-{
-  // Given
-  proto::TransactionBody txBody;
-  txBody.set_allocated_scheduledelete(new proto::ScheduleDeleteTransactionBody);
-
-  // When
-  const WrappedTransaction wrappedTx = Transaction<ScheduleDeleteTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
-
-  // Then
-  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_DELETE_TRANSACTION);
-  EXPECT_NE(wrappedTx.getTransaction<ScheduleDeleteTransaction>(), nullptr);
-}
-
-//-----
-TEST_F(TransactionTest, ScheduleDeleteTransactionFromSignedTransactionBytes)
-{
-  // Given
-  proto::TransactionBody txBody;
-  txBody.set_allocated_scheduledelete(new proto::ScheduleDeleteTransactionBody);
-
-  proto::SignedTransaction signedTx;
-  signedTx.set_bodybytes(txBody.SerializeAsString());
-  // SignatureMap not required
-
-  // When
-  const WrappedTransaction wrappedTx = Transaction<ScheduleDeleteTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
-
-  // Then
-  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_DELETE_TRANSACTION);
-  EXPECT_NE(wrappedTx.getTransaction<ScheduleDeleteTransaction>(), nullptr);
-}
-
-//-----
-TEST_F(TransactionTest, ScheduleDeleteTransactionFromTransactionBytes)
-{
-  // Given
-  proto::TransactionBody txBody;
-  txBody.set_allocated_scheduledelete(new proto::ScheduleDeleteTransactionBody);
-
-  proto::SignedTransaction signedTx;
-  signedTx.set_bodybytes(txBody.SerializeAsString());
-  // SignatureMap not required
-
-  proto::Transaction tx;
-  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
-
-  // When
-  const WrappedTransaction wrappedTx =
-    Transaction<ScheduleDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
-
-  // Then
-  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SCHEDULE_DELETE_TRANSACTION);
-  EXPECT_NE(wrappedTx.getTransaction<ScheduleDeleteTransaction>(), nullptr);
 }

@@ -62,7 +62,6 @@
 #include "TransferTransaction.h"
 #include "WrappedTransaction.h"
 #include "exceptions/IllegalStateException.h"
-#include "exceptions/UnsupportedOperationException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 #include "impl/Utilities.h"
