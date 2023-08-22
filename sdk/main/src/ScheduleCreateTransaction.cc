@@ -251,7 +251,7 @@ void ScheduleCreateTransaction::addToBody(proto::TransactionBody& body) const
 proto::ScheduleCreateTransactionBody* ScheduleCreateTransaction::build() const
 {
   auto body = std::make_unique<proto::ScheduleCreateTransactionBody>();
-
+  
   body->set_allocated_scheduledtransactionbody(mImpl->mTransactionToSchedule.toSchedulableProtobuf().release());
   body->set_memo(mImpl->mMemo);
 
