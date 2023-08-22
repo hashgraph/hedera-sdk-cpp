@@ -22,6 +22,12 @@
 namespace Hedera
 {
 //-----
+SubscriptionHandle::~SubscriptionHandle()
+{
+  unsubscribe();
+}
+
+//-----
 void SubscriptionHandle::unsubscribe() const
 {
   mUnsubscribeFunc();

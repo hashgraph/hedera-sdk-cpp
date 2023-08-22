@@ -29,6 +29,11 @@ class SubscriptionHandle
 {
 public:
   /**
+   * Destructor unsubscribes.
+   */
+  ~SubscriptionHandle();
+
+  /**
    * Unsubscribe from the subscription this SubscriptionHandle is holding.
    */
   void unsubscribe() const;

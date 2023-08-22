@@ -69,130 +69,185 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
                        std::chrono::duration<double> maxBackoff,
                        SubscriptionHandle* handle)
 {
-  // Set up the handle to allow it to unsubscribe.
-  grpc::ClientContext context;
-  handle->setOnUnsubscribe([&context]() { context.TryCancel(); });
-
-  // Read responses as they arrive.
+  // Declare needed variables.
   com::hedera::mirror::api::proto::ConsensusTopicResponse response;
   std::unordered_map<TransactionId, std::vector<com::hedera::mirror::api::proto::ConsensusTopicResponse>>
     pendingMessages;
-  grpc::CompletionQueue completionQueue;
+  std::vector<std::unique_ptr<grpc::ClientContext>> contexts;
+  std::vector<std::unique_ptr<grpc::CompletionQueue>> queues;
+  std::chrono::duration<double> backoff = DEFAULT_MIN_BACKOFF;
   grpc::Status grpcStatus;
   CallStatus callStatus = CallStatus::STATUS_CREATE;
   uint64_t attempt = 0ULL;
+  bool complete = false;
   bool ok = false;
   void* tag;
 
+  // Attach the handle to the context so that it can cancel the subscription at any point.
+  contexts.push_back(std::make_unique<grpc::ClientContext>());
+  queues.push_back(std::make_unique<grpc::CompletionQueue>());
+  handle->setOnUnsubscribe([&contexts]() { contexts.back()->TryCancel(); });
+
   // Send the query.
   auto reader = getConnectedMirrorNode(network)->getConsensusServiceStub()->AsyncsubscribeTopic(
-    &context, query, &completionQueue, &callStatus);
+    contexts.back().get(), query, queues.back().get(), &callStatus);
 
-  // Loop as long as there are valid read operations.
-  while (completionQueue.Next(&tag, &ok))
+  // Loop until the RPC completes.
+  while (true)
   {
-    const auto receivedTagStatus = static_cast<CallStatus>(*internal::Utilities::toTypePtr<long>(tag));
-    switch (receivedTagStatus)
+    // Process based on the completion queue status.
+    switch (queues.back()->AsyncNext(
+      &tag, &ok, std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::milliseconds>(backoff)))
     {
-      case CallStatus::STATUS_CREATE:
+      case grpc::CompletionQueue::TIMEOUT:
       {
-        if (ok)
-        {
-          // Update the call status to processing.
-          callStatus = CallStatus::STATUS_PROCESSING;
-        }
-
-        // Let fall through to process message.
-        [[fallthrough]];
+        // Backoff if the completion queue timed out.
+        backoff = (backoff * 2 > maxBackoff) ? maxBackoff : backoff * 2;
+        break;
       }
-      case CallStatus::STATUS_PROCESSING:
+      case grpc::CompletionQueue::GOT_EVENT:
       {
-        if (ok)
+        // Decrease the backoff time.
+        backoff = (backoff / 2 < DEFAULT_MIN_BACKOFF) ? DEFAULT_MIN_BACKOFF : backoff / 2;
+
+        // Process based on the call status.
+        switch (static_cast<CallStatus>(*internal::Utilities::toTypePtr<long>(tag)))
         {
-          // Read the response.
-          reader->Read(&response, &callStatus);
-
-          // Adjust the query timestamp and limit, in case a retry is triggered.
-          if (response.has_consensustimestamp())
+          case CallStatus::STATUS_CREATE:
           {
-            std::chrono::system_clock::time_point timestamp =
-              internal::TimestampConverter::fromProtobuf(response.consensustimestamp());
-
-            // Add one of the smallest denomination of time this machine can handle.
-            timestamp += std::chrono::duration<int, std::ratio<1, std::chrono::system_clock::period::den>>();
-            query.set_allocated_consensusstarttime(internal::TimestampConverter::toProtobuf(timestamp));
-          }
-
-          if (query.limit() > 0ULL)
-          {
-            query.set_limit(query.limit() - 1ULL);
-          }
-
-          // Process the received message.
-          if (!response.has_chunkinfo() || response.chunkinfo().total() == 1)
-          {
-            onNext(TopicMessage::ofSingle(response));
-          }
-          else
-          {
-            const TransactionId transactionId =
-              TransactionId::fromProtobuf(response.chunkinfo().initialtransactionid());
-            pendingMessages[transactionId].push_back(response);
-
-            if (pendingMessages[transactionId].size() == response.chunkinfo().total())
+            if (ok)
             {
-              onNext(TopicMessage::ofMany(pendingMessages[transactionId]));
+              // Update the call status to processing.
+              callStatus = CallStatus::STATUS_PROCESSING;
             }
+
+            // Let fall through to process message.
+            [[fallthrough]];
           }
-        }
-        else
-        {
-          // If there was an error, finish the RPC.
-          callStatus = CallStatus::STATUS_FINISH;
-          reader->Finish(&grpcStatus, &callStatus);
+          case CallStatus::STATUS_PROCESSING:
+          {
+            // If the response should be processed, process it.
+            if (ok)
+            {
+              // Read the response.
+              reader->Read(&response, &callStatus);
+
+              // Adjust the query timestamp and limit, in case a retry is triggered.
+              if (response.has_consensustimestamp())
+              {
+                // Add one of the smallest denomination of time this machine can handle.
+                query.set_allocated_consensusstarttime(internal::TimestampConverter::toProtobuf(
+                  internal::TimestampConverter::fromProtobuf(response.consensustimestamp()) +
+                  std::chrono::duration<int, std::ratio<1, std::chrono::system_clock::period::den>>()));
+              }
+
+              if (query.limit() > 0ULL)
+              {
+                query.set_limit(query.limit() - 1ULL);
+              }
+
+              // Process the received message.
+              if (!response.has_chunkinfo() || response.chunkinfo().total() == 1)
+              {
+                onNext(TopicMessage::ofSingle(response));
+              }
+              else
+              {
+                const TransactionId transactionId =
+                  TransactionId::fromProtobuf(response.chunkinfo().initialtransactionid());
+                pendingMessages[transactionId].push_back(response);
+
+                if (pendingMessages[transactionId].size() == response.chunkinfo().total())
+                {
+                  onNext(TopicMessage::ofMany(pendingMessages[transactionId]));
+                }
+              }
+            }
+
+            // If the response shouldn't be processed (due to completion or error), finish the RPC.
+            else
+            {
+              callStatus = CallStatus::STATUS_FINISH;
+              reader->Finish(&grpcStatus, &callStatus);
+            }
+
+            break;
+          }
+          case CallStatus::STATUS_FINISH:
+          {
+            if (grpcStatus.ok())
+            {
+              // RPC completed successfully.
+              completionHandler();
+
+              // Shutdown the completion queue.
+              queues.back()->Shutdown();
+
+              // Mark the RPC as complete.
+              complete = true;
+              break;
+            }
+            else
+            {
+              // An error occurred. Whether retrying or not, cancel the call and shutdown the queue.
+              contexts.back()->TryCancel();
+              queues.back()->Shutdown();
+
+              if (attempt >= maxAttempts || !retryHandler(grpcStatus))
+              {
+                // This RPC call shouldn't be retried, handle the error and mark as complete to exit.
+                errorHandler(grpcStatus);
+                complete = true;
+              }
+            }
+
+            break;
+          }
+          default:
+          {
+            // Unrecognized call status, do nothing for now (not sure if this is correct).
+            break;
+          }
         }
 
         break;
       }
-      case CallStatus::STATUS_FINISH:
+      case grpc::CompletionQueue::SHUTDOWN:
       {
-        std::cout << grpcStatus.error_code() << std::endl;
-        if (grpcStatus.ok())
+        // Getting here means the RPC is reached completion or encountered an un-retriable error, and the completion
+        // queue has been shut down. End the subscription.
+        if (complete)
         {
-          // RPC completed successfully.
-          completionHandler();
+          // Give a second for the queue to finish its processing.
+          std::this_thread::sleep_for(std::chrono::seconds(1));
+          return;
         }
-        else if (attempt < maxAttempts && retryHandler(grpcStatus))
-        {
-          handle->unsubscribe();
 
-          // RPC encountered an error, so backoff.
-          const std::chrono::duration<double> backoff = std::chrono::milliseconds(250) * pow(2.0, attempt);
-          std::this_thread::sleep_for(backoff < maxBackoff ? backoff : maxBackoff);
-          ++attempt;
+        // If the completion queue has been shut down and the RPC hasn't completed, that means the RPC needs to be
+        // retried. Increase the backoff for the retry.
+        backoff = (backoff * 2 > maxBackoff) ? maxBackoff : backoff * 2;
+        std::this_thread::sleep_for(backoff);
+        ++attempt;
 
-          // Resend the query to a different node.
-          completionQueue.Shutdown();
-          reader = getConnectedMirrorNode(network)->getConsensusServiceStub()->AsyncsubscribeTopic(
-            &context, query, &completionQueue, (void*)CallStatus::STATUS_CREATE);
-        }
-        else
-        {
-          handle->unsubscribe();
-          errorHandler(grpcStatus);
-        }
+        // Resend the query to a different node with a different completion queue and client context.
+        contexts.push_back(std::make_unique<grpc::ClientContext>());
+        queues.push_back(std::make_unique<grpc::CompletionQueue>());
+
+        // Reset the call status and send the query.
+        callStatus = CallStatus::STATUS_CREATE;
+        reader = getConnectedMirrorNode(network)->getConsensusServiceStub()->AsyncsubscribeTopic(
+          contexts.back().get(), query, queues.back().get(), &callStatus);
 
         break;
       }
       default:
       {
-        break;
+        // Not sure what to do here, just fail out.
+        std::cout << "Unknown gRPC completion queue event, failing.." << std::endl;
+        return;
       }
     }
   }
-
-  // Done processing responses.
-  completionQueue.Shutdown();
 }
 
 } // namespace
@@ -211,7 +266,7 @@ struct TopicMessageQuery::TopicMessageQueryImpl
 
   // The function to run when there's an error.
   std::function<void(grpc::Status)> mErrorHandler = [](const grpc::Status& status)
-  { std::cout << "Failed to subscribe to topic with error: " << status.error_message() << std::endl; };
+  { std::cout << "Subscription error: " << status.error_message() << std::endl; };
 
   // The function to run when a retry is required.
   std::function<bool(grpc::Status)> mRetryHandler = [](const grpc::Status& status)
@@ -223,11 +278,7 @@ struct TopicMessageQuery::TopicMessageQueryImpl
   };
 
   // The function to run when streaming is complete.
-  std::function<void(void)> mCompletionHandler = [this]()
-  {
-    std::cout << "RPC subscription to topic " << TopicId::fromProtobuf(mQuery.topicid()).toString() << " is complete"
-              << std::endl;
-  };
+  std::function<void(void)> mCompletionHandler = []() { std::cout << "RPC subscription complete!" << std::endl; };
 };
 
 //-----
