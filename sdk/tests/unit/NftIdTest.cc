@@ -98,11 +98,11 @@ TEST_F(NftIdTest, ProtobufNftId)
 
   // Serialize token ID and serial number
   std::unique_ptr<proto::NftID> protoNftID = nftId.toProtobuf();
-  EXPECT_EQ(TokenId::fromProtobuf(protoNftID->tokenid()), getTestTokenId());
-  EXPECT_EQ(protoNftID->serialnumber(), getTestSerialNum());
+  EXPECT_EQ(TokenId::fromProtobuf(protoNftID->token_id()), getTestTokenId());
+  EXPECT_EQ(protoNftID->serial_number(), getTestSerialNum());
 
   // Adjust protobuf fields
-  protoNftID->set_serialnumber(static_cast<int64_t>(getTestSerialNum() - 1ULL));
+  protoNftID->set_serial_number(static_cast<int64_t>(getTestSerialNum() - 1ULL));
 
   // Deserialize token ID and serial number
   nftId = NftId::fromProtobuf(*protoNftID);

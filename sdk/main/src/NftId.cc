@@ -71,12 +71,12 @@ NftId NftId::fromProtobuf(const proto::NftID& proto)
 {
   NftId nftId;
 
-  if (proto.has_tokenid())
+  if (proto.has_token_id())
   {
-    nftId.mTokenId = TokenId::fromProtobuf(proto.tokenid());
+    nftId.mTokenId = TokenId::fromProtobuf(proto.token_id());
   }
 
-  nftId.mSerialNum = static_cast<uint64_t>(proto.serialnumber());
+  nftId.mSerialNum = static_cast<uint64_t>(proto.serial_number());
   return nftId;
 }
 
@@ -84,8 +84,8 @@ NftId NftId::fromProtobuf(const proto::NftID& proto)
 std::unique_ptr<proto::NftID> NftId::toProtobuf() const
 {
   auto nftId = std::make_unique<proto::NftID>();
-  nftId->set_allocated_tokenid(mTokenId.toProtobuf().release());
-  nftId->set_serialnumber(static_cast<int64_t>(mSerialNum));
+  nftId->set_allocated_token_id(mTokenId.toProtobuf().release());
+  nftId->set_serial_number(static_cast<int64_t>(mSerialNum));
   return nftId;
 }
 
