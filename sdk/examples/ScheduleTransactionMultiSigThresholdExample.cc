@@ -22,7 +22,6 @@
 #include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "KeyList.h"
-#include "ScheduleCreateTransaction.h"
 #include "ScheduleInfo.h"
 #include "ScheduleInfoQuery.h"
 #include "ScheduleSignTransaction.h"
@@ -31,6 +30,7 @@
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
+#include <array>
 #include <iostream>
 
 using namespace Hedera;

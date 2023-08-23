@@ -31,6 +31,7 @@
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
+#include <array>
 #include <iostream>
 
 using namespace Hedera;
