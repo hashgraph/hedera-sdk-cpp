@@ -83,9 +83,7 @@ AccountAllowanceDeleteTransaction& AccountAllowanceDeleteTransaction::deleteAllT
 proto::Transaction AccountAllowanceDeleteTransaction::makeRequest(const Client& client,
                                                                   const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_cryptodeleteallowance(build());
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -96,6 +94,12 @@ grpc::Status AccountAllowanceDeleteTransaction::submitRequest(const Client& clie
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kCryptoDeleteAllowance, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void AccountAllowanceDeleteTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_cryptodeleteallowance(build());
 }
 
 //-----

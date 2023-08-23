@@ -56,10 +56,7 @@ TokenUnpauseTransaction& TokenUnpauseTransaction::setTokenId(const TokenId& toke
 proto::Transaction TokenUnpauseTransaction::makeRequest(const Client& client,
                                                         const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_token_unpause(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -70,6 +67,12 @@ grpc::Status TokenUnpauseTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenUnpause, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenUnpauseTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_token_unpause(build());
 }
 
 //-----

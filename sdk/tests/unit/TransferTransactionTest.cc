@@ -151,7 +151,7 @@ TEST_F(TransferTransactionTest, AddHbarTransferFrozen)
 {
   // Given
   TransferTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.addHbarTransfer(getTestAccountId1(), getTestAmount()), IllegalStateException);
@@ -193,7 +193,7 @@ TEST_F(TransferTransactionTest, AddTokenTransferFrozen)
 {
   // Given
   TransferTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.addTokenTransfer(getTestTokenId(), getTestAccountId1(), getTestAmount().toTinybars()),
@@ -238,7 +238,7 @@ TEST_F(TransferTransactionTest, AddNftTransferFrozen)
 {
   // Given
   TransferTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId1(), getTestAccountId2()),
@@ -284,7 +284,7 @@ TEST_F(TransferTransactionTest, AddTokenTransferWithDecimalsFrozen)
 {
   // Given
   TransferTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.addTokenTransferWithDecimals(getTestTokenId(),

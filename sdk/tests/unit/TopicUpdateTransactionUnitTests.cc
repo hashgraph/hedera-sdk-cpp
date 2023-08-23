@@ -121,7 +121,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetTopicIdFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTopicId(getTestTopicId()), IllegalStateException);
@@ -145,7 +145,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetMemoFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setMemo(getTestTopicMemo()), IllegalStateException);
@@ -170,7 +170,7 @@ TEST_F(TopicUpdateTransactionTest, ClearMemoFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.clearTopicMemo(), IllegalStateException);
@@ -194,7 +194,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetExpirationTimeFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -218,7 +218,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAdminKeyFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAdminKey(getTestAdminKey()), IllegalStateException);
@@ -242,7 +242,7 @@ TEST_F(TopicUpdateTransactionTest, ClearAdminKeyFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.clearAdminKey(), IllegalStateException);
@@ -266,7 +266,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetSubmitKeyFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setSubmitKey(getTestSubmitKey()), IllegalStateException);
@@ -290,7 +290,7 @@ TEST_F(TopicUpdateTransactionTest, ClearSubmitKeyFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.clearAdminKey(), IllegalStateException);
@@ -314,7 +314,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewPeriodFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -338,7 +338,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewAccountIdFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewAccountId(getTestAutoRenewAccountId()), IllegalStateException);
@@ -363,7 +363,7 @@ TEST_F(TopicUpdateTransactionTest, ClearAutoRenewAccountIdFrozen)
 {
   // Given
   TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.clearAutoRenewAccountId(), IllegalStateException);

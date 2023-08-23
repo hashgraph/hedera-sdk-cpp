@@ -168,9 +168,7 @@ TopicUpdateTransaction& TopicUpdateTransaction::clearAutoRenewAccountId()
 proto::Transaction TopicUpdateTransaction::makeRequest(const Client& client,
                                                        const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_consensusupdatetopic(build());
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -181,6 +179,12 @@ grpc::Status TopicUpdateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kConsensusUpdateTopic, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TopicUpdateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_consensusupdatetopic(build());
 }
 
 //-----

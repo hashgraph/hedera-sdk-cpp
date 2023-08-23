@@ -35,46 +35,15 @@
 
 namespace Hedera
 {
-class AccountAllowanceApproveTransaction;
-class AccountAllowanceDeleteTransaction;
-class AccountCreateTransaction;
-class AccountDeleteTransaction;
-class AccountUpdateTransaction;
-class ContractCreateTransaction;
-class ContractDeleteTransaction;
-class ContractExecuteTransaction;
-class ContractUpdateTransaction;
-class EthereumTransaction;
-class FileAppendTransaction;
-class FileCreateTransaction;
-class FileDeleteTransaction;
-class FileUpdateTransaction;
 class PrivateKey;
-class TokenAssociateTransaction;
-class TokenBurnTransaction;
-class TokenCreateTransaction;
-class TokenDeleteTransaction;
-class TokenDissociateTransaction;
-class TokenFeeScheduleUpdateTransaction;
-class TokenFreezeTransaction;
-class TokenGrantKycTransaction;
-class TokenMintTransaction;
-class TokenPauseTransaction;
-class TokenRevokeKycTransaction;
-class TokenUnfreezeTransaction;
-class TokenUnpauseTransaction;
-class TokenUpdateTransaction;
-class TokenWipeTransaction;
-class TopicCreateTransaction;
-class TopicDeleteTransaction;
-class TopicMessageSubmitTransaction;
-class TopicUpdateTransaction;
 class TransactionResponse;
-class TransferTransaction;
+class ScheduleCreateTransaction;
+class WrappedTransaction;
 }
 
 namespace proto
 {
+class SchedulableTransactionBody;
 class Transaction;
 class TransactionBody;
 class TransactionResponse;
@@ -95,25 +64,25 @@ public:
   /**
    * Construct a Transaction derived class from a byte array. The bytes can be a protobuf encoded TransactionBody,
    * Transaction, or SignedTransaction. Since C++ return types must be known at compile time and the type of Transaction
-   * to create may not be known at compile time, a std::variant is used to encompass all possible Transactions. Usage of
-   * this return type would look like the following:
+   * to create may not be known at compile time, a WrappedTransaction is used to encompass all possible Transactions in
+   * a std::variant. Usage of this return type would look like the following:
    *
-   * std::vector<std::byte> bytes;
-   *                                                              The Transaction type here doesn't matter and is an
-   *                                     vvvvvvvvvvvvvvvvvvvvvvvv unfortunate, ugly byproduct of this approach.
-   * auto [index, variant] = Transaction<AccountCreateTransaction>::fromBytes(bytes);
+   * std::vector<std::byte> bytes = {...};
+   *                                                                    The Transaction type here doesn't matter and is
+   *                                           vvvvvvvvvvvvvvvvvvvvvvvv an unfortunate, ugly byproduct of this approach.
+   * const WrappedTransaction tx = Transaction<AccountCreateTransaction>::fromBytes(bytes);
    *
-   * switch (index)
+   * switch (tx.getTransactionType())
    * {
-   *    case 0:
+   *    case TransactionType::ACCOUNT_CREATE_TRANSACTION:
    *    {
-   *        AccountCreateTransaction tx = std::get<0>(variant);
+   *        AccountCreateTransaction* accountCreateTransaction = tx.getTransaction<AccountCreateTransaction>();
    *        ** do stuff with tx here **
    *        break;
    *    }
-   *    case 1:
+   *    case TransactionType::TRANSFER_TRANSACTION:
    *    {
-   *        TransferTransaction tx = std::get<1>(variant);
+   *        TransferTransaction transferTransaction = tx.getTransaction<TransferTransaction>();
    *        ** do stuff with tx here **
    *        break;
    *    }
@@ -121,45 +90,10 @@ public:
    * }
    *
    * @param bytes The bytes from which to construct a Transaction.
-   * @return A pair which contains an index into the variant, as well as the created Transaction.
+   * @return A WrappedTransaction which contains the deserialized Transaction.
    * @throws std::invalid_argument If unable to construct a Transaction from the input bytes.
    */
-  [[nodiscard]] static std::pair<int,
-                                 std::variant<AccountCreateTransaction,
-                                              TransferTransaction,
-                                              AccountUpdateTransaction,
-                                              AccountDeleteTransaction,
-                                              AccountAllowanceApproveTransaction,
-                                              AccountAllowanceDeleteTransaction,
-                                              ContractCreateTransaction,
-                                              ContractDeleteTransaction,
-                                              FileCreateTransaction,
-                                              FileDeleteTransaction,
-                                              ContractExecuteTransaction,
-                                              ContractUpdateTransaction,
-                                              EthereumTransaction,
-                                              FileUpdateTransaction,
-                                              FileAppendTransaction,
-                                              TokenCreateTransaction,
-                                              TokenDeleteTransaction,
-                                              TokenAssociateTransaction,
-                                              TokenMintTransaction,
-                                              TokenUpdateTransaction,
-                                              TokenWipeTransaction,
-                                              TokenBurnTransaction,
-                                              TokenDissociateTransaction,
-                                              TokenFeeScheduleUpdateTransaction,
-                                              TokenGrantKycTransaction,
-                                              TokenRevokeKycTransaction,
-                                              TokenPauseTransaction,
-                                              TokenUnpauseTransaction,
-                                              TokenFreezeTransaction,
-                                              TokenUnfreezeTransaction,
-                                              TopicCreateTransaction,
-                                              TopicDeleteTransaction,
-                                              TopicUpdateTransaction,
-                                              TopicMessageSubmitTransaction>>
-  fromBytes(const std::vector<std::byte>& bytes);
+  [[nodiscard]] static WrappedTransaction fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Sign this Transaction with the given PrivateKey. Signing a Transaction with a key that has already been used to
@@ -187,11 +121,19 @@ public:
    * Freeze this transaction with a Client. The Client's operator will be used to generate a transaction ID, and the
    * client's network will be used to generate a list of node account IDs.
    *
-   * @param client The Client with which to freeze this Transaction.
+   * @param client A pointer to the Client with which to freeze this Transaction.
    * @return A reference to this derived Transaction object, now frozen.
    * @throws UninitializedException If Client operator has not been initialized.
    */
-  SdkRequestType& freezeWith(const Client& client);
+  SdkRequestType& freezeWith(const Client* client);
+
+  /**
+   * Put this Transaction in a ScheduleCreateTransaction.
+   *
+   * @return This Transaction put in a ScheduleCreateTransaction.
+   * @throws IllegalStateException If this transaction has node account IDs already set; it is not allowed.
+   */
+  [[nodiscard]] ScheduleCreateTransaction schedule() const;
 
   /**
    * Set the length of time that this Transaction will remain valid.
@@ -262,8 +204,9 @@ public:
    * Get the desired ID for this Transaction.
    *
    * @return The desired ID for this Transaction.
+   * @throws IllegalStateException If no TransactionId has been generated or set yet.
    */
-  [[nodiscard]] inline TransactionId getTransactionId() const { return mTransactionId; }
+  [[nodiscard]] TransactionId getTransactionId() const;
 
   /**
    * Get the desired transaction ID regeneration policy of this Transaction.
@@ -315,10 +258,10 @@ protected:
   /**
    * Create a TransactionBody protobuf object from this Transaction object's data.
    *
-   * @param client The Client that will sign and submit this Transaction.
+   * @param client A pointer to the Client that will sign and submit this Transaction.
    * @return The created TransactionBody protobuf object.
    */
-  [[nodiscard]] proto::TransactionBody generateTransactionBody(const Client& client) const;
+  [[nodiscard]] proto::TransactionBody generateTransactionBody(const Client* client) const;
 
   /**
    * Check and make sure this Transaction isn't frozen.
@@ -328,6 +271,13 @@ protected:
   void requireNotFrozen() const;
 
 private:
+  /**
+   * Build and add the derived Transaction's protobuf representation to the Transaction protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
+   */
+  virtual void addToBody(proto::TransactionBody& body) const = 0;
+
   /**
    * Derived from Executable. Construct a TransactionResponse object from a TransactionResponse protobuf object.
    *
@@ -376,10 +326,10 @@ private:
    *  2. Client-set default max transaction fee.
    *  3. Default maximum transaction fee.
    *
-   * @param client The Client submitting this Transaction.
+   * @param client A pointer to the Client submitting this Transaction.
    * @return The proper maximum transaction fee to set for this Transaction.
    */
-  [[nodiscard]] Hbar getMaxTransactionFee(const Client& client) const;
+  [[nodiscard]] Hbar getMaxTransactionFee(const Client* client) const;
 
   /**
    * Container of PublicKey and signer function pairs to use to sign this Transaction.

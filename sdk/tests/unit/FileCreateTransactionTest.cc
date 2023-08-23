@@ -108,7 +108,7 @@ TEST_F(FileCreateTransactionTest, GetSetExpirationTimeFrozen)
 {
   // Given
   FileCreateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -136,7 +136,7 @@ TEST_F(FileCreateTransactionTest, GetSetKeysFrozen)
 {
   // Given
   FileCreateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setKeys(getTestKeyList()), IllegalStateException);
@@ -161,7 +161,7 @@ TEST_F(FileCreateTransactionTest, GetSetContentsFrozen)
 {
   // Given
   FileCreateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setContents(getTestContents()), IllegalStateException);
@@ -185,7 +185,7 @@ TEST_F(FileCreateTransactionTest, GetSetMemoFrozen)
 {
   // Given
   FileCreateTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setFileMemo(getTestMemo()), IllegalStateException);

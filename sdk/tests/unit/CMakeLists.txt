@@ -59,6 +59,12 @@ add_executable(${TEST_PROJECT_NAME}
         LedgerIdTest.cc
         NftIdTest.cc
         NodeAddressTest.cc
+        ScheduleCreateTransactionUnitTests.cc
+        ScheduleDeleteTransactionUnitTests.cc
+        ScheduleIdUnitTests.cc
+        ScheduleInfoQueryUnitTests.cc
+        ScheduleInfoUnitTests.cc
+        ScheduleSignTransactionUnitTests.cc
         StakingInfoTest.cc
         TokenAllowanceTest.cc
         TokenAssociateTransactionUnitTests.cc

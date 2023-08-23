@@ -76,7 +76,7 @@ TEST_F(FileDeleteTransactionTest, GetSetFileIdFrozen)
 {
   // Given
   FileDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);

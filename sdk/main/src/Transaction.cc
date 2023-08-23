@@ -35,6 +35,9 @@
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
 #include "PrivateKey.h"
+#include "ScheduleCreateTransaction.h"
+#include "ScheduleDeleteTransaction.h"
+#include "ScheduleSignTransaction.h"
 #include "Status.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
@@ -58,8 +61,9 @@
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "WrappedTransaction.h"
 #include "exceptions/IllegalStateException.h"
-#include "exceptions/UninitializedException.h"
+#include "exceptions/UnsupportedOperationException.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 #include "impl/Utilities.h"
@@ -75,42 +79,7 @@ namespace Hedera
 {
 //-----
 template<typename SdkRequestType>
-std::pair<int,
-          std::variant<AccountCreateTransaction,
-                       TransferTransaction,
-                       AccountUpdateTransaction,
-                       AccountDeleteTransaction,
-                       AccountAllowanceApproveTransaction,
-                       AccountAllowanceDeleteTransaction,
-                       ContractCreateTransaction,
-                       ContractDeleteTransaction,
-                       FileCreateTransaction,
-                       FileDeleteTransaction,
-                       ContractExecuteTransaction,
-                       ContractUpdateTransaction,
-                       EthereumTransaction,
-                       FileUpdateTransaction,
-                       FileAppendTransaction,
-                       TokenCreateTransaction,
-                       TokenDeleteTransaction,
-                       TokenAssociateTransaction,
-                       TokenMintTransaction,
-                       TokenUpdateTransaction,
-                       TokenWipeTransaction,
-                       TokenBurnTransaction,
-                       TokenDissociateTransaction,
-                       TokenFeeScheduleUpdateTransaction,
-                       TokenGrantKycTransaction,
-                       TokenRevokeKycTransaction,
-                       TokenPauseTransaction,
-                       TokenUnpauseTransaction,
-                       TokenFreezeTransaction,
-                       TokenUnfreezeTransaction,
-                       TopicCreateTransaction,
-                       TopicDeleteTransaction,
-                       TopicUpdateTransaction,
-                       TopicMessageSubmitTransaction>>
-Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
+WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 {
   proto::TransactionBody txBody;
 
@@ -151,74 +120,80 @@ Transaction<SdkRequestType>::fromBytes(const std::vector<std::byte>& bytes)
 
   switch (txBody.data_case())
   {
-    case proto::TransactionBody::kCryptoCreateAccount:
-      return { 0, AccountCreateTransaction(txBody) };
-    case proto::TransactionBody::kCryptoTransfer:
-      return { 1, TransferTransaction(txBody) };
-    case proto::TransactionBody::kCryptoUpdateAccount:
-      return { 2, AccountUpdateTransaction(txBody) };
-    case proto::TransactionBody::kCryptoDelete:
-      return { 3, AccountDeleteTransaction(txBody) };
     case proto::TransactionBody::kCryptoApproveAllowance:
-      return { 4, AccountAllowanceApproveTransaction(txBody) };
+      return WrappedTransaction(AccountAllowanceApproveTransaction(txBody));
     case proto::TransactionBody::kCryptoDeleteAllowance:
-      return { 5, AccountAllowanceDeleteTransaction(txBody) };
+      return WrappedTransaction(AccountAllowanceDeleteTransaction(txBody));
+    case proto::TransactionBody::kCryptoCreateAccount:
+      return WrappedTransaction(AccountCreateTransaction(txBody));
+    case proto::TransactionBody::kCryptoDelete:
+      return WrappedTransaction(AccountDeleteTransaction(txBody));
+    case proto::TransactionBody::kCryptoUpdateAccount:
+      return WrappedTransaction(AccountUpdateTransaction(txBody));
     case proto::TransactionBody::kContractCreateInstance:
-      return { 6, ContractCreateTransaction(txBody) };
+      return WrappedTransaction(ContractCreateTransaction(txBody));
     case proto::TransactionBody::kContractDeleteInstance:
-      return { 7, ContractDeleteTransaction(txBody) };
-    case proto::TransactionBody::kFileCreate:
-      return { 8, FileCreateTransaction(txBody) };
-    case proto::TransactionBody::kFileDelete:
-      return { 9, FileDeleteTransaction(txBody) };
+      return WrappedTransaction(ContractDeleteTransaction(txBody));
     case proto::TransactionBody::kContractCall:
-      return { 10, ContractExecuteTransaction(txBody) };
+      return WrappedTransaction(ContractExecuteTransaction(txBody));
     case proto::TransactionBody::kContractUpdateInstance:
-      return { 11, ContractUpdateTransaction(txBody) };
+      return WrappedTransaction(ContractUpdateTransaction(txBody));
     case proto::TransactionBody::kEthereumTransaction:
-      return { 12, EthereumTransaction(txBody) };
-    case proto::TransactionBody::kFileUpdate:
-      return { 13, FileUpdateTransaction(txBody) };
+      return WrappedTransaction(EthereumTransaction(txBody));
     case proto::TransactionBody::kFileAppend:
-      return { 14, FileAppendTransaction(txBody) };
-    case proto::TransactionBody::kTokenCreation:
-      return { 15, TokenCreateTransaction(txBody) };
-    case proto::TransactionBody::kTokenDeletion:
-      return { 16, TokenDeleteTransaction(txBody) };
+      return WrappedTransaction(FileAppendTransaction(txBody));
+    case proto::TransactionBody::kFileCreate:
+      return WrappedTransaction(FileCreateTransaction(txBody));
+    case proto::TransactionBody::kFileDelete:
+      return WrappedTransaction(FileDeleteTransaction(txBody));
+    case proto::TransactionBody::kFileUpdate:
+      return WrappedTransaction(FileUpdateTransaction(txBody));
+    case proto::TransactionBody::kScheduleCreate:
+      return WrappedTransaction(ScheduleCreateTransaction(txBody));
+    case proto::TransactionBody::kScheduleDelete:
+      return WrappedTransaction(ScheduleDeleteTransaction(txBody));
+    case proto::TransactionBody::kScheduleSign:
+      return WrappedTransaction(ScheduleSignTransaction(txBody));
     case proto::TransactionBody::kTokenAssociate:
-      return { 17, TokenAssociateTransaction(txBody) };
-    case proto::TransactionBody::kTokenMint:
-      return { 18, TokenMintTransaction(txBody) };
-    case proto::TransactionBody::kTokenUpdate:
-      return { 19, TokenUpdateTransaction(txBody) };
-    case proto::TransactionBody::kTokenWipe:
-      return { 20, TokenWipeTransaction(txBody) };
+      return WrappedTransaction(TokenAssociateTransaction(txBody));
     case proto::TransactionBody::kTokenBurn:
-      return { 21, TokenBurnTransaction(txBody) };
+      return WrappedTransaction(TokenBurnTransaction(txBody));
+    case proto::TransactionBody::kTokenCreation:
+      return WrappedTransaction(TokenCreateTransaction(txBody));
+    case proto::TransactionBody::kTokenDeletion:
+      return WrappedTransaction(TokenDeleteTransaction(txBody));
     case proto::TransactionBody::kTokenDissociate:
-      return { 22, TokenDissociateTransaction(txBody) };
+      return WrappedTransaction(TokenDissociateTransaction(txBody));
     case proto::TransactionBody::kTokenFeeScheduleUpdate:
-      return { 23, TokenFeeScheduleUpdateTransaction(txBody) };
-    case proto::TransactionBody::kTokenGrantKyc:
-      return { 24, TokenGrantKycTransaction(txBody) };
-    case proto::TransactionBody::kTokenRevokeKyc:
-      return { 25, TokenRevokeKycTransaction(txBody) };
-    case proto::TransactionBody::kTokenPause:
-      return { 26, TokenPauseTransaction(txBody) };
-    case proto::TransactionBody::kTokenUnpause:
-      return { 27, TokenUnpauseTransaction(txBody) };
+      return WrappedTransaction(TokenFeeScheduleUpdateTransaction(txBody));
     case proto::TransactionBody::kTokenFreeze:
-      return { 28, TokenFreezeTransaction(txBody) };
+      return WrappedTransaction(TokenFreezeTransaction(txBody));
+    case proto::TransactionBody::kTokenGrantKyc:
+      return WrappedTransaction(TokenGrantKycTransaction(txBody));
+    case proto::TransactionBody::kTokenMint:
+      return WrappedTransaction(TokenMintTransaction(txBody));
+    case proto::TransactionBody::kTokenPause:
+      return WrappedTransaction(TokenPauseTransaction(txBody));
+    case proto::TransactionBody::kTokenRevokeKyc:
+      return WrappedTransaction(TokenRevokeKycTransaction(txBody));
     case proto::TransactionBody::kTokenUnfreeze:
-      return { 29, TokenUnfreezeTransaction(txBody) };
+      return WrappedTransaction(TokenUnfreezeTransaction(txBody));
+    case proto::TransactionBody::kTokenUnpause:
+      return WrappedTransaction(TokenUnpauseTransaction(txBody));
+    case proto::TransactionBody::kTokenUpdate:
+      return WrappedTransaction(TokenUpdateTransaction(txBody));
+    case proto::TransactionBody::kTokenWipe:
+      return WrappedTransaction(TokenWipeTransaction(txBody));
     case proto::TransactionBody::kConsensusCreateTopic:
-      return { 30, TopicCreateTransaction(txBody) };
+      return WrappedTransaction(TopicCreateTransaction(txBody));
     case proto::TransactionBody::kConsensusDeleteTopic:
-      return { 31, TopicDeleteTransaction(txBody) };
-    case proto::TransactionBody::kConsensusUpdateTopic:
-      return { 32, TopicUpdateTransaction(txBody) };
+      return WrappedTransaction(TopicDeleteTransaction(txBody));
     case proto::TransactionBody::kConsensusSubmitMessage:
-      return { 33, TopicMessageSubmitTransaction(txBody) };
+      return WrappedTransaction(TopicMessageSubmitTransaction(txBody));
+    case proto::TransactionBody::kConsensusUpdateTopic:
+      return WrappedTransaction(TopicUpdateTransaction(txBody));
+    case proto::TransactionBody::kCryptoTransfer:
+      return WrappedTransaction(TransferTransaction(txBody));
     default:
       throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
   }
@@ -249,15 +224,48 @@ SdkRequestType& Transaction<SdkRequestType>::signWith(
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client& client)
+SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client* client)
 {
-  if (!client.getOperatorAccountId().has_value())
+  if (mIsFrozen)
   {
-    throw UninitializedException("Client operator has not been initialized and cannot freeze transaction");
+    return static_cast<SdkRequestType&>(*this);
+  }
+
+  if (mTransactionId == TransactionId())
+  {
+    if (!client)
+    {
+      throw IllegalStateException(
+        "If no client is provided to freeze transaction, the transaction ID must be manually set");
+    }
+
+    if (!client->getOperatorAccountId().has_value())
+    {
+      throw IllegalStateException("Client operator has not been initialized and cannot freeze transaction");
+    }
+
+    // Generate a transaction ID with the client.
+    mTransactionId = TransactionId::generate(client->getOperatorAccountId().value());
   }
 
   mIsFrozen = true;
   return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
+ScheduleCreateTransaction Transaction<SdkRequestType>::schedule() const
+{
+  requireNotFrozen();
+  if (!Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+         getNodeAccountIds()
+           .empty())
+  {
+    throw IllegalStateException("Underlying transaction for a scheduled transaction cannot have node account IDs set");
+  }
+
+  return ScheduleCreateTransaction().setScheduledTransaction(
+    WrappedTransaction::fromProtobuf(generateTransactionBody(nullptr)));
 }
 
 //-----
@@ -308,6 +316,18 @@ SdkRequestType& Transaction<SdkRequestType>::setRegenerateTransactionIdPolicy(bo
 
   mTransactionIdRegenerationPolicy = regenerate;
   return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType>
+TransactionId Transaction<SdkRequestType>::getTransactionId() const
+{
+  if (mTransactionId == TransactionId() || !mIsFrozen)
+  {
+    throw IllegalStateException("No transaction ID generated yet. Try freezing the transaction");
+  }
+
+  return mTransactionId;
 }
 
 //-----
@@ -408,14 +428,18 @@ proto::Transaction Transaction<SdkRequestType>::signTransaction(const proto::Tra
 
 //-----
 template<typename SdkRequestType>
-proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(const Client& client) const
+proto::TransactionBody Transaction<SdkRequestType>::generateTransactionBody(const Client* client) const
 {
   proto::TransactionBody body;
   body.set_allocated_transactionid(mTransactionId.toProtobuf().release());
   body.set_transactionfee(static_cast<uint64_t>(getMaxTransactionFee(client).toTinybars()));
-  body.set_allocated_memo(new std::string(mTransactionMemo));
+  body.set_memo(mTransactionMemo);
   body.set_allocated_transactionvalidduration(internal::DurationConverter::toProtobuf(mTransactionValidDuration));
   body.set_allocated_nodeaccountid(mNodeAccountId.toProtobuf().release());
+
+  // Add derived Transaction fields to TransactionBody.
+  addToBody(body);
+
   return body;
 }
 
@@ -431,11 +455,29 @@ void Transaction<SdkRequestType>::requireNotFrozen() const
 
 //-----
 template<typename SdkRequestType>
-Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client& client) const
+void Transaction<SdkRequestType>::onExecute(const Client& client)
 {
-  return mMaxTransactionFee              ? *mMaxTransactionFee
-         : client.getMaxTransactionFee() ? *client.getMaxTransactionFee()
-                                         : DEFAULT_MAX_TRANSACTION_FEE;
+  if (!mIsFrozen)
+  {
+    freezeWith(&client);
+  }
+}
+
+//-----
+template<typename SdkRequestType>
+Hbar Transaction<SdkRequestType>::getMaxTransactionFee(const Client* client) const
+{
+  if (mMaxTransactionFee.has_value())
+  {
+    return mMaxTransactionFee.value();
+  }
+
+  if (client && client->getMaxTransactionFee().has_value())
+  {
+    return client->getMaxTransactionFee().value();
+  }
+
+  return DEFAULT_MAX_TRANSACTION_FEE;
 }
 
 //-----
@@ -488,7 +530,7 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
 
   if (shouldRegenerate)
   {
-    // Regenerate the transaction ID and return RETRY if transaction IDs are allowed to be regenerated
+    // Regenerate the transaction ID and return RETRY if transaction IDs are allowed to be regenerated.
     mTransactionId = TransactionId::generate(mTransactionId.getAccountId());
     return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
       ExecutionStatus::RETRY;
@@ -501,24 +543,8 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
   }
 }
 
-//-----
-template<typename SdkRequestType>
-void Transaction<SdkRequestType>::onExecute(const Client& client)
-{
-  if (!client.getOperatorAccountId())
-  {
-    throw UninitializedException("No client operator private key with which to sign");
-  }
-
-  // Set the transaction ID if it has not already been manually set.
-  if (mTransactionId.getAccountId() == AccountId())
-  {
-    mTransactionId = TransactionId::generate(*client.getOperatorAccountId());
-  }
-}
-
 /**
- * Explicit template instantiation.
+ * Explicit template instantiations.
  */
 template class Transaction<AccountAllowanceApproveTransaction>;
 template class Transaction<AccountAllowanceDeleteTransaction>;
@@ -534,6 +560,9 @@ template class Transaction<FileAppendTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
+template class Transaction<ScheduleCreateTransaction>;
+template class Transaction<ScheduleDeleteTransaction>;
+template class Transaction<ScheduleSignTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;
 template class Transaction<TokenCreateTransaction>;

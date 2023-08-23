@@ -91,10 +91,7 @@ TokenWipeTransaction& TokenWipeTransaction::setSerialNumbers(const std::vector<u
 //-----
 proto::Transaction TokenWipeTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokenwipe(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -105,6 +102,12 @@ grpc::Status TokenWipeTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenWipe, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenWipeTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokenwipe(build());
 }
 
 //-----

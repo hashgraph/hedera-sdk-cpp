@@ -71,7 +71,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
                                  .setMaxAutomaticTokenAssociations(testMaxAutomaticTokenAssociations)
                                  .setDeclineStakingReward(true)
                                  .setAlias(testEvmAddress)
-                                 .freezeWith(getTestClient())
+                                 .freezeWith(&getTestClient())
                                  .sign(testPrivateKey.get())
                                  .execute(getTestClient()));
 
@@ -95,7 +95,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(testPrivateKey.get())
                     .execute(getTestClient()));
 }
@@ -117,12 +117,12 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
   EXPECT_NO_THROW(txResponseStakedAccountId = AccountCreateTransaction()
                                                 .setKey(testPublicKey.get())
                                                 .setStakedAccountId(operatorAccountId)
-                                                .freezeWith(getTestClient())
+                                                .freezeWith(&getTestClient())
                                                 .execute(getTestClient()));
   EXPECT_NO_THROW(txResponseStakedNodeId = AccountCreateTransaction()
                                              .setKey(testPublicKey.get())
                                              .setStakedNodeId(nodeId)
-                                             .freezeWith(getTestClient())
+                                             .freezeWith(&getTestClient())
                                              .execute(getTestClient()));
 
   // Then
@@ -150,13 +150,13 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountIdStakedAccountId)
                     .setTransferAccountId(operatorAccountId)
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(testPrivateKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountIdStakedNodeId)
                     .setTransferAccountId(operatorAccountId)
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(testPrivateKey.get())
                     .execute(getTestClient()));
 }
@@ -189,7 +189,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(testKey.get())
                     .execute(getTestClient()));
 }
@@ -229,13 +229,13 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
 }
@@ -262,7 +262,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
                                  .setReceiverSignatureRequired(true)
                                  .setKey(adminKeyPublicKey.get())
                                  .setAlias(evmAddress)
-                                 .freezeWith(getTestClient())
+                                 .freezeWith(&getTestClient())
                                  .sign(adminKeyPrivateKey.get())
                                  .execute(getTestClient()));
 
@@ -280,13 +280,13 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(adminKeyPrivateKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(adminKeyPrivateKey.get())
                     .execute(getTestClient()));
 }
@@ -320,7 +320,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWit
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(adminKeyPrivateKey.get())
                     .execute(getTestClient()));
 }
@@ -347,7 +347,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
                                  .setReceiverSignatureRequired(true)
                                  .setKey(adminPrivateKey->getPublicKey().get())
                                  .setAlias(alias)
-                                 .freezeWith(getTestClient())
+                                 .freezeWith(&getTestClient())
                                  .sign(adminPrivateKey.get())
                                  .sign(aliasPrivateKey.get())
                                  .execute(getTestClient()));
@@ -366,13 +366,13 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
 }
@@ -399,7 +399,7 @@ TEST_F(AccountCreateTransactionIntegrationTest,
                                                       .setReceiverSignatureRequired(true)
                                                       .setKey(adminPrivateKey->getPublicKey().get())
                                                       .setAlias(alias)
-                                                      .freezeWith(getTestClient())
+                                                      .freezeWith(&getTestClient())
                                                       .sign(aliasPrivateKey.get())
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -409,7 +409,7 @@ TEST_F(AccountCreateTransactionIntegrationTest,
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(adminPrivateKey.get())
                     .execute(getTestClient()));
 }

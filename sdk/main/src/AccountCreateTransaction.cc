@@ -190,10 +190,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const EvmAddress& a
 proto::Transaction AccountCreateTransaction::makeRequest(const Client& client,
                                                          const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_cryptocreateaccount(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -204,6 +201,12 @@ grpc::Status AccountCreateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kCryptoCreateAccount, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void AccountCreateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_cryptocreateaccount(build());
 }
 
 //-----

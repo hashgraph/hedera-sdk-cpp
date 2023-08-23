@@ -71,10 +71,7 @@ AccountDeleteTransaction& AccountDeleteTransaction::setTransferAccountId(const A
 proto::Transaction AccountDeleteTransaction::makeRequest(const Client& client,
                                                          const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_cryptodelete(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -85,6 +82,12 @@ grpc::Status AccountDeleteTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kCryptoDelete, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void AccountDeleteTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_cryptodelete(build());
 }
 
 //-----

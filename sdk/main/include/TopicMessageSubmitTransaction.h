@@ -93,6 +93,9 @@ public:
   [[nodiscard]] inline std::vector<std::byte> getMessage() const { return getData(); }
 
 private:
+  friend class ChunkedTransaction<TopicMessageSubmitTransaction>;
+  friend class WrappedTransaction;
+
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this TopicMessageSubmitTransaction object.
    *
@@ -119,15 +122,22 @@ private:
                                            const std::chrono::system_clock::time_point& deadline,
                                            const std::shared_ptr<internal::Node>& node,
                                            proto::TransactionResponse* response) const override;
+  /**
+   * Derived from Transaction. Build and add the TopicMessageSubmitTransaction protobuf representation to the
+   * Transaction protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
+   */
+  void addToBody(proto::TransactionBody& body) const override;
 
   /**
-   * Derive from ChunkedTransaction. Create a chunk of this TopicMessageSubmitTransaction to send.
+   * Derive from ChunkedTransaction. Perform any needed actions for this ChunkedTransaction after it has been chunked.
    *
    * @param data  The whole entirety of data to be sent.
    * @param chunk The chunk number to create.
    * @param total The total number of chunks to create.
    */
-  void createChunk(const std::vector<std::byte>& data, int32_t chunk, int32_t total) override;
+  void onChunk(int32_t chunk, int32_t total) override;
 
   /**
    * Build a ConsensusSubmitMessageTransactionBody protobuf object from this ConsensusSubmitMessageTransactionBody

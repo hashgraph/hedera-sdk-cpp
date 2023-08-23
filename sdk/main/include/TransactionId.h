@@ -56,6 +56,17 @@ public:
    *
    * @param accountId The ID of the account to be charged for the execution of the transaction with which this ID will
    *                  be associated.
+   * @param start     The valid start time for the transaction.
+   * @return A generated TransactionId to be used for any transaction submitted by the account with the input ID.
+   */
+  [[nodiscard]] static TransactionId withValidStart(const AccountId& accountId,
+                                                    const std::chrono::system_clock::time_point& start);
+
+  /**
+   * Generate a new TransactionId.
+   *
+   * @param accountId The ID of the account to be charged for the execution of the transaction with which this ID will
+   *                  be associated.
    * @return A generated TransactionId to be used for any transaction submitted by the account with the input ID.
    */
   [[nodiscard]] static TransactionId generate(const AccountId& accountId);

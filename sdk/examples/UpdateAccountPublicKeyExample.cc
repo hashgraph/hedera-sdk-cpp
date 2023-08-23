@@ -72,7 +72,7 @@ int main(int argc, char** argv)
   txResp = AccountUpdateTransaction()
              .setAccountId(newAccountId)
              .setKey(newPublicKey.get())
-             .freezeWith(client)
+             .freezeWith(&client)
              .sign(privateKey.get())
              .sign(newPrivateKey.get())
              .execute(client);

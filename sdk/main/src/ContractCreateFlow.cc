@@ -118,7 +118,7 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
 
   if (mFreezeWithClient != nullptr)
   {
-    contractCreateTransaction.freezeWith(*mFreezeWithClient);
+    contractCreateTransaction.freezeWith(mFreezeWithClient);
   }
 
   if (mPrivateKey)

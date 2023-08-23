@@ -151,10 +151,7 @@ AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::deleteNf
 proto::Transaction AccountAllowanceApproveTransaction::makeRequest(const Client& client,
                                                                    const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_cryptoapproveallowance(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -165,6 +162,12 @@ grpc::Status AccountAllowanceApproveTransaction::submitRequest(const Client& cli
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kCryptoApproveAllowance, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void AccountAllowanceApproveTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_cryptoapproveallowance(build());
 }
 
 //-----

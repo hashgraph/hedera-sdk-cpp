@@ -22,6 +22,7 @@
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
 
+#include <grpcpp/client_context.h>
 #include <proto/contract_update.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>
@@ -190,10 +191,7 @@ ContractUpdateTransaction& ContractUpdateTransaction::setDeclineStakingReward(bo
 proto::Transaction ContractUpdateTransaction::makeRequest(const Client& client,
                                                           const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_contractupdateinstance(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -204,6 +202,12 @@ grpc::Status ContractUpdateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kContractUpdateInstance, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void ContractUpdateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_contractupdateinstance(build());
 }
 
 //-----

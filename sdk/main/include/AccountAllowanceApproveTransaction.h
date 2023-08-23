@@ -178,6 +178,8 @@ public:
   [[nodiscard]] inline std::vector<TokenNftAllowance> getNftApprovals() const { return mNftAllowances; }
 
 private:
+  friend class WrappedTransaction;
+  
   /**
    * Derived from Executable. Construct a Transaction protobuf object from this AccountAllowanceApproveTransaction
    * object.
@@ -205,6 +207,13 @@ private:
                                            const std::chrono::system_clock::time_point& deadline,
                                            const std::shared_ptr<internal::Node>& node,
                                            proto::TransactionResponse* response) const override;
+  /**
+   * Derived from Transaction. Build and add the AccountAllowanceApproveTransaction protobuf representation to the
+   * Transaction protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
+   */
+  void addToBody(proto::TransactionBody& body) const override;
 
   /**
    * Build a CryptoApproveAllowanceTransactionBody protobuf object from this AccountAllowanceApproveTransaction object.

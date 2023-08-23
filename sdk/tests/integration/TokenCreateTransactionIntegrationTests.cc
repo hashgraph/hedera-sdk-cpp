@@ -160,7 +160,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutTreasuryAc
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));

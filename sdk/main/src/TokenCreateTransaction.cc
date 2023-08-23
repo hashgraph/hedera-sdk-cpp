@@ -293,10 +293,7 @@ TokenCreateTransaction& TokenCreateTransaction::setPauseKey(const std::shared_pt
 proto::Transaction TokenCreateTransaction::makeRequest(const Client& client,
                                                        const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokencreation(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -307,6 +304,12 @@ grpc::Status TokenCreateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenCreation, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenCreateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokencreation(build());
 }
 
 //-----

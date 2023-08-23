@@ -53,6 +53,7 @@ TEST_F(TransactionRecordTest, FromProtobuf)
                                                        std::byte('g'), std::byte('h'), std::byte('i'), std::byte('j') };
   const auto contractId = ContractId(5ULL);
   const std::vector<std::byte> contractCallResult = { std::byte(0x06), std::byte(0x07), std::byte(0x08) };
+  const auto scheduleId = ScheduleId(9ULL);
 
   proto::TransactionRecord protoTransactionRecord;
   protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf().release());
@@ -93,6 +94,8 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   nft->set_serialnumber(static_cast<int64_t>(nftId.getSerialNum()));
   nft->set_allocated_senderaccountid(accountIdFrom.toProtobuf().release());
   nft->set_allocated_receiveraccountid(accountIdTo.toProtobuf().release());
+
+  protoTransactionRecord.set_allocated_scheduleref(scheduleId.toProtobuf().release());
 
   proto::AssessedCustomFee* assessedCustomFee = protoTransactionRecord.add_assessed_custom_fees();
   assessedCustomFee->set_amount(amount);
@@ -148,6 +151,8 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   EXPECT_EQ(txRecord.mNftTransferList.at(0).getNftId(), nftId);
   EXPECT_EQ(txRecord.mNftTransferList.at(0).getSenderAccountId(), accountIdFrom);
   EXPECT_EQ(txRecord.mNftTransferList.at(0).getReceiverAccountId(), accountIdTo);
+
+  EXPECT_EQ(txRecord.mScheduleRef, scheduleId);
 
   ASSERT_EQ(txRecord.mAssessedCustomFees.size(), 1);
   EXPECT_EQ(txRecord.mAssessedCustomFees.at(0).mAmount, amount);

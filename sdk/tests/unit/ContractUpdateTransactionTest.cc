@@ -141,7 +141,7 @@ TEST_F(ContractUpdateTransactionTest, SetContractIdFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setContractId(getTestContractId()), IllegalStateException);
@@ -165,7 +165,7 @@ TEST_F(ContractUpdateTransactionTest, SetExpirationTimeFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -189,7 +189,7 @@ TEST_F(ContractUpdateTransactionTest, SetAdminKeyFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAdminKey(getTestAdminKey().get()), IllegalStateException);
@@ -213,7 +213,7 @@ TEST_F(ContractUpdateTransactionTest, SetAutoRenewPeriodFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -247,7 +247,7 @@ TEST_F(ContractUpdateTransactionTest, SetContractMemoFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setContractMemo(getTestContractMemo()), IllegalStateException);
@@ -281,7 +281,7 @@ TEST_F(ContractUpdateTransactionTest, GetSetMaxAutomaticTokenAssociationsFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumAutomaticTokenAssociations()),
@@ -306,7 +306,7 @@ TEST_F(ContractUpdateTransactionTest, SetAutoRenewAccountIdFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewAccountId(getTestAutoRenewAccountId()), IllegalStateException);
@@ -330,7 +330,7 @@ TEST_F(ContractUpdateTransactionTest, SetStakedAccountIdFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setStakedAccountId(getTestStakedAccountId()), IllegalStateException);
@@ -354,7 +354,7 @@ TEST_F(ContractUpdateTransactionTest, SetStakedNodeIdFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestStakedNodeId()), IllegalStateException);
@@ -378,7 +378,7 @@ TEST_F(ContractUpdateTransactionTest, SetStakingRewardPolicyFrozen)
 {
   // Given
   ContractUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()), IllegalStateException);

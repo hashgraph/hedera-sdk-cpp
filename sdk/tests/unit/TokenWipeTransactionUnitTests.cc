@@ -91,7 +91,7 @@ TEST_F(TokenWipeTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
   TokenWipeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -115,7 +115,7 @@ TEST_F(TokenWipeTransactionTest, GetSetAccountIdFrozen)
 {
   // Given
   TokenWipeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
@@ -139,7 +139,7 @@ TEST_F(TokenWipeTransactionTest, GetSetAmountFrozen)
 {
   // Given
   TokenWipeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAmount(getTestAmount()), IllegalStateException);
@@ -163,7 +163,7 @@ TEST_F(TokenWipeTransactionTest, GetSetSerialNumbersFrozen)
 {
   // Given
   TokenWipeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setSerialNumbers(getTestSerialNumbers()), IllegalStateException);

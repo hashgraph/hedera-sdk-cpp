@@ -25,6 +25,16 @@
 namespace Hedera
 {
 //-----
+TransactionId TransactionId::withValidStart(const AccountId& accountId,
+                                            const std::chrono::system_clock::time_point& start)
+{
+  TransactionId transactionId;
+  transactionId.mAccountId = accountId;
+  transactionId.mValidTransactionTime = start;
+  return transactionId;
+}
+
+//-----
 TransactionId TransactionId::generate(const AccountId& accountId)
 {
   TransactionId transactionId;

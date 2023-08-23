@@ -63,7 +63,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, CanGetTransactionReceipt)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(testPrivateKey.get())
                     .execute(getTestClient()));
 }

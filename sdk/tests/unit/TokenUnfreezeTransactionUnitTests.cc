@@ -80,7 +80,7 @@ TEST_F(TokenUnfreezeTransactionTest, GetSetAccountIdFrozen)
 {
   // Given
   TokenUnfreezeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
@@ -104,7 +104,7 @@ TEST_F(TokenUnfreezeTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
   TokenUnfreezeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);

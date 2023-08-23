@@ -69,10 +69,7 @@ TokenUnfreezeTransaction& TokenUnfreezeTransaction::setTokenId(const TokenId& to
 proto::Transaction TokenUnfreezeTransaction::makeRequest(const Client& client,
                                                          const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokenunfreeze(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -83,6 +80,12 @@ grpc::Status TokenUnfreezeTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenUnfreeze, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenUnfreezeTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokenunfreeze(build());
 }
 
 //-----

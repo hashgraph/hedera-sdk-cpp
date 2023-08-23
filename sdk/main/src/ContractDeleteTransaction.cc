@@ -83,10 +83,7 @@ ContractDeleteTransaction& ContractDeleteTransaction::setTransferContractId(cons
 proto::Transaction ContractDeleteTransaction::makeRequest(const Client& client,
                                                           const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_contractdeleteinstance(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -97,6 +94,12 @@ grpc::Status ContractDeleteTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kContractDeleteInstance, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void ContractDeleteTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_contractdeleteinstance(build());
 }
 
 //-----

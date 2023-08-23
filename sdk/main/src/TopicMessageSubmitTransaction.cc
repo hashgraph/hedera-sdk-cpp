@@ -69,11 +69,8 @@ TopicMessageSubmitTransaction& TopicMessageSubmitTransaction::setMessage(std::st
 }
 
 //-----
-void TopicMessageSubmitTransaction::createChunk(const std::vector<std::byte>& data, int32_t chunk, int32_t total)
+void TopicMessageSubmitTransaction::onChunk(int32_t chunk, int32_t total)
 {
-  // Set up mData for this chunk.
-  ChunkedTransaction<TopicMessageSubmitTransaction>::createChunk(data, chunk, total);
-
   // Copy the variables.
   if (chunk == 0)
   {
@@ -89,10 +86,7 @@ void TopicMessageSubmitTransaction::createChunk(const std::vector<std::byte>& da
 proto::Transaction TopicMessageSubmitTransaction::makeRequest(const Client& client,
                                                               const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_consensussubmitmessage(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -103,6 +97,12 @@ grpc::Status TopicMessageSubmitTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kConsensusSubmitMessage, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TopicMessageSubmitTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_consensussubmitmessage(build());
 }
 
 //-----

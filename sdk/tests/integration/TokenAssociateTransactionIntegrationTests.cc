@@ -85,7 +85,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, ExecuteTokenAssociateTransactio
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = TokenAssociateTransaction()
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -94,7 +94,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, ExecuteTokenAssociateTransactio
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -127,7 +127,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CanAssociateAccountWithNoTokens
   // When / Then
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = TokenAssociateTransaction()
                                                          .setAccountId(accountId)
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -136,7 +136,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CanAssociateAccountWithNoTokens
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
@@ -202,7 +202,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CannotAssociateTokensWhenAccoun
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(accountKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));

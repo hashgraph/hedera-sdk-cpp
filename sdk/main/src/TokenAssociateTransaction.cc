@@ -69,10 +69,7 @@ TokenAssociateTransaction& TokenAssociateTransaction::setTokenIds(const std::vec
 proto::Transaction TokenAssociateTransaction::makeRequest(const Client& client,
                                                           const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokenassociate(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -83,6 +80,12 @@ grpc::Status TokenAssociateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenAssociate, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenAssociateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokenassociate(build());
 }
 
 //-----

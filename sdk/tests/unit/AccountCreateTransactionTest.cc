@@ -154,7 +154,7 @@ TEST_F(AccountCreateTransactionTest, SetKeyFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setKey(getTestPublicKey().get()), IllegalStateException);
@@ -178,7 +178,7 @@ TEST_F(AccountCreateTransactionTest, SetInitialBalanceFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setInitialBalance(getTestInitialBalance()), IllegalStateException);
@@ -202,7 +202,7 @@ TEST_F(AccountCreateTransactionTest, SetReceiverSignatureRequiredFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired()), IllegalStateException);
@@ -226,7 +226,7 @@ TEST_F(AccountCreateTransactionTest, SetAutoRenewPeriodFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -260,7 +260,7 @@ TEST_F(AccountCreateTransactionTest, SetAccountMemoFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setAccountMemo(getTestAccountMemo()), IllegalStateException);
@@ -294,7 +294,7 @@ TEST_F(AccountCreateTransactionTest, SetMaxAutomaticTokenAssociationsFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()), IllegalStateException);
@@ -318,7 +318,7 @@ TEST_F(AccountCreateTransactionTest, SetStakedAccountIdFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setStakedAccountId(getTestAccountId()), IllegalStateException);
@@ -342,7 +342,7 @@ TEST_F(AccountCreateTransactionTest, SetStakedNodeIdFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestNodeId()), IllegalStateException);
@@ -366,7 +366,7 @@ TEST_F(AccountCreateTransactionTest, SetStakingRewardPolicyFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()), IllegalStateException);
@@ -385,7 +385,7 @@ TEST_F(AccountCreateTransactionTest, SetAlias)
   ASSERT_TRUE(transaction.getAlias().has_value());
   EXPECT_EQ(transaction.getAlias()->toBytes(), getTestEvmAddress().toBytes());
 
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
   EXPECT_THROW(transaction.setAlias(getTestEvmAddress()), IllegalStateException);
 }
 
@@ -394,7 +394,7 @@ TEST_F(AccountCreateTransactionTest, SetAliasFrozen)
 {
   // Given
   AccountCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When
   EXPECT_THROW(transaction.setAlias(getTestEvmAddress()), IllegalStateException);

@@ -104,10 +104,7 @@ FileCreateTransaction& FileCreateTransaction::setFileMemo(std::string_view memo)
 proto::Transaction FileCreateTransaction::makeRequest(const Client& client,
                                                       const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_filecreate(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -118,6 +115,12 @@ grpc::Status FileCreateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kFileCreate, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void FileCreateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_filecreate(build());
 }
 
 //-----

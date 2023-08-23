@@ -69,10 +69,7 @@ TokenGrantKycTransaction& TokenGrantKycTransaction::setTokenId(const TokenId& to
 proto::Transaction TokenGrantKycTransaction::makeRequest(const Client& client,
                                                          const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokengrantkyc(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -83,6 +80,12 @@ grpc::Status TokenGrantKycTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenGrantKyc, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenGrantKycTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokengrantkyc(build());
 }
 
 //-----

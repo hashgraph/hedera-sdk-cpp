@@ -69,10 +69,7 @@ TokenDissociateTransaction& TokenDissociateTransaction::setTokenIds(const std::v
 proto::Transaction TokenDissociateTransaction::makeRequest(const Client& client,
                                                            const std::shared_ptr<internal::Node>&) const
 {
-  proto::TransactionBody transactionBody = generateTransactionBody(client);
-  transactionBody.set_allocated_tokendissociate(build());
-
-  return signTransaction(transactionBody, client);
+  return signTransaction(generateTransactionBody(&client), client);
 }
 
 //-----
@@ -83,6 +80,12 @@ grpc::Status TokenDissociateTransaction::submitRequest(const Client& client,
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kTokenDissociate, makeRequest(client, node), deadline, response);
+}
+
+//-----
+void TokenDissociateTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_tokendissociate(build());
 }
 
 //-----

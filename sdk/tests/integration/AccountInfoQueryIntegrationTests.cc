@@ -69,7 +69,7 @@ TEST_F(AccountInfoQueryIntegrationTest, ExecuteAccountInfoQuery)
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
-                    .freezeWith(getTestClient())
+                    .freezeWith(&getTestClient())
                     .sign(privateKey.get())
                     .execute(getTestClient()));
 }
@@ -95,7 +95,7 @@ TEST_F(AccountInfoQueryIntegrationTest, CannotQueryDeletedAccount)
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
-                                                         .freezeWith(getTestClient())
+                                                         .freezeWith(&getTestClient())
                                                          .sign(privateKey.get())
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));

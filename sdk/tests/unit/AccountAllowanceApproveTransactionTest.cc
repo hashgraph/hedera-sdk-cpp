@@ -154,7 +154,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveHbarAllowanceFrozen)
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(
@@ -197,7 +197,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveTokenAllowanceFrozen)
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(
@@ -248,7 +248,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceFrozen)
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.approveTokenNftAllowance(
@@ -282,7 +282,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceAllSerialsFroz
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(
@@ -316,7 +316,7 @@ TEST_F(AccountAllowanceApproveTransactionTest, DeleteNftAllowanceAllSerialsFroze
 {
   // Given
   AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(

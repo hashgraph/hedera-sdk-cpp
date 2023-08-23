@@ -79,7 +79,7 @@ TEST_F(TopicMessageSubmitTransactionTest, GetSetTopicIdFrozen)
 {
   // Given
   TopicMessageSubmitTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transaction.setTopicId(getTestTopicId()), IllegalStateException);
@@ -107,8 +107,8 @@ TEST_F(TopicMessageSubmitTransactionTest, GetSetMessageFrozen)
   // Given
   TopicMessageSubmitTransaction transactionWithBytes;
   TopicMessageSubmitTransaction transactionWithStr;
-  ASSERT_NO_THROW(transactionWithBytes.freezeWith(getTestClient()));
-  ASSERT_NO_THROW(transactionWithStr.freezeWith(getTestClient()));
+  ASSERT_NO_THROW(transactionWithBytes.freezeWith(&getTestClient()));
+  ASSERT_NO_THROW(transactionWithStr.freezeWith(&getTestClient()));
 
   // When / Then
   EXPECT_THROW(transactionWithBytes.setMessage(getTestMessage()), IllegalStateException);

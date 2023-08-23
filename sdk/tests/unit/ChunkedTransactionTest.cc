@@ -62,7 +62,7 @@ TEST_F(ChunkedTransactionTest, GetSetMaxChunksFrozen)
 {
   // Given
   FileAppendTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setMaxChunks(getTestMaxChunks()), IllegalStateException);
@@ -86,7 +86,7 @@ TEST_F(ChunkedTransactionTest, GetSetChunkSizeFrozen)
 {
   // Given
   FileAppendTransaction transaction;
-  transaction.freezeWith(getTestClient());
+  transaction.freezeWith(&getTestClient());
 
   // When / Then
   EXPECT_THROW(transaction.setChunkSize(getTestChunkSize()), IllegalStateException);

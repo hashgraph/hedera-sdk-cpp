@@ -69,7 +69,7 @@ TEST_F(TopicUpdateTransactionIntegrationTest, ExecuteTopicUpdateTransaction)
                                 .setSubmitKey(newKey)
                                 .setAutoRenewPeriod(newAutoRenewPeriod)
                                 .setAutoRenewAccountId(AccountId(2ULL))
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(newKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -92,7 +92,7 @@ TEST_F(TopicUpdateTransactionIntegrationTest, ExecuteTopicUpdateTransaction)
   // Clean up
   ASSERT_NO_THROW(txReceipt = TopicDeleteTransaction()
                                 .setTopicId(topicId)
-                                .freezeWith(getTestClient())
+                                .freezeWith(&getTestClient())
                                 .sign(newKey.get())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
