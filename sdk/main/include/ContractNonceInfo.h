@@ -49,6 +49,9 @@ public:
    */
   int64_t mNonce;
 
+  /**
+   * Default construct for empty ContractNonceInfo object.
+   */
   ContractNonceInfo() = default;
 
   /**
@@ -66,7 +69,10 @@ public:
   bool operator==(const ContractNonceInfo& other) const;
 
   /**
-   * TODO TODO TODO
+   * Create an ContractNonceInfo object from a protobuf object.
+   *
+   * @param proto the protobuf object
+   * @return The constructed ContractNonceInfo object.
    */
   [[nodiscard]] static ContractNonceInfo fromProtobuf(const proto::ContractNonceInfo& proto);
 

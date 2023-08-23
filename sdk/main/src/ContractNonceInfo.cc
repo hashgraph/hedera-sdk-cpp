@@ -40,11 +40,8 @@ bool ContractNonceInfo::operator==(const ContractNonceInfo& other) const
 //-----
 ContractNonceInfo ContractNonceInfo::fromProtobuf(const proto::ContractNonceInfo& proto)
 {
-  ContractNonceInfo contractNonceInfo;
-
-  contractNonceInfo.mContractId = ContractId::fromProtobuf(proto.contract_id());
-  contractNonceInfo.mNonce = proto.nonce();
-
+  ContractId contractId = ContractId::fromProtobuf(proto.contract_id());
+  ContractNonceInfo contractNonceInfo = ContractNonceInfo(contractId, proto.nonce());
   return contractNonceInfo;
 }
 

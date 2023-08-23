@@ -36,7 +36,7 @@ protected:
 
 private:
   const ContractId mTestContractId = ContractId(1ULL);
-  const int64_t mTestNonce = 10L;
+  const int64_t mTestNonce = 2L;
 };
 
 //-----
@@ -59,24 +59,50 @@ TEST_F(ContractNonceInfoTest, FromProtobuf)
 TEST_F(ContractNonceInfoTest, ToProtobuf)
 {
   // Given
-  // ContractLogInfo contractLogInfo;
-  // contractLogInfo.mContractId = getTestContractId();
-  // contractLogInfo.mBloom = getTestBloom();
-  // contractLogInfo.mTopics = getTestTopics();
-  // contractLogInfo.mData = getTestData();
+  const ContractNonceInfo testContractNonceInfo = ContractNonceInfo(getTestContractId(), getTestNonce());
 
-  // // When
-  // const std::unique_ptr<proto::ContractLoginfo> protoContractLogInfo = contractLogInfo.toProtobuf();
+  // When
+  const std::unique_ptr<proto::ContractNonceInfo> protoContractNonceInfo = testContractNonceInfo.toProtobuf();
 
-  // // Then
-  // EXPECT_EQ(ContractId::fromProtobuf(protoContractLogInfo->contractid()), getTestContractId());
-  // EXPECT_EQ(protoContractLogInfo->bloom(), internal::Utilities::byteVectorToString(getTestBloom()));
+  // Then
+  EXPECT_EQ(protoContractNonceInfo.get()->contract_id().shardnum(),
+            static_cast<int64_t>(getTestContractId().getShardNum()));
+  EXPECT_EQ(protoContractNonceInfo.get()->contract_id().realmnum(),
+            static_cast<int64_t>(getTestContractId().getRealmNum()));
+  ASSERT_EQ(protoContractNonceInfo.get()->contract_id().contract_case(), proto::ContractID::ContractCase::kContractNum);
+  EXPECT_EQ(protoContractNonceInfo.get()->contract_id().contractnum(),
+            static_cast<int64_t>(getTestContractId().getContractNum().value()));
+  EXPECT_EQ(protoContractNonceInfo.get()->nonce(), getTestNonce());
+}
 
-  // ASSERT_EQ(protoContractLogInfo->topic_size(), getTestTopics().size());
-  // for (int i = 0; i < protoContractLogInfo->topic_size(); ++i)
-  // {
-  //   EXPECT_EQ(protoContractLogInfo->topic(i), internal::Utilities::byteVectorToString(getTestTopics().at(i)));
-  // }
+//-----
+TEST_F(ContractNonceInfoTest, ToBytes)
+{
+  // Given
+  const ContractNonceInfo testContractNonceInfo = ContractNonceInfo(getTestContractId(), getTestNonce());
 
-  // EXPECT_EQ(protoContractLogInfo->data(), internal::Utilities::byteVectorToString(getTestData()));
+  // When
+  const std::vector<std::byte> bytes = testContractNonceInfo.toBytes();
+
+  // Then
+  EXPECT_EQ(bytes, internal::Utilities::stringToByteVector(testContractNonceInfo.toProtobuf()->SerializeAsString()));
+}
+
+//-----
+TEST_F(ContractNonceInfoTest, FromBytes)
+{
+  // Given
+  proto::ContractNonceInfo protoContractNonceInfo;
+  protoContractNonceInfo.set_allocated_contract_id(getTestContractId().toProtobuf().release());
+  protoContractNonceInfo.set_nonce(getTestNonce());
+
+  // When
+  ContractNonceInfo contractNonceInfo =
+    ContractNonceInfo::fromBytes(internal::Utilities::stringToByteVector(protoContractNonceInfo.SerializeAsString()));
+
+  // Then
+  EXPECT_EQ(contractNonceInfo.mContractId.getShardNum(), getTestContractId().getShardNum());
+  EXPECT_EQ(contractNonceInfo.mContractId.getRealmNum(), getTestContractId().getRealmNum());
+  EXPECT_EQ(contractNonceInfo.mContractId.getContractNum(), getTestContractId().getContractNum());
+  EXPECT_EQ(contractNonceInfo.mNonce, getTestNonce());
 }
