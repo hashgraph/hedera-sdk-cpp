@@ -101,14 +101,12 @@ void startSubscription(
     {
       case grpc::CompletionQueue::TIMEOUT:
       {
-        std::cout << "timeout" << std::endl;
         // Backoff if the completion queue timed out.
         backoff = (backoff * 2 > maxBackoff) ? maxBackoff : backoff * 2;
         break;
       }
       case grpc::CompletionQueue::GOT_EVENT:
       {
-        std::cout << "event" << std::endl;
         // Decrease the backoff time.
         backoff = (backoff / 2 < DEFAULT_MIN_BACKOFF) ? DEFAULT_MIN_BACKOFF : backoff / 2;
 
@@ -133,7 +131,6 @@ void startSubscription(
             {
               // Read the response.
               reader->Read(&response, callStatus.get());
-              std::cout << "response message: " << response.message() << std::endl;
 
               // Adjust the query timestamp and limit, in case a retry is triggered.
               if (response.has_consensustimestamp())
@@ -217,7 +214,6 @@ void startSubscription(
       }
       case grpc::CompletionQueue::SHUTDOWN:
       {
-        std::cout << "shutdown" << std::endl;
         // Getting here means the RPC is reached completion or encountered an un-retriable error, and the completion
         // queue has been shut down. End the subscription.
         if (complete)
