@@ -61,7 +61,7 @@ TEST_F(TopicMessageQueryIntegrationTest, ExecuteTopicMessageQuery)
   std::this_thread::sleep_for(std::chrono::seconds(5));
 
   // When
-  SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).setStartTime(start).subscribe(
+  SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).subscribe(
     getTestClient(),
     [&finished, &topicMessage](const TopicMessage& message)
     {
@@ -70,6 +70,7 @@ TEST_F(TopicMessageQueryIntegrationTest, ExecuteTopicMessageQuery)
         finished = true;
       }
     });
+  std::this_thread::sleep_for(std::chrono::seconds(5));
 
   // Then
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TopicMessageSubmitTransaction()
@@ -248,7 +249,7 @@ TEST_F(TopicMessageQueryIntegrationTest, CanReceiveLargeTopicMessage)
   std::this_thread::sleep_for(std::chrono::seconds(5));
 
   // When
-  SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).setStartTime(start).subscribe(
+  SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).subscribe(
     getTestClient(),
     [&finished, &topicMessage](const TopicMessage& message)
     {
@@ -257,6 +258,7 @@ TEST_F(TopicMessageQueryIntegrationTest, CanReceiveLargeTopicMessage)
         finished = true;
       }
     });
+  std::this_thread::sleep_for(std::chrono::seconds(5));
 
   // Then
   std::vector<TransactionResponse> txResponses;
