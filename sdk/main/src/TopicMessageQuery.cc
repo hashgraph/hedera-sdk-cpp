@@ -59,38 +59,38 @@ std::shared_ptr<internal::MirrorNode> getConnectedMirrorNode(const std::shared_p
 }
 
 // Subscriber function called by TopicMessageQuery::subscribe().
-void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
-                       com::hedera::mirror::api::proto::ConsensusTopicQuery query,
-                       std::function<void(grpc::Status)> errorHandler,
-                       std::function<bool(grpc::Status)> retryHandler,
-                       std::function<void(void)> completionHandler,
-                       std::function<void(const TopicMessage&)> onNext,
-                       uint32_t maxAttempts,
-                       std::chrono::duration<double> maxBackoff,
-                       SubscriptionHandle* handle)
+void startSubscription(
+  const std::shared_ptr<internal::MirrorNetwork>& network,
+  std::unique_ptr<grpc::ClientAsyncReader<com::hedera::mirror::api::proto::ConsensusTopicResponse>> reader,
+  std::unique_ptr<grpc::ClientContext> context,
+  std::unique_ptr<grpc::CompletionQueue> queue,
+  std::unique_ptr<CallStatus> callStatus,
+  com::hedera::mirror::api::proto::ConsensusTopicQuery query,
+  std::function<void(grpc::Status)> errorHandler,
+  std::function<bool(grpc::Status)> retryHandler,
+  std::function<void(void)> completionHandler,
+  std::function<void(const TopicMessage&)> onNext,
+  uint32_t maxAttempts,
+  std::chrono::duration<double> maxBackoff,
+  SubscriptionHandle* handle)
 {
+  // Grab moved objects.
+  std::vector<std::unique_ptr<grpc::ClientContext>> contexts;
+  std::vector<std::unique_ptr<grpc::CompletionQueue>> queues;
+  contexts.push_back(std::move(context));
+  queues.push_back(std::move(queue));
+  handle->setOnUnsubscribe([&contexts]() { contexts.back()->TryCancel(); });
+
   // Declare needed variables.
   com::hedera::mirror::api::proto::ConsensusTopicResponse response;
   std::unordered_map<TransactionId, std::vector<com::hedera::mirror::api::proto::ConsensusTopicResponse>>
     pendingMessages;
-  std::vector<std::unique_ptr<grpc::ClientContext>> contexts;
-  std::vector<std::unique_ptr<grpc::CompletionQueue>> queues;
   std::chrono::duration<double> backoff = DEFAULT_MIN_BACKOFF;
   grpc::Status grpcStatus;
-  CallStatus callStatus = CallStatus::STATUS_CREATE;
   uint64_t attempt = 0ULL;
   bool complete = false;
   bool ok = false;
   void* tag;
-
-  // Attach the handle to the context so that it can cancel the subscription at any point.
-  contexts.push_back(std::make_unique<grpc::ClientContext>());
-  queues.push_back(std::make_unique<grpc::CompletionQueue>());
-  handle->setOnUnsubscribe([&contexts]() { contexts.back()->TryCancel(); });
-
-  // Send the query.
-  auto reader = getConnectedMirrorNode(network)->getConsensusServiceStub()->AsyncsubscribeTopic(
-    contexts.back().get(), query, queues.back().get(), &callStatus);
 
   // Loop until the RPC completes.
   while (true)
@@ -101,12 +101,14 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
     {
       case grpc::CompletionQueue::TIMEOUT:
       {
+        std::cout << "timeout" << std::endl;
         // Backoff if the completion queue timed out.
         backoff = (backoff * 2 > maxBackoff) ? maxBackoff : backoff * 2;
         break;
       }
       case grpc::CompletionQueue::GOT_EVENT:
       {
+        std::cout << "event" << std::endl;
         // Decrease the backoff time.
         backoff = (backoff / 2 < DEFAULT_MIN_BACKOFF) ? DEFAULT_MIN_BACKOFF : backoff / 2;
 
@@ -118,7 +120,7 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
             if (ok)
             {
               // Update the call status to processing.
-              callStatus = CallStatus::STATUS_PROCESSING;
+              *callStatus = CallStatus::STATUS_PROCESSING;
             }
 
             // Let fall through to process message.
@@ -130,7 +132,8 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
             if (ok)
             {
               // Read the response.
-              reader->Read(&response, &callStatus);
+              reader->Read(&response, callStatus.get());
+              std::cout << "response message: " << response.message() << std::endl;
 
               // Adjust the query timestamp and limit, in case a retry is triggered.
               if (response.has_consensustimestamp())
@@ -167,8 +170,8 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
             // If the response shouldn't be processed (due to completion or error), finish the RPC.
             else
             {
-              callStatus = CallStatus::STATUS_FINISH;
-              reader->Finish(&grpcStatus, &callStatus);
+              *callStatus = CallStatus::STATUS_FINISH;
+              reader->Finish(&grpcStatus, callStatus.get());
             }
 
             break;
@@ -214,6 +217,7 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
       }
       case grpc::CompletionQueue::SHUTDOWN:
       {
+        std::cout << "shutdown" << std::endl;
         // Getting here means the RPC is reached completion or encountered an un-retriable error, and the completion
         // queue has been shut down. End the subscription.
         if (complete)
@@ -234,9 +238,9 @@ void startSubscription(const std::shared_ptr<internal::MirrorNetwork>& network,
         queues.push_back(std::make_unique<grpc::CompletionQueue>());
 
         // Reset the call status and send the query.
-        callStatus = CallStatus::STATUS_CREATE;
+        *callStatus = CallStatus::STATUS_CREATE;
         reader = getConnectedMirrorNode(network)->getConsensusServiceStub()->AsyncsubscribeTopic(
-          contexts.back().get(), query, queues.back().get(), &callStatus);
+          contexts.back().get(), query, queues.back().get(), callStatus.get());
 
         break;
       }
@@ -342,9 +346,21 @@ SubscriptionHandle TopicMessageQuery::subscribe(const Client& client,
   // (which will cancel the gRPC call).
   SubscriptionHandle handle;
 
-  // Initiate the subscription.
+  // Set up the subscription before passing it to the listening thread.
+  auto context = std::make_unique<grpc::ClientContext>();
+  auto queue = std::make_unique<grpc::CompletionQueue>();
+  auto callStatus = std::make_unique<CallStatus>();
+  handle.setOnUnsubscribe([&context]() { context->TryCancel(); });
+
+  // Send the query and initiate the subscription.
   std::thread(&startSubscription,
               client.getMirrorNetwork(),
+              getConnectedMirrorNode(client.getMirrorNetwork())
+                ->getConsensusServiceStub()
+                ->AsyncsubscribeTopic(context.get(), mImpl->mQuery, queue.get(), callStatus.get()),
+              std::move(context),
+              std::move(queue),
+              std::move(callStatus),
               mImpl->mQuery,
               mImpl->mErrorHandler,
               mImpl->mRetryHandler,

@@ -58,6 +58,7 @@ TEST_F(TopicMessageQueryIntegrationTest, ExecuteTopicMessageQuery)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
                               .mTopicId.value());
+  std::this_thread::sleep_for(std::chrono::seconds(5));
 
   // When
   SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).setStartTime(start).subscribe(
@@ -244,6 +245,7 @@ TEST_F(TopicMessageQueryIntegrationTest, CanReceiveLargeTopicMessage)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
                               .mTopicId.value());
+  std::this_thread::sleep_for(std::chrono::seconds(5));
 
   // When
   SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).setStartTime(start).subscribe(
