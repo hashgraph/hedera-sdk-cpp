@@ -257,11 +257,15 @@ TEST_F(TopicMessageQueryIntegrationTest, CanReceiveLargeTopicMessage)
     });
 
   // Then
-  ASSERT_NO_THROW(const TransactionReceipt txReceipt = TopicMessageSubmitTransaction()
-                                                         .setTopicId(topicId)
-                                                         .setMessage(topicMessage)
-                                                         .execute(getTestClient())
-                                                         .getReceipt(getTestClient()));
+  std::vector<TransactionResponse> txResponses;
+  ASSERT_NO_THROW(
+    txResponses =
+      TopicMessageSubmitTransaction().setTopicId(topicId).setMessage(topicMessage).executeAll(getTestClient()));
+
+  for (const auto& response : txResponses)
+  {
+    ASSERT_NO_THROW(const TransactionReceipt txReceipt = response.getReceipt(getTestClient()));
+  }
 
   while (true)
   {

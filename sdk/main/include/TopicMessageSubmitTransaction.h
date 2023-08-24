@@ -133,11 +133,11 @@ private:
   /**
    * Derive from ChunkedTransaction. Perform any needed actions for this ChunkedTransaction after it has been chunked.
    *
-   * @param data  The whole entirety of data to be sent.
-   * @param chunk The chunk number to create.
-   * @param total The total number of chunks to create.
+   * @param firstTransactionId  The transaction ID of the first chunk.
+   * @param chunk               The chunk number to create.
+   * @param total               The total number of chunks to create.
    */
-  void onChunk(int32_t chunk, int32_t total) override;
+  void onChunk(const TransactionId& firstTransactionId, int32_t chunk, int32_t total) override;
 
   /**
    * Build a ConsensusSubmitMessageTransactionBody protobuf object from this ConsensusSubmitMessageTransactionBody
