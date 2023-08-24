@@ -69,6 +69,11 @@ ContractFunctionResult ContractFunctionResult::fromProtobuf(const proto::Contrac
     contractFunctionResult.mSenderAccountId = AccountId::fromProtobuf(proto.sender_id());
   }
 
+  for (int i = 0; i < proto.contract_nonces_size(); ++i)
+  {
+    contractFunctionResult.mContractNonces.push_back(ContractNonceInfo::fromProtobuf(proto.contract_nonces(i)));
+  }
+
   return contractFunctionResult;
 }
 

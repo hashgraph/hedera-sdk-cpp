@@ -28,6 +28,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ContractInfo.cc
         src/ContractInfoQuery.cc
         src/ContractLogInfo.cc
+        src/ContractNonceInfo.cc
         src/ContractUpdateTransaction.cc
         src/CustomFee.cc
         src/CustomFeeBase.cc

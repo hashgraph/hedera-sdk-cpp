@@ -23,6 +23,7 @@
 #include "AccountId.h"
 #include "ContractId.h"
 #include "ContractLogInfo.h"
+#include "ContractNonceInfo.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
 
@@ -229,6 +230,13 @@ public:
    * ContractCreateTransactionBody or a ContractCallTransactionBody.
    */
   AccountId mSenderAccountId;
+
+  /**
+   * A vector of updated contract account nonces containing the new nonce value for each contract
+   * account. This is always empty in a ContractCallLocalResponse#ContractFunctionResult message,
+   * since no internal creations can happen in a static EVM call.
+   */
+  std::vector<ContractNonceInfo> mContractNonces;
 
 private:
   /**
