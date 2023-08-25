@@ -1072,6 +1072,65 @@ TEST_F(TransactionTest, ScheduleSignTransactionFromTransactionBytes)
 }
 
 //-----
+TEST_F(TransactionTest, SystemUndeleteTransactionTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemundelete(new proto::SystemUndeleteTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<SystemUndeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_UNDELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemUndeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, SystemUndeleteTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemundelete(new proto::SystemUndeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<SystemUndeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_UNDELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemUndeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, SystemUndeleteTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemundelete(new proto::SystemUndeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<SystemUndeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_UNDELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemUndeleteTransaction>(), nullptr);
+}
+
+//-----
 TEST_F(TransactionTest, TokenAssociateTransactionFromTransactionBodyBytes)
 {
   // Given
