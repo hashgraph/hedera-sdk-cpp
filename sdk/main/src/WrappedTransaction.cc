@@ -101,6 +101,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(ScheduleSignTransaction(proto));
   }
+  else if (proto.has_systemdelete())
+  {
+    return WrappedTransaction(SystemDeleteTransaction(proto));
+  }
   else if (proto.has_systemundelete())
   {
     return WrappedTransaction(SystemUndeleteTransaction(proto));
@@ -263,6 +267,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
   {
     *txBody.mutable_scheduledelete() = proto.scheduledelete();
     return WrappedTransaction(ScheduleCreateTransaction(txBody));
+  }
+  else if (proto.has_systemdelete())
+  {
+    *txBody.mutable_systemdelete() = proto.systemdelete();
+    return WrappedTransaction(SystemDeleteTransaction(txBody));
   }
   else if (proto.has_systemundelete())
   {
@@ -460,6 +469,9 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ScheduleSignTransaction>()->generateTransactionBody(nullptr));
     }
+    case SYSTEM_DELETE_TRANSACTION:
+      return std::make_unique<proto::TransactionBody>(
+        getTransaction<SystemDeleteTransaction>()->generateTransactionBody(nullptr));
     case SYSTEM_UNDELETE_TRANSACTION:
       return std::make_unique<proto::TransactionBody>(
         getTransaction<SystemUndeleteTransaction>()->generateTransactionBody(nullptr));
@@ -634,6 +646,10 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   else if (txBody.has_scheduledelete())
   {
     schedulableTxBody->set_allocated_scheduledelete(txBody.release_scheduledelete());
+  }
+  else if (txBody.has_systemdelete())
+  {
+    schedulableTxBody->set_allocated_systemdelete(txBody.release_systemdelete());
   }
   else if (txBody.has_systemundelete())
   {

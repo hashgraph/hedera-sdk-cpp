@@ -39,6 +39,7 @@
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
 #include "Status.h"
+#include "SystemDeleteTransaction.h"
 #include "SystemUndeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
@@ -155,6 +156,8 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(ScheduleDeleteTransaction(txBody));
     case proto::TransactionBody::kScheduleSign:
       return WrappedTransaction(ScheduleSignTransaction(txBody));
+    case proto::TransactionBody::kSystemDelete:
+      return WrappedTransaction(SystemDeleteTransaction(txBody));
     case proto::TransactionBody::kSystemUndelete:
       return WrappedTransaction(SystemUndeleteTransaction(txBody));
     case proto::TransactionBody::kTokenAssociate:
@@ -566,6 +569,7 @@ template class Transaction<FileUpdateTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<ScheduleDeleteTransaction>;
 template class Transaction<ScheduleSignTransaction>;
+template class Transaction<SystemDeleteTransaction>;
 template class Transaction<SystemUndeleteTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;

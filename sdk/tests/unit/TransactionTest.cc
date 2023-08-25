@@ -1072,6 +1072,65 @@ TEST_F(TransactionTest, ScheduleSignTransactionFromTransactionBytes)
 }
 
 //-----
+TEST_F(TransactionTest, SystemDeleteTransactionTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemdelete(new proto::SystemDeleteTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<SystemDeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_DELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemDeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, SystemDeleteTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemdelete(new proto::SystemDeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<SystemDeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_DELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemDeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, SystemDeleteTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemdelete(new proto::SystemDeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<SystemDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_DELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemDeleteTransaction>(), nullptr);
+}
+
+//-----
 TEST_F(TransactionTest, SystemUndeleteTransactionTransactionFromTransactionBodyBytes)
 {
   // Given
