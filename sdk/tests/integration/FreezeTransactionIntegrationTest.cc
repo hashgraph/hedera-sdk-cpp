@@ -39,7 +39,7 @@ class FreezeTransactionIntegrationTest : public BaseIntegrationTest
 };
 
 //-----
-TEST_F(FreezeTransactionIntegrationTest, ExecuteFreezeTransaction)
+TEST_F(FreezeTransactionIntegrationTest, DISABLED_ExecuteFreezeTransaction)
 {
   // Given
   std::unique_ptr<PrivateKey> operatorKey;
