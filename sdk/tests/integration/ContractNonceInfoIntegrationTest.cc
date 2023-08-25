@@ -19,14 +19,11 @@
  */
 #include "AccountId.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
-#include "ContractFunctionParameters.h"
 #include "ContractFunctionResult.h"
 #include "ContractId.h"
 #include "ContractInfo.h"
-#include "ContractInfoQuery.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
@@ -40,13 +37,24 @@
 
 #include <chrono>
 #include <gtest/gtest.h>
-#include <iostream>
 
 using namespace Hedera;
-using namespace std;
 
 class ContractNonceInfoIntegrationTest : public BaseIntegrationTest
 {
+protected:
+  [[nodiscard]] inline const std::string& getTestBytecodeHexWithContractNonceInfo() const
+  {
+    return mTestBytecodeHexWithContractNonceInfo;
+  }
+
+private:
+  const std::string mTestBytecodeHexWithContractNonceInfo =
+    "6080604052348015600f57600080fd5b50604051601a90603b565b604051809103906000f0801580156035573d6000803e3d6000fd5"
+    "b50506047565b605c8061009483390190565b603f806100556000396000f3fe6080604052600080fdfea2646970667358221220a201"
+    "22cbad3457fedcc0600363d6e895f17048f5caa4afdab9e655123737567d64736f6c634300081200336080604052348015600f57600"
+    "080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122053dfd8835e3dc6fedfb8b4806460b9b716"
+    "3f8a7248bac510c6d6808d9da9d6d364736f6c63430008120033";
 };
 
 //-----
@@ -58,18 +66,19 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
   const std::string memo = "[e2e::ContractADeploysContractBInConstructor]";
   const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2016);
   FileId fileId;
-  ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
-                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
-                             .execute(getTestClient())
-                             .getReceipt(getTestClient())
-                             .mFileId.value());
+  ASSERT_NO_THROW(fileId =
+                    FileCreateTransaction()
+                      .setKeys({ operatorKey->getPublicKey().get() })
+                      .setContents(internal::Utilities::stringToByteVector(getTestBytecodeHexWithContractNonceInfo()))
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient())
+                      .mFileId.value());
 
   TransactionResponse response;
   ASSERT_NO_THROW(response = ContractCreateTransaction()
-                               .setBytecodeFileId(fileId)
                                .setAdminKey(operatorKey->getPublicKey().get())
                                .setGas(100000ULL)
+                               .setBytecodeFileId(fileId)
                                .setMemo(memo)
                                .execute(getTestClient()));
 
@@ -78,8 +87,6 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
 
   ContractId contractA = contractFunctionResult.mContractId;
   std::vector<ContractNonceInfo> contractNonces;
-
-  cout << "Step 1 - FINISHED!" << endl << endl;
 
   for (auto it = contractFunctionResult.mContractNonces.begin(); it != contractFunctionResult.mContractNonces.end();
        ++it)
@@ -90,15 +97,10 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
     }
   }
 
-  cout << "Step 2 - FINISHED!" << endl << endl;
-  cout << "contractNonces.size(): " << contractNonces.size() << endl << endl;
-
   ContractId contractB = (*contractNonces.begin()).mContractId;
 
   ContractNonceInfo contractANonceInfo;
   ContractNonceInfo contractBNonceInfo;
-
-  cout << "Step 3 - FINISHED!" << endl << endl;
 
   for (auto it = contractFunctionResult.mContractNonces.begin(); it != contractFunctionResult.mContractNonces.end();
        ++it)
@@ -112,8 +114,6 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
       contractBNonceInfo = *it;
     }
   }
-
-  cout << "Step 4 - FINISHED!" << endl << endl;
 
   // When
   EXPECT_EQ(contractANonceInfo.mNonce, 2); // A.nonce = 2
