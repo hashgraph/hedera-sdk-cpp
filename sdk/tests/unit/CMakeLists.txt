@@ -53,6 +53,7 @@ add_executable(${TEST_PROJECT_NAME}
         FileInfoQueryTest.cc
         FileInfoTest.cc
         FileUpdateTransactionTest.cc
+        FreezeTransactionUnitTests.cc
         HbarAllowanceTest.cc
         HbarTest.cc
         HbarTransferTest.cc
