@@ -23,6 +23,7 @@ add_executable(${TEST_PROJECT_NAME}
         FileDeleteTransactionIntegrationTests.cc
         FileInfoQueryIntegrationTests.cc
         FileUpdateTransactionIntegrationTests.cc
+        FreezeTransactionIntegrationTest.cc
         JSONIntegrationTest.cc
         ScheduleCreateTransactionIntegrationTests.cc
         ScheduleDeleteTransactionIntegrationTests.cc
