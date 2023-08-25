@@ -325,7 +325,7 @@ SdkRequestType& Transaction<SdkRequestType>::setRegenerateTransactionIdPolicy(bo
 template<typename SdkRequestType>
 TransactionId Transaction<SdkRequestType>::getTransactionId() const
 {
-  if (mTransactionId == TransactionId() || !mIsFrozen)
+  if (mTransactionId == TransactionId() && !mIsFrozen)
   {
     throw IllegalStateException("No transaction ID generated yet. Try freezing the transaction");
   }

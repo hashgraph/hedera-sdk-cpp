@@ -24,6 +24,7 @@
 #include "PrivateKey.h"
 #include "PublicKey.h"
 #include "exceptions/UninitializedException.h"
+#include "impl/MirrorNetwork.h"
 #include "impl/Network.h"
 #include "impl/ValuePtr.h"
 
@@ -37,6 +38,10 @@ struct Client::ClientImpl
   // Pointer to the network object that contains all processing for sending/receiving information to/from a Hedera
   // network.
   std::optional<internal::Network> mNetwork;
+
+  // Pointer to the MirrorNetwork object that contains the mirror nodes for sending/receiving information to/from a
+  // Hedera mirror node.
+  std::shared_ptr<internal::MirrorNetwork> mMirrorNetwork = nullptr;
 
   // The ID of the account that will pay for requests using this Client.
   std::optional<AccountId> mOperatorAccountId;
@@ -102,6 +107,7 @@ Client Client::forMainnet()
 {
   Client client;
   client.mImpl->mNetwork = internal::Network::forMainnet();
+  client.mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forMainnet());
   return client;
 }
 
@@ -110,6 +116,7 @@ Client Client::forTestnet()
 {
   Client client;
   client.mImpl->mNetwork = internal::Network::forTestnet();
+  client.mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forTestnet());
   return client;
 }
 
@@ -118,6 +125,7 @@ Client Client::forPreviewnet()
 {
   Client client;
   client.mImpl->mNetwork = internal::Network::forPreviewnet();
+  client.mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forPreviewnet());
   return client;
 }
 
@@ -126,7 +134,15 @@ Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& netw
 {
   Client client;
   client.mImpl->mNetwork = internal::Network::forNetwork(networkMap);
+  client.mImpl->mMirrorNetwork = nullptr;
   return client;
+}
+
+//-----
+Client& Client::setMirrorNetwork(const std::vector<std::string>& network)
+{
+  mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forNetwork(network));
+  return *this;
 }
 
 //-----
@@ -167,6 +183,11 @@ void Client::close() const
   if (mImpl->mNetwork)
   {
     mImpl->mNetwork->close();
+  }
+
+  if (mImpl->mMirrorNetwork)
+  {
+    mImpl->mMirrorNetwork->close();
   }
 }
 
@@ -281,6 +302,12 @@ std::optional<std::chrono::duration<double>> Client::getMinBackoff() const
 std::optional<std::chrono::duration<double>> Client::getMaxBackoff() const
 {
   return mImpl->mMaxBackoff;
+}
+
+//-----
+std::shared_ptr<internal::MirrorNetwork> Client::getMirrorNetwork() const
+{
+  return mImpl->mMirrorNetwork;
 }
 
 } // namespace Hedera

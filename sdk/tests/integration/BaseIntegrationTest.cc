@@ -76,6 +76,7 @@ void BaseIntegrationTest::SetUp()
 
   mClient = Client::forNetwork(networkAccountsMap);
   mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
+  mClient.setMirrorNetwork({ "127.0.0.1:5600" });
 
   mFileContent = internal::Utilities::stringToByteVector(
     json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]

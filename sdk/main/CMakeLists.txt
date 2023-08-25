@@ -78,6 +78,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ScheduleSignTransaction.cc
         src/StakingInfo.cc
         src/Status.cc
+        src/SubscriptionHandle.cc
         src/TokenAllowance.cc
         src/TokenAssociateTransaction.cc
         src/TokenAssociation.cc
@@ -110,6 +111,9 @@ add_library(${PROJECT_NAME} STATIC
         src/TopicId.cc
         src/TopicInfo.cc
         src/TopicInfoQuery.cc
+        src/TopicMessage.cc
+        src/TopicMessageChunk.cc
+        src/TopicMessageQuery.cc
         src/TopicMessageSubmitTransaction.cc
         src/TopicUpdateTransaction.cc
         src/Transaction.cc
@@ -128,6 +132,8 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/HederaCertificateVerifier.cc
         src/impl/HexConverter.cc
         src/impl/IPv4Address.cc
+        src/impl/MirrorNetwork.cc
+        src/impl/MirrorNode.cc
         src/impl/Network.cc
         src/impl/Node.cc
         src/impl/NodeAddress.cc
@@ -139,6 +145,7 @@ add_library(${PROJECT_NAME} STATIC
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR}/proto)
 target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
 

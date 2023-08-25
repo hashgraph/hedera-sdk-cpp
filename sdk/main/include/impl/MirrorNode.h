@@ -17,16 +17,10 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_NODE_H_
-#define HEDERA_SDK_CPP_IMPL_NODE_H_
+#ifndef HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_
+#define HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_
 
-#include <proto/consensus_service.grpc.pb.h>
-#include <proto/crypto_service.grpc.pb.h>
-#include <proto/file_service.grpc.pb.h>
-#include <proto/freeze_service.grpc.pb.h>
-#include <proto/schedule_service.grpc.pb.h>
-#include <proto/smart_contract_service.grpc.pb.h>
-#include <proto/token_service.grpc.pb.h>
+#include <proto/mirror/consensus_service.grpc.pb.h>
 
 #include "Defaults.h"
 #include "impl/NodeAddress.h"
@@ -37,27 +31,40 @@
 #include <grpcpp/security/credentials.h>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
+
+namespace grpc
+{
+class ClientContext;
+class Status;
+}
+
+namespace proto
+{
+class Query;
+class Response;
+class Transaction;
+class TransactionResponse;
+}
 
 namespace Hedera::internal
 {
 /**
  * Internal utility class used to represent a node on a Hedera network.
  */
-class Node
+class MirrorNode
 {
 public:
   /**
-   * Construct this Node with the NodeAddress of the remote node it is meant to represent.
+   * Construct this MirrorNode from a string which contains the IP and port with which to connect.
    *
-   * @param address A pointer to the desired NodeAddress for this Node.
-   * @param tls     The TLS behavior this Node should initially use.
-   * @throws UninitializedException If TLS is required and the input NodeAddress doesn't contain a certificate hash.
+   * @param address The address to which to connect.
    */
-  explicit Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls = TLSBehavior::REQUIRE);
+  explicit MirrorNode(std::string_view address);
 
   /**
-   * Attempt to connect this Node to the remote node.
+   * Attempt to connect this MirrorNode to the remote mirror node.
    *
    * @param timeout The point in time that the attempted connection will cease and be considered a failure.
    * @return \c TRUE if the Node is already connected or successfully connected, otherwise \c FALSE.
@@ -65,45 +72,9 @@ public:
   bool connect(const std::chrono::system_clock::time_point& timeout);
 
   /**
-   * Shutdown the connection from this Node to the remote node.
+   * Shutdown the connection from this MirrorNode to the remote mirror node.
    */
   void shutdown();
-
-  /**
-   * Submit a Query protobuf to the remote node with which this Node is communicating.
-   *
-   * @param funcEnum The enumeration specifying which gRPC function to call for this specific Query.
-   * @param query    The Query protobuf object to send.
-   * @param deadline The deadline for submitting this Query.
-   * @param response Pointer to the Response protobuf object to fill with the gRPC server's response.
-   * @return The gRPC status response of the function call from the gRPC server.
-   */
-  grpc::Status submitQuery(proto::Query::QueryCase funcEnum,
-                           const proto::Query& query,
-                           const std::chrono::system_clock::time_point& deadline,
-                           proto::Response* response);
-
-  /**
-   * Submit a Transaction protobuf to the remote node with which this Node is communicating.
-   *
-   * @param funcEnum    The enumeration specifying which gRPC function to call for this specific Transaction.
-   * @param transaction The Transaction protobuf object to send.
-   * @param deadline    The deadline for submitting this Transaction.
-   * @param response    Pointer to the TransactionResponse protobuf object to fill with the gRPC server's response.
-   * @return The gRPC status response of the function call from the gRPC server.
-   */
-  grpc::Status submitTransaction(proto::TransactionBody::DataCase funcEnum,
-                                 const proto::Transaction& transaction,
-                                 const std::chrono::system_clock::time_point& deadline,
-                                 proto::TransactionResponse* response);
-
-  /**
-   * Set the TLS behavior this Node should utilize when communicating with its remote node.
-   *
-   * @param desiredBehavior The desired behavior.
-   * @throws UninitializedException If TLS is required and this Node's NodeAddress doesn't contain a certificate hash.
-   */
-  void setTLSBehavior(TLSBehavior desiredBehavior);
 
   /**
    * Set the minimum amount of time this Node should wait before being willing to resubmit a previously failed request
@@ -150,11 +121,15 @@ public:
   [[nodiscard]] std::chrono::duration<double> getRemainingTimeForBackoff() const;
 
   /**
-   * Get the ID of the account associated with this Node.
+   * Get the consensus service stub.
    *
-   * @return The ID of the account associated with this Node.
+   * @return The consensus service stub.
    */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAddress->getNodeAccountId(); }
+  [[nodiscard]] inline std::shared_ptr<com::hedera::mirror::api::proto::ConsensusService::Stub>
+  getConsensusServiceStub() const
+  {
+    return mConsensusStub;
+  }
 
 private:
   /**
@@ -167,9 +142,9 @@ private:
   bool initializeChannel(const std::chrono::system_clock::time_point& deadline);
 
   /**
-   * Pointer to the NodeAddress of this Node.
+   * The address of the MirrorNode.
    */
-  std::shared_ptr<NodeAddress> mAddress = nullptr;
+  std::string mAddress;
 
   /**
    * Pointer to this Node's TLS channel credentials. This only depends on the NodeAddress so this will be updated
@@ -183,44 +158,9 @@ private:
   std::shared_ptr<grpc::Channel> mChannel = nullptr;
 
   /**
-   * Pointer to the gRPC stub used to communicate with the consensus service living on the remote node.
+   * Pointer to the gRPC stub used to communicate with the consensus service living on the remote mirror node.
    */
-  std::unique_ptr<proto::ConsensusService::Stub> mConsensusStub = nullptr;
-
-  /**
-   * Pointer to the gRPC stub used to communicate with the cryptography service living on the remote node.
-   */
-  std::unique_ptr<proto::CryptoService::Stub> mCryptoStub = nullptr;
-
-  /**
-   * Pointer to the gRPC stub used to communicate with the file service living on the remote node.
-   */
-  std::unique_ptr<proto::FileService::Stub> mFileStub = nullptr;
-
-  /**
-   * Pointer to the gRPC stub used to communicate with the freeze service living on the remote node.
-   */
-  std::unique_ptr<proto::FreezeService::Stub> mFreezeStub = nullptr;
-
-  /**
-   * Pointer to the gRPC stub used to communicate with the schedule service living on the remote node.
-   */
-  std::unique_ptr<proto::ScheduleService::Stub> mScheduleStub = nullptr;
-
-  /**
-   * Pointer to the gRPC stub used to communicate with the smart contract service living on the remote node.
-   */
-  std::unique_ptr<proto::SmartContractService::Stub> mSmartContractStub = nullptr;
-
-  /**
-   * Pointer to the gRPC stub used to communicate with the token service living on the remote node.
-   */
-  std::unique_ptr<proto::TokenService::Stub> mTokenStub = nullptr;
-
-  /**
-   * The TLS behavior this Node should use to communicate with its remote node.
-   */
-  TLSBehavior mTLSBehavior = TLSBehavior::REQUIRE;
+  std::shared_ptr<com::hedera::mirror::api::proto::ConsensusService::Stub> mConsensusStub = nullptr;
 
   /**
    * The point in time that this Node would be considered healthy again.
@@ -254,4 +194,4 @@ private:
 
 } // namespace Hedera::internal
 
-#endif // HEDERA_SDK_CPP_IMPL_NODE_H_
+#endif // HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_

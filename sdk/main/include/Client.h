@@ -31,6 +31,7 @@ namespace Hedera
 {
 namespace internal
 {
+class MirrorNetwork;
 class Node;
 }
 class AccountId;
@@ -91,6 +92,14 @@ public:
    * @return A Client object that is set-up to communicate with the Hedera Previewnet.
    */
   [[nodiscard]] static Client forPreviewnet();
+
+  /**
+   * Set the mirror network with which this Client should communicate.
+   *
+   * @param network The list of IPs and ports of the mirror nodes with which this Client should communicate.
+   * @return A reference to this Client object with the newly-set mirror network.
+   */
+  Client& setMirrorNetwork(const std::vector<std::string>& network);
 
   /**
    * Set the account that will, by default, be paying for requests submitted by this Client. The operator account ID is
@@ -268,6 +277,13 @@ public:
    *         not previously set.
    */
   [[nodiscard]] std::optional<std::chrono::duration<double>> getMaxBackoff() const;
+
+  /**
+   * Get a pointer to the MirrorNetwork being used by this client.
+   *
+   * @return A pointer to the MirrorNetwork being used by this client.
+   */
+  [[nodiscard]] std::shared_ptr<internal::MirrorNetwork> getMirrorNetwork() const;
 
 private:
   /**
