@@ -59,6 +59,7 @@ SystemDeleteTransaction& SystemDeleteTransaction::setFileId(const FileId& fileId
 {
   requireNotFrozen();
   mFileId = fileId;
+  mContractId.reset();
   return *this;
 }
 
@@ -67,6 +68,7 @@ SystemDeleteTransaction& SystemDeleteTransaction::setContractId(const ContractId
 {
   requireNotFrozen();
   mContractId = contractId;
+  mFileId.reset();
   return *this;
 }
 

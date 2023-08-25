@@ -37,6 +37,7 @@
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
+#include "SystemDeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -95,6 +96,7 @@ public:
                                               ScheduleCreateTransaction,
                                               ScheduleDeleteTransaction,
                                               ScheduleSignTransaction,
+                                              SystemDeleteTransaction,
                                               TokenAssociateTransaction,
                                               TokenBurnTransaction,
                                               TokenCreateTransaction,
