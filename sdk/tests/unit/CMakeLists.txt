@@ -98,7 +98,10 @@ add_executable(${TEST_PROJECT_NAME}
         TopicIdUnitTests.cc
         TopicInfoQueryUnitTests.cc
         TopicInfoUnitTests.cc
+        TopicMessageChunkUnitTests.cc
+        TopicMessageQueryUnitTests.cc
         TopicMessageSubmitTransactionUnitTests.cc
+        TopicMessageUnitTests.cc
         TopicUpdateTransactionUnitTests.cc
         TransactionIdTest.cc
         TransactionReceiptQueryTest.cc

@@ -78,7 +78,7 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
   TransactionId firstTransactionId;
 
   // Move the data out to prevent an unnecessary copy of all the data.
-  const std::vector<std::byte> data = std::move(mData);
+  std::vector<std::byte> data = std::move(mData);
   mData.clear();
   mData.reserve(mChunkSize);
 
@@ -106,9 +106,15 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
     // Get the transaction ready to execute.
     tx.freezeWith(&client);
 
+    // Grab the first transaction if this is the first transaction.
+    if (chunk == 0)
+    {
+      firstTransactionId = tx.getTransactionId();
+    }
+
     // Do any needed post-chunk processing on the transaction. This is required to happen after freezing so that
     // TopicMessageSubmitTransaction can read the transaction ID.
-    tx.onChunk(chunk, requiredChunks);
+    tx.onChunk(firstTransactionId, chunk, requiredChunks);
 
     // Execute the chunk.
     responses.push_back(tx.wrappedExecute(client, timeout));
@@ -117,11 +123,6 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
     if (mShouldGetReceipt)
     {
       const TransactionReceipt txReceipt = responses.back().getReceipt(client);
-    }
-
-    if (chunk == 0 && requiredChunks > 1)
-    {
-      firstTransactionId = tx.getTransactionId();
     }
   }
 

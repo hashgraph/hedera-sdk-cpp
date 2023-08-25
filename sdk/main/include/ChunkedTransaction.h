@@ -166,11 +166,14 @@ private:
   /**
    * Perform any needed actions for this ChunkedTransaction after it has been chunked.
    *
-   * @param chunk The chunk number of this chunk.
-   * @param total The total number of chunks being created.
+   * @param firstTransactionId The transaction ID of the first chunk.
+   * @param chunk              The chunk number of this chunk.
+   * @param total              The total number of chunks being created.
    * @throws UninitializedException If the client doesn't have an AccountId from which to generate a TransactionId.
    */
-  virtual void onChunk([[maybe_unused]] int32_t chunk, [[maybe_unused]] int32_t total)
+  virtual void onChunk([[maybe_unused]] const TransactionId& firstTransactionId,
+                       [[maybe_unused]] int32_t chunk,
+                       [[maybe_unused]] int32_t total)
   { // Intentionally unimplemented, no processing needs to occur by default.
   }
 

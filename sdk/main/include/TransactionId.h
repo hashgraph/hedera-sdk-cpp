@@ -23,6 +23,7 @@
 #include "AccountId.h"
 
 #include <chrono>
+#include <string>
 
 namespace proto
 {
@@ -94,6 +95,13 @@ public:
   [[nodiscard]] std::unique_ptr<proto::TransactionID> toProtobuf() const;
 
   /**
+   * Get a string representation of this TransactionId object.
+   *
+   * @return A string representation of this TransactionId.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
    * Get the point in time when the transaction represented by this TransactionId becomes (or became) valid.
    *
    * @return The valid start time of the transaction.
@@ -126,5 +134,18 @@ private:
 };
 
 } // namespace Hedera
+
+namespace std
+{
+template<>
+struct hash<Hedera::TransactionId>
+{
+  /**
+   * Operator override to enable use of TransactionId as map key.
+   */
+  size_t operator()(const Hedera::TransactionId& id) const { return hash<string>()(id.toString()); }
+};
+
+} // namespace std
 
 #endif // HEDERA_SDK_CPP_TRANSACTION_ID_H_

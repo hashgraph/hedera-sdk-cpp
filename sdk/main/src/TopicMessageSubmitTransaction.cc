@@ -69,15 +69,9 @@ TopicMessageSubmitTransaction& TopicMessageSubmitTransaction::setMessage(std::st
 }
 
 //-----
-void TopicMessageSubmitTransaction::onChunk(int32_t chunk, int32_t total)
+void TopicMessageSubmitTransaction::onChunk(const TransactionId& transactionId, int32_t chunk, int32_t total)
 {
-  // Copy the variables.
-  if (chunk == 0)
-  {
-    // If this is 1st chunk, then the initial transaction ID is still in the Transaction's transactionID field.
-    mInitialTransactionId = getTransactionId();
-  }
-
+  mInitialTransactionId = transactionId;
   mChunkNum = chunk;
   mTotalNumOfChunks = total;
 }
