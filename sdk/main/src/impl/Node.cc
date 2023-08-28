@@ -76,6 +76,16 @@ void Node::shutdown()
     mCryptoStub.reset();
   }
 
+  if (mFileStub)
+  {
+    mFileStub.reset();
+  }
+
+  if (mNetworkStub)
+  {
+    mNetworkStub.reset();
+  }
+
   if (mScheduleStub)
   {
     mScheduleStub.reset();
@@ -84,11 +94,6 @@ void Node::shutdown()
   if (mSmartContractStub)
   {
     mSmartContractStub.reset();
-  }
-
-  if (mFileStub)
-  {
-    mFileStub.reset();
   }
 
   if (mTokenStub)
@@ -141,6 +146,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
     case proto::Query::QueryCase::kFileGetContents:
       return mFileStub->getFileContent(&context, query, response);
     case proto::Query::QueryCase::kFileGetInfo:
+      return mFileStub->getFileInfo(&context, query, response);
+    case proto::Query::QueryCase::kNetworkGetVersionInfo:
       return mFileStub->getFileInfo(&context, query, response);
     case proto::Query::QueryCase::kScheduleGetInfo:
       return mScheduleStub->getScheduleInfo(&context, query, response);
@@ -368,6 +375,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
         mConsensusStub = proto::ConsensusService::NewStub(mChannel);
         mCryptoStub = proto::CryptoService::NewStub(mChannel);
         mFileStub = proto::FileService::NewStub(mChannel);
+        mNetworkStub = proto::NetworkService::NewStub(mChannel);
         mScheduleStub = proto::ScheduleService::NewStub(mChannel);
         mSmartContractStub = proto::SmartContractService::NewStub(mChannel);
         mTokenStub = proto::TokenService::NewStub(mChannel);
