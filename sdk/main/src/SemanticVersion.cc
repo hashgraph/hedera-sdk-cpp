@@ -35,9 +35,16 @@ SemanticVersion::SemanticVersion(int major, int minor, int patch, std::string_vi
 }
 
 //-----
+bool SemanticVersion::operator==(const SemanticVersion& other) const
+{
+  return (mMajor == other.mMajor) && (mMinor == other.mMinor) && (mPatch == other.mPatch) && (mPre == other.mPre) &&
+         (mBuild == other.mBuild);
+}
+
+//-----
 SemanticVersion SemanticVersion::fromProtobuf(const proto::SemanticVersion& proto)
 {
-  return SemanticVersion(proto.major(), proto.minor(), proto.patch(), proto.pre(), proto.build());
+  return { proto.major(), proto.minor(), proto.patch(), proto.pre(), proto.build() };
 }
 
 //-----

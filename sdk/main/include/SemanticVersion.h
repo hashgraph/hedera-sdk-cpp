@@ -55,6 +55,14 @@ public:
   SemanticVersion(int major, int minor, int patch, std::string_view pre = "", std::string_view build = "");
 
   /**
+   * Compare this SemanticVersion to another SemanticVersion and determine if they represent the same semantic version.
+   *
+   * @param other The other SemanticVersion with which to compare this SemanticVersion.
+   * @return \c TRUE if this SemanticVersion is the same as the input SemanticVersion, otherwise \c FALSE.
+   */
+  bool operator==(const SemanticVersion& other) const;
+
+  /**
    * Construct a SemanticVersion object from a SemanticVersion protobuf object.
    *
    * @param proto The SemanticVersion protobuf object from which to construct a SemanticVersion object.
