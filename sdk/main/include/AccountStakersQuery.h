@@ -21,14 +21,10 @@
 #define HEDERA_SDK_CPP_ACCOUNT_STAKERS_QUERY_H_
 
 #include "AccountId.h"
+#include "ProxyStaker.h"
 #include "Query.h"
 
 #include <vector>
-
-namespace Hedera
-{
-class ProxyStaker;
-}
 
 namespace Hedera
 {
