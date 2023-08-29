@@ -290,7 +290,7 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, ExecuteLargeTopicMessageSu
   EXPECT_EQ(topicInfo2.mMemo, testMemo);
   EXPECT_EQ(topicInfo2.mSequenceNumber, 14);
   ASSERT_NE(topicInfo2.mAdminKey, nullptr);
-  ASSERT_EQ(topicInfo2.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
+  EXPECT_EQ(topicInfo2.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =
@@ -298,7 +298,7 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, ExecuteLargeTopicMessageSu
 }
 
 //-----
-TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWhenTopicIdIsMissing)
+TEST_F(TopicMessageSubmitTransactionIntegrationTests, CanSubmitTopicMessageWithoutTopicId)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -315,25 +315,27 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWh
                               .getReceipt(getTestClient())
                               .mTopicId.value());
 
-  // When / Then
+  // When
   std::vector<TransactionResponse> txResponses;
-
-  // This call should throw an exception of type ReceiptStatusException (maybe)
-  // EXPECT_THROW(
-  //   txResponses =
-  //     TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()),
-  //   ReceiptStatusException);
   EXPECT_NO_THROW(
     txResponses =
       TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()));
 
+  // Then
+  TopicInfo topicInfo2;
+  ASSERT_NO_THROW(topicInfo2 = TopicInfoQuery().setTopicId(topicId).execute(getTestClient()));
+
+  EXPECT_EQ(topicInfo2.mMemo, testMemo);
+  ASSERT_NE(topicInfo2.mAdminKey, nullptr);
+  EXPECT_EQ(topicInfo2.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
+
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =
                     TopicDeleteTransaction().setTopicId(topicId).execute(getTestClient()).getReceipt(getTestClient()));
 }
 
 //-----
-TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWhenMessageIsMissing)
+TEST_F(TopicMessageSubmitTransactionIntegrationTests, CanSubmitTopicMessageWithoutMessage)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -350,13 +352,23 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWh
                               .getReceipt(getTestClient())
                               .mTopicId.value());
 
-  // When / Then
+  // When
   std::vector<TransactionResponse> txResponses;
-
-  // This call should throw an exception of type ReceiptStatusException (maybe)
-  // EXPECT_THROW(txResponses = TopicMessageSubmitTransaction().setTopicId(topicId).executeAll(getTestClient()),
-  //              ReceiptStatusException);
   EXPECT_NO_THROW(txResponses = TopicMessageSubmitTransaction().setTopicId(topicId).executeAll(getTestClient()));
+
+  // Then
+  for (const auto& resp : txResponses)
+  {
+    EXPECT_EQ(resp.getReceipt(getTestClient()).mStatus, Status::SUCCESS);
+  }
+
+  TopicInfo topicInfo2;
+  ASSERT_NO_THROW(topicInfo2 = TopicInfoQuery().setTopicId(topicId).execute(getTestClient()));
+
+  EXPECT_EQ(topicInfo2.mTopicId, topicId);
+  EXPECT_EQ(topicInfo2.mMemo, testMemo);
+  ASSERT_NE(topicInfo2.mAdminKey, nullptr);
+  EXPECT_EQ(topicInfo2.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =
