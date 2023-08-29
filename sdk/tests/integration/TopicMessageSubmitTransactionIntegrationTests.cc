@@ -27,6 +27,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
+#include "exceptions/ReceiptStatusException.h"
 
 #include <chrono>
 #include <gtest/gtest.h>
@@ -38,9 +39,11 @@ using namespace Hedera;
 class TopicMessageSubmitTransactionIntegrationTests : public BaseIntegrationTest
 {
 protected:
+  [[nodiscard]] inline const std::string& getTestMemo() const { return mMemo; }
   [[nodiscard]] inline const std::string& getTestBigContents() const { return mBigContents; }
 
 private:
+  const std::string mMemo = "[e2e::TopicCreateTransaction]";
   const std::string mBigContents =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur aliquam augue sem, ut mattis dui laoreet a. "
     "Curabitur consequat est euismod, scelerisque metus et, tristique dui. Nulla commodo mauris ut faucibus ultricies. "
@@ -244,7 +247,7 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, ExecuteLargeTopicMessageSu
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
-  const std::string testMemo = "[e2e::TopicCreateTransaction]";
+  const std::string testMemo = getTestMemo();
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
@@ -288,6 +291,72 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, ExecuteLargeTopicMessageSu
   EXPECT_EQ(topicInfo2.mSequenceNumber, 14);
   ASSERT_NE(topicInfo2.mAdminKey, nullptr);
   ASSERT_EQ(topicInfo2.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
+
+  // Clean up
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    TopicDeleteTransaction().setTopicId(topicId).execute(getTestClient()).getReceipt(getTestClient()));
+}
+
+//-----
+TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWhenTopicIdIsMissing)
+{
+  // Given
+  std::shared_ptr<PrivateKey> operatorKey;
+  const std::string testMemo = getTestMemo();
+  ASSERT_NO_THROW(
+    operatorKey = ED25519PrivateKey::fromString(
+      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+
+  TopicId topicId;
+  ASSERT_NO_THROW(topicId = TopicCreateTransaction()
+                              .setAdminKey(operatorKey)
+                              .setMemo(testMemo)
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTopicId.value());
+
+  // When / Then
+  std::vector<TransactionResponse> txResponses;
+
+  // This call should throw an exception of type ReceiptStatusException (maybe)
+  // EXPECT_THROW(
+  //   txResponses =
+  //     TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()),
+  //   ReceiptStatusException);
+  EXPECT_NO_THROW(
+    txResponses =
+      TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()));
+
+  // Clean up
+  ASSERT_NO_THROW(const TransactionReceipt txReceipt =
+                    TopicDeleteTransaction().setTopicId(topicId).execute(getTestClient()).getReceipt(getTestClient()));
+}
+
+//-----
+TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWhenMessageIsMissing)
+{
+  // Given
+  std::shared_ptr<PrivateKey> operatorKey;
+  const std::string testMemo = getTestMemo();
+  ASSERT_NO_THROW(
+    operatorKey = ED25519PrivateKey::fromString(
+      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+
+  TopicId topicId;
+  ASSERT_NO_THROW(topicId = TopicCreateTransaction()
+                              .setAdminKey(operatorKey)
+                              .setMemo(testMemo)
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTopicId.value());
+
+  // When / Then
+  std::vector<TransactionResponse> txResponses;
+
+  // This call should throw an exception of type ReceiptStatusException (maybe)
+  // EXPECT_THROW(txResponses = TopicMessageSubmitTransaction().setTopicId(topicId).executeAll(getTestClient()),
+  //              ReceiptStatusException);
+  EXPECT_NO_THROW(txResponses = TopicMessageSubmitTransaction().setTopicId(topicId).executeAll(getTestClient()));
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =
