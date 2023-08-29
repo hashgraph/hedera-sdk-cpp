@@ -180,14 +180,7 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
       }
       else
       {
-        try
-        {
-          accountId.mPublicKeyAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(proto.alias()));
-        }
-        catch (const BadKeyException& ex)
-        {
-          std::cout << "Cannot decode AccountID protobuf alias: " << ex.what() << std::endl;
-        }
+        accountId.mPublicKeyAlias = PublicKey::fromAliasBytes(internal::Utilities::stringToByteVector(proto.alias()));
       }
       break;
     }
@@ -211,7 +204,7 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
   }
   else if (mPublicKeyAlias)
   {
-    proto->set_alias(internal::Utilities::byteVectorToString(mPublicKeyAlias->toBytesRaw()));
+    proto->set_alias(mPublicKeyAlias->toProtobufKey()->SerializeAsString());
   }
   else if (mEvmAddressAlias)
   {

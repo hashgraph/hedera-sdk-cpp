@@ -18,6 +18,7 @@
  *
  */
 #include "PublicKey.h"
+#include "AccountId.h"
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
 #include "exceptions/BadKeyException.h"
@@ -62,6 +63,29 @@ std::unique_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<std::byte>&
   }
 
   throw BadKeyException("Key type cannot be determined from input DER-encoded byte array");
+}
+
+//-----
+std::unique_ptr<PublicKey> PublicKey::fromAliasBytes(const std::vector<std::byte>& bytes)
+{
+  proto::Key protoKey;
+  protoKey.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+
+  if (std::unique_ptr<Key> key = Key::fromProtobuf(protoKey); auto* publicKey = dynamic_cast<PublicKey*>(key.get()))
+  {
+    key.release();
+    return std::unique_ptr<PublicKey>(publicKey);
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
+//-----
+AccountId PublicKey::toAccountId(uint64_t shard, uint64_t realm) const
+{
+  return AccountId(shard, realm, getShared());
 }
 
 //-----
