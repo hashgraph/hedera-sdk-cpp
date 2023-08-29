@@ -107,7 +107,7 @@ TEST_F(AccountInfoTest, FromProtobuf)
   protoAccountInfo.set_memo(getTestMemo());
   protoAccountInfo.set_ownednfts(static_cast<int64_t>(getTestOwnedNfts()));
   protoAccountInfo.set_max_automatic_token_associations(static_cast<int32_t>(getTestMaxAutomaticTokenAssociations()));
-  protoAccountInfo.set_alias(internal::Utilities::byteVectorToString(getTestPublicKeyAlias()->toBytesDer()));
+  protoAccountInfo.set_alias(getTestPublicKeyAlias()->toProtobufKey()->SerializeAsString());
   protoAccountInfo.set_ledger_id(internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
 
   protoAccountInfo.mutable_staking_info()->set_decline_reward(getTestDeclineReward());

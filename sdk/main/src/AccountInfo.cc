@@ -71,14 +71,7 @@ AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_Account
     }
     else
     {
-      try
-      {
-        accountInfo.mPublicKeyAlias = PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(proto.alias()));
-      }
-      catch (const BadKeyException& ex)
-      {
-        std::cout << "Cannot decode AccountID protobuf alias: " << ex.what() << std::endl;
-      }
+      accountInfo.mPublicKeyAlias = PublicKey::fromAliasBytes(internal::Utilities::stringToByteVector(proto.alias()));
     }
   }
 
