@@ -34,9 +34,12 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
+#include "FreezeTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
+#include "SystemDeleteTransaction.h"
+#include "SystemUndeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -92,9 +95,12 @@ public:
                                               FileCreateTransaction,
                                               FileDeleteTransaction,
                                               FileUpdateTransaction,
+                                              FreezeTransaction,
                                               ScheduleCreateTransaction,
                                               ScheduleDeleteTransaction,
                                               ScheduleSignTransaction,
+                                              SystemDeleteTransaction,
+                                              SystemUndeleteTransaction,
                                               TokenAssociateTransaction,
                                               TokenBurnTransaction,
                                               TokenCreateTransaction,
