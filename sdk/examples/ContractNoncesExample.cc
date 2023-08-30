@@ -18,6 +18,7 @@
  *
  */
 #include "Client.h"
+#include "ContractFunctionResult.h"
 #include "ED25519PrivateKey.h"
 #include "FileAppendTransaction.h"
 #include "FileCreateTransaction.h"
@@ -46,7 +47,73 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]).get());
+  const AccountId operatorId = AccountId::fromString(argv[1]);
+  std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(argv[2]);
+  const std::shared_ptr<PublicKey> operatorPublicKey = operatorKey->getPublicKey();
+  client.setOperator(operatorId, operatorKey.get());
+
+  // Get the contract's bytecode
+  const std::vector<std::byte> byteCode = internal::Utilities::stringToByteVector(
+    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
+      .get<std::string>());
+
+  // Create the contract's bytecode file
+  TransactionReceipt txReceipt = FileCreateTransaction()
+                                   .setKeys({ operatorPublicKey.get() })
+                                   .setContents(byteCode)
+                                   .setMaxTransactionFee(Hbar(2LL))
+                                   .execute(client)
+                                   .getReceipt(client);
+  std::cout << "FileCreateTransaction execution completed with status: " << gStatusToString.at(txReceipt.mStatus)
+            << std::endl;
+  if (!txReceipt.mFileId.has_value())
+  {
+    std::cout << "No file created!" << std::endl;
+    return 1;
+  }
+
+  const FileId newFileId = txReceipt.mFileId.value();
+  std::cout << "Contract bytecode file created with ID " << newFileId.toString() << std::endl;
+
+  // Create the actual contract
+  TransactionResponse contractCreateTxResponse = ContractCreateTransaction()
+                                                   .setAdminKey(operatorPublicKey.get())
+                                                   .setGas(100000ULL)
+                                                   .setBytecodeFileId(newFileId)
+                                                   .setContractMemo("[e2e::ContractADeploysContractBInConstructor]")
+                                                   .execute(client);
+
+  TransactionReceipt contractCreateTxReceipt = contractCreateTxResponse.getReceipt(client);
+  std::cout << "ContractCreateTransaction execution completed with status: "
+            << gStatusToString.at(contractCreateTxReceipt.mStatus) << std::endl;
+  if (!contractCreateTxReceipt.mContractId.has_value())
+  {
+    std::cout << "No contract created!" << std::endl;
+    return 1;
+  }
+
+  const ContractId contractId = contractCreateTxReceipt.mContractId.value();
+  std::cout << "Smart contract created with ID " << contractId.toString() << std::endl;
+
+  // ITERATE THROUGH CONTRACT NONCES
+  ContractFunctionResult contractFunctionResult =
+    contractCreateTxResponse.getRecord(client).mContractFunctionResult.value();
+
+  for (auto it = contractFunctionResult.mContractNonces.begin(); it != contractFunctionResult.mContractNonces.end();
+       ++it)
+  {
+    std::cout << "ContractId: " << (*it).mContractId << std::endl;
+  }
+
+  // Now delete the contract
+  txReceipt = ContractDeleteTransaction()
+                .setContractId(contractId)
+                .setTransferAccountId(contractCreateTxReceipt.mTransactionId.mAccountId)
+                .setMaxTransactionFee(Hbar(1LL))
+                .execute(client)
+                .getReceipt(client);
+  std::cout << "ContractDeleteTransaction execution completed with status: " << gStatusToString.at(txReceipt.mStatus)
+            << std::endl;
 
   return 0;
 }
