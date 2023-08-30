@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
+#include "FreezeTransaction.h"
 #include "PrivateKey.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
@@ -150,6 +151,8 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(FileDeleteTransaction(txBody));
     case proto::TransactionBody::kFileUpdate:
       return WrappedTransaction(FileUpdateTransaction(txBody));
+    case proto::TransactionBody::kFreeze:
+      return WrappedTransaction(FreezeTransaction(txBody));
     case proto::TransactionBody::kScheduleCreate:
       return WrappedTransaction(ScheduleCreateTransaction(txBody));
     case proto::TransactionBody::kScheduleDelete:
@@ -566,6 +569,7 @@ template class Transaction<FileAppendTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
+template class Transaction<FreezeTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<ScheduleDeleteTransaction>;
 template class Transaction<ScheduleSignTransaction>;

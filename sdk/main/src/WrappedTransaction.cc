@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   else if (proto.has_fileupdate())
   {
     return WrappedTransaction(FileUpdateTransaction(proto));
+  }
+  else if (proto.has_freeze())
+  {
+    return WrappedTransaction(FreezeTransaction(proto));
   }
   else if (proto.has_schedulecreate())
   {
@@ -263,6 +267,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_fileupdate() = proto.fileupdate();
     return WrappedTransaction(FileUpdateTransaction(txBody));
   }
+  else if (proto.has_freeze())
+  {
+    *txBody.mutable_freeze() = proto.freeze();
+    return WrappedTransaction(FreezeTransaction(txBody));
+  }
   else if (proto.has_scheduledelete())
   {
     *txBody.mutable_scheduledelete() = proto.scheduledelete();
@@ -385,90 +394,59 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
   switch (getTransactionType())
   {
     case ACCOUNT_ALLOWANCE_APPROVE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<AccountAllowanceApproveTransaction>()->generateTransactionBody(nullptr));
-    }
     case ACCOUNT_ALLOWANCE_DELETE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<AccountAllowanceDeleteTransaction>()->generateTransactionBody(nullptr));
-    }
     case ACCOUNT_CREATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<AccountCreateTransaction>()->generateTransactionBody(nullptr));
-    }
     case ACCOUNT_DELETE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<AccountDeleteTransaction>()->generateTransactionBody(nullptr));
-    }
     case ACCOUNT_UPDATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<AccountUpdateTransaction>()->generateTransactionBody(nullptr));
-    }
     case CONTRACT_CREATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ContractCreateTransaction>()->generateTransactionBody(nullptr));
-    }
     case CONTRACT_DELETE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ContractDeleteTransaction>()->generateTransactionBody(nullptr));
-    }
     case CONTRACT_EXECUTE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ContractExecuteTransaction>()->generateTransactionBody(nullptr));
-    }
     case CONTRACT_UPDATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ContractUpdateTransaction>()->generateTransactionBody(nullptr));
-    }
     case ETHEREUM_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<EthereumTransaction>()->generateTransactionBody(nullptr));
-    }
     case FILE_APPEND_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<FileAppendTransaction>()->generateTransactionBody(nullptr));
-    }
     case FILE_CREATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<FileCreateTransaction>()->generateTransactionBody(nullptr));
-    }
     case FILE_DELETE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<FileDeleteTransaction>()->generateTransactionBody(nullptr));
-    }
     case FILE_UPDATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<FileUpdateTransaction>()->generateTransactionBody(nullptr));
-    }
+    case FREEZE_TRANSACTION:
+      return std::make_unique<proto::TransactionBody>(
+        getTransaction<FreezeTransaction>()->generateTransactionBody(nullptr));
     case SCHEDULE_CREATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ScheduleCreateTransaction>()->generateTransactionBody(nullptr));
-    }
     case SCHEDULE_DELETE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ScheduleDeleteTransaction>()->generateTransactionBody(nullptr));
-    }
     case SCHEDULE_SIGN_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ScheduleSignTransaction>()->generateTransactionBody(nullptr));
-    }
     case SYSTEM_DELETE_TRANSACTION:
       return std::make_unique<proto::TransactionBody>(
         getTransaction<SystemDeleteTransaction>()->generateTransactionBody(nullptr));
@@ -476,105 +454,65 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       return std::make_unique<proto::TransactionBody>(
         getTransaction<SystemUndeleteTransaction>()->generateTransactionBody(nullptr));
     case TOKEN_ASSOCIATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenAssociateTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_BURN_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenBurnTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_CREATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenCreateTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_DELETE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenDeleteTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_DISSOCIATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenDissociateTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenFeeScheduleUpdateTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_FREEZE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenFreezeTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_GRANT_KYC_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenGrantKycTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_MINT_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenMintTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_PAUSE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenPauseTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_REVOKE_KYC_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenRevokeKycTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_UNFREEZE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenUnfreezeTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_UNPAUSE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenUnpauseTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_UPDATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenUpdateTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOKEN_WIPE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenWipeTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOPIC_CREATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TopicCreateTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOPIC_DELETE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TopicDeleteTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOPIC_MESSAGE_SUBMIT_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TopicMessageSubmitTransaction>()->generateTransactionBody(nullptr));
-    }
     case TOPIC_UPDATE_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TopicUpdateTransaction>()->generateTransactionBody(nullptr));
-    }
     case TRANSFER_TRANSACTION:
-    {
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TransferTransaction>()->generateTransactionBody(nullptr));
-    }
     default:
     {
       throw UninitializedException("WrappedTransaction doesn't contain a Transaction");
@@ -642,6 +580,10 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   else if (txBody.has_fileupdate())
   {
     schedulableTxBody->set_allocated_fileupdate(txBody.release_fileupdate());
+  }
+  else if (txBody.has_freeze())
+  {
+    schedulableTxBody->set_allocated_freeze(txBody.release_freeze());
   }
   else if (txBody.has_scheduledelete())
   {

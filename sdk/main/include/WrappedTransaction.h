@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
+#include "FreezeTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
@@ -94,6 +95,7 @@ public:
                                               FileCreateTransaction,
                                               FileDeleteTransaction,
                                               FileUpdateTransaction,
+                                              FreezeTransaction,
                                               ScheduleCreateTransaction,
                                               ScheduleDeleteTransaction,
                                               ScheduleSignTransaction,

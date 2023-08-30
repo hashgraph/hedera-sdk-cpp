@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,12 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
+#include "FreezeTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
+#include "SystemDeleteTransaction.h"
+#include "SystemUndeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -54,6 +57,7 @@
 #include "TopicDeleteTransaction.h"
 #include "TopicMessageSubmitTransaction.h"
 #include "TopicUpdateTransaction.h"
+#include "TransactionType.h"
 #include "TransferTransaction.h"
 #include "WrappedTransaction.h"
 #include "impl/Utilities.h"
@@ -892,6 +896,65 @@ TEST_F(TransactionTest, FileUpdateTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FILE_UPDATE_TRANSACTION);
   EXPECT_NE(wrappedTx.getTransaction<FileUpdateTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, FreezeTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_freeze(new proto::FreezeTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<FreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FREEZE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<FreezeTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, FreezeTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_freeze(new proto::FreezeTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<FreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FREEZE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<FreezeTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, FreezeTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_freeze(new proto::FreezeTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<FreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FREEZE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<FreezeTransaction>(), nullptr);
 }
 
 //-----
