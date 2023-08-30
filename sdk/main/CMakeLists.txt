@@ -57,6 +57,8 @@ add_library(${PROJECT_NAME} STATIC
         src/FileInfo.cc
         src/FileInfoQuery.cc
         src/FileUpdateTransaction.cc
+        src/FreezeTransaction.cc
+        src/FreezeType.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc
         src/Key.cc
@@ -80,6 +82,8 @@ add_library(${PROJECT_NAME} STATIC
         src/StakingInfo.cc
         src/Status.cc
         src/SubscriptionHandle.cc
+        src/SystemDeleteTransaction.cc
+        src/SystemUndeleteTransaction.cc
         src/TokenAllowance.cc
         src/TokenAssociateTransaction.cc
         src/TokenAssociation.cc

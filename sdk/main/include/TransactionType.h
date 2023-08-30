@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,12 @@ enum TransactionType : int
   FILE_CREATE_TRANSACTION,
   FILE_DELETE_TRANSACTION,
   FILE_UPDATE_TRANSACTION,
+  FREEZE_TRANSACTION,
   SCHEDULE_CREATE_TRANSACTION,
   SCHEDULE_DELETE_TRANSACTION,
   SCHEDULE_SIGN_TRANSACTION,
+  SYSTEM_DELETE_TRANSACTION,
+  SYSTEM_UNDELETE_TRANSACTION,
   TOKEN_ASSOCIATE_TRANSACTION,
   TOKEN_BURN_TRANSACTION,
   TOKEN_CREATE_TRANSACTION,
