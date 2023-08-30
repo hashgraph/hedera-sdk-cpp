@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -89,6 +89,11 @@ void Node::shutdown()
   if (mFileStub)
   {
     mFileStub.reset();
+  }
+
+  if (mFreezeStub)
+  {
+    mFreezeStub.reset();
   }
 
   if (mTokenStub)
@@ -216,12 +221,18 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mFileStub->deleteFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileUpdate:
       return mFileStub->updateFile(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kFreeze:
+      return mFreezeStub->freeze(&context, transaction, response);
     case proto::TransactionBody::DataCase::kScheduleCreate:
       return mScheduleStub->createSchedule(&context, transaction, response);
     case proto::TransactionBody::DataCase::kScheduleDelete:
       return mScheduleStub->deleteSchedule(&context, transaction, response);
     case proto::TransactionBody::DataCase::kScheduleSign:
       return mScheduleStub->signSchedule(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kSystemDelete:
+      return mFileStub->systemDelete(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kSystemUndelete:
+      return mFileStub->systemUndelete(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenAssociate:
       return mTokenStub->associateTokens(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenBurn:
@@ -368,6 +379,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
         mConsensusStub = proto::ConsensusService::NewStub(mChannel);
         mCryptoStub = proto::CryptoService::NewStub(mChannel);
         mFileStub = proto::FileService::NewStub(mChannel);
+        mFreezeStub = proto::FreezeService::NewStub(mChannel);
         mScheduleStub = proto::ScheduleService::NewStub(mChannel);
         mSmartContractStub = proto::SmartContractService::NewStub(mChannel);
         mTokenStub = proto::TokenService::NewStub(mChannel);

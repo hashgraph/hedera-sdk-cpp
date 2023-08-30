@@ -54,6 +54,7 @@ add_executable(${TEST_PROJECT_NAME}
         FileInfoQueryTest.cc
         FileInfoTest.cc
         FileUpdateTransactionTest.cc
+        FreezeTransactionUnitTests.cc
         HbarAllowanceTest.cc
         HbarTest.cc
         HbarTransferTest.cc
@@ -69,6 +70,8 @@ add_executable(${TEST_PROJECT_NAME}
         ScheduleInfoUnitTests.cc
         ScheduleSignTransactionUnitTests.cc
         StakingInfoTest.cc
+        SystemDeleteTransactionUnitTests.cc
+        SystemUndeleteTransactionUnitTests.cc
         TokenAllowanceTest.cc
         TokenAssociateTransactionUnitTests.cc
         TokenAssociationUnitTests.cc

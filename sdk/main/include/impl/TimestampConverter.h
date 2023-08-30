@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,14 @@ std::chrono::system_clock::time_point fromProtobuf(const proto::TimestampSeconds
  * @return A pointer to the created Timestamp protobuf object.
  */
 proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time);
+
+/**
+ * Create a TimestampSeconds protobuf object from a time point.
+ *
+ * @param duration The duration object from which to create a TimestampSeconds protobuf object.
+ * @return A pointer to the created TimestampSeconds protobuf object.
+ */
+proto::TimestampSeconds* toSecondsProtobuf(const std::chrono::system_clock::time_point& time);
 
 } // namespace Hedera::internal::TimestampConverter
 

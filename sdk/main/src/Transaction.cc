@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,14 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
+#include "FreezeTransaction.h"
 #include "PrivateKey.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
 #include "Status.h"
+#include "SystemDeleteTransaction.h"
+#include "SystemUndeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -148,12 +151,18 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(FileDeleteTransaction(txBody));
     case proto::TransactionBody::kFileUpdate:
       return WrappedTransaction(FileUpdateTransaction(txBody));
+    case proto::TransactionBody::kFreeze:
+      return WrappedTransaction(FreezeTransaction(txBody));
     case proto::TransactionBody::kScheduleCreate:
       return WrappedTransaction(ScheduleCreateTransaction(txBody));
     case proto::TransactionBody::kScheduleDelete:
       return WrappedTransaction(ScheduleDeleteTransaction(txBody));
     case proto::TransactionBody::kScheduleSign:
       return WrappedTransaction(ScheduleSignTransaction(txBody));
+    case proto::TransactionBody::kSystemDelete:
+      return WrappedTransaction(SystemDeleteTransaction(txBody));
+    case proto::TransactionBody::kSystemUndelete:
+      return WrappedTransaction(SystemUndeleteTransaction(txBody));
     case proto::TransactionBody::kTokenAssociate:
       return WrappedTransaction(TokenAssociateTransaction(txBody));
     case proto::TransactionBody::kTokenBurn:
@@ -560,9 +569,12 @@ template class Transaction<FileAppendTransaction>;
 template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
+template class Transaction<FreezeTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<ScheduleDeleteTransaction>;
 template class Transaction<ScheduleSignTransaction>;
+template class Transaction<SystemDeleteTransaction>;
+template class Transaction<SystemUndeleteTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;
 template class Transaction<TokenCreateTransaction>;

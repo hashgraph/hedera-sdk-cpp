@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -48,12 +48,15 @@
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
 #include "FileUpdateTransaction.h"
+#include "FreezeTransaction.h"
 #include "ProxyStaker.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleInfo.h"
 #include "ScheduleInfoQuery.h"
 #include "ScheduleSignTransaction.h"
+#include "SystemDeleteTransaction.h"
+#include "SystemUndeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -377,6 +380,7 @@ template class Executable<FileCreateTransaction, proto::Transaction, proto::Tran
 template class Executable<FileDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FileInfoQuery, proto::Query, proto::Response, FileInfo>;
 template class Executable<FileUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<FreezeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<ScheduleCreateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
@@ -387,6 +391,11 @@ template class Executable<ScheduleDeleteTransaction,
                           TransactionResponse>;
 template class Executable<ScheduleInfoQuery, proto::Query, proto::Response, ScheduleInfo>;
 template class Executable<ScheduleSignTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<SystemDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<SystemUndeleteTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TokenAssociateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
