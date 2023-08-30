@@ -105,6 +105,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(ScheduleSignTransaction(proto));
   }
+  else if (proto.has_systemdelete())
+  {
+    return WrappedTransaction(SystemDeleteTransaction(proto));
+  }
   else if (proto.has_tokenassociate())
   {
     return WrappedTransaction(TokenAssociateTransaction(proto));
@@ -268,6 +272,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
   {
     *txBody.mutable_scheduledelete() = proto.scheduledelete();
     return WrappedTransaction(ScheduleCreateTransaction(txBody));
+  }
+  else if (proto.has_systemdelete())
+  {
+    *txBody.mutable_systemdelete() = proto.systemdelete();
+    return WrappedTransaction(SystemDeleteTransaction(txBody));
   }
   else if (proto.has_tokenassociate())
   {
@@ -564,6 +573,10 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   else if (txBody.has_scheduledelete())
   {
     schedulableTxBody->set_allocated_scheduledelete(txBody.release_scheduledelete());
+  }
+  else if (txBody.has_systemdelete())
+  {
+    schedulableTxBody->set_allocated_systemdelete(txBody.release_systemdelete());
   }
   else if (txBody.has_tokenassociate())
   {

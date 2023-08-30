@@ -47,4 +47,12 @@ proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time)
   return timestamp.release();
 }
 
+//-----
+proto::TimestampSeconds* toSecondsProtobuf(const std::chrono::system_clock::time_point& time)
+{
+  auto timestamp = std::make_unique<proto::TimestampSeconds>();
+  timestamp->set_seconds(std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count());
+  return timestamp.release();
+}
+
 } // namespace Hedera::internal::TimestampConverter
