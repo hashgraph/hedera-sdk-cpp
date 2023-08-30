@@ -58,18 +58,22 @@ int main(int argc, char** argv)
   const std::shared_ptr<PublicKey> operatorPublicKey = operatorKey->getPublicKey();
   client.setOperator(operatorId, operatorKey.get());
 
-  // Get the contract's bytecode
-  const std::vector<std::byte> byteCode = internal::Utilities::stringToByteVector(
-    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
-      .get<std::string>());
+  // Contract's bytecode as hex
+  const std::string mBytecodeHexWithContractNonceInfo =
+    "6080604052348015600f57600080fd5b50604051601a90603b565b604051809103906000f0801580156035573d6000803e3d6000fd5"
+    "b50506047565b605c8061009483390190565b603f806100556000396000f3fe6080604052600080fdfea2646970667358221220a201"
+    "22cbad3457fedcc0600363d6e895f17048f5caa4afdab9e655123737567d64736f6c634300081200336080604052348015600f57600"
+    "080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122053dfd8835e3dc6fedfb8b4806460b9b716"
+    "3f8a7248bac510c6d6808d9da9d6d364736f6c63430008120033";
 
   // Create the contract's bytecode file
-  TransactionReceipt txReceipt = FileCreateTransaction()
-                                   .setKeys({ operatorPublicKey.get() })
-                                   .setContents(byteCode)
-                                   .setMaxTransactionFee(Hbar(2LL))
-                                   .execute(client)
-                                   .getReceipt(client);
+  TransactionReceipt txReceipt =
+    FileCreateTransaction()
+      .setKeys({ operatorPublicKey.get() })
+      .setContents(internal::Utilities::stringToByteVector(mBytecodeHexWithContractNonceInfo))
+      .setMaxTransactionFee(Hbar(2LL))
+      .execute(client)
+      .getReceipt(client);
   std::cout << "FileCreateTransaction execution completed with status: " << gStatusToString.at(txReceipt.mStatus)
             << std::endl;
   if (!txReceipt.mFileId.has_value())
@@ -101,14 +105,16 @@ int main(int argc, char** argv)
   const ContractId contractId = contractCreateTxReceipt.mContractId.value();
   std::cout << "Smart contract created with ID " << contractId.toString() << std::endl;
 
-  // ITERATE THROUGH CONTRACT NONCES
+  // Get contract's function results
   ContractFunctionResult contractFunctionResult =
     contractCreateTxResponse.getRecord(client).mContractFunctionResult.value();
 
+  std::cout << "Contract Nonces: " << std::endl;
   for (auto it = contractFunctionResult.mContractNonces.begin(); it != contractFunctionResult.mContractNonces.end();
        ++it)
   {
-    std::cout << "Nonce: " << (*it).mNonce << std::endl;
+    std::cout << "ContractId: " << (*it).mContractId.toString() << std::endl;
+    std::cout << "Nonce: " << (*it).mNonce << std::endl << std::endl;
   }
 
   std::cout << std::endl << std::endl;
