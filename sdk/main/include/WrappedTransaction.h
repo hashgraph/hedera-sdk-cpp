@@ -34,6 +34,7 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
+#include "FreezeTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
@@ -93,6 +94,7 @@ public:
                                               FileCreateTransaction,
                                               FileDeleteTransaction,
                                               FileUpdateTransaction,
+                                              FreezeTransaction,
                                               ScheduleCreateTransaction,
                                               ScheduleDeleteTransaction,
                                               ScheduleSignTransaction,

@@ -895,6 +895,65 @@ TEST_F(TransactionTest, FileUpdateTransactionFromTransactionBytes)
 }
 
 //-----
+TEST_F(TransactionTest, FreezeTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_freeze(new proto::FreezeTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<FreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FREEZE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<FreezeTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, FreezeTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_freeze(new proto::FreezeTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<FreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FREEZE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<FreezeTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, FreezeTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_freeze(new proto::FreezeTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<FreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FREEZE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<FreezeTransaction>(), nullptr);
+}
+
+//-----
 TEST_F(TransactionTest, ScheduleCreateTransactionTransactionFromTransactionBodyBytes)
 {
   // Given

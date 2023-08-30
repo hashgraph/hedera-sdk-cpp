@@ -91,6 +91,11 @@ void Node::shutdown()
     mFileStub.reset();
   }
 
+  if (mFreezeStub)
+  {
+    mFreezeStub.reset();
+  }
+
   if (mTokenStub)
   {
     mTokenStub.reset();
@@ -216,6 +221,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mFileStub->deleteFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFileUpdate:
       return mFileStub->updateFile(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kFreeze:
+      return mFreezeStub->freeze(&context, transaction, response);
     case proto::TransactionBody::DataCase::kScheduleCreate:
       return mScheduleStub->createSchedule(&context, transaction, response);
     case proto::TransactionBody::DataCase::kScheduleDelete:
@@ -370,6 +377,7 @@ bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadli
         mConsensusStub = proto::ConsensusService::NewStub(mChannel);
         mCryptoStub = proto::CryptoService::NewStub(mChannel);
         mFileStub = proto::FileService::NewStub(mChannel);
+        mFreezeStub = proto::FreezeService::NewStub(mChannel);
         mScheduleStub = proto::ScheduleService::NewStub(mChannel);
         mSmartContractStub = proto::SmartContractService::NewStub(mChannel);
         mTokenStub = proto::TokenService::NewStub(mChannel);
