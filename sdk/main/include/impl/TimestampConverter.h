@@ -55,6 +55,14 @@ std::chrono::system_clock::time_point fromProtobuf(const proto::TimestampSeconds
  */
 proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time);
 
+/**
+ * Create a TimestampSeconds protobuf object from a time point.
+ *
+ * @param duration The duration object from which to create a TimestampSeconds protobuf object.
+ * @return A pointer to the created TimestampSeconds protobuf object.
+ */
+proto::TimestampSeconds* toSecondsProtobuf(const std::chrono::system_clock::time_point& time);
+
 } // namespace Hedera::internal::TimestampConverter
 
 #endif // HEDERA_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_

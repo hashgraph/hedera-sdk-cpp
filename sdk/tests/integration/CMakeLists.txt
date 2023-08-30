@@ -24,11 +24,14 @@ add_executable(${TEST_PROJECT_NAME}
         FileDeleteTransactionIntegrationTests.cc
         FileInfoQueryIntegrationTests.cc
         FileUpdateTransactionIntegrationTests.cc
+        FreezeTransactionIntegrationTest.cc
         JSONIntegrationTest.cc
         ScheduleCreateTransactionIntegrationTests.cc
         ScheduleDeleteTransactionIntegrationTests.cc
         ScheduleInfoQueryIntegrationTests.cc
         ScheduleSignTransactionIntegrationTests.cc
+        SystemDeleteTransactionIntegrationTests.cc
+        SystemUndeleteTransactionIntegrationTests.cc
         TokenAssociateTransactionIntegrationTests.cc
         TokenBurnTransactionIntegrationTests.cc
         TokenCreateTransactionIntegrationTests.cc
