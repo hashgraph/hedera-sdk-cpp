@@ -298,7 +298,7 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, ExecuteLargeTopicMessageSu
 }
 
 //-----
-TEST_F(TopicMessageSubmitTransactionIntegrationTests, CanSubmitTopicMessageWithoutTopicId)
+TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWithoutTopicId)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -322,10 +322,18 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, CanSubmitTopicMessageWitho
       TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()));
 
   // Then
+  for (const auto& resp : txResponses)
+  {
+    EXPECT_EQ(resp.getValidateStatus(), true);
+    EXPECT_THROW(resp.getReceipt(getTestClient()).mStatus == Status::INVALID_TOPIC_ID, ReceiptStatusException);
+  }
+
   TopicInfo topicInfo2;
   ASSERT_NO_THROW(topicInfo2 = TopicInfoQuery().setTopicId(topicId).execute(getTestClient()));
 
+  EXPECT_EQ(topicInfo2.mTopicId, topicId);
   EXPECT_EQ(topicInfo2.mMemo, testMemo);
+  EXPECT_EQ(topicInfo2.mSequenceNumber, 0);
   ASSERT_NE(topicInfo2.mAdminKey, nullptr);
   EXPECT_EQ(topicInfo2.mAdminKey->toBytes(), operatorKey->getPublicKey()->toBytes());
 
