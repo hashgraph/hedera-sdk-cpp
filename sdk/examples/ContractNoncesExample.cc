@@ -18,6 +18,8 @@
  *
  */
 #include "Client.h"
+#include "ContractCreateTransaction.h"
+#include "ContractDeleteTransaction.h"
 #include "ContractFunctionResult.h"
 #include "ED25519PrivateKey.h"
 #include "FileAppendTransaction.h"
@@ -28,12 +30,16 @@
 #include "FileInfoQuery.h"
 #include "Status.h"
 #include "TransactionReceipt.h"
+#include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
-#include <vector>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 using namespace Hedera;
 
 int main(int argc, char** argv)
@@ -80,7 +86,7 @@ int main(int argc, char** argv)
                                                    .setAdminKey(operatorPublicKey.get())
                                                    .setGas(100000ULL)
                                                    .setBytecodeFileId(newFileId)
-                                                   .setContractMemo("[e2e::ContractADeploysContractBInConstructor]")
+                                                   .setMemo("[e2e::ContractADeploysContractBInConstructor]")
                                                    .execute(client);
 
   TransactionReceipt contractCreateTxReceipt = contractCreateTxResponse.getReceipt(client);
@@ -102,13 +108,15 @@ int main(int argc, char** argv)
   for (auto it = contractFunctionResult.mContractNonces.begin(); it != contractFunctionResult.mContractNonces.end();
        ++it)
   {
-    std::cout << "ContractId: " << (*it).mContractId << std::endl;
+    std::cout << "Nonce: " << (*it).mNonce << std::endl;
   }
+
+  std::cout << std::endl << std::endl;
 
   // Now delete the contract
   txReceipt = ContractDeleteTransaction()
                 .setContractId(contractId)
-                .setTransferAccountId(contractCreateTxReceipt.mTransactionId.mAccountId)
+                .setTransferAccountId(operatorId)
                 .setMaxTransactionFee(Hbar(1LL))
                 .execute(client)
                 .getReceipt(client);
