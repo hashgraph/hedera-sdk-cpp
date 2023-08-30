@@ -54,7 +54,7 @@ TEST_F(HbarTransferTest, SerializeTransferToProtobuf)
   const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(testTransfer.toProtobuf());
 
   // Then
-  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), testAccountId.getAccountNum());
+  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), testAccountId.mAccountNum);
   EXPECT_EQ(protoAccountAmountPtr->amount(), testAmount);
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }
@@ -95,7 +95,7 @@ TEST_F(HbarTransferTest, ProtoTransfer)
   EXPECT_EQ(transfer.getAmount().toTinybars(), amount);
   EXPECT_TRUE(transfer.getApproval());
 
-  accountId.setAccountNum(15ULL);
+  accountId.mAccountNum = 15ULL;
   amount = 15LL;
 
   transfer.setAccountId(accountId);
@@ -103,7 +103,7 @@ TEST_F(HbarTransferTest, ProtoTransfer)
   transfer.setApproved(false);
 
   const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(transfer.toProtobuf());
-  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), accountId.getAccountNum());
+  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), accountId.mAccountNum);
   EXPECT_EQ(protoAccountAmountPtr->amount(), amount);
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }

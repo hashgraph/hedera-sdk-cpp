@@ -115,6 +115,33 @@ public:
   [[nodiscard]] static AccountId fromString(std::string_view id);
 
   /**
+   * Construct an AccountId object from a string that represents an EvmAddress and, optionally, a shard and realm
+   * number.
+   *
+   * @param evmAddress The string that represents an EvmAddress.
+   * @param shard      The shard number.
+   * @param realm      The realm number.
+   * @return The constructed AccountId object.
+   * @throws std::invalid_argument If the input string is malformed.
+   * @throws OpenSSLException If OpenSSL is unable to convert the string to a byte array.
+   */
+  [[nodiscard]] static AccountId fromEvmAddress(std::string_view evmAddress,
+                                                uint64_t shard = 0ULL,
+                                                uint64_t realm = 0ULL);
+
+  /**
+   * Construct an AccountId object from an EvmAddress object and, optionally, a shard and realm number.
+   *
+   * @param evmAddress The EvmAddress from which to construct an AccountId.
+   * @param shard      The shard number.
+   * @param realm      The realm number.
+   * @return The constructed AccountId object.
+   */
+  [[nodiscard]] static AccountId fromEvmAddress(const EvmAddress& evmAddress,
+                                                uint64_t shard = 0ULL,
+                                                uint64_t realm = 0ULL);
+
+  /**
    * Create an AccountId object from an AccountID protobuf object.
    *
    * @param proto The AccountID protobuf object from which to create an AccountId object.
@@ -130,102 +157,18 @@ public:
   [[nodiscard]] std::unique_ptr<proto::AccountID> toProtobuf() const;
 
   /**
+   * Get a Solidity address representation of this AccountId (Long-Zero address).
+   *
+   * @return A Solidity address representation of this AccountId.
+   */
+  [[nodiscard]] std::string toSolidityAddress() const;
+
+  /**
    * Get a string representation of this AccountId object with the form "<shard>.<realm>.<num>".
    *
    * @return A string representation of this AccountId.
    */
   [[nodiscard]] std::string toString() const;
-
-  /**
-   * Set the shard number.
-   *
-   * @param num The desired shard number to set.
-   * @return A reference to this AccountId object with the newly-set shard number.
-   * @throws std::invalid_argument If the shard number is too big (max value is std::numeric_limits<int64_t>::max()).
-   */
-  AccountId& setShardNum(const uint64_t& num);
-
-  /**
-   * Set the realm number.
-   *
-   * @param num The realm number to set.
-   * @return A reference to this AccountId object with the newly-set realm number.
-   * @throws std::invalid_argument If the realm number is too big (max value is std::numeric_limits<int64_t>::max()).
-   */
-  AccountId& setRealmNum(const uint64_t& num);
-
-  /**
-   * Set the account number. This is mutually exclusive with mPublicKeyAlias and mEvmAddressAlias, and will reset the
-   * value of the mPublicKeyAlias or mEvmAddressAlias if either is set.
-   *
-   * @param num The account number to set.
-   * @return A reference to this AccountId object with the newly-set account number.
-   * @throws std::invalid_argument If the account number is too big (max value is std::numeric_limits<int64_t>::max()).
-   */
-  AccountId& setAccountNum(const uint64_t& num);
-
-  /**
-   * Set the account public key alias. This is mutually exclusive with mAccountNum and mEvmAddressAlias, and will reset
-   * the value of the mAccountNum or mEvmAddressAlias if either is set.
-   *
-   * @param alias The public key alias to set.
-   * @return A reference to this AccountId object with the newly-set account alias.
-   */
-  AccountId& setPublicKeyAlias(const std::shared_ptr<PublicKey>& alias);
-
-  /**
-   * Set the account EVM address alias. This is mutually exclusive with mAccountNum and mPublicKeyAlias, and will reset
-   * the value of the mAccountNum or mPublicKeyAlias if either is set.
-   *
-   * @param address The EVM address alias to set.
-   * @return A reference to this AccountId object with the newly-set account EVM address.
-   */
-  AccountId& setEvmAddressAlias(const EvmAddress& address);
-
-  /**
-   * Get the shard number.
-   *
-   * @return The shard number.
-   */
-  [[nodiscard]] inline uint64_t getShardNum() const { return mShardNum; }
-
-  /**
-   * Get the realm number.
-   *
-   * @return The realm number.
-   */
-  [[nodiscard]] inline uint64_t getRealmNum() const { return mRealmNum; }
-
-  /**
-   * Get the account number.
-   *
-   * @return The account number.
-   */
-  [[nodiscard]] inline std::optional<uint64_t> getAccountNum() const { return mAccountNum; }
-
-  /**
-   * Get the account public key alias.
-   *
-   * @return The account public key alias.
-   */
-  [[nodiscard]] inline std::shared_ptr<PublicKey> getPublicKeyAlias() const { return mPublicKeyAlias; }
-
-  /**
-   * Get the account EVM address alias.
-   *
-   * @return The account EVM address alias.
-   */
-  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddressAlias() const { return mEvmAddressAlias; }
-
-private:
-  /**
-   * Check if the shard, realm, or account numbers (respectively) are too big.
-   *
-   * @throws std::invalid_argument If the shard, realm, or account number (respectively) is too big.
-   */
-  void checkShardNum() const;
-  void checkRealmNum() const;
-  void checkAccountNum() const;
 
   /**
    * The shard number.
@@ -264,6 +207,16 @@ private:
    * ECDSA_SECP256K1 primitive key form.
    */
   std::optional<EvmAddress> mEvmAddressAlias;
+
+private:
+  /**
+   * Check if the shard, realm, or account numbers (respectively) are too big.
+   *
+   * @throws std::invalid_argument If the shard, realm, or account number (respectively) is too big.
+   */
+  void checkShardNum() const;
+  void checkRealmNum() const;
+  void checkAccountNum() const;
 };
 
 } // namespace Hedera

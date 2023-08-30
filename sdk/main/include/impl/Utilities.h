@@ -29,6 +29,24 @@
 namespace Hedera::internal::Utilities
 {
 /**
+ * Reinterpret a pointer to a pointer of a different type.
+ *
+ * @param input The pointer to reinterpret.
+ * @param A pointer to the same input, reinterpreted as a different type.
+ */
+template<typename ReturnType, typename InputType>
+[[nodiscard]] ReturnType* toTypePtr(InputType* input)
+{
+  return reinterpret_cast<ReturnType*>(input);
+}
+
+template<typename ReturnType, typename InputType>
+[[nodiscard]] const ReturnType* toTypePtr(const InputType* input)
+{
+  return reinterpret_cast<const ReturnType*>(input);
+}
+
+/**
  * Swap the endianness of an integral value.
  *
  * @param value The value of which to convert the endianness.
@@ -60,21 +78,26 @@ template<typename T>
 }
 
 /**
- * Reinterpret a pointer to a pointer of a different type.
+ * Get the bytes (in big endian) that represent an integral type.
  *
- * @param input The pointer to reinterpret.
- * @param A pointer to the same input, reinterpreted as a different type.
+ * @tparam T  The type of integer of which to get the bytes.
+ * @param val The value of which to get the bytes.
+ * @return An array of bytes that represents the input value.
  */
-template<typename ReturnType, typename InputType>
-[[nodiscard]] ReturnType* toTypePtr(InputType* input)
+template<typename T>
+[[nodiscard]] std::vector<std::byte> getBytes(const T& val)
 {
-  return reinterpret_cast<ReturnType*>(input);
-}
+  // Only allow integral types
+  static_assert(std::is_integral_v<T>, "getBytes works only with integral types");
 
-template<typename ReturnType, typename InputType>
-[[nodiscard]] const ReturnType* toTypePtr(const InputType* input)
-{
-  return reinterpret_cast<const ReturnType*>(input);
+  std::vector<std::byte> bytes(sizeof(T));
+  auto byte = internal::Utilities::toTypePtr<std::byte>(&val);
+  for (size_t i = 0; i < sizeof(T); ++i)
+  {
+    bytes[sizeof(T) - i - 1] = *byte++;
+  }
+
+  return bytes;
 }
 
 /**
