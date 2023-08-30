@@ -80,6 +80,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Status.cc
         src/SubscriptionHandle.cc
         src/SystemDeleteTransaction.cc
+        src/SystemUndeleteTransaction.cc
         src/TokenAllowance.cc
         src/TokenAssociateTransaction.cc
         src/TokenAssociation.cc

@@ -19,16 +19,15 @@
  */
 #include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
-#include "SystemDeleteTransaction.h"
+#include "SystemUndeleteTransaction.h"
 #include "exceptions/IllegalStateException.h"
-#include "impl/TimestampConverter.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_body.pb.h>
 
 using namespace Hedera;
 
-class SystemDeleteTransactionTest : public ::testing::Test
+class SystemUndeleteTransactionTest : public ::testing::Test
 {
 protected:
   void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
@@ -36,59 +35,48 @@ protected:
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
-  [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
-  {
-    return mTestExpirationTime;
-  }
 
 private:
   Client mClient;
   const FileId mTestFileId = FileId(1ULL, 2ULL, 3ULL);
   const ContractId mTestContractId = ContractId(4ULL, 5ULL, 6ULL);
-  const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
 };
 
 //-----
-TEST_F(SystemDeleteTransactionTest, ConstructSystemDeleteTransactionFromTransactionBodyProtobuf)
+TEST_F(SystemUndeleteTransactionTest, ConstructSystemUndeleteTransactionFromTransactionBodyProtobuf)
 {
   // Given
-  auto bodyWithFileId = std::make_unique<proto::SystemDeleteTransactionBody>();
-  auto bodyWithContractId = std::make_unique<proto::SystemDeleteTransactionBody>();
+  auto bodyWithFileId = std::make_unique<proto::SystemUndeleteTransactionBody>();
+  auto bodyWithContractId = std::make_unique<proto::SystemUndeleteTransactionBody>();
 
   bodyWithFileId->set_allocated_fileid(getTestFileId().toProtobuf().release());
-  bodyWithFileId->set_allocated_expirationtime(
-    internal::TimestampConverter::toSecondsProtobuf(getTestExpirationTime()));
-
   bodyWithContractId->set_allocated_contractid(getTestContractId().toProtobuf().release());
-  bodyWithContractId->set_allocated_expirationtime(
-    internal::TimestampConverter::toSecondsProtobuf(getTestExpirationTime()));
 
   proto::TransactionBody txBodyWithFileId;
   proto::TransactionBody txBodyWithContractId;
-  txBodyWithFileId.set_allocated_systemdelete(bodyWithFileId.release());
-  txBodyWithContractId.set_allocated_systemdelete(bodyWithContractId.release());
+
+  txBodyWithFileId.set_allocated_systemundelete(bodyWithFileId.release());
+  txBodyWithContractId.set_allocated_systemundelete(bodyWithContractId.release());
 
   // When
-  const SystemDeleteTransaction systemDeleteTransactionWithFileId(txBodyWithFileId);
-  const SystemDeleteTransaction systemDeleteTransactionWithContractId(txBodyWithContractId);
+  const SystemUndeleteTransaction systemDeleteTransactionWithFileId(txBodyWithFileId);
+  const SystemUndeleteTransaction systemDeleteTransactionWithContractId(txBodyWithContractId);
 
-  // Then (use less-then comparison for expiration time as it chops off the nanoseconds)
+  // Then
   ASSERT_TRUE(systemDeleteTransactionWithFileId.getFileId().has_value());
   EXPECT_EQ(systemDeleteTransactionWithFileId.getFileId(), getTestFileId());
   EXPECT_FALSE(systemDeleteTransactionWithFileId.getContractId().has_value());
-  EXPECT_LT(systemDeleteTransactionWithFileId.getExpirationTime(), getTestExpirationTime());
 
   EXPECT_FALSE(systemDeleteTransactionWithContractId.getFileId().has_value());
   ASSERT_TRUE(systemDeleteTransactionWithContractId.getContractId().has_value());
   EXPECT_EQ(systemDeleteTransactionWithContractId.getContractId(), getTestContractId());
-  EXPECT_LT(systemDeleteTransactionWithContractId.getExpirationTime(), getTestExpirationTime());
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetFileId)
+TEST_F(SystemUndeleteTransactionTest, GetSetFileId)
 {
   // Given
-  SystemDeleteTransaction transaction;
+  SystemUndeleteTransaction transaction;
 
   // When
   ASSERT_NO_THROW(transaction.setFileId(getTestFileId()));
@@ -99,10 +87,10 @@ TEST_F(SystemDeleteTransactionTest, GetSetFileId)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetFileIdFrozen)
+TEST_F(SystemUndeleteTransactionTest, GetSetFileIdFrozen)
 {
   // Given
-  SystemDeleteTransaction transaction;
+  SystemUndeleteTransaction transaction;
   ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
@@ -110,10 +98,10 @@ TEST_F(SystemDeleteTransactionTest, GetSetFileIdFrozen)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetContractId)
+TEST_F(SystemUndeleteTransactionTest, GetSetContractId)
 {
   // Given
-  SystemDeleteTransaction transaction;
+  SystemUndeleteTransaction transaction;
 
   // When
   ASSERT_NO_THROW(transaction.setContractId(getTestContractId()));
@@ -124,10 +112,10 @@ TEST_F(SystemDeleteTransactionTest, GetSetContractId)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetContractIdFrozen)
+TEST_F(SystemUndeleteTransactionTest, GetSetContractIdFrozen)
 {
   // Given
-  SystemDeleteTransaction transaction;
+  SystemUndeleteTransaction transaction;
   ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
 
   // When / Then
@@ -135,34 +123,10 @@ TEST_F(SystemDeleteTransactionTest, GetSetContractIdFrozen)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetExpirationTime)
+TEST_F(SystemUndeleteTransactionTest, ResetFileId)
 {
   // Given
-  SystemDeleteTransaction transaction;
-
-  // When
-  ASSERT_NO_THROW(transaction.setExpirationTime(getTestExpirationTime()));
-
-  // Then
-  EXPECT_EQ(transaction.getExpirationTime(), getTestExpirationTime());
-}
-
-//-----
-TEST_F(SystemDeleteTransactionTest, GetSetExpirationTimeFrozen)
-{
-  // Given
-  SystemDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
-
-  // When / Then
-  EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
-}
-
-//-----
-TEST_F(SystemDeleteTransactionTest, ResetFileId)
-{
-  // Given
-  SystemDeleteTransaction transaction;
+  SystemUndeleteTransaction transaction;
   ASSERT_NO_THROW(transaction.setFileId(getTestFileId()));
 
   // When
@@ -174,10 +138,10 @@ TEST_F(SystemDeleteTransactionTest, ResetFileId)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, ResetContractId)
+TEST_F(SystemUndeleteTransactionTest, ResetContractId)
 {
   // Given
-  SystemDeleteTransaction transaction;
+  SystemUndeleteTransaction transaction;
   ASSERT_NO_THROW(transaction.setContractId(getTestContractId()));
 
   // When

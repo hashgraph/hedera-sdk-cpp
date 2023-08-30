@@ -231,6 +231,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mScheduleStub->signSchedule(&context, transaction, response);
     case proto::TransactionBody::DataCase::kSystemDelete:
       return mFileStub->systemDelete(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kSystemUndelete:
+      return mFileStub->systemUndelete(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenAssociate:
       return mTokenStub->associateTokens(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenBurn:

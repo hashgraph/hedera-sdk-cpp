@@ -54,6 +54,7 @@
 #include "ScheduleInfoQuery.h"
 #include "ScheduleSignTransaction.h"
 #include "SystemDeleteTransaction.h"
+#include "SystemUndeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -388,6 +389,10 @@ template class Executable<ScheduleDeleteTransaction,
 template class Executable<ScheduleInfoQuery, proto::Query, proto::Response, ScheduleInfo>;
 template class Executable<ScheduleSignTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<SystemDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<SystemUndeleteTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TokenAssociateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,

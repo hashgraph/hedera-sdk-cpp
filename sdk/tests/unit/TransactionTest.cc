@@ -32,9 +32,12 @@
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
+#include "FreezeTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
+#include "SystemDeleteTransaction.h"
+#include "SystemUndeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
 #include "TokenCreateTransaction.h"
@@ -54,6 +57,7 @@
 #include "TopicDeleteTransaction.h"
 #include "TopicMessageSubmitTransaction.h"
 #include "TopicUpdateTransaction.h"
+#include "TransactionType.h"
 #include "TransferTransaction.h"
 #include "WrappedTransaction.h"
 #include "impl/Utilities.h"
@@ -1187,6 +1191,65 @@ TEST_F(TransactionTest, SystemDeleteTransactionFromTransactionBytes)
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_DELETE_TRANSACTION);
   EXPECT_NE(wrappedTx.getTransaction<SystemDeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, SystemUndeleteTransactionTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemundelete(new proto::SystemUndeleteTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<SystemUndeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_UNDELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemUndeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, SystemUndeleteTransactionFromSignedTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemundelete(new proto::SystemUndeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  // When
+  const WrappedTransaction wrappedTx = Transaction<SystemUndeleteTransaction>::fromBytes(
+    internal::Utilities::stringToByteVector(signedTx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_UNDELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemUndeleteTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, SystemUndeleteTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_systemundelete(new proto::SystemUndeleteTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<SystemUndeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::SYSTEM_UNDELETE_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<SystemUndeleteTransaction>(), nullptr);
 }
 
 //-----

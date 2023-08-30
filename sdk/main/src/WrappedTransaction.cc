@@ -109,6 +109,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(SystemDeleteTransaction(proto));
   }
+  else if (proto.has_systemundelete())
+  {
+    return WrappedTransaction(SystemUndeleteTransaction(proto));
+  }
   else if (proto.has_tokenassociate())
   {
     return WrappedTransaction(TokenAssociateTransaction(proto));
@@ -278,6 +282,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_systemdelete() = proto.systemdelete();
     return WrappedTransaction(SystemDeleteTransaction(txBody));
   }
+  else if (proto.has_systemundelete())
+  {
+    *txBody.mutable_systemundelete() = proto.systemundelete();
+    return WrappedTransaction(SystemUndeleteTransaction(txBody));
+  }
   else if (proto.has_tokenassociate())
   {
     *txBody.mutable_tokenassociate() = proto.tokenassociate();
@@ -438,6 +447,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
     case SCHEDULE_SIGN_TRANSACTION:
       return std::make_unique<proto::TransactionBody>(
         getTransaction<ScheduleSignTransaction>()->generateTransactionBody(nullptr));
+    case SYSTEM_DELETE_TRANSACTION:
+      return std::make_unique<proto::TransactionBody>(
+        getTransaction<SystemDeleteTransaction>()->generateTransactionBody(nullptr));
+    case SYSTEM_UNDELETE_TRANSACTION:
+      return std::make_unique<proto::TransactionBody>(
+        getTransaction<SystemUndeleteTransaction>()->generateTransactionBody(nullptr));
     case TOKEN_ASSOCIATE_TRANSACTION:
       return std::make_unique<proto::TransactionBody>(
         getTransaction<TokenAssociateTransaction>()->generateTransactionBody(nullptr));
@@ -577,6 +592,10 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   else if (txBody.has_systemdelete())
   {
     schedulableTxBody->set_allocated_systemdelete(txBody.release_systemdelete());
+  }
+  else if (txBody.has_systemundelete())
+  {
+    schedulableTxBody->set_allocated_systemundelete(txBody.release_systemundelete());
   }
   else if (txBody.has_tokenassociate())
   {
