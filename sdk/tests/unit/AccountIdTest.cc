@@ -418,13 +418,15 @@ TEST_F(AccountIdTest, ProtobufAccountId)
   EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kAlias);
 
   // Adjust protobuf fields
-  std::vector<std::byte> testBytes = ED25519PrivateKey::generatePrivateKey()->getPublicKey()->toBytesDer();
-  protoAccountId->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testBytes)));
+  std::unique_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
+  std::vector<std::byte> testBytes =
+    internal::Utilities::stringToByteVector(key->getPublicKey()->toProtobufKey()->SerializeAsString());
+  protoAccountId->set_alias(internal::Utilities::byteVectorToString(testBytes));
 
   // Deserialize ED25519 alias
   accountId = AccountId::fromProtobuf(*protoAccountId);
   EXPECT_NE(accountId.getPublicKeyAlias(), nullptr);
-  EXPECT_EQ(accountId.getPublicKeyAlias()->toBytesDer(), testBytes);
+  EXPECT_EQ(accountId.getPublicKeyAlias()->toBytesDer(), key->getPublicKey()->toBytesDer());
 
   // Serialize ECDSA alias
   accountId.setPublicKeyAlias(getTestEcdsaSecp256k1Alias());
@@ -432,13 +434,14 @@ TEST_F(AccountIdTest, ProtobufAccountId)
   EXPECT_EQ(protoAccountId->account_case(), proto::AccountID::AccountCase::kAlias);
 
   // Adjust protobuf fields
-  testBytes = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey()->toBytesDer();
-  protoAccountId->set_allocated_alias(new std::string(internal::Utilities::byteVectorToString(testBytes)));
+  key = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  testBytes = internal::Utilities::stringToByteVector(key->getPublicKey()->toProtobufKey()->SerializeAsString());
+  protoAccountId->set_alias(internal::Utilities::byteVectorToString(testBytes));
 
   // Deserialize ECDSA alias
   accountId = AccountId::fromProtobuf(*protoAccountId);
   EXPECT_NE(accountId.getPublicKeyAlias(), nullptr);
-  EXPECT_EQ(accountId.getPublicKeyAlias()->toBytesDer(), testBytes);
+  EXPECT_EQ(accountId.getPublicKeyAlias()->toBytesDer(), key->getPublicKey()->toBytesDer());
 
   // Serialize EVM address
   accountId.setEvmAddressAlias(getTestEvmAddressAlias());

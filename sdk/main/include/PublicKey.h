@@ -40,10 +40,17 @@ class EVP_PKEY;
 
 namespace Hedera
 {
+class AccountId;
+}
+
+namespace Hedera
+{
 /**
  * A generic class representing a public key.
  */
-class PublicKey : public Key
+class PublicKey
+  : public Key
+  , public std::enable_shared_from_this<PublicKey>
 {
 public:
   /**
@@ -70,6 +77,15 @@ public:
    *                         from the input byte array.
    */
   [[nodiscard]] static std::unique_ptr<PublicKey> fromBytesDer(const std::vector<std::byte>& bytes);
+
+  /**
+   * Construct a PublicKey object from a byte array representing an alias.
+   *
+   * @param alias The bytes representing an alias.
+   * @return A pointer to a PublicKey representing the input alias bytes, or nullptr if the input alias byte array does
+   *         not represent a PublicKey.
+   */
+  [[nodiscard]] static std::unique_ptr<PublicKey> fromAliasBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Verify that a signature was made by the PrivateKey which corresponds to this PublicKey.
@@ -109,6 +125,15 @@ public:
    */
   [[nodiscard]] virtual std::vector<std::byte> toBytesRaw() const = 0;
 
+  /**
+   * Construct an AccountId object using this PublicKey as its alias.
+   *
+   * @param shard The shard of the AccountId.
+   * @param realm The realm of the AccountId.
+   * @return The constructed AccountId.
+   */
+  [[nodiscard]] AccountId toAccountId(uint64_t shard = 0ULL, uint64_t realm = 0ULL) const;
+
 protected:
   /**
    * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
@@ -133,6 +158,13 @@ protected:
   [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY getInternalKey() const;
 
 private:
+  /**
+   * Get a std::shared_ptr to this PublicKey.
+   *
+   * @returns A pointer to this PublicKey.
+   */
+  [[nodiscard]] virtual std::shared_ptr<PublicKey> getShared() const = 0;
+
   /**
    * Implementation object used to hide implementation details and internal headers.
    */
