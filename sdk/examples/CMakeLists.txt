@@ -1,3 +1,4 @@
+set(ACCOUNT_ALIAS_EXAMPLE_NAME ${PROJECT_NAME}-account-alias-example)
 set(ACCOUNT_ALLOWANCE_EXAMPLE_NAME ${PROJECT_NAME}-account-allowance-example)
 set(CONSENSUS_PUB_SUB_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-example)
 set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
@@ -23,6 +24,7 @@ set(TRANSFER_CRYPTO_EXAMPLE_NAME ${PROJECT_NAME}-transfer-crypto-example)
 set(TRANSFER_TOKENS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-tokens-example)
 set(UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME ${PROJECT_NAME}-update-account-public-key-example)
 
+add_executable(${ACCOUNT_ALIAS_EXAMPLE_NAME} AccountAliasExample.cc)
 add_executable(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} AccountAllowanceExample.cc)
 add_executable(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} ConsensusPubSubExample.cc)
 add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
@@ -66,6 +68,7 @@ if (WIN32)
             DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 endif ()
 
+target_link_libraries(${ACCOUNT_ALIAS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -94,6 +97,7 @@ target_link_libraries(${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE} DESTINATION examples FILES_MATCHING PATTERN *)
 
 install(TARGETS
+        ${ACCOUNT_ALIAS_EXAMPLE_NAME}
         ${ACCOUNT_ALLOWANCE_EXAMPLE_NAME}
         ${CONSENSUS_PUB_SUB_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
