@@ -66,6 +66,8 @@ add_library(${PROJECT_NAME} STATIC
         src/LedgerId.cc
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
+        src/NetworkVersionInfo.cc
+        src/NetworkVersionInfoQuery.cc
         src/NftId.cc
         src/PrivateKey.cc
         src/PublicKey.cc
@@ -76,6 +78,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ScheduleInfo.cc
         src/ScheduleInfoQuery.cc
         src/ScheduleSignTransaction.cc
+        src/SemanticVersion.cc
         src/StakingInfo.cc
         src/Status.cc
         src/SubscriptionHandle.cc
