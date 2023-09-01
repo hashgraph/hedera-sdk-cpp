@@ -59,6 +59,7 @@ add_executable(${TEST_PROJECT_NAME}
         HbarTransferTest.cc
         KeyListTest.cc
         LedgerIdTest.cc
+        NetworkVersionInfoUnitTests.cc
         NftIdTest.cc
         NodeAddressTest.cc
         ScheduleCreateTransactionUnitTests.cc
@@ -67,6 +68,7 @@ add_executable(${TEST_PROJECT_NAME}
         ScheduleInfoQueryUnitTests.cc
         ScheduleInfoUnitTests.cc
         ScheduleSignTransactionUnitTests.cc
+        SemanticVersionUnitTests.cc
         StakingInfoTest.cc
         SystemDeleteTransactionUnitTests.cc
         SystemUndeleteTransactionUnitTests.cc
