@@ -30,6 +30,8 @@
 #include "FileContentsQuery.h"
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
+#include "NetworkVersionInfo.h"
+#include "NetworkVersionInfoQuery.h"
 #include "ScheduleInfo.h"
 #include "ScheduleInfoQuery.h"
 #include "TokenInfo.h"
@@ -55,6 +57,7 @@ template class Query<ContractCallQuery, ContractFunctionResult>;
 template class Query<ContractInfoQuery, ContractInfo>;
 template class Query<FileContentsQuery, FileContents>;
 template class Query<FileInfoQuery, FileInfo>;
+template class Query<NetworkVersionInfoQuery, NetworkVersionInfo>;
 template class Query<ScheduleInfoQuery, ScheduleInfo>;
 template class Query<TokenInfoQuery, TokenInfo>;
 template class Query<TokenNftInfoQuery, TokenNftInfo>;

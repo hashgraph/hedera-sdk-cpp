@@ -49,7 +49,8 @@
 #include "FileInfoQuery.h"
 #include "FileUpdateTransaction.h"
 #include "FreezeTransaction.h"
-#include "ProxyStaker.h"
+#include "NetworkVersionInfo.h"
+#include "NetworkVersionInfoQuery.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleInfo.h"
@@ -381,6 +382,7 @@ template class Executable<FileDeleteTransaction, proto::Transaction, proto::Tran
 template class Executable<FileInfoQuery, proto::Query, proto::Response, FileInfo>;
 template class Executable<FileUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FreezeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<NetworkVersionInfoQuery, proto::Query, proto::Response, NetworkVersionInfo>;
 template class Executable<ScheduleCreateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,

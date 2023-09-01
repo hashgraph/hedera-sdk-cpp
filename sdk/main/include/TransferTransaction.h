@@ -204,6 +204,7 @@ private:
   friend class ContractInfoQuery;
   friend class FileContentsQuery;
   friend class FileInfoQuery;
+  friend class NetworkVersionInfoQuery;
   friend class ScheduleInfoQuery;
   friend class TokenInfoQuery;
   friend class TokenNftInfoQuery;
