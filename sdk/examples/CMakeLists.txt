@@ -1,5 +1,6 @@
 set(ACCOUNT_ALIAS_EXAMPLE_NAME ${PROJECT_NAME}-account-alias-example)
 set(ACCOUNT_ALLOWANCE_EXAMPLE_NAME ${PROJECT_NAME}-account-allowance-example)
+set(ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME ${PROJECT_NAME}-account-create-with-hts-example)
 set(CONSENSUS_PUB_SUB_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-example)
 set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
 set(CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-simple-contract-example)
@@ -26,6 +27,7 @@ set(UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME ${PROJECT_NAME}-update-account-public
 
 add_executable(${ACCOUNT_ALIAS_EXAMPLE_NAME} AccountAliasExample.cc)
 add_executable(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} AccountAllowanceExample.cc)
+add_executable(${ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME} AccountCreateWithHtsExample.cc)
 add_executable(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} ConsensusPubSubExample.cc)
 add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
 add_executable(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} CreateSimpleContractExample.cc)
@@ -70,6 +72,7 @@ endif ()
 
 target_link_libraries(${ACCOUNT_ALIAS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -99,6 +102,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE} DESTINATION ex
 install(TARGETS
         ${ACCOUNT_ALIAS_EXAMPLE_NAME}
         ${ACCOUNT_ALLOWANCE_EXAMPLE_NAME}
+        ${ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME}
         ${CONSENSUS_PUB_SUB_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
         ${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME}
