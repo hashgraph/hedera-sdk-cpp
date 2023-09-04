@@ -22,6 +22,7 @@
 #include "AccountBalanceQuery.h"
 #include "AccountRecords.h"
 #include "AccountRecordsQuery.h"
+#include "AccountStakersQuery.h"
 #include "ContractCallQuery.h"
 #include "ContractFunctionResult.h"
 #include "ContractInfo.h"
@@ -51,6 +52,7 @@ namespace Hedera
  */
 template class Query<AccountBalanceQuery, AccountBalance>;
 template class Query<AccountRecordsQuery, AccountRecords>;
+template class Query<AccountStakersQuery, AccountStakers>;
 template class Query<ContractCallQuery, ContractFunctionResult>;
 template class Query<ContractInfoQuery, ContractInfo>;
 template class Query<FileContentsQuery, FileContents>;

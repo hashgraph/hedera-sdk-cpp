@@ -10,7 +10,7 @@ add_library(${PROJECT_NAME} STATIC
         src/AccountInfoQuery.cc
         src/AccountRecords.cc
         src/AccountRecordsQuery.cc
-        #    src/AccountStakersQuery.cc
+        src/AccountStakersQuery.cc
         src/AccountUpdateTransaction.cc
         src/AssessedCustomFee.cc
         src/ChunkedTransaction.cc
@@ -70,6 +70,7 @@ add_library(${PROJECT_NAME} STATIC
         src/NetworkVersionInfoQuery.cc
         src/NftId.cc
         src/PrivateKey.cc
+        src/ProxyStaker.cc
         src/PublicKey.cc
         src/Query.cc
         src/ScheduleCreateTransaction.cc

@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,10 +18,11 @@
  *
  */
 #include "AccountStakersQuery.h"
-
-#include "AccountId.h"
-#include "AccountInfo.h"
+#include "Client.h"
 #include "ProxyStaker.h"
+#include "TransactionRecord.h"
+#include "TransferTransaction.h"
+#include "impl/Node.h"
 
 #include <proto/crypto_get_stakers.pb.h>
 #include <proto/query.pb.h>
@@ -31,75 +32,61 @@
 namespace Hedera
 {
 //-----
-AccountStakersQuery::AccountStakersQuery()
-  : mAccountId()
+AccountStakersQuery& AccountStakersQuery::setAccountId(const AccountId& accountId)
 {
-}
-
-//-----
-void
-AccountStakersQuery::validateChecksums(const Client& client) const
-{
-  if (mAccountId.isValid())
-  {
-    mAccountId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void
-AccountStakersQuery::onMakeRequest(proto::Query* query,
-                                   proto::QueryHeader* header) const
-{
-  proto::CryptoGetStakersQuery* getStakersQuery =
-    query->mutable_cryptogetproxystakers();
-
-  if (mAccountId.isValid())
-  {
-    getStakersQuery->set_allocated_accountid(
-      mAccountId.getValue().toProtobuf());
-  }
-
-  getStakersQuery->set_allocated_header(header);
-}
-
-//-----
-proto::ResponseHeader
-AccountStakersQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->cryptogetproxystakers().header();
-}
-
-//-----
-proto::QueryHeader
-AccountStakersQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.cryptogetproxystakers().header();
-}
-
-//-----
-std::vector<ProxyStaker>
-AccountStakersQuery::mapResponse(const proto::Response& response,
-                                 const AccountId& accountId,
-                                 const proto::Query& query) const
-{
-  std::vector<ProxyStaker> stakers;
-  const proto::AllProxyStakers& stakerData =
-    response.cryptogetproxystakers().stakers();
-  for (size_t i = 0; i < stakerData.proxystaker_size(); ++i)
-  {
-    stakers.push_back(ProxyStaker::fromProtobuf(stakerData.proxystaker(i)));
-  }
-
-  return stakers;
-}
-
-//-----
-AccountStakersQuery&
-AccountStakersQuery::setAccountId(const AccountId& accountId)
-{
-  mAccountId.setValue(accountId);
+  mAccountId = accountId;
   return *this;
+}
+
+//-----
+proto::Query AccountStakersQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
+{
+  proto::Query query;
+  proto::CryptoGetStakersQuery* getAccountStakersQuery = query.mutable_cryptogetproxystakers();
+
+  proto::QueryHeader* header = getAccountStakersQuery->mutable_header();
+  header->set_responsetype(proto::ANSWER_ONLY);
+
+  TransferTransaction tx = TransferTransaction()
+                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
+                             .setNodeAccountIds({ node->getAccountId() })
+                             .setMaxTransactionFee(Hbar(1LL))
+                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
+                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
+  tx.onSelectNode(node);
+  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
+
+  getAccountStakersQuery->set_allocated_accountid(mAccountId.toProtobuf().release());
+
+  return query;
+}
+
+//-----
+AccountStakers AccountStakersQuery::mapResponse(const proto::Response& response) const
+{
+  AccountStakers accountStakers;
+
+  for (int i = 0; i < response.cryptogetproxystakers().stakers().proxystaker_size(); ++i)
+  {
+  }
+
+  return accountStakers;
+}
+
+//-----
+Status AccountStakersQuery::mapResponseStatus(const proto::Response& response) const
+{
+  return gProtobufResponseCodeToStatus.at(response.cryptogetproxystakers().header().nodetransactionprecheckcode());
+}
+
+//-----
+grpc::Status AccountStakersQuery::submitRequest(const Client& client,
+                                                const std::chrono::system_clock::time_point& deadline,
+                                                const std::shared_ptr<internal::Node>& node,
+                                                proto::Response* response) const
+{
+  return node->submitQuery(
+    proto::Query::QueryCase::kCryptoGetProxyStakers, makeRequest(client, node), deadline, response);
 }
 
 } // namespace Hedera
