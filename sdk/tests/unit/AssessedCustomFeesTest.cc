@@ -90,12 +90,10 @@ TEST_F(AssessedCustomFeeTest, ToProtobuf)
   EXPECT_EQ(protoAssessedCustomFee->token_id().realmnum(), getTestTokenId().getRealmNum());
   EXPECT_EQ(protoAssessedCustomFee->token_id().tokennum(), getTestTokenId().getTokenNum());
   ASSERT_TRUE(protoAssessedCustomFee->has_fee_collector_account_id());
-  EXPECT_EQ(protoAssessedCustomFee->fee_collector_account_id().shardnum(),
-            getTestFeeCollectorAccountId().getShardNum());
-  EXPECT_EQ(protoAssessedCustomFee->fee_collector_account_id().realmnum(),
-            getTestFeeCollectorAccountId().getRealmNum());
+  EXPECT_EQ(protoAssessedCustomFee->fee_collector_account_id().shardnum(), getTestFeeCollectorAccountId().mShardNum);
+  EXPECT_EQ(protoAssessedCustomFee->fee_collector_account_id().realmnum(), getTestFeeCollectorAccountId().mRealmNum);
   EXPECT_EQ(protoAssessedCustomFee->fee_collector_account_id().accountnum(),
-            getTestFeeCollectorAccountId().getAccountNum());
+            getTestFeeCollectorAccountId().mAccountNum);
   EXPECT_EQ(protoAssessedCustomFee->effective_payer_account_id_size(), getTestPayerAccountIdList().size());
 }
 

@@ -126,9 +126,9 @@ TEST_F(TokenTransferTest, ToProtobuf)
   const std::unique_ptr<proto::AccountAmount> proto = tokenTransfer.toProtobuf();
 
   // Then
-  EXPECT_EQ(proto->accountid().shardnum(), getTestAccountId().getShardNum());
-  EXPECT_EQ(proto->accountid().realmnum(), getTestAccountId().getRealmNum());
-  EXPECT_EQ(proto->accountid().accountnum(), getTestAccountId().getAccountNum());
+  EXPECT_EQ(proto->accountid().shardnum(), getTestAccountId().mShardNum);
+  EXPECT_EQ(proto->accountid().realmnum(), getTestAccountId().mRealmNum);
+  EXPECT_EQ(proto->accountid().accountnum(), getTestAccountId().mAccountNum);
   EXPECT_EQ(proto->amount(), getTestAmount());
   EXPECT_EQ(proto->is_approval(), getTestIsApproval());
 }

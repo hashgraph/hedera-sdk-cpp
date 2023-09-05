@@ -20,6 +20,8 @@
 #include "AccountId.h"
 #include "PublicKey.h"
 #include "exceptions/BadKeyException.h"
+#include "exceptions/IllegalStateException.h"
+#include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
 #include <charconv>
@@ -82,6 +84,11 @@ AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const EvmAddr
 //-----
 AccountId AccountId::fromString(std::string_view id)
 {
+  if (id.size() == 2 * EvmAddress::NUM_BYTES || id.size() == 2 * EvmAddress::NUM_BYTES + 2)
+  {
+    return fromEvmAddress(id);
+  }
+
   AccountId accountId;
 
   // Get the indices of the two delimiter '.'
@@ -143,6 +150,18 @@ AccountId AccountId::fromString(std::string_view id)
   }
 
   return accountId;
+}
+
+//-----
+AccountId AccountId::fromEvmAddress(std::string_view evmAddress, uint64_t shard, uint64_t realm)
+{
+  return fromEvmAddress(EvmAddress::fromString(evmAddress), shard, realm);
+}
+
+//-----
+AccountId AccountId::fromEvmAddress(const EvmAddress& evmAddress, uint64_t shard, uint64_t realm)
+{
+  return AccountId(shard, realm, evmAddress);
 }
 
 //-----
@@ -215,72 +234,42 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
 }
 
 //-----
+std::string AccountId::toSolidityAddress() const
+{
+  // If the shard number is a value greater than 32 bits can represent, then creating a Long-Zero format is impossible.
+  if (mShardNum > std::numeric_limits<uint32_t>::max())
+  {
+    throw IllegalStateException("Shard number is too big. Its value must be able to fit in 32 bits.");
+  }
+
+  return internal::HexConverter::bytesToHex(internal::Utilities::concatenateVectors(
+    { internal::Utilities::removePrefix(internal::Utilities::getBytes(mShardNum), sizeof(uint64_t) - 4),
+      internal::Utilities::getBytes(mRealmNum),
+      internal::Utilities::getBytes(mAccountNum.value()) }));
+}
+
+//-----
 std::string AccountId::toString() const
 {
   std::string str = std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.';
 
-  if (mAccountNum)
-  {
-    return str + std::to_string(*mAccountNum);
-  }
-  else if (mPublicKeyAlias)
+  if (mPublicKeyAlias)
   {
     return str + mPublicKeyAlias->toStringDer();
   }
-  else if (mEvmAddressAlias)
+  else if (mEvmAddressAlias.has_value())
   {
     return str + mEvmAddressAlias->toString();
+  }
+  else if (mAccountNum.has_value())
+  {
+    return str + std::to_string(*mAccountNum);
   }
   else
   {
     // Uninitialized case
     return str + '0';
   }
-}
-
-//-----
-AccountId& AccountId::setShardNum(const uint64_t& num)
-{
-  mShardNum = num;
-  checkShardNum();
-  return *this;
-}
-
-//-----
-AccountId& AccountId::setRealmNum(const uint64_t& num)
-{
-  mRealmNum = num;
-  checkRealmNum();
-  return *this;
-}
-
-//-----
-AccountId& AccountId::setAccountNum(const uint64_t& num)
-{
-  mAccountNum = num;
-  checkAccountNum();
-
-  mPublicKeyAlias = nullptr;
-  mEvmAddressAlias.reset();
-  return *this;
-}
-
-//-----
-AccountId& AccountId::setPublicKeyAlias(const std::shared_ptr<PublicKey>& alias)
-{
-  mPublicKeyAlias = alias;
-  mAccountNum.reset();
-  mEvmAddressAlias.reset();
-  return *this;
-}
-
-//-----
-AccountId& AccountId::setEvmAddressAlias(const EvmAddress& address)
-{
-  mEvmAddressAlias = address;
-  mAccountNum.reset();
-  mPublicKeyAlias = nullptr;
-  return *this;
 }
 
 //-----

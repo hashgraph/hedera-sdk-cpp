@@ -106,29 +106,6 @@ const std::vector<std::byte> NEGATIVE_PADDING(31, std::byte(0xFF));
 }
 
 /**
- * Get the bytes (in big endian) that represent an integral type.
- *
- * @tparam T  The type of integer of which to get the bytes.
- * @param val The value of which to get the bytes.
- * @return An array of bytes that represents the input value.
- */
-template<typename T>
-[[nodiscard]] std::vector<std::byte> getBytes(const T& val)
-{
-  // Only allow integral types
-  static_assert(std::is_integral_v<T>, "getBytes works only with integral types");
-
-  std::vector<std::byte> bytes(sizeof(T));
-  auto byte = internal::Utilities::toTypePtr<std::byte>(&val);
-  for (size_t i = 0; i < sizeof(T); ++i)
-  {
-    bytes[sizeof(T) - i - 1] = *byte++;
-  }
-
-  return bytes;
-}
-
-/**
  * Encode a value to its representative Solidity byte array.
  *
  * @tparam ValType         The type of value to encode.
@@ -170,7 +147,7 @@ template<typename ValType,
                                                  const PaddingFuncType& paddingFunc)
 {
   // The first word of an array always contains the number of elements in the array.
-  std::vector<std::byte> bytes = leftPad(getBytes(valArray.size()));
+  std::vector<std::byte> bytes = leftPad(internal::Utilities::getBytes(valArray.size()));
   for (const ValType& val : valArray)
   {
     bytes = internal::Utilities::concatenateVectors({ bytes, encodeValue(val, toBytesFunc, paddingFunc) });
@@ -199,7 +176,7 @@ template<typename ValType,
                                                  const PaddingFuncType& paddingFunc)
 {
   // The first word of an array always contains the number of elements in the array.
-  std::vector<std::byte> bytes = leftPad(getBytes(valArray.size()));
+  std::vector<std::byte> bytes = leftPad(internal::Utilities::getBytes(valArray.size()));
   for (const ValType& val : valArray)
   {
     bytes = internal::Utilities::concatenateVectors({ bytes, encodeValue(val, toBytesFunc, paddingFunc, val < 0) });
@@ -225,13 +202,13 @@ template<typename ValType, typename ToBytesFuncType>
   //  - The offsets of each value's byte array.
   //  - The length of each value's byte array.
   //  - The value's byte array itself.
-  std::vector<std::byte> offsets = leftPad(getBytes(valArray.size()));
+  std::vector<std::byte> offsets = leftPad(internal::Utilities::getBytes(valArray.size()));
   std::vector<std::byte> values;
   size_t offset = 32ULL * valArray.size();
   for (const auto& val : valArray)
   {
     // Add the current value offset to the offsets vector.
-    offsets = internal::Utilities::concatenateVectors({ offsets, leftPad(getBytes(offset)) });
+    offsets = internal::Utilities::concatenateVectors({ offsets, leftPad(internal::Utilities::getBytes(offset)) });
 
     // For a dynamic value, the encoded byte array should contain the encoded value's length, followed by the encoded
     // value itself.
@@ -285,7 +262,8 @@ template<typename ValType, typename ToBytesFuncType>
  */
 [[nodiscard]] std::vector<std::byte> encodeBytes(const std::vector<std::byte>& bytes)
 {
-  return internal::Utilities::concatenateVectors({ leftPad(getBytes(bytes.size())), rightPad(bytes) });
+  return internal::Utilities::concatenateVectors(
+    { leftPad(internal::Utilities::getBytes(bytes.size())), rightPad(bytes) });
 }
 
 /**
@@ -362,7 +340,7 @@ ContractFunctionParameters& ContractFunctionParameters::addBool(bool param)
 ContractFunctionParameters& ContractFunctionParameters::addInt8(int8_t param)
 {
   mFunction.addInt8();
-  mArguments.emplace_back(leftPad(getBytes(param), param < 0), false);
+  mArguments.emplace_back(leftPad(internal::Utilities::getBytes(param), param < 0), false);
   return *this;
 }
 
@@ -370,7 +348,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt8(int8_t param)
 ContractFunctionParameters& ContractFunctionParameters::addInt32(int32_t param)
 {
   mFunction.addInt32();
-  mArguments.emplace_back(leftPad(getBytes(param), param < 0), false);
+  mArguments.emplace_back(leftPad(internal::Utilities::getBytes(param), param < 0), false);
   return *this;
 }
 
@@ -378,7 +356,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt32(int32_t param)
 ContractFunctionParameters& ContractFunctionParameters::addInt64(int64_t param)
 {
   mFunction.addInt64();
-  mArguments.emplace_back(leftPad(getBytes(param), param < 0), false);
+  mArguments.emplace_back(leftPad(internal::Utilities::getBytes(param), param < 0), false);
   return *this;
 }
 
@@ -397,7 +375,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt256(const std::vec
 ContractFunctionParameters& ContractFunctionParameters::addInt8Array(const std::vector<int8_t>& param)
 {
   mFunction.addInt8Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<int8_t>, leftPad), true);
+  mArguments.emplace_back(encodeArray(param, internal::Utilities::getBytes<int8_t>, leftPad), true);
   return *this;
 }
 
@@ -405,7 +383,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt8Array(const std::
 ContractFunctionParameters& ContractFunctionParameters::addInt32Array(const std::vector<int32_t>& param)
 {
   mFunction.addInt32Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<int32_t>, leftPad), true);
+  mArguments.emplace_back(encodeArray(param, internal::Utilities::getBytes<int32_t>, leftPad), true);
   return *this;
 }
 
@@ -413,7 +391,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt32Array(const std:
 ContractFunctionParameters& ContractFunctionParameters::addInt64Array(const std::vector<int64_t>& param)
 {
   mFunction.addInt64Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<int64_t>, leftPad), true);
+  mArguments.emplace_back(encodeArray(param, internal::Utilities::getBytes<int64_t>, leftPad), true);
   return *this;
 }
 
@@ -429,7 +407,7 @@ ContractFunctionParameters& ContractFunctionParameters::addInt256Array(const std
 ContractFunctionParameters& ContractFunctionParameters::addUint8(uint8_t param)
 {
   mFunction.addUint8();
-  mArguments.emplace_back(leftPad(getBytes(param)), false);
+  mArguments.emplace_back(leftPad(internal::Utilities::getBytes(param)), false);
   return *this;
 }
 
@@ -437,7 +415,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint8(uint8_t param)
 ContractFunctionParameters& ContractFunctionParameters::addUint32(uint32_t param)
 {
   mFunction.addUint32();
-  mArguments.emplace_back(leftPad(getBytes(param)), false);
+  mArguments.emplace_back(leftPad(internal::Utilities::getBytes(param)), false);
   return *this;
 }
 
@@ -445,7 +423,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint32(uint32_t param
 ContractFunctionParameters& ContractFunctionParameters::addUint64(uint64_t param)
 {
   mFunction.addUint64();
-  mArguments.emplace_back(leftPad(getBytes(param)), false);
+  mArguments.emplace_back(leftPad(internal::Utilities::getBytes(param)), false);
   return *this;
 }
 
@@ -461,7 +439,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint256(const std::ve
 ContractFunctionParameters& ContractFunctionParameters::addUint8Array(const std::vector<uint8_t>& param)
 {
   mFunction.addUint8Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<uint8_t>, leftPad), true);
+  mArguments.emplace_back(encodeArray(param, internal::Utilities::getBytes<uint8_t>, leftPad), true);
   return *this;
 }
 
@@ -469,7 +447,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint8Array(const std:
 ContractFunctionParameters& ContractFunctionParameters::addUint32Array(const std::vector<uint32_t>& param)
 {
   mFunction.addUint32Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<uint32_t>, leftPad), true);
+  mArguments.emplace_back(encodeArray(param, internal::Utilities::getBytes<uint32_t>, leftPad), true);
   return *this;
 }
 
@@ -477,7 +455,7 @@ ContractFunctionParameters& ContractFunctionParameters::addUint32Array(const std
 ContractFunctionParameters& ContractFunctionParameters::addUint64Array(const std::vector<uint64_t>& param)
 {
   mFunction.addUint64Array();
-  mArguments.emplace_back(encodeArray(param, getBytes<uint64_t>, leftPad), true);
+  mArguments.emplace_back(encodeArray(param, internal::Utilities::getBytes<uint64_t>, leftPad), true);
   return *this;
 }
 
@@ -536,7 +514,8 @@ std::vector<std::byte> ContractFunctionParameters::toBytes(std::string_view name
   {
     if (arg.mIsDynamic)
     {
-      paramsBytes = internal::Utilities::concatenateVectors({ paramsBytes, leftPad(getBytes(dynamicOffset)) });
+      paramsBytes =
+        internal::Utilities::concatenateVectors({ paramsBytes, leftPad(internal::Utilities::getBytes(dynamicOffset)) });
       dynamicBytes = internal::Utilities::concatenateVectors({ dynamicBytes, arg.mValue });
       dynamicOffset += arg.mValue.size();
     }

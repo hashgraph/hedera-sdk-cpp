@@ -62,9 +62,9 @@ TEST_F(TransactionIdTest, SerializeTransactionIdToProtobuf)
   const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(internal::TimestampConverter::toProtobuf(now));
 
   // Then
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), testAccountId.getShardNum());
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), testAccountId.getRealmNum());
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), testAccountId.getAccountNum());
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), testAccountId.mShardNum);
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), testAccountId.mRealmNum);
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), testAccountId.mAccountNum);
   EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
 }
 
@@ -83,9 +83,7 @@ TEST_F(TransactionIdTest, DeserializeTransactionIdFromProtobuf)
   const TransactionId transactionId = TransactionId::fromProtobuf(testProtoTransactionId);
 
   // Then
-  EXPECT_EQ(transactionId.getAccountId().getAccountNum(), testAccountId.getAccountNum());
-  EXPECT_EQ(transactionId.getAccountId().getRealmNum(), testAccountId.getRealmNum());
-  EXPECT_EQ(transactionId.getAccountId().getShardNum(), testAccountId.getShardNum());
+  EXPECT_EQ(transactionId.getAccountId(), testAccountId);
   EXPECT_EQ(transactionId.getValidTransactionTime(), now);
 }
 
@@ -104,9 +102,9 @@ TEST_F(TransactionIdTest, ProtobufTransactionId)
 
   const auto protoTransactionIdPtr = std::unique_ptr<proto::TransactionID>(transactionId.toProtobuf());
   const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(internal::TimestampConverter::toProtobuf(now));
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), getTestAccountId().getShardNum());
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), getTestAccountId().getRealmNum());
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), getTestAccountId().getAccountNum());
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), getTestAccountId().mShardNum);
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), getTestAccountId().mRealmNum);
+  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), getTestAccountId().mAccountNum);
   EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
   EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().nanos(), protoTimestampPtr->nanos());
 }

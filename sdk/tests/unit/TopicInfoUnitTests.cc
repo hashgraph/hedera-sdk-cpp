@@ -171,12 +171,10 @@ TEST_F(TopicInfoTest, ToProtobuf)
             internal::Utilities::byteVectorToString(getTestSubmitKey()->toBytesRaw()));
   EXPECT_EQ(protoTopicInfo->mutable_topicinfo()->autorenewperiod().seconds(),
             internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod())->seconds());
-  EXPECT_EQ(protoTopicInfo->mutable_topicinfo()->autorenewaccount().shardnum(),
-            getTestAutoRenewAccountId().getShardNum());
-  EXPECT_EQ(protoTopicInfo->mutable_topicinfo()->autorenewaccount().realmnum(),
-            getTestAutoRenewAccountId().getRealmNum());
+  EXPECT_EQ(protoTopicInfo->mutable_topicinfo()->autorenewaccount().shardnum(), getTestAutoRenewAccountId().mShardNum);
+  EXPECT_EQ(protoTopicInfo->mutable_topicinfo()->autorenewaccount().realmnum(), getTestAutoRenewAccountId().mRealmNum);
   EXPECT_EQ(protoTopicInfo->mutable_topicinfo()->autorenewaccount().accountnum(),
-            getTestAutoRenewAccountId().getAccountNum());
+            getTestAutoRenewAccountId().mAccountNum);
   EXPECT_EQ(protoTopicInfo->mutable_topicinfo()->ledger_id(),
             internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
 }
