@@ -37,6 +37,20 @@ TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const Transac
 }
 
 //-----
+TransactionReceiptQuery& TransactionReceiptQuery::setIncludeChildren(bool children)
+{
+  mIncludeChildren = children;
+  return *this;
+}
+
+//-----
+TransactionReceiptQuery& TransactionReceiptQuery::setIncludeDuplicates(bool duplicates)
+{
+  mIncludeDuplicates = duplicates;
+  return *this;
+}
+
+//-----
 proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shared_ptr<internal::Node>&) const
 {
   proto::Query query;
@@ -47,6 +61,8 @@ proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shar
 
   // This is a free query, so no payment required
   getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
+  getTransactionReceiptQuery->set_include_child_receipts(mIncludeChildren);
+  getTransactionReceiptQuery->set_includeduplicates(mIncludeDuplicates);
 
   return query;
 }
@@ -54,7 +70,7 @@ proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shar
 //-----
 TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& response) const
 {
-  return TransactionReceipt::fromProtobuf(response.transactiongetreceipt().receipt());
+  return TransactionReceipt::fromProtobuf(response.transactiongetreceipt());
 }
 
 //-----

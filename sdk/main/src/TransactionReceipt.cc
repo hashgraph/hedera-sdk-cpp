@@ -21,14 +21,35 @@
 #include "exceptions/ReceiptStatusException.h"
 #include "impl/Utilities.h"
 
+#include <proto/transaction_get_receipt.pb.h>
 #include <proto/transaction_receipt.pb.h>
 
 namespace Hedera
 {
 //-----
-TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionReceipt& proto)
+TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionGetReceiptResponse& proto)
+{
+  TransactionReceipt receipt = TransactionReceipt::fromProtobuf(proto.receipt());
+
+  for (int i = 0; i < proto.duplicatetransactionreceipts_size(); ++i)
+  {
+    receipt.mDuplicates.push_back(TransactionReceipt::fromProtobuf(proto.duplicatetransactionreceipts(i)));
+  }
+
+  for (int i = 0; i < proto.child_transaction_receipts_size(); ++i)
+  {
+    receipt.mChildren.push_back(TransactionReceipt::fromProtobuf(proto.child_transaction_receipts(i)));
+  }
+
+  return receipt;
+}
+
+//-----
+TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionReceipt& proto,
+                                                    const TransactionId& transactionId)
 {
   TransactionReceipt receipt;
+  receipt.mTransactionId = transactionId;
   receipt.mStatus = gProtobufResponseCodeToStatus.at(proto.status());
 
   if (proto.has_accountid())
