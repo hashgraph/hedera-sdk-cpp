@@ -32,7 +32,7 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
 
   if (proto.has_receipt())
   {
-    transactionRecord.mReceipt = TransactionReceipt::fromProtobuf(proto.receipt());
+    transactionRecord.mReceipt = TransactionReceipt::fromProtobuf(proto.receipt(), std::nullopt);
   }
 
   transactionRecord.mTransactionHash = proto.transactionhash();

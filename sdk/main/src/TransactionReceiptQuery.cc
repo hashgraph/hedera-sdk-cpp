@@ -70,7 +70,7 @@ proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shar
 //-----
 TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& response) const
 {
-  return TransactionReceipt::fromProtobuf(response.transactiongetreceipt(), mTransactionId);
+  return TransactionReceipt::fromProtobuf(response.transactiongetreceipt());
 }
 
 //-----

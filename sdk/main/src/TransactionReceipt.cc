@@ -29,23 +29,25 @@ namespace Hedera
 //-----
 TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionGetReceiptResponse& proto)
 {
-  TransactionReceipt receipt = TransactionReceipt::fromProtobuf(proto.receipt());
+  TransactionReceipt receipt = TransactionReceipt::fromProtobuf(proto.receipt(), std::nullopt);
 
   for (int i = 0; i < proto.duplicatetransactionreceipts_size(); ++i)
   {
-    receipt.mDuplicates.push_back(TransactionReceipt::fromProtobuf(proto.duplicatetransactionreceipts(i)));
+    receipt.mDuplicates.push_back(
+      TransactionReceipt::fromProtobuf(proto.duplicatetransactionreceipts(i), std::nullopt));
   }
 
   for (int i = 0; i < proto.child_transaction_receipts_size(); ++i)
   {
-    receipt.mChildren.push_back(TransactionReceipt::fromProtobuf(proto.child_transaction_receipts(i)));
+    receipt.mChildren.push_back(TransactionReceipt::fromProtobuf(proto.child_transaction_receipts(i), std::nullopt));
   }
 
   return receipt;
 }
 
 //-----
-TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionReceipt& proto)
+TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionReceipt& proto,
+                                                    std::optional<TransactionId> transactionId)
 {
   TransactionReceipt receipt;
   receipt.mStatus = gProtobufResponseCodeToStatus.at(proto.status());

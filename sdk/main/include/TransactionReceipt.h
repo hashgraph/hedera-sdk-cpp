@@ -54,19 +54,19 @@ public:
    *
    * @param proto         The TransactionGetReceiptResponse protobuf object from which to construct an
    *                      TransactionReceipt object.
-   * @param transactionId The ID of the transaction to which the constructed TransactionReceipt will correspond.
    * @return The constructed TransactionReceipt object.
    */
-  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionGetReceiptResponse& proto,
-                                                       const TransactionId& transactionId);
+  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionGetReceiptResponse& proto);
 
   /**
    * Construct a TransactionReceipt object from a TransactionReceipt protobuf object.
    *
    * @param proto The TransactionReceipt protobuf object from which to construct an TransactionReceipt object.
+   * @param transactionId The ID of the transaction to which the constructed TransactionReceipt will correspond.
    * @return The constructed TransactionReceipt object.
    */
-  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto);
+  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto,
+                                                       const std::optional<TransactionId> transactionId);
 
   /**
    * Validate the status and throw if it is not a Status::SUCCESS.

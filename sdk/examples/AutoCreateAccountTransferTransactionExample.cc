@@ -121,7 +121,6 @@ int main(int argc, char** argv)
     TransactionReceiptQuery().setTransactionId(response.getTransactionId()).setIncludeChildren(true).execute(client);
 
   const AccountId newAccountId = receipt.mChildren.at(0).mAccountId.value();
-  System.out.println(newAccountId);
 
   return 0;
 }
