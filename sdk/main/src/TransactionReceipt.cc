@@ -29,17 +29,16 @@ namespace Hedera
 //-----
 TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionGetReceiptResponse& proto)
 {
-  TransactionReceipt receipt = TransactionReceipt::fromProtobuf(proto.receipt(), std::nullopt);
+  TransactionReceipt receipt = TransactionReceipt::fromProtobuf(proto.receipt());
 
   for (int i = 0; i < proto.duplicatetransactionreceipts_size(); ++i)
   {
-    receipt.mDuplicates.push_back(
-      TransactionReceipt::fromProtobuf(proto.duplicatetransactionreceipts(i), std::nullopt));
+    receipt.mDuplicates.push_back(TransactionReceipt::fromProtobuf(proto.duplicatetransactionreceipts(i)));
   }
 
   for (int i = 0; i < proto.child_transaction_receipts_size(); ++i)
   {
-    receipt.mChildren.push_back(TransactionReceipt::fromProtobuf(proto.child_transaction_receipts(i), std::nullopt));
+    receipt.mChildren.push_back(TransactionReceipt::fromProtobuf(proto.child_transaction_receipts(i)));
   }
 
   return receipt;
@@ -47,9 +46,10 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionGetR
 
 //-----
 TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionReceipt& proto,
-                                                    std::optional<TransactionId> transactionId)
+                                                    const TransactionId& transactionId)
 {
   TransactionReceipt receipt;
+  receipt.mTransactionId = transactionId;
   receipt.mStatus = gProtobufResponseCodeToStatus.at(proto.status());
 
   if (proto.has_accountid())

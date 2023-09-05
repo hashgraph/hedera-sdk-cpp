@@ -95,7 +95,7 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   }
 
   // When
-  const TransactionReceipt txRx = TransactionReceipt::fromProtobuf(protoTxReceipt, std::nullopt);
+  const TransactionReceipt txRx = TransactionReceipt::fromProtobuf(protoTxReceipt);
 
   // Then
   EXPECT_EQ(txRx.mStatus, Status::SUCCESS);
