@@ -1,9 +1,6 @@
 name: "ZXC: Build Library"
 on:
   workflow_call:
-  push:
-    branches:
-      - main
 
 defaults:
   run:
@@ -80,8 +77,9 @@ jobs:
             with:
               binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
+          if_merged:
           - name: CMake Build (Release)
-            if: ${{ github.event.inputs.branch-name }} == `main`
+            if: github.event.pull_request.merged == true
             uses: lukka/run-cmake@v10
             env:
               VCPKG_BINARY_SOURCES: clear
@@ -92,8 +90,10 @@ jobs:
           - name: Start the local node
             run: sudo npx @hashgraph/hedera-local start -d --network local
           
+          if_merged:
           - name: Start CTest suite (Release)
             if: ${{ github.event.inputs.branch-name }} == "main"
+            if: github.event.pull_request.merged == true
             run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
           - name: Stop the local node
@@ -102,4 +102,4 @@ jobs:
           - name: Compute Short SHA
             id: sha
             run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
-            
+
