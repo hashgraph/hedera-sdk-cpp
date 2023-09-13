@@ -1,6 +1,9 @@
 name: "ZXC: Build Library"
 on:
   workflow_call:
+  push:
+    branches:
+      - main
 
 defaults:
   run:
