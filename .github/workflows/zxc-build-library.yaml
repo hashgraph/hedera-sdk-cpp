@@ -77,7 +77,6 @@ jobs:
             with:
               binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
-          if_merged:
           - name: CMake Build (Release)
             if: github.event.pull_request.merged == true
             uses: lukka/run-cmake@v10
@@ -90,9 +89,7 @@ jobs:
           - name: Start the local node
             run: sudo npx @hashgraph/hedera-local start -d --network local
           
-          if_merged:
           - name: Start CTest suite (Release)
-            if: ${{ github.event.inputs.branch-name }} == "main"
             if: github.event.pull_request.merged == true
             run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
