@@ -93,9 +93,9 @@ TEST_F(CustomRoyaltyFeeTest, ToProtobuf)
   const std::unique_ptr<proto::CustomFee> protoCustomFee = customRoyaltyFee.toProtobuf();
 
   // Then
-  EXPECT_EQ(protoCustomFee->fee_collector_account_id().shardnum(), getTestFeeCollectorAccountId().getShardNum());
-  EXPECT_EQ(protoCustomFee->fee_collector_account_id().realmnum(), getTestFeeCollectorAccountId().getRealmNum());
-  EXPECT_EQ(protoCustomFee->fee_collector_account_id().accountnum(), getTestFeeCollectorAccountId().getAccountNum());
+  EXPECT_EQ(protoCustomFee->fee_collector_account_id().shardnum(), getTestFeeCollectorAccountId().mShardNum);
+  EXPECT_EQ(protoCustomFee->fee_collector_account_id().realmnum(), getTestFeeCollectorAccountId().mRealmNum);
+  EXPECT_EQ(protoCustomFee->fee_collector_account_id().accountnum(), getTestFeeCollectorAccountId().mAccountNum);
   EXPECT_EQ(protoCustomFee->all_collectors_are_exempt(), getTestAllCollectorsAreExempt());
 
   ASSERT_EQ(protoCustomFee->fee_case(), proto::CustomFee::FeeCase::kRoyaltyFee);

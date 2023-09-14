@@ -212,6 +212,13 @@ private:
    * @param key The wrapped OpenSSL key object from which to construct this ECDSAsecp256k1PublicKey.
    */
   explicit ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key);
+
+  /**
+   * Derived from PublicKey. Get a std::shared_ptr to this ECDSAsecp256k1PublicKey.
+   *
+   * @returns A pointer to this ECDSAsecp256k1PublicKey.
+   */
+  [[nodiscard]] std::shared_ptr<PublicKey> getShared() const override;
 };
 
 } // namespace Hedera

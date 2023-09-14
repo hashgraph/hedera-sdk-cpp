@@ -1,9 +1,14 @@
+set(ACCOUNT_ALIAS_EXAMPLE_NAME ${PROJECT_NAME}-account-alias-example)
 set(ACCOUNT_ALLOWANCE_EXAMPLE_NAME ${PROJECT_NAME}-account-allowance-example)
+set(ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME ${PROJECT_NAME}-account-create-with-hts-example)
+set(ACCOUNT_CREATION_WAYS_EXAMPLE_NAME ${PROJECT_NAME}-account-creation-ways-example)
+set(AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-auto-create-account-transfer-transaction-example)
 set(CONSENSUS_PUB_SUB_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-example)
 set(CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-chunked-example)
 set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
 set(CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-simple-contract-example)
 set(CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-stateful-contract-example)
+set(CONTRACT_NONCES_EXAMPLE_NAME ${PROJECT_NAME}-contract-nonces-example)
 set(CUSTOM_FEES_EXAMPLE_NAME ${PROJECT_NAME}-custom-fees-example)
 set(DELETE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-delete-account-example)
 set(DELETE_FILE_EXAMPLE_NAME ${PROJECT_NAME}-delete-file-example)
@@ -23,12 +28,17 @@ set(TRANSFER_CRYPTO_EXAMPLE_NAME ${PROJECT_NAME}-transfer-crypto-example)
 set(TRANSFER_TOKENS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-tokens-example)
 set(UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME ${PROJECT_NAME}-update-account-public-key-example)
 
+add_executable(${ACCOUNT_ALIAS_EXAMPLE_NAME} AccountAliasExample.cc)
 add_executable(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} AccountAllowanceExample.cc)
+add_executable(${ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME} AccountCreateWithHtsExample.cc)
+add_executable(${ACCOUNT_CREATION_WAYS_EXAMPLE_NAME} AccountCreationWaysExample.cc)
+add_executable(${AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME} AutoCreateAccountTransferTransactionExample.cc)
 add_executable(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} ConsensusPubSubExample.cc)
 add_executable(${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME} ConsensusPubSubChunkedExample.cc)
 add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
 add_executable(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} CreateSimpleContractExample.cc)
 add_executable(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} CreateStatefulContractExample.cc)
+add_executable(${CONTRACT_NONCES_EXAMPLE_NAME} ContractNoncesExample.cc)
 add_executable(${CUSTOM_FEES_EXAMPLE_NAME} CustomFeesExample.cc)
 add_executable(${DELETE_ACCOUNT_EXAMPLE_NAME} DeleteAccountExample.cc)
 add_executable(${DELETE_FILE_EXAMPLE_NAME} DeleteFileExample.cc)
@@ -66,12 +76,17 @@ if (WIN32)
             DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 endif ()
 
+target_link_libraries(${ACCOUNT_ALIAS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${ACCOUNT_CREATION_WAYS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CONTRACT_NONCES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CUSTOM_FEES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${DELETE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${DELETE_FILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -94,12 +109,17 @@ target_link_libraries(${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE} DESTINATION examples FILES_MATCHING PATTERN *)
 
 install(TARGETS
+        ${ACCOUNT_ALIAS_EXAMPLE_NAME}
         ${ACCOUNT_ALLOWANCE_EXAMPLE_NAME}
+        ${ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME}
+        ${ACCOUNT_CREATION_WAYS_EXAMPLE_NAME}
+        ${AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME}
         ${CONSENSUS_PUB_SUB_EXAMPLE_NAME}
         ${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
         ${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME}
         ${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME}
+        ${CONTRACT_NONCES_EXAMPLE_NAME}
         ${CUSTOM_FEES_EXAMPLE_NAME}
         ${DELETE_ACCOUNT_EXAMPLE_NAME}
         ${DELETE_FILE_EXAMPLE_NAME}

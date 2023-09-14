@@ -189,18 +189,18 @@ TEST_F(ScheduleInfoTest, ToProtobuf)
   EXPECT_EQ(protoScheduleInfo->adminkey().ed25519(),
             internal::Utilities::byteVectorToString(getTestAdminKey()->toBytesRaw()));
   EXPECT_EQ(protoScheduleInfo->signers().keys_size(), getTestSigners().size());
-  EXPECT_EQ(protoScheduleInfo->creatoraccountid().shardnum(), getTestCreatorAccountId().getShardNum());
-  EXPECT_EQ(protoScheduleInfo->creatoraccountid().realmnum(), getTestCreatorAccountId().getRealmNum());
-  EXPECT_EQ(protoScheduleInfo->creatoraccountid().accountnum(), getTestCreatorAccountId().getAccountNum());
-  EXPECT_EQ(protoScheduleInfo->payeraccountid().shardnum(), getTestPayerAccountId().getShardNum());
-  EXPECT_EQ(protoScheduleInfo->payeraccountid().realmnum(), getTestPayerAccountId().getRealmNum());
-  EXPECT_EQ(protoScheduleInfo->payeraccountid().accountnum(), getTestPayerAccountId().getAccountNum());
+  EXPECT_EQ(protoScheduleInfo->creatoraccountid().shardnum(), getTestCreatorAccountId().mShardNum);
+  EXPECT_EQ(protoScheduleInfo->creatoraccountid().realmnum(), getTestCreatorAccountId().mRealmNum);
+  EXPECT_EQ(protoScheduleInfo->creatoraccountid().accountnum(), getTestCreatorAccountId().mAccountNum);
+  EXPECT_EQ(protoScheduleInfo->payeraccountid().shardnum(), getTestPayerAccountId().mShardNum);
+  EXPECT_EQ(protoScheduleInfo->payeraccountid().realmnum(), getTestPayerAccountId().mRealmNum);
+  EXPECT_EQ(protoScheduleInfo->payeraccountid().accountnum(), getTestPayerAccountId().mAccountNum);
   EXPECT_EQ(protoScheduleInfo->scheduledtransactionid().accountid().shardnum(),
-            getTestScheduledTransactionId().getAccountId().getShardNum());
+            getTestScheduledTransactionId().getAccountId().mShardNum);
   EXPECT_EQ(protoScheduleInfo->scheduledtransactionid().accountid().realmnum(),
-            getTestScheduledTransactionId().getAccountId().getRealmNum());
+            getTestScheduledTransactionId().getAccountId().mRealmNum);
   EXPECT_EQ(protoScheduleInfo->scheduledtransactionid().accountid().accountnum(),
-            getTestScheduledTransactionId().getAccountId().getAccountNum());
+            getTestScheduledTransactionId().getAccountId().mAccountNum);
   EXPECT_EQ(
     protoScheduleInfo->scheduledtransactionid().transactionvalidstart().seconds(),
     internal::TimestampConverter::toProtobuf(getTestScheduledTransactionId().getValidTransactionTime())->seconds());

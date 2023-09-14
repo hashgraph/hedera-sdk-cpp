@@ -36,6 +36,7 @@
 
 namespace proto
 {
+class TransactionGetReceiptResponse;
 class TransactionReceipt;
 }
 
@@ -49,12 +50,22 @@ class TransactionReceipt
 {
 public:
   /**
-   * Construct a TransactionReceipt object from a TransactionReceipt protobuf object.
+   * Construct a TransactionReceipt object from a TransactionGetReceiptResponse protobuf object.
    *
-   * @param proto The TransactionReceipt protobuf object from which to construct an TransactionReceipt object.
+   * @param proto The TransactionGetReceiptResponse protobuf object from which to construct a TransactionReceipt object.
    * @return The constructed TransactionReceipt object.
    */
-  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto);
+  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionGetReceiptResponse& proto);
+
+  /**
+   * Construct a TransactionReceipt object from a TransactionReceipt protobuf object.
+   *
+   * @param proto         The TransactionReceipt protobuf object from which to construct a TransactionReceipt object.
+   * @param transactionId The ID of the transaction to which the constructed TransactionReceipt will correspond.
+   * @return The constructed TransactionReceipt object.
+   */
+  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionReceipt& proto,
+                                                       const TransactionId& transactionId = TransactionId());
 
   /**
    * Validate the status and throw if it is not a Status::SUCCESS.
@@ -62,6 +73,11 @@ public:
    * @throws ReceiptStatusException If the status is not a Status::SUCCESS.
    */
   void validateStatus() const;
+
+  /**
+   * The ID of the transaction to which this TransactionReceipt corresponds.
+   */
+  TransactionId mTransactionId;
 
   /**
    * The consensus status of the transaction; is UNKNOWN if consensus has not been reached, or if the associated
@@ -181,6 +197,17 @@ public:
    * newly-created NFTs.
    */
   std::vector<uint64_t> mSerialNumbers;
+
+  /**
+   * The receipts of processing all transactions with the given ID, in consensus time order.
+   */
+  std::vector<TransactionReceipt> mDuplicates;
+
+  /**
+   * The receipts (if any) of all child transactions spawned by the transaction with the given top-level id, in
+   * consensus order. Always empty if the top-level status is UNKNOWN.
+   */
+  std::vector<TransactionReceipt> mChildren;
 };
 
 } // namespace Hedera

@@ -24,6 +24,7 @@
 #include <proto/crypto_service.grpc.pb.h>
 #include <proto/file_service.grpc.pb.h>
 #include <proto/freeze_service.grpc.pb.h>
+#include <proto/network_service.grpc.pb.h>
 #include <proto/schedule_service.grpc.pb.h>
 #include <proto/smart_contract_service.grpc.pb.h>
 #include <proto/token_service.grpc.pb.h>
@@ -198,6 +199,11 @@ private:
    * Pointer to the gRPC stub used to communicate with the freeze service living on the remote node.
    */
   std::unique_ptr<proto::FreezeService::Stub> mFreezeStub = nullptr;
+
+  /**
+   * Pointer to the gRPC stub used to communicate with the network service living on the remote node.
+   */
+  std::unique_ptr<proto::NetworkService::Stub> mNetworkStub = nullptr;
 
   /**
    * Pointer to the gRPC stub used to communicate with the schedule service living on the remote node.

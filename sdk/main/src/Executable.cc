@@ -28,6 +28,7 @@
 #include "AccountInfoQuery.h"
 #include "AccountRecords.h"
 #include "AccountRecordsQuery.h"
+#include "AccountStakersQuery.h"
 #include "AccountUpdateTransaction.h"
 #include "Client.h"
 #include "ContractByteCodeQuery.h"
@@ -48,6 +49,8 @@
 #include "FileInfoQuery.h"
 #include "FileUpdateTransaction.h"
 #include "FreezeTransaction.h"
+#include "NetworkVersionInfo.h"
+#include "NetworkVersionInfoQuery.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleInfo.h"
@@ -390,6 +393,7 @@ template class Executable<AccountDeleteTransaction,
                           TransactionResponse>;
 template class Executable<AccountInfoQuery, proto::Query, proto::Response, AccountInfo>;
 template class Executable<AccountRecordsQuery, proto::Query, proto::Response, AccountRecords>;
+template class Executable<AccountStakersQuery, proto::Query, proto::Response, AccountStakers>;
 template class Executable<AccountUpdateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
@@ -421,6 +425,7 @@ template class Executable<FileDeleteTransaction, proto::Transaction, proto::Tran
 template class Executable<FileInfoQuery, proto::Query, proto::Response, FileInfo>;
 template class Executable<FileUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FreezeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<NetworkVersionInfoQuery, proto::Query, proto::Response, NetworkVersionInfo>;
 template class Executable<ScheduleCreateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,

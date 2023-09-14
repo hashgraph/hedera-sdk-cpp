@@ -30,7 +30,17 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
 {
   TransactionRecord transactionRecord;
 
-  if (proto.has_receipt())
+  if (proto.has_transactionid())
+  {
+    transactionRecord.mTransactionID = TransactionId::fromProtobuf(proto.transactionid());
+
+    if (proto.has_receipt())
+    {
+      transactionRecord.mReceipt =
+        TransactionReceipt::fromProtobuf(proto.receipt(), transactionRecord.mTransactionID.value());
+    }
+  }
+  else
   {
     transactionRecord.mReceipt = TransactionReceipt::fromProtobuf(proto.receipt());
   }
@@ -40,11 +50,6 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   if (proto.has_consensustimestamp())
   {
     transactionRecord.mConsensusTimestamp = internal::TimestampConverter::fromProtobuf(proto.consensustimestamp());
-  }
-
-  if (proto.has_transactionid())
-  {
-    transactionRecord.mTransactionID = TransactionId::fromProtobuf(proto.transactionid());
   }
 
   transactionRecord.mMemo = proto.memo();

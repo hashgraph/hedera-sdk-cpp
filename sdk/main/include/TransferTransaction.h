@@ -20,21 +20,24 @@
 #ifndef HEDERA_SDK_CPP_TRANSFER_TRANSACTION_H_
 #define HEDERA_SDK_CPP_TRANSFER_TRANSACTION_H_
 
-#include "AccountId.h"
 #include "HbarTransfer.h"
-#include "NftId.h"
-#include "TokenId.h"
 #include "TokenNftTransfer.h"
 #include "TokenTransfer.h"
 #include "Transaction.h"
 
-#include <memory>
 #include <unordered_map>
 #include <vector>
 
 namespace proto
 {
 class CryptoTransferTransactionBody;
+}
+
+namespace Hedera
+{
+class AccountId;
+class NftId;
+class TokenId;
 }
 
 namespace Hedera
@@ -202,11 +205,10 @@ public:
 
 private:
   /**
-   * Allow queries that are not free to create Transaction protobuf objects from TransferTransactions.
+   * Allow Queries to create Transaction protobuf objects from TransferTransactions (to use as payments).
    */
   template<typename SdkRequestType, typename SdkResponseType>
   friend class Query;
-
   friend class WrappedTransaction;
 
   /**

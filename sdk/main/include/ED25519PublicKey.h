@@ -155,6 +155,13 @@ private:
    * @param key The wrapped OpenSSL key object from which to construct this ED25519PublicKey.
    */
   explicit ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key);
+
+  /**
+   * Derived from PublicKey. Get a std::shared_ptr to this ED25519PublicKey.
+   *
+   * @returns A pointer to this ED25519PublicKey.
+   */
+  [[nodiscard]] std::shared_ptr<PublicKey> getShared() const override;
 };
 
 } // namespace Hedera

@@ -201,4 +201,11 @@ ED25519PublicKey::ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key)
 {
 }
 
+//-----
+std::shared_ptr<PublicKey> ED25519PublicKey::getShared() const
+{
+  return std::const_pointer_cast<ED25519PublicKey>(
+    std::dynamic_pointer_cast<const ED25519PublicKey>(shared_from_this()));
+}
+
 } // namespace Hedera

@@ -6,6 +6,7 @@ add_executable(${TEST_PROJECT_NAME}
         AccountDeleteTransactionIntegrationTest.cc
         AccountInfoQueryIntegrationTests.cc
         AccountRecordsQueryIntegrationTests.cc
+        AccountStakersQueryIntegrationTests.cc
         AccountUpdateTransactionIntegrationTest.cc
         BaseIntegrationTest.cc
         ContractBytecodeQueryIntegrationTests.cc
@@ -26,6 +27,7 @@ add_executable(${TEST_PROJECT_NAME}
         FileUpdateTransactionIntegrationTests.cc
         FreezeTransactionIntegrationTest.cc
         JSONIntegrationTest.cc
+        NetworkVersionInfoQueryIntegrationTests.cc
         ScheduleCreateTransactionIntegrationTests.cc
         ScheduleDeleteTransactionIntegrationTests.cc
         ScheduleInfoQueryIntegrationTests.cc

@@ -344,9 +344,9 @@ TEST_F(TokenInfoTest, ToProtobuf)
   EXPECT_EQ(protoTokenInfo->symbol(), getTestTokenSymbol());
   EXPECT_EQ(protoTokenInfo->decimals(), getTestDecimals());
   EXPECT_EQ(protoTokenInfo->totalsupply(), getTestTotalSupply());
-  EXPECT_EQ(protoTokenInfo->treasury().shardnum(), getTestTreasuryAccountId().getShardNum());
-  EXPECT_EQ(protoTokenInfo->treasury().realmnum(), getTestTreasuryAccountId().getRealmNum());
-  EXPECT_EQ(protoTokenInfo->treasury().accountnum(), getTestTreasuryAccountId().getAccountNum());
+  EXPECT_EQ(protoTokenInfo->treasury().shardnum(), getTestTreasuryAccountId().mShardNum);
+  EXPECT_EQ(protoTokenInfo->treasury().realmnum(), getTestTreasuryAccountId().mRealmNum);
+  EXPECT_EQ(protoTokenInfo->treasury().accountnum(), getTestTreasuryAccountId().mAccountNum);
   EXPECT_EQ(protoTokenInfo->adminkey().ecdsa_secp256k1(),
             internal::Utilities::byteVectorToString(getTestAdminKey()->toBytesRaw()));
   EXPECT_EQ(protoTokenInfo->kyckey().ecdsa_secp256k1(),
@@ -368,9 +368,9 @@ TEST_F(TokenInfoTest, ToProtobuf)
        ? proto::TokenKycStatus::KycNotApplicable
        : (getTestDefaultKycStatus().value() ? proto::TokenKycStatus::Granted : proto::TokenKycStatus::Revoked)));
   EXPECT_EQ(protoTokenInfo->deleted(), getTestIsDeleted());
-  EXPECT_EQ(protoTokenInfo->autorenewaccount().shardnum(), getTestAutoRenewAccountId().getShardNum());
-  EXPECT_EQ(protoTokenInfo->autorenewaccount().realmnum(), getTestAutoRenewAccountId().getRealmNum());
-  EXPECT_EQ(protoTokenInfo->autorenewaccount().accountnum(), getTestAutoRenewAccountId().getAccountNum());
+  EXPECT_EQ(protoTokenInfo->autorenewaccount().shardnum(), getTestAutoRenewAccountId().mShardNum);
+  EXPECT_EQ(protoTokenInfo->autorenewaccount().realmnum(), getTestAutoRenewAccountId().mRealmNum);
+  EXPECT_EQ(protoTokenInfo->autorenewaccount().accountnum(), getTestAutoRenewAccountId().mAccountNum);
   EXPECT_EQ(protoTokenInfo->autorenewperiod().seconds(),
             internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod())->seconds());
   EXPECT_EQ(protoTokenInfo->expiry().seconds(),

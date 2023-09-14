@@ -73,6 +73,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
       return mFileStub->getFileContent(&context, query, response);
     case proto::Query::QueryCase::kFileGetInfo:
       return mFileStub->getFileInfo(&context, query, response);
+    case proto::Query::QueryCase::kNetworkGetVersionInfo:
+      return mNetworkStub->getVersionInfo(&context, query, response);
     case proto::Query::QueryCase::kScheduleGetInfo:
       return mScheduleStub->getScheduleInfo(&context, query, response);
     case proto::Query::QueryCase::kTokenGetInfo:
@@ -265,6 +267,7 @@ void Node::initializeStubs(const std::shared_ptr<grpc::Channel>& channel)
 //-----
 void Node::closeStubs()
 {
+<<<<<<< HEAD
   mConsensusStub = nullptr;
   mCryptoStub = nullptr;
   mFileStub = nullptr;
@@ -272,6 +275,79 @@ void Node::closeStubs()
   mScheduleStub = nullptr;
   mSmartContractStub = nullptr;
   mTokenStub = nullptr;
+=======
+  const std::vector<std::shared_ptr<Endpoint>> endpoints = mAddress->getEndpoints();
+
+  std::shared_ptr<grpc::ChannelCredentials> channelCredentials = nullptr;
+
+  grpc::ChannelArguments channelArguments;
+  channelArguments.SetInt(GRPC_ARG_ENABLE_RETRIES, 0);
+
+  for (const auto& endpoint : endpoints)
+  {
+    switch (mTLSBehavior)
+    {
+      case TLSBehavior::REQUIRE:
+      {
+        if (NodeAddress::isTlsPort(endpoint->getPort()))
+        {
+          channelArguments.SetInt(GRPC_ARG_KEEPALIVE_TIMEOUT_MS, 10000);
+          channelArguments.SetInt(GRPC_ARG_KEEPALIVE_PERMIT_WITHOUT_CALLS, 1);
+          channelCredentials = mTlsChannelCredentials;
+        }
+
+        break;
+      }
+
+      case TLSBehavior::DISABLE:
+      {
+        if (NodeAddress::isNonTlsPort(endpoint->getPort()))
+        {
+          channelCredentials = grpc::InsecureChannelCredentials();
+        }
+
+        break;
+      }
+
+      default:
+      {
+        continue;
+      }
+    }
+
+    if (channelCredentials)
+    {
+      shutdown();
+
+      mChannel = grpc::CreateCustomChannel(endpoint->toString(), channelCredentials, channelArguments);
+
+      if (mChannel->WaitForConnected(deadline))
+      {
+        mConsensusStub = proto::ConsensusService::NewStub(mChannel);
+        mCryptoStub = proto::CryptoService::NewStub(mChannel);
+        mFileStub = proto::FileService::NewStub(mChannel);
+        mFreezeStub = proto::FreezeService::NewStub(mChannel);
+        mNetworkStub = proto::NetworkService::NewStub(mChannel);
+        mScheduleStub = proto::ScheduleService::NewStub(mChannel);
+        mSmartContractStub = proto::SmartContractService::NewStub(mChannel);
+        mTokenStub = proto::TokenService::NewStub(mChannel);
+        mIsInitialized = true;
+
+        return true;
+      }
+      else
+      {
+        mChannel = nullptr;
+      }
+    }
+    else
+    {
+      channelCredentials = nullptr;
+    }
+  }
+
+  return false;
+>>>>>>> main
 }
 
 } // namespace Hedera::internal

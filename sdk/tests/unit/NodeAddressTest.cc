@@ -18,10 +18,12 @@
  *
  */
 #include "impl/NodeAddress.h"
+<<<<<<< HEAD
 #include "AccountId.h"
 #include "exceptions/IllegalStateException.h"
+=======
+>>>>>>> main
 #include "impl/Endpoint.h"
-#include "impl/HexConverter.h"
 #include "impl/IPv4Address.h"
 #include "impl/Utilities.h"
 
@@ -77,12 +79,26 @@ TEST_F(NodeAddressTest, FromProtobuf)
   const NodeAddress nodeAddress = NodeAddress::fromProtobuf(protoNodeAddress);
 
   // Then
+<<<<<<< HEAD
   EXPECT_EQ(nodeAddress.getEndpoints().size(), getTestEndpoints().size());
   EXPECT_EQ(nodeAddress.getPublicKey(), getTestPublicKey());
   EXPECT_EQ(nodeAddress.getNodeId(), getTestNodeId());
   EXPECT_EQ(nodeAddress.getAccountId(), getTestAccountId());
   EXPECT_EQ(nodeAddress.getCertHash(), getTestCertHash());
   EXPECT_EQ(nodeAddress.getDescription(), getTestDescription());
+=======
+  EXPECT_TRUE(nodeAddress.isTlsPort(testPortTLS));
+  EXPECT_FALSE(nodeAddress.isNonTlsPort(testPortTLS));
+  EXPECT_EQ(nodeAddress.getNodeId(), -1);
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mShardNum, 0ULL);
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mRealmNum, 0ULL);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().mAccountNum.has_value());
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mPublicKeyAlias, nullptr);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().mEvmAddressAlias.has_value());
+  EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
+  EXPECT_TRUE(nodeAddress.getDescription().empty());
+  EXPECT_TRUE(nodeAddress.getEndpoints().empty());
+>>>>>>> main
 }
 
 //-----
@@ -121,7 +137,23 @@ TEST_F(NodeAddressTest, GetSetPublicKey)
   nodeAddress.setPublicKey(getTestPublicKey());
 
   // Then
+<<<<<<< HEAD
   EXPECT_EQ(nodeAddress.getPublicKey(), getTestPublicKey());
+=======
+  EXPECT_EQ(nodeAddress.getDefaultIpAddress().toString(), testIpAddressV4);
+  EXPECT_EQ(nodeAddress.getDefaultPort(), getTestPortTLS());
+  EXPECT_EQ(nodeAddress.getNodeId(), testNodeId);
+  EXPECT_EQ(nodeAddress.getPublicKey(), testRSAPublicKey);
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mShardNum, 0ULL);
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mRealmNum, 0ULL);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().mAccountNum.has_value());
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mPublicKeyAlias, nullptr);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().mEvmAddressAlias.has_value());
+  EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
+  EXPECT_FALSE(nodeAddress.getDescription().empty());
+  EXPECT_EQ(nodeAddress.getDescription(), testDescription);
+  EXPECT_FALSE(nodeAddress.getEndpoints().empty());
+>>>>>>> main
 }
 
 //-----
@@ -134,7 +166,22 @@ TEST_F(NodeAddressTest, GetSetNodeId)
   nodeAddress.setNodeId(getTestNodeId());
 
   // Then
+<<<<<<< HEAD
   EXPECT_EQ(nodeAddress.getNodeId(), getTestNodeId());
+=======
+  EXPECT_EQ(nodeAddress.getDefaultIpAddress().toString(), testIpAddressV4);
+  EXPECT_EQ(nodeAddress.getDefaultPort(), testPort);
+  EXPECT_EQ(nodeAddress.getNodeId(), -1);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().mEvmAddressAlias.has_value());
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mShardNum, 0ULL);
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mRealmNum, 0ULL);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().mAccountNum.has_value());
+  EXPECT_EQ(nodeAddress.getNodeAccountId().mPublicKeyAlias, nullptr);
+  EXPECT_FALSE(nodeAddress.getNodeAccountId().mEvmAddressAlias.has_value());
+  EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
+  EXPECT_TRUE(nodeAddress.getDescription().empty());
+  EXPECT_FALSE(nodeAddress.getEndpoints().empty());
+>>>>>>> main
 }
 
 //-----

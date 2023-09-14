@@ -92,8 +92,8 @@ TEST_F(TokenNftTransferTest, ProtobufTokenNftTransfer)
   tokenNftTransfer.setApproval(getTestIsApproval());
 
   std::unique_ptr<proto::NftTransfer> protoNftTransfer = tokenNftTransfer.toProtobuf();
-  EXPECT_EQ(protoNftTransfer->senderaccountid().accountnum(), getTestSenderAccountId().getAccountNum());
-  EXPECT_EQ(protoNftTransfer->receiveraccountid().accountnum(), getTestReceiverAccountId().getAccountNum());
+  EXPECT_EQ(protoNftTransfer->senderaccountid().accountnum(), getTestSenderAccountId().mAccountNum);
+  EXPECT_EQ(protoNftTransfer->receiveraccountid().accountnum(), getTestReceiverAccountId().mAccountNum);
   EXPECT_EQ(protoNftTransfer->serialnumber(), getTestNftId().getSerialNum());
   EXPECT_EQ(protoNftTransfer->is_approval(), getTestIsApproval());
 

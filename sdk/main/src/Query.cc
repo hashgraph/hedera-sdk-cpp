@@ -24,8 +24,12 @@
 #include "AccountInfoQuery.h"
 #include "AccountRecords.h"
 #include "AccountRecordsQuery.h"
+<<<<<<< HEAD
 #include "Client.h"
 #include "ContractByteCodeQuery.h"
+=======
+#include "AccountStakersQuery.h"
+>>>>>>> main
 #include "ContractCallQuery.h"
 #include "ContractFunctionResult.h"
 #include "ContractInfo.h"
@@ -33,7 +37,12 @@
 #include "FileContentsQuery.h"
 #include "FileInfo.h"
 #include "FileInfoQuery.h"
+<<<<<<< HEAD
 #include "Hbar.h"
+=======
+#include "NetworkVersionInfo.h"
+#include "NetworkVersionInfoQuery.h"
+>>>>>>> main
 #include "ScheduleInfo.h"
 #include "ScheduleInfoQuery.h"
 #include "Status.h"
@@ -290,11 +299,16 @@ void Query<SdkRequestType, SdkResponseType>::setNodeAccountIds(const Client& cli
 template class Query<AccountBalanceQuery, AccountBalance>;
 template class Query<AccountInfoQuery, AccountInfo>;
 template class Query<AccountRecordsQuery, AccountRecords>;
+<<<<<<< HEAD
 template class Query<ContractByteCodeQuery, ContractByteCode>;
+=======
+template class Query<AccountStakersQuery, AccountStakers>;
+>>>>>>> main
 template class Query<ContractCallQuery, ContractFunctionResult>;
 template class Query<ContractInfoQuery, ContractInfo>;
 template class Query<FileContentsQuery, FileContents>;
 template class Query<FileInfoQuery, FileInfo>;
+template class Query<NetworkVersionInfoQuery, NetworkVersionInfo>;
 template class Query<ScheduleInfoQuery, ScheduleInfo>;
 template class Query<TokenInfoQuery, TokenInfo>;
 template class Query<TokenNftInfoQuery, TokenNftInfo>;

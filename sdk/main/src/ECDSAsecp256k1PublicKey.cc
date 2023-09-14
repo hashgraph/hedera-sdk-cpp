@@ -448,4 +448,11 @@ ECDSAsecp256k1PublicKey::ECDSAsecp256k1PublicKey(internal::OpenSSLUtils::EVP_PKE
 {
 }
 
+//-----
+std::shared_ptr<PublicKey> ECDSAsecp256k1PublicKey::getShared() const
+{
+  return std::const_pointer_cast<ECDSAsecp256k1PublicKey>(
+    std::dynamic_pointer_cast<const ECDSAsecp256k1PublicKey>(shared_from_this()));
+}
+
 } // namespace Hedera
