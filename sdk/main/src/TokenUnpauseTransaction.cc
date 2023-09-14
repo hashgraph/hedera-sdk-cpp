@@ -31,17 +31,15 @@ namespace Hedera
 TokenUnpauseTransaction::TokenUnpauseTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenUnpauseTransaction>(transactionBody)
 {
-  if (!transactionBody.has_token_unpause())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenUnpause data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenUnpauseTransactionBody& body = transactionBody.token_unpause();
-
-  if (body.has_token())
-  {
-    mTokenId = TokenId::fromProtobuf(body.token());
-  }
+//-----
+TokenUnpauseTransaction::TokenUnpauseTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenUnpauseTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -53,26 +51,36 @@ TokenUnpauseTransaction& TokenUnpauseTransaction::setTokenId(const TokenId& toke
 }
 
 //-----
-proto::Transaction TokenUnpauseTransaction::makeRequest(const Client& client,
-                                                        const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenUnpauseTransaction::submitRequest(const Client& client,
-                                                    const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenUnpauseTransaction::submitRequest(const proto::Transaction& request,
                                                     const std::shared_ptr<internal::Node>& node,
+                                                    const std::chrono::system_clock::time_point& deadline,
                                                     proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenUnpause, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenUnpause, request, deadline, response);
 }
 
 //-----
 void TokenUnpauseTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_token_unpause(build());
+}
+
+//-----
+void TokenUnpauseTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_token_unpause())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenUnpause data");
+  }
+
+  const proto::TokenUnpauseTransactionBody& body = transactionBody.token_unpause();
+
+  if (body.has_token())
+  {
+    mTokenId = TokenId::fromProtobuf(body.token());
+  }
 }
 
 //-----

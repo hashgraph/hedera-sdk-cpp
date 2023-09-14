@@ -18,10 +18,7 @@
  *
  */
 #include "ContractCallQuery.h"
-#include "Client.h"
 #include "ContractFunctionResult.h"
-#include "Status.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
@@ -67,55 +64,43 @@ ContractCallQuery& ContractCallQuery::setSenderAccountId(const AccountId& accoun
 }
 
 //-----
-proto::Query ContractCallQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::ContractCallLocalQuery* callLocalQuery = query.mutable_contractcalllocal();
-
-  proto::QueryHeader* header = callLocalQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  callLocalQuery->set_allocated_contractid(mContractId.toProtobuf().release());
-  callLocalQuery->set_gas(static_cast<int64_t>(mGas));
-  callLocalQuery->set_allocated_functionparameters(
-    new std::string(internal::Utilities::byteVectorToString(mFunctionParameters)));
-
-  if (mSenderAccountId.has_value())
-  {
-    callLocalQuery->set_allocated_sender_id(mSenderAccountId->toProtobuf().release());
-  }
-
-  return query;
-}
-
-//-----
 ContractFunctionResult ContractCallQuery::mapResponse(const proto::Response& response) const
 {
   return ContractFunctionResult::fromProtobuf(response.contractcalllocal().functionresult());
 }
 
 //-----
-Status ContractCallQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status ContractCallQuery::submitRequest(const proto::Query& request,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.contractcalllocal().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kContractCallLocal, request, deadline, response);
 }
 
 //-----
-grpc::Status ContractCallQuery::submitRequest(const Client& client,
-                                              const std::chrono::system_clock::time_point& deadline,
-                                              const std::shared_ptr<internal::Node>& node,
-                                              proto::Response* response) const
+proto::Query ContractCallQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(proto::Query::QueryCase::kContractCallLocal, makeRequest(client, node), deadline, response);
+  auto contractCallQuery = std::make_unique<proto::ContractCallLocalQuery>();
+  contractCallQuery->set_allocated_header(header);
+  contractCallQuery->set_allocated_contractid(mContractId.toProtobuf().release());
+  contractCallQuery->set_gas(static_cast<int64_t>(mGas));
+  contractCallQuery->set_functionparameters(internal::Utilities::byteVectorToString(mFunctionParameters));
+
+  if (mSenderAccountId.has_value())
+  {
+    contractCallQuery->set_allocated_sender_id(mSenderAccountId->toProtobuf().release());
+  }
+
+  proto::Query query;
+  query.set_allocated_contractcalllocal(contractCallQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader ContractCallQuery::mapResponseHeader(const proto::Response& response) const
+{
+  return response.contractcalllocal().header();
 }
 
 } // namespace Hedera

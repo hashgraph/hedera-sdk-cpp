@@ -18,12 +18,10 @@
  *
  */
 #include "impl/NodeAddress.h"
-#include "exceptions/IllegalStateException.h"
 #include "impl/HexConverter.h"
 #include "impl/IPv4Address.h"
 #include "impl/Utilities.h"
 
-#include <charconv>
 #include <iomanip>
 #include <memory>
 #include <proto/basic_types.pb.h>
@@ -32,26 +30,13 @@
 namespace Hedera::internal
 {
 //-----
-NodeAddress::NodeAddress(std::string_view ipAddressV4, int port)
-{
-  mEndpoints.push_back(std::make_shared<Endpoint>(IPv4Address::fromString(ipAddressV4), port));
-}
-
-//-----
 NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
 {
   NodeAddress outputNodeAddress;
 
   for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
   {
-    Endpoint endpoint = Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i));
-    outputNodeAddress.mEndpoints.push_back(std::make_shared<Endpoint>(endpoint));
-  }
-
-  if (protoNodeAddress.ipaddress().length() != 0)
-  {
-    outputNodeAddress.mEndpoints.emplace_back(
-      std::make_shared<Endpoint>(IPv4Address::fromString(protoNodeAddress.ipaddress()), protoNodeAddress.portno()));
+    outputNodeAddress.mEndpoints.push_back(Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
   }
 
   outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
@@ -59,30 +44,71 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
   outputNodeAddress.mNodeAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
   outputNodeAddress.mNodeCertHash = Utilities::stringToByteVector(protoNodeAddress.nodecerthash());
   outputNodeAddress.mDescription = protoNodeAddress.description();
-  outputNodeAddress.mStake = protoNodeAddress.stake();
 
   return outputNodeAddress;
 }
 
 //-----
-NodeAddress NodeAddress::fromString(std::string_view nodeAddress)
+std::unique_ptr<proto::NodeAddress> NodeAddress::toProtobuf() const
 {
-  const size_t colonIndex = nodeAddress.find(':');
-  if (colonIndex == std::string::npos)
+  auto protoNodeAddress = std::make_unique<proto::NodeAddress>();
+  protoNodeAddress->set_rsa_pubkey(mRSAPublicKey);
+  protoNodeAddress->set_nodeid(mNodeId);
+  protoNodeAddress->set_allocated_nodeaccountid(mNodeAccountId.toProtobuf().release());
+  protoNodeAddress->set_nodecerthash(Utilities::byteVectorToString(mNodeCertHash));
+  protoNodeAddress->set_description(mDescription);
+
+  for (const auto& endpoint : mEndpoints)
   {
-    throw std::invalid_argument("Input node address is malformed");
+    *protoNodeAddress->add_serviceendpoint() = *endpoint.toProtobuf();
   }
 
-  const std::string_view ipAddressV4 = nodeAddress.substr(0, colonIndex);
-  const std::string_view portStr = nodeAddress.substr(colonIndex + 1, nodeAddress.size() - colonIndex - 1);
-  int port;
-  if (const auto result = std::from_chars(portStr.data(), portStr.data() + portStr.size(), port);
-      result.ptr != portStr.data() + portStr.size() || result.ec != std::errc{})
+  return protoNodeAddress;
+}
+
+//-----
+std::string NodeAddress::toString() const
+{
+  std::stringstream outputStream;
+
+  int columnWidth = 20;
+  outputStream << std::setw(columnWidth) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mNodeAccountId.toString()
+               << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left
+               << HexConverter::bytesToHex(mNodeCertHash) << std::endl;
+  outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
+
+  if (size_t endpointCount = mEndpoints.size(); !endpointCount)
   {
-    throw std::invalid_argument("Input node address is malformed");
+    outputStream << "<None>";
+  }
+  else
+  {
+    int counter = 0;
+    for (const auto& endpoint : mEndpoints)
+    {
+      if (counter == 0)
+      {
+        outputStream << endpoint.toString();
+      }
+      else
+      {
+        outputStream << std::setw(columnWidth) << endpoint.toString();
+      }
+
+      ++counter;
+
+      if (counter != endpointCount)
+      {
+        outputStream << std::endl;
+      }
+    }
   }
 
-  return { ipAddressV4, port };
+  return outputStream.str();
 }
 
 //-----
@@ -114,7 +140,7 @@ NodeAddress& NodeAddress::setNodeCertHash(std::string_view certHash)
 }
 
 //-----
-NodeAddress& NodeAddress::setEndpoints(const std::vector<std::shared_ptr<Endpoint>>& endpoints)
+NodeAddress& NodeAddress::setEndpoints(const std::vector<Endpoint>& endpoints)
 {
   mEndpoints = endpoints;
   return *this;
@@ -125,59 +151,6 @@ NodeAddress& NodeAddress::setDescription(std::string_view description)
 {
   mDescription = description;
   return *this;
-}
-
-//-----
-NodeAddress& NodeAddress::setStake(const uint64_t& stake)
-{
-  mStake = stake;
-  return *this;
-}
-
-//-----
-std::string NodeAddress::toString() const
-{
-  std::stringstream outputStream;
-
-  int columnWidth = 20;
-  outputStream << std::setw(columnWidth) << std::right << "NodeId: " << std::left << mNodeId << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "AccountId: " << std::left << mNodeAccountId.toString()
-               << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left
-               << HexConverter::bytesToHex(mNodeCertHash) << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "Stake: " << std::left << mStake << std::endl;
-  outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
-
-  if (size_t endpointCount = mEndpoints.size(); !endpointCount)
-  {
-    outputStream << "<None>";
-  }
-  else
-  {
-    int counter = 0;
-    for (const auto& endpoint : mEndpoints)
-    {
-      if (counter == 0)
-      {
-        outputStream << endpoint->toString();
-      }
-      else
-      {
-        outputStream << std::setw(columnWidth) << endpoint->toString();
-      }
-
-      ++counter;
-
-      if (counter != endpointCount)
-      {
-        outputStream << std::endl;
-      }
-    }
-  }
-
-  return outputStream.str();
 }
 
 } // namespace Hedera::internal

@@ -31,17 +31,15 @@ namespace Hedera
 ScheduleDeleteTransaction::ScheduleDeleteTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<ScheduleDeleteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_scheduledelete())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ScheduleDelete data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::ScheduleDeleteTransactionBody& body = transactionBody.scheduledelete();
-
-  if (body.has_scheduleid())
-  {
-    mScheduleId = ScheduleId::fromProtobuf(body.scheduleid());
-  }
+//-----
+ScheduleDeleteTransaction::ScheduleDeleteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<ScheduleDeleteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -53,26 +51,36 @@ ScheduleDeleteTransaction& ScheduleDeleteTransaction::setScheduleId(const Schedu
 }
 
 //-----
-proto::Transaction ScheduleDeleteTransaction::makeRequest(const Client& client,
-                                                          const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status ScheduleDeleteTransaction::submitRequest(const Client& client,
-                                                      const std::chrono::system_clock::time_point& deadline,
+grpc::Status ScheduleDeleteTransaction::submitRequest(const proto::Transaction& request,
                                                       const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
                                                       proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kScheduleDelete, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kScheduleDelete, request, deadline, response);
 }
 
 //-----
 void ScheduleDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_scheduledelete(build());
+}
+
+//-----
+void ScheduleDeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_scheduledelete())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ScheduleDelete data");
+  }
+
+  const proto::ScheduleDeleteTransactionBody& body = transactionBody.scheduledelete();
+
+  if (body.has_scheduleid())
+  {
+    mScheduleId = ScheduleId::fromProtobuf(body.scheduleid());
+  }
 }
 
 //-----

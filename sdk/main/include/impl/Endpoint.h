@@ -22,6 +22,9 @@
 
 #include "IPv4Address.h"
 
+#include <memory>
+#include <string>
+
 namespace proto
 {
 class ServiceEndpoint;
@@ -36,41 +39,56 @@ class Endpoint
 {
 public:
   /**
-   * Construct from an address and a port number.
+   * Construct an Endpoint object from a ServiceEndpoint protobuf object.
    *
-   * @param ipAddressV4 The IPv4 address of the endpoint.
-   * @param port        The port of the endpoint.
+   * @param proto The ServiceEndpoint protobuf object from which to construct an Endpoint object.
+   * @return The constructed Endpoint object.
    */
-  Endpoint(const IPv4Address& ipAddressV4, int port);
+  [[nodiscard]] static Endpoint fromProtobuf(const proto::ServiceEndpoint& protoServiceEndpoint);
 
   /**
-   * Create an Endpoint object from a ServiceEndpoint protobuf object.
+   * Construct a ServiceEndpoint protobuf object from this Endpoint object.
    *
-   * @param protoServiceEndpoint The ServiceEndpoint protobuf object from which to create an Endpoint object.
-   * @return The created Endpoint object.
+   * @return A pointer to the created ServiceEndpoint protobuf object filled with this Endpoint object's data.
    */
-  static Endpoint fromProtobuf(const proto::ServiceEndpoint& protoServiceEndpoint);
+  [[nodiscard]] std::unique_ptr<proto::ServiceEndpoint> toProtobuf() const;
 
   /**
-   * Get a string representation of the endpoint with the form <ip.add.re.ss>:<port>.
+   * Get a string representation of this Endpoint.
    *
-   * @return A string representation of the Endpoint.
+   * @return A string representation of this Endpoint.
    */
   [[nodiscard]] std::string toString() const;
 
   /**
-   * Get the IP address of the node.
+   * Set the IP address of this Endpoint.
    *
-   * @return The IP address (v4) of the node.
+   * @param address The IP address to set.
+   * @return A reference to this Endpoint with the newly-set IP address.
+   */
+  Endpoint& setAddress(const IPv4Address& address);
+
+  /**
+   * Set the port of this Endpoint.
+   *
+   * @param port The port to set.
+   * @return A reference to this Endpoint with the newly-set port.
+   */
+  Endpoint& setPort(unsigned int port);
+
+  /**
+   * Get the IP address of this Endpoint.
+   *
+   * @return The IP address of this Endpoint.
    */
   [[nodiscard]] inline IPv4Address getAddress() const { return mAddress; }
 
   /**
-   * Get the port of the Endpoint.
+   * Get the port of this Endpoint.
    *
-   * @return The port of the Endpoint.
+   * @return The port of this Endpoint.
    */
-  [[nodiscard]] inline int getPort() const { return mPort; }
+  [[nodiscard]] inline unsigned int getPort() const { return mPort; }
 
 private:
   /**
@@ -81,7 +99,7 @@ private:
   /**
    * The port of the Endpoint.
    */
-  int mPort;
+  unsigned int mPort = 0U;
 };
 
 } // namespace Hedera::internal

@@ -31,25 +31,17 @@ namespace Hedera
 {
 //-----
 TokenMintTransaction::TokenMintTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<TokenMintTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokenmint())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenMint data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenMintTransactionBody& body = transactionBody.tokenmint();
-
-  if (body.has_token())
-  {
-    mTokenId = TokenId::fromProtobuf(body.token());
-  }
-
-  mAmount = body.amount();
-
-  for (int i = 0; i < body.metadata_size(); ++i)
-  {
-    mMetadataList.push_back(internal::Utilities::stringToByteVector(body.metadata(i)));
-  }
+//-----
+TokenMintTransaction::TokenMintTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenMintTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -85,25 +77,43 @@ TokenMintTransaction& TokenMintTransaction::addMetadata(const std::vector<std::b
 }
 
 //-----
-proto::Transaction TokenMintTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenMintTransaction::submitRequest(const Client& client,
-                                                 const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenMintTransaction::submitRequest(const proto::Transaction& request,
                                                  const std::shared_ptr<internal::Node>& node,
+                                                 const std::chrono::system_clock::time_point& deadline,
                                                  proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenMint, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenMint, request, deadline, response);
 }
 
 //-----
 void TokenMintTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenmint(build());
+}
+
+//-----
+void TokenMintTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokenmint())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenMint data");
+  }
+
+  const proto::TokenMintTransactionBody& body = transactionBody.tokenmint();
+
+  if (body.has_token())
+  {
+    mTokenId = TokenId::fromProtobuf(body.token());
+  }
+
+  mAmount = body.amount();
+
+  for (int i = 0; i < body.metadata_size(); ++i)
+  {
+    mMetadataList.push_back(internal::Utilities::stringToByteVector(body.metadata(i)));
+  }
 }
 
 //-----

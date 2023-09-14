@@ -139,6 +139,15 @@ public:
    */
   [[nodiscard]] std::vector<std::byte> toBytesRaw() const override;
 
+  /**
+   * Derived from PublicKey. Serialize this ED25519PublicKey to a SignaturePair protobuf object with the given
+   * signature.
+   *
+   * @param signature The signature created by this ED25519PublicKey.
+   */
+  [[nodiscard]] std::unique_ptr<proto::SignaturePair> toSignaturePairProtobuf(
+    const std::vector<std::byte>& signature) const override;
+
 private:
   /**
    * Construct from a wrapped OpenSSL key object.

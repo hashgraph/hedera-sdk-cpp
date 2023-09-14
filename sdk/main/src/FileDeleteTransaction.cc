@@ -29,18 +29,17 @@ namespace Hedera
 {
 //-----
 FileDeleteTransaction::FileDeleteTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<FileDeleteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_filedelete())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain FileDelete data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::FileDeleteTransactionBody& body = transactionBody.filedelete();
-
-  if (body.has_fileid())
-  {
-    mFileId = FileId::fromProtobuf(body.fileid());
-  }
+//-----
+FileDeleteTransaction::FileDeleteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<FileDeleteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -52,26 +51,36 @@ FileDeleteTransaction& FileDeleteTransaction::setFileId(const FileId& fileId)
 }
 
 //-----
-proto::Transaction FileDeleteTransaction::makeRequest(const Client& client,
-                                                      const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status FileDeleteTransaction::submitRequest(const Client& client,
-                                                  const std::chrono::system_clock::time_point& deadline,
+grpc::Status FileDeleteTransaction::submitRequest(const proto::Transaction& request,
                                                   const std::shared_ptr<internal::Node>& node,
+                                                  const std::chrono::system_clock::time_point& deadline,
                                                   proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kFileDelete, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kFileDelete, request, deadline, response);
 }
 
 //-----
 void FileDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_filedelete(build());
+}
+
+//-----
+void FileDeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_filedelete())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain FileDelete data");
+  }
+
+  const proto::FileDeleteTransactionBody& body = transactionBody.filedelete();
+
+  if (body.has_fileid())
+  {
+    mFileId = FileId::fromProtobuf(body.fileid());
+  }
 }
 
 //-----

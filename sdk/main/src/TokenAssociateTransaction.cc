@@ -31,22 +31,15 @@ namespace Hedera
 TokenAssociateTransaction::TokenAssociateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenAssociateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokenassociate())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenAssociate data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenAssociateTransactionBody& body = transactionBody.tokenassociate();
-
-  if (body.has_account())
-  {
-    mAccountId = AccountId::fromProtobuf(body.account());
-  }
-
-  for (int i = 0; i < body.tokens_size(); ++i)
-  {
-    mTokenIds.push_back(TokenId::fromProtobuf(body.tokens(i)));
-  }
+//-----
+TokenAssociateTransaction::TokenAssociateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenAssociateTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -66,26 +59,41 @@ TokenAssociateTransaction& TokenAssociateTransaction::setTokenIds(const std::vec
 }
 
 //-----
-proto::Transaction TokenAssociateTransaction::makeRequest(const Client& client,
-                                                          const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenAssociateTransaction::submitRequest(const Client& client,
-                                                      const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenAssociateTransaction::submitRequest(const proto::Transaction& request,
                                                       const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
                                                       proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenAssociate, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenAssociate, request, deadline, response);
 }
 
 //-----
 void TokenAssociateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenassociate(build());
+}
+
+//-----
+void TokenAssociateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokenassociate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenAssociate data");
+  }
+
+  const proto::TokenAssociateTransactionBody& body = transactionBody.tokenassociate();
+
+  if (body.has_account())
+  {
+    mAccountId = AccountId::fromProtobuf(body.account());
+  }
+
+  for (int i = 0; i < body.tokens_size(); ++i)
+  {
+    mTokenIds.push_back(TokenId::fromProtobuf(body.tokens(i)));
+  }
 }
 
 //-----

@@ -18,11 +18,7 @@
  *
  */
 #include "AccountRecordsQuery.h"
-#include "AccountId.h"
 #include "AccountRecords.h"
-#include "Client.h"
-#include "TransactionRecord.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 
 #include <proto/crypto_get_account_records.pb.h>
@@ -40,48 +36,36 @@ AccountRecordsQuery& AccountRecordsQuery::setAccountId(const AccountId& accountI
 }
 
 //-----
-proto::Query AccountRecordsQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::CryptoGetAccountRecordsQuery* getAccountRecordsQuery = query.mutable_cryptogetaccountrecords();
-
-  proto::QueryHeader* header = getAccountRecordsQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getAccountRecordsQuery->set_allocated_accountid(mAccountId.toProtobuf().release());
-
-  return query;
-}
-
-//-----
 AccountRecords AccountRecordsQuery::mapResponse(const proto::Response& response) const
 {
   return AccountRecords::fromProtobuf(response.cryptogetaccountrecords());
 }
 
 //-----
-Status AccountRecordsQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status AccountRecordsQuery::submitRequest(const proto::Query& request,
+                                                const std::shared_ptr<internal::Node>& node,
+                                                const std::chrono::system_clock::time_point& deadline,
+                                                proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.cryptogetaccountrecords().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kCryptoGetAccountRecords, request, deadline, response);
 }
 
 //-----
-grpc::Status AccountRecordsQuery::submitRequest(const Client& client,
-                                                const std::chrono::system_clock::time_point& deadline,
-                                                const std::shared_ptr<internal::Node>& node,
-                                                proto::Response* response) const
+proto::Query AccountRecordsQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kCryptoGetAccountRecords, makeRequest(client, node), deadline, response);
+  auto accountRecordsQuery = std::make_unique<proto::CryptoGetAccountRecordsQuery>();
+  accountRecordsQuery->set_allocated_header(header);
+  accountRecordsQuery->set_allocated_accountid(mAccountId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_cryptogetaccountrecords(accountRecordsQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader AccountRecordsQuery::mapResponseHeader(const proto::Response& response) const
+{
+  return response.cryptogetaccountrecords().header();
 }
 
 } // namespace Hedera

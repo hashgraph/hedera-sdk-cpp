@@ -31,21 +31,15 @@ namespace Hedera
 EthereumTransaction::EthereumTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<EthereumTransaction>(transactionBody)
 {
-  if (!transactionBody.has_ethereumtransaction())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain EthereumTransaction data");
-  }
+  EthereumTransaction();
+}
 
-  const proto::EthereumTransactionBody& body = transactionBody.ethereumtransaction();
-
-  mEthereumData = internal::Utilities::stringToByteVector(body.ethereum_data());
-
-  if (body.has_call_data())
-  {
-    mCallDataFileId = FileId::fromProtobuf(body.call_data());
-  }
-
-  mMaxGasAllowance = Hbar(body.max_gas_allowance(), HbarUnit::TINYBAR());
+//-----
+EthereumTransaction::EthereumTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<EthereumTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -73,25 +67,40 @@ EthereumTransaction& EthereumTransaction::setMaxGasAllowance(const Hbar& maxGasA
 }
 
 //-----
-proto::Transaction EthereumTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status EthereumTransaction::submitRequest(const Client& client,
-                                                const std::chrono::system_clock::time_point& deadline,
+grpc::Status EthereumTransaction::submitRequest(const proto::Transaction& request,
                                                 const std::shared_ptr<internal::Node>& node,
+                                                const std::chrono::system_clock::time_point& deadline,
                                                 proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kEthereumTransaction, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kEthereumTransaction, request, deadline, response);
 }
 
 //-----
 void EthereumTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_ethereumtransaction(build());
+}
+
+//-----
+void EthereumTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_ethereumtransaction())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain EthereumTransaction data");
+  }
+
+  const proto::EthereumTransactionBody& body = transactionBody.ethereumtransaction();
+
+  mEthereumData = internal::Utilities::stringToByteVector(body.ethereum_data());
+
+  if (body.has_call_data())
+  {
+    mCallDataFileId = FileId::fromProtobuf(body.call_data());
+  }
+
+  mMaxGasAllowance = Hbar(body.max_gas_allowance(), HbarUnit::TINYBAR());
 }
 
 //-----

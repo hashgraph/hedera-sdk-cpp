@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <charconv>
 #include <iostream>
+#include <random>
 
 namespace Hedera::internal::Utilities
 {
@@ -90,6 +91,16 @@ std::string byteVectorToString(const std::vector<std::byte>& bytes)
   std::transform(
     bytes.cbegin(), bytes.cend(), std::back_inserter(str), [](std::byte byte) { return static_cast<char>(byte); });
   return str;
+}
+
+//-----
+unsigned int getRandomNumber(unsigned int lowerBound, unsigned int upperBound)
+{
+  static std::random_device rand;
+  static std::mt19937 eng(rand());
+
+  std::uniform_int_distribution dis(lowerBound, upperBound);
+  return dis(eng);
 }
 
 } // namespace Hedera::internal::Utilities

@@ -18,11 +18,7 @@
  *
  */
 #include "FileInfoQuery.h"
-#include "Client.h"
-#include "FileId.h"
 #include "FileInfo.h"
-#include "Status.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 
 #include <proto/file_get_info.pb.h>
@@ -40,47 +36,36 @@ FileInfoQuery& FileInfoQuery::setFileId(const FileId& fileId)
 }
 
 //-----
-proto::Query FileInfoQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::FileGetInfoQuery* getFileInfoQuery = query.mutable_filegetinfo();
-
-  proto::QueryHeader* header = getFileInfoQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getFileInfoQuery->set_allocated_fileid(mFileId.toProtobuf().release());
-
-  return query;
-}
-
-//-----
 FileInfo FileInfoQuery::mapResponse(const proto::Response& response) const
 {
   return FileInfo::fromProtobuf(response.filegetinfo().fileinfo());
 }
 
 //-----
-Status FileInfoQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status FileInfoQuery::submitRequest(const proto::Query& request,
+                                          const std::shared_ptr<internal::Node>& node,
+                                          const std::chrono::system_clock::time_point& deadline,
+                                          proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.filegetinfo().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kFileGetInfo, request, deadline, response);
 }
 
 //-----
-grpc::Status FileInfoQuery::submitRequest(const Client& client,
-                                          const std::chrono::system_clock::time_point& deadline,
-                                          const std::shared_ptr<internal::Node>& node,
-                                          proto::Response* response) const
+proto::Query FileInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(proto::Query::QueryCase::kFileGetInfo, makeRequest(client, node), deadline, response);
+  auto fileGetInfoQuery = std::make_unique<proto::FileGetInfoQuery>();
+  fileGetInfoQuery->set_allocated_header(header);
+  fileGetInfoQuery->set_allocated_fileid(mFileId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_filegetinfo(fileGetInfoQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader FileInfoQuery::mapResponseHeader(const proto::Response& response) const
+{
+  return response.filegetinfo().header();
 }
 
 } // namespace Hedera

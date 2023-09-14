@@ -86,9 +86,12 @@
 #include "TransactionRecordQuery.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "exceptions/IllegalStateException.h"
 #include "exceptions/MaxAttemptsExceededException.h"
 #include "exceptions/PrecheckStatusException.h"
+#include "impl/Network.h"
 #include "impl/Node.h"
+#include "impl/Utilities.h"
 
 #include <algorithm>
 #include <grpcpp/impl/codegen/status.h>
@@ -119,17 +122,14 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   setExecutionParameters(client);
   onExecute(client);
 
-  // The time to timeout
+  // Get the nodes associated with this Executable's node account IDs.
+  const std::vector<std::shared_ptr<internal::Node>> nodes = getNodesFromNodeAccountIds(client);
+
+  // The time to timeout.
   const std::chrono::system_clock::time_point timeoutTime =
     std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(timeout);
 
-  // The response object to fill
-  ProtoResponseType response;
-
-  // List of nodes to which this Executable may be sent
-  const std::vector<std::shared_ptr<internal::Node>> nodes = client.getNodesWithAccountIds(mNodeAccountIds);
-
-  for (uint32_t attempt = 1;; ++attempt)
+  for (unsigned int attempt = 0U;; ++attempt)
   {
     if (attempt > mCurrentMaxAttempts)
     {
@@ -137,7 +137,8 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
                                          std::to_string(mCurrentMaxAttempts));
     }
 
-    std::shared_ptr<internal::Node> node = getNodeForExecute(nodes);
+    const unsigned int nodeIndex = getNodeIndexForExecute(nodes, attempt);
+    const std::shared_ptr<internal::Node>& node = nodes.at(nodeIndex);
 
     // If the returned node is not healthy, then no nodes are healthy and the returned node has the shortest remaining
     // delay. Sleep for the delay period.
@@ -147,15 +148,18 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     }
 
     // Make sure the Node is connected. If it can't connect, mark this Node as unhealthy and try another Node.
-    if (!node->connect(timeoutTime))
+    if (node->channelFailedToConnect())
     {
       node->increaseBackoff();
       continue;
     }
 
-    // Do node specific tasks
-    onSelectNode(node);
-    const grpc::Status status = submitRequest(client, timeoutTime, node, &response);
+    // Create the request based on the index of the node being used.
+    const ProtoRequestType request = makeRequest(nodeIndex);
+
+    // Submit the request and get the response.
+    ProtoResponseType response;
+    const grpc::Status status = submitRequest(request, node, timeoutTime, &response);
 
     // Increase backoff for this node but try submitting again for UNAVAILABLE, RESOURCE_EXHAUSTED, and INTERNAL
     // responses.
@@ -244,15 +248,6 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
-void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::onSelectNode(
-  const std::shared_ptr<internal::Node>& node)
-{
-  node->setMinBackoff(mCurrentMinBackoff);
-  node->setMaxBackoff(mCurrentMaxBackoff);
-}
-
-//-----
-template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 typename Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::ExecutionStatus
 Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::determineStatus(
   Status status,
@@ -293,36 +288,84 @@ void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponse
 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
-std::shared_ptr<internal::Node>
-Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::getNodeForExecute(
-  const std::vector<std::shared_ptr<internal::Node>>& nodes) const
+std::vector<std::shared_ptr<internal::Node>>
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::getNodesFromNodeAccountIds(
+  const Client& client) const
 {
-  // Keep track of the best candidate node and its delay.
-  std::shared_ptr<internal::Node> candidateNode = nullptr;
+  std::vector<std::shared_ptr<internal::Node>> nodes;
+
+  // If only a single node is explicitly set, still return all the proxies for that node. It's possible the node itself
+  // still works but something could be wrong with the proxy, in which case trying a different proxy would work.
+  if (mNodeAccountIds.size() == 1)
+  {
+    nodes = client.getNetwork()->getNodeProxies(*mNodeAccountIds.cbegin());
+
+    // Still verify the node account ID mapped to a valid Node.
+    if (nodes.empty())
+    {
+      throw IllegalStateException("Node account ID " + mNodeAccountIds.cbegin()->toString() +
+                                  " did not map to a valid node in the input Client's network.");
+    }
+
+    return nodes;
+  }
+
+  // If there are multiple nodes, this Executable should simply try a different node instead of a different proxy on the
+  // same node.
+  for (const AccountId& accountId : mNodeAccountIds)
+  {
+    const std::vector<std::shared_ptr<internal::Node>> nodeProxies = client.getNetwork()->getNodeProxies(accountId);
+
+    // Verify the node account ID mapped to a valid Node.
+    if (nodes.empty())
+    {
+      throw IllegalStateException("Node account ID " + accountId.toString() +
+                                  " did not map to a valid node in the input Client's network.");
+    }
+
+    // Pick a random proxy from the proxy list to add to the node list.
+    nodes.push_back(
+      nodeProxies.at(internal::Utilities::getRandomNumber(0U, static_cast<unsigned int>(nodeProxies.size()) - 1U)));
+  }
+
+  return nodes;
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+unsigned int Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::getNodeIndexForExecute(
+  const std::vector<std::shared_ptr<internal::Node>>& nodes,
+  unsigned int attempt) const
+{
+  // Keep track of the best candidate node and its delay (initialize to make compiler happy, but this should never be
+  // returned without being provided an actual legitimate value).
+  unsigned int candidateNodeIndex = -1U;
   std::chrono::duration<double> candidateDelay(std::numeric_limits<int64_t>::max());
 
-  for (const auto& node : nodes)
+  // Start looking at nodes at the attempt index, but wrap if there's been more attempts than nodes.
+  for (unsigned int i = attempt % nodes.size(); i < nodes.size(); ++i)
   {
+    const std::shared_ptr<internal::Node>& node = nodes.at(i);
     if (!node->isHealthy())
     {
       // Mark this the candidate node if it has the smaller delay than the previous candidate.
       const std::chrono::duration<double> backoffTime = node->getRemainingTimeForBackoff();
       if (backoffTime < candidateDelay)
       {
-        candidateNode = node;
+        candidateNodeIndex = i;
         candidateDelay = backoffTime;
       }
     }
 
-    // If this node is healthy, then return it.
+    // If this node is healthy, then its usable.
     else
     {
-      return node;
+      return i;
     }
   }
 
-  // No nodes are healthy, return the one with the smallest delay.
-  return candidateNode;
+  // No nodes are healthy, return the index of the one with the smallest delay.
+  return candidateNodeIndex;
 }
 
 /**

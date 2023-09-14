@@ -20,55 +20,36 @@
 #include "impl/IPv4Address.h"
 #include "impl/Utilities.h"
 
-#include <charconv>
-#include <iostream>
-#include <vector>
+#include <algorithm>
 
 namespace Hedera::internal
 {
-IPv4Address::IPv4Address(std::byte octet1, std::byte octet2, std::byte octet3, std::byte octet4)
-  : mOctet1(octet1)
-  , mOctet2(octet2)
-  , mOctet3(octet3)
-  , mOctet4(octet4)
+//-----
+IPv4Address IPv4Address::fromBytes(const std::vector<std::byte>& bytes)
 {
+  if (bytes.size() != 4)
+  {
+    throw std::invalid_argument("Incorrect byte array size, should be 4 bytes but is " + std::to_string(bytes.size()));
+  }
+
+  IPv4Address iPv4Address;
+  std::copy(bytes.cbegin(), bytes.cend(), iPv4Address.mAddress.begin());
+  return iPv4Address;
 }
 
-IPv4Address IPv4Address::fromString(std::string_view address)
+//-----
+std::vector<std::byte> IPv4Address::toBytes() const
 {
-  // The input string is in byte format, where each byte represents a single IP address octet.
-  if (address.size() == 4)
-  {
-    const std::vector<std::byte> byteVector = Utilities::stringToByteVector(address);
-    return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
-  }
-
-  try
-  {
-    std::vector<std::byte> byteVector;
-    std::string_view octet;
-    for (int i = 0; i < 3; ++i)
-    {
-      octet = address.substr(0, address.find_first_of('.'));
-      byteVector.push_back(Utilities::stringToByte(octet));
-      address.remove_prefix(octet.size() + 1);
-    }
-
-    byteVector.push_back(Utilities::stringToByte(address));
-    return { byteVector.at(0), byteVector.at(1), byteVector.at(2), byteVector.at(3) };
-  }
-  catch (const std::exception&)
-  {
-    throw std::invalid_argument("Input IPv4Address is malformed");
-  }
+  return { mAddress.at(0), mAddress.at(1), mAddress.at(2), mAddress.at(3) };
 }
 
+//-----
 std::string IPv4Address::toString() const
 {
-  return std::to_string(std::to_integer<unsigned char>(mOctet1)) + '.' +
-         std::to_string(std::to_integer<unsigned char>(mOctet2)) + '.' +
-         std::to_string(std::to_integer<unsigned char>(mOctet3)) + '.' +
-         std::to_string(std::to_integer<unsigned char>(mOctet4));
+  return std::to_string(std::to_integer<unsigned char>(mAddress.at(0))) + '.' +
+         std::to_string(std::to_integer<unsigned char>(mAddress.at(1))) + '.' +
+         std::to_string(std::to_integer<unsigned char>(mAddress.at(2))) + '.' +
+         std::to_string(std::to_integer<unsigned char>(mAddress.at(3)));
 }
 
 } // namespace Hedera::internal

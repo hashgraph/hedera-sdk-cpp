@@ -67,6 +67,15 @@ public:
   explicit TokenRevokeKycTransaction(const proto::TransactionBody& transactionBody);
 
   /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
+   */
+  explicit TokenRevokeKycTransaction(
+    const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
+
+  /**
    * Set the ID of the account to have its KYC revoked for this token.
    *
    * @param accountId The ID of the account to have its KYC revoked for this token.
@@ -102,30 +111,19 @@ private:
   friend class WrappedTransaction;
 
   /**
-   * Derived from Executable. Construct a Transaction protobuf object from this TokenRevokeKycTransaction object.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this TokenRevokeKycTransaction's data
+   * to a Node.
    *
-   * @param client The Client trying to construct this TokenRevokeKycTransaction.
-   * @param node   The Node to which this TokenRevokeKycTransaction will be sent. This is unused.
-   * @return A Transaction protobuf object filled with this TokenRevokeKycTransaction object's data.
-   * @throws UninitializedException If the input client has no operator with which to sign this
-   *                                TokenRevokeKycTransaction.
-   */
-  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
-
-  /**
-   * Derived from Executable. Submit this TokenRevokeKycTransaction to a Node.
-   *
-   * @param client   The Client submitting this TokenRevokeKycTransaction.
-   * @param deadline The deadline for submitting this TokenRevokeKycTransaction.
-   * @param node     Pointer to the Node to which this TokenRevokeKycTransaction should be submitted.
-   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
-   *                 information from the gRPC server.
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
                                            const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
                                            proto::TransactionResponse* response) const override;
   /**
    * Derived from Transaction. Build and add the TokenRevokeKycTransaction protobuf representation to the Transaction
@@ -134,6 +132,11 @@ private:
    * @param body The TransactionBody protobuf object being built.
    */
   void addToBody(proto::TransactionBody& body) const override;
+
+  /**
+   * Initialize this TokenRevokeKycTransaction from its source TransactionBody protobuf object.
+   */
+  void initFromSourceTransactionBody();
 
   /**
    * Build a TokenRevokeKycTransactionBody protobuf object from this TokenRevokeKycTransaction object.

@@ -19,94 +19,25 @@
  */
 #include "impl/Node.h"
 #include "exceptions/UninitializedException.h"
+#include "impl/BaseNodeAddress.h"
 #include "impl/HederaCertificateVerifier.h"
 
 #include <algorithm>
-#include <grpcpp/create_channel.h>
 #include <utility>
 
 namespace Hedera::internal
 {
 //-----
-Node::Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls)
-  : mAddress(std::move(address))
+Node::Node(AccountId accountId, const BaseNodeAddress& address)
+  : BaseNode<Node, AccountId>(address)
+  , mAccountId(std::move(accountId))
 {
-  // In order to use TLS, a node certificate chain must be provided
-  if (tls == TLSBehavior::REQUIRE && mAddress->getNodeCertHash().empty())
-  {
-    throw UninitializedException("NodeAddress has empty certificate chain hash for TLS connection");
-  }
-
-  grpc::experimental::TlsChannelCredentialsOptions tlsChannelCredentialsOptions;
-
-  // Custom verification using the node's certificate chain hash
-  tlsChannelCredentialsOptions.set_verify_server_certs(false);
-  tlsChannelCredentialsOptions.set_check_call_host(false);
-  tlsChannelCredentialsOptions.set_certificate_verifier(
-    grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>(mAddress->getNodeCertHash()));
-
-  // Feed in the root CA's file manually for Windows (this is a bug in the gRPC implementation and says here
-  // https://deploy-preview-763--grpc-io.netlify.app/docs/guides/auth/#using-client-side-ssltls that this needs to be
-  // specified manually).
-#ifdef _WIN32
-  tlsChannelCredentialsOptions.set_certificate_provider(
-    std::make_shared<grpc::experimental::FileWatcherCertificateProvider>("roots.pem", -1));
-  tlsChannelCredentialsOptions.watch_root_certs();
-#endif
-
-  mTlsChannelCredentials = grpc::experimental::TlsCredentials(tlsChannelCredentialsOptions);
 }
 
 //-----
-bool Node::connect(const std::chrono::system_clock::time_point& timeout)
+Node::Node(const AccountId& accountId, std::string_view address)
+  : Node(accountId, BaseNodeAddress::fromString(address))
 {
-  return mIsInitialized || initializeChannel(timeout);
-}
-
-//-----
-void Node::shutdown()
-{
-  if (mConsensusStub)
-  {
-    mConsensusStub.reset();
-  }
-
-  if (mCryptoStub)
-  {
-    mCryptoStub.reset();
-  }
-
-  if (mScheduleStub)
-  {
-    mScheduleStub.reset();
-  }
-
-  if (mSmartContractStub)
-  {
-    mSmartContractStub.reset();
-  }
-
-  if (mFileStub)
-  {
-    mFileStub.reset();
-  }
-
-  if (mFreezeStub)
-  {
-    mFreezeStub.reset();
-  }
-
-  if (mTokenStub)
-  {
-    mTokenStub.reset();
-  }
-
-  if (mChannel)
-  {
-    mChannel.reset();
-  }
-
-  mIsInitialized = false;
 }
 
 //-----
@@ -115,11 +46,6 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
                                const std::chrono::system_clock::time_point& deadline,
                                proto::Response* response)
 {
-  if (!connect(deadline))
-  {
-    return grpc::Status::CANCELLED;
-  }
-
   grpc::ClientContext context;
   context.set_deadline(deadline);
 
@@ -169,11 +95,6 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
                                      const std::chrono::system_clock::time_point& deadline,
                                      proto::TransactionResponse* response)
 {
-  if (!connect(deadline))
-  {
-    return grpc::Status::CANCELLED;
-  }
-
   grpc::ClientContext context;
   context.set_deadline(deadline);
 
@@ -270,135 +191,87 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
 }
 
 //-----
-void Node::setTLSBehavior(TLSBehavior desiredBehavior)
+std::shared_ptr<Node> Node::toInsecure() const
 {
-  if (desiredBehavior == mTLSBehavior)
-  {
-    return;
-  }
-
-  // In order to use TLS, a node certificate chain must be provided
-  if (desiredBehavior == TLSBehavior::REQUIRE && mAddress->getNodeCertHash().empty())
-  {
-    throw UninitializedException("NodeAddress has empty certificate chain hash for TLS connection");
-  }
-
-  mTLSBehavior = desiredBehavior;
-  shutdown();
+  return std::make_shared<Node>(Node(*this, getAddress().toInsecure()));
 }
 
 //-----
-void Node::setMinBackoff(const std::chrono::duration<double>& backoff)
+std::shared_ptr<Node> Node::toSecure() const
 {
-  mMinBackoff = backoff;
+  return std::make_shared<Node>(Node(*this, getAddress().toSecure()));
 }
 
 //-----
-void Node::setMaxBackoff(const std::chrono::duration<double>& backoff)
+Node& Node::setNodeCertificateHash(const std::vector<std::byte>& hash)
 {
-  mMaxBackoff = backoff;
+  mNodeCertificateHash = hash;
+  return *this;
 }
 
 //-----
-bool Node::isHealthy() const
+Node& Node::setVerifyCertificates(bool verify)
 {
-  return mReadmitTime < std::chrono::system_clock::now();
+  mVerifyCertificates = verify;
+  return *this;
 }
 
 //-----
-void Node::increaseBackoff()
+Node::Node(const Node& node, const BaseNodeAddress& address)
+  : BaseNode<Node, AccountId>(address)
+  , mAccountId(node.mAccountId)
+  , mNodeCertificateHash(node.mNodeCertificateHash)
+  , mVerifyCertificates(node.mVerifyCertificates)
 {
-  mReadmitTime =
-    std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(mCurrentBackoff);
-  mCurrentBackoff = std::min(mCurrentBackoff * 2, mMaxBackoff);
 }
 
 //-----
-void Node::decreaseBackoff()
+std::shared_ptr<grpc::ChannelCredentials> Node::getTlsChannelCredentials() const
 {
-  mCurrentBackoff /= 2.0;
-  mCurrentBackoff = std::max(mCurrentBackoff / 2.0, mMinBackoff);
+  grpc::experimental::TlsChannelCredentialsOptions tlsChannelCredentialsOptions;
+
+  // Custom verification using the node's certificate chain hash
+  tlsChannelCredentialsOptions.set_verify_server_certs(false);
+  tlsChannelCredentialsOptions.set_check_call_host(false);
+  tlsChannelCredentialsOptions.set_certificate_verifier(
+    grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>(mNodeCertificateHash));
+
+  // Feed in the root CA's file manually for Windows (this is a bug in the gRPC implementation and says here
+  // https://deploy-preview-763--grpc-io.netlify.app/docs/guides/auth/#using-client-side-ssltls that this needs to be
+  // specified manually).
+#ifdef _WIN32
+  tlsChannelCredentialsOptions.set_certificate_provider(
+    std::make_shared<grpc::experimental::FileWatcherCertificateProvider>("roots.pem", -1));
+  tlsChannelCredentialsOptions.watch_root_certs();
+#endif
+
+  return grpc::experimental::TlsCredentials(tlsChannelCredentialsOptions);
 }
 
 //-----
-std::chrono::duration<double> Node::getRemainingTimeForBackoff() const
+void Node::initializeStubs(const std::shared_ptr<grpc::Channel>& channel)
 {
-  return mReadmitTime - std::chrono::system_clock::now();
+  // clang-format off
+  if (!mConsensusStub)     mConsensusStub = proto::ConsensusService::NewStub(channel);
+  if (!mCryptoStub)        mCryptoStub = proto::CryptoService::NewStub(channel);
+  if (!mFileStub)          mFileStub = proto::FileService::NewStub(channel);
+  if (!mFreezeStub)        mFreezeStub = proto::FreezeService::NewStub(channel);
+  if (!mScheduleStub)      mScheduleStub = proto::ScheduleService::NewStub(channel);
+  if (!mSmartContractStub) mSmartContractStub = proto::SmartContractService::NewStub(channel);
+  if (!mTokenStub)         mTokenStub = proto::TokenService::NewStub(channel);
+  // clang-format on
 }
 
 //-----
-bool Node::initializeChannel(const std::chrono::system_clock::time_point& deadline)
+void Node::closeStubs()
 {
-  const std::vector<std::shared_ptr<Endpoint>> endpoints = mAddress->getEndpoints();
-
-  std::shared_ptr<grpc::ChannelCredentials> channelCredentials = nullptr;
-
-  grpc::ChannelArguments channelArguments;
-  channelArguments.SetInt(GRPC_ARG_ENABLE_RETRIES, 0);
-
-  for (const auto& endpoint : endpoints)
-  {
-    switch (mTLSBehavior)
-    {
-      case TLSBehavior::REQUIRE:
-      {
-        if (NodeAddress::isTlsPort(endpoint->getPort()))
-        {
-          channelArguments.SetInt(GRPC_ARG_KEEPALIVE_TIMEOUT_MS, 10000);
-          channelArguments.SetInt(GRPC_ARG_KEEPALIVE_PERMIT_WITHOUT_CALLS, 1);
-          channelCredentials = mTlsChannelCredentials;
-        }
-
-        break;
-      }
-
-      case TLSBehavior::DISABLE:
-      {
-        if (NodeAddress::isNonTlsPort(endpoint->getPort()))
-        {
-          channelCredentials = grpc::InsecureChannelCredentials();
-        }
-
-        break;
-      }
-
-      default:
-      {
-        continue;
-      }
-    }
-
-    if (channelCredentials)
-    {
-      shutdown();
-
-      mChannel = grpc::CreateCustomChannel(endpoint->toString(), channelCredentials, channelArguments);
-
-      if (mChannel->WaitForConnected(deadline))
-      {
-        mConsensusStub = proto::ConsensusService::NewStub(mChannel);
-        mCryptoStub = proto::CryptoService::NewStub(mChannel);
-        mFileStub = proto::FileService::NewStub(mChannel);
-        mFreezeStub = proto::FreezeService::NewStub(mChannel);
-        mScheduleStub = proto::ScheduleService::NewStub(mChannel);
-        mSmartContractStub = proto::SmartContractService::NewStub(mChannel);
-        mTokenStub = proto::TokenService::NewStub(mChannel);
-        mIsInitialized = true;
-
-        return true;
-      }
-      else
-      {
-        mChannel = nullptr;
-      }
-    }
-    else
-    {
-      channelCredentials = nullptr;
-    }
-  }
-
-  return false;
+  mConsensusStub = nullptr;
+  mCryptoStub = nullptr;
+  mFileStub = nullptr;
+  mFreezeStub = nullptr;
+  mScheduleStub = nullptr;
+  mSmartContractStub = nullptr;
+  mTokenStub = nullptr;
 }
 
 } // namespace Hedera::internal

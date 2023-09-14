@@ -20,65 +20,46 @@
 #ifndef HEDERA_SDK_CPP_IMPL_IPV4_ADDRESS_H_
 #define HEDERA_SDK_CPP_IMPL_IPV4_ADDRESS_H_
 
+#include <array>
 #include <string>
 #include <string_view>
 
 namespace Hedera::internal
 {
 /**
- * An IPv4 address (without port)
+ * An IPv4 address (without port).
  */
 class IPv4Address
 {
 public:
-  IPv4Address() = default;
-
   /**
-   * Constructor with four octets.
+   * Construct an IPv4Address object from a byte array.
    *
-   * @param octet1 The first octet.
-   * @param octet2 The second octet.
-   * @param octet3 The third octet.
-   * @param octet4 The fourth octet.
+   * @param bytes The byte array from which to construct an IPv4Address.
+   * @return The constructed IPv4Address object.
+   * @throws std::invalid_argument If an IPv4Address could not be realized from the input bytes.
    */
-  IPv4Address(std::byte octet1, std::byte octet2, std::byte octet3, std::byte octet4);
+  [[nodiscard]] static IPv4Address fromBytes(const std::vector<std::byte>& bytes);
 
   /**
-   * Creates a new IP address from a string. Supports ascii or byte representation.
+   * Get the byte array representation of this IPv4Address.
    *
-   * @param address The IP address from which to construct, in string form.
-   * @return The new IP address.
-   * @throws std::invalid_argument If the input IPv4Address string is malformed.
+   * @return The byte array representation of this IPv4Address.
    */
-  [[nodiscard]] static IPv4Address fromString(std::string_view address);
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
 
   /**
-   * Get the string representation of this IPv4Address (form is <octet>.<octet>.<octet>.<octet>).
+   * Get the string representation of this IPv4Address.
    *
-   * @return The string represenation of this IPv4Address.
+   * @return The string representation of this IPv4Address.
    */
   [[nodiscard]] std::string toString() const;
 
 private:
   /**
-   * The first octet of the address
+   * The four octets of the address.
    */
-  std::byte mOctet1;
-
-  /**
-   * The second octet of the address
-   */
-  std::byte mOctet2;
-
-  /**
-   * The third octet of the address
-   */
-  std::byte mOctet3;
-
-  /**
-   * The fourth octet of the address
-   */
-  std::byte mOctet4;
+  std::array<std::byte, 4> mAddress;
 };
 
 } // namespace Hedera::internal

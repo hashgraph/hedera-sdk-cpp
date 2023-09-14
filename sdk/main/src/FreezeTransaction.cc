@@ -31,27 +31,17 @@ namespace Hedera
 {
 //-----
 FreezeTransaction::FreezeTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<FreezeTransaction>(transactionBody)
 {
-  if (!transactionBody.has_freeze())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain Freeze data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::FreezeTransactionBody& body = transactionBody.freeze();
-
-  if (body.has_update_file())
-  {
-    mFileId = FileId::fromProtobuf(body.update_file());
-  }
-
-  mFileHash = internal::Utilities::stringToByteVector(body.file_hash());
-
-  if (body.has_start_time())
-  {
-    mStartTime = internal::TimestampConverter::fromProtobuf(body.start_time());
-  }
-
-  mFreezeType = gProtobufFreezeTypeToFreezeType.at(body.freeze_type());
+//-----
+FreezeTransaction::FreezeTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<FreezeTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -87,25 +77,45 @@ FreezeTransaction& FreezeTransaction::setFreezeType(const FreezeType& type)
 }
 
 //-----
-proto::Transaction FreezeTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status FreezeTransaction::submitRequest(const Client& client,
-                                              const std::chrono::system_clock::time_point& deadline,
+grpc::Status FreezeTransaction::submitRequest(const proto::Transaction& request,
                                               const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
                                               proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kFreeze, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kFreeze, request, deadline, response);
 }
 
 //-----
 void FreezeTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_freeze(build());
+}
+
+//-----
+void FreezeTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_freeze())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain Freeze data");
+  }
+
+  const proto::FreezeTransactionBody& body = transactionBody.freeze();
+
+  if (body.has_update_file())
+  {
+    mFileId = FileId::fromProtobuf(body.update_file());
+  }
+
+  mFileHash = internal::Utilities::stringToByteVector(body.file_hash());
+
+  if (body.has_start_time())
+  {
+    mStartTime = internal::TimestampConverter::fromProtobuf(body.start_time());
+  }
+
+  mFreezeType = gProtobufFreezeTypeToFreezeType.at(body.freeze_type());
 }
 
 //-----

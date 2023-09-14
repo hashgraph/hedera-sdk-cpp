@@ -32,26 +32,15 @@ namespace Hedera
 SystemDeleteTransaction::SystemDeleteTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<SystemDeleteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_systemdelete())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain SystemDelete data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::SystemDeleteTransactionBody& body = transactionBody.systemdelete();
-
-  if (body.has_fileid())
-  {
-    mFileId = FileId::fromProtobuf(body.fileid());
-  }
-  else if (body.has_contractid())
-  {
-    mContractId = ContractId::fromProtobuf(body.contractid());
-  }
-
-  if (body.has_expirationtime())
-  {
-    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
-  }
+//-----
+SystemDeleteTransaction::SystemDeleteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<SystemDeleteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -82,26 +71,45 @@ SystemDeleteTransaction& SystemDeleteTransaction::setExpirationTime(
 }
 
 //-----
-proto::Transaction SystemDeleteTransaction::makeRequest(const Client& client,
-                                                        const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status SystemDeleteTransaction::submitRequest(const Client& client,
-                                                    const std::chrono::system_clock::time_point& deadline,
+grpc::Status SystemDeleteTransaction::submitRequest(const proto::Transaction& request,
                                                     const std::shared_ptr<internal::Node>& node,
+                                                    const std::chrono::system_clock::time_point& deadline,
                                                     proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kSystemDelete, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kSystemDelete, request, deadline, response);
 }
 
 //-----
 void SystemDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_systemdelete(build());
+}
+
+//-----
+void SystemDeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_systemdelete())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain SystemDelete data");
+  }
+
+  const proto::SystemDeleteTransactionBody& body = transactionBody.systemdelete();
+
+  if (body.has_fileid())
+  {
+    mFileId = FileId::fromProtobuf(body.fileid());
+  }
+  else if (body.has_contractid())
+  {
+    mContractId = ContractId::fromProtobuf(body.contractid());
+  }
+
+  if (body.has_expirationtime())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
+  }
 }
 
 //-----

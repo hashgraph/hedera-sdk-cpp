@@ -37,30 +37,18 @@ TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const Transac
 }
 
 //-----
-proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shared_ptr<internal::Node>&) const
-{
-  proto::Query query;
-  proto::TransactionGetReceiptQuery* getTransactionReceiptQuery = query.mutable_transactiongetreceipt();
-
-  proto::QueryHeader* header = getTransactionReceiptQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  // This is a free query, so no payment required
-  getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
-
-  return query;
-}
-
-//-----
 TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& response) const
 {
   return TransactionReceipt::fromProtobuf(response.transactiongetreceipt().receipt());
 }
 
 //-----
-Status TransactionReceiptQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status TransactionReceiptQuery::submitRequest(const proto::Query& request,
+                                                    const std::shared_ptr<internal::Node>& node,
+                                                    const std::chrono::system_clock::time_point& deadline,
+                                                    proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.transactiongetreceipt().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kTransactionGetReceipt, request, deadline, response);
 }
 
 //-----
@@ -96,13 +84,25 @@ TransactionReceiptQuery::determineStatus(Status status, const Client& client, co
 }
 
 //-----
-grpc::Status TransactionReceiptQuery::submitRequest(const Client& client,
-                                                    const std::chrono::system_clock::time_point& deadline,
-                                                    const std::shared_ptr<internal::Node>& node,
-                                                    proto::Response* response) const
+proto::Query TransactionReceiptQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kTransactionGetReceipt, makeRequest(client, node), deadline, response);
+  auto transactionGetReceiptQuery = std::make_unique<proto::TransactionGetReceiptQuery>();
+  transactionGetReceiptQuery->set_allocated_header(header);
+
+  if (mTransactionId.has_value())
+  {
+    transactionGetReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
+  }
+
+  proto::Query query;
+  query.set_allocated_transactiongetreceipt(transactionGetReceiptQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader TransactionReceiptQuery::mapResponseHeader(const proto::Response& response) const
+{
+  return response.transactiongetreceipt().header();
 }
 
 } // namespace Hedera

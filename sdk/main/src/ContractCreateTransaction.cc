@@ -34,62 +34,24 @@ namespace Hedera
 ContractCreateTransaction::ContractCreateTransaction()
   : Transaction<ContractCreateTransaction>()
 {
-  setMaxTransactionFee(Hbar(20LL));
+  setDefaultMaxTransactionFee(Hbar(20LL));
 }
 
 //-----
 ContractCreateTransaction::ContractCreateTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<ContractCreateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_contractcreateinstance())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ContractCreateInstance data");
-  }
+  setDefaultMaxTransactionFee(Hbar(20LL));
+  initFromSourceTransactionBody();
+}
 
-  const proto::ContractCreateTransactionBody& body = transactionBody.contractcreateinstance();
-
-  if (body.has_fileid())
-  {
-    mBytecodeFileId = FileId::fromProtobuf(body.fileid());
-  }
-
-  if (body.has_initcode())
-  {
-    mBytecode = internal::Utilities::stringToByteVector(body.initcode());
-  }
-
-  if (body.has_adminkey())
-  {
-    mAdminKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.adminkey()).release());
-  }
-
-  mGas = static_cast<uint64_t>(body.gas());
-  mInitialBalance = Hbar(body.initialbalance(), HbarUnit::TINYBAR());
-
-  if (body.has_autorenewperiod())
-  {
-    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
-  }
-
-  mConstructorParameters = internal::Utilities::stringToByteVector(body.constructorparameters());
-  mMemo = body.memo();
-  mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations());
-
-  if (body.has_auto_renew_account_id())
-  {
-    mAutoRenewAccountId = AccountId::fromProtobuf(body.auto_renew_account_id());
-  }
-
-  if (body.has_staked_account_id())
-  {
-    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
-  }
-
-  if (body.has_staked_node_id())
-  {
-    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
-  }
-
-  mDeclineStakingReward = body.decline_reward();
+//-----
+ContractCreateTransaction::ContractCreateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<ContractCreateTransaction>(transactions)
+{
+  setDefaultMaxTransactionFee(Hbar(20LL));
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -203,26 +165,76 @@ ContractCreateTransaction& ContractCreateTransaction::setDeclineStakingReward(bo
 }
 
 //-----
-proto::Transaction ContractCreateTransaction::makeRequest(const Client& client,
-                                                          const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status ContractCreateTransaction::submitRequest(const Client& client,
-                                                      const std::chrono::system_clock::time_point& deadline,
+grpc::Status ContractCreateTransaction::submitRequest(const proto::Transaction& request,
                                                       const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
                                                       proto::TransactionResponse* response) const
 {
   return node->submitTransaction(
-    proto::TransactionBody::DataCase::kContractCreateInstance, makeRequest(client, node), deadline, response);
+    proto::TransactionBody::DataCase::kContractCreateInstance, request, deadline, response);
 }
 
 //-----
 void ContractCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_contractcreateinstance(build());
+}
+
+//-----
+void ContractCreateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_contractcreateinstance())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ContractCreateInstance data");
+  }
+
+  const proto::ContractCreateTransactionBody& body = transactionBody.contractcreateinstance();
+
+  if (body.has_fileid())
+  {
+    mBytecodeFileId = FileId::fromProtobuf(body.fileid());
+  }
+
+  if (body.has_initcode())
+  {
+    mBytecode = internal::Utilities::stringToByteVector(body.initcode());
+  }
+
+  if (body.has_adminkey())
+  {
+    mAdminKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.adminkey()).release());
+  }
+
+  mGas = static_cast<uint64_t>(body.gas());
+  mInitialBalance = Hbar(body.initialbalance(), HbarUnit::TINYBAR());
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  mConstructorParameters = internal::Utilities::stringToByteVector(body.constructorparameters());
+  mMemo = body.memo();
+  mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations());
+
+  if (body.has_auto_renew_account_id())
+  {
+    mAutoRenewAccountId = AccountId::fromProtobuf(body.auto_renew_account_id());
+  }
+
+  if (body.has_staked_account_id())
+  {
+    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
+  }
+
+  if (body.has_staked_node_id())
+  {
+    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
+  }
+
+  mDeclineStakingReward = body.decline_reward();
 }
 
 //-----

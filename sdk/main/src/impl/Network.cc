@@ -18,109 +18,170 @@
  *
  */
 #include "impl/Network.h"
-
 #include "AccountId.h"
+#include "impl/Endpoint.h"
+#include "impl/NodeAddress.h"
+
+#include <algorithm>
+#include <cmath>
+#include <fstream>
 
 namespace Hedera::internal
 {
 //-----
 Network Network::forMainnet()
 {
-  Network network;
-  network.setNetwork(NodeAddressBook::fromFile("mainnet.pb"));
-  return network;
+  return getNetworkForLedgerId(LedgerId::MAINNET);
 }
 
 //-----
 Network Network::forTestnet()
 {
-  Network network;
-  network.setNetwork(NodeAddressBook::fromFile("testnet.pb"));
-  return network;
+  return getNetworkForLedgerId(LedgerId::TESTNET);
 }
 
 //-----
 Network Network::forPreviewnet()
 {
-  Network network;
-  network.setNetwork(NodeAddressBook::fromFile("previewnet.pb"));
-  return network;
+  return getNetworkForLedgerId(LedgerId::PREVIEWNET);
 }
 
 //-----
 Network Network::forNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
 {
-  Network network;
-  network.setNetwork(networkMap);
+  return Network(networkMap);
+}
+
+//-----
+Network& Network::setLedgerId(const LedgerId& ledgerId)
+{
+  return setLedgerIdInternal(ledgerId, getAddressBookForLedgerId(ledgerId));
+}
+
+//-----
+Network& Network::setVerifyCertificates(bool verify)
+{
+  mVerifyCertificates = verify;
+
+  // Set the new certificate verification policy for all Nodes on this Network.
+  std::for_each(getNodes().cbegin(),
+                getNodes().cend(),
+                [&verify](const std::shared_ptr<Node>& node) { node->setVerifyCertificates(verify); });
+
+  return *this;
+}
+
+//-----
+Network& Network::setTransportSecurity(TLSBehavior tls)
+{
+  if (isTransportSecurity() != tls)
+  {
+    for (const std::shared_ptr<Node>& node : getNodes())
+    {
+      node->setTransportSecurity(tls);
+    }
+
+    setTransportSecurity(tls);
+  }
+
+  return *this;
+}
+
+//-----
+std::vector<AccountId> Network::getNodeAccountIdsForExecute()
+{
+  std::vector<AccountId> accountIds;
+  for (const std::shared_ptr<Node>& node : getNumberOfMostHealthyNodes(
+         mMaxNodesPerRequest > 0 ? std::min(mMaxNodesPerRequest, static_cast<unsigned int>(getNodes().size()))
+                                 : static_cast<unsigned int>(floor(static_cast<double>(getNodes().size()) / 3.0))))
+  {
+    accountIds.push_back(node->getAccountId());
+  }
+
+  return accountIds;
+}
+
+//-----
+std::unordered_map<std::string, AccountId> Network::getNetwork() const
+{
+  std::unordered_map<std::string, AccountId> network;
+  for (const std::shared_ptr<Node>& node : getNodes())
+  {
+    network[node->getAddress().toString()] = node->getAccountId();
+  }
+
   return network;
 }
 
 //-----
-std::vector<std::shared_ptr<Node>> Network::getNodesWithAccountIds(const std::vector<AccountId>& accountIds) const
+Network::Network(const std::unordered_map<std::string, AccountId>& network)
 {
-  if (accountIds.empty())
-  {
-    return mNodes;
-  }
+  setNetwork(network);
+}
 
-  std::vector<std::shared_ptr<Node>> nodesWithCorrectAccountIds;
-  for (const auto& node : mNodes)
+//-----
+Network Network::getNetworkForLedgerId(const LedgerId& ledgerId)
+{
+  const std::unordered_map<AccountId, NodeAddress> addressBook = getAddressBookForLedgerId(ledgerId);
+  std::unordered_map<std::string, AccountId> network;
+  for (const auto& [accountId, nodeAddress] : addressBook)
   {
-    for (const auto& id : accountIds)
+    for (const auto& endpoint : nodeAddress.getEndpoints())
     {
-      if (node->getAccountId() == id)
+      if (endpoint->getPort() == BaseNodeAddress::PORT_NODE_TLS)
       {
-        nodesWithCorrectAccountIds.push_back(node);
+        network[endpoint->toString()] = accountId;
+        break;
       }
     }
   }
 
-  return nodesWithCorrectAccountIds;
+  return Network(network).setLedgerIdInternal(ledgerId, addressBook);
 }
 
 //-----
-void Network::close() const
+std::unordered_map<AccountId, NodeAddress> Network::getAddressBookForLedgerId(const LedgerId& ledgerId)
 {
-  for (const auto& node : mNodes)
+  // The address book can only be fetched for known Hedera networks.
+  if (!ledgerId.isKnownNetwork())
   {
-    node->shutdown();
+    return {};
   }
-}
 
-void Network::setTLSBehavior(TLSBehavior desiredBehavior) const
-{
-  for (const auto& node : mNodes)
-  {
-    node->setTLSBehavior(desiredBehavior);
-  }
+  std::ifstream infile(ledgerId.toString() + ".pb", std::ios_base::binary);
+  return NodeAddressBook::fromBytes({ std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() })
+    .getAddressMap();
 }
 
 //-----
-void Network::setNetwork(const NodeAddressBook& nodeAddressBook, TLSBehavior tls)
+std::shared_ptr<Node> Network::createNodeFromNetworkEntry(std::string_view address, const AccountId& key) const
 {
-  for (const auto& [accountId, nodeAddress] : nodeAddressBook.getAddressMap())
-  {
-    mNodes.push_back(std::make_shared<Node>(nodeAddress, tls));
-  }
+  return std::make_shared<Node>(key, address)->setVerifyCertificates(mVerifyCertificates);
 }
 
 //-----
-void Network::setNetwork(const std::unordered_map<std::string, AccountId>& networkMap, TLSBehavior tls)
+Network& Network::setLedgerIdInternal(const LedgerId& ledgerId,
+                                      const std::unordered_map<AccountId, NodeAddress>& addressBook)
 {
-  std::unordered_map<AccountId, std::shared_ptr<NodeAddress>> addressMap;
+  // Set the ledger ID.
+  BaseNetwork<Network, AccountId, Node>::setLedgerId(ledgerId);
 
-  for (auto it = networkMap.cbegin(); it != networkMap.cend(); ++it)
+  // Update each Node's address book entry with the new address book.
+  if (addressBook.empty())
   {
-    const std::string& nodeAddressAsString = it->first;
-    const AccountId& accountId = it->second;
-
-    NodeAddress nodeAddress = NodeAddress::fromString(nodeAddressAsString);
-    std::shared_ptr<NodeAddress> nodeAddressPtr = std::make_shared<NodeAddress>(nodeAddress);
-    nodeAddressPtr->setNodeAccountId(accountId);
-    addressMap.insert(std::pair<Hedera::AccountId, std::shared_ptr<NodeAddress>>(accountId, nodeAddressPtr));
+    std::for_each(getNodes().cbegin(),
+                  getNodes().cend(),
+                  [](const std::shared_ptr<Node>& node) { node->setAddressBookEntry(NodeAddress()); });
+  }
+  else
+  {
+    for (const std::shared_ptr<Node>& node : getNodes())
+    {
+      node->setAddressBookEntry(addressBook.at(node->getAccountId()));
+    }
   }
 
-  setNetwork(NodeAddressBook::fromAddressMap(addressMap), tls);
+  return *this;
 }
 
 } // namespace Hedera::internal

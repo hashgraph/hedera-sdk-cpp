@@ -31,22 +31,17 @@ namespace Hedera
 {
 //-----
 ContractExecuteTransaction::ContractExecuteTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<ContractExecuteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_contractcall())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ContractCall data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::ContractCallTransactionBody& body = transactionBody.contractcall();
-
-  if (body.has_contractid())
-  {
-    mContractId = ContractId::fromProtobuf(body.contractid());
-  }
-
-  mGas = static_cast<uint64_t>(body.gas());
-  mPayableAmount = Hbar(body.amount(), HbarUnit::TINYBAR());
-  mFunctionParameters = internal::Utilities::stringToByteVector(body.functionparameters());
+//-----
+ContractExecuteTransaction::ContractExecuteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<ContractExecuteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -91,26 +86,40 @@ ContractExecuteTransaction& ContractExecuteTransaction::setFunction(std::string_
 }
 
 //-----
-proto::Transaction ContractExecuteTransaction::makeRequest(const Client& client,
-                                                           const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status ContractExecuteTransaction::submitRequest(const Client& client,
-                                                       const std::chrono::system_clock::time_point& deadline,
+grpc::Status ContractExecuteTransaction::submitRequest(const proto::Transaction& request,
                                                        const std::shared_ptr<internal::Node>& node,
+                                                       const std::chrono::system_clock::time_point& deadline,
                                                        proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kContractCall, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kContractCall, request, deadline, response);
 }
 
 //-----
 void ContractExecuteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_contractcall(build());
+}
+
+//-----
+void ContractExecuteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_contractcall())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ContractCall data");
+  }
+
+  const proto::ContractCallTransactionBody& body = transactionBody.contractcall();
+
+  if (body.has_contractid())
+  {
+    mContractId = ContractId::fromProtobuf(body.contractid());
+  }
+
+  mGas = static_cast<uint64_t>(body.gas());
+  mPayableAmount = Hbar(body.amount(), HbarUnit::TINYBAR());
+  mFunctionParameters = internal::Utilities::stringToByteVector(body.functionparameters());
 }
 
 //-----

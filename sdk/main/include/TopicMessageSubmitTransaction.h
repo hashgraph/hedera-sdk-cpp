@@ -60,6 +60,15 @@ public:
   explicit TopicMessageSubmitTransaction(const proto::TransactionBody& transactionBody);
 
   /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
+   */
+  explicit TopicMessageSubmitTransaction(
+    const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
+
+  /**
    * Set the ID of the topic to which to submit a message.
    *
    * @param topicId The ID of the topic to which to submit a message.
@@ -93,34 +102,22 @@ public:
   [[nodiscard]] inline std::vector<std::byte> getMessage() const { return getData(); }
 
 private:
-  friend class ChunkedTransaction<TopicMessageSubmitTransaction>;
   friend class WrappedTransaction;
 
   /**
-   * Derived from Executable. Construct a Transaction protobuf object from this TopicMessageSubmitTransaction object.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this TopicMessageSubmitTransaction's
+   * data to a Node.
    *
-   * @param client The Client trying to construct this TopicMessageSubmitTransaction.
-   * @param node   The Node to which this TopicMessageSubmitTransaction will be sent. This is unused.
-   * @return A Transaction protobuf object filled with this TopicMessageSubmitTransaction object's data.
-   * @throws UninitializedException If the input client has no operator with which to sign this
-   *                                TopicMessageSubmitTransaction.
-   */
-  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
-
-  /**
-   * Derived from Executable. Submit this TopicMessageSubmitTransaction to a Node.
-   *
-   * @param client   The Client submitting this TopicMessageSubmitTransaction.
-   * @param deadline The deadline for submitting this TopicMessageSubmitTransaction.
-   * @param node     Pointer to the Node to which this TopicMessageSubmitTransaction should be submitted.
-   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
-   *                 information from the gRPC server.
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
                                            const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
                                            proto::TransactionResponse* response) const override;
   /**
    * Derived from Transaction. Build and add the TopicMessageSubmitTransaction protobuf representation to the
@@ -131,44 +128,35 @@ private:
   void addToBody(proto::TransactionBody& body) const override;
 
   /**
-   * Derive from ChunkedTransaction. Perform any needed actions for this ChunkedTransaction after it has been chunked.
+   * Derived from ChunkedTransaction. Build and add this TopicMessageSubmitTransaction's chunked protobuf representation
+   * to the TransactionBody protobuf object.
    *
-   * @param firstTransactionId  The transaction ID of the first chunk.
-   * @param chunk               The chunk number to create.
-   * @param total               The total number of chunks to create.
+   * @param chunk The chunk number.
+   * @param total The total number of chunks being created.
+   * @param body  The TransactionBody protobuf object to which to add the chunked data.
    */
-  void onChunk(const TransactionId& firstTransactionId, int32_t chunk, int32_t total) override;
+  void addToChunk(uint32_t chunk, uint32_t total, proto::TransactionBody& body) const override;
 
   /**
-   * Build a ConsensusSubmitMessageTransactionBody protobuf object from this ConsensusSubmitMessageTransactionBody
-   * object.
-   *
-   * @return A pointer to a TopicMessageSubmitTransactionBody protobuf object filled with this
-   *         ConsensusSubmitMessageTransactionBody object's data.
+   * Initialize this TopicMessageSubmitTransaction from its source TransactionBody protobuf object.
    */
-  [[nodiscard]] proto::ConsensusSubmitMessageTransactionBody* build() const;
+  void initFromSourceTransactionBody();
+
+  /**
+   * Build a ConsensusSubmitMessageTransactionBody protobuf object from this TopicMessageSubmitTransaction object.
+   * Optionally, build this TopicMessageSubmitTransaction for a specific chunk.
+   *
+   * @param chunk The chunk number for which to build this TopicMessageSubmitTransaction. The default value (-1)
+   *              indicates to build for all chunks (i.e. build with all data).
+   * @return A pointer to a ConsensusSubmitMessageTransactionBody protobuf object filled with this
+   *         TopicMessageSubmitTransaction object's data.
+   */
+  [[nodiscard]] proto::ConsensusSubmitMessageTransactionBody* build(int chunk = -1) const;
 
   /**
    * The ID of the topic to which to send a message.
    */
   TopicId mTopicId;
-
-  /**
-   * Used during transaction chunking. This is the ID of the first chunk transaction, which is copied to all other
-   * chunks.
-   */
-  TransactionId mInitialTransactionId;
-
-  /**
-   * Used during transaction chunking. The total number of chunks that are being sent as a part of this
-   * TopicMessageSubmitTransaction.
-   */
-  int32_t mTotalNumOfChunks = 0;
-
-  /**
-   * Used during transaction chunking. The chunk number of the chunk being submitted (from 1 to mTotalNumOfChunks).
-   */
-  int32_t mChunkNum = 0;
 };
 
 } // namespace Hedera

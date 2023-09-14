@@ -274,9 +274,21 @@ template<>
 struct hash<Hedera::AccountId>
 {
   /**
-   * Operator override to enable use of AccountId as map key
+   * Operator override to enable use of AccountId as map key.
    */
   size_t operator()(const Hedera::AccountId& id) const { return hash<string>()(id.toString()); }
+};
+
+template<>
+struct less<Hedera::AccountId>
+{
+  /**
+   * Operator override to enable use of AccountId in a std::map, which requires fair ordering.
+   */
+  bool operator()(const Hedera::AccountId& lhs, const Hedera::AccountId& rhs) const
+  {
+    return lhs.toString() < rhs.toString();
+  }
 };
 
 } // namespace std

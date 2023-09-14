@@ -31,22 +31,15 @@ namespace Hedera
 TokenRevokeKycTransaction::TokenRevokeKycTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenRevokeKycTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokenrevokekyc())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenRevokeKyc data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenRevokeKycTransactionBody& body = transactionBody.tokenrevokekyc();
-
-  if (body.has_account())
-  {
-    mAccountId = AccountId::fromProtobuf(body.account());
-  }
-
-  if (body.has_token())
-  {
-    mTokenId = TokenId::fromProtobuf(body.token());
-  }
+//-----
+TokenRevokeKycTransaction::TokenRevokeKycTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenRevokeKycTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -66,26 +59,41 @@ TokenRevokeKycTransaction& TokenRevokeKycTransaction::setTokenId(const TokenId& 
 }
 
 //-----
-proto::Transaction TokenRevokeKycTransaction::makeRequest(const Client& client,
-                                                          const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenRevokeKycTransaction::submitRequest(const Client& client,
-                                                      const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenRevokeKycTransaction::submitRequest(const proto::Transaction& request,
                                                       const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
                                                       proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenRevokeKyc, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenRevokeKyc, request, deadline, response);
 }
 
 //-----
 void TokenRevokeKycTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenrevokekyc(build());
+}
+
+//-----
+void TokenRevokeKycTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokenrevokekyc())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenRevokeKyc data");
+  }
+
+  const proto::TokenRevokeKycTransactionBody& body = transactionBody.tokenrevokekyc();
+
+  if (body.has_account())
+  {
+    mAccountId = AccountId::fromProtobuf(body.account());
+  }
+
+  if (body.has_token())
+  {
+    mTokenId = TokenId::fromProtobuf(body.token());
+  }
 }
 
 //-----

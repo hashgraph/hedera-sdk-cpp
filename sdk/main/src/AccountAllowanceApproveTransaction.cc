@@ -33,27 +33,15 @@ namespace Hedera
 AccountAllowanceApproveTransaction::AccountAllowanceApproveTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountAllowanceApproveTransaction>(transactionBody)
 {
-  if (!transactionBody.has_cryptoapproveallowance())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain CryptoApproveAllowance data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::CryptoApproveAllowanceTransactionBody& body = transactionBody.cryptoapproveallowance();
-
-  for (int i = 0; i < body.cryptoallowances_size(); ++i)
-  {
-    mHbarAllowances.push_back(HbarAllowance::fromProtobuf(body.cryptoallowances(i)));
-  }
-
-  for (int i = 0; i < body.tokenallowances_size(); ++i)
-  {
-    mTokenAllowances.push_back(TokenAllowance::fromProtobuf(body.tokenallowances(i)));
-  }
-
-  for (int i = 0; i < body.nftallowances_size(); ++i)
-  {
-    mNftAllowances.push_back(TokenNftAllowance::fromProtobuf(body.nftallowances(i)));
-  }
+//-----
+AccountAllowanceApproveTransaction::AccountAllowanceApproveTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<AccountAllowanceApproveTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -148,26 +136,47 @@ AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::deleteNf
 }
 
 //-----
-proto::Transaction AccountAllowanceApproveTransaction::makeRequest(const Client& client,
-                                                                   const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status AccountAllowanceApproveTransaction::submitRequest(const Client& client,
-                                                               const std::chrono::system_clock::time_point& deadline,
+grpc::Status AccountAllowanceApproveTransaction::submitRequest(const proto::Transaction& request,
                                                                const std::shared_ptr<internal::Node>& node,
+                                                               const std::chrono::system_clock::time_point& deadline,
                                                                proto::TransactionResponse* response) const
 {
   return node->submitTransaction(
-    proto::TransactionBody::DataCase::kCryptoApproveAllowance, makeRequest(client, node), deadline, response);
+    proto::TransactionBody::DataCase::kCryptoApproveAllowance, request, deadline, response);
 }
 
 //-----
 void AccountAllowanceApproveTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_cryptoapproveallowance(build());
+}
+
+//-----
+void AccountAllowanceApproveTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_cryptoapproveallowance())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain CryptoApproveAllowance data");
+  }
+
+  const proto::CryptoApproveAllowanceTransactionBody& body = transactionBody.cryptoapproveallowance();
+
+  for (int i = 0; i < body.cryptoallowances_size(); ++i)
+  {
+    mHbarAllowances.push_back(HbarAllowance::fromProtobuf(body.cryptoallowances(i)));
+  }
+
+  for (int i = 0; i < body.tokenallowances_size(); ++i)
+  {
+    mTokenAllowances.push_back(TokenAllowance::fromProtobuf(body.tokenallowances(i)));
+  }
+
+  for (int i = 0; i < body.nftallowances_size(); ++i)
+  {
+    mNftAllowances.push_back(TokenNftAllowance::fromProtobuf(body.nftallowances(i)));
+  }
 }
 
 //-----

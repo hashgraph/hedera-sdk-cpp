@@ -33,62 +33,15 @@ namespace Hedera
 ContractUpdateTransaction::ContractUpdateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<ContractUpdateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_contractupdateinstance())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ContractUpdateInstance data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::ContractUpdateTransactionBody& body = transactionBody.contractupdateinstance();
-
-  if (body.has_contractid())
-  {
-    mContractId = ContractId::fromProtobuf(body.contractid());
-  }
-
-  if (body.has_expirationtime())
-  {
-    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
-  }
-
-  if (body.has_adminkey())
-  {
-    mAdminKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.adminkey()).release());
-  }
-
-  if (body.has_autorenewperiod())
-  {
-    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
-  }
-
-  if (body.has_memowrapper())
-  {
-    mContractMemo = body.memowrapper().value();
-  }
-
-  if (body.has_max_automatic_token_associations())
-  {
-    mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations().value());
-  }
-
-  if (body.has_auto_renew_account_id())
-  {
-    mAutoRenewAccountId = AccountId::fromProtobuf(body.auto_renew_account_id());
-  }
-
-  if (body.has_staked_account_id())
-  {
-    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
-  }
-
-  if (body.has_staked_node_id())
-  {
-    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
-  }
-
-  if (body.has_decline_reward())
-  {
-    mDeclineStakingReward = body.decline_reward().value();
-  }
+//-----
+ContractUpdateTransaction::ContractUpdateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<ContractUpdateTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -188,26 +141,82 @@ ContractUpdateTransaction& ContractUpdateTransaction::setDeclineStakingReward(bo
 }
 
 //-----
-proto::Transaction ContractUpdateTransaction::makeRequest(const Client& client,
-                                                          const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status ContractUpdateTransaction::submitRequest(const Client& client,
-                                                      const std::chrono::system_clock::time_point& deadline,
+grpc::Status ContractUpdateTransaction::submitRequest(const proto::Transaction& request,
                                                       const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
                                                       proto::TransactionResponse* response) const
 {
   return node->submitTransaction(
-    proto::TransactionBody::DataCase::kContractUpdateInstance, makeRequest(client, node), deadline, response);
+    proto::TransactionBody::DataCase::kContractUpdateInstance, request, deadline, response);
 }
 
 //-----
 void ContractUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_contractupdateinstance(build());
+}
+
+//-----
+void ContractUpdateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_contractupdateinstance())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ContractUpdateInstance data");
+  }
+
+  const proto::ContractUpdateTransactionBody& body = transactionBody.contractupdateinstance();
+
+  if (body.has_contractid())
+  {
+    mContractId = ContractId::fromProtobuf(body.contractid());
+  }
+
+  if (body.has_expirationtime())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
+  }
+
+  if (body.has_adminkey())
+  {
+    mAdminKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.adminkey()).release());
+  }
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  if (body.has_memowrapper())
+  {
+    mContractMemo = body.memowrapper().value();
+  }
+
+  if (body.has_max_automatic_token_associations())
+  {
+    mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations().value());
+  }
+
+  if (body.has_auto_renew_account_id())
+  {
+    mAutoRenewAccountId = AccountId::fromProtobuf(body.auto_renew_account_id());
+  }
+
+  if (body.has_staked_account_id())
+  {
+    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
+  }
+
+  if (body.has_staked_node_id())
+  {
+    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
+  }
+
+  if (body.has_decline_reward())
+  {
+    mDeclineStakingReward = body.decline_reward().value();
+  }
 }
 
 //-----

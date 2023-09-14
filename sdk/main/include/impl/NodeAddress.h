@@ -23,7 +23,9 @@
 #include "AccountId.h"
 #include "impl/Endpoint.h"
 
+#include <cstddef>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace proto
@@ -39,126 +41,76 @@ namespace Hedera::internal
 class NodeAddress
 {
 public:
-  NodeAddress() = default;
-
   /**
-   * Construct a NodeAddress instance with a given IPv4 address and port.
+   * Construct a NodeAddress object from a NodeAddress protobuf object.
    *
-   * @param ipAddressV4 The stringified IPv4 address.
-   * @param port        The port number of the server for the node.
-   * @throws std::invalid_argument If the given IP address is malformed.
-   */
-  NodeAddress(std::string_view ipAddressV4, int port);
-
-  /**
-   * Determine if a particular port number corresponds to a TLS port.
-   *
-   * @param port The port number.
-   * @return \c TRUE if the input port number corresponds to a TLS port, otherwise \c FALSE.
-   */
-  static inline bool isTlsPort(int port) { return (port == PORT_NODE_TLS) || (port == PORT_MIRROR_TLS); }
-
-  /**
-   * Determine if a particular port number corresponds to a non-TLS port.
-   *
-   * @param port The port number.
-   * @return \c TRUE if the input port number corresponds to a non-TLS port, otherwise \c FALSE.
-   */
-  static inline bool isNonTlsPort(int port) { return (port == PORT_NODE_PLAIN) || (port == PORT_MIRROR_PLAIN); }
-
-  /**
-   * Create a NodeAddress object from a NodeAddress protobuf object.
-   *
-   * @param protoNodeAddress The NodeAddress protobuf object from which to create a NodeAddress object.
-   * @return The created NodeAddress object.
+   * @param proto The NodeAddress protobuf object from which to construct a NodeAddress object.
+   * @return The constructed NodeAddress object.
    */
   [[nodiscard]] static NodeAddress fromProtobuf(const proto::NodeAddress& protoNodeAddress);
 
   /**
-   * Create a NodeAddress object from a given string.
+   * Construct a NodeAddress protobuf object from this NodeAddress object.
    *
-   * @param nodeAddress The string representation from which to create a new NodeAddress object.
-   * @return The created NodeAddress object.
-   * @throws std::invalid_argument If the given node address is malformed.
+   * @return A pointer to the created NodeAddress protobuf object filled with this NodeAddress object's data.
    */
-  [[nodiscard]] static NodeAddress fromString(std::string_view nodeAddress);
+  [[nodiscard]] std::unique_ptr<proto::NodeAddress> toProtobuf() const;
 
   /**
-   * Set a new public key for the node.
-   *
-   * @param publicKey The public key to be assigned to the node.
-   * @return A reference to this NodeAddress with the newly-set public key.
-   */
-  NodeAddress& setRSAPublicKey(std::string_view publicKey);
-
-  /**
-   * Set a new node ID for the node at this address.
-   *
-   * @param nodeId The ID of the node to set.
-   * @return A reference to this NodeAddress with the newly-set node ID.
-   */
-  NodeAddress& setNodeId(const int64_t& nodeId);
-
-  /**
-   * Set a new account ID associated with the node at this address.
-   *
-   * @param accountId The account ID to be associated with the node.
-   * @return A reference to this NodeAddress with the newly-set account ID.
-   */
-  NodeAddress& setNodeAccountId(const AccountId& accountId);
-
-  /**
-   * Set a new certificate hash for the node.
-   *
-   * @param certHash The certificate hash to be assigned to the node.
-   * @return A reference to this NodeAddress with the newly-set certificate hash.
-   */
-  NodeAddress& setNodeCertHash(std::string_view certHash);
-
-  /**
-   * Set a vector of endpoints for the node.
-   *
-   * @param endpoints The endpoints to be assigned to the node.
-   * @return A reference to this NodeAddress with the newly-set endpoints.
-   */
-  NodeAddress& setEndpoints(const std::vector<std::shared_ptr<Endpoint>>& endpoints);
-
-  /**
-   * Set а new description text for the node.
-   *
-   * @param description The description text to be assigned with the node.
-   * @return A reference to this NodeAddress with the newly-set description.
-   */
-  NodeAddress& setDescription(std::string_view description);
-
-  /**
-   * Set a new amount of tinybars staked to the node.
-   *
-   * @param stake The new amount of tinybars staked to the node.
-   * @return A reference to this NodeAddress with the newly-set staked tinybars.
-   */
-  NodeAddress& setStake(const uint64_t& stake);
-
-  /**
-   * Get a string representation of the NodeAddress.
+   * Get a string representation of this NodeAddress.
    *
    * @return A string representing this NodeAddress.
    */
   [[nodiscard]] std::string toString() const;
 
   /**
-   * Get the default IP address of this NodeAddress.
+   * Set the public key of this NodeAddress. This should be a hex-encoded string of the public key's DER encoding.
    *
-   * @return The default IP address of this NodeAddress.
+   * @param publicKey The hex-encoded and DER-encoded public key to set.
+   * @return A reference to this NodeAddress with the newly-set public key.
    */
-  [[nodiscard]] inline IPv4Address getDefaultIpAddress() const { return getDefaultEndpoint()->getAddress(); }
+  NodeAddress& setRSAPublicKey(std::string_view publicKey);
 
   /**
-   * Get the default port number of the gRPC server of this NodeAddress.
+   * Set the node ID of this NodeAddress.
    *
-   * @return The default port of this NodeAddress.
+   * @param nodeId The node ID to set.
+   * @return A reference to this NodeAddress with the newly-set node ID.
    */
-  [[nodiscard]] inline int getDefaultPort() const { return getDefaultEndpoint()->getPort(); }
+  NodeAddress& setNodeId(const int64_t& nodeId);
+
+  /**
+   * Set the account ID of this NodeAddress.
+   *
+   * @param accountId The account ID to set.
+   * @return A reference to this NodeAddress with the newly-set account ID.
+   */
+  NodeAddress& setNodeAccountId(const AccountId& accountId);
+
+  /**
+   * Set the certificate hash of this NodeAddress. This should be hex-encoded SHA384 hash of the UTF-8 NFKD encoding of
+   * the remote node's TLS cert in PEM format.
+   *
+   * @param certHash The certificate hash to set.
+   * @return A reference to this NodeAddress with the newly-set certificate hash.
+   */
+  NodeAddress& setNodeCertHash(std::string_view certHash);
+
+  /**
+   * Set the list of endpoints of this NodeAddress.
+   *
+   * @param endpoints The list of endpoints to set.
+   * @return A reference to this NodeAddress with the newly-set endpoints.
+   */
+  NodeAddress& setEndpoints(const std::vector<Endpoint>& endpoints);
+
+  /**
+   * Set the description text of this NodeAddress.
+   *
+   * @param description The description text to set.
+   * @return A reference to this NodeAddress with the newly-set description.
+   */
+  NodeAddress& setDescription(std::string_view description);
 
   /**
    * Get the node ID of this NodeAddress.
@@ -170,45 +122,30 @@ public:
   /**
    * Get the public key of this NodeAddress.
    *
-   * @return The hash value representing the public key of the node.
+   * @return The public key of this NodeAddress.
    */
   [[nodiscard]] inline std::string getPublicKey() const { return mRSAPublicKey; }
 
   /**
-   * Get the account ID associated with this NodeAddress.
+   * Get the account ID of this NodeAddress.
    *
-   * @return The account ID associated with this NodeAddress.
+   * @return The account ID of this NodeAddress.
    */
   [[nodiscard]] inline AccountId getNodeAccountId() const { return mNodeAccountId; }
 
   /**
-   * Get the SHA-384 hash of this NodeAddress's certificate chain.
+   * Get the node certificate hash of this NodeAddress.
    *
-   * @return The SHA-384 hash of this NodeAddress's certificate chain.
+   * @return The node certificate hash of this NodeAddress.
    */
   [[nodiscard]] inline std::vector<std::byte> getNodeCertHash() const { return mNodeCertHash; }
 
   /**
-   * Get the default Endpoint of this NodeAddress.
+   * Get the list of endpoints of this NodeAddress.
    *
-   * @return The default Endpoint of this NodeAddress.
+   * @return The list of endpoints of this NodeAddress.
    */
-  [[nodiscard]] inline std::shared_ptr<Endpoint> getDefaultEndpoint() const
-  {
-    if (mEndpoints.empty())
-    {
-      return nullptr;
-    }
-
-    return mEndpoints.front();
-  }
-
-  /**
-   * Get the Endpoints associated with this NodeAddress.
-   *
-   * @return The Endpoints associated with this NodeAddress.
-   */
-  [[nodiscard]] inline const std::vector<std::shared_ptr<Endpoint>>& getEndpoints() const { return mEndpoints; }
+  [[nodiscard]] inline const std::vector<Endpoint>& getEndpoints() const { return mEndpoints; }
 
   /**
    * Get the description text of this NodeAddress.
@@ -217,26 +154,11 @@ public:
    */
   [[nodiscard]] inline std::string getDescription() const { return mDescription; }
 
-  /**
-   * Get the amount of tinybars staked to the Node at this NodeAddress.
-   *
-   * @return The amount of tinybars staked to the Node at this NodeAddress.
-   */
-  [[nodiscard]] inline uint64_t getStake() const { return mStake; }
-
 private:
-  /**
-   * Port numbers for various node types and security.
-   */
-  static constexpr int PORT_MIRROR_PLAIN = 5600;
-  static constexpr int PORT_MIRROR_TLS = 443;
-  static constexpr int PORT_NODE_PLAIN = 50211;
-  static constexpr int PORT_NODE_TLS = 50212;
-
   /**
    * The Endpoints associated with the node.
    */
-  std::vector<std::shared_ptr<Endpoint>> mEndpoints;
+  std::vector<Endpoint> mEndpoints;
 
   /**
    * The node's public key.
@@ -262,11 +184,6 @@ private:
    * A string description of the node.
    */
   std::string mDescription;
-
-  /**
-   * The amount of tinybars staked to the node.
-   */
-  uint64_t mStake = 0;
 };
 
 } // namespace Hedera::internal

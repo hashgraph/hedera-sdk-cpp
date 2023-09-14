@@ -85,7 +85,15 @@ public:
    * @param other The other TransactionId with which to compare this TransactionId.
    * @return \c TRUE if this TransactionId is the same as the input TransactionId, otherwise \c FALSE.
    */
-  bool operator==(const TransactionId&) const;
+  bool operator==(const TransactionId& other) const;
+
+  /**
+   * Compare this TransactionId to another TransactionId and determine if they represent different Transactions.
+   *
+   * @param other The other TransactionId with which to compare this TransactionId.
+   * @return \c TRUE if this TransactionId is different from the input TransactionId, otherwise \c FALSE.
+   */
+  bool operator!=(const TransactionId& other) const;
 
   /**
    * Construct a TransactionID protobuf object from this TransactionId object.

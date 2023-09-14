@@ -59,6 +59,15 @@ public:
   explicit TokenFeeScheduleUpdateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
+   */
+  explicit TokenFeeScheduleUpdateTransaction(
+    const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
+
+  /**
    * Set the ID of the token whose fee schedule is to be updated.
    *
    * @param tokenId The ID of the token whose fee schedule is to be updated.
@@ -94,31 +103,19 @@ private:
   friend class WrappedTransaction;
 
   /**
-   * Derived from Executable. Construct a Transaction protobuf object from this TokenFeeScheduleUpdateTransaction
-   * object.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this
+   * TokenFeeScheduleUpdateTransaction's data to a Node.
    *
-   * @param client The Client trying to construct this TokenFeeScheduleUpdateTransaction.
-   * @param node   The Node to which this TokenFeeScheduleUpdateTransaction will be sent. This is unused.
-   * @return A Transaction protobuf object filled with this TokenFeeScheduleUpdateTransaction object's data.
-   * @throws UninitializedException If the input client has no operator with which to sign this
-   *                                TokenFeeScheduleUpdateTransaction.
-   */
-  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
-
-  /**
-   * Derived from Executable. Submit this TokenFeeScheduleUpdateTransaction to a Node.
-   *
-   * @param client   The Client submitting this TokenFeeScheduleUpdateTransaction.
-   * @param deadline The deadline for submitting this TokenFeeScheduleUpdateTransaction.
-   * @param node     Pointer to the Node to which this TokenFeeScheduleUpdateTransaction should be submitted.
-   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
-   *                 information from the gRPC server.
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
                                            const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
                                            proto::TransactionResponse* response) const override;
   /**
    * Derived from Transaction. Build and add the TokenFeeScheduleUpdateTransaction protobuf representation to the
@@ -127,6 +124,11 @@ private:
    * @param body The TransactionBody protobuf object being built.
    */
   void addToBody(proto::TransactionBody& body) const override;
+
+  /**
+   * Initialize this TokenFeeScheduleUpdateTransaction from its source TransactionBody protobuf object.
+   */
+  void initFromSourceTransactionBody();
 
   /**
    * Build a TokenFeeScheduleUpdateTransactionBody protobuf object from this TokenFeeScheduleUpdateTransaction object.

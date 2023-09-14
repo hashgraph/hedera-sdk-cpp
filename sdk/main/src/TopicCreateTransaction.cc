@@ -30,35 +30,17 @@ namespace Hedera
 {
 //-----
 TopicCreateTransaction::TopicCreateTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<TopicCreateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_consensuscreatetopic())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ConsensusCreateTopic data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::ConsensusCreateTopicTransactionBody& body = transactionBody.consensuscreatetopic();
-
-  mMemo = body.memo();
-
-  if (body.has_adminkey())
-  {
-    mAdminKey = Key::fromProtobuf(body.adminkey());
-  }
-
-  if (body.has_submitkey())
-  {
-    mSubmitKey = Key::fromProtobuf(body.submitkey());
-  }
-
-  if (body.has_autorenewperiod())
-  {
-    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
-  }
-
-  if (body.has_autorenewaccount())
-  {
-    mAutoRenewAccountId = AccountId::fromProtobuf(body.autorenewaccount());
-  }
+//-----
+TopicCreateTransaction::TopicCreateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TopicCreateTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -102,26 +84,53 @@ TopicCreateTransaction& TopicCreateTransaction::setAutoRenewAccountId(const Acco
 }
 
 //-----
-proto::Transaction TopicCreateTransaction::makeRequest(const Client& client,
-                                                       const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TopicCreateTransaction::submitRequest(const Client& client,
-                                                   const std::chrono::system_clock::time_point& deadline,
+grpc::Status TopicCreateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
+                                                   const std::chrono::system_clock::time_point& deadline,
                                                    proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kConsensusCreateTopic, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kConsensusCreateTopic, request, deadline, response);
 }
 
 //-----
 void TopicCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_consensuscreatetopic(build());
+}
+
+//-----
+void TopicCreateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_consensuscreatetopic())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ConsensusCreateTopic data");
+  }
+
+  const proto::ConsensusCreateTopicTransactionBody& body = transactionBody.consensuscreatetopic();
+
+  mMemo = body.memo();
+
+  if (body.has_adminkey())
+  {
+    mAdminKey = Key::fromProtobuf(body.adminkey());
+  }
+
+  if (body.has_submitkey())
+  {
+    mSubmitKey = Key::fromProtobuf(body.submitkey());
+  }
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  if (body.has_autorenewaccount())
+  {
+    mAutoRenewAccountId = AccountId::fromProtobuf(body.autorenewaccount());
+  }
 }
 
 //-----

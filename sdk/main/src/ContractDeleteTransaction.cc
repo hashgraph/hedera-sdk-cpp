@@ -29,28 +29,17 @@ namespace Hedera
 {
 //-----
 ContractDeleteTransaction::ContractDeleteTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<ContractDeleteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_contractdeleteinstance())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ContractDeleteInstance data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::ContractDeleteTransactionBody& body = transactionBody.contractdeleteinstance();
-
-  if (body.has_contractid())
-  {
-    mContractId = ContractId::fromProtobuf(body.contractid());
-  }
-
-  if (body.has_transferaccountid())
-  {
-    mTransferAccountId = AccountId::fromProtobuf(body.transferaccountid());
-  }
-
-  else if (body.has_transfercontractid())
-  {
-    mTransferContractId = ContractId::fromProtobuf(body.transfercontractid());
-  }
+//-----
+ContractDeleteTransaction::ContractDeleteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<ContractDeleteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -80,26 +69,47 @@ ContractDeleteTransaction& ContractDeleteTransaction::setTransferContractId(cons
 }
 
 //-----
-proto::Transaction ContractDeleteTransaction::makeRequest(const Client& client,
-                                                          const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status ContractDeleteTransaction::submitRequest(const Client& client,
-                                                      const std::chrono::system_clock::time_point& deadline,
+grpc::Status ContractDeleteTransaction::submitRequest(const proto::Transaction& request,
                                                       const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
                                                       proto::TransactionResponse* response) const
 {
   return node->submitTransaction(
-    proto::TransactionBody::DataCase::kContractDeleteInstance, makeRequest(client, node), deadline, response);
+    proto::TransactionBody::DataCase::kContractDeleteInstance, request, deadline, response);
 }
 
 //-----
 void ContractDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_contractdeleteinstance(build());
+}
+
+//-----
+void ContractDeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_contractdeleteinstance())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ContractDeleteInstance data");
+  }
+
+  const proto::ContractDeleteTransactionBody& body = transactionBody.contractdeleteinstance();
+
+  if (body.has_contractid())
+  {
+    mContractId = ContractId::fromProtobuf(body.contractid());
+  }
+
+  if (body.has_transferaccountid())
+  {
+    mTransferAccountId = AccountId::fromProtobuf(body.transferaccountid());
+  }
+
+  else if (body.has_transfercontractid())
+  {
+    mTransferContractId = ContractId::fromProtobuf(body.transfercontractid());
+  }
 }
 
 //-----

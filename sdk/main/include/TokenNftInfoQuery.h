@@ -59,46 +59,43 @@ public:
 
 private:
   /**
-   * Derived from Executable. Construct a Query protobuf object from this TokenNftInfoQuery object.
-   *
-   * @param client The Client trying to construct this TokenNftInfoQuery.
-   * @param node   The Node to which this TokenNftInfoQuery will be sent.
-   * @return A Query protobuf object filled with this TokenNftInfoQuery object's data.
-   */
-  [[nodiscard]] proto::Query makeRequest(const Client& client,
-                                         const std::shared_ptr<internal::Node>& node) const override;
-
-  /**
    * Derived from Executable. Construct a TokenNftInfo object from a Response protobuf object.
    *
    * @param response The Response protobuf object from which to construct a TokenNftInfo object.
-   * @return A TokenNftInfo object filled with the Response protobuf object's data.
+   * @return A TokenNftInfo object filled with the Response protobuf object's data
    */
   [[nodiscard]] TokenNftInfo mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Get the status response code for a submitted TokenNftInfoQuery from a Response protobuf
-   * object.
+   * Derived from Executable. Submit a Query protobuf object which contains this TokenNftInfoQuery's data to a Node.
    *
-   * @param response The Response protobuf object from which to grab the TokenNftInfoQuery status response code.
-   * @return The TokenNftInfoQuery status response code of the input Response protobuf object.
-   */
-  [[nodiscard]] Status mapResponseStatus(const proto::Response& response) const override;
-
-  /**
-   * Derived from Executable. Submit this TokenNftInfoQuery to a Node.
-   *
-   * @param client   The Client submitting this TokenNftInfoQuery.
-   * @param deadline The deadline for submitting this TokenNftInfoQuery.
-   * @param node     Pointer to the Node to which this TokenNftInfoQuery should be submitted.
-   * @param response Pointer to the Response protobuf object that gRPC should populate with the response information
+   * @param request  The Query protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
    *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] grpc::Status submitRequest(const proto::Query& request,
                                            const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
                                            proto::Response* response) const override;
+  /**
+   * Derived from Query. Build a Query protobuf object with this TokenNftInfoQuery's data, with the input QueryHeader
+   * protobuf object.
+   *
+   * @param header A pointer to the QueryHeader protobuf object to add to the Query protobuf object.
+   * @return The constructed Query protobuf object.
+   */
+  [[nodiscard]] proto::Query buildRequest(proto::QueryHeader* header) const override;
+
+  /**
+   * Derived from Query. Get the ResponseHeader protobuf object from the input Response protobuf object.
+   *
+   * @param response The Response protobuf object from which to get the ResponseHeader protobuf object.
+   * @return The ResponseHeader protobuf object of the input Response protobuf object for this derived Query.
+   */
+  [[nodiscard]] proto::ResponseHeader mapResponseHeader(const proto::Response& response) const override;
 
   /**
    * The ID of the NFT of which this query should get the info.

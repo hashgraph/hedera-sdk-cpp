@@ -56,46 +56,43 @@ public:
 
 private:
   /**
-   * Derived from Executable. Construct a Query protobuf object from this AccountInfoQuery object.
-   *
-   * @param client The Client trying to construct this AccountInfoQuery.
-   * @param node   The Node to which this AccountInfoQuery will be sent.
-   * @return A Query protobuf object filled with this AccountInfoQuery object's data.
-   */
-  [[nodiscard]] proto::Query makeRequest(const Client& client,
-                                         const std::shared_ptr<internal::Node>& node) const override;
-
-  /**
    * Derived from Executable. Construct an AccountInfo object from a Response protobuf object.
    *
    * @param response The Response protobuf object from which to construct an AccountInfo object.
-   * @return An AccountInfo object filled with the Response protobuf object's data.
+   * @return An AccountInfo object filled with the Response protobuf object's data
    */
   [[nodiscard]] AccountInfo mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Get the status response code for a submitted AccountInfoQuery from a Response protobuf
-   * object.
+   * Derived from Executable. Submit a Query protobuf object which contains this AccountInfoQuery's data to a Node.
    *
-   * @param response The Response protobuf object from which to grab the AccountInfoQuery status response code.
-   * @return The AccountInfoQuery status response code of the input Response protobuf object.
-   */
-  [[nodiscard]] Status mapResponseStatus(const proto::Response& response) const override;
-
-  /**
-   * Derived from Executable. Submit this AccountInfoQuery to a Node.
-   *
-   * @param client   The Client submitting this AccountInfoQuery.
-   * @param deadline The deadline for submitting this AccountInfoQuery.
-   * @param node     Pointer to the Node to which this AccountInfoQuery should be submitted.
-   * @param response Pointer to the Response protobuf object that gRPC should populate with the response information
+   * @param request  The Query protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
    *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] grpc::Status submitRequest(const proto::Query& request,
                                            const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
                                            proto::Response* response) const override;
+  /**
+   * Derived from Query. Build a Query protobuf object with this AccountInfoQuery's data, with the input QueryHeader
+   * protobuf object.
+   *
+   * @param header A pointer to the QueryHeader protobuf object to add to the Query protobuf object.
+   * @return The constructed Query protobuf object.
+   */
+  [[nodiscard]] proto::Query buildRequest(proto::QueryHeader* header) const override;
+
+  /**
+   * Derived from Query. Get the ResponseHeader protobuf object from the input Response protobuf object.
+   *
+   * @param response The Response protobuf object from which to get the ResponseHeader protobuf object.
+   * @return The ResponseHeader protobuf object of the input Response protobuf object for this derived Query.
+   */
+  [[nodiscard]] proto::ResponseHeader mapResponseHeader(const proto::Response& response) const override;
 
   /**
    * The ID of the account of which this query should get the info.

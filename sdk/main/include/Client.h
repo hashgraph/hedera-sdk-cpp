@@ -32,7 +32,7 @@ namespace Hedera
 namespace internal
 {
 class MirrorNetwork;
-class Node;
+class Network;
 }
 class AccountId;
 class Hbar;
@@ -114,27 +114,7 @@ public:
   Client& setOperator(const AccountId& accountId, const PrivateKey* privateKey);
 
   /**
-   * Sign an arbitrary array of bytes with this Client's operator.
-   *
-   * @param bytes The bytes for this Client's operator to sign.
-   * @return The generated signature of this Client's operator.
-   * @throws UninitializedException If this Client's operator has not yet been set.
-   */
-  [[nodiscard]] std::vector<std::byte> sign(const std::vector<std::byte>& bytes) const;
-
-  /**
-   * Get a list of pointers to Nodes on this Client's network that are associated with the input account IDs. If no
-   * account IDs are specified, this returns the list a list of pointers to all nodes in this Client's network.
-   *
-   * @param accountIds The account IDs of the requested nodes. This can be empty to get all Nodes.
-   * @return A list of pointers to Nodes that are associated with the requested account IDs.
-   * @throws UninitializedException If this Client's network has not yet been initialized.
-   */
-  [[nodiscard]] std::vector<std::shared_ptr<internal::Node>> getNodesWithAccountIds(
-    const std::vector<AccountId>& accountIds) const;
-
-  /**
-   * Initiate an orderly shutdown of communications with the network with which this Client was configured to
+   * Initiate an orderly close of communications with the network with which this Client was configured to
    * communicate. Preexisting transactions or queries continue but subsequent calls would be immediately cancelled.
    *
    * After this method returns, this Client can be re-used. All network communication can be re-established as needed.
@@ -159,6 +139,17 @@ public:
    * @throws std::invalid_argument If the transaction fee is negative.
    */
   Client& setMaxTransactionFee(const Hbar& fee);
+
+  /**
+   * Set the maximum query payment willing to be paid for transactions executed by this Client. Every request submitted
+   * with this Client will have its maximum query payment overwritten by this Client's maximum query payment if and only
+   * if it has not been set manually in the request itself.
+   *
+   * @param payment The desired maximum query payment willing to be paid for queries submitted by this Client.
+   * @return A reference to this Client object with the newly-set maximum query payment.
+   * @throws std::invalid_argument If the query payment is negative.
+   */
+  Client& setMaxQueryPayment(const Hbar& payment);
 
   /**
    * Set the transaction ID regeneration policy for transactions executed by this Client. Every transaction submitted
@@ -208,6 +199,13 @@ public:
   Client& setMaxBackoff(const std::chrono::duration<double>& backoff);
 
   /**
+   * Get a pointer to the Network this Client is using to communicate with consensus nodes.
+   *
+   * @return A pointer to the Network this Client is using to communicate with consensus nodes.
+   */
+  [[nodiscard]] std::shared_ptr<internal::Network> getNetwork() const;
+
+  /**
    * Get the account ID of this Client's operator.
    *
    * @return The account ID of this Client's operator. Uninitialized if the operator has not yet been set.
@@ -243,6 +241,13 @@ public:
    *         set.
    */
   [[nodiscard]] std::optional<Hbar> getMaxTransactionFee() const;
+
+  /**
+   * Get the maximum payment willing to be paid for queries submitted by this Client.
+   *
+   * @return The maximum query payment willing to be paid by this Client. Uninitialized if the fee has not yet been set.
+   */
+  [[nodiscard]] std::optional<Hbar> getMaxQueryPayment() const;
 
   /**
    * Get the transaction ID regeneration policy for transactions submitted by this Client.

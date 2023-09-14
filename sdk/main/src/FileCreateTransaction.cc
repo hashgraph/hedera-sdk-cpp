@@ -32,31 +32,24 @@ namespace Hedera
 //-----
 FileCreateTransaction::FileCreateTransaction()
 {
-  setMaxTransactionFee(Hbar(5LL));
+  setDefaultMaxTransactionFee(Hbar(5LL));
 }
 
 //-----
 FileCreateTransaction::FileCreateTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<FileCreateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_filecreate())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain FileCreate data");
-  }
+  setDefaultMaxTransactionFee(Hbar(5LL));
+  initFromSourceTransactionBody();
+}
 
-  const proto::FileCreateTransactionBody& body = transactionBody.filecreate();
-
-  if (body.has_expirationtime())
-  {
-    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
-  }
-
-  if (body.has_keys())
-  {
-    mKeys = KeyList::fromProtobuf(body.keys());
-  }
-
-  mContents = internal::Utilities::stringToByteVector(body.contents());
-  mFileMemo = body.memo();
+//-----
+FileCreateTransaction::FileCreateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<FileCreateTransaction>(transactions)
+{
+  setDefaultMaxTransactionFee(Hbar(5LL));
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -101,26 +94,44 @@ FileCreateTransaction& FileCreateTransaction::setFileMemo(std::string_view memo)
 }
 
 //-----
-proto::Transaction FileCreateTransaction::makeRequest(const Client& client,
-                                                      const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status FileCreateTransaction::submitRequest(const Client& client,
-                                                  const std::chrono::system_clock::time_point& deadline,
+grpc::Status FileCreateTransaction::submitRequest(const proto::Transaction& request,
                                                   const std::shared_ptr<internal::Node>& node,
+                                                  const std::chrono::system_clock::time_point& deadline,
                                                   proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kFileCreate, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kFileCreate, request, deadline, response);
 }
 
 //-----
 void FileCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_filecreate(build());
+}
+
+//-----
+void FileCreateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_filecreate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain FileCreate data");
+  }
+
+  const proto::FileCreateTransactionBody& body = transactionBody.filecreate();
+
+  if (body.has_expirationtime())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
+  }
+
+  if (body.has_keys())
+  {
+    mKeys = KeyList::fromProtobuf(body.keys());
+  }
+
+  mContents = internal::Utilities::stringToByteVector(body.contents());
+  mFileMemo = body.memo();
 }
 
 //-----

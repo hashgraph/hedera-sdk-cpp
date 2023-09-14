@@ -31,6 +31,7 @@
 namespace proto
 {
 class Key;
+class SignaturePair;
 }
 
 namespace Hedera::internal::OpenSSLUtils
@@ -108,6 +109,14 @@ public:
    * @return The raw bytes of this PublicKey.
    */
   [[nodiscard]] virtual std::vector<std::byte> toBytesRaw() const = 0;
+
+  /**
+   * Serialize this PublicKey to a SignaturePair protobuf object with the given signature.
+   *
+   * @param signature The signature created by this PublicKey.
+   */
+  [[nodiscard]] virtual std::unique_ptr<proto::SignaturePair> toSignaturePairProtobuf(
+    const std::vector<std::byte>& signature) const = 0;
 
 protected:
   /**

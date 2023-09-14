@@ -32,21 +32,15 @@ namespace Hedera
 SystemUndeleteTransaction::SystemUndeleteTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<SystemUndeleteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_systemundelete())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain SystemUndelete data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::SystemUndeleteTransactionBody& body = transactionBody.systemundelete();
-
-  if (body.has_fileid())
-  {
-    mFileId = FileId::fromProtobuf(body.fileid());
-  }
-  else if (body.has_contractid())
-  {
-    mContractId = ContractId::fromProtobuf(body.contractid());
-  }
+//-----
+SystemUndeleteTransaction::SystemUndeleteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<SystemUndeleteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -68,26 +62,40 @@ SystemUndeleteTransaction& SystemUndeleteTransaction::setContractId(const Contra
 }
 
 //-----
-proto::Transaction SystemUndeleteTransaction::makeRequest(const Client& client,
-                                                          const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status SystemUndeleteTransaction::submitRequest(const Client& client,
-                                                      const std::chrono::system_clock::time_point& deadline,
+grpc::Status SystemUndeleteTransaction::submitRequest(const proto::Transaction& request,
                                                       const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
                                                       proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kSystemUndelete, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kSystemUndelete, request, deadline, response);
 }
 
 //-----
 void SystemUndeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_systemundelete(build());
+}
+
+//-----
+void SystemUndeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_systemundelete())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain SystemUndelete data");
+  }
+
+  const proto::SystemUndeleteTransactionBody& body = transactionBody.systemundelete();
+
+  if (body.has_fileid())
+  {
+    mFileId = FileId::fromProtobuf(body.fileid());
+  }
+  else if (body.has_contractid())
+  {
+    mContractId = ContractId::fromProtobuf(body.contractid());
+  }
 }
 
 //-----
