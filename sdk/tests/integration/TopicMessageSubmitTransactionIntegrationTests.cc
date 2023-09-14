@@ -325,7 +325,7 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWi
   for (const auto& resp : txResponses)
   {
     EXPECT_EQ(resp.getValidateStatus(), true);
-    EXPECT_THROW(resp.getReceipt(getTestClient()).mStatus == Status::INVALID_TOPIC_ID, ReceiptStatusException);
+    EXPECT_THROW(const TransactionReceipt txReceipt = resp.getReceipt(getTestClient()), ReceiptStatusException);
   }
 
   TopicInfo topicInfo2;

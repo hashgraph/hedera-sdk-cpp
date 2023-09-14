@@ -191,15 +191,15 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
 }
 
 //-----
-std::shared_ptr<Node> Node::toInsecure() const
+Node& Node::toInsecure()
 {
-  return std::make_shared<Node>(Node(*this, getAddress().toInsecure()));
+  return BaseNode<Node, AccountId>::setAddress(getAddress().toInsecure());
 }
 
 //-----
-std::shared_ptr<Node> Node::toSecure() const
+Node& Node::toSecure()
 {
-  return std::make_shared<Node>(Node(*this, getAddress().toSecure()));
+  return BaseNode<Node, AccountId>::setAddress(getAddress().toSecure());
 }
 
 //-----

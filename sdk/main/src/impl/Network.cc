@@ -78,10 +78,26 @@ Network& Network::setTransportSecurity(TLSBehavior tls)
   {
     for (const std::shared_ptr<Node>& node : getNodes())
     {
-      node->setTransportSecurity(tls);
+      switch (tls)
+      {
+        case TLSBehavior::REQUIRE:
+        {
+          node->toSecure();
+          break;
+        }
+        case TLSBehavior::DISABLE:
+        {
+          node->toInsecure();
+          break;
+        }
+        default:
+        {
+          // Unimplemented other TLSBehaviors. Do nothing for now.
+        }
+      }
     }
 
-    setTransportSecurity(tls);
+    BaseNetwork<Network, AccountId, Node>::setTransportSecurityInternal(tls);
   }
 
   return *this;
@@ -128,9 +144,9 @@ Network Network::getNetworkForLedgerId(const LedgerId& ledgerId)
   {
     for (const auto& endpoint : nodeAddress.getEndpoints())
     {
-      if (endpoint->getPort() == BaseNodeAddress::PORT_NODE_TLS)
+      if (endpoint.getPort() == BaseNodeAddress::PORT_NODE_TLS)
       {
-        network[endpoint->toString()] = accountId;
+        network[endpoint.toString()] = accountId;
         break;
       }
     }
@@ -149,14 +165,24 @@ std::unordered_map<AccountId, NodeAddress> Network::getAddressBookForLedgerId(co
   }
 
   std::ifstream infile(ledgerId.toString() + ".pb", std::ios_base::binary);
-  return NodeAddressBook::fromBytes({ std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() })
-    .getAddressMap();
+  const NodeAddressBook addressBook =
+    NodeAddressBook::fromBytes({ std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() });
+
+  std::unordered_map<AccountId, NodeAddress> addresses;
+  for (const auto& nodeAddress : addressBook.getNodeAddresses())
+  {
+    addresses.try_emplace(nodeAddress.getAccountId(), nodeAddress);
+  }
+
+  return addresses;
 }
 
 //-----
 std::shared_ptr<Node> Network::createNodeFromNetworkEntry(std::string_view address, const AccountId& key) const
 {
-  return std::make_shared<Node>(key, address)->setVerifyCertificates(mVerifyCertificates);
+  auto node = std::make_shared<Node>(key, address);
+  node->setVerifyCertificates(mVerifyCertificates);
+  return node;
 }
 
 //-----
@@ -167,19 +193,14 @@ Network& Network::setLedgerIdInternal(const LedgerId& ledgerId,
   BaseNetwork<Network, AccountId, Node>::setLedgerId(ledgerId);
 
   // Update each Node's address book entry with the new address book.
-  if (addressBook.empty())
-  {
-    std::for_each(getNodes().cbegin(),
-                  getNodes().cend(),
-                  [](const std::shared_ptr<Node>& node) { node->setAddressBookEntry(NodeAddress()); });
-  }
-  else
-  {
-    for (const std::shared_ptr<Node>& node : getNodes())
-    {
-      node->setAddressBookEntry(addressBook.at(node->getAccountId()));
-    }
-  }
+  std::for_each(getNodes().cbegin(),
+                getNodes().cend(),
+                [&addressBook](const std::shared_ptr<Node>& node)
+                {
+                  node->setNodeCertificateHash(addressBook.empty()
+                                                 ? std::vector<std::byte>()
+                                                 : addressBook.at(node->getAccountId()).getCertHash());
+                });
 
   return *this;
 }

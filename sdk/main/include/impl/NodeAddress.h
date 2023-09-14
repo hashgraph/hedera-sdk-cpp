@@ -69,7 +69,7 @@ public:
    * @param publicKey The hex-encoded and DER-encoded public key to set.
    * @return A reference to this NodeAddress with the newly-set public key.
    */
-  NodeAddress& setRSAPublicKey(std::string_view publicKey);
+  NodeAddress& setPublicKey(std::string_view publicKey);
 
   /**
    * Set the node ID of this NodeAddress.
@@ -85,7 +85,7 @@ public:
    * @param accountId The account ID to set.
    * @return A reference to this NodeAddress with the newly-set account ID.
    */
-  NodeAddress& setNodeAccountId(const AccountId& accountId);
+  NodeAddress& setAccountId(const AccountId& accountId);
 
   /**
    * Set the certificate hash of this NodeAddress. This should be hex-encoded SHA384 hash of the UTF-8 NFKD encoding of
@@ -94,7 +94,8 @@ public:
    * @param certHash The certificate hash to set.
    * @return A reference to this NodeAddress with the newly-set certificate hash.
    */
-  NodeAddress& setNodeCertHash(std::string_view certHash);
+  NodeAddress& setCertHash(std::string_view certHash);
+  NodeAddress& setCertHash(std::vector<std::byte> certHash);
 
   /**
    * Set the list of endpoints of this NodeAddress.
@@ -131,14 +132,14 @@ public:
    *
    * @return The account ID of this NodeAddress.
    */
-  [[nodiscard]] inline AccountId getNodeAccountId() const { return mNodeAccountId; }
+  [[nodiscard]] inline AccountId getAccountId() const { return mNodeAccountId; }
 
   /**
    * Get the node certificate hash of this NodeAddress.
    *
    * @return The node certificate hash of this NodeAddress.
    */
-  [[nodiscard]] inline std::vector<std::byte> getNodeCertHash() const { return mNodeCertHash; }
+  [[nodiscard]] inline std::vector<std::byte> getCertHash() const { return mNodeCertHash; }
 
   /**
    * Get the list of endpoints of this NodeAddress.
@@ -155,11 +156,6 @@ public:
   [[nodiscard]] inline std::string getDescription() const { return mDescription; }
 
 private:
-  /**
-   * The Endpoints associated with the node.
-   */
-  std::vector<Endpoint> mEndpoints;
-
   /**
    * The node's public key.
    */
@@ -179,6 +175,11 @@ private:
    * The SHA-384 hash of the node's certificate chain.
    */
   std::vector<std::byte> mNodeCertHash;
+
+  /**
+   * The Endpoints associated with the node.
+   */
+  std::vector<Endpoint> mEndpoints;
 
   /**
    * A string description of the node.

@@ -132,6 +132,17 @@ BaseNode<NodeType, KeyType>::BaseNode(BaseNodeAddress address)
 
 //-----
 template<typename NodeType, typename KeyType>
+NodeType& BaseNode<NodeType, KeyType>::setAddress(const BaseNodeAddress& address)
+{
+  // Close the connection since the address is changing.
+  close();
+
+  mAddress = address;
+  return static_cast<NodeType&>(*this);
+}
+
+//-----
+template<typename NodeType, typename KeyType>
 std::shared_ptr<grpc::Channel> BaseNode<NodeType, KeyType>::getChannel()
 {
   if (!mChannel)

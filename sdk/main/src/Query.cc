@@ -20,9 +20,12 @@
 #include "Query.h"
 #include "AccountBalance.h"
 #include "AccountBalanceQuery.h"
+#include "AccountInfo.h"
+#include "AccountInfoQuery.h"
 #include "AccountRecords.h"
 #include "AccountRecordsQuery.h"
 #include "Client.h"
+#include "ContractByteCodeQuery.h"
 #include "ContractCallQuery.h"
 #include "ContractFunctionResult.h"
 #include "ContractInfo.h"
@@ -74,7 +77,7 @@ struct Query<SdkRequestType, SdkResponseType>::QueryImpl
   Hbar mCost;
 
   // The Client that should be used to pay for the payment transaction of this Query.
-  Client* mClient;
+  Client* mClient = nullptr;
 
   // The TransactionID of the payment transactions for this Query.
   TransactionId mPaymentTransactionId;
@@ -131,6 +134,13 @@ void Query<SdkRequestType, SdkResponseType>::saveCostFromHeader(const proto::Res
   {
     mImpl->mCost = Hbar(static_cast<int64_t>(header.cost()), HbarUnit::TINYBAR());
   }
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+Query<SdkRequestType, SdkResponseType>::Query()
+  : mImpl(std::make_unique<QueryImpl>())
+{
 }
 
 //-----
@@ -278,7 +288,9 @@ void Query<SdkRequestType, SdkResponseType>::setNodeAccountIds(const Client& cli
  * Explicit template instantiations.
  */
 template class Query<AccountBalanceQuery, AccountBalance>;
+template class Query<AccountInfoQuery, AccountInfo>;
 template class Query<AccountRecordsQuery, AccountRecords>;
+template class Query<ContractByteCodeQuery, ContractByteCode>;
 template class Query<ContractCallQuery, ContractFunctionResult>;
 template class Query<ContractInfoQuery, ContractInfo>;
 template class Query<FileContentsQuery, FileContents>;

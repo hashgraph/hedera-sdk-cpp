@@ -18,6 +18,7 @@
  *
  */
 #include "impl/NodeAddress.h"
+#include "AccountId.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/Endpoint.h"
 #include "impl/HexConverter.h"
@@ -29,170 +30,164 @@
 #include <string>
 #include <vector>
 
+using namespace Hedera;
 using namespace Hedera::internal;
 
 class NodeAddressTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const int64_t& getTestNodeId() const { return mTestNodeId; }
-  [[nodiscard]] inline const int& getTestPortTLS() const { return mTestPortTLS; }
-  [[nodiscard]] inline const int& getTestPortPlain() const { return mTestPortPlain; }
-  [[nodiscard]] inline const std::string& getTestRSAPublicKey() const { return mTestRSAPublicKey; }
-  [[nodiscard]] inline const std::string& getTestIpAddress() const { return mTestIpAddress; }
+  [[nodiscard]] inline const std::vector<Endpoint>& getTestEndpoints() const { return mTestEndpoints; }
+  [[nodiscard]] inline const std::string& getTestPublicKey() const { return mTestPublicKey; }
+  [[nodiscard]] inline int64_t getTestNodeId() const { return mTestNodeId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestNodeAccountId; }
+  [[nodiscard]] inline const std::vector<std::byte>& getTestCertHash() const { return mTestCertHash; }
   [[nodiscard]] inline const std::string& getTestDescription() const { return mTestDescription; }
-  [[nodiscard]] inline const std::string& getTestNodeCertHash() const { return mTestNodeCertHash; }
-  [[nodiscard]] inline const std::string& getTestNodeAddress() const { return mTestNodeAddress; }
-
-  void SetUp() override
-  {
-    const int testPortTLS = getTestPortTLS();
-    std::stringstream outputStream;
-    outputStream << getTestIpAddress() << ":" << std::to_string(testPortTLS);
-    mTestNodeAddress = outputStream.str();
-  }
 
 private:
-  const int64_t mTestNodeId = 9;
-  const int mTestPortTLS = 50212;
-  const int mTestPortPlain = 50211;
-  const std::string mTestRSAPublicKey = "TestPublicKey";
-  const std::string mTestIpAddress = "35.237.200.180";
+  const std::vector<Endpoint> mTestEndpoints = {
+    Endpoint()
+      .setAddress(IPv4Address::fromBytes({ std::byte(0x00), std::byte(0x01), std::byte(0x02), std::byte(0x03) }))
+      .setPort(4U)
+  };
+  const std::string mTestPublicKey = "TestPublicKey";
+  const int64_t mTestNodeId = 5LL;
+  const AccountId mTestNodeAccountId = AccountId(6ULL, 7ULL, 8ULL);
+  const std::vector<std::byte> mTestCertHash = { std::byte(0x09), std::byte(0x0A), std::byte(0x0B) };
   const std::string mTestDescription = "Test Description";
-  const std::string mTestNodeCertHash = "Certificate Hash Value";
-  std::string mTestNodeAddress;
 };
 
-// Test creation of NodeAddress instance using the default constructor.
-TEST_F(NodeAddressTest, DefaultConstructNodeAddress)
+//-----
+TEST_F(NodeAddressTest, FromProtobuf)
 {
   // Given
-  const int testPortTLS = getTestPortTLS();
+  proto::NodeAddress protoNodeAddress;
+
+  for (const auto& endpoint : getTestEndpoints())
+  {
+    *protoNodeAddress.add_serviceendpoint() = *endpoint.toProtobuf();
+  }
+
+  protoNodeAddress.set_rsa_pubkey(getTestPublicKey());
+  protoNodeAddress.set_nodeid(getTestNodeId());
+  protoNodeAddress.set_allocated_nodeaccountid(getTestAccountId().toProtobuf().release());
+  protoNodeAddress.set_nodecerthash(Utilities::byteVectorToString(getTestCertHash()));
+  protoNodeAddress.set_description(getTestDescription());
 
   // When
-  const NodeAddress nodeAddress;
+  const NodeAddress nodeAddress = NodeAddress::fromProtobuf(protoNodeAddress);
 
   // Then
-  EXPECT_TRUE(nodeAddress.isTlsPort(testPortTLS));
-  EXPECT_FALSE(nodeAddress.isNonTlsPort(testPortTLS));
-  EXPECT_EQ(nodeAddress.getNodeId(), -1);
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getShardNum(), 0ULL);
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getRealmNum(), 0ULL);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getAccountNum().has_value());
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getPublicKeyAlias(), nullptr);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddressAlias().has_value());
-  EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
-  EXPECT_TRUE(nodeAddress.getDescription().empty());
-  EXPECT_TRUE(nodeAddress.getEndpoints().empty());
+  EXPECT_EQ(nodeAddress.getEndpoints().size(), getTestEndpoints().size());
+  EXPECT_EQ(nodeAddress.getPublicKey(), getTestPublicKey());
+  EXPECT_EQ(nodeAddress.getNodeId(), getTestNodeId());
+  EXPECT_EQ(nodeAddress.getAccountId(), getTestAccountId());
+  EXPECT_EQ(nodeAddress.getCertHash(), getTestCertHash());
+  EXPECT_EQ(nodeAddress.getDescription(), getTestDescription());
 }
 
-// Test setters & getters of NodeAddress.
-TEST_F(NodeAddressTest, GettersAndSettersNodeAddress)
+//-----
+TEST_F(NodeAddressTest, ToProtobuf)
 {
   // Given
-  NodeAddress testNodeAddress;
-  const int64_t testNodeId = getTestNodeId();
-  const int testPortTLS = getTestPortTLS();
-  const std::string& testRSAPublicKey = getTestRSAPublicKey();
-  const std::string& testStringForIpAddressV4_1 = getTestIpAddress();
-  const std::string& testStringForIpAddressV4_2 = "127.0.0.1";
-  const IPv4Address& testIpAddressV4_1 = IPv4Address::fromString(testStringForIpAddressV4_1);
-  const IPv4Address& testIpAddressV4_2 = IPv4Address::fromString(testStringForIpAddressV4_2);
-  const std::string& testDescription = getTestDescription();
-  const std::string& testNodeCertHash = getTestNodeCertHash();
-  const std::vector<std::byte> nodeCertHashVec = Utilities::stringToByteVector(testNodeCertHash);
-  const auto testEndpointPtr_1 = std::make_shared<Endpoint>(testIpAddressV4_1, testPortTLS);
-  const auto testEndpointPtr_2 = std::make_shared<Endpoint>(testIpAddressV4_2, testPortTLS);
-  std::vector<std::shared_ptr<Endpoint>> testEndpoints;
-  testEndpoints.push_back(testEndpointPtr_1);
-  testEndpoints.push_back(testEndpointPtr_2);
-  const std::vector<std::shared_ptr<Endpoint>> testConstEndpoints(testEndpoints);
+  NodeAddress nodeAddress;
+  nodeAddress.setEndpoints(getTestEndpoints());
+  nodeAddress.setPublicKey(getTestPublicKey());
+  nodeAddress.setNodeId(getTestNodeId());
+  nodeAddress.setAccountId(getTestAccountId());
+  nodeAddress.setCertHash(Utilities::byteVectorToString(getTestCertHash()));
+  nodeAddress.setDescription(getTestDescription());
 
   // When
-  testNodeAddress.setNodeId(testNodeId);
-  testNodeAddress.setRSAPublicKey(testRSAPublicKey);
-  testNodeAddress.setDescription(testDescription);
-  testNodeAddress.setNodeCertHash(testNodeCertHash);
-  testNodeAddress.setEndpoints(testConstEndpoints);
+  const std::unique_ptr<proto::NodeAddress> protoNodeAddress = nodeAddress.toProtobuf();
 
   // Then
-  EXPECT_EQ(testNodeAddress.getNodeId(), testNodeId);
-  EXPECT_EQ(testNodeAddress.getPublicKey(), testRSAPublicKey);
-  EXPECT_EQ(testNodeAddress.getDescription(), testDescription);
-  EXPECT_EQ(testNodeAddress.getNodeCertHash(), nodeCertHashVec);
-  EXPECT_EQ(testNodeAddress.getDefaultIpAddress().toString(), testStringForIpAddressV4_1);
-  EXPECT_EQ(testNodeAddress.getDefaultPort(), testPortTLS);
+  EXPECT_EQ(protoNodeAddress->serviceendpoint_size(), getTestEndpoints().size());
+  EXPECT_EQ(protoNodeAddress->rsa_pubkey(), getTestPublicKey());
+  EXPECT_EQ(protoNodeAddress->nodeid(), getTestNodeId());
+  EXPECT_EQ(protoNodeAddress->nodeaccountid().shardnum(), getTestAccountId().getShardNum());
+  EXPECT_EQ(protoNodeAddress->nodeaccountid().realmnum(), getTestAccountId().getRealmNum());
+  EXPECT_EQ(protoNodeAddress->nodeaccountid().accountnum(), getTestAccountId().getAccountNum().value());
+  EXPECT_EQ(protoNodeAddress->nodecerthash(), Utilities::byteVectorToString(getTestCertHash()));
+  EXPECT_EQ(protoNodeAddress->description(), getTestDescription());
 }
 
-// Test creation of NodeAddress instance using a protobuf object.
-TEST_F(NodeAddressTest, ConstructFromProtobuf)
+//-----
+TEST_F(NodeAddressTest, GetSetPublicKey)
 {
   // Given
-  const int testPortPlain = getTestPortPlain();
-  const int64_t testNodeId = getTestNodeId();
-  const std::string& testRSAPublicKey = getTestRSAPublicKey();
-  const std::string& testIpAddressV4 = getTestIpAddress();
-  const std::string& testDescription = getTestDescription();
-  auto testProtoNodeAddress = proto::NodeAddress();
-  testProtoNodeAddress.set_nodeid(testNodeId);
-  testProtoNodeAddress.set_description(testDescription);
-  testProtoNodeAddress.set_rsa_pubkey(testRSAPublicKey);
-  proto::ServiceEndpoint* serviceEndpoint = testProtoNodeAddress.add_serviceendpoint();
-  serviceEndpoint->set_ipaddressv4(testIpAddressV4);
-  serviceEndpoint->set_port(testPortPlain);
+  NodeAddress nodeAddress;
 
   // When
-  const NodeAddress nodeAddress = NodeAddress::fromProtobuf(testProtoNodeAddress);
+  nodeAddress.setPublicKey(getTestPublicKey());
 
   // Then
-  EXPECT_EQ(nodeAddress.getDefaultIpAddress().toString(), testIpAddressV4);
-  EXPECT_EQ(nodeAddress.getDefaultPort(), getTestPortTLS());
-  EXPECT_EQ(nodeAddress.getNodeId(), testNodeId);
-  EXPECT_EQ(nodeAddress.getPublicKey(), testRSAPublicKey);
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getShardNum(), 0ULL);
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getRealmNum(), 0ULL);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getAccountNum().has_value());
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getPublicKeyAlias(), nullptr);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddressAlias().has_value());
-  EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
-  EXPECT_FALSE(nodeAddress.getDescription().empty());
-  EXPECT_EQ(nodeAddress.getDescription(), testDescription);
-  EXPECT_FALSE(nodeAddress.getEndpoints().empty());
+  EXPECT_EQ(nodeAddress.getPublicKey(), getTestPublicKey());
 }
 
-// Test creation of NodeAddress instance using a node address represented as a string.
-TEST_F(NodeAddressTest, ConstructFromString)
+//-----
+TEST_F(NodeAddressTest, GetSetNodeId)
 {
   // Given
-  const int testPort = getTestPortTLS();
-  const std::string& testIpAddressV4 = getTestIpAddress();
-  const std::string testNodeAddress = getTestNodeAddress();
+  NodeAddress nodeAddress;
 
   // When
-  const NodeAddress nodeAddress = NodeAddress::fromString(testNodeAddress);
+  nodeAddress.setNodeId(getTestNodeId());
 
   // Then
-  EXPECT_EQ(nodeAddress.getDefaultIpAddress().toString(), testIpAddressV4);
-  EXPECT_EQ(nodeAddress.getDefaultPort(), testPort);
-  EXPECT_EQ(nodeAddress.getNodeId(), -1);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddressAlias().has_value());
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getShardNum(), 0ULL);
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getRealmNum(), 0ULL);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getAccountNum().has_value());
-  EXPECT_EQ(nodeAddress.getNodeAccountId().getPublicKeyAlias(), nullptr);
-  EXPECT_FALSE(nodeAddress.getNodeAccountId().getEvmAddressAlias().has_value());
-  EXPECT_TRUE(nodeAddress.getNodeCertHash().empty());
-  EXPECT_TRUE(nodeAddress.getDescription().empty());
-  EXPECT_FALSE(nodeAddress.getEndpoints().empty());
+  EXPECT_EQ(nodeAddress.getNodeId(), getTestNodeId());
 }
 
-// Test throwing an exception when trying to create a NodeAddress from malformed string.
-TEST_F(NodeAddressTest, ConstructFromMalformedStringAndThrowException)
+//-----
+TEST_F(NodeAddressTest, GetSetAccountId)
 {
   // Given
-  const std::string testNodeAddress_1 = "1";
-  const std::string testNodeAddress_2 = "aaa.bbb.ccc.ddd";
+  NodeAddress nodeAddress;
 
-  // When & Then
-  EXPECT_THROW(auto nodeAddress = NodeAddress::fromString(testNodeAddress_1), std::invalid_argument);
-  EXPECT_THROW(auto nodeAddress = NodeAddress::fromString(testNodeAddress_2), std::invalid_argument);
+  // When
+  nodeAddress.setAccountId(getTestAccountId());
+
+  // Then
+  EXPECT_EQ(nodeAddress.getAccountId(), getTestAccountId());
+}
+
+//-----
+TEST_F(NodeAddressTest, GetSetCertHash)
+{
+  // Given
+  NodeAddress nodeAddressWithStr;
+  NodeAddress nodeAddressWithBytes;
+
+  // When
+  nodeAddressWithStr.setCertHash(Utilities::byteVectorToString(getTestCertHash()));
+  nodeAddressWithStr.setCertHash(getTestCertHash());
+
+  // Then
+  EXPECT_EQ(nodeAddressWithStr.getCertHash(), getTestCertHash());
+  EXPECT_EQ(nodeAddressWithBytes.getCertHash(), getTestCertHash());
+}
+
+//-----
+TEST_F(NodeAddressTest, GetSetEndpoints)
+{
+  // Given
+  NodeAddress nodeAddress;
+
+  // When
+  nodeAddress.setEndpoints(getTestEndpoints());
+
+  // Then
+  EXPECT_EQ(nodeAddress.getEndpoints().size(), getTestEndpoints().size());
+}
+
+//-----
+TEST_F(NodeAddressTest, GetSetDescription)
+{
+  // Given
+  NodeAddress nodeAddress;
+
+  // When
+  nodeAddress.setDescription(getTestDescription());
+
+  // Then
+  EXPECT_EQ(nodeAddress.getDescription(), getTestDescription());
 }

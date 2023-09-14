@@ -154,6 +154,18 @@ struct hash<Hedera::TransactionId>
   size_t operator()(const Hedera::TransactionId& id) const { return hash<string>()(id.toString()); }
 };
 
+template<>
+struct less<Hedera::TransactionId>
+{
+  /**
+   * Operator override to enable use of TransactionId in a std::map, which requires fair ordering.
+   */
+  bool operator()(const Hedera::TransactionId& lhs, const Hedera::TransactionId& rhs) const
+  {
+    return lhs.toString() < rhs.toString();
+  }
+};
+
 } // namespace std
 
 #endif // HEDERA_SDK_CPP_TRANSACTION_ID_H_

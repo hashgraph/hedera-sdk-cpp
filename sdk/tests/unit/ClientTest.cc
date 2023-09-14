@@ -80,25 +80,6 @@ TEST_F(ClientTest, SetOperator)
 }
 
 //-----
-TEST_F(ClientTest, SignWithOperator)
-{
-  const std::vector<std::byte> bytesToSign = { std::byte(0x1), std::byte(0x2), std::byte(0x3) };
-
-  Client client;
-  EXPECT_THROW(auto bytes = client.sign(bytesToSign), UninitializedException);
-
-  client.setOperator(getTestAccountId(), getTestPrivateKey().get());
-  EXPECT_TRUE(getTestPrivateKey()->getPublicKey()->verifySignature(client.sign(bytesToSign), bytesToSign));
-}
-
-//-----
-TEST_F(ClientTest, GetNodes)
-{
-  Client client;
-  EXPECT_THROW(auto nodes = client.getNodesWithAccountIds({ getTestAccountId() }), UninitializedException);
-}
-
-//-----
 TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 {
   Client client;

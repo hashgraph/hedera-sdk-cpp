@@ -916,6 +916,8 @@ Transaction<SdkRequestType>::getSignaturesInternal(size_t offset) const
       }
     }
   }
+
+  return signatures;
 }
 
 //-----

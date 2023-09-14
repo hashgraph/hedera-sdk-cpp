@@ -229,7 +229,7 @@ std::vector<std::shared_ptr<NodeType>> BaseNetwork<NetworkType, KeyType, NodeTyp
 
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
-void BaseNetwork<NetworkType, KeyType, NodeType>::setTransportSecurity(TLSBehavior tls)
+void BaseNetwork<NetworkType, KeyType, NodeType>::setTransportSecurityInternal(TLSBehavior tls)
 {
   mTransportSecurity = tls;
 }

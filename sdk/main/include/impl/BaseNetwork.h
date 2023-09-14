@@ -193,7 +193,7 @@ public:
 
 protected:
   ~BaseNetwork() = default;
-  
+
   /**
    * Get a number of the most healthy nodes on this BaseNetwork. "Healthy"-ness is determined by sort order; the lower
    * index nodes in the returned vector are considered the most healthy.
@@ -210,7 +210,7 @@ protected:
    *
    * @param tls The transport security policy to set.
    */
-  void setTransportSecurity(TLSBehavior tls);
+  void setTransportSecurityInternal(TLSBehavior tls);
 
   /**
    * Get the map of KeyTypes to their NodeTypes on this BaseNetwork.

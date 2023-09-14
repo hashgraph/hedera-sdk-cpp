@@ -33,16 +33,16 @@ namespace Hedera::internal
 NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
 {
   NodeAddress outputNodeAddress;
+  outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
+  outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
+  outputNodeAddress.mNodeAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
+  outputNodeAddress.mNodeCertHash = Utilities::stringToByteVector(protoNodeAddress.nodecerthash());
 
   for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
   {
     outputNodeAddress.mEndpoints.push_back(Endpoint::fromProtobuf(protoNodeAddress.serviceendpoint(i)));
   }
 
-  outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
-  outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
-  outputNodeAddress.mNodeAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
-  outputNodeAddress.mNodeCertHash = Utilities::stringToByteVector(protoNodeAddress.nodecerthash());
   outputNodeAddress.mDescription = protoNodeAddress.description();
 
   return outputNodeAddress;
@@ -56,12 +56,13 @@ std::unique_ptr<proto::NodeAddress> NodeAddress::toProtobuf() const
   protoNodeAddress->set_nodeid(mNodeId);
   protoNodeAddress->set_allocated_nodeaccountid(mNodeAccountId.toProtobuf().release());
   protoNodeAddress->set_nodecerthash(Utilities::byteVectorToString(mNodeCertHash));
-  protoNodeAddress->set_description(mDescription);
 
   for (const auto& endpoint : mEndpoints)
   {
     *protoNodeAddress->add_serviceendpoint() = *endpoint.toProtobuf();
   }
+
+  protoNodeAddress->set_description(mDescription);
 
   return protoNodeAddress;
 }
@@ -112,7 +113,7 @@ std::string NodeAddress::toString() const
 }
 
 //-----
-NodeAddress& NodeAddress::setRSAPublicKey(std::string_view publicKey)
+NodeAddress& NodeAddress::setPublicKey(std::string_view publicKey)
 {
   mRSAPublicKey = publicKey;
   return *this;
@@ -126,16 +127,23 @@ NodeAddress& NodeAddress::setNodeId(const int64_t& nodeId)
 }
 
 //-----
-NodeAddress& NodeAddress::setNodeAccountId(const AccountId& accountId)
+NodeAddress& NodeAddress::setAccountId(const AccountId& accountId)
 {
   mNodeAccountId = accountId;
   return *this;
 }
 
 //-----
-NodeAddress& NodeAddress::setNodeCertHash(std::string_view certHash)
+NodeAddress& NodeAddress::setCertHash(std::string_view certHash)
 {
   mNodeCertHash = Utilities::stringToByteVector(certHash);
+  return *this;
+}
+
+//-----
+NodeAddress& NodeAddress::setCertHash(std::vector<std::byte> certHash)
+{
+  mNodeCertHash = std::move(certHash);
   return *this;
 }
 

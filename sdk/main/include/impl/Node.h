@@ -94,18 +94,18 @@ public:
                                  proto::TransactionResponse* response);
 
   /**
-   * Construct an insecure version of this Node.
+   * Construct an insecure version of this Node. This will close the Node's current connection.
    *
-   * @return A pointer to an insecure version of this Node.
+   * @return A reference to this Node, now using an insecure connection.
    */
-  [[nodiscard]] std::shared_ptr<Node> toInsecure() const;
+  Node& toInsecure();
 
   /**
-   * Construct a secure version of this Node.
+   * Construct a secure version of this Node. This will close the Node's current connection.
    *
-   * @return A pointer to a secure version of this Node.
+   * @return A reference to this Node, now using a secure connection.
    */
-  [[nodiscard]] std::shared_ptr<Node> toSecure() const;
+  Node& toSecure();
 
   /**
    * Set the node certificate hash of this Node.

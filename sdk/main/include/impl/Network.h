@@ -155,26 +155,6 @@ private:
   Network& setLedgerIdInternal(const LedgerId& ledgerId, const std::unordered_map<AccountId, NodeAddress>& addressBook);
 
   /**
-   * Establish communications with all Nodes for this Network that are specified in the input address book.
-   *
-   * @param nodeAddressBook The address book that contains the Nodes with which this Network will be communicating.
-   * @param tls The TLS behavior all nodes should initially use. Default value is REQUIRE.
-   * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
-   *                                hash.
-   */
-  void setNetwork(const NodeAddressBook& nodeAddressBook, TLSBehavior tls = TLSBehavior::REQUIRE);
-
-  /**
-   * Establish communications with all node addresses for this Network that are specified in the input map collection.
-   *
-   * @param networkMap The map containing string node addresses pointing to specific accountId object.
-   * @param tls The TLS behavior all nodes should initially use. Default value is DISABLE.
-   * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
-   *         hash.
-   */
-  void setNetwork(const std::unordered_map<std::string, AccountId>& networkMap, TLSBehavior tls = TLSBehavior::DISABLE);
-
-  /**
    * The maximum number of nodes to be returned for each request.
    */
   unsigned int mMaxNodesPerRequest = 0U;

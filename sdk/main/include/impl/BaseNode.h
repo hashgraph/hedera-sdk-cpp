@@ -138,6 +138,13 @@ protected:
   explicit BaseNode(BaseNodeAddress address);
 
   /**
+   * Set the BaseNodeAddress of this BaseNode. This will also close this BaseNode's current connection.
+   *
+   * @param address The BaseNodeAddress to set.
+   */
+  NodeType& setAddress(const BaseNodeAddress& address);
+
+  /**
    * Get this BaseNode's gRPC channel. Creates and initializes a new channel if one isn't already created.
    *
    * @return A pointer to this BaseNode's gRPC channel.
