@@ -30,14 +30,10 @@ using namespace Hedera;
 class SystemUndeleteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
 
 private:
-  Client mClient;
   const FileId mTestFileId = FileId(1ULL, 2ULL, 3ULL);
   const ContractId mTestContractId = ContractId(4ULL, 5ULL, 6ULL);
 };
@@ -90,8 +86,10 @@ TEST_F(SystemUndeleteTransactionTest, GetSetFileId)
 TEST_F(SystemUndeleteTransactionTest, GetSetFileIdFrozen)
 {
   // Given
-  SystemUndeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  SystemUndeleteTransaction transaction = SystemUndeleteTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);
@@ -115,8 +113,10 @@ TEST_F(SystemUndeleteTransactionTest, GetSetContractId)
 TEST_F(SystemUndeleteTransactionTest, GetSetContractIdFrozen)
 {
   // Given
-  SystemUndeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  SystemUndeleteTransaction transaction = SystemUndeleteTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setContractId(getTestContractId()), IllegalStateException);

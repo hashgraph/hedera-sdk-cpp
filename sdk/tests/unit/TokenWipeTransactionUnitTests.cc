@@ -30,16 +30,12 @@ using namespace Hedera;
 class TokenWipeTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
   [[nodiscard]] inline const uint64_t& getTestAmount() const { return mTestAmount; }
   [[nodiscard]] inline const std::vector<uint64_t>& getTestSerialNumbers() const { return mTestSerialNumbers; }
 
 private:
-  Client mClient;
   const TokenId mTestTokenId = TokenId(1ULL, 2ULL, 3ULL);
   const AccountId mTestAccountId = AccountId(4ULL, 5ULL, 6ULL);
   const uint64_t mTestAmount = 7ULL;
@@ -90,8 +86,10 @@ TEST_F(TokenWipeTransactionTest, GetSetTokenId)
 TEST_F(TokenWipeTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
-  TokenWipeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenWipeTransaction transaction = TokenWipeTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -114,8 +112,10 @@ TEST_F(TokenWipeTransactionTest, GetSetAccountId)
 TEST_F(TokenWipeTransactionTest, GetSetAccountIdFrozen)
 {
   // Given
-  TokenWipeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenWipeTransaction transaction = TokenWipeTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
@@ -138,8 +138,10 @@ TEST_F(TokenWipeTransactionTest, GetSetAmount)
 TEST_F(TokenWipeTransactionTest, GetSetAmountFrozen)
 {
   // Given
-  TokenWipeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenWipeTransaction transaction = TokenWipeTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAmount(getTestAmount()), IllegalStateException);
@@ -162,8 +164,10 @@ TEST_F(TokenWipeTransactionTest, GetSetSerialNumbers)
 TEST_F(TokenWipeTransactionTest, GetSetSerialNumbersFrozen)
 {
   // Given
-  TokenWipeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenWipeTransaction transaction = TokenWipeTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setSerialNumbers(getTestSerialNumbers()), IllegalStateException);

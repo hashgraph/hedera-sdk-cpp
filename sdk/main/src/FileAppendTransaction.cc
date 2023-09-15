@@ -30,6 +30,7 @@ namespace Hedera
 {
 //-----
 FileAppendTransaction::FileAppendTransaction()
+  : ChunkedTransaction<FileAppendTransaction>()
 {
   setDefaultMaxTransactionFee(Hbar(5LL));
   setChunkSize(DEFAULT_CHUNK_SIZE);
@@ -40,8 +41,6 @@ FileAppendTransaction::FileAppendTransaction()
 FileAppendTransaction::FileAppendTransaction(const proto::TransactionBody& transactionBody)
   : ChunkedTransaction<FileAppendTransaction>(transactionBody)
 {
-  setDefaultMaxTransactionFee(Hbar(5LL));
-  setChunkSize(DEFAULT_CHUNK_SIZE);
   setShouldGetReceipt(true);
   initFromSourceTransactionBody();
 }
@@ -51,8 +50,6 @@ FileAppendTransaction::FileAppendTransaction(
   const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
   : ChunkedTransaction<FileAppendTransaction>(transactions)
 {
-  setDefaultMaxTransactionFee(Hbar(5LL));
-  setChunkSize(DEFAULT_CHUNK_SIZE);
   setShouldGetReceipt(true);
   initFromSourceTransactionBody();
 }

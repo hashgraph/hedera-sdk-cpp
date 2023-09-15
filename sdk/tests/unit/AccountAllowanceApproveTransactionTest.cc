@@ -36,9 +36,6 @@ using namespace Hedera;
 class AccountAllowanceApproveTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(1ULL), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestOwnerAccountId() const { return mOwnerAccountId; }
   [[nodiscard]] inline const AccountId& getTestSpenderAccountId() const { return mSpenderAccountId; }
   [[nodiscard]] inline const Hbar& getTestAmountHbar() const { return mAmountHbar; }
@@ -51,7 +48,6 @@ protected:
   }
 
 private:
-  Client mClient;
   const AccountId mOwnerAccountId = AccountId(2ULL);
   const AccountId mSpenderAccountId = AccountId(3ULL);
   const Hbar mAmountHbar = Hbar(4LL);
@@ -153,8 +149,10 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveHbarAllowance)
 TEST_F(AccountAllowanceApproveTransactionTest, ApproveHbarAllowanceFrozen)
 {
   // Given
-  AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountAllowanceApproveTransaction transaction = AccountAllowanceApproveTransaction()
+                                                     .setNodeAccountIds({ AccountId(1ULL) })
+                                                     .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(
@@ -196,8 +194,10 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveTokenAllowance)
 TEST_F(AccountAllowanceApproveTransactionTest, ApproveTokenAllowanceFrozen)
 {
   // Given
-  AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountAllowanceApproveTransaction transaction = AccountAllowanceApproveTransaction()
+                                                     .setNodeAccountIds({ AccountId(1ULL) })
+                                                     .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(
@@ -247,8 +247,10 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowance)
 TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceFrozen)
 {
   // Given
-  AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountAllowanceApproveTransaction transaction = AccountAllowanceApproveTransaction()
+                                                     .setNodeAccountIds({ AccountId(1ULL) })
+                                                     .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.approveTokenNftAllowance(
@@ -281,8 +283,10 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceAllSerials)
 TEST_F(AccountAllowanceApproveTransactionTest, ApproveNftAllowanceAllSerialsFrozen)
 {
   // Given
-  AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountAllowanceApproveTransaction transaction = AccountAllowanceApproveTransaction()
+                                                     .setNodeAccountIds({ AccountId(1ULL) })
+                                                     .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(
@@ -315,8 +319,10 @@ TEST_F(AccountAllowanceApproveTransactionTest, DeleteNftAllowanceAllSerials)
 TEST_F(AccountAllowanceApproveTransactionTest, DeleteNftAllowanceAllSerialsFrozen)
 {
   // Given
-  AccountAllowanceApproveTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountAllowanceApproveTransaction transaction = AccountAllowanceApproveTransaction()
+                                                     .setNodeAccountIds({ AccountId(1ULL) })
+                                                     .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(

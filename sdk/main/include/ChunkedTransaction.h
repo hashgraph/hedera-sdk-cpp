@@ -189,7 +189,7 @@ public:
 
 protected:
   ChunkedTransaction();
-  virtual ~ChunkedTransaction();
+  ~ChunkedTransaction();
   ChunkedTransaction(const ChunkedTransaction&);
   ChunkedTransaction& operator=(const ChunkedTransaction&);
   ChunkedTransaction(ChunkedTransaction&&) noexcept;

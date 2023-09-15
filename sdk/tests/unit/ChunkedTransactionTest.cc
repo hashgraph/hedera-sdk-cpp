@@ -32,14 +32,10 @@ using namespace Hedera;
 class ChunkedTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline unsigned int getTestMaxChunks() const { return mTestMaxChunks; }
   [[nodiscard]] inline unsigned int getTestChunkSize() const { return mTestChunkSize; }
 
 private:
-  Client mClient;
   const unsigned int mTestMaxChunks = 1U;
   const unsigned int mTestChunkSize = 2U;
 };
@@ -61,8 +57,10 @@ TEST_F(ChunkedTransactionTest, GetSetMaxChunks)
 TEST_F(ChunkedTransactionTest, GetSetMaxChunksFrozen)
 {
   // Given
-  FileAppendTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileAppendTransaction transaction = FileAppendTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setMaxChunks(getTestMaxChunks()), IllegalStateException);
@@ -85,8 +83,10 @@ TEST_F(ChunkedTransactionTest, GetSetChunkSize)
 TEST_F(ChunkedTransactionTest, GetSetChunkSizeFrozen)
 {
   // Given
-  FileAppendTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileAppendTransaction transaction = FileAppendTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setChunkSize(getTestChunkSize()), IllegalStateException);

@@ -206,9 +206,9 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setNodeAccountIds(
-  const std::vector<AccountId>& nodeAccountIds)
+  std::vector<AccountId> nodeAccountIds)
 {
-  mNodeAccountIds = nodeAccountIds;
+  mNodeAccountIds = std::move(nodeAccountIds);
   return static_cast<SdkRequestType&>(*this);
 }
 

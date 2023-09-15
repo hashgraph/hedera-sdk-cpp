@@ -160,9 +160,9 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
     }
   }
 
-  // Serialized object is a Transaction protobuf object.
-  if (txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET &&
-      tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !tx.signedtransactionbytes().empty())
+  // Transaction protobuf object.
+  else if (txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET &&
+           tx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !tx.signedtransactionbytes().empty())
   {
     signedTx.ParseFromArray(tx.signedtransactionbytes().data(), static_cast<int>(tx.signedtransactionbytes().size()));
     txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
@@ -171,20 +171,19 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       tx;
   }
 
-  // SignedTransaction protobuf object
-  if (txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET &&
-      signedTx.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())) && !signedTx.bodybytes().empty())
+  // TransactionBody protobuf object.
+  else if (txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET &&
+           txBody.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())))
   {
-    txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
+    signedTx.set_bodybytes(txBody.SerializeAsString());
     tx.set_signedtransactionbytes(signedTx.SerializeAsString());
 
     transactions[TransactionId::fromProtobuf(txBody.transactionid())][AccountId::fromProtobuf(txBody.nodeaccountid())] =
       tx;
   }
 
-  // If not a TransactionBody protobuf object, throw
-  if (txBody.data_case() == proto::TransactionBody::DataCase::DATA_NOT_SET &&
-      !txBody.ParseFromArray(bytes.data(), static_cast<int>(bytes.size())))
+  // If not any Transaction, throw.
+  else
   {
     throw std::invalid_argument("Unable to construct Transaction from input bytes");
   }
@@ -518,11 +517,11 @@ SdkRequestType& Transaction<SdkRequestType>::setTransactionId(const TransactionI
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::setNodeAccountIds(const std::vector<AccountId>& nodeAccountIds)
+SdkRequestType& Transaction<SdkRequestType>::setNodeAccountIds(std::vector<AccountId> nodeAccountIds)
 {
   requireNotFrozen();
   Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::setNodeAccountIds(
-    nodeAccountIds);
+    std::move(nodeAccountIds));
   return static_cast<SdkRequestType&>(*this);
 }
 
@@ -612,7 +611,8 @@ std::optional<bool> Transaction<SdkRequestType>::getRegenerateTransactionIdPolic
 //-----
 template<typename SdkRequestType>
 Transaction<SdkRequestType>::Transaction()
-  : mImpl(std::make_unique<TransactionImpl>())
+  : Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>()
+  , mImpl(std::make_unique<TransactionImpl>())
 {
 }
 
@@ -623,7 +623,8 @@ Transaction<SdkRequestType>::~Transaction() = default;
 //-----
 template<typename SdkRequestType>
 Transaction<SdkRequestType>::Transaction(const Transaction<SdkRequestType>& other)
-  : mImpl(std::make_unique<TransactionImpl>(*other.mImpl))
+  : Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>(other)
+  , mImpl(std::make_unique<TransactionImpl>(*other.mImpl))
 {
 }
 
@@ -633,6 +634,7 @@ Transaction<SdkRequestType>& Transaction<SdkRequestType>::operator=(const Transa
 {
   if (this != &other)
   {
+    Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::operator=(other);
     mImpl = std::make_unique<TransactionImpl>(*other.mImpl);
   }
 
@@ -642,10 +644,11 @@ Transaction<SdkRequestType>& Transaction<SdkRequestType>::operator=(const Transa
 //-----
 template<typename SdkRequestType>
 Transaction<SdkRequestType>::Transaction(Transaction<SdkRequestType>&& other) noexcept
-  : mImpl(std::move(other.mImpl))
+  : Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>(std::move(other))
+  , mImpl(std::move(other.mImpl)) // NOLINT
 {
   // Leave moved-from object in a valid state.
-  other.mImpl = std::make_unique<TransactionImpl>();
+  other.mImpl = std::make_unique<TransactionImpl>(); // NOLINT
 }
 
 //-----
@@ -654,7 +657,9 @@ Transaction<SdkRequestType>& Transaction<SdkRequestType>::operator=(Transaction<
 {
   if (this != &other)
   {
-    mImpl = std::move(other.mImpl);
+    Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::operator=(
+      std::move(other));
+    mImpl = std::move(other.mImpl); // NOLINT
 
     // Leave moved-from object in a valid state.
     other.mImpl = std::make_unique<TransactionImpl>();
@@ -666,7 +671,8 @@ Transaction<SdkRequestType>& Transaction<SdkRequestType>::operator=(Transaction<
 //-----
 template<typename SdkRequestType>
 Transaction<SdkRequestType>::Transaction(const proto::TransactionBody& txBody)
-  : mImpl(std::make_unique<TransactionImpl>())
+  : Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>()
+  , mImpl(std::make_unique<TransactionImpl>())
 {
   if (txBody.has_transactionid())
   {
@@ -691,7 +697,8 @@ Transaction<SdkRequestType>::Transaction(const proto::TransactionBody& txBody)
 template<typename SdkRequestType>
 Transaction<SdkRequestType>::Transaction(
   const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
-  : mImpl(std::make_unique<TransactionImpl>())
+  : Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>()
+  , mImpl(std::make_unique<TransactionImpl>())
 {
   if (transactions.empty())
   {

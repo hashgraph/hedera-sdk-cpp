@@ -30,13 +30,9 @@ using namespace Hedera;
 class ScheduleSignTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const ScheduleId& getTestScheduleId() const { return mTestScheduleId; }
 
 private:
-  Client mClient;
   const ScheduleId mTestScheduleId = ScheduleId(1ULL);
 };
 
@@ -84,8 +80,10 @@ TEST_F(ScheduleSignTransactionTest, GetSetScheduleId)
 TEST_F(ScheduleSignTransactionTest, GetSetScheduleIdFrozen)
 {
   // Given
-  ScheduleSignTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleSignTransaction transaction = ScheduleSignTransaction()
+                                          .setNodeAccountIds({ AccountId(1ULL) })
+                                          .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setScheduleId(getTestScheduleId()), IllegalStateException);
@@ -109,8 +107,10 @@ TEST_F(ScheduleSignTransactionTest, ClearScheduleId)
 TEST_F(ScheduleSignTransactionTest, ClearScheduleIdFrozen)
 {
   // Given
-  ScheduleSignTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleSignTransaction transaction = ScheduleSignTransaction()
+                                          .setNodeAccountIds({ AccountId(1ULL) })
+                                          .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.clearScheduleId(), IllegalStateException);

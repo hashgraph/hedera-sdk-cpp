@@ -35,15 +35,12 @@ class ScheduleCreateTransactionTests : public ::testing::Test
 protected:
   void SetUp() override
   {
-    mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get());
-
     mTestSchedulableTransactionBody.set_memo("test memo");
     mTestSchedulableTransactionBody.set_transactionfee(1ULL);
     mTestSchedulableTransactionBody.set_allocated_cryptoapproveallowance(
       new proto::CryptoApproveAllowanceTransactionBody);
   }
 
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const proto::SchedulableTransactionBody& getTestSchedulableTransactionBody() const
   {
     return mTestSchedulableTransactionBody;
@@ -58,7 +55,6 @@ protected:
   [[nodiscard]] inline bool getTestWaitForExpiry() const { return mTestWaitForExpiry; }
 
 private:
-  Client mClient;
   proto::SchedulableTransactionBody mTestSchedulableTransactionBody;
   const std::string mTestMemo = "my test memo";
   const std::shared_ptr<PublicKey> mTestAdminKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
@@ -113,8 +109,10 @@ TEST_F(ScheduleCreateTransactionTests, GetSetScheduledTransaction)
 TEST_F(ScheduleCreateTransactionTests, GetSetScheduledTransactionFrozen)
 {
   // Given
-  ScheduleCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleCreateTransaction transaction = ScheduleCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setScheduledTransaction(WrappedTransaction(AccountAllowanceApproveTransaction())),
@@ -138,8 +136,10 @@ TEST_F(ScheduleCreateTransactionTests, GetSetMemo)
 TEST_F(ScheduleCreateTransactionTests, GetSetMemoFrozen)
 {
   // Given
-  ScheduleCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleCreateTransaction transaction = ScheduleCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setScheduleMemo(getTestMemo()), IllegalStateException);
@@ -162,8 +162,10 @@ TEST_F(ScheduleCreateTransactionTests, GetSetAdminKey)
 TEST_F(ScheduleCreateTransactionTests, GetSetAdminKeyFrozen)
 {
   // Given
-  ScheduleCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleCreateTransaction transaction = ScheduleCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAdminKey(getTestAdminKey()), IllegalStateException);
@@ -186,8 +188,10 @@ TEST_F(ScheduleCreateTransactionTests, GetSetPayerAccountId)
 TEST_F(ScheduleCreateTransactionTests, GetSetPayerAccountIdFrozen)
 {
   // Given
-  ScheduleCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleCreateTransaction transaction = ScheduleCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setPayerAccountId(getTestPayerAccountId()), IllegalStateException);
@@ -210,8 +214,10 @@ TEST_F(ScheduleCreateTransactionTests, GetSetExpirationTime)
 TEST_F(ScheduleCreateTransactionTests, GetSetExpirationTimeFrozen)
 {
   // Given
-  ScheduleCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleCreateTransaction transaction = ScheduleCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -234,8 +240,10 @@ TEST_F(ScheduleCreateTransactionTests, GetSetWaitForExpiry)
 TEST_F(ScheduleCreateTransactionTests, GetSetWaitForExpiryFrozen)
 {
   // Given
-  ScheduleCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleCreateTransaction transaction = ScheduleCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setWaitForExpiry(getTestWaitForExpiry()), IllegalStateException);

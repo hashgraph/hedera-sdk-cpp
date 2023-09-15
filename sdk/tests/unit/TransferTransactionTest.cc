@@ -33,12 +33,6 @@ using namespace Hedera;
 class TransferTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override
-  {
-    mClient.setOperator(getTestAccountId1(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get());
-  }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestAccountId1() const { return mAccountId1; }
   [[nodiscard]] inline const AccountId& getTestAccountId2() const { return mAccountId2; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTokenId; }
@@ -48,7 +42,6 @@ protected:
   [[nodiscard]] inline bool getTestApproval() const { return mApproval; }
 
 private:
-  Client mClient;
   const AccountId mAccountId1 = AccountId(10ULL);
   const AccountId mAccountId2 = AccountId(20ULL);
   const TokenId mTokenId = TokenId(30ULL);
@@ -150,8 +143,10 @@ TEST_F(TransferTransactionTest, AddHbarTransfer)
 TEST_F(TransferTransactionTest, AddHbarTransferFrozen)
 {
   // Given
-  TransferTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TransferTransaction transaction = TransferTransaction()
+                                      .setNodeAccountIds({ AccountId(1ULL) })
+                                      .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.addHbarTransfer(getTestAccountId1(), getTestAmount()), IllegalStateException);
@@ -192,8 +187,10 @@ TEST_F(TransferTransactionTest, AddTokenTransfer)
 TEST_F(TransferTransactionTest, AddTokenTransferFrozen)
 {
   // Given
-  TransferTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TransferTransaction transaction = TransferTransaction()
+                                      .setNodeAccountIds({ AccountId(1ULL) })
+                                      .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.addTokenTransfer(getTestTokenId(), getTestAccountId1(), getTestAmount().toTinybars()),
@@ -237,8 +234,10 @@ TEST_F(TransferTransactionTest, AddNftTransfer)
 TEST_F(TransferTransactionTest, AddNftTransferFrozen)
 {
   // Given
-  TransferTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TransferTransaction transaction = TransferTransaction()
+                                      .setNodeAccountIds({ AccountId(1ULL) })
+                                      .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId1(), getTestAccountId2()),
@@ -283,8 +282,10 @@ TEST_F(TransferTransactionTest, AddTokenTransferWithDecimals)
 TEST_F(TransferTransactionTest, AddTokenTransferWithDecimalsFrozen)
 {
   // Given
-  TransferTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TransferTransaction transaction = TransferTransaction()
+                                      .setNodeAccountIds({ AccountId(1ULL) })
+                                      .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.addTokenTransferWithDecimals(getTestTokenId(),

@@ -87,7 +87,7 @@ public:
    * @param nodeAccountIds The desired list of account IDs of nodes to submit this request.
    * @return A reference to this Executable derived class with the newly-set node account IDs.
    */
-  virtual SdkRequestType& setNodeAccountIds(const std::vector<AccountId>& nodeAccountIds);
+  virtual SdkRequestType& setNodeAccountIds(std::vector<AccountId> nodeAccountIds);
 
   /**
    * Set the maximum number of times this Executable should try to resubmit itself after a failed attempt before it
@@ -157,6 +157,13 @@ public:
   [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMaxBackoff() const { return mMaxBackoff; }
 
 protected:
+  Executable() = default;
+  ~Executable() = default;
+  Executable(const Executable&) = default;
+  Executable& operator=(const Executable&) = default;
+  Executable(Executable&&) noexcept = default;
+  Executable& operator=(Executable&&) noexcept = default;
+
   /**
    * Enumeration describing the status of a submitted Executable.
    */

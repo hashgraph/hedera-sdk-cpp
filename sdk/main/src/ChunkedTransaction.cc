@@ -272,7 +272,8 @@ unsigned int ChunkedTransaction<SdkRequestType>::getChunkSize() const
 //-----
 template<typename SdkRequestType>
 ChunkedTransaction<SdkRequestType>::ChunkedTransaction()
-  : mImpl(std::make_unique<ChunkedTransactionImpl>())
+  : Transaction<SdkRequestType>()
+  , mImpl(std::make_unique<ChunkedTransactionImpl>())
 {
 }
 
@@ -283,7 +284,8 @@ ChunkedTransaction<SdkRequestType>::~ChunkedTransaction() = default;
 //-----
 template<typename SdkRequestType>
 ChunkedTransaction<SdkRequestType>::ChunkedTransaction(const ChunkedTransaction& other)
-  : mImpl(std::make_unique<ChunkedTransactionImpl>(*other.mImpl))
+  : Transaction<SdkRequestType>(other)
+  , mImpl(std::make_unique<ChunkedTransactionImpl>(*other.mImpl))
 {
 }
 
@@ -293,6 +295,7 @@ ChunkedTransaction<SdkRequestType>& ChunkedTransaction<SdkRequestType>::operator
 {
   if (this != &other)
   {
+    Transaction<SdkRequestType>::operator=(other);
     mImpl = std::make_unique<ChunkedTransactionImpl>(*other.mImpl);
   }
 
@@ -302,7 +305,8 @@ ChunkedTransaction<SdkRequestType>& ChunkedTransaction<SdkRequestType>::operator
 //-----
 template<typename SdkRequestType>
 ChunkedTransaction<SdkRequestType>::ChunkedTransaction(ChunkedTransaction&& other) noexcept
-  : mImpl(std::move(other.mImpl))
+  : Transaction<SdkRequestType>(std::move(other))
+  , mImpl(std::move(other.mImpl)) // NOLINT
 {
 }
 
@@ -312,7 +316,8 @@ ChunkedTransaction<SdkRequestType>& ChunkedTransaction<SdkRequestType>::operator
 {
   if (this != &other)
   {
-    mImpl = std::move(other.mImpl);
+    Transaction<SdkRequestType>::operator=(std::move(other));
+    mImpl = std::move(other.mImpl); // NOLINT
   }
 
   return *this;
@@ -322,6 +327,7 @@ ChunkedTransaction<SdkRequestType>& ChunkedTransaction<SdkRequestType>::operator
 template<typename SdkRequestType>
 ChunkedTransaction<SdkRequestType>::ChunkedTransaction(const proto::TransactionBody& txBody)
   : Transaction<SdkRequestType>(txBody)
+  , mImpl(std::make_unique<ChunkedTransactionImpl>())
 {
 }
 
@@ -330,6 +336,7 @@ template<typename SdkRequestType>
 ChunkedTransaction<SdkRequestType>::ChunkedTransaction(
   const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
   : Transaction<SdkRequestType>(transactions)
+  , mImpl(std::make_unique<ChunkedTransactionImpl>())
 {
   // Make sure there's more than one chunk.
   if (transactions.size() <= 1)
@@ -359,7 +366,6 @@ ChunkedTransaction<SdkRequestType>::ChunkedTransaction(
 template<typename SdkRequestType>
 SdkRequestType& ChunkedTransaction<SdkRequestType>::setData(const std::vector<std::byte>& data)
 {
-  Transaction<SdkRequestType>::requireNotFrozen();
   mImpl->mData = data;
   return static_cast<SdkRequestType&>(*this);
 }

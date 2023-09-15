@@ -39,9 +39,6 @@ using namespace Hedera;
 class FileCreateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
   {
     return mTestExpirationTime;
@@ -52,7 +49,6 @@ protected:
   [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
 
 private:
-  Client mClient;
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey1 = ED25519PrivateKey::fromString(
     "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10");
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey2 = ED25519PrivateKey::fromString(
@@ -107,8 +103,10 @@ TEST_F(FileCreateTransactionTest, GetSetExpirationTime)
 TEST_F(FileCreateTransactionTest, GetSetExpirationTimeFrozen)
 {
   // Given
-  FileCreateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileCreateTransaction transaction = FileCreateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -135,8 +133,10 @@ TEST_F(FileCreateTransactionTest, GetSetKeys)
 TEST_F(FileCreateTransactionTest, GetSetKeysFrozen)
 {
   // Given
-  FileCreateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileCreateTransaction transaction = FileCreateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setKeys(getTestKeyList()), IllegalStateException);
@@ -160,8 +160,10 @@ TEST_F(FileCreateTransactionTest, GetSetContents)
 TEST_F(FileCreateTransactionTest, GetSetContentsFrozen)
 {
   // Given
-  FileCreateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileCreateTransaction transaction = FileCreateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setContents(getTestContents()), IllegalStateException);
@@ -184,8 +186,10 @@ TEST_F(FileCreateTransactionTest, GetSetMemo)
 TEST_F(FileCreateTransactionTest, GetSetMemoFrozen)
 {
   // Given
-  FileCreateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileCreateTransaction transaction = FileCreateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileMemo(getTestMemo()), IllegalStateException);

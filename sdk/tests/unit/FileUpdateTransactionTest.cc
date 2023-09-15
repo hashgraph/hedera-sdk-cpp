@@ -39,9 +39,6 @@ using namespace Hedera;
 class FileUpdateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
   {
@@ -53,7 +50,6 @@ protected:
   [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
 
 private:
-  Client mClient;
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey1 = ED25519PrivateKey::fromString(
     "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10");
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey2 = ED25519PrivateKey::fromString(
@@ -118,8 +114,10 @@ TEST_F(FileUpdateTransactionTest, GetSetFileId)
 TEST_F(FileUpdateTransactionTest, GetSetFileIdFrozen)
 {
   // Given
-  FileUpdateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileUpdateTransaction transaction = FileUpdateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);
@@ -143,8 +141,10 @@ TEST_F(FileUpdateTransactionTest, GetSetExpirationTime)
 TEST_F(FileUpdateTransactionTest, GetSetExpirationTimeFrozen)
 {
   // Given
-  FileUpdateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileUpdateTransaction transaction = FileUpdateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -174,8 +174,10 @@ TEST_F(FileUpdateTransactionTest, GetSetKeys)
 TEST_F(FileUpdateTransactionTest, GetSetKeysFrozen)
 {
   // Given
-  FileUpdateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileUpdateTransaction transaction = FileUpdateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setKeys(getTestKeyList()), IllegalStateException);
@@ -204,8 +206,10 @@ TEST_F(FileUpdateTransactionTest, GetSetContents)
 TEST_F(FileUpdateTransactionTest, GetSetContentsFrozen)
 {
   // Given
-  FileUpdateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileUpdateTransaction transaction = FileUpdateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setContents(getTestContents()), IllegalStateException);
@@ -231,8 +235,10 @@ TEST_F(FileUpdateTransactionTest, GetSetMemo)
 TEST_F(FileUpdateTransactionTest, GetSetMemoFrozen)
 {
   // Given
-  FileUpdateTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileUpdateTransaction transaction = FileUpdateTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileMemo(getTestMemo()), IllegalStateException);

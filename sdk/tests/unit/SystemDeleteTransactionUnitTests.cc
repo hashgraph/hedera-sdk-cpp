@@ -31,9 +31,6 @@ using namespace Hedera;
 class SystemDeleteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
@@ -42,7 +39,6 @@ protected:
   }
 
 private:
-  Client mClient;
   const FileId mTestFileId = FileId(1ULL, 2ULL, 3ULL);
   const ContractId mTestContractId = ContractId(4ULL, 5ULL, 6ULL);
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
@@ -102,8 +98,10 @@ TEST_F(SystemDeleteTransactionTest, GetSetFileId)
 TEST_F(SystemDeleteTransactionTest, GetSetFileIdFrozen)
 {
   // Given
-  SystemDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  SystemDeleteTransaction transaction = SystemDeleteTransaction()
+                                          .setNodeAccountIds({ AccountId(1ULL) })
+                                          .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);
@@ -127,8 +125,10 @@ TEST_F(SystemDeleteTransactionTest, GetSetContractId)
 TEST_F(SystemDeleteTransactionTest, GetSetContractIdFrozen)
 {
   // Given
-  SystemDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  SystemDeleteTransaction transaction = SystemDeleteTransaction()
+                                          .setNodeAccountIds({ AccountId(1ULL) })
+                                          .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setContractId(getTestContractId()), IllegalStateException);
@@ -151,8 +151,10 @@ TEST_F(SystemDeleteTransactionTest, GetSetExpirationTime)
 TEST_F(SystemDeleteTransactionTest, GetSetExpirationTimeFrozen)
 {
   // Given
-  SystemDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  SystemDeleteTransaction transaction = SystemDeleteTransaction()
+                                          .setNodeAccountIds({ AccountId(1ULL) })
+                                          .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);

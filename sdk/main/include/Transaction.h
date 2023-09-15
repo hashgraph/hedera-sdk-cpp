@@ -64,8 +64,8 @@ class Transaction
 {
 public:
   /**
-   * Construct a Transaction derived class from a byte array. The bytes can be a protobuf encoded TransactionBody,
-   * Transaction, or SignedTransaction. Since C++ return types must be known at compile time and the type of Transaction
+   * Construct a Transaction derived class from a byte array. The bytes can be a protobuf encoded TransactionList,
+   * Transaction, or TransactionBody. Since C++ return types must be known at compile time and the type of Transaction
    * to create may not be known at compile time, a WrappedTransaction is used to encompass all possible Transactions in
    * a std::variant. Usage of this return type would look like the following:
    *
@@ -221,7 +221,7 @@ public:
    * @return A reference to this Executable derived class with the newly-set node account IDs.
    * @throws IllegalStateException If this Transaction is frozen.
    */
-  SdkRequestType& setNodeAccountIds(const std::vector<AccountId>& nodeAccountIds) override;
+  SdkRequestType& setNodeAccountIds(std::vector<AccountId> nodeAccountIds) override;
 
   /**
    * Set the maximum transaction fee willing to be paid to execute this Transaction.
@@ -307,7 +307,7 @@ public:
 
 protected:
   Transaction();
-  virtual ~Transaction();
+  ~Transaction();
   Transaction(const Transaction&);
   Transaction& operator=(const Transaction&);
   Transaction(Transaction&&) noexcept;

@@ -30,13 +30,9 @@ using namespace Hedera;
 class TopicDeleteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
 
 private:
-  Client mClient;
   const TopicId mTestTopicId = TopicId(1ULL);
 };
 
@@ -84,8 +80,10 @@ TEST_F(TopicDeleteTransactionTest, GetSetTopicId)
 TEST_F(TopicDeleteTransactionTest, GetSetTopicIdFrozen)
 {
   // Given
-  TopicDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicDeleteTransaction transaction = TopicDeleteTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTopicId(getTestTopicId()), IllegalStateException);

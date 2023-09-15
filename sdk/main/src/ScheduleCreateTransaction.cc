@@ -55,7 +55,8 @@ struct ScheduleCreateTransaction::ScheduleCreateTransactionImpl
 
 //-----
 ScheduleCreateTransaction::ScheduleCreateTransaction()
-  : mImpl(std::make_unique<ScheduleCreateTransactionImpl>())
+  : Transaction<ScheduleCreateTransaction>()
+  , mImpl(std::make_unique<ScheduleCreateTransactionImpl>())
 {
   setDefaultMaxTransactionFee(Hbar(5LL));
 }
@@ -65,7 +66,8 @@ ScheduleCreateTransaction::~ScheduleCreateTransaction() = default;
 
 //-----
 ScheduleCreateTransaction::ScheduleCreateTransaction(const ScheduleCreateTransaction& other)
-  : mImpl(std::make_unique<ScheduleCreateTransactionImpl>(*other.mImpl))
+  : Transaction<ScheduleCreateTransaction>(other)
+  , mImpl(std::make_unique<ScheduleCreateTransactionImpl>(*other.mImpl))
 {
 }
 
@@ -74,6 +76,7 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::operator=(const ScheduleCr
 {
   if (this != &other)
   {
+    Transaction<ScheduleCreateTransaction>::operator=(other);
     mImpl = std::make_unique<ScheduleCreateTransactionImpl>(*other.mImpl);
   }
 
@@ -82,10 +85,11 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::operator=(const ScheduleCr
 
 //-----
 ScheduleCreateTransaction::ScheduleCreateTransaction(ScheduleCreateTransaction&& other) noexcept
-  : mImpl(std::move(other.mImpl))
+  : Transaction<ScheduleCreateTransaction>(std::move(other))
+  , mImpl(std::move(other.mImpl)) // NOLINT
 {
   // Leave the moved-from ScheduleCreateTransaction in a valid state.
-  other.mImpl = std::make_unique<ScheduleCreateTransactionImpl>();
+  other.mImpl = std::make_unique<ScheduleCreateTransactionImpl>(); // NOLINT
 }
 
 //-----
@@ -93,7 +97,8 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::operator=(ScheduleCreateTr
 {
   if (this != &other)
   {
-    mImpl = std::move(other.mImpl);
+    Transaction<ScheduleCreateTransaction>::operator=(std::move(other));
+    mImpl = std::move(other.mImpl); // NOLINT
 
     // Leave the moved-from ScheduleCreateTransaction in a valid state.
     other.mImpl = std::make_unique<ScheduleCreateTransactionImpl>();

@@ -157,7 +157,7 @@ TEST_F(NodeAddressTest, GetSetCertHash)
 
   // When
   nodeAddressWithStr.setCertHash(Utilities::byteVectorToString(getTestCertHash()));
-  nodeAddressWithStr.setCertHash(getTestCertHash());
+  nodeAddressWithBytes.setCertHash(getTestCertHash());
 
   // Then
   EXPECT_EQ(nodeAddressWithStr.getCertHash(), getTestCertHash());

@@ -37,15 +37,10 @@ using namespace Hedera;
 class FileAppendTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestContents() const { return mTestContents; }
 
 private:
-  Client mClient;
-
   const FileId mTestFileId = FileId(1ULL);
   const std::vector<std::byte> mTestContents = { std::byte(0x02), std::byte(0x03), std::byte(0x04) };
 };
@@ -86,8 +81,10 @@ TEST_F(FileAppendTransactionTest, GetSetFileId)
 TEST_F(FileAppendTransactionTest, GetSetFileIdFrozen)
 {
   // Given
-  FileAppendTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileAppendTransaction transaction = FileAppendTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);
@@ -113,8 +110,10 @@ TEST_F(FileAppendTransactionTest, GetSetContents)
 TEST_F(FileAppendTransactionTest, GetSetContentsFrozen)
 {
   // Given
-  FileAppendTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  FileAppendTransaction transaction = FileAppendTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setContents(getTestContents()), IllegalStateException);

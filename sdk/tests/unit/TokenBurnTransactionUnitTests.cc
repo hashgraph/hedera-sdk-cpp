@@ -30,15 +30,11 @@ using namespace Hedera;
 class TokenBurnTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
   [[nodiscard]] inline const uint64_t& getTestAmount() const { return mTestAmount; }
   [[nodiscard]] inline const std::vector<uint64_t>& getTestSerialNumbers() const { return mTestSerialNumbers; }
 
 private:
-  Client mClient;
   const TokenId mTestTokenId = TokenId(1ULL, 2ULL, 3ULL);
   const uint64_t mTestAmount = 4ULL;
   const std::vector<uint64_t> mTestSerialNumbers = { 5ULL, 6ULL, 7ULL };
@@ -86,8 +82,10 @@ TEST_F(TokenBurnTransactionTest, GetSetTokenId)
 TEST_F(TokenBurnTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
-  TokenBurnTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenBurnTransaction transaction = TokenBurnTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -110,8 +108,10 @@ TEST_F(TokenBurnTransactionTest, GetSetAmount)
 TEST_F(TokenBurnTransactionTest, GetSetAmountFrozen)
 {
   // Given
-  TokenBurnTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenBurnTransaction transaction = TokenBurnTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAmount(getTestAmount()), IllegalStateException);
@@ -134,8 +134,10 @@ TEST_F(TokenBurnTransactionTest, GetSetSerialNumbers)
 TEST_F(TokenBurnTransactionTest, GetSetSerialNumbersFrozen)
 {
   // Given
-  TokenBurnTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenBurnTransaction transaction = TokenBurnTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setSerialNumbers(getTestSerialNumbers()), IllegalStateException);

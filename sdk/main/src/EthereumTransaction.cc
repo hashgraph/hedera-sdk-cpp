@@ -31,7 +31,7 @@ namespace Hedera
 EthereumTransaction::EthereumTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<EthereumTransaction>(transactionBody)
 {
-  EthereumTransaction();
+  initFromSourceTransactionBody();
 }
 
 //-----
