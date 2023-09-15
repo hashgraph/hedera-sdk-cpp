@@ -258,6 +258,7 @@ void Node::initializeStubs(const std::shared_ptr<grpc::Channel>& channel)
   if (!mCryptoStub)        mCryptoStub = proto::CryptoService::NewStub(channel);
   if (!mFileStub)          mFileStub = proto::FileService::NewStub(channel);
   if (!mFreezeStub)        mFreezeStub = proto::FreezeService::NewStub(channel);
+  if (!mNetworkStub)       mNetworkStub = proto::NetworkService::NewStub(channel);
   if (!mScheduleStub)      mScheduleStub = proto::ScheduleService::NewStub(channel);
   if (!mSmartContractStub) mSmartContractStub = proto::SmartContractService::NewStub(channel);
   if (!mTokenStub)         mTokenStub = proto::TokenService::NewStub(channel);
@@ -271,6 +272,7 @@ void Node::closeStubs()
   mCryptoStub = nullptr;
   mFileStub = nullptr;
   mFreezeStub = nullptr;
+  mNetworkStub = nullptr;
   mScheduleStub = nullptr;
   mSmartContractStub = nullptr;
   mTokenStub = nullptr;

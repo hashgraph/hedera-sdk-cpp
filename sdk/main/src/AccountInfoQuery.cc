@@ -65,6 +65,7 @@ proto::Query AccountInfoQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader AccountInfoQuery::mapResponseHeader(const proto::Response& response) const
 {
+  Query<AccountInfoQuery, AccountInfo>::saveCostFromHeader(response.cryptogetinfo().header());
   return response.cryptogetinfo().header();
 }
 

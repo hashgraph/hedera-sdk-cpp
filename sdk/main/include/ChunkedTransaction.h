@@ -287,6 +287,13 @@ private:
   void clearTransactions() override;
 
   /**
+   * Derived from Transaction. Get the ID of the previously-executed ChunkedTransaction.
+   *
+   * @return The ID of the previously-executed ChunkedTransaction.
+   */
+  [[nodiscard]] TransactionId getCurrentTransactionId() const override;
+
+  /**
    * Get the number of chunks that will be required to send this full ChunkedTransaction.
    *
    * @return The number of chunks that will be required to send this full ChunkedTransaction.

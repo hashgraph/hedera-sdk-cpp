@@ -426,6 +426,12 @@ SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client* client)
         "If no client is provided to freeze transaction, the node account IDs must be manually set.");
     }
 
+    // Make sure the client has a valid network.
+    if (!client->getNetwork())
+    {
+      throw UninitializedException("Client has not been initialized with a valid network");
+    }
+
     // Have the Client's network generate the node account IDs to which to send this Transaction.
     Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::setNodeAccountIds(
       client->getNetwork()->getNodeAccountIdsForExecute());
@@ -565,7 +571,7 @@ SdkRequestType& Transaction<SdkRequestType>::setRegenerateTransactionIdPolicy(bo
 template<typename SdkRequestType>
 TransactionId Transaction<SdkRequestType>::getTransactionId() const
 {
-  if (mImpl->mTransactionId == TransactionId() || !isFrozen())
+  if (mImpl->mTransactionId == TransactionId() && !isFrozen())
   {
     throw IllegalStateException("No transaction ID generated yet. Try freezing the transaction");
   }
@@ -758,7 +764,7 @@ template<typename SdkRequestType>
 proto::Transaction Transaction<SdkRequestType>::makeRequest(unsigned int index) const
 {
   buildTransaction(index);
-  return mImpl->mTransactions.at(index);
+  return getTransactionProtobufObject(index);
 }
 
 //-----
@@ -931,6 +937,13 @@ Transaction<SdkRequestType>::getSignaturesInternal(size_t offset) const
 template<typename SdkRequestType>
 proto::Transaction Transaction<SdkRequestType>::getTransactionProtobufObject(unsigned int index) const
 {
+  // If there is no Transaction protobuf object at this index, add blank Transaction protobuf objects until the index is
+  // reached.
+  while (index >= mImpl->mTransactions.size())
+  {
+    mImpl->mTransactions.push_back(proto::Transaction());
+  }
+
   return mImpl->mTransactions.at(index);
 }
 
@@ -943,10 +956,17 @@ proto::TransactionBody Transaction<SdkRequestType>::getSourceTransactionBody() c
 
 //-----
 template<typename SdkRequestType>
+TransactionId Transaction<SdkRequestType>::getCurrentTransactionId() const
+{
+  return mImpl->mTransactionId;
+}
+
+//-----
+template<typename SdkRequestType>
 TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
 {
   TransactionResponse txResp = TransactionResponse::fromProtobuf(response);
-  txResp.mTransactionId = mImpl->mTransactionId;
+  txResp.mTransactionId = getCurrentTransactionId();
   return txResp;
 }
 
@@ -972,7 +992,6 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
       determineStatus(status, client, response);
   }
 
-  // Regenerate transaction IDs by default.
   bool shouldRegenerate = DEFAULT_REGENERATE_TRANSACTION_ID;
 
   // Follow this Transaction's policy if it has been explicitly set.
@@ -1032,7 +1051,7 @@ template<typename SdkRequestType>
 void Transaction<SdkRequestType>::buildTransaction(unsigned int index) const
 {
   // If the Transaction protobuf object is already built for this index, there's no need to do anything else.
-  if (index >= mImpl->mTransactions.size() || !getTransactionProtobufObject(index).signedtransactionbytes().empty())
+  if (!getTransactionProtobufObject(index).signedtransactionbytes().empty())
   {
     return;
   }

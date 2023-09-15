@@ -33,7 +33,7 @@ FileAppendTransaction::FileAppendTransaction()
   : ChunkedTransaction<FileAppendTransaction>()
 {
   setDefaultMaxTransactionFee(Hbar(5LL));
-  setChunkSize(DEFAULT_CHUNK_SIZE);
+  setChunkSize(2048U);
   setShouldGetReceipt(true);
 }
 

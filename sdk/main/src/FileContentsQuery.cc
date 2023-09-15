@@ -65,6 +65,7 @@ proto::Query FileContentsQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader FileContentsQuery::mapResponseHeader(const proto::Response& response) const
 {
+  Query<FileContentsQuery, FileContents>::saveCostFromHeader(response.filegetcontents().header());
   return response.filegetcontents().header();
 }
 

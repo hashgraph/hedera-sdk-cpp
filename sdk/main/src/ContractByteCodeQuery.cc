@@ -65,6 +65,7 @@ proto::Query ContractByteCodeQuery::buildRequest(proto::QueryHeader* header) con
 //-----
 proto::ResponseHeader ContractByteCodeQuery::mapResponseHeader(const proto::Response& response) const
 {
+  Query<ContractByteCodeQuery, ContractByteCode>::saveCostFromHeader(response.contractgetbytecoderesponse().header());
   return response.contractgetbytecoderesponse().header();
 }
 

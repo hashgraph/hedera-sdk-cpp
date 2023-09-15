@@ -53,6 +53,7 @@
 #include "TransactionRecordQuery.h"
 #include "TransferTransaction.h"
 #include "exceptions/MaxQueryPaymentExceededException.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/Network.h"
 
 #include <optional>
@@ -80,7 +81,7 @@ struct Query<SdkRequestType, SdkResponseType>::QueryImpl
   Hbar mCost;
 
   // The Client that should be used to pay for the payment transaction of this Query.
-  Client* mClient = nullptr;
+  const Client* mClient = nullptr;
 
   // The TransactionID of the payment transactions for this Query.
   TransactionId mPaymentTransactionId;
@@ -116,27 +117,28 @@ Hbar Query<SdkRequestType, SdkResponseType>::getCost(const Client& client)
 template<typename SdkRequestType, typename SdkResponseType>
 Hbar Query<SdkRequestType, SdkResponseType>::getCost(const Client& client, const std::chrono::duration<double>& timeout)
 {
-  // Initialize this Query with node account IDs.
-  setNodeAccountIds(client);
+  mImpl->mGetCost = true;
+  Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::execute(client, timeout);
+  mImpl->mGetCost = false;
 
-  // Construct a separate derived Query and set it to get the cost.
-  SdkRequestType costQuery;
-  costQuery.mImpl->mGetCost = true;
-  costQuery.setNodeAccountIds(client);
-
-  // Execute the cost query and return the cost.
-  costQuery.execute(client, timeout);
-  return costQuery.mImpl->mCost;
+  return mImpl->mCost;
 }
 
 //-----
 template<typename SdkRequestType, typename SdkResponseType>
-void Query<SdkRequestType, SdkResponseType>::saveCostFromHeader(const proto::ResponseHeader& header)
+void Query<SdkRequestType, SdkResponseType>::saveCostFromHeader(const proto::ResponseHeader& header) const
 {
   if (mImpl->mGetCost)
   {
     mImpl->mCost = Hbar(static_cast<int64_t>(header.cost()), HbarUnit::TINYBAR());
   }
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+bool Query<SdkRequestType, SdkResponseType>::isCostQuery() const
+{
+  return mImpl->mGetCost;
 }
 
 //-----
@@ -238,7 +240,25 @@ Status Query<SdkRequestType, SdkResponseType>::mapResponseStatus(const proto::Re
 template<typename SdkRequestType, typename SdkResponseType>
 void Query<SdkRequestType, SdkResponseType>::onExecute(const Client& client)
 {
-  if (!isPaymentRequired())
+  // Set the node IDs if none have been manually set.
+  if (Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::getNodeAccountIds().empty())
+  {
+    // Make sure the client has a valid network.
+    if (!client.getNetwork())
+    {
+      throw UninitializedException("Client has not been initialized with a valid network");
+    }
+
+    // Have the Client's network generate the node account IDs to which to send this Transaction.
+    Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::setNodeAccountIds(
+      client.getNetwork()->getNodeAccountIdsForExecute());
+  }
+
+  // Save the Client for use later to generate payment Transaction protobuf objects.
+  mImpl->mClient = &client;
+
+  // There's nothing else to do if this Query is free or is meant to get the cost.
+  if (!isPaymentRequired() || mImpl->mGetCost)
   {
     return;
   }
@@ -265,26 +285,13 @@ proto::Transaction Query<SdkRequestType, SdkResponseType>::makePaymentTransactio
   return TransferTransaction()
     .setTransactionId(transactionId)
     .setNodeAccountIds({ nodeAccountId })
-    .setMaxTransactionFee(Hbar(1LL))
     .addHbarTransfer(client.getOperatorAccountId().value(), amount.negated())
     .addHbarTransfer(nodeAccountId, amount)
     .freeze()
     .signWith(client.getOperatorPublicKey(), client.getOperatorSigner())
     // There's only one node account ID, therefore only one Transaction protobuf object will be created, and that will
     // be put in the 0th index.
-    .makeRequest(0);
-}
-
-//-----
-template<typename SdkRequestType, typename SdkResponseType>
-void Query<SdkRequestType, SdkResponseType>::setNodeAccountIds(const Client& client)
-{
-  // Do nothing if node account IDs have already been set.
-  if (!Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::getNodeAccountIds().empty())
-  {
-    Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::setNodeAccountIds(
-      client.getNetwork()->getNodeAccountIdsForExecute());
-  }
+    .makeRequest(0U);
 }
 
 /**

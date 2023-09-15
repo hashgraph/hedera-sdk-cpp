@@ -134,7 +134,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
   for (unsigned int attempt = 0U;; ++attempt)
   {
-    if (attempt > mCurrentMaxAttempts)
+    if (attempt >= mCurrentMaxAttempts)
     {
       throw MaxAttemptsExceededException("Max number of attempts made (max attempts allowed: " +
                                          std::to_string(mCurrentMaxAttempts));
@@ -188,7 +188,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
       case ExecutionStatus::RETRY:
       {
         std::this_thread::sleep_for(mCurrentBackoff);
-        mCurrentBackoff *= 2;
+        mCurrentBackoff *= 2.0;
         break;
       }
       case ExecutionStatus::REQUEST_ERROR:
@@ -264,7 +264,6 @@ Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>
     case Status::BUSY:
       return ExecutionStatus::SERVER_ERROR;
     case Status::OK:
-    case Status::SUCCESS:
       return ExecutionStatus::SUCCESS;
       // Let derived class handle this status, assume request error
     default:

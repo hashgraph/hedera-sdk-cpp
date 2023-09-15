@@ -23,7 +23,6 @@
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionResult.h"
 #include "ContractId.h"
-#include "ContractInfo.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
@@ -35,7 +34,6 @@
 #include "exceptions/ReceiptStatusException.h"
 #include "impl/Utilities.h"
 
-#include <chrono>
 #include <gtest/gtest.h>
 
 using namespace Hedera;
@@ -64,7 +62,6 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   const std::string memo = "[e2e::ContractADeploysContractBInConstructor]";
-  const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2016);
   FileId fileId;
   ASSERT_NO_THROW(fileId =
                     FileCreateTransaction()
@@ -88,12 +85,11 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
   ContractId contractA = contractFunctionResult.mContractId;
   std::vector<ContractNonceInfo> contractNonces;
 
-  for (auto it = contractFunctionResult.mContractNonces.begin(); it != contractFunctionResult.mContractNonces.end();
-       ++it)
+  for (const auto& mContractNonce : contractFunctionResult.mContractNonces)
   {
-    if (!((*it).mContractId == contractA))
+    if (!(mContractNonce.mContractId == contractA))
     {
-      contractNonces.push_back(*it);
+      contractNonces.push_back(mContractNonce);
     }
   }
 
@@ -102,16 +98,15 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
   ContractNonceInfo contractANonceInfo;
   ContractNonceInfo contractBNonceInfo;
 
-  for (auto it = contractFunctionResult.mContractNonces.begin(); it != contractFunctionResult.mContractNonces.end();
-       ++it)
+  for (const auto& mContractNonce : contractFunctionResult.mContractNonces)
   {
-    if ((*it).mContractId == contractA)
+    if (mContractNonce.mContractId == contractA)
     {
-      contractANonceInfo = *it;
+      contractANonceInfo = mContractNonce;
     }
-    else if ((*it).mContractId == contractB)
+    else if (mContractNonce.mContractId == contractB)
     {
-      contractBNonceInfo = *it;
+      contractBNonceInfo = mContractNonce;
     }
   }
 

@@ -72,7 +72,7 @@ public:
   /**
    * Close the connects on this BaseNetwork.
    */
-  void close();
+  void close() const;
 
   /**
    * Set the maximum number of times to try to use a NodeType to submit a request. Once the NodeType exceeds this number
@@ -217,8 +217,8 @@ protected:
    *
    * @return The map of KeyTypes to their NodeTypes on this BaseNetwork.
    */
-  [[nodiscard]] inline const std::unordered_map<KeyType, std::unordered_set<std::shared_ptr<NodeType>>>& getNetwork()
-    const
+  [[nodiscard]] inline const std::unordered_map<KeyType, std::unordered_set<std::shared_ptr<NodeType>>>&
+  getNetworkInternal() const
   {
     return mNetwork;
   }
@@ -306,9 +306,7 @@ private:
   /**
    * The earliest time that a node should be readmitted.
    */
-  std::chrono::system_clock::time_point mEarliestReadmitTime =
-    std::chrono::system_clock::now() +
-    std::chrono::duration_cast<std::chrono::system_clock::duration>(mMinNodeReadmitTime);
+  std::chrono::system_clock::time_point mEarliestReadmitTime = std::chrono::system_clock::now();
 
   /**
    * The timeout for closing either a single node when setting a new network, or closing the entire network.

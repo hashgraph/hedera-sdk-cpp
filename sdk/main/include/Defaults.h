@@ -76,6 +76,10 @@ constexpr auto DEFAULT_TRANSACTION_VALID_DURATION = std::chrono::minutes(2);
  */
 constexpr auto DEFAULT_REGENERATE_TRANSACTION_ID = true;
 /**
+ * The default size of a chunk for a ChunkedTransaction.
+ */
+constexpr auto DEFAULT_CHUNK_SIZE = 1024U;
+/**
  * The default number of chunks for a ChunkedTransaction.
  */
 constexpr auto DEFAULT_MAX_CHUNKS = 20U;

@@ -24,6 +24,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/IllegalStateException.h"
+#include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
@@ -47,7 +48,7 @@ struct ChunkedTransaction<SdkRequestType>::ChunkedTransactionImpl
   std::vector<std::byte> mData;
 
   // The size of this ChunkedTransaction's chunks, in bytes.
-  unsigned int mChunkSize = 1024U;
+  unsigned int mChunkSize = DEFAULT_CHUNK_SIZE;
 
   // The maximum number of chunks into which this ChunkedTransaction will get broken up.
   unsigned int mMaxChunks = DEFAULT_MAX_CHUNKS;
@@ -415,7 +416,13 @@ template<typename SdkRequestType>
 proto::Transaction ChunkedTransaction<SdkRequestType>::makeRequest(unsigned int attempt) const
 {
   // Adjust the index to account for the current chunk.
-  return Transaction<SdkRequestType>::makeRequest(attempt * mImpl->mCurrentChunk);
+  return Transaction<SdkRequestType>::makeRequest(
+    static_cast<unsigned int>(
+      mImpl->mCurrentChunk *
+      Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+        getNodeAccountIds()
+          .size()) +
+    attempt);
 }
 
 //-----
@@ -429,13 +436,15 @@ void ChunkedTransaction<SdkRequestType>::generateSignedTransactions(const Client
   const unsigned int requiredChunks = getNumberOfChunksRequired();
   for (int i = 0; i < requiredChunks; ++i)
   {
-    // Generate a new TransactionId if this isn't the first chunk. Add one to the nanoseconds to make cascading
-    // transaction IDs.
+    // Generate a new TransactionId if this isn't the first chunk. Add one to the smallest system clock duration to make
+    // cascading transaction IDs.
     if (i > 0)
     {
-      sourceTransactionBody.mutable_transactionid()->mutable_transactionvalidstart()->set_nanos(
-        sourceTransactionBody.transactionid().transactionvalidstart().nanos() + 1);
-      mImpl->mChunkedTransactionIds.push_back(TransactionId::fromProtobuf(sourceTransactionBody.transactionid()));
+      mImpl->mChunkedTransactionIds.push_back(TransactionId::withValidStart(
+        AccountId::fromProtobuf(sourceTransactionBody.transactionid().accountid()),
+        internal::TimestampConverter::fromProtobuf(sourceTransactionBody.transactionid().transactionvalidstart()) +
+          std::chrono::system_clock::duration(1)));
+      sourceTransactionBody.set_allocated_transactionid(mImpl->mChunkedTransactionIds.back().toProtobuf().release());
     }
 
     // Generate the chunk and add it to sourceTransactionBody.
@@ -453,6 +462,14 @@ void ChunkedTransaction<SdkRequestType>::clearTransactions()
 {
   Transaction<SdkRequestType>::clearTransactions();
   mImpl->mChunkedTransactionIds.clear();
+}
+
+//-----
+template<typename SdkRequestType>
+TransactionId ChunkedTransaction<SdkRequestType>::getCurrentTransactionId() const
+{
+  return mImpl->mCurrentChunk == 0 ? Transaction<SdkRequestType>::getCurrentTransactionId()
+                                   : mImpl->mChunkedTransactionIds.at(mImpl->mCurrentChunk - 1);
 }
 
 //-----

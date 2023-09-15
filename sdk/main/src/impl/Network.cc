@@ -72,6 +72,13 @@ Network& Network::setVerifyCertificates(bool verify)
 }
 
 //-----
+Network& Network::setMaxNodesPerRequest(unsigned int max)
+{
+  mMaxNodesPerRequest = max;
+  return *this;
+}
+
+//-----
 Network& Network::setTransportSecurity(TLSBehavior tls)
 {
   if (isTransportSecurity() != tls)
@@ -108,8 +115,8 @@ std::vector<AccountId> Network::getNodeAccountIdsForExecute()
 {
   std::vector<AccountId> accountIds;
   for (const std::shared_ptr<Node>& node : getNumberOfMostHealthyNodes(
-         mMaxNodesPerRequest > 0 ? std::min(mMaxNodesPerRequest, static_cast<unsigned int>(getNodes().size()))
-                                 : static_cast<unsigned int>(floor(static_cast<double>(getNodes().size()) / 3.0))))
+         mMaxNodesPerRequest > 0U ? std::min(mMaxNodesPerRequest, static_cast<unsigned int>(getNodes().size()))
+                                  : static_cast<unsigned int>(std::ceil(static_cast<double>(getNodes().size()) / 3.0))))
   {
     accountIds.push_back(node->getAccountId());
   }

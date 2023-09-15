@@ -81,7 +81,7 @@ BaseNodeAddress BaseNodeAddress::toInsecure() const
 //-----
 std::string BaseNodeAddress::toString() const
 {
-  return (!mName.empty()) ? mName : mAddress + std::to_string(mPort);
+  return (!mName.empty()) ? "in-process:" + mName : mAddress + ':' + std::to_string(mPort);
 }
 
 } // namespace Hedera::internal

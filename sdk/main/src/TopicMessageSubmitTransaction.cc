@@ -90,7 +90,7 @@ void TopicMessageSubmitTransaction::addToChunk(uint32_t chunk, uint32_t total, p
   body.set_allocated_consensussubmitmessage(build(static_cast<int>(chunk)));
   body.mutable_consensussubmitmessage()->mutable_chunkinfo()->set_allocated_initialtransactionid(
     getTransactionId().toProtobuf().release());
-  body.mutable_consensussubmitmessage()->mutable_chunkinfo()->set_number(static_cast<int32_t>(chunk));
+  body.mutable_consensussubmitmessage()->mutable_chunkinfo()->set_number(static_cast<int32_t>(chunk + 1));
   body.mutable_consensussubmitmessage()->mutable_chunkinfo()->set_total(static_cast<int32_t>(total));
 }
 

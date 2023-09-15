@@ -83,6 +83,8 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setNetwork(
   mNetwork = newNetwork;
   mHealthyNodes.clear();
 
+  readmitNodes();
+
   return static_cast<NetworkType&>(*this);
 }
 
@@ -111,7 +113,7 @@ std::vector<std::shared_ptr<NodeType>> BaseNetwork<NetworkType, KeyType, NodeTyp
 
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
-void BaseNetwork<NetworkType, KeyType, NodeType>::close()
+void BaseNetwork<NetworkType, KeyType, NodeType>::close() const
 {
   for (const std::shared_ptr<NodeType>& node : mNodes)
   {
@@ -184,8 +186,6 @@ template<typename NetworkType, typename KeyType, typename NodeType>
 std::vector<std::shared_ptr<NodeType>> BaseNetwork<NetworkType, KeyType, NodeType>::getNumberOfMostHealthyNodes(
   unsigned int count)
 {
-  readmitNodes();
-
   // First, remove any nodes from the network that have exceeded the maximum number of node attempts.
   if (mMaxNodeAttempts > 0U)
   {

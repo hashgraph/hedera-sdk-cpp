@@ -73,27 +73,36 @@ TransactionReceiptQuery::determineStatus(Status status, const Client& client, co
         baseStatus =
           Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::determineStatus(
             status, client, response);
-      baseStatus == ExecutionStatus::SERVER_ERROR || baseStatus == ExecutionStatus::REQUEST_ERROR)
+      baseStatus == ExecutionStatus::SERVER_ERROR)
   {
-    if (status == Status::RECEIPT_NOT_FOUND)
-    {
-      return ExecutionStatus::RETRY;
-    }
-
     return baseStatus;
   }
 
-  // TransactionReceiptQuery should wait until the receipt is actually generated. That status data is contained in the
-  // protobuf receipt.
-  switch (gProtobufResponseCodeToStatus.at(response.transactiongetreceipt().receipt().status()))
+  switch (status)
   {
     case Status::BUSY:
     case Status::UNKNOWN:
     case Status::RECEIPT_NOT_FOUND:
-    case Status::OK:
+    case Status::RECORD_NOT_FOUND:
       return ExecutionStatus::RETRY;
+
+    case Status::OK:
+    {
+      switch (gProtobufResponseCodeToStatus.at(response.transactiongetreceipt().receipt().status()))
+      {
+        case Status::BUSY:
+        case Status::UNKNOWN:
+        case Status::OK:
+        case Status::RECEIPT_NOT_FOUND:
+        case Status::RECORD_NOT_FOUND:
+          return ExecutionStatus::RETRY;
+        default:
+          return ExecutionStatus::SUCCESS;
+      }
+    }
+
     default:
-      return ExecutionStatus::SUCCESS;
+      return ExecutionStatus::REQUEST_ERROR;
   }
 }
 
@@ -119,6 +128,7 @@ proto::Query TransactionReceiptQuery::buildRequest(proto::QueryHeader* header) c
 //-----
 proto::ResponseHeader TransactionReceiptQuery::mapResponseHeader(const proto::Response& response) const
 {
+  Query<TransactionReceiptQuery, TransactionReceipt>::saveCostFromHeader(response.transactiongetreceipt().header());
   return response.transactiongetreceipt().header();
 }
 

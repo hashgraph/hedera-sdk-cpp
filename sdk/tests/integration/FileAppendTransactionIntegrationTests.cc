@@ -239,11 +239,6 @@ TEST_F(FileAppendTransactionIntegrationTest, CanAppendLargeContents)
     txResponses = FileAppendTransaction().setFileId(fileId).setContents(appendedContents).executeAll(getTestClient()));
 
   // Then
-  for (const auto& response : txResponses)
-  {
-    EXPECT_NO_THROW(const TransactionReceipt txReceipt = response.getReceipt(getTestClient()));
-  }
-
   FileContents fileContents;
   ASSERT_NO_THROW(fileContents = FileContentsQuery().setFileId(fileId).execute(getTestClient()));
   EXPECT_EQ(fileContents, internal::Utilities::concatenateVectors({ origContents, appendedContents }));

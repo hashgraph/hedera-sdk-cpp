@@ -106,7 +106,14 @@ protected:
    *
    * @param header The ResponseHeader protobuf object from which to get the cost.
    */
-  void saveCostFromHeader(const proto::ResponseHeader& header);
+  void saveCostFromHeader(const proto::ResponseHeader& header) const;
+
+  /**
+   * Is this Query meant a cost query?
+   *
+   * @return \c TRUE if this Query is meant to get the cost, otherwise \c FALSE.
+   */
+  [[nodiscard]] bool isCostQuery() const;
 
 private:
   /**
@@ -162,13 +169,6 @@ private:
                                                           const AccountId& nodeAccountId,
                                                           const Client& client,
                                                           const Hbar& amount) const;
-
-  /**
-   * Set the node account IDs for this Query from the input Client's network.
-   *
-   * @param client The Client whose network should be used to set the node account IDs.
-   */
-  void setNodeAccountIds(const Client& client);
 
   /**
    * Does this Query require payment? Default to \c TRUE, as most Queries do.

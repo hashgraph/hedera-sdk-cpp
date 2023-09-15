@@ -72,7 +72,7 @@ MirrorNetwork& MirrorNetwork::setNetwork(const std::vector<std::string>& network
 std::vector<std::string> MirrorNetwork::getNetwork() const
 {
   std::vector<std::string> network;
-  for (const auto& [address, nodes] : BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode>::getNetwork())
+  for (const auto& [address, nodes] : BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode>::getNetworkInternal())
   {
     network.push_back(address.toString());
   }
@@ -83,12 +83,14 @@ std::vector<std::string> MirrorNetwork::getNetwork() const
 //-----
 std::shared_ptr<MirrorNode> MirrorNetwork::getNextMirrorNode() const
 {
-  if (mNodes.empty())
+  if (getNodes().empty())
   {
     return nullptr;
   }
 
-  return mNodes.at(Utilities::getRandomNumber(0U, static_cast<unsigned int>(mNodes.size()) - 1U));
+  auto nodeIter = getNodes().cbegin();
+  std::advance(nodeIter, Utilities::getRandomNumber(0U, static_cast<unsigned int>(getNodes().size()) - 1U));
+  return *nodeIter;
 }
 
 //-----

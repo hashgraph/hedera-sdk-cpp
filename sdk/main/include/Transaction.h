@@ -432,6 +432,13 @@ protected:
    */
   [[nodiscard]] proto::TransactionBody getSourceTransactionBody() const;
 
+  /**
+   * Get the ID of this Transaction.
+   *
+   * @return The ID of this Transaction.
+   */
+  [[nodiscard]] virtual TransactionId getCurrentTransactionId() const;
+
 private:
   /**
    * Build and add the derived Transaction's protobuf representation to the Transaction protobuf object.

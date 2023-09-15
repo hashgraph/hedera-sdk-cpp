@@ -100,6 +100,7 @@ proto::Query ContractCallQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader ContractCallQuery::mapResponseHeader(const proto::Response& response) const
 {
+  Query<ContractCallQuery, ContractFunctionResult>::saveCostFromHeader(response.contractcalllocal().header());
   return response.contractcalllocal().header();
 }
 

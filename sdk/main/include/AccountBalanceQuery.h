@@ -117,6 +117,13 @@ private:
   [[nodiscard]] proto::ResponseHeader mapResponseHeader(const proto::Response& response) const override;
 
   /**
+   * Derived from Query. Does this AccountBalanceQuery require payment?
+   *
+   * @return \c FALSE, AccountBalanceQuery is free.
+   */
+  [[nodiscard]] inline bool isPaymentRequired() const override { return false; }
+
+  /**
    * The ID of the account of which this query should get the balance.
    */
   std::optional<AccountId> mAccountId;

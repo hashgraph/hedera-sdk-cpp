@@ -100,11 +100,6 @@ private:
    */
   [[nodiscard]] std::shared_ptr<MirrorNode> createNodeFromNetworkEntry(std::string_view address,
                                                                        const BaseNodeAddress& /*key*/) const override;
-
-  /**
-   * The list of pointers to MirrorNodes with which this MirrorNetwork is communicating.
-   */
-  std::vector<std::shared_ptr<MirrorNode>> mNodes;
 };
 
 } // namespace Hedera::internal

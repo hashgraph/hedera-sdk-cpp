@@ -96,6 +96,14 @@ public:
   Network& setTransportSecurity(TLSBehavior tls);
 
   /**
+   * Set the maximum number of nodes to be returned for each request.
+   *
+   * @param max The maximum number of nodes to be returned for each request.
+   * @return A reference to this Network object with the newly-set maximum nodes per request.
+   */
+  Network& setMaxNodesPerRequest(unsigned int max);
+
+  /**
    * Get a list of node account IDs on which to execute. This will pick 1/3 of the available nodes sorted by health and
    * expected delay from the network.
    *

@@ -149,6 +149,13 @@ private:
   [[nodiscard]] proto::ResponseHeader mapResponseHeader(const proto::Response& response) const override;
 
   /**
+   * Derived from Query. Does this TransactionReceiptQuery require payment?
+   *
+   * @return \c FALSE, TransactionReceiptQuery is free.
+   */
+  [[nodiscard]] inline bool isPaymentRequired() const override { return false; }
+
+  /**
    * The ID of the transaction of which this query should get the receipt.
    */
   std::optional<TransactionId> mTransactionId;

@@ -145,10 +145,12 @@ public:
 
 private:
   /**
-   * Allow Transactions to adjust this TransactionResponse's mTransactionId.
+   * Allow Transactions and ChunkedTransactions to adjust this TransactionResponse's mTransactionId.
    */
-  template<typename SdkRequestType>
-  friend class Transaction;
+  // clang-format off
+  template<typename SdkRequestType> friend class Transaction;
+  template<typename SdkRequestType> friend class ChunkedTransaction;
+  // clang-format on
 
   /**
    * The cost to execute this TransactionResponse's corresponding Transaction.

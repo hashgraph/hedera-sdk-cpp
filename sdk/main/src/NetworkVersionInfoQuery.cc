@@ -60,6 +60,7 @@ proto::Query NetworkVersionInfoQuery::buildRequest(proto::QueryHeader* header) c
 //-----
 proto::ResponseHeader NetworkVersionInfoQuery::mapResponseHeader(const proto::Response& response) const
 {
+  Query<NetworkVersionInfoQuery, NetworkVersionInfo>::saveCostFromHeader(response.networkgetversioninfo().header());
   return response.networkgetversioninfo().header();
 }
 

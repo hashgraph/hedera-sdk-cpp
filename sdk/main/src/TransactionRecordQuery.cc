@@ -61,27 +61,41 @@ TransactionRecordQuery::determineStatus(Status status, const Client& client, con
         baseStatus =
           Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::determineStatus(
             status, client, response);
-      baseStatus == ExecutionStatus::SERVER_ERROR || baseStatus == ExecutionStatus::REQUEST_ERROR)
+      baseStatus == ExecutionStatus::SERVER_ERROR)
   {
-    if (status == Status::RECORD_NOT_FOUND)
-    {
-      return ExecutionStatus::RETRY;
-    }
-
     return baseStatus;
   }
 
-  // TransactionRecordQuery should wait until the receipt is actually generated. That status data is contained in the
-  // protobuf receipt.
-  switch (gProtobufResponseCodeToStatus.at(response.transactiongetrecord().transactionrecord().receipt().status()))
+  switch (status)
   {
     case Status::BUSY:
     case Status::UNKNOWN:
+    case Status::RECEIPT_NOT_FOUND:
     case Status::RECORD_NOT_FOUND:
-    case Status::OK:
       return ExecutionStatus::RETRY;
+
+    case Status::OK:
+    {
+      if (isCostQuery())
+      {
+        return ExecutionStatus::SUCCESS;
+      }
+
+      switch (gProtobufResponseCodeToStatus.at(response.transactiongetrecord().transactionrecord().receipt().status()))
+      {
+        case Status::BUSY:
+        case Status::UNKNOWN:
+        case Status::OK:
+        case Status::RECEIPT_NOT_FOUND:
+        case Status::RECORD_NOT_FOUND:
+          return ExecutionStatus::RETRY;
+        default:
+          return ExecutionStatus::SUCCESS;
+      }
+    }
+
     default:
-      return ExecutionStatus::SUCCESS;
+      return ExecutionStatus::REQUEST_ERROR;
   }
 }
 
@@ -104,6 +118,7 @@ proto::Query TransactionRecordQuery::buildRequest(proto::QueryHeader* header) co
 //-----
 proto::ResponseHeader TransactionRecordQuery::mapResponseHeader(const proto::Response& response) const
 {
+  Query<TransactionRecordQuery, TransactionRecord>::saveCostFromHeader(response.transactiongetrecord().header());
   return response.transactiongetrecord().header();
 }
 

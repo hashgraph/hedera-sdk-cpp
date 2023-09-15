@@ -86,11 +86,7 @@ bool BaseNode<NodeType, KeyType>::channelFailedToConnect()
   }
 
   const std::chrono::system_clock::time_point timeoutTime = std::chrono::system_clock::now() + GET_STATE_TIMEOUT;
-  while (!mIsConnected && std::chrono::system_clock::now() < timeoutTime)
-  {
-    mIsConnected = getChannel()->GetState(true) == GRPC_CHANNEL_READY;
-    std::this_thread::sleep_for(GET_STATE_INTERVAL);
-  }
+  mIsConnected = getChannel()->WaitForConnected(timeoutTime);
 
   return !mIsConnected;
 }
@@ -161,9 +157,9 @@ std::shared_ptr<grpc::Channel> BaseNode<NodeType, KeyType>::getChannel()
                                          mAddress.isTransportSecurity() ? getTlsChannelCredentials()
                                                                         : grpc::InsecureChannelCredentials(),
                                          channelArguments);
+    initializeStubs(mChannel);
   }
 
-  initializeStubs(mChannel);
   return mChannel;
 }
 
