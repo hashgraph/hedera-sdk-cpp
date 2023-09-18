@@ -128,7 +128,7 @@ proto::Query TransactionReceiptQuery::buildRequest(proto::QueryHeader* header) c
 //-----
 proto::ResponseHeader TransactionReceiptQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<TransactionReceiptQuery, TransactionReceipt>::saveCostFromHeader(response.transactiongetreceipt().header());
+  saveCostFromHeader(response.transactiongetreceipt().header());
   return response.transactiongetreceipt().header();
 }
 

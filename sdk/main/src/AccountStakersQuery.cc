@@ -74,7 +74,7 @@ proto::Query AccountStakersQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader AccountStakersQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<AccountStakersQuery, AccountStakers>::saveCostFromHeader(response.cryptogetproxystakers().header());
+  saveCostFromHeader(response.cryptogetproxystakers().header());
   return response.cryptogetproxystakers().header();
 }
 

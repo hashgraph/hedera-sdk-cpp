@@ -65,7 +65,7 @@ proto::Query FileInfoQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader FileInfoQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<FileInfoQuery, FileInfo>::saveCostFromHeader(response.filegetinfo().header());
+  saveCostFromHeader(response.filegetinfo().header());
   return response.filegetinfo().header();
 }
 

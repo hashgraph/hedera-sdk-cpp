@@ -65,7 +65,7 @@ proto::Query ScheduleInfoQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader ScheduleInfoQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<ScheduleInfoQuery, ScheduleInfo>::saveCostFromHeader(response.schedulegetinfo().header());
+  saveCostFromHeader(response.schedulegetinfo().header());
   return response.schedulegetinfo().header();
 }
 

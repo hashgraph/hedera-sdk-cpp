@@ -68,7 +68,7 @@ proto::Query TokenNftInfoQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader TokenNftInfoQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<TokenNftInfoQuery, TokenNftInfo>::saveCostFromHeader(response.tokengetnftinfo().header());
+  saveCostFromHeader(response.tokengetnftinfo().header());
   return response.tokengetnftinfo().header();
 }
 

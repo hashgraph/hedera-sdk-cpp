@@ -65,7 +65,7 @@ proto::Query ContractInfoQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader ContractInfoQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<ContractInfoQuery, ContractInfo>::saveCostFromHeader(response.contractgetinfo().header());
+  saveCostFromHeader(response.contractgetinfo().header());
   return response.contractgetinfo().header();
 }
 

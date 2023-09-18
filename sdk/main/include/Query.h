@@ -157,20 +157,6 @@ private:
   void onExecute(const Client& client) override;
 
   /**
-   * Create a Transaction protobuf object that contains the payment for this Query.
-   *
-   * @param transactionId The TransactionId of the payment transaction.
-   * @param nodeAccountId The AccountId of the node to which the payment transaction is being sent.
-   * @param client        The Client paying for the payment transaction.
-   * @param amount        The amount of Hbar being paid.
-   * @return The created Transaction protobuf object.
-   */
-  [[nodiscard]] proto::Transaction makePaymentTransaction(const TransactionId& transactionId,
-                                                          const AccountId& nodeAccountId,
-                                                          const Client& client,
-                                                          const Hbar& amount) const;
-
-  /**
    * Does this Query require payment? Default to \c TRUE, as most Queries do.
    *
    * @return \c TRUE if this Query requires payment, otherwise \c FALSE.

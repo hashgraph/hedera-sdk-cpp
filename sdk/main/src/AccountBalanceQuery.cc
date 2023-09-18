@@ -85,7 +85,7 @@ proto::Query AccountBalanceQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader AccountBalanceQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<AccountBalanceQuery, AccountBalance>::saveCostFromHeader(response.cryptogetaccountbalance().header());
+  saveCostFromHeader(response.cryptogetaccountbalance().header());
   return response.cryptogetaccountbalance().header();
 }
 

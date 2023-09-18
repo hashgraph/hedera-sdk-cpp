@@ -118,7 +118,7 @@ proto::Query TransactionRecordQuery::buildRequest(proto::QueryHeader* header) co
 //-----
 proto::ResponseHeader TransactionRecordQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<TransactionRecordQuery, TransactionRecord>::saveCostFromHeader(response.transactiongetrecord().header());
+  saveCostFromHeader(response.transactiongetrecord().header());
   return response.transactiongetrecord().header();
 }
 

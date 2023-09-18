@@ -68,7 +68,7 @@ proto::Query TopicInfoQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader TopicInfoQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<TopicInfoQuery, TopicInfo>::saveCostFromHeader(response.consensusgettopicinfo().header());
+  saveCostFromHeader(response.consensusgettopicinfo().header());
   return response.consensusgettopicinfo().header();
 }
 

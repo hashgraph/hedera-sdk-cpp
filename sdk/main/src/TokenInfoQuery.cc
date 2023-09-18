@@ -65,7 +65,7 @@ proto::Query TokenInfoQuery::buildRequest(proto::QueryHeader* header) const
 //-----
 proto::ResponseHeader TokenInfoQuery::mapResponseHeader(const proto::Response& response) const
 {
-  Query<TokenInfoQuery, TokenInfo>::saveCostFromHeader(response.tokengetinfo().header());
+  saveCostFromHeader(response.tokengetinfo().header());
   return response.tokengetinfo().header();
 }
 

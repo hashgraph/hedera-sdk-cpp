@@ -246,14 +246,14 @@ void Query<SdkRequestType, SdkResponseType>::onExecute(const Client& client)
       client.getNetwork()->getNodeAccountIdsForExecute());
   }
 
-  // Save the Client for use later to generate payment Transaction protobuf objects.
-  mImpl->mClient = &client;
-
   // There's nothing else to do if this Query is free or is meant to get the cost.
   if (!isPaymentRequired() || mImpl->mGetCost)
   {
     return;
   }
+
+  // Save the Client for use later to generate payment Transaction protobuf objects.
+  mImpl->mClient = &client;
 
   // Get the cost and make sure it's willing to be paid.
   mImpl->mCost = getCost(client);
@@ -265,25 +265,6 @@ void Query<SdkRequestType, SdkResponseType>::onExecute(const Client& client)
     throw MaxQueryPaymentExceededException("Cost to execute Query (" + std::to_string(mImpl->mCost.toTinybars()) +
                                            HbarUnit::TINYBAR().getSymbol() + ") is larger than allowed amount.");
   }
-}
-
-//-----
-template<typename SdkRequestType, typename SdkResponseType>
-proto::Transaction Query<SdkRequestType, SdkResponseType>::makePaymentTransaction(const TransactionId& transactionId,
-                                                                                  const AccountId& nodeAccountId,
-                                                                                  const Client& client,
-                                                                                  const Hbar& amount) const
-{
-  return TransferTransaction()
-    .setTransactionId(transactionId)
-    .setNodeAccountIds({ nodeAccountId })
-    .addHbarTransfer(client.getOperatorAccountId().value(), amount.negated())
-    .addHbarTransfer(nodeAccountId, amount)
-    .freeze()
-    .signWith(client.getOperatorPublicKey(), client.getOperatorSigner())
-    // There's only one node account ID, therefore only one Transaction protobuf object will be created, and that will
-    // be put in the 0th index.
-    .makeRequest(0U);
 }
 
 /**
