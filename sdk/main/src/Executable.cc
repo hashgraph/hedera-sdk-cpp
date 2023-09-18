@@ -153,6 +153,8 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     // Make sure the Node is connected. If it can't connect, mark this Node as unhealthy and try another Node.
     if (node->channelFailedToConnect())
     {
+      std::cout << "Failed to connect to node " << node->getAccountId().toString() << " at address "
+                << node->getAddress().toString() << " on attempt " << attempt << std::endl;
       node->increaseBackoff();
       continue;
     }
@@ -319,7 +321,7 @@ Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>
     const std::vector<std::shared_ptr<internal::Node>> nodeProxies = client.getNetwork()->getNodeProxies(accountId);
 
     // Verify the node account ID mapped to a valid Node.
-    if (nodes.empty())
+    if (nodeProxies.empty())
     {
       throw IllegalStateException("Node account ID " + accountId.toString() +
                                   " did not map to a valid node in the input Client's network.");

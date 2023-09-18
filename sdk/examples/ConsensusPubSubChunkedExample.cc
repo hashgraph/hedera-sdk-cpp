@@ -28,6 +28,7 @@
 #include "TopicMessageSubmitTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "WrappedTransaction.h"
 #include "impl/Utilities.h"
 
 #include <chrono>
@@ -78,9 +79,10 @@ int main(int argc, char** argv)
     client,
     [](const TopicMessage& message)
     {
-      std::cout << "Received message " << message.mSequenceNumber << " which reached consensus at "
-                << message.mConsensusTimestamp.time_since_epoch().count() << " and contains "
-                << message.mContents.size() << " bytes." << std::endl;
+      std::cout
+        << "Received message " << message.mSequenceNumber << " which reached consensus at "
+        << std::chrono::duration_cast<std::chrono::seconds>(message.mConsensusTimestamp.time_since_epoch()).count()
+        << " and contains " << message.mContents.size() << " bytes." << std::endl;
     });
 
   const std::string bigContents =
@@ -246,9 +248,32 @@ int main(int argc, char** argv)
                                                                   .setTopicId(topicId)
                                                                   .setMaxChunks(15U)
                                                                   .setMessage(bigContents)
+                                                                  .freezeWith(&client)
                                                                   .sign(operatorPrivateKey.get());
 
   // "Send" the message to be signed again "elsewhere" by the submit key.
+  std::vector<std::byte> txBytes = topicMessageSubmitTransaction.toBytes();
+
+  // "Receive" the "sent" bytes.
+  const WrappedTransaction deserializedTx = Transaction<TopicMessageSubmitTransaction>::fromBytes(txBytes);
+  topicMessageSubmitTransaction = *deserializedTx.getTransaction<TopicMessageSubmitTransaction>();
+
+  // Sign the message with the submit key.
+  topicMessageSubmitTransaction.sign(submitKey.get());
+
+  // Submit the transaction
+  const std::vector<TransactionResponse> txResponses = topicMessageSubmitTransaction.executeAll(client);
+  for (const auto& txResp : txResponses)
+  {
+    txResp.getReceipt(client);
+  }
+
+  // Get the messages from the subscription.
+  while (true)
+  {
+    std::cout << "Receiving..." << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+  }
 
   return 0;
 }

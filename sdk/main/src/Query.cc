@@ -60,7 +60,6 @@
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/transaction.pb.h>
-#include <unordered_map>
 
 namespace Hedera
 {
@@ -82,12 +81,6 @@ struct Query<SdkRequestType, SdkResponseType>::QueryImpl
 
   // The Client that should be used to pay for the payment transaction of this Query.
   const Client* mClient = nullptr;
-
-  // The TransactionID of the payment transactions for this Query.
-  TransactionId mPaymentTransactionId;
-
-  // The map of node account IDs to their respective payment Transaction protobuf objects that could be sent.
-  std::unordered_map<AccountId, proto::Transaction> mPaymentTransactions;
 };
 
 //-----
@@ -209,20 +202,19 @@ proto::Query Query<SdkRequestType, SdkResponseType>::makeRequest(unsigned int in
     const AccountId accountId =
       Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::getNodeAccountIds().at(index);
 
-    // See if the payment transaction has been created for this index already.
-    if (mImpl->mPaymentTransactions.find(accountId) == mImpl->mPaymentTransactions.end())
-    {
-      if (mImpl->mPaymentTransactionId == TransactionId())
-      {
-        mImpl->mPaymentTransactionId = TransactionId::generate(mImpl->mClient->getOperatorAccountId().value());
-      }
-
-      mImpl->mPaymentTransactions[accountId] =
-        makePaymentTransaction(mImpl->mPaymentTransactionId, accountId, *mImpl->mClient, mImpl->mCost);
-    }
-
     header->set_allocated_payment(
-      std::make_unique<proto::Transaction>(mImpl->mPaymentTransactions.at(accountId)).release());
+      std::make_unique<proto::Transaction>(
+        TransferTransaction()
+          .setTransactionId(TransactionId::generate(mImpl->mClient->getOperatorAccountId().value()))
+          .setNodeAccountIds({ accountId })
+          .addHbarTransfer(mImpl->mClient->getOperatorAccountId().value(), mImpl->mCost.negated())
+          .addHbarTransfer(accountId, mImpl->mCost)
+          .freeze()
+          .signWith(mImpl->mClient->getOperatorPublicKey(), mImpl->mClient->getOperatorSigner())
+          // There's only one node account ID, therefore only one Transaction protobuf object will be created, and that
+          // will be put in the 0th index.
+          .makeRequest(0U))
+        .release());
   }
 
   header->set_responsetype(mImpl->mGetCost ? proto::ResponseType::COST_ANSWER : proto::ResponseType::ANSWER_ONLY);

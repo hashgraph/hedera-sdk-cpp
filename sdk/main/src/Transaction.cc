@@ -317,6 +317,7 @@ SdkRequestType& Transaction<SdkRequestType>::signWith(
   {
     // Adding a signature will require all Transaction protobuf objects to be regenerated.
     mImpl->mTransactions.clear();
+    mImpl->mTransactions.resize(mImpl->mSignedTransactions.size());
     mImpl->mSignatories[key] = signer;
   }
 
@@ -359,6 +360,7 @@ SdkRequestType& Transaction<SdkRequestType>::addSignature(const std::shared_ptr<
 
   // Adding a signature will require all Transaction protobuf objects to be regenerated.
   mImpl->mTransactions.clear();
+  mImpl->mTransactions.resize(mImpl->mSignedTransactions.size());
   mImpl->mSignatories.emplace(publicKey, std::function<std::vector<std::byte>(const std::vector<std::byte>&)>());
 
   // Add the signature to the SignedTransaction protobuf object. Since there's only one node account ID, there's only
@@ -720,12 +722,15 @@ Transaction<SdkRequestType>::Transaction(
     nodeAccountIds.push_back(accountId);
     addTransaction(protoTx);
 
-    const proto::SignedTransaction& signedTx = mImpl->mSignedTransactions.back();
-    for (int i = 0; i < signedTx.sigmap().sigpair_size(); ++i)
+    if (mImpl->mSignatories.empty())
     {
-      mImpl->mSignatories.emplace(
-        PublicKey::fromBytesDer(internal::Utilities::stringToByteVector(signedTx.sigmap().sigpair(i).pubkeyprefix())),
-        std::function<std::vector<std::byte>(const std::vector<std::byte>&)>());
+      const proto::SignedTransaction& signedTx = mImpl->mSignedTransactions.back();
+      for (int i = 0; i < signedTx.sigmap().sigpair_size(); ++i)
+      {
+        mImpl->mSignatories.emplace(
+          PublicKey::fromBytes(internal::Utilities::stringToByteVector(signedTx.sigmap().sigpair(i).pubkeyprefix())),
+          std::function<std::vector<std::byte>(const std::vector<std::byte>&)>());
+      }
     }
   }
 
@@ -937,13 +942,6 @@ Transaction<SdkRequestType>::getSignaturesInternal(size_t offset) const
 template<typename SdkRequestType>
 proto::Transaction Transaction<SdkRequestType>::getTransactionProtobufObject(unsigned int index) const
 {
-  // If there is no Transaction protobuf object at this index, add blank Transaction protobuf objects until the index is
-  // reached.
-  while (index >= mImpl->mTransactions.size())
-  {
-    mImpl->mTransactions.push_back(proto::Transaction());
-  }
-
   return mImpl->mTransactions.at(index);
 }
 
@@ -1061,8 +1059,13 @@ void Transaction<SdkRequestType>::buildTransaction(unsigned int index) const
   proto::SignedTransaction& signedTransaction = mImpl->mSignedTransactions[index];
   for (const auto& [publicKey, signer] : mImpl->mSignatories)
   {
-    *signedTransaction.mutable_sigmap()->add_sigpair() = *publicKey->toSignaturePairProtobuf(
-      signer(internal::Utilities::stringToByteVector(signedTransaction.bodybytes())));
+    // If there is no signer function, the signature has already been generated for the SignedTransaction (either added
+    // manually with addSignature() or this Transaction came from fromBytes()).
+    if (signer)
+    {
+      *signedTransaction.mutable_sigmap()->add_sigpair() = *publicKey->toSignaturePairProtobuf(
+        signer(internal::Utilities::stringToByteVector(signedTransaction.bodybytes())));
+    }
   }
 
   mImpl->mTransactions[index].set_signedtransactionbytes(signedTransaction.SerializeAsString());

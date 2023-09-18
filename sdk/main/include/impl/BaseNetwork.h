@@ -60,7 +60,7 @@ public:
    *
    * @param node The NodeType of which to decrease the backoff.
    */
-  void decreaseBackoff(const std::shared_ptr<NodeType>& node);
+  void decreaseBackoff(const std::shared_ptr<NodeType>& node) const;
 
   /**
    * Get the list of all proxies at a specified key.

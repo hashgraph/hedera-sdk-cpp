@@ -25,7 +25,9 @@
 #include <proto/consensus_submit_message.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>
+#include <proto/transaction_contents.pb.h>
 #include <stdexcept>
+#include <string>
 
 namespace Hedera
 {
@@ -104,12 +106,39 @@ void TopicMessageSubmitTransaction::initFromSourceTransactionBody()
     throw std::invalid_argument("Transaction body doesn't contain ConsensusSubmitMessage data");
   }
 
-  const proto::ConsensusSubmitMessageTransactionBody& body = transactionBody.consensussubmitmessage();
-
-  if (body.has_topicid())
+  if (const proto::ConsensusSubmitMessageTransactionBody& body = transactionBody.consensussubmitmessage();
+      body.has_topicid())
   {
     mTopicId = TopicId::fromProtobuf(body.topicid());
   }
+
+  // Construct the data from the various Transaction protobuf objects.
+  std::string data;
+  bool dataStillExists = true;
+  for (unsigned int i = 0; dataStillExists; ++i)
+  {
+    proto::Transaction tx;
+
+    try
+    {
+      tx = getTransactionProtobufObject(i * static_cast<unsigned int>(getNodeAccountIds().size()));
+    }
+    catch (const std::out_of_range&)
+    {
+      dataStillExists = false;
+      break;
+    }
+
+    proto::SignedTransaction signedTx;
+    signedTx.ParseFromArray(tx.signedtransactionbytes().data(), static_cast<int>(tx.signedtransactionbytes().size()));
+
+    proto::TransactionBody txBody;
+    txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
+
+    data += txBody.consensussubmitmessage().message();
+  }
+
+  setData(data);
 }
 
 //-----

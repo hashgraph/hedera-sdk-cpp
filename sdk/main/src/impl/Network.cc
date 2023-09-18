@@ -151,10 +151,9 @@ Network Network::getNetworkForLedgerId(const LedgerId& ledgerId)
   {
     for (const auto& endpoint : nodeAddress.getEndpoints())
     {
-      if (endpoint.getPort() == BaseNodeAddress::PORT_NODE_TLS)
+      if (endpoint.getPort() == BaseNodeAddress::PORT_NODE_PLAIN)
       {
         network[endpoint.toString()] = accountId;
-        break;
       }
     }
   }
@@ -178,7 +177,7 @@ std::unordered_map<AccountId, NodeAddress> Network::getAddressBookForLedgerId(co
   std::unordered_map<AccountId, NodeAddress> addresses;
   for (const auto& nodeAddress : addressBook.getNodeAddresses())
   {
-    addresses.try_emplace(nodeAddress.getAccountId(), nodeAddress);
+    addresses[nodeAddress.getAccountId()] = nodeAddress;
   }
 
   return addresses;

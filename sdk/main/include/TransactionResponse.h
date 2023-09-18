@@ -70,7 +70,7 @@ public:
    *                                      TransactionResponse is configured to throw.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  [[nodiscard]] TransactionReceipt getReceipt(const Client& client) const;
+  TransactionReceipt getReceipt(const Client& client) const;
 
   /**
    * Get a TransactionReceipt for the Transaction to which this TransactionResponse is responding.
@@ -85,7 +85,7 @@ public:
    *                                      TransactionResponse is configured to throw.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  [[nodiscard]] TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+  TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
 
   /**
    * Get a TransactionRecord for the Transaction to which this TransactionResponse is responding.

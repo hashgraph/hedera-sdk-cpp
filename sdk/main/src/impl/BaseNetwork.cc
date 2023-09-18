@@ -19,7 +19,6 @@
  */
 #include "impl/BaseNetwork.h"
 #include "AccountId.h"
-#include "impl/BaseNode.h"
 #include "impl/BaseNodeAddress.h"
 #include "impl/MirrorNetwork.h"
 #include "impl/MirrorNode.h"
@@ -98,7 +97,7 @@ void BaseNetwork<NetworkType, KeyType, NodeType>::increaseBackoff(const std::sha
 
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
-void BaseNetwork<NetworkType, KeyType, NodeType>::decreaseBackoff(const std::shared_ptr<NodeType>& node)
+void BaseNetwork<NetworkType, KeyType, NodeType>::decreaseBackoff(const std::shared_ptr<NodeType>& node) const
 {
   node->decreaseBackoff();
 }

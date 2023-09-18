@@ -70,6 +70,17 @@ public:
   [[nodiscard]] static std::unique_ptr<PublicKey> fromStringDer(std::string_view key);
 
   /**
+   * Construct a PublicKey object from a raw byte vector. This will attempt to determine the type of key based on the
+   * input byte vector length.
+   *
+   * @param bytes The vector of raw bytes from which to construct a PublicKey.
+   * @return A pointer to a PublicKey representing the input DER-encoded bytes.
+   * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
+   *                         from the input byte array.
+   */
+  [[nodiscard]] static std::unique_ptr<PublicKey> fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
    * Construct a PublicKey object from a DER-encoded byte vector.
    *
    * @param bytes The vector of DER-encoded bytes from which to construct a PublicKey.
