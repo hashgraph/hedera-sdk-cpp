@@ -20,6 +20,7 @@
 #include "impl/BaseNodeAddress.h"
 
 #include <charconv>
+#include <stdexcept>
 
 namespace Hedera::internal
 {

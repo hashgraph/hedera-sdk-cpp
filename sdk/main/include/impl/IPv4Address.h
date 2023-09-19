@@ -21,8 +21,9 @@
 #define HEDERA_SDK_CPP_IMPL_IPV4_ADDRESS_H_
 
 #include <array>
+#include <cstddef>
 #include <string>
-#include <string_view>
+#include <vector>
 
 namespace Hedera::internal
 {

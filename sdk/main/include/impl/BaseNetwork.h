@@ -23,7 +23,7 @@
 #include "BaseNode.h"
 #include "Defaults.h"
 #include "LedgerId.h"
-#include "impl/TLSBehavior.h"
+#include "TLSBehavior.h"
 
 #include <chrono>
 #include <memory>
