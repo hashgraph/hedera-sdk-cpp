@@ -68,6 +68,12 @@ bool TransactionId::operator==(const TransactionId& other) const
 }
 
 //-----
+bool TransactionId::operator!=(const TransactionId& other) const
+{
+  return !operator==(other);
+}
+
+//-----
 std::unique_ptr<proto::TransactionID> TransactionId::toProtobuf() const
 {
   auto proto = std::make_unique<proto::TransactionID>();

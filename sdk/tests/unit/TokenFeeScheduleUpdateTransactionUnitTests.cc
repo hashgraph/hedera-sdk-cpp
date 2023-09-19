@@ -34,9 +34,6 @@ using namespace Hedera;
 class TokenFeeScheduleUpdateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
   [[nodiscard]] inline const std::vector<std::shared_ptr<CustomFee>>& getTestCustomFees() const
   {
@@ -44,7 +41,6 @@ protected:
   }
 
 private:
-  Client mClient;
   const TokenId mTestTokenId = TokenId(1ULL);
   const std::vector<std::shared_ptr<CustomFee>> mTestCustomFees = { std::make_shared<CustomFixedFee>(),
                                                                     std::make_shared<CustomFractionalFee>(),
@@ -91,8 +87,10 @@ TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetTokenId)
 TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
-  TokenFeeScheduleUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenFeeScheduleUpdateTransaction transaction = TokenFeeScheduleUpdateTransaction()
+                                                    .setNodeAccountIds({ AccountId(1ULL) })
+                                                    .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -115,8 +113,10 @@ TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetCustomFees)
 TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetCustomFeesFrozen)
 {
   // Given
-  TokenFeeScheduleUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenFeeScheduleUpdateTransaction transaction = TokenFeeScheduleUpdateTransaction()
+                                                    .setNodeAccountIds({ AccountId(1ULL) })
+                                                    .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setCustomFees(getTestCustomFees()), IllegalStateException);

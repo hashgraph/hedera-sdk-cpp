@@ -35,52 +35,24 @@ namespace Hedera
 AccountCreateTransaction::AccountCreateTransaction()
   : Transaction<AccountCreateTransaction>()
 {
-  setMaxTransactionFee(Hbar(5LL));
+  setDefaultMaxTransactionFee(Hbar(5LL));
 }
 
 //-----
 AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountCreateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_cryptocreateaccount())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain CryptoCreateAccount data");
-  }
+  setDefaultMaxTransactionFee(Hbar(5LL));
+  initFromSourceTransactionBody();
+}
 
-  const proto::CryptoCreateTransactionBody& body = transactionBody.cryptocreateaccount();
-
-  if (body.has_key())
-  {
-    mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.key()).release());
-  }
-
-  mInitialBalance = Hbar(static_cast<int64_t>(body.initialbalance()), HbarUnit::TINYBAR());
-  mReceiverSignatureRequired = body.receiversigrequired();
-
-  if (body.has_autorenewperiod())
-  {
-    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
-  }
-
-  mAccountMemo = body.memo();
-  mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations());
-
-  if (body.has_staked_account_id())
-  {
-    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
-  }
-
-  else if (body.has_staked_node_id())
-  {
-    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
-  }
-
-  mDeclineStakingReward = body.decline_reward();
-
-  if (!body.alias().empty())
-  {
-    mAlias = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(body.alias()));
-  }
+//-----
+AccountCreateTransaction::AccountCreateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<AccountCreateTransaction>(transactions)
+{
+  setDefaultMaxTransactionFee(Hbar(5LL));
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -187,26 +159,64 @@ AccountCreateTransaction& AccountCreateTransaction::setAlias(const EvmAddress& a
 }
 
 //-----
-proto::Transaction AccountCreateTransaction::makeRequest(const Client& client,
-                                                         const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status AccountCreateTransaction::submitRequest(const Client& client,
-                                                     const std::chrono::system_clock::time_point& deadline,
+grpc::Status AccountCreateTransaction::submitRequest(const proto::Transaction& request,
                                                      const std::shared_ptr<internal::Node>& node,
+                                                     const std::chrono::system_clock::time_point& deadline,
                                                      proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kCryptoCreateAccount, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kCryptoCreateAccount, request, deadline, response);
 }
 
 //-----
 void AccountCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_cryptocreateaccount(build());
+}
+
+//-----
+void AccountCreateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_cryptocreateaccount())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain CryptoCreateAccount data");
+  }
+
+  const proto::CryptoCreateTransactionBody& body = transactionBody.cryptocreateaccount();
+
+  if (body.has_key())
+  {
+    mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.key()).release());
+  }
+
+  mInitialBalance = Hbar(static_cast<int64_t>(body.initialbalance()), HbarUnit::TINYBAR());
+  mReceiverSignatureRequired = body.receiversigrequired();
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  mAccountMemo = body.memo();
+  mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations());
+
+  if (body.has_staked_account_id())
+  {
+    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
+  }
+
+  else if (body.has_staked_node_id())
+  {
+    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
+  }
+
+  mDeclineStakingReward = body.decline_reward();
+
+  if (!body.alias().empty())
+  {
+    mAlias = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(body.alias()));
+  }
 }
 
 //-----

@@ -32,47 +32,36 @@
 namespace Hedera
 {
 //-----
-proto::Query NetworkVersionInfoQuery::makeRequest(const Client& client,
-                                                  const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::NetworkGetVersionInfoQuery* getNetworkVersionInfoQuery = query.mutable_networkgetversioninfo();
-
-  proto::QueryHeader* header = getNetworkVersionInfoQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  return query;
-}
-
-//-----
 NetworkVersionInfo NetworkVersionInfoQuery::mapResponse(const proto::Response& response) const
 {
   return NetworkVersionInfo::fromProtobuf(response.networkgetversioninfo());
 }
 
 //-----
-Status NetworkVersionInfoQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status NetworkVersionInfoQuery::submitRequest(const proto::Query& request,
+                                                    const std::shared_ptr<internal::Node>& node,
+                                                    const std::chrono::system_clock::time_point& deadline,
+                                                    proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.networkgetversioninfo().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kNetworkGetVersionInfo, request, deadline, response);
 }
 
 //-----
-grpc::Status NetworkVersionInfoQuery::submitRequest(const Client& client,
-                                                    const std::chrono::system_clock::time_point& deadline,
-                                                    const std::shared_ptr<internal::Node>& node,
-                                                    proto::Response* response) const
+proto::Query NetworkVersionInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kNetworkGetVersionInfo, makeRequest(client, node), deadline, response);
+  auto networkVersionInfoQuery = std::make_unique<proto::NetworkGetVersionInfoQuery>();
+  networkVersionInfoQuery->set_allocated_header(header);
+
+  proto::Query query;
+  query.set_allocated_networkgetversioninfo(networkVersionInfoQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader NetworkVersionInfoQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.networkgetversioninfo().header());
+  return response.networkgetversioninfo().header();
 }
 
 } // namespace Hedera

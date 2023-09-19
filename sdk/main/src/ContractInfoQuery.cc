@@ -18,10 +18,7 @@
  *
  */
 #include "ContractInfoQuery.h"
-#include "Client.h"
 #include "ContractInfo.h"
-#include "Status.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 
 #include <proto/contract_get_info.pb.h>
@@ -39,47 +36,37 @@ ContractInfoQuery& ContractInfoQuery::setContractId(const ContractId& contractId
 }
 
 //-----
-proto::Query ContractInfoQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::ContractGetInfoQuery* getContractInfoQuery = query.mutable_contractgetinfo();
-
-  proto::QueryHeader* header = getContractInfoQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getContractInfoQuery->set_allocated_contractid(mContractId.toProtobuf().release());
-
-  return query;
-}
-
-//-----
 ContractInfo ContractInfoQuery::mapResponse(const proto::Response& response) const
 {
   return ContractInfo::fromProtobuf(response.contractgetinfo().contractinfo());
 }
 
 //-----
-Status ContractInfoQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status ContractInfoQuery::submitRequest(const proto::Query& request,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.contractgetinfo().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kContractGetInfo, request, deadline, response);
 }
 
 //-----
-grpc::Status ContractInfoQuery::submitRequest(const Client& client,
-                                              const std::chrono::system_clock::time_point& deadline,
-                                              const std::shared_ptr<internal::Node>& node,
-                                              proto::Response* response) const
+proto::Query ContractInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(proto::Query::QueryCase::kContractGetInfo, makeRequest(client, node), deadline, response);
+  auto contractGetInfoQuery = std::make_unique<proto::ContractGetInfoQuery>();
+  contractGetInfoQuery->set_allocated_header(header);
+  contractGetInfoQuery->set_allocated_contractid(mContractId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_contractgetinfo(contractGetInfoQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader ContractInfoQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.contractgetinfo().header());
+  return response.contractgetinfo().header();
 }
 
 } // namespace Hedera

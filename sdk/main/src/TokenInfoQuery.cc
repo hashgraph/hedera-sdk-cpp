@@ -18,10 +18,7 @@
  *
  */
 #include "TokenInfoQuery.h"
-#include "Client.h"
 #include "TokenInfo.h"
-#include "TransactionRecord.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 
 #include <proto/query.pb.h>
@@ -39,47 +36,37 @@ TokenInfoQuery& TokenInfoQuery::setTokenId(const TokenId& tokenId)
 }
 
 //-----
-proto::Query TokenInfoQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::TokenGetInfoQuery* getTokenInfoQuery = query.mutable_tokengetinfo();
-
-  proto::QueryHeader* header = getTokenInfoQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getTokenInfoQuery->set_allocated_token(mTokenId.toProtobuf().release());
-
-  return query;
-}
-
-//-----
 TokenInfo TokenInfoQuery::mapResponse(const proto::Response& response) const
 {
   return TokenInfo::fromProtobuf(response.tokengetinfo().tokeninfo());
 }
 
 //-----
-Status TokenInfoQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status TokenInfoQuery::submitRequest(const proto::Query& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.tokengetinfo().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kTokenGetInfo, request, deadline, response);
 }
 
 //-----
-grpc::Status TokenInfoQuery::submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
-                                           const std::shared_ptr<internal::Node>& node,
-                                           proto::Response* response) const
+proto::Query TokenInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(proto::Query::QueryCase::kTokenGetInfo, makeRequest(client, node), deadline, response);
+  auto tokenGetInfoQuery = std::make_unique<proto::TokenGetInfoQuery>();
+  tokenGetInfoQuery->set_allocated_header(header);
+  tokenGetInfoQuery->set_allocated_token(mTokenId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_tokengetinfo(tokenGetInfoQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader TokenInfoQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.tokengetinfo().header());
+  return response.tokengetinfo().header();
 }
 
 } // namespace Hedera

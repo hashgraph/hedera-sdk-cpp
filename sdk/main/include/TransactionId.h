@@ -85,7 +85,15 @@ public:
    * @param other The other TransactionId with which to compare this TransactionId.
    * @return \c TRUE if this TransactionId is the same as the input TransactionId, otherwise \c FALSE.
    */
-  bool operator==(const TransactionId&) const;
+  bool operator==(const TransactionId& other) const;
+
+  /**
+   * Compare this TransactionId to another TransactionId and determine if they represent different Transactions.
+   *
+   * @param other The other TransactionId with which to compare this TransactionId.
+   * @return \c TRUE if this TransactionId is different from the input TransactionId, otherwise \c FALSE.
+   */
+  bool operator!=(const TransactionId& other) const;
 
   /**
    * Construct a TransactionID protobuf object from this TransactionId object.
@@ -144,6 +152,18 @@ struct hash<Hedera::TransactionId>
    * Operator override to enable use of TransactionId as map key.
    */
   size_t operator()(const Hedera::TransactionId& id) const { return hash<string>()(id.toString()); }
+};
+
+template<>
+struct less<Hedera::TransactionId>
+{
+  /**
+   * Operator override to enable use of TransactionId in a std::map, which requires fair ordering.
+   */
+  bool operator()(const Hedera::TransactionId& lhs, const Hedera::TransactionId& rhs) const
+  {
+    return lhs.toString() < rhs.toString();
+  }
 };
 
 } // namespace std

@@ -70,7 +70,7 @@ public:
    *                                      TransactionResponse is configured to throw.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  [[nodiscard]] TransactionReceipt getReceipt(const Client& client) const;
+  TransactionReceipt getReceipt(const Client& client) const;
 
   /**
    * Get a TransactionReceipt for the Transaction to which this TransactionResponse is responding.
@@ -85,7 +85,7 @@ public:
    *                                      TransactionResponse is configured to throw.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  [[nodiscard]] TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+  TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
 
   /**
    * Get a TransactionRecord for the Transaction to which this TransactionResponse is responding.
@@ -145,10 +145,12 @@ public:
 
 private:
   /**
-   * Allow Transactions to adjust this TransactionResponse's mTransactionId.
+   * Allow Transactions and ChunkedTransactions to adjust this TransactionResponse's mTransactionId.
    */
-  template<typename SdkRequestType>
-  friend class Transaction;
+  // clang-format off
+  template<typename SdkRequestType> friend class Transaction;
+  template<typename SdkRequestType> friend class ChunkedTransaction;
+  // clang-format on
 
   /**
    * The cost to execute this TransactionResponse's corresponding Transaction.

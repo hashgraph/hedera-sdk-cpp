@@ -18,40 +18,47 @@
  *
  */
 #include "impl/Endpoint.h"
+#include "impl/Utilities.h"
 
 #include <proto/basic_types.pb.h>
-#include <sstream>
 
 namespace Hedera::internal
 {
 //-----
 Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& protoServiceEndpoint)
 {
-  return { IPv4Address::fromString(protoServiceEndpoint.ipaddressv4()),
-           static_cast<int>(protoServiceEndpoint.port() & 0x00000000ffffffffL) };
+  return Endpoint()
+    .setAddress(IPv4Address::fromBytes(Utilities::stringToByteVector(protoServiceEndpoint.ipaddressv4())))
+    .setPort(static_cast<unsigned int>(protoServiceEndpoint.port()));
 }
 
 //-----
-Endpoint::Endpoint(const IPv4Address& ipAddressV4, int port)
-  : mAddress(ipAddressV4)
-  , mPort(port)
+std::unique_ptr<proto::ServiceEndpoint> Endpoint::toProtobuf() const
 {
-  // TODO: here we change the port to the TLS port, since the existing serialization of the testnet address book doesn't
-  // include TLS endpoints. Once we have an up to date serialization, remove this
-  if (mPort == 50211)
-  {
-    mPort = 50212;
-  }
+  auto proto = std::make_unique<proto::ServiceEndpoint>();
+  proto->set_ipaddressv4(Utilities::byteVectorToString(mAddress.toBytes()));
+  proto->set_port(static_cast<int32_t>(mPort));
+  return proto;
 }
 
 //-----
 std::string Endpoint::toString() const
 {
-  std::stringstream outputStream;
+  return mAddress.toString() + ':' + std::to_string(mPort);
+}
 
-  outputStream << mAddress.toString() << ":" << mPort;
+//-----
+Endpoint& Endpoint::setAddress(const IPv4Address& address)
+{
+  mAddress = address;
+  return *this;
+}
 
-  return outputStream.str();
+//-----
+Endpoint& Endpoint::setPort(unsigned int port)
+{
+  mPort = port;
+  return *this;
 }
 
 } // namespace Hedera::internal

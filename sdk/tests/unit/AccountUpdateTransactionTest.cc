@@ -34,12 +34,6 @@ using namespace Hedera;
 class AccountUpdateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override
-  {
-    mClient.setOperator(getTestAccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get());
-  }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
   [[nodiscard]] inline bool getTestReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
@@ -55,7 +49,6 @@ protected:
   [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
 
 private:
-  Client mClient;
   const AccountId mAccountId = AccountId(1ULL);
   const std::shared_ptr<PublicKey> mPublicKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const bool mReceiverSignatureRequired = true;
@@ -158,8 +151,10 @@ TEST_F(AccountUpdateTransactionTest, SetAccountId)
 TEST_F(AccountUpdateTransactionTest, SetAccountIdFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
@@ -182,8 +177,10 @@ TEST_F(AccountUpdateTransactionTest, SetKey)
 TEST_F(AccountUpdateTransactionTest, SetKeyFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setKey(getTestPublicKey().get()), IllegalStateException);
@@ -206,8 +203,10 @@ TEST_F(AccountUpdateTransactionTest, SetReceiverSignatureRequired)
 TEST_F(AccountUpdateTransactionTest, SetReceiverSignatureRequiredFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setReceiverSignatureRequired(getTestReceiverSignatureRequired()), IllegalStateException);
@@ -230,8 +229,10 @@ TEST_F(AccountUpdateTransactionTest, SetAutoRenewPeriod)
 TEST_F(AccountUpdateTransactionTest, SetAutoRenewPeriodFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -254,8 +255,10 @@ TEST_F(AccountUpdateTransactionTest, SetExpirationTime)
 TEST_F(AccountUpdateTransactionTest, SetExpirationTimeFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -288,8 +291,10 @@ TEST_F(AccountUpdateTransactionTest, SetAccountMemoTooLarge)
 TEST_F(AccountUpdateTransactionTest, SetAccountMemoFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAccountMemo(getTestAccountMemo()), IllegalStateException);
@@ -322,8 +327,10 @@ TEST_F(AccountUpdateTransactionTest, SetMaxAutomaticTokenAssociationsTooMany)
 TEST_F(AccountUpdateTransactionTest, SetMaxAutomaticTokenAssociationsFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()), IllegalStateException);
@@ -346,8 +353,10 @@ TEST_F(AccountUpdateTransactionTest, SetStakedAccountId)
 TEST_F(AccountUpdateTransactionTest, SetStakedAccountIdFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setStakedAccountId(getTestStakedAccountId()), IllegalStateException);
@@ -370,8 +379,10 @@ TEST_F(AccountUpdateTransactionTest, SetStakedNodeId)
 TEST_F(AccountUpdateTransactionTest, SetStakedNodeIdFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestStakedNodeId()), IllegalStateException);
@@ -394,8 +405,10 @@ TEST_F(AccountUpdateTransactionTest, SetStakingRewardPolicy)
 TEST_F(AccountUpdateTransactionTest, SetStakingRewardPolicyFrozen)
 {
   // Given
-  AccountUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()), IllegalStateException);

@@ -30,13 +30,9 @@ using namespace Hedera;
 class TokenPauseTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
 
 private:
-  Client mClient;
   const TokenId mTestTokenId = TokenId(1ULL);
 };
 
@@ -74,8 +70,10 @@ TEST_F(TokenPauseTransactionTest, GetSetTokenId)
 TEST_F(TokenPauseTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
-  TokenPauseTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenPauseTransaction transaction = TokenPauseTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);

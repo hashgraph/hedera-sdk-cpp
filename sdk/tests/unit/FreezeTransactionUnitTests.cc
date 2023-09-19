@@ -39,17 +39,12 @@ using namespace Hedera;
 class FreezeTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestFileHash() const { return mTestFileHash; }
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestStartTime() const { return mTestStartTime; }
   [[nodiscard]] inline const FreezeType& getTestFreezeType() const { return mTestFreezeType; }
 
 private:
-  Client mClient;
-
   const FileId mTestFileId = FileId(1ULL, 2ULL, 3ULL);
   const std::vector<std::byte> mTestFileHash = { std::byte(0x04), std::byte(0x05), std::byte(0x06) };
   const std::chrono::system_clock::time_point mTestStartTime = std::chrono::system_clock::now();
@@ -99,8 +94,10 @@ TEST_F(FreezeTransactionTest, GetSetFileId)
 TEST_F(FreezeTransactionTest, GetSetFileIdFrozen)
 {
   // Given
-  FreezeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  FreezeTransaction transaction = FreezeTransaction()
+                                    .setNodeAccountIds({ AccountId(1ULL) })
+                                    .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);
@@ -123,8 +120,10 @@ TEST_F(FreezeTransactionTest, GetSetFileHash)
 TEST_F(FreezeTransactionTest, GetSetFileHashFrozen)
 {
   // Given
-  FreezeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  FreezeTransaction transaction = FreezeTransaction()
+                                    .setNodeAccountIds({ AccountId(1ULL) })
+                                    .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileHash(getTestFileHash()), IllegalStateException);
@@ -148,8 +147,10 @@ TEST_F(FreezeTransactionTest, GetSetStartTime)
 TEST_F(FreezeTransactionTest, GetSetStartTimeFrozen)
 {
   // Given
-  FreezeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  FreezeTransaction transaction = FreezeTransaction()
+                                    .setNodeAccountIds({ AccountId(1ULL) })
+                                    .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setStartTime(getTestStartTime()), IllegalStateException);
@@ -172,8 +173,10 @@ TEST_F(FreezeTransactionTest, GetSetFreezeType)
 TEST_F(FreezeTransactionTest, GetSetFreezeTypeFrozen)
 {
   // Given
-  FreezeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  FreezeTransaction transaction = FreezeTransaction()
+                                    .setNodeAccountIds({ AccountId(1ULL) })
+                                    .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFreezeType(getTestFreezeType()), IllegalStateException);

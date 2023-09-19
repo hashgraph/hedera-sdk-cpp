@@ -34,90 +34,24 @@ namespace Hedera
 //-----
 TokenCreateTransaction::TokenCreateTransaction()
 {
-  setMaxTransactionFee(Hbar(50LL));
+  setDefaultMaxTransactionFee(Hbar(40LL));
 }
 
 //-----
 TokenCreateTransaction::TokenCreateTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<TokenCreateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokencreation())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenCreate data");
-  }
+  setDefaultMaxTransactionFee(Hbar(40LL));
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenCreateTransactionBody& body = transactionBody.tokencreation();
-
-  mTokenName = body.name();
-  mTokenSymbol = body.symbol();
-  mDecimals = body.decimals();
-  mInitialSupply = body.initialsupply();
-
-  if (body.has_treasury())
-  {
-    mTreasuryAccountId = AccountId::fromProtobuf(body.treasury());
-  }
-
-  if (body.has_adminkey())
-  {
-    mAdminKey = Key::fromProtobuf(body.adminkey());
-  }
-
-  if (body.has_kyckey())
-  {
-    mKycKey = Key::fromProtobuf(body.kyckey());
-  }
-
-  if (body.has_freezekey())
-  {
-    mFreezeKey = Key::fromProtobuf(body.freezekey());
-  }
-
-  if (body.has_wipekey())
-  {
-    mWipeKey = Key::fromProtobuf(body.wipekey());
-  }
-
-  if (body.has_supplykey())
-  {
-    mSupplyKey = Key::fromProtobuf(body.supplykey());
-  }
-
-  mFreezeDefault = body.freezedefault();
-
-  if (body.has_expiry())
-  {
-    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expiry());
-  }
-
-  if (body.has_autorenewaccount())
-  {
-    mAutoRenewAccountId = AccountId::fromProtobuf(body.autorenewaccount());
-  }
-
-  if (body.has_autorenewperiod())
-  {
-    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
-  }
-
-  mTokenMemo = body.memo();
-  mTokenType = gProtobufTokenTypeToTokenType.at(body.tokentype());
-  mSupplyType = gProtobufTokenSupplyTypeToTokenSupplyType.at(body.supplytype());
-  mMaxSupply = static_cast<uint64_t>(body.maxsupply());
-
-  if (body.has_fee_schedule_key())
-  {
-    mFeeScheduleKey = Key::fromProtobuf(body.fee_schedule_key());
-  }
-
-  for (int i = 0; i < body.custom_fees_size(); ++i)
-  {
-    mCustomFees.push_back(CustomFee::fromProtobuf(body.custom_fees(i)));
-  }
-
-  if (body.has_pause_key())
-  {
-    mPauseKey = Key::fromProtobuf(body.pause_key());
-  }
+//-----
+TokenCreateTransaction::TokenCreateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenCreateTransaction>(transactions)
+{
+  setDefaultMaxTransactionFee(Hbar(40LL));
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -290,26 +224,103 @@ TokenCreateTransaction& TokenCreateTransaction::setPauseKey(const std::shared_pt
 }
 
 //-----
-proto::Transaction TokenCreateTransaction::makeRequest(const Client& client,
-                                                       const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenCreateTransaction::submitRequest(const Client& client,
-                                                   const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenCreateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
+                                                   const std::chrono::system_clock::time_point& deadline,
                                                    proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenCreation, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenCreation, request, deadline, response);
 }
 
 //-----
 void TokenCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokencreation(build());
+}
+
+//-----
+void TokenCreateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokencreation())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenCreate data");
+  }
+
+  const proto::TokenCreateTransactionBody& body = transactionBody.tokencreation();
+
+  mTokenName = body.name();
+  mTokenSymbol = body.symbol();
+  mDecimals = body.decimals();
+  mInitialSupply = body.initialsupply();
+
+  if (body.has_treasury())
+  {
+    mTreasuryAccountId = AccountId::fromProtobuf(body.treasury());
+  }
+
+  if (body.has_adminkey())
+  {
+    mAdminKey = Key::fromProtobuf(body.adminkey());
+  }
+
+  if (body.has_kyckey())
+  {
+    mKycKey = Key::fromProtobuf(body.kyckey());
+  }
+
+  if (body.has_freezekey())
+  {
+    mFreezeKey = Key::fromProtobuf(body.freezekey());
+  }
+
+  if (body.has_wipekey())
+  {
+    mWipeKey = Key::fromProtobuf(body.wipekey());
+  }
+
+  if (body.has_supplykey())
+  {
+    mSupplyKey = Key::fromProtobuf(body.supplykey());
+  }
+
+  mFreezeDefault = body.freezedefault();
+
+  if (body.has_expiry())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expiry());
+  }
+
+  if (body.has_autorenewaccount())
+  {
+    mAutoRenewAccountId = AccountId::fromProtobuf(body.autorenewaccount());
+  }
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  mTokenMemo = body.memo();
+  mTokenType = gProtobufTokenTypeToTokenType.at(body.tokentype());
+  mSupplyType = gProtobufTokenSupplyTypeToTokenSupplyType.at(body.supplytype());
+  mMaxSupply = static_cast<uint64_t>(body.maxsupply());
+
+  if (body.has_fee_schedule_key())
+  {
+    mFeeScheduleKey = Key::fromProtobuf(body.fee_schedule_key());
+  }
+
+  for (int i = 0; i < body.custom_fees_size(); ++i)
+  {
+    mCustomFees.push_back(CustomFee::fromProtobuf(body.custom_fees(i)));
+  }
+
+  if (body.has_pause_key())
+  {
+    mPauseKey = Key::fromProtobuf(body.pause_key());
+  }
 }
 
 //-----

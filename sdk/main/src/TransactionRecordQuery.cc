@@ -18,10 +18,8 @@
  *
  */
 #include "TransactionRecordQuery.h"
-#include "Client.h"
 #include "Status.h"
 #include "TransactionRecord.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 
 #include <proto/query.pb.h>
@@ -41,39 +39,18 @@ TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const Transacti
 }
 
 //-----
-proto::Query TransactionRecordQuery::makeRequest(const Client& client,
-                                                 const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::TransactionGetRecordQuery* getTransactionRecordQuery = query.mutable_transactiongetrecord();
-
-  proto::QueryHeader* header = getTransactionRecordQuery->mutable_header();
-  header->set_responsetype(proto::ResponseType::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getTransactionRecordQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
-
-  return query;
-}
-
-//-----
 TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& response) const
 {
   return TransactionRecord::fromProtobuf(response.transactiongetrecord().transactionrecord());
 }
 
 //-----
-Status TransactionRecordQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status TransactionRecordQuery::submitRequest(const proto::Query& request,
+                                                   const std::shared_ptr<internal::Node>& node,
+                                                   const std::chrono::system_clock::time_point& deadline,
+                                                   proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.transactiongetrecord().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kTransactionGetRecord, request, deadline, response);
 }
 
 //-----
@@ -84,38 +61,65 @@ TransactionRecordQuery::determineStatus(Status status, const Client& client, con
         baseStatus =
           Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::determineStatus(
             status, client, response);
-      baseStatus == ExecutionStatus::SERVER_ERROR || baseStatus == ExecutionStatus::REQUEST_ERROR)
+      baseStatus == ExecutionStatus::SERVER_ERROR)
   {
-    if (status == Status::RECORD_NOT_FOUND)
-    {
-      return ExecutionStatus::RETRY;
-    }
-
     return baseStatus;
   }
 
-  // TransactionRecordQuery should wait until the receipt is actually generated. That status data is contained in the
-  // protobuf receipt.
-  switch (gProtobufResponseCodeToStatus.at(response.transactiongetrecord().transactionrecord().receipt().status()))
+  switch (status)
   {
     case Status::BUSY:
     case Status::UNKNOWN:
+    case Status::RECEIPT_NOT_FOUND:
     case Status::RECORD_NOT_FOUND:
-    case Status::OK:
       return ExecutionStatus::RETRY;
+
+    case Status::OK:
+    {
+      if (isCostQuery())
+      {
+        return ExecutionStatus::SUCCESS;
+      }
+
+      switch (gProtobufResponseCodeToStatus.at(response.transactiongetrecord().transactionrecord().receipt().status()))
+      {
+        case Status::BUSY:
+        case Status::UNKNOWN:
+        case Status::OK:
+        case Status::RECEIPT_NOT_FOUND:
+        case Status::RECORD_NOT_FOUND:
+          return ExecutionStatus::RETRY;
+        default:
+          return ExecutionStatus::SUCCESS;
+      }
+    }
+
     default:
-      return ExecutionStatus::SUCCESS;
+      return ExecutionStatus::REQUEST_ERROR;
   }
 }
 
 //-----
-grpc::Status TransactionRecordQuery::submitRequest(const Client& client,
-                                                   const std::chrono::system_clock::time_point& deadline,
-                                                   const std::shared_ptr<internal::Node>& node,
-                                                   proto::Response* response) const
+proto::Query TransactionRecordQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kTransactionGetRecord, makeRequest(client, node), deadline, response);
+  auto transactionGetRecordQuery = std::make_unique<proto::TransactionGetRecordQuery>();
+  transactionGetRecordQuery->set_allocated_header(header);
+
+  if (mTransactionId.has_value())
+  {
+    transactionGetRecordQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
+  }
+
+  proto::Query query;
+  query.set_allocated_transactiongetrecord(transactionGetRecordQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader TransactionRecordQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.transactiongetrecord().header());
+  return response.transactiongetrecord().header();
 }
 
 } // namespace Hedera

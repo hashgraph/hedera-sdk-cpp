@@ -31,13 +31,9 @@ using namespace Hedera;
 class FileDeleteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
 
 private:
-  Client mClient;
   const FileId mTestFileId = FileId(1ULL);
 };
 
@@ -75,8 +71,10 @@ TEST_F(FileDeleteTransactionTest, GetSetFileId)
 TEST_F(FileDeleteTransactionTest, GetSetFileIdFrozen)
 {
   // Given
-  FileDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  FileDeleteTransaction transaction = FileDeleteTransaction()
+                                        .setNodeAccountIds({ AccountId(1ULL) })
+                                        .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFileId(getTestFileId()), IllegalStateException);

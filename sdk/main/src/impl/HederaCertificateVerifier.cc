@@ -43,10 +43,11 @@ bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerification
   {
     *sync_status = grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
                                 "Hash of node certificate chain doesn't match hash contained in address book");
-    return true;
   }
-
-  *sync_status = grpc::Status(grpc::StatusCode::OK, "Certificate chain hash matches expected");
+  else
+  {
+    *sync_status = grpc::Status(grpc::StatusCode::OK, "Certificate chain hash matches expected");
+  }
 
   // always true, since this is called synchronously
   return true;

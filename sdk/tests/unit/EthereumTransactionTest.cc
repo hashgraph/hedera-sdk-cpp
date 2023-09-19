@@ -37,15 +37,11 @@ using namespace Hedera;
 class EthereumTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestEthereumData() const { return mTestEthereumData; }
   [[nodiscard]] inline const FileId& getTestCallDataFileId() const { return mTestCallDataFileId; }
   [[nodiscard]] inline const Hbar& getTestMaxGasAllowance() const { return mTestMaxGasAllowance; }
 
 private:
-  Client mClient;
   const std::vector<std::byte> mTestEthereumData = { std::byte(0x01), std::byte(0x02), std::byte(0x03) };
   const FileId mTestCallDataFileId = FileId(4ULL);
   const Hbar mTestMaxGasAllowance = Hbar(5LL);
@@ -90,8 +86,10 @@ TEST_F(EthereumTransactionTest, GetSetEthereumData)
 TEST_F(EthereumTransactionTest, GetSetEthereumDataFrozen)
 {
   // Given
-  EthereumTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  EthereumTransaction transaction = EthereumTransaction()
+                                      .setNodeAccountIds({ AccountId(1ULL) })
+                                      .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setEthereumData(getTestEthereumData()), IllegalStateException);
@@ -114,8 +112,10 @@ TEST_F(EthereumTransactionTest, GetSetCallDataFileId)
 TEST_F(EthereumTransactionTest, GetSetCallDataFileIdFrozen)
 {
   // Given
-  EthereumTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  EthereumTransaction transaction = EthereumTransaction()
+                                      .setNodeAccountIds({ AccountId(1ULL) })
+                                      .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setCallDataFileId(getTestCallDataFileId()), IllegalStateException);
@@ -138,8 +138,10 @@ TEST_F(EthereumTransactionTest, GetSetMaxGasAllowance)
 TEST_F(EthereumTransactionTest, GetSetMaxGasAllowanceFrozen)
 {
   // Given
-  EthereumTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  EthereumTransaction transaction = EthereumTransaction()
+                                      .setNodeAccountIds({ AccountId(1ULL) })
+                                      .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setMaxGasAllowance(getTestMaxGasAllowance()), IllegalStateException);

@@ -36,9 +36,6 @@ using namespace Hedera;
 class ContractExecuteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
   [[nodiscard]] inline const uint64_t& getTestGas() const { return mTestGas; }
   [[nodiscard]] inline const Hbar& getTestPayableAmount() const { return mTestPayableAmount; }
@@ -48,7 +45,6 @@ protected:
   }
 
 private:
-  Client mClient;
   const ContractId mTestContractId = ContractId(1ULL);
   const uint64_t mTestGas = 2ULL;
   const Hbar mTestPayableAmount = Hbar(3LL);
@@ -95,8 +91,10 @@ TEST_F(ContractExecuteTransactionTest, GetSetContractId)
 TEST_F(ContractExecuteTransactionTest, GetSetContractIdFrozen)
 {
   // Given
-  ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractExecuteTransaction transaction = ContractExecuteTransaction()
+                                             .setNodeAccountIds({ AccountId(1ULL) })
+                                             .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setContractId(getTestContractId()), IllegalStateException);
@@ -119,8 +117,10 @@ TEST_F(ContractExecuteTransactionTest, GetSetGas)
 TEST_F(ContractExecuteTransactionTest, GetSetGasFrozen)
 {
   // Given
-  ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractExecuteTransaction transaction = ContractExecuteTransaction()
+                                             .setNodeAccountIds({ AccountId(1ULL) })
+                                             .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setGas(getTestGas()), IllegalStateException);
@@ -143,8 +143,10 @@ TEST_F(ContractExecuteTransactionTest, GetSetPayableAmount)
 TEST_F(ContractExecuteTransactionTest, GetSetPayableAmountFrozen)
 {
   // Given
-  ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractExecuteTransaction transaction = ContractExecuteTransaction()
+                                             .setNodeAccountIds({ AccountId(1ULL) })
+                                             .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setPayableAmount(getTestPayableAmount()), IllegalStateException);
@@ -167,8 +169,10 @@ TEST_F(ContractExecuteTransactionTest, GetSetFunctionParameters)
 TEST_F(ContractExecuteTransactionTest, GetSetFunctionParametersFrozen)
 {
   // Given
-  ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractExecuteTransaction transaction = ContractExecuteTransaction()
+                                             .setNodeAccountIds({ AccountId(1ULL) })
+                                             .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFunctionParameters(getTestFunctionParameters()), IllegalStateException);
@@ -191,8 +195,10 @@ TEST_F(ContractExecuteTransactionTest, GetSetFunctionName)
 TEST_F(ContractExecuteTransactionTest, GetSetFunctionNameFrozen)
 {
   // Given
-  ContractExecuteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractExecuteTransaction transaction = ContractExecuteTransaction()
+                                             .setNodeAccountIds({ AccountId(1ULL) })
+                                             .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setFunction("functionName"), IllegalStateException);

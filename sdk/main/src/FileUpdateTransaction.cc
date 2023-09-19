@@ -31,35 +31,17 @@ namespace Hedera
 {
 //-----
 FileUpdateTransaction::FileUpdateTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<FileUpdateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_fileupdate())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain FileUpdate data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::FileUpdateTransactionBody& body = transactionBody.fileupdate();
-
-  if (body.has_fileid())
-  {
-    mFileId = FileId::fromProtobuf(body.fileid());
-  }
-
-  if (body.has_expirationtime())
-  {
-    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
-  }
-
-  if (body.has_keys())
-  {
-    mKeys = KeyList::fromProtobuf(body.keys());
-  }
-
-  mContents = internal::Utilities::stringToByteVector(body.contents());
-
-  if (body.has_memo())
-  {
-    mFileMemo = body.memo().value();
-  }
+//-----
+FileUpdateTransaction::FileUpdateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<FileUpdateTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -120,26 +102,53 @@ FileUpdateTransaction& FileUpdateTransaction::setFileMemo(std::string_view memo)
 }
 
 //-----
-proto::Transaction FileUpdateTransaction::makeRequest(const Client& client,
-                                                      const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status FileUpdateTransaction::submitRequest(const Client& client,
-                                                  const std::chrono::system_clock::time_point& deadline,
+grpc::Status FileUpdateTransaction::submitRequest(const proto::Transaction& request,
                                                   const std::shared_ptr<internal::Node>& node,
+                                                  const std::chrono::system_clock::time_point& deadline,
                                                   proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kFileUpdate, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kFileUpdate, request, deadline, response);
 }
 
 //-----
 void FileUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_fileupdate(build());
+}
+
+//-----
+void FileUpdateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_fileupdate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain FileUpdate data");
+  }
+
+  const proto::FileUpdateTransactionBody& body = transactionBody.fileupdate();
+
+  if (body.has_fileid())
+  {
+    mFileId = FileId::fromProtobuf(body.fileid());
+  }
+
+  if (body.has_expirationtime())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
+  }
+
+  if (body.has_keys())
+  {
+    mKeys = KeyList::fromProtobuf(body.keys());
+  }
+
+  mContents = internal::Utilities::stringToByteVector(body.contents());
+
+  if (body.has_memo())
+  {
+    mFileMemo = body.memo().value();
+  }
 }
 
 //-----

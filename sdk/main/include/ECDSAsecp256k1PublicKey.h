@@ -189,6 +189,15 @@ public:
   [[nodiscard]] std::vector<std::byte> toBytesRaw() const override;
 
   /**
+   * Derived from PublicKey. Serialize this ECDSAsecp256k1PublicKey to a SignaturePair protobuf object with the given
+   * signature.
+   *
+   * @param signature The signature created by this ECDSAsecp256k1PublicKey.
+   */
+  [[nodiscard]] std::unique_ptr<proto::SignaturePair> toSignaturePairProtobuf(
+    const std::vector<std::byte>& signature) const override;
+
+  /**
    * Construct an EvmAddress from this ECDSAsecp256k1PublicKey. The constructed EvmAddress will be the last 20 bytes of
    * the keccak-256 hash of this ECDSAsecp256k1PublicKey.
    *

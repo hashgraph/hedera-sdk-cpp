@@ -39,54 +39,43 @@ AccountStakersQuery& AccountStakersQuery::setAccountId(const AccountId& accountI
 }
 
 //-----
-proto::Query AccountStakersQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::CryptoGetStakersQuery* getAccountStakersQuery = query.mutable_cryptogetproxystakers();
-
-  proto::QueryHeader* header = getAccountStakersQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getAccountStakersQuery->set_allocated_accountid(mAccountId.toProtobuf().release());
-
-  return query;
-}
-
-//-----
 AccountStakers AccountStakersQuery::mapResponse(const proto::Response& response) const
 {
   AccountStakers accountStakers;
-
   for (int i = 0; i < response.cryptogetproxystakers().stakers().proxystaker_size(); ++i)
   {
+    accountStakers.push_back(ProxyStaker::fromProtobuf(response.cryptogetproxystakers().stakers().proxystaker(i)));
   }
 
   return accountStakers;
 }
 
 //-----
-Status AccountStakersQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status AccountStakersQuery::submitRequest(const proto::Query& request,
+                                                const std::shared_ptr<internal::Node>& node,
+                                                const std::chrono::system_clock::time_point& deadline,
+                                                proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.cryptogetproxystakers().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kCryptoGetProxyStakers, request, deadline, response);
 }
 
 //-----
-grpc::Status AccountStakersQuery::submitRequest(const Client& client,
-                                                const std::chrono::system_clock::time_point& deadline,
-                                                const std::shared_ptr<internal::Node>& node,
-                                                proto::Response* response) const
+proto::Query AccountStakersQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kCryptoGetProxyStakers, makeRequest(client, node), deadline, response);
+  auto accountStakersQuery = std::make_unique<proto::CryptoGetStakersQuery>();
+  accountStakersQuery->set_allocated_header(header);
+  accountStakersQuery->set_allocated_accountid(mAccountId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_cryptogetproxystakers(accountStakersQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader AccountStakersQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.cryptogetproxystakers().header());
+  return response.cryptogetproxystakers().header();
 }
 
 } // namespace Hedera

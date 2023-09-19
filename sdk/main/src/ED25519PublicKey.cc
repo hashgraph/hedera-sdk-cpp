@@ -186,6 +186,16 @@ std::vector<std::byte> ED25519PublicKey::toBytesRaw() const
 }
 
 //-----
+std::unique_ptr<proto::SignaturePair> ED25519PublicKey::toSignaturePairProtobuf(
+  const std::vector<std::byte>& signature) const
+{
+  auto signaturePair = std::make_unique<proto::SignaturePair>();
+  signaturePair->set_pubkeyprefix(internal::Utilities::byteVectorToString(toBytesRaw()));
+  signaturePair->set_ed25519(internal::Utilities::byteVectorToString(signature));
+  return signaturePair;
+}
+
+//-----
 ED25519PublicKey::ED25519PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key)
   : PublicKey(std::move(key))
 {

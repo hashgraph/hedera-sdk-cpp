@@ -27,6 +27,7 @@
 
 #include <chrono>
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <utility>
@@ -44,6 +45,7 @@ class WrappedTransaction;
 namespace proto
 {
 class SchedulableTransactionBody;
+class SignedTransaction;
 class Transaction;
 class TransactionBody;
 class TransactionResponse;
@@ -62,8 +64,8 @@ class Transaction
 {
 public:
   /**
-   * Construct a Transaction derived class from a byte array. The bytes can be a protobuf encoded TransactionBody,
-   * Transaction, or SignedTransaction. Since C++ return types must be known at compile time and the type of Transaction
+   * Construct a Transaction derived class from a byte array. The bytes can be a protobuf encoded TransactionList,
+   * Transaction, or TransactionBody. Since C++ return types must be known at compile time and the type of Transaction
    * to create may not be known at compile time, a WrappedTransaction is used to encompass all possible Transactions in
    * a std::variant. Usage of this return type would look like the following:
    *
@@ -96,6 +98,13 @@ public:
   [[nodiscard]] static WrappedTransaction fromBytes(const std::vector<std::byte>& bytes);
 
   /**
+   * Construct a representative byte array from this Transaction object.
+   *
+   * @return The byte array representing this Transaction object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
    * Sign this Transaction with the given PrivateKey. Signing a Transaction with a key that has already been used to
    * sign will be ignored.
    *
@@ -118,12 +127,48 @@ public:
                            const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer);
 
   /**
+   * Sign this Transaction with a configured Client. This will freeze this Transaction if it is not already frozen.
+   *
+   * @param client The Client with which to sign this Transaction.
+   * @return A reference to this derived Transaction object with the client signature.
+   * @throws UninitializedException If the input Client operator has not been initialized.
+   */
+  SdkRequestType& signWithOperator(const Client& client);
+
+  /**
+   * Add a signature to this Transaction.
+   *
+   * @param publicKey The associated PublicKey of the PrivateKey that generated the signature.
+   * @param signature The signature to add.
+   * @return A reference to this derived Transaction object with the newly-added signature.
+   * @throws IllegalStateException If there is not exactly one node account ID set or if this Transaction is not frozen.
+   */
+  virtual SdkRequestType& addSignature(const std::shared_ptr<PublicKey>& publicKey,
+                                       const std::vector<std::byte>& signature);
+
+  /**
+   * Get the signatures of each potential Transaction protobuf object this Transaction may send.
+   *
+   * @return The map of node account IDs to their PublicKeys and signatures.
+   */
+  [[nodiscard]] virtual std::map<AccountId, std::map<std::shared_ptr<PublicKey>, std::vector<std::byte>>>
+  getSignatures() const;
+
+  /**
+   * Freeze this Transaction.
+   *
+   * @return A reference to this derived Transaction object, now frozen.
+   * @throws IllegalStateException If this Transaction's TransactionId and node account IDs have not been manually set.
+   */
+  SdkRequestType& freeze();
+
+  /**
    * Freeze this transaction with a Client. The Client's operator will be used to generate a transaction ID, and the
-   * client's network will be used to generate a list of node account IDs.
+   * Client's network will be used to generate a list of node account IDs.
    *
    * @param client A pointer to the Client with which to freeze this Transaction.
    * @return A reference to this derived Transaction object, now frozen.
-   * @throws UninitializedException If Client operator has not been initialized.
+   * @throws UninitializedException If the input Client operator has not been initialized.
    */
   SdkRequestType& freezeWith(const Client* client);
 
@@ -131,41 +176,79 @@ public:
    * Put this Transaction in a ScheduleCreateTransaction.
    *
    * @return This Transaction put in a ScheduleCreateTransaction.
-   * @throws IllegalStateException If this transaction has node account IDs already set; it is not allowed.
+   * @throws IllegalStateException If this Transaction has node account IDs already set.
    */
   [[nodiscard]] ScheduleCreateTransaction schedule() const;
 
   /**
-   * Set the length of time that this Transaction will remain valid.
+   * Get the SHA384 hash of this Transaction.
    *
-   * @param duration The desired length of time to keep this Transaction valid.
-   * @return A reference to this derived Transaction object with the newly-set valid duration.
+   * @return The SHA384 hash of this Transaction.
+   * @throws IllegalStateException If this Transaction is not frozen.
    */
-  SdkRequestType& setValidTransactionDuration(const std::chrono::duration<double>& duration);
+  [[nodiscard]] virtual std::vector<std::byte> getTransactionHash() const;
 
   /**
-   * Set the maximum transaction fee willing to be paid to execute this Transaction.
+   * Get the SHA384 hash of each potential Transaction protobuf object this Transaction may send.
    *
-   * @param fee The desired maximum transaction fee willing to be paid to execute this Transaction.
-   * @return A reference to this derived Transaction object with the newly-set maximum transaction fee.
+   * @return The map of node account IDs to the SHA384 hash of their Transaction.
+   * @throws IllegalStateException If this Transaction is not frozen.
    */
-  SdkRequestType& setMaxTransactionFee(const Hbar& fee);
+  [[nodiscard]] virtual std::map<AccountId, std::vector<std::byte>> getTransactionHashPerNode() const;
 
   /**
-   * Set the memo for this Transaction.
+   * Require that this Transaction has exactly one node account ID set.
    *
-   * @param memo The desired memo for this Transaction.
-   * @return A reference to this derived Transaction object with the newly-set memo.
+   * @throws IllegalStateException If there is not exactly one node account ID set.
    */
-  SdkRequestType& setTransactionMemo(const std::string& memo);
+  void requireOneNodeAccountId() const;
 
   /**
    * Set the ID for this Transaction.
    *
    * @param id The desired transaction ID for this Transaction.
    * @return A reference to this derived Transaction object with the newly-set transaction ID.
+   * @throws IllegalStateException If this Transaction is frozen.
    */
   SdkRequestType& setTransactionId(const TransactionId& id);
+
+  /**
+   * Derived from Executable. Set the desired account IDs of nodes to which this Transaction will be submitted. This is
+   * not different from Executable::setNodeAccountIds() other than it checks to make sure the Transaction isn't frozen
+   * and throws if it is.
+   *
+   * @param nodeAccountIds The desired list of account IDs of nodes to submit this Transaction.
+   * @return A reference to this Executable derived class with the newly-set node account IDs.
+   * @throws IllegalStateException If this Transaction is frozen.
+   */
+  SdkRequestType& setNodeAccountIds(std::vector<AccountId> nodeAccountIds) override;
+
+  /**
+   * Set the maximum transaction fee willing to be paid to execute this Transaction.
+   *
+   * @param fee The desired maximum transaction fee willing to be paid to execute this Transaction.
+   * @return A reference to this derived Transaction object with the newly-set maximum transaction fee.
+   * @throws IllegalStateException If this Transaction is frozen.
+   */
+  SdkRequestType& setMaxTransactionFee(const Hbar& fee);
+
+  /**
+   * Set the length of time that this Transaction will remain valid.
+   *
+   * @param duration The desired length of time to keep this Transaction valid.
+   * @return A reference to this derived Transaction object with the newly-set valid duration.
+   * @throws IllegalStateException If this Transaction is frozen.
+   */
+  SdkRequestType& setValidTransactionDuration(const std::chrono::duration<double>& duration);
+
+  /**
+   * Set the memo for this Transaction.
+   *
+   * @param memo The desired memo for this Transaction.
+   * @return A reference to this derived Transaction object with the newly-set memo.
+   * @throws IllegalStateException If this Transaction is frozen.
+   */
+  SdkRequestType& setTransactionMemo(const std::string& memo);
 
   /**
    * Set the transaction ID regeneration policy for this Transaction.
@@ -173,95 +256,136 @@ public:
    * @param regenerate \c TRUE if it is desired for this Transaction to regenerate a transaction ID upon receiving a
    *                   TRANSACTION_EXPIRED response from the network after submission, otherwise \c FALSE.
    * @return A reference to this derived Transaction object with the newly-set transaction ID regeneration policy.
+   * @throws IllegalStateException If this Transaction is frozen.
    */
   SdkRequestType& setRegenerateTransactionIdPolicy(bool regenerate);
+
+  /**
+   * Get the ID of this Transaction.
+   *
+   * @return The ID of this Transaction.
+   * @throws IllegalStateException If no TransactionId has been generated or set yet.
+   */
+  [[nodiscard]] TransactionId getTransactionId() const;
+
+  /**
+   * Get the maximum transaction fee willing to be paid to execute this Transaction.
+   *
+   * @return The maximum transaction fee willing to be paid. Uninitialized if no maximum transaction fee has been set.
+   */
+  [[nodiscard]] std::optional<Hbar> getMaxTransactionFee() const;
+
+  /**
+   * Get the default maximum transaction fee. This can change between Transactions depending on their cost.
+   *
+   * @return The default maximum transaction fee.
+   */
+  [[nodiscard]] Hbar getDefaultMaxTransactionFee() const;
 
   /**
    * Get the desired length of time for this Transaction to remain valid upon submission.
    *
    * @return The length of time this Transaction will remain valid.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getValidTransactionDuration() const
-  {
-    return mTransactionValidDuration;
-  }
-
-  /**
-   * Get the desired maximum transaction fee willing to be paid to execute this Transaction.
-   *
-   * @return The desired maximum transaction fee willing to be paid.
-   */
-  [[nodiscard]] inline std::optional<Hbar> getMaxTransactionFee() const { return mMaxTransactionFee; }
+  [[nodiscard]] std::chrono::duration<double> getValidTransactionDuration() const;
 
   /**
    * Get the memo for this Transaction.
    *
    * @return The memo for this Transaction.
    */
-  [[nodiscard]] inline std::string getTransactionMemo() const { return mTransactionMemo; }
-
-  /**
-   * Get the desired ID for this Transaction.
-   *
-   * @return The desired ID for this Transaction.
-   * @throws IllegalStateException If no TransactionId has been generated or set yet.
-   */
-  [[nodiscard]] TransactionId getTransactionId() const;
+  [[nodiscard]] std::string getTransactionMemo() const;
 
   /**
    * Get the desired transaction ID regeneration policy of this Transaction.
    *
    * @return \c TRUE if this Transaction should regenerate its transaction ID upon receipt of a TRANSACTION_EXPIRED
-   *         response from the network, otherwise \c FALSE.
+   *         response from the network, \c FALSE if this Transaction shouldn't regenerate its transaction ID, and
+   *         uninitialized if this Transaction will follow the default behavior.
    */
-  [[nodiscard]] inline std::optional<bool> getRegenerateTransactionIdPolicy() const
-  {
-    return mTransactionIdRegenerationPolicy;
-  }
+  [[nodiscard]] std::optional<bool> getRegenerateTransactionIdPolicy() const;
 
 protected:
-  /**
-   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
-   */
-  Transaction() = default;
-  Transaction(const Transaction&) = default;
-  Transaction& operator=(const Transaction&) = default;
-  Transaction(Transaction&&) noexcept = default;
-  Transaction& operator=(Transaction&&) noexcept = default;
+  Transaction();
+  ~Transaction();
+  Transaction(const Transaction&);
+  Transaction& operator=(const Transaction&);
+  Transaction(Transaction&&) noexcept;
+  Transaction& operator=(Transaction&&) noexcept;
 
   /**
    * Construct from a TransactionBody protobuf object.
    *
-   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @param txBody The TransactionBody protobuf object from which to construct.
    */
-  explicit Transaction(const proto::TransactionBody& transactionBody);
+  explicit Transaction(const proto::TransactionBody& txBody);
 
   /**
-   * Derived from Executable. Perform any needed actions for this Transaction when a Node has been selected to which to
-   * submit this Transaction.
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   * Assuming the input map isn't empty, this Transaction will set its values based on the values in the first
+   * TransactionId -> [AccountId, proto::Transaction] mapping and ignore the rest.
    *
-   * @param node The Node to which this Executable is being submitted.
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
    */
-  void onSelectNode(const std::shared_ptr<internal::Node>& node) override;
+  explicit Transaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
   /**
-   * Sign a TransactionBody protobuf object with a Client and put the signed bytes into a Transaction protobuf object.
+   * Derived from Executable. Construct a Transaction protobuf object from this Transaction, based on the node account
+   * ID at the given index.
    *
-   * @param transaction The TransactionBody to sign.
-   * @param client      The Client being used to sign the transaction.
-   * @return A Transaction protobuf object containing the TransactionBody protobuf object signed by the Client.
-   * @throws UninitializedException If the input client has no operator with which to sign this Transaction.
+   * @param index The index of the node account ID that's associated with the Node being used to execute this
+   *              Transaction.
+   * @return A Transaction protobuf object filled with this Transaction's data, based on the node account ID at the
+   *         given index.
    */
-  [[nodiscard]] proto::Transaction signTransaction(const proto::TransactionBody& transaction,
-                                                   const Client& client) const;
+  [[nodiscard]] proto::Transaction makeRequest(unsigned int index) const override;
 
   /**
-   * Create a TransactionBody protobuf object from this Transaction object's data.
+   * Build all Transaction protobuf objects for this Transaction, each going to a different previously-selected node.
+   */
+  void buildAllTransactions() const;
+
+  /**
+   * Update mSourceTransactionBody. This will update all fields of mSourceTransactionBody except the transaction ID and
+   * the node account ID.
    *
    * @param client A pointer to the Client that will sign and submit this Transaction.
-   * @return The created TransactionBody protobuf object.
    */
-  [[nodiscard]] proto::TransactionBody generateTransactionBody(const Client* client) const;
+  void updateSourceTransactionBody(const Client* client) const;
+
+  /**
+   * Generate the SignedTransaction protobuf objects for this Transaction.
+   *
+   * @param client A pointer to the Client to use to generate the SignedTransaction protobuf objects.
+   */
+  virtual void generateSignedTransactions(const Client* client);
+
+  /**
+   * Add a Transaction or SignedTransaction protobuf object to this Transaction's Transaction or SignedTransaction
+   * protobuf object list, respectively. If a Transaction protobuf object is being added, it will also parse a
+   * SignedTransaction protobuf object from the Transaction protobuf object and add that SignedTransaction protobuf
+   * object to this Transaction's SignedTransaction protobuf object list.
+   *
+   * @param transaction The Transaction or SignedTransaction protobuf object to add to this Transaction.
+   */
+  void addTransaction(const proto::Transaction& transaction);
+  void addTransaction(const proto::SignedTransaction& transaction);
+
+  /**
+   * Add a SignedTransaction protobuf object created from the input TransactionBody protobuf object for each node
+   * account ID of this Transaction. It is expected that every field in the input TransactionBody protobuf object is
+   * valid except the node account ID field, which will be filled by the function.
+   *
+   * @param transaction The TransactionBody protobuf object from which to construct the SignedTransaction protobuf
+   *                    objects.
+   */
+  void addSignedTransactionForEachNode(proto::TransactionBody& transactionBody);
+
+  /**
+   * Clear the SignedTransaction and Transaction protobuf objects held by this Transaction.
+   */
+  virtual void clearTransactions();
 
   /**
    * Check and make sure this Transaction isn't frozen.
@@ -269,6 +393,51 @@ protected:
    * @throws IllegalStateException If this Transaction is frozen.
    */
   void requireNotFrozen() const;
+
+  /**
+   * Is this Transaction frozen?
+   *
+   * @return \c TRUE if this Transaction is frozen, otherwise \c FALSE.
+   */
+  [[nodiscard]] bool isFrozen() const;
+
+  /**
+   * Set the default maximum transaction fee for this Transaction.
+   *
+   * @param fee The default maximum transaction fee for this Transaction.
+   */
+  void setDefaultMaxTransactionFee(const Hbar& fee);
+
+  /**
+   * Get the signatures of the Transaction protobuf object at the specified offset.
+   *
+   * @param offset The offset at which to grab the signatures.
+   * @return The map of node account IDs to their PublicKeys and signatures for the specified offset.
+   */
+  [[nodiscard]] std::map<AccountId, std::map<std::shared_ptr<PublicKey>, std::vector<std::byte>>> getSignaturesInternal(
+    size_t offset = 0ULL) const;
+
+  /**
+   * Get the Transaction protobuf object located at the given index in the Transaction protobuf object list.
+   *
+   * @param index The index at which to get the Transaction protobuf object.
+   * @return The Transaction protobuf object located at the given index.
+   */
+  [[nodiscard]] proto::Transaction getTransactionProtobufObject(unsigned int index) const;
+
+  /**
+   * Get the source TransactionBody protobuf object from which this Transaction constructed itself.
+   *
+   * @return The source TransactionBody protobuf object from which this Transaction constructed itself.
+   */
+  [[nodiscard]] proto::TransactionBody getSourceTransactionBody() const;
+
+  /**
+   * Get the ID of this Transaction.
+   *
+   * @return The ID of this Transaction.
+   */
+  [[nodiscard]] virtual TransactionId getCurrentTransactionId() const;
 
 private:
   /**
@@ -320,60 +489,26 @@ private:
   void onExecute(const Client& client) override;
 
   /**
-   * Helper function used to get the proper maximum transaction fee to pack into a protobuf TransactionBody. The order
-   * of priority for maximum transaction fees goes:
-   *  1. Manually-set maximum transaction fee for this Transaction.
-   *  2. Client-set default max transaction fee.
-   *  3. Default maximum transaction fee.
+   * Build a Transaction protobuf object from the SignedTransaction protobuf object at the specified index.
    *
-   * @param client A pointer to the Client submitting this Transaction.
-   * @return The proper maximum transaction fee to set for this Transaction.
+   * @param index The index in the Transaction's SignedTransaction list from which the Transaction protobuf object
+   *              should be built.
    */
-  [[nodiscard]] Hbar getMaxTransactionFee(const Client* client) const;
+  void buildTransaction(unsigned int index) const;
 
   /**
-   * Container of PublicKey and signer function pairs to use to sign this Transaction.
+   * Determine if a PublicKey has already signed this Transaction.
+   *
+   * @param publicKey The PublicKey that could have already signed this Transaction.
+   * @return \c TRUE if the input PublicKey has already signed this Transaction, otherwise \c FALSE.
    */
-  std::vector<
-    std::pair<std::shared_ptr<PublicKey>, std::function<std::vector<std::byte>(const std::vector<std::byte>&)>>>
-    mSignatures;
+  [[nodiscard]] bool keyAlreadySigned(const std::shared_ptr<PublicKey>& publicKey) const;
 
   /**
-   * Is this Transaction frozen? \c TRUE if yes, otherwise \c FALSE.
+   * Implementation object used to hide implementation details and internal headers.
    */
-  bool mIsFrozen = false;
-
-  /**
-   * The length of time this Transaction will remain valid.
-   */
-  std::chrono::duration<double> mTransactionValidDuration = std::chrono::minutes(2);
-
-  /**
-   * The account ID of the Node sending this Transaction.
-   */
-  AccountId mNodeAccountId;
-
-  /**
-   * The maximum transaction fee willing to be paid to execute this Transaction.
-   */
-  std::optional<Hbar> mMaxTransactionFee;
-
-  /**
-   * The memo to be associated with this Transaction.
-   */
-  std::string mTransactionMemo;
-
-  /**
-   * The ID of this Transaction.
-   */
-  TransactionId mTransactionId;
-
-  /**
-   * Should this Transaction regenerate its TransactionId upon a TRANSACTION_EXPIRED response from the network? If not
-   * set, this Transaction will use the Client's set transaction ID regeneration policy. If that's not set, the default
-   * behavior is to regenerate the transaction ID.
-   */
-  std::optional<bool> mTransactionIdRegenerationPolicy;
+  struct TransactionImpl;
+  std::unique_ptr<TransactionImpl> mImpl;
 };
 
 } // namespace Hedera

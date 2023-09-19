@@ -63,6 +63,14 @@ public:
   explicit TopicUpdateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
+   */
+  explicit TopicUpdateTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
+
+  /**
    * Set the ID of the topic to update.
    *
    * @param topicId The ID of the topic to update.
@@ -213,29 +221,19 @@ private:
   friend class WrappedTransaction;
 
   /**
-   * Derived from Executable. Construct a Transaction protobuf object from this TopicUpdateTransaction object.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this TopicUpdateTransaction's data to
+   * a Node.
    *
-   * @param client The Client trying to construct this TopicUpdateTransaction.
-   * @param node   The Node to which this TopicUpdateTransaction will be sent. This is unused.
-   * @return A Transaction protobuf object filled with this TopicUpdateTransaction object's data.
-   * @throws UninitializedException If the input client has no operator with which to sign this TopicUpdateTransaction.
-   */
-  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
-
-  /**
-   * Derived from Executable. Submit this TopicUpdateTransaction to a Node.
-   *
-   * @param client   The Client submitting this TopicUpdateTransaction.
-   * @param deadline The deadline for submitting this TopicUpdateTransaction.
-   * @param node     Pointer to the Node to which this TopicUpdateTransaction should be submitted.
-   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
-   *                 information from the gRPC server.
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
                                            const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
                                            proto::TransactionResponse* response) const override;
   /**
    * Derived from Transaction. Build and add the TopicUpdateTransaction protobuf representation to the Transaction
@@ -244,6 +242,11 @@ private:
    * @param body The TransactionBody protobuf object being built.
    */
   void addToBody(proto::TransactionBody& body) const override;
+
+  /**
+   * Initialize this TopicUpdateTransaction from its source TransactionBody protobuf object.
+   */
+  void initFromSourceTransactionBody();
 
   /**
    * Build a ConsensusUpdateTopicTransactionBody protobuf object from this TopicUpdateTransaction object.

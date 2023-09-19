@@ -37,9 +37,6 @@ using namespace Hedera;
 class ContractCreateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestBytecode() const { return mTestBytecode; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestAdminKey() const { return mTestAdminKey; }
@@ -61,7 +58,6 @@ protected:
   [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mTestDeclineStakingReward; }
 
 private:
-  Client mClient;
   const FileId mTestFileId = FileId(1ULL);
   const std::vector<std::byte> mTestBytecode = { std::byte(0x02), std::byte(0x03), std::byte(0x04) };
   const std::shared_ptr<PublicKey> mTestAdminKey = PublicKey::fromStringDer(
@@ -138,8 +134,10 @@ TEST_F(ContractCreateTransactionTest, GetSetFileId)
 TEST_F(ContractCreateTransactionTest, GetSetFileIdFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setBytecodeFileId(getTestFileId()), IllegalStateException);
@@ -162,8 +160,10 @@ TEST_F(ContractCreateTransactionTest, GetSetInitCode)
 TEST_F(ContractCreateTransactionTest, GetSetInitCodeFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setBytecode(getTestBytecode()), IllegalStateException);
@@ -186,8 +186,10 @@ TEST_F(ContractCreateTransactionTest, GetSetAdminKey)
 TEST_F(ContractCreateTransactionTest, GetSetAdminKeyFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAdminKey(getTestAdminKey().get()), IllegalStateException);
@@ -210,8 +212,10 @@ TEST_F(ContractCreateTransactionTest, GetSetGas)
 TEST_F(ContractCreateTransactionTest, GetSetGasFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setGas(getTestGas()), IllegalStateException);
@@ -234,8 +238,10 @@ TEST_F(ContractCreateTransactionTest, GetSetInitialBalance)
 TEST_F(ContractCreateTransactionTest, GetSetInitialBalanceFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setInitialBalance(getTestInitialBalance()), IllegalStateException);
@@ -258,8 +264,10 @@ TEST_F(ContractCreateTransactionTest, GetSetAutoRenewPeriod)
 TEST_F(ContractCreateTransactionTest, GetSetAutoRenewPeriodFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -282,8 +290,10 @@ TEST_F(ContractCreateTransactionTest, GetSetConstructorParameters)
 TEST_F(ContractCreateTransactionTest, GetSetConstructorParametersFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setConstructorParameters(getTestConstructorParameters()), IllegalStateException);
@@ -306,8 +316,10 @@ TEST_F(ContractCreateTransactionTest, GetSetMemo)
 TEST_F(ContractCreateTransactionTest, GetSetMemoFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setMemo(getTestMemo()), IllegalStateException);
@@ -330,8 +342,10 @@ TEST_F(ContractCreateTransactionTest, GetSetMaxAutomaticTokenAssociations)
 TEST_F(ContractCreateTransactionTest, GetSetMaxAutomaticTokenAssociationsFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(getTestMaximumTokenAssociations()), IllegalStateException);
@@ -354,8 +368,10 @@ TEST_F(ContractCreateTransactionTest, GetSetAutoRenewAccountId)
 TEST_F(ContractCreateTransactionTest, GetSetAutoRenewAccountIdFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewAccountId(getTestAutoRenewAccountId()), IllegalStateException);
@@ -378,8 +394,10 @@ TEST_F(ContractCreateTransactionTest, GetSetStakedAccountId)
 TEST_F(ContractCreateTransactionTest, GetSetStakedAccountIdFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setStakedAccountId(getTestStakedAccountId()), IllegalStateException);
@@ -402,8 +420,10 @@ TEST_F(ContractCreateTransactionTest, GetSetStakedNodeId)
 TEST_F(ContractCreateTransactionTest, GetSetStakedNodeIdFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestStakedNodeId()), IllegalStateException);
@@ -426,8 +446,10 @@ TEST_F(ContractCreateTransactionTest, GetSetDeclineReward)
 TEST_F(ContractCreateTransactionTest, GetSetDeclineRewardFrozen)
 {
   // Given
-  ContractCreateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractCreateTransaction transaction = ContractCreateTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setDeclineStakingReward(getTestDeclineStakingReward()), IllegalStateException);

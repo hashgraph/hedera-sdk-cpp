@@ -37,7 +37,7 @@ struct Client::ClientImpl
 {
   // Pointer to the network object that contains all processing for sending/receiving information to/from a Hedera
   // network.
-  std::optional<internal::Network> mNetwork;
+  std::shared_ptr<internal::Network> mNetwork = nullptr;
 
   // Pointer to the MirrorNetwork object that contains the mirror nodes for sending/receiving information to/from a
   // Hedera mirror node.
@@ -51,6 +51,9 @@ struct Client::ClientImpl
 
   // The maximum fee this Client is willing to pay for transactions.
   std::optional<Hbar> mMaxTransactionFee;
+
+  // The maximum payment this Client is willing to make for queries.
+  std::optional<Hbar> mMaxQueryPayment;
 
   // The transaction ID regeneration policy to utilize when transactions submitted by this Client receive a
   // TRANSACTION_EXPIRED response from the network.
@@ -106,7 +109,7 @@ Client& Client::operator=(Client&& other) noexcept
 Client Client::forMainnet()
 {
   Client client;
-  client.mImpl->mNetwork = internal::Network::forMainnet();
+  client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forMainnet());
   client.mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forMainnet());
   return client;
 }
@@ -115,7 +118,7 @@ Client Client::forMainnet()
 Client Client::forTestnet()
 {
   Client client;
-  client.mImpl->mNetwork = internal::Network::forTestnet();
+  client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forTestnet());
   client.mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forTestnet());
   return client;
 }
@@ -124,7 +127,7 @@ Client Client::forTestnet()
 Client Client::forPreviewnet()
 {
   Client client;
-  client.mImpl->mNetwork = internal::Network::forPreviewnet();
+  client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forPreviewnet());
   client.mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forPreviewnet());
   return client;
 }
@@ -133,7 +136,7 @@ Client Client::forPreviewnet()
 Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
 {
   Client client;
-  client.mImpl->mNetwork = internal::Network::forNetwork(networkMap);
+  client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
   client.mImpl->mMirrorNetwork = nullptr;
   return client;
 }
@@ -153,29 +156,6 @@ Client& Client::setOperator(const AccountId& accountId, const PrivateKey* privat
     ValuePtr<PrivateKey, KeyCloner>(dynamic_cast<PrivateKey*>(privateKey->clone().release()));
 
   return *this;
-}
-
-//-----
-std::vector<std::byte> Client::sign(const std::vector<std::byte>& bytes) const
-{
-  if (mImpl->mOperatorPrivateKey)
-  {
-    return mImpl->mOperatorPrivateKey->sign(bytes);
-  }
-
-  throw UninitializedException("No client operator private key with which to sign");
-}
-
-//-----
-std::vector<std::shared_ptr<internal::Node>> Client::getNodesWithAccountIds(
-  const std::vector<AccountId>& accountIds) const
-{
-  if (mImpl->mNetwork)
-  {
-    return mImpl->mNetwork->getNodesWithAccountIds(accountIds);
-  }
-
-  throw UninitializedException("Client network uninitialized");
 }
 
 void Client::close() const
@@ -207,6 +187,18 @@ Client& Client::setMaxTransactionFee(const Hbar& fee)
   }
 
   mImpl->mMaxTransactionFee = fee;
+  return *this;
+}
+
+//-----
+Client& Client::setMaxQueryPayment(const Hbar& payment)
+{
+  if (payment.toTinybars() < 0)
+  {
+    throw std::invalid_argument("Query payment cannot be negative");
+  }
+
+  mImpl->mMaxQueryPayment = payment;
   return *this;
 }
 
@@ -249,6 +241,12 @@ Client& Client::setMaxBackoff(const std::chrono::duration<double>& backoff)
 }
 
 //-----
+std::shared_ptr<internal::Network> Client::getNetwork() const
+{
+  return mImpl->mNetwork;
+}
+
+//-----
 std::optional<AccountId> Client::getOperatorAccountId() const
 {
   return mImpl->mOperatorAccountId;
@@ -278,6 +276,12 @@ std::chrono::duration<double> Client::getRequestTimeout() const
 std::optional<Hbar> Client::getMaxTransactionFee() const
 {
   return mImpl->mMaxTransactionFee;
+}
+
+//-----
+std::optional<Hbar> Client::getMaxQueryPayment() const
+{
+  return mImpl->mMaxQueryPayment;
 }
 
 //-----

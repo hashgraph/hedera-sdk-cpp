@@ -32,62 +32,15 @@ namespace Hedera
 AccountUpdateTransaction::AccountUpdateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountUpdateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_cryptoupdateaccount())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain CryptoUpdate data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::CryptoUpdateTransactionBody& body = transactionBody.cryptoupdateaccount();
-
-  if (body.has_accountidtoupdate())
-  {
-    mAccountId = AccountId::fromProtobuf(body.accountidtoupdate());
-  }
-
-  if (body.has_key())
-  {
-    mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.key()).release());
-  }
-
-  if (body.has_receiversigrequiredwrapper())
-  {
-    mReceiverSignatureRequired = body.receiversigrequiredwrapper().value();
-  }
-
-  if (body.has_autorenewperiod())
-  {
-    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
-  }
-
-  if (body.has_expirationtime())
-  {
-    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
-  }
-
-  if (body.has_memo())
-  {
-    mAccountMemo = body.memo().value();
-  }
-
-  if (body.has_max_automatic_token_associations())
-  {
-    mMaxAutomaticTokenAssociations = body.max_automatic_token_associations().value();
-  }
-
-  if (body.has_staked_account_id())
-  {
-    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
-  }
-
-  if (body.has_staked_node_id())
-  {
-    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
-  }
-
-  if (body.has_decline_reward())
-  {
-    mDeclineStakingReward = body.decline_reward().value();
-  }
+//-----
+AccountUpdateTransaction::AccountUpdateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<AccountUpdateTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -195,26 +148,81 @@ AccountUpdateTransaction& AccountUpdateTransaction::setDeclineStakingReward(bool
 }
 
 //-----
-proto::Transaction AccountUpdateTransaction::makeRequest(const Client& client,
-                                                         const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status AccountUpdateTransaction::submitRequest(const Client& client,
-                                                     const std::chrono::system_clock::time_point& deadline,
+grpc::Status AccountUpdateTransaction::submitRequest(const proto::Transaction& request,
                                                      const std::shared_ptr<internal::Node>& node,
+                                                     const std::chrono::system_clock::time_point& deadline,
                                                      proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kCryptoUpdateAccount, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kCryptoUpdateAccount, request, deadline, response);
 }
 
 //-----
 void AccountUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_cryptoupdateaccount(build());
+}
+
+//-----
+void AccountUpdateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_cryptoupdateaccount())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain CryptoUpdate data");
+  }
+
+  const proto::CryptoUpdateTransactionBody& body = transactionBody.cryptoupdateaccount();
+
+  if (body.has_accountidtoupdate())
+  {
+    mAccountId = AccountId::fromProtobuf(body.accountidtoupdate());
+  }
+
+  if (body.has_key())
+  {
+    mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.key()).release());
+  }
+
+  if (body.has_receiversigrequiredwrapper())
+  {
+    mReceiverSignatureRequired = body.receiversigrequiredwrapper().value();
+  }
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  if (body.has_expirationtime())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expirationtime());
+  }
+
+  if (body.has_memo())
+  {
+    mAccountMemo = body.memo().value();
+  }
+
+  if (body.has_max_automatic_token_associations())
+  {
+    mMaxAutomaticTokenAssociations = body.max_automatic_token_associations().value();
+  }
+
+  if (body.has_staked_account_id())
+  {
+    mStakedAccountId = AccountId::fromProtobuf(body.staked_account_id());
+  }
+
+  if (body.has_staked_node_id())
+  {
+    mStakedNodeId = static_cast<uint64_t>(body.staked_node_id());
+  }
+
+  if (body.has_decline_reward())
+  {
+    mDeclineStakingReward = body.decline_reward().value();
+  }
 }
 
 //-----

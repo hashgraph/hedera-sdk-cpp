@@ -31,17 +31,15 @@ namespace Hedera
 TopicDeleteTransaction::TopicDeleteTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TopicDeleteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_consensusdeletetopic())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ConsensusDeleteTopic data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::ConsensusDeleteTopicTransactionBody& body = transactionBody.consensusdeletetopic();
-
-  if (body.has_topicid())
-  {
-    mTopicId = TopicId::fromProtobuf(body.topicid());
-  }
+//-----
+TopicDeleteTransaction::TopicDeleteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TopicDeleteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -53,26 +51,36 @@ TopicDeleteTransaction& TopicDeleteTransaction::setTopicId(const TopicId& TopicI
 }
 
 //-----
-proto::Transaction TopicDeleteTransaction::makeRequest(const Client& client,
-                                                       const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TopicDeleteTransaction::submitRequest(const Client& client,
-                                                   const std::chrono::system_clock::time_point& deadline,
+grpc::Status TopicDeleteTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
+                                                   const std::chrono::system_clock::time_point& deadline,
                                                    proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kConsensusDeleteTopic, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kConsensusDeleteTopic, request, deadline, response);
 }
 
 //-----
 void TopicDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_consensusdeletetopic(build());
+}
+
+//-----
+void TopicDeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_consensusdeletetopic())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ConsensusDeleteTopic data");
+  }
+
+  const proto::ConsensusDeleteTopicTransactionBody& body = transactionBody.consensusdeletetopic();
+
+  if (body.has_topicid())
+  {
+    mTopicId = TopicId::fromProtobuf(body.topicid());
+  }
 }
 
 //-----

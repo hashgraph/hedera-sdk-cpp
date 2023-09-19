@@ -31,24 +31,15 @@ namespace Hedera
 TokenBurnTransaction::TokenBurnTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenBurnTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokenburn())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenBurn data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenBurnTransactionBody& body = transactionBody.tokenburn();
-
-  if (body.has_token())
-  {
-    mTokenId = TokenId::fromProtobuf(body.token());
-  }
-
-  mAmount = body.amount();
-
-  for (int i = 0; i < body.serialnumbers_size(); ++i)
-  {
-    mSerialNumbers.push_back(static_cast<uint64_t>(body.serialnumbers(i)));
-  }
+//-----
+TokenBurnTransaction::TokenBurnTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenBurnTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -76,25 +67,43 @@ TokenBurnTransaction& TokenBurnTransaction::setSerialNumbers(const std::vector<u
 }
 
 //-----
-proto::Transaction TokenBurnTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenBurnTransaction::submitRequest(const Client& client,
-                                                 const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenBurnTransaction::submitRequest(const proto::Transaction& request,
                                                  const std::shared_ptr<internal::Node>& node,
+                                                 const std::chrono::system_clock::time_point& deadline,
                                                  proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenBurn, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenBurn, request, deadline, response);
 }
 
 //-----
 void TokenBurnTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenburn(build());
+}
+
+//-----
+void TokenBurnTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokenburn())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenBurn data");
+  }
+
+  const proto::TokenBurnTransactionBody& body = transactionBody.tokenburn();
+
+  if (body.has_token())
+  {
+    mTokenId = TokenId::fromProtobuf(body.token());
+  }
+
+  mAmount = body.amount();
+
+  for (int i = 0; i < body.serialnumbers_size(); ++i)
+  {
+    mSerialNumbers.push_back(static_cast<uint64_t>(body.serialnumbers(i)));
+  }
 }
 
 //-----

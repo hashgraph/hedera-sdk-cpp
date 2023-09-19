@@ -31,14 +31,10 @@ using namespace Hedera;
 class TokenDissociateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
   [[nodiscard]] inline const std::vector<TokenId>& getTestTokenIds() const { return mTestTokenIds; }
 
 private:
-  Client mClient;
   const AccountId mTestAccountId = AccountId(1ULL, 2ULL, 3ULL);
   const std::vector<TokenId> mTestTokenIds = { TokenId(4ULL, 5ULL, 6ULL),
                                                TokenId(7ULL, 8ULL, 9ULL),
@@ -85,8 +81,10 @@ TEST_F(TokenDissociateTransactionTest, GetSetAccountId)
 TEST_F(TokenDissociateTransactionTest, GetSetAccountIdFrozen)
 {
   // Given
-  TokenDissociateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenDissociateTransaction transaction = TokenDissociateTransaction()
+                                             .setNodeAccountIds({ AccountId(1ULL) })
+                                             .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
@@ -109,8 +107,10 @@ TEST_F(TokenDissociateTransactionTest, GetSetTokenIds)
 TEST_F(TokenDissociateTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
-  TokenDissociateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenDissociateTransaction transaction = TokenDissociateTransaction()
+                                             .setNodeAccountIds({ AccountId(1ULL) })
+                                             .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTokenIds(getTestTokenIds()), IllegalStateException);

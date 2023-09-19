@@ -18,93 +18,35 @@
  *
  */
 #include "impl/MirrorNode.h"
-#include "exceptions/UninitializedException.h"
-#include "impl/HederaCertificateVerifier.h"
-
-#include <algorithm>
-#include <grpcpp/create_channel.h>
+#include "impl/BaseNodeAddress.h"
 
 namespace Hedera::internal
 {
 //-----
+MirrorNode::MirrorNode(const BaseNodeAddress& address)
+  : BaseNode<MirrorNode, BaseNodeAddress>(address)
+{
+}
+
+//-----
 MirrorNode::MirrorNode(std::string_view address)
-  : mAddress(address)
+  : BaseNode<MirrorNode, BaseNodeAddress>(BaseNodeAddress::fromString(address))
 {
 }
 
 //-----
-bool MirrorNode::connect(const std::chrono::system_clock::time_point& timeout)
+void MirrorNode::initializeStubs(const std::shared_ptr<grpc::Channel>& channel)
 {
-  return mIsInitialized || initializeChannel(timeout);
+  if (!mConsensusStub)
+  {
+    mConsensusStub = com::hedera::mirror::api::proto::ConsensusService::NewStub(channel);
+  }
 }
 
 //-----
-void MirrorNode::shutdown()
+void MirrorNode::closeStubs()
 {
   mConsensusStub = nullptr;
-  mChannel = nullptr;
-
-  mIsInitialized = false;
-}
-
-//-----
-void MirrorNode::setMinBackoff(const std::chrono::duration<double>& backoff)
-{
-  mMinBackoff = backoff;
-}
-
-//-----
-void MirrorNode::setMaxBackoff(const std::chrono::duration<double>& backoff)
-{
-  mMaxBackoff = backoff;
-}
-
-//-----
-bool MirrorNode::isHealthy() const
-{
-  return mReadmitTime < std::chrono::system_clock::now();
-}
-
-//-----
-void MirrorNode::increaseBackoff()
-{
-  mReadmitTime =
-    std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(mCurrentBackoff);
-  mCurrentBackoff = std::min(mCurrentBackoff * 2, mMaxBackoff);
-}
-
-//-----
-void MirrorNode::decreaseBackoff()
-{
-  mCurrentBackoff /= 2.0;
-  mCurrentBackoff = std::max(mCurrentBackoff / 2.0, mMinBackoff);
-}
-
-//-----
-std::chrono::duration<double> MirrorNode::getRemainingTimeForBackoff() const
-{
-  return mReadmitTime - std::chrono::system_clock::now();
-}
-
-//-----
-bool MirrorNode::initializeChannel(const std::chrono::system_clock::time_point& deadline)
-{
-  shutdown();
-
-  grpc::ChannelArguments channelArguments;
-  channelArguments.SetInt(GRPC_ARG_ENABLE_RETRIES, 0);
-  channelArguments.SetInt(GRPC_ARG_KEEPALIVE_TIMEOUT_MS, 10000);
-  channelArguments.SetInt(GRPC_ARG_KEEPALIVE_PERMIT_WITHOUT_CALLS, 1);
-
-  mChannel = grpc::CreateCustomChannel(mAddress, grpc::InsecureChannelCredentials(), channelArguments);
-
-  if (mChannel->WaitForConnected(deadline))
-  {
-    mConsensusStub = com::hedera::mirror::api::proto::ConsensusService::NewStub(mChannel);
-    mIsInitialized = true;
-  }
-
-  return mIsInitialized;
 }
 
 } // namespace Hedera::internal

@@ -39,47 +39,37 @@ TokenNftInfoQuery& TokenNftInfoQuery::setNftId(const NftId& nft)
 }
 
 //-----
-proto::Query TokenNftInfoQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::TokenGetNftInfoQuery* getTokenNftInfoQuery = query.mutable_tokengetnftinfo();
-
-  proto::QueryHeader* header = getTokenNftInfoQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getTokenNftInfoQuery->set_allocated_nftid(mNftId.toProtobuf().release());
-
-  return query;
-}
-
-//-----
 TokenNftInfo TokenNftInfoQuery::mapResponse(const proto::Response& response) const
 {
   return TokenNftInfo::fromProtobuf(response.tokengetnftinfo().nft());
 }
 
 //-----
-Status TokenNftInfoQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status TokenNftInfoQuery::submitRequest(const proto::Query& request,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.tokengetnftinfo().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kTokenGetNftInfo, request, deadline, response);
 }
 
 //-----
-grpc::Status TokenNftInfoQuery::submitRequest(const Client& client,
-                                              const std::chrono::system_clock::time_point& deadline,
-                                              const std::shared_ptr<internal::Node>& node,
-                                              proto::Response* response) const
+proto::Query TokenNftInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(proto::Query::QueryCase::kTokenGetNftInfo, makeRequest(client, node), deadline, response);
+  auto tokenGetNftInfoQuery = std::make_unique<proto::TokenGetNftInfoQuery>();
+  tokenGetNftInfoQuery->set_allocated_header(header);
+  tokenGetNftInfoQuery->set_allocated_nftid(mNftId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_tokengetnftinfo(tokenGetNftInfoQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader TokenNftInfoQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.tokengetnftinfo().header());
+  return response.tokengetnftinfo().header();
 }
 
 } // namespace Hedera

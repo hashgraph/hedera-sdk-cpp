@@ -18,9 +18,6 @@
  *
  */
 #include "ContractByteCodeQuery.h"
-#include "Client.h"
-#include "Status.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
@@ -39,49 +36,37 @@ ContractByteCodeQuery& ContractByteCodeQuery::setContractId(const ContractId& co
 }
 
 //-----
-proto::Query ContractByteCodeQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::ContractGetBytecodeQuery* getByteCodeQuery = query.mutable_contractgetbytecode();
-
-  proto::QueryHeader* header = getByteCodeQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getByteCodeQuery->set_allocated_contractid(mContractId.toProtobuf().release());
-
-  return query;
-}
-
-//-----
 ContractByteCode ContractByteCodeQuery::mapResponse(const proto::Response& response) const
 {
   return internal::Utilities::stringToByteVector(response.contractgetbytecoderesponse().bytecode());
 }
 
 //-----
-Status ContractByteCodeQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status ContractByteCodeQuery::submitRequest(const proto::Query& request,
+                                                  const std::shared_ptr<internal::Node>& node,
+                                                  const std::chrono::system_clock::time_point& deadline,
+                                                  proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(
-    response.contractgetbytecoderesponse().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kContractGetBytecode, request, deadline, response);
 }
 
 //-----
-grpc::Status ContractByteCodeQuery::submitRequest(const Client& client,
-                                                  const std::chrono::system_clock::time_point& deadline,
-                                                  const std::shared_ptr<internal::Node>& node,
-                                                  proto::Response* response) const
+proto::Query ContractByteCodeQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kContractGetBytecode, makeRequest(client, node), deadline, response);
+  auto contractByteCodeQuery = std::make_unique<proto::ContractGetBytecodeQuery>();
+  contractByteCodeQuery->set_allocated_header(header);
+  contractByteCodeQuery->set_allocated_contractid(mContractId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_contractgetbytecode(contractByteCodeQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader ContractByteCodeQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.contractgetbytecoderesponse().header());
+  return response.contractgetbytecoderesponse().header();
 }
 
 } // namespace Hedera

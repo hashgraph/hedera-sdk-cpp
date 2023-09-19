@@ -107,6 +107,15 @@ public:
   explicit ContractCreateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
+   */
+  explicit ContractCreateTransaction(
+    const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
+
+  /**
    * Set the ID of the file that contains the smart contract bytecode. A copy will be made and held by the contract
    * instance, and have the same expiration time as the instance. If the bytecode is large (>5K), then it must be stored
    * in a file. This is mutually exclusive with mBytecode, and will reset the value of the mBytecode if it is set.
@@ -343,30 +352,19 @@ private:
   friend class WrappedTransaction;
 
   /**
-   * Derived from Executable. Construct a Transaction protobuf object from this ContractCreateTransaction object.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this ContractCreateTransaction's data
+   * to a Node.
    *
-   * @param client The Client trying to construct this ContractCreateTransaction.
-   * @param node   The Node to which this ContractCreateTransaction will be sent. This is unused.
-   * @return A Transaction protobuf object filled with this ContractCreateTransaction object's data.
-   * @throws UninitializedException If the input client has no operator with which to sign this
-   *                                ContractCreateTransaction.
-   */
-  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
-
-  /**
-   * Derived from Executable. Submit this ContractCreateTransaction to a Node.
-   *
-   * @param client   The Client submitting this ContractCreateTransaction.
-   * @param deadline The deadline for submitting this ContractCreateTransaction.
-   * @param node     Pointer to the Node to which this ContractCreateTransaction should be submitted.
-   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
-   *                 information from the gRPC server.
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
                                            const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
                                            proto::TransactionResponse* response) const override;
   /**
    * Derived from Transaction. Build and add the ContractCreateTransaction protobuf representation to the Transaction
@@ -375,6 +373,11 @@ private:
    * @param body The TransactionBody protobuf object being built.
    */
   void addToBody(proto::TransactionBody& body) const override;
+
+  /**
+   * Initialize this ContractCreateTransaction from its source TransactionBody protobuf object.
+   */
+  void initFromSourceTransactionBody();
 
   /**
    * Build a ContractCreateTransactionBody protobuf object from this ContractCreateTransaction object.

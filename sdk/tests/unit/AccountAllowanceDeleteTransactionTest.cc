@@ -35,15 +35,11 @@ using namespace Hedera;
 class AccountAllowanceDeleteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(1ULL), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTokenId; }
   [[nodiscard]] inline const AccountId& getTestOwnerAccountId() const { return mOwnerAccountId; }
   [[nodiscard]] inline const std::vector<uint64_t>& getTestSerialNumbers() const { return mSerialNumbers; }
 
 private:
-  Client mClient;
   const AccountId mOwnerAccountId = AccountId(2ULL);
   const TokenId mTokenId = TokenId(3ULL);
   const std::vector<uint64_t> mSerialNumbers = { 4ULL, 5ULL, 6ULL };
@@ -145,8 +141,10 @@ TEST_F(AccountAllowanceDeleteTransactionTest, DeleteNftAllowancesDifferentTokenI
 TEST_F(AccountAllowanceDeleteTransactionTest, DeleteNftAllowancesFrozen)
 {
   // Given
-  AccountAllowanceDeleteTransaction transaction;
-  transaction.freezeWith(&getTestClient());
+  AccountAllowanceDeleteTransaction transaction = AccountAllowanceDeleteTransaction()
+                                                    .setNodeAccountIds({ AccountId(1ULL) })
+                                                    .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.deleteAllTokenNftAllowances(NftId(getTestTokenId(), 10ULL), getTestOwnerAccountId()),

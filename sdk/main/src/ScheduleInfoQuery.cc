@@ -18,10 +18,7 @@
  *
  */
 #include "ScheduleInfoQuery.h"
-#include "Client.h"
 #include "ScheduleInfo.h"
-#include "TransactionRecord.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 
 #include <proto/query.pb.h>
@@ -39,47 +36,37 @@ ScheduleInfoQuery& ScheduleInfoQuery::setScheduleId(const ScheduleId& scheduleId
 }
 
 //-----
-proto::Query ScheduleInfoQuery::makeRequest(const Client& client, const std::shared_ptr<internal::Node>& node) const
-{
-  proto::Query query;
-  proto::ScheduleGetInfoQuery* getScheduleInfoQuery = query.mutable_schedulegetinfo();
-
-  proto::QueryHeader* header = getScheduleInfoQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1LL))
-                             .addHbarTransfer(*client.getOperatorAccountId(), Hbar(-1LL))
-                             .addHbarTransfer(node->getAccountId(), Hbar(1LL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getScheduleInfoQuery->set_allocated_scheduleid(mScheduleId.toProtobuf().release());
-
-  return query;
-}
-
-//-----
 ScheduleInfo ScheduleInfoQuery::mapResponse(const proto::Response& response) const
 {
   return ScheduleInfo::fromProtobuf(response.schedulegetinfo().scheduleinfo());
 }
 
 //-----
-Status ScheduleInfoQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status ScheduleInfoQuery::submitRequest(const proto::Query& request,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              proto::Response* response) const
 {
-  return gProtobufResponseCodeToStatus.at(response.schedulegetinfo().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kScheduleGetInfo, request, deadline, response);
 }
 
 //-----
-grpc::Status ScheduleInfoQuery::submitRequest(const Client& client,
-                                              const std::chrono::system_clock::time_point& deadline,
-                                              const std::shared_ptr<internal::Node>& node,
-                                              proto::Response* response) const
+proto::Query ScheduleInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(proto::Query::QueryCase::kScheduleGetInfo, makeRequest(client, node), deadline, response);
+  auto scheduleGetInfoQuery = std::make_unique<proto::ScheduleGetInfoQuery>();
+  scheduleGetInfoQuery->set_allocated_header(header);
+  scheduleGetInfoQuery->set_allocated_scheduleid(mScheduleId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_schedulegetinfo(scheduleGetInfoQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader ScheduleInfoQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.schedulegetinfo().header());
+  return response.schedulegetinfo().header();
 }
 
 } // namespace Hedera

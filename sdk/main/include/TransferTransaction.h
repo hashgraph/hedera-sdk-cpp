@@ -20,21 +20,24 @@
 #ifndef HEDERA_SDK_CPP_TRANSFER_TRANSACTION_H_
 #define HEDERA_SDK_CPP_TRANSFER_TRANSACTION_H_
 
-#include "AccountId.h"
 #include "HbarTransfer.h"
-#include "NftId.h"
-#include "TokenId.h"
 #include "TokenNftTransfer.h"
 #include "TokenTransfer.h"
 #include "Transaction.h"
 
-#include <memory>
 #include <unordered_map>
 #include <vector>
 
 namespace proto
 {
 class CryptoTransferTransactionBody;
+}
+
+namespace Hedera
+{
+class AccountId;
+class NftId;
+class TokenId;
 }
 
 namespace Hedera
@@ -61,6 +64,14 @@ public:
    * @throws std::invalid_argument If the input TransactionBody does not represent a CryptoTransfer transaction.
    */
   explicit TransferTransaction(const proto::TransactionBody& transactionBody);
+
+  /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
+   */
+  explicit TransferTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
   /**
    * Add an Hbar transfer to be submitted as part of this TransferTransaction.
@@ -194,49 +205,26 @@ public:
 
 private:
   /**
-   * Allow queries that are not free to create Transaction protobuf objects from TransferTransactions.
+   * Allow Queries to create Transaction protobuf objects from TransferTransactions (to use as payments).
    */
-  friend class AccountInfoQuery;
-  friend class AccountRecordsQuery;
-  friend class AccountStakersQuery;
-  friend class ContractByteCodeQuery;
-  friend class ContractCallQuery;
-  friend class ContractInfoQuery;
-  friend class FileContentsQuery;
-  friend class FileInfoQuery;
-  friend class NetworkVersionInfoQuery;
-  friend class ScheduleInfoQuery;
-  friend class TokenInfoQuery;
-  friend class TokenNftInfoQuery;
-  friend class TopicInfoQuery;
-  friend class TransactionRecordQuery;
-
+  template<typename SdkRequestType, typename SdkResponseType>
+  friend class Query;
   friend class WrappedTransaction;
 
   /**
-   * Derived from Executable. Construct a Transaction protobuf object from this TransferTransaction object.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this TransferTransaction's data to a
+   * Node.
    *
-   * @param client The Client trying to construct this TransferTransaction.
-   * @param node   The Node to which this TransferTransaction will be sent. This is unused.
-   * @return A Transaction protobuf object filled with this TransferTransaction object's data.
-   * @throws UninitializedException If the input client has no operator with which to sign this TransferTransaction.
-   */
-  [[nodiscard]] proto::Transaction makeRequest(const Client& client,
-                                               const std::shared_ptr<internal::Node>& /*node*/) const override;
-
-  /**
-   * Derived from Executable. Submit this TransferTransaction to a Node.
-   *
-   * @param client   The Client submitting this TransferTransaction.
-   * @param deadline The deadline for submitting this TransferTransaction.
-   * @param node     Pointer to the Node to which this TransferTransaction should be submitted.
-   * @param response Pointer to the TransactionResponse protobuf object that gRPC should populate with the response
-   *                 information from the gRPC server.
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
                                            const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
                                            proto::TransactionResponse* response) const override;
   /**
    * Derived from Transaction. Build and add the TransferTransaction protobuf representation to the Transaction
@@ -245,6 +233,11 @@ private:
    * @param body The TransactionBody protobuf object being built.
    */
   void addToBody(proto::TransactionBody& body) const override;
+
+  /**
+   * Initialize this TransferTransaction from its source TransactionBody protobuf object.
+   */
+  void initFromSourceTransactionBody();
 
   /**
    * Build a CryptoTransferTransactionBody protobuf object from this TransferTransaction object.

@@ -31,22 +31,15 @@ namespace Hedera
 TokenUnfreezeTransaction::TokenUnfreezeTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenUnfreezeTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokenunfreeze())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenUnfreeze data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenUnfreezeAccountTransactionBody& body = transactionBody.tokenunfreeze();
-
-  if (body.has_account())
-  {
-    mAccountId = AccountId::fromProtobuf(body.account());
-  }
-
-  if (body.has_token())
-  {
-    mTokenId = TokenId::fromProtobuf(body.token());
-  }
+//-----
+TokenUnfreezeTransaction::TokenUnfreezeTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenUnfreezeTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -66,26 +59,41 @@ TokenUnfreezeTransaction& TokenUnfreezeTransaction::setTokenId(const TokenId& to
 }
 
 //-----
-proto::Transaction TokenUnfreezeTransaction::makeRequest(const Client& client,
-                                                         const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenUnfreezeTransaction::submitRequest(const Client& client,
-                                                     const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenUnfreezeTransaction::submitRequest(const proto::Transaction& request,
                                                      const std::shared_ptr<internal::Node>& node,
+                                                     const std::chrono::system_clock::time_point& deadline,
                                                      proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenUnfreeze, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenUnfreeze, request, deadline, response);
 }
 
 //-----
 void TokenUnfreezeTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenunfreeze(build());
+}
+
+//-----
+void TokenUnfreezeTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokenunfreeze())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenUnfreeze data");
+  }
+
+  const proto::TokenUnfreezeAccountTransactionBody& body = transactionBody.tokenunfreeze();
+
+  if (body.has_account())
+  {
+    mAccountId = AccountId::fromProtobuf(body.account());
+  }
+
+  if (body.has_token())
+  {
+    mTokenId = TokenId::fromProtobuf(body.token());
+  }
 }
 
 //-----

@@ -20,7 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_NETWORK_H_
 #define HEDERA_SDK_CPP_IMPL_NETWORK_H_
 
-#include "AccountId.h"
+#include "BaseNetwork.h"
 #include "Node.h"
 #include "NodeAddressBook.h"
 #include "TLSBehavior.h"
@@ -37,7 +37,7 @@ class AccountId;
 
 namespace Hedera::internal
 {
-class Network
+class Network : public BaseNetwork<Network, AccountId, Node>
 {
 public:
   /**
@@ -62,65 +62,115 @@ public:
   [[nodiscard]] static Network forPreviewnet();
 
   /**
-   * Construct a Network that is pre-configured for local node access.
+   * Construct a custom Network.
    *
-   * @param networkMap The map with string representation of node addresses with their corresponding accountId.
-   * @return A Network object that is set-up to communicate with a specific node addresses.
+   * @param network The map with string representation of node addresses with their corresponding AccountIds.
+   * @return A Network object that is set-up to communicate with the custom network.
    */
-  [[nodiscard]] static Network forNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
+  [[nodiscard]] static Network forNetwork(const std::unordered_map<std::string, AccountId>& network);
 
   /**
-   * Get a list of Node pointers that point to Nodes on this Network that are associated with the input account IDs. If
-   * no account IDs are specified, pointers to all Nodes on this Network are returned.
+   * Derived from BaseNetwork. Set the ledger ID of this Network.
    *
-   * @param accountIds The IDs of the accounts that are associated with the desired Nodes.
-   * @return A list of Node pointers that point to Nodes with the requested account IDs.
+   * @param ledgerId The ledger ID to set.
+   * @return A reference to this Network object with the newly-set ledger ID.
    */
-  [[nodiscard]] std::vector<std::shared_ptr<Node>> getNodesWithAccountIds(
-    const std::vector<AccountId>& accountIds) const;
+  Network& setLedgerId(const LedgerId& ledgerId) override;
 
   /**
-   * Initiate an orderly shutdown of communications with the Nodes that are a part of this Network. Preexisting
-   * transactions or queries continue but subsequent calls would be immediately cancelled.
+   * Set this Network's certificate verification policy.
    *
-   * After this method returns, this Network can be re-used. All network communication can be re-established as needed.
+   * @param verify \c TRUE if this Network should verify remote node certificates, otherwise \c FALSE.
+   * @return A reference to this Network object with the newly-set certificate verification policy.
    */
-  void close() const;
+  Network& setVerifyCertificates(bool verify);
 
   /**
-   * Set the TLS behavior of all Nodes on this Network.
+   * Set this Network's transport security policy.
    *
-   * @param desiredBehavior The desired behavior.
+   * @param tls The transport security policy to set.
+   * @return A reference to this Network object with the newly-set transport security policy.
    * @throws UninitializedException If TLS is required and a Node on this Network wasn't initialized with a certificate
    *                                hash.
    */
-  void setTLSBehavior(TLSBehavior desiredBehavior) const;
+  Network& setTransportSecurity(TLSBehavior tls);
+
+  /**
+   * Set the maximum number of nodes to be returned for each request.
+   *
+   * @param max The maximum number of nodes to be returned for each request.
+   * @return A reference to this Network object with the newly-set maximum nodes per request.
+   */
+  Network& setMaxNodesPerRequest(unsigned int max);
+
+  /**
+   * Get a list of node account IDs on which to execute. This will pick 1/3 of the available nodes sorted by health and
+   * expected delay from the network.
+   *
+   * @return A list of AccountIds that are running nodes on which should be executed.
+   */
+  [[nodiscard]] std::vector<AccountId> getNodeAccountIdsForExecute();
+
+  /**
+   * Get a map of this Network, mapping the Node addresses to their AccountIds.
+   *
+   * @return A map of this Network, mapping the Node addresses to their AccountIds.
+   */
+  [[nodiscard]] std::unordered_map<std::string, AccountId> getNetwork() const;
 
 private:
   /**
-   * Establish communications with all Nodes for this Network that are specified in the input address book.
+   * Construct with a network map.
    *
-   * @param nodeAddressBook The address book that contains the Nodes with which this Network will be communicating.
-   * @param tls The TLS behavior all nodes should initially use. Default value is REQUIRE.
-   * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
-   *                                hash.
+   * @param network A map of node addresses to the AccountIds that run those nodes.
    */
-  void setNetwork(const NodeAddressBook& nodeAddressBook, TLSBehavior tls = TLSBehavior::REQUIRE);
+  explicit Network(const std::unordered_map<std::string, AccountId>& network);
 
   /**
-   * Establish communications with all node addresses for this Network that are specified in the input map collection.
+   * Construct a Network object configured to communicate with the network represented by the input LedgerId.
    *
-   * @param networkMap The map containing string node addresses pointing to specific accountId object.
-   * @param tls The TLS behavior all nodes should initially use. Default value is DISABLE.
-   * @throws UninitializedException If a NodeAddress in the input NodeAddressBook wasn't initialized with a certificate
-   *         hash.
+   * @param ledgerId The LedgerId of the Network object to construct.
+   * @return The constructed Network object.
    */
-  void setNetwork(const std::unordered_map<std::string, AccountId>& networkMap, TLSBehavior tls = TLSBehavior::DISABLE);
+  [[nodiscard]] static Network getNetworkForLedgerId(const LedgerId& ledgerId);
 
   /**
-   * The list of pointers to Nodes with which this Network is communicating.
+   * Get a map of AccountIds to NodeAddresses from a local file for a network based on the input LedgerId.
+   *
+   * @param ledgerId The LedgerId of the network of which to get the address book.
+   * @return The map of node addresses and AccountIds of the Nodes that exist on the network represented by the input
+   *         LedgerId.
    */
-  std::vector<std::shared_ptr<Node>> mNodes;
+  [[nodiscard]] static std::unordered_map<AccountId, NodeAddress> getAddressBookForLedgerId(const LedgerId& ledgerId);
+
+  /**
+   * Derived from BaseNetwork. Create a Node for this Network based on a network entry.
+   *
+   * @param address The address of the Node.
+   * @param key     The key for the Node.
+   * @return A pointer to the created Node.
+   */
+  [[nodiscard]] std::shared_ptr<Node> createNodeFromNetworkEntry(std::string_view address,
+                                                                 const AccountId& key) const override;
+
+  /**
+   * Set the ledger ID of this Network. In addition, update the Nodes on this Network with their address book entry
+   * contained in the input map.
+   *
+   * @param ledgerId    The new LedgerId of the Network.
+   * @param addressBook The address book with which to update this Network's Node's address book entry.
+   */
+  Network& setLedgerIdInternal(const LedgerId& ledgerId, const std::unordered_map<AccountId, NodeAddress>& addressBook);
+
+  /**
+   * The maximum number of nodes to be returned for each request.
+   */
+  unsigned int mMaxNodesPerRequest = 0U;
+
+  /**
+   * Should the Nodes on this Network verify remote node certificates?
+   */
+  bool mVerifyCertificates = true;
 };
 
 } // namespace Hedera::internal

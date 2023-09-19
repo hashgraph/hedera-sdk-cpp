@@ -31,14 +31,10 @@ using namespace Hedera;
 class TopicMessageSubmitTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestMessage() const { return mTestMessage; }
 
 private:
-  Client mClient;
   const TopicId mTestTopicId = TopicId(1ULL, 2ULL, 3ULL);
   const std::vector<std::byte> mTestMessage = { std::byte(0x04), std::byte(0x05), std::byte(0x06) };
 };
@@ -78,8 +74,10 @@ TEST_F(TopicMessageSubmitTransactionTest, GetSetTopicId)
 TEST_F(TopicMessageSubmitTransactionTest, GetSetTopicIdFrozen)
 {
   // Given
-  TopicMessageSubmitTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicMessageSubmitTransaction transaction = TopicMessageSubmitTransaction()
+                                                .setNodeAccountIds({ AccountId(1ULL) })
+                                                .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTopicId(getTestTopicId()), IllegalStateException);
@@ -105,10 +103,14 @@ TEST_F(TopicMessageSubmitTransactionTest, GetSetMessage)
 TEST_F(TopicMessageSubmitTransactionTest, GetSetMessageFrozen)
 {
   // Given
-  TopicMessageSubmitTransaction transactionWithBytes;
-  TopicMessageSubmitTransaction transactionWithStr;
-  ASSERT_NO_THROW(transactionWithBytes.freezeWith(&getTestClient()));
-  ASSERT_NO_THROW(transactionWithStr.freezeWith(&getTestClient()));
+  TopicMessageSubmitTransaction transactionWithBytes = TopicMessageSubmitTransaction()
+                                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  TopicMessageSubmitTransaction transactionWithStr = TopicMessageSubmitTransaction()
+                                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transactionWithBytes.freeze());
+  ASSERT_NO_THROW(transactionWithStr.freeze());
 
   // When / Then
   EXPECT_THROW(transactionWithBytes.setMessage(getTestMessage()), IllegalStateException);

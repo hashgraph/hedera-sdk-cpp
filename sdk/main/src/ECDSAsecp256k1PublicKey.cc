@@ -424,6 +424,16 @@ std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytesRaw() const
 }
 
 //-----
+std::unique_ptr<proto::SignaturePair> ECDSAsecp256k1PublicKey::toSignaturePairProtobuf(
+  const std::vector<std::byte>& signature) const
+{
+  auto signaturePair = std::make_unique<proto::SignaturePair>();
+  signaturePair->set_pubkeyprefix(internal::Utilities::byteVectorToString(toBytesRaw()));
+  signaturePair->set_ecdsa_secp256k1(internal::Utilities::byteVectorToString(signature));
+  return signaturePair;
+}
+
+//-----
 EvmAddress ECDSAsecp256k1PublicKey::toEvmAddress() const
 {
   // Generate hash without "0x04" prefix of uncompressed bytes.

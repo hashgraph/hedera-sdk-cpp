@@ -33,28 +33,15 @@ namespace Hedera
 AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountAllowanceDeleteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_cryptodeleteallowance())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain CryptoDeleteAllowance data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::CryptoDeleteAllowanceTransactionBody& body = transactionBody.cryptodeleteallowance();
-
-  for (int i = 0; i < body.nftallowances_size(); ++i)
-  {
-    std::vector<uint64_t> serialNumbers;
-    serialNumbers.reserve(body.nftallowances(i).serial_numbers_size());
-
-    for (int j = 0; j < body.nftallowances(i).serial_numbers_size(); ++j)
-    {
-      serialNumbers.push_back(static_cast<uint64_t>(body.nftallowances(i).serial_numbers(j)));
-    }
-
-    mNftAllowanceDeletions.emplace_back(TokenId::fromProtobuf(body.nftallowances(i).token_id()),
-                                        AccountId::fromProtobuf(body.nftallowances(i).owner()),
-                                        std::optional<AccountId>(),
-                                        serialNumbers);
-  }
+//-----
+AccountAllowanceDeleteTransaction::AccountAllowanceDeleteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<AccountAllowanceDeleteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -80,26 +67,47 @@ AccountAllowanceDeleteTransaction& AccountAllowanceDeleteTransaction::deleteAllT
 }
 
 //-----
-proto::Transaction AccountAllowanceDeleteTransaction::makeRequest(const Client& client,
-                                                                  const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status AccountAllowanceDeleteTransaction::submitRequest(const Client& client,
-                                                              const std::chrono::system_clock::time_point& deadline,
+grpc::Status AccountAllowanceDeleteTransaction::submitRequest(const proto::Transaction& request,
                                                               const std::shared_ptr<internal::Node>& node,
+                                                              const std::chrono::system_clock::time_point& deadline,
                                                               proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kCryptoDeleteAllowance, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kCryptoDeleteAllowance, request, deadline, response);
 }
 
 //-----
 void AccountAllowanceDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_cryptodeleteallowance(build());
+}
+
+//-----
+void AccountAllowanceDeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_cryptodeleteallowance())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain CryptoDeleteAllowance data");
+  }
+
+  const proto::CryptoDeleteAllowanceTransactionBody& body = transactionBody.cryptodeleteallowance();
+
+  for (int i = 0; i < body.nftallowances_size(); ++i)
+  {
+    std::vector<uint64_t> serialNumbers;
+    serialNumbers.reserve(body.nftallowances(i).serial_numbers_size());
+
+    for (int j = 0; j < body.nftallowances(i).serial_numbers_size(); ++j)
+    {
+      serialNumbers.push_back(static_cast<uint64_t>(body.nftallowances(i).serial_numbers(j)));
+    }
+
+    mNftAllowanceDeletions.emplace_back(TokenId::fromProtobuf(body.nftallowances(i).token_id()),
+                                        AccountId::fromProtobuf(body.nftallowances(i).owner()),
+                                        std::optional<AccountId>(),
+                                        serialNumbers);
+  }
 }
 
 //-----

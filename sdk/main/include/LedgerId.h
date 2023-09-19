@@ -103,6 +103,13 @@ public:
   [[nodiscard]] inline bool isPreviewnet() const { return *this == PREVIEWNET; }
 
   /**
+   * Does this LedgerId represent the LedgerId of any Hedera network?
+   *
+   * @return \c TRUE if this LedgerId represents the LedgerId of any Hedera network, otherwise \c FALSE.
+   */
+  [[nodiscard]] inline bool isKnownNetwork() const { return isMainnet() || isTestnet() || isPreviewnet(); }
+
+  /**
    * Get the bytes of this LedgerId.
    *
    * @return The bytes of this LedgerId.

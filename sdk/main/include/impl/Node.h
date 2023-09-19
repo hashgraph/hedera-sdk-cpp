@@ -29,46 +29,42 @@
 #include <proto/smart_contract_service.grpc.pb.h>
 #include <proto/token_service.grpc.pb.h>
 
-#include "Defaults.h"
-#include "impl/NodeAddress.h"
-#include "impl/TLSBehavior.h"
+#include "AccountId.h"
+#include "BaseNode.h"
 
-#include <functional>
-#include <grpcpp/channel.h>
-#include <grpcpp/security/credentials.h>
+#include <cstddef>
 #include <memory>
-#include <string>
-#include <utility>
+#include <string_view>
+#include <vector>
+
+namespace Hedera::internal
+{
+class BaseNodeAddress;
+}
 
 namespace Hedera::internal
 {
 /**
  * Internal utility class used to represent a node on a Hedera network.
  */
-class Node
+class Node : public BaseNode<Node, AccountId>
 {
 public:
   /**
-   * Construct this Node with the NodeAddress of the remote node it is meant to represent.
+   * Construct with the AccountId that's running this Node and the address of the Node.
    *
-   * @param address A pointer to the desired NodeAddress for this Node.
-   * @param tls     The TLS behavior this Node should initially use.
-   * @throws UninitializedException If TLS is required and the input NodeAddress doesn't contain a certificate hash.
+   * @param accountId The AccountId that runs the remote node represented by this Node.
+   * @param address   The address of the Node.
    */
-  explicit Node(std::shared_ptr<NodeAddress> address, TLSBehavior tls = TLSBehavior::REQUIRE);
+  explicit Node(AccountId accountId, const BaseNodeAddress& address);
 
   /**
-   * Attempt to connect this Node to the remote node.
+   * Construct with the AccountId that's running this Node and the address of the Node as a string.
    *
-   * @param timeout The point in time that the attempted connection will cease and be considered a failure.
-   * @return \c TRUE if the Node is already connected or successfully connected, otherwise \c FALSE.
+   * @param accountId The AccountId that runs the remote node represented by this Node.
+   * @param address   The address of the Node as a string.
    */
-  bool connect(const std::chrono::system_clock::time_point& timeout);
-
-  /**
-   * Shutdown the connection from this Node to the remote node.
-   */
-  void shutdown();
+  explicit Node(const AccountId& accountId, std::string_view address);
 
   /**
    * Submit a Query protobuf to the remote node with which this Node is communicating.
@@ -99,89 +95,90 @@ public:
                                  proto::TransactionResponse* response);
 
   /**
-   * Set the TLS behavior this Node should utilize when communicating with its remote node.
+   * Construct an insecure version of this Node. This will close the Node's current connection.
    *
-   * @param desiredBehavior The desired behavior.
-   * @throws UninitializedException If TLS is required and this Node's NodeAddress doesn't contain a certificate hash.
+   * @return A reference to this Node, now using an insecure connection.
    */
-  void setTLSBehavior(TLSBehavior desiredBehavior);
+  Node& toInsecure();
 
   /**
-   * Set the minimum amount of time this Node should wait before being willing to resubmit a previously failed request
-   * to its remote node.
+   * Construct a secure version of this Node. This will close the Node's current connection.
    *
-   * @param backoff The minimum backoff time.
+   * @return A reference to this Node, now using a secure connection.
    */
-  void setMinBackoff(const std::chrono::duration<double>& backoff);
+  Node& toSecure();
 
   /**
-   * Set the maximum amount of time this Node should wait before being willing to resubmit a previously failed request
-   * to its remote node.
+   * Set the node certificate hash of this Node.
    *
-   * @param backoff The maximum backoff time.
+   * @param hash The node certificate hash to set.
+   * @return A reference to this Node with the newly-set node certificate hash.
    */
-  void setMaxBackoff(const std::chrono::duration<double>& backoff);
+  Node& setNodeCertificateHash(const std::vector<std::byte>& hash);
 
   /**
-   * Determine if this Node is "healthy", meaning this Node has received a gRPC status responses from its remote node
-   * that indicates a successful request attempt, or if it has fully backed off for its full period of backoff time
-   * after an unsuccessful submission attempt.
+   * Set the certificate verification policy of this Node.
    *
-   * @return \c TRUE if this Node is "healthy", otherwise \c FALSE.
+   * @param verify \c TRUE if this Node should verify certificates, otherwise \c FALSE.
+   * @return A reference to this Node with the newly-set certificate verification policy.
    */
-  [[nodiscard]] bool isHealthy() const;
+  Node& setVerifyCertificates(bool verify);
 
   /**
-   * Increase the backoff of this Node. This should be called when this Node either fails to connect to its remote node
-   * or it receives a gRPC status from its remote node that indicates a failed submission attempt.
-   */
-  void increaseBackoff();
-
-  /**
-   * Decrease the backoff of this Node. This should be called when this Node successfully submits a request to its
-   * remote node.
-   */
-  void decreaseBackoff();
-
-  /**
-   * Get the amount of time remaining in this Node's current backoff.
+   * Derived from BaseNode. Get this Node's key, which is its AccountId.
    *
-   * @return The amount of time that should pass before this Node is good to try and submit another request.
+   * @return This Node's key, which is its AccountId.
    */
-  [[nodiscard]] std::chrono::duration<double> getRemainingTimeForBackoff() const;
+  [[nodiscard]] inline AccountId getKey() const override { return getAccountId(); };
 
   /**
-   * Get the ID of the account associated with this Node.
+   * Get the AccountId of this Node.
    *
-   * @return The ID of the account associated with this Node.
+   * @return The AccountId of this Node.
    */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAddress->getNodeAccountId(); }
+  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; };
+
+  /**
+   * Get the node certificate hash of this Node.
+   *
+   * @return The node certificate hash of this Node.
+   */
+  [[nodiscard]] inline std::vector<std::byte> getNodeCertificateHash() const { return mNodeCertificateHash; }
+
+  /**
+   * Get the certificate verification policy of this Node.
+   *
+   * @return \c TRUE if this Node is currently configured to verify certificates, otherwise \c FALSE.
+   */
+  [[nodiscard]] inline bool getVerifyCertificates() const { return mVerifyCertificates; }
 
 private:
   /**
-   * Initialize the gRPC channel used to communicate with this Node's remote node based on mTLSBehavior.
+   * Construct from another Node and a BaseNodeAddress.
    *
-   * @param deadline The deadline to connect. Processing will continue trying until this point to establish a connection
-   *                 and will return \c FALSE if not established by then.
-   * @return \c TRUE if initialization was successful, otherwise \c FALSE.
+   * @param node    The Node from which to construct.
+   * @param address The address of the Node.
    */
-  bool initializeChannel(const std::chrono::system_clock::time_point& deadline);
+  explicit Node(const Node& node, const BaseNodeAddress& address);
 
   /**
-   * Pointer to the NodeAddress of this Node.
+   * Derived from BaseNode. Get the TLS credentials of this Node's gRPC channel.
+   *
+   * @return A pointer to the TLS credentials for this Node's gRPC channel.
    */
-  std::shared_ptr<NodeAddress> mAddress = nullptr;
+  [[nodiscard]] std::shared_ptr<grpc::ChannelCredentials> getTlsChannelCredentials() const override;
 
   /**
-   * Pointer to this Node's TLS channel credentials. This only depends on the NodeAddress so this will be updated
-   * whenever mAddress is.
+   * Derived from BaseNode. Initialize the stubs in this Node with a gRPC channel.
+   *
+   * @param channel The gRPC channel with which to initialize the stubs.
    */
-  std::shared_ptr<grpc::ChannelCredentials> mTlsChannelCredentials = nullptr;
+  void initializeStubs(const std::shared_ptr<grpc::Channel>& channel) override;
 
   /**
-   * Pointer to the gRPC channel used to communicate with the gRPC server living on the remote node.
+   * Derived from BaseNode. Close the stubs in this Node.
    */
-  std::shared_ptr<grpc::Channel> mChannel = nullptr;
+  void closeStubs() override;
 
   /**
    * Pointer to the gRPC stub used to communicate with the consensus service living on the remote node.
@@ -224,38 +221,19 @@ private:
   std::unique_ptr<proto::TokenService::Stub> mTokenStub = nullptr;
 
   /**
-   * The TLS behavior this Node should use to communicate with its remote node.
+   * The AccountId that runs the remote node represented by this Node.
    */
-  TLSBehavior mTLSBehavior = TLSBehavior::REQUIRE;
+  AccountId mAccountId;
 
   /**
-   * The point in time that this Node would be considered healthy again.
+   * The node certificate hash of this Node.
    */
-  std::chrono::system_clock::time_point mReadmitTime = std::chrono::system_clock::now();
+  std::vector<std::byte> mNodeCertificateHash;
 
   /**
-   * The minimum length of time this Node should wait before being willing to attempt to send a failed request to its
-   * remote node again.
+   * Should this Node verify the certificates coming from the remote node?
    */
-  std::chrono::duration<double> mMinBackoff = DEFAULT_MIN_BACKOFF;
-
-  /**
-   * The maximum length of time this Node should wait before being willing to attempt to send a failed request to its
-   * remote node again.
-   */
-  std::chrono::duration<double> mMaxBackoff = DEFAULT_MAX_BACKOFF;
-
-  /**
-   * The current backoff time. Every failed submission attempt waits a certain amount of time that is double the
-   * previous amount of time a request waited for its previous submission attempt, up to the specified maximum backoff
-   * time, at which point the execution is considered a failure.
-   */
-  std::chrono::duration<double> mCurrentBackoff = mMinBackoff;
-
-  /**
-   * Is the gRPC channel being utilized by this Node to communicate with its remote node initialized?
-   */
-  bool mIsInitialized = false;
+  bool mVerifyCertificates = false;
 };
 
 } // namespace Hedera::internal

@@ -50,7 +50,7 @@ enum class CallStatus
 std::shared_ptr<internal::MirrorNode> getConnectedMirrorNode(const std::shared_ptr<internal::MirrorNetwork>& network)
 {
   std::shared_ptr<internal::MirrorNode> node = network->getNextMirrorNode();
-  while (!node->connect(std::chrono::system_clock::now() + std::chrono::seconds(2)))
+  while (node->channelFailedToConnect())
   {
     node = network->getNextMirrorNode();
   }
@@ -189,7 +189,7 @@ void startSubscription(
             }
             else
             {
-              // An error occurred. Whether retrying or not, cancel the call and shutdown the queue.
+              // An error occurred. Whether retrying or not, cancel the call and close the queue.
               contexts.back()->TryCancel();
               queues.back()->Shutdown();
 

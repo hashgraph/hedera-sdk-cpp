@@ -31,22 +31,15 @@ namespace Hedera
 TokenDissociateTransaction::TokenDissociateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenDissociateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokendissociate())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenDissociate data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenDissociateTransactionBody& body = transactionBody.tokendissociate();
-
-  if (body.has_account())
-  {
-    mAccountId = AccountId::fromProtobuf(body.account());
-  }
-
-  for (int i = 0; i < body.tokens_size(); ++i)
-  {
-    mTokenIds.push_back(TokenId::fromProtobuf(body.tokens(i)));
-  }
+//-----
+TokenDissociateTransaction::TokenDissociateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenDissociateTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -66,26 +59,41 @@ TokenDissociateTransaction& TokenDissociateTransaction::setTokenIds(const std::v
 }
 
 //-----
-proto::Transaction TokenDissociateTransaction::makeRequest(const Client& client,
-                                                           const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenDissociateTransaction::submitRequest(const Client& client,
-                                                       const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenDissociateTransaction::submitRequest(const proto::Transaction& request,
                                                        const std::shared_ptr<internal::Node>& node,
+                                                       const std::chrono::system_clock::time_point& deadline,
                                                        proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenDissociate, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenDissociate, request, deadline, response);
 }
 
 //-----
 void TokenDissociateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokendissociate(build());
+}
+
+//-----
+void TokenDissociateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokendissociate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenDissociate data");
+  }
+
+  const proto::TokenDissociateTransactionBody& body = transactionBody.tokendissociate();
+
+  if (body.has_account())
+  {
+    mAccountId = AccountId::fromProtobuf(body.account());
+  }
+
+  for (int i = 0; i < body.tokens_size(); ++i)
+  {
+    mTokenIds.push_back(TokenId::fromProtobuf(body.tokens(i)));
+  }
 }
 
 //-----

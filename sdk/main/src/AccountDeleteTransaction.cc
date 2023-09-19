@@ -31,22 +31,15 @@ namespace Hedera
 AccountDeleteTransaction::AccountDeleteTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountDeleteTransaction>(transactionBody)
 {
-  if (!transactionBody.has_cryptodelete())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain CryptoDelete data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::CryptoDeleteTransactionBody& body = transactionBody.cryptodelete();
-
-  if (body.has_deleteaccountid())
-  {
-    mDeleteAccountId = AccountId::fromProtobuf(body.deleteaccountid());
-  }
-
-  if (body.has_transferaccountid())
-  {
-    mTransferAccountId = AccountId::fromProtobuf(body.transferaccountid());
-  }
+//-----
+AccountDeleteTransaction::AccountDeleteTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<AccountDeleteTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -68,26 +61,41 @@ AccountDeleteTransaction& AccountDeleteTransaction::setTransferAccountId(const A
 }
 
 //-----
-proto::Transaction AccountDeleteTransaction::makeRequest(const Client& client,
-                                                         const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status AccountDeleteTransaction::submitRequest(const Client& client,
-                                                     const std::chrono::system_clock::time_point& deadline,
+grpc::Status AccountDeleteTransaction::submitRequest(const proto::Transaction& request,
                                                      const std::shared_ptr<internal::Node>& node,
+                                                     const std::chrono::system_clock::time_point& deadline,
                                                      proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kCryptoDelete, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kCryptoDelete, request, deadline, response);
 }
 
 //-----
 void AccountDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_cryptodelete(build());
+}
+
+//-----
+void AccountDeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_cryptodelete())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain CryptoDelete data");
+  }
+
+  const proto::CryptoDeleteTransactionBody& body = transactionBody.cryptodelete();
+
+  if (body.has_deleteaccountid())
+  {
+    mDeleteAccountId = AccountId::fromProtobuf(body.deleteaccountid());
+  }
+
+  if (body.has_transferaccountid())
+  {
+    mTransferAccountId = AccountId::fromProtobuf(body.transferaccountid());
+  }
 }
 
 //-----

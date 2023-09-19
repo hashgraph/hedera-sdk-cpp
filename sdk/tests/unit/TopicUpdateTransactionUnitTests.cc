@@ -34,9 +34,6 @@ using namespace Hedera;
 class TopicUpdateTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
   [[nodiscard]] inline const std::string& getTestTopicMemo() const { return mTestTopicMemo; }
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
@@ -52,7 +49,6 @@ protected:
   [[nodiscard]] inline const AccountId& getTestAutoRenewAccountId() const { return mTestAutoRenewAccountId; }
 
 private:
-  Client mClient;
   const TopicId mTestTopicId = TopicId(1ULL, 2ULL, 3ULL);
   const std::string mTestTopicMemo = "test topic memo";
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
@@ -120,8 +116,10 @@ TEST_F(TopicUpdateTransactionTest, GetSetTopicId)
 TEST_F(TopicUpdateTransactionTest, GetSetTopicIdFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTopicId(getTestTopicId()), IllegalStateException);
@@ -144,8 +142,10 @@ TEST_F(TopicUpdateTransactionTest, GetSetMemo)
 TEST_F(TopicUpdateTransactionTest, GetSetMemoFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setMemo(getTestTopicMemo()), IllegalStateException);
@@ -169,8 +169,10 @@ TEST_F(TopicUpdateTransactionTest, ClearMemo)
 TEST_F(TopicUpdateTransactionTest, ClearMemoFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.clearTopicMemo(), IllegalStateException);
@@ -193,8 +195,10 @@ TEST_F(TopicUpdateTransactionTest, GetSetExpirationTime)
 TEST_F(TopicUpdateTransactionTest, GetSetExpirationTimeFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setExpirationTime(getTestExpirationTime()), IllegalStateException);
@@ -217,8 +221,10 @@ TEST_F(TopicUpdateTransactionTest, GetSetAdminKey)
 TEST_F(TopicUpdateTransactionTest, GetSetAdminKeyFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAdminKey(getTestAdminKey()), IllegalStateException);
@@ -241,8 +247,10 @@ TEST_F(TopicUpdateTransactionTest, ClearAdminKey)
 TEST_F(TopicUpdateTransactionTest, ClearAdminKeyFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.clearAdminKey(), IllegalStateException);
@@ -265,8 +273,10 @@ TEST_F(TopicUpdateTransactionTest, GetSetSubmitKey)
 TEST_F(TopicUpdateTransactionTest, GetSetSubmitKeyFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setSubmitKey(getTestSubmitKey()), IllegalStateException);
@@ -289,8 +299,10 @@ TEST_F(TopicUpdateTransactionTest, ClearSubmitKey)
 TEST_F(TopicUpdateTransactionTest, ClearSubmitKeyFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.clearAdminKey(), IllegalStateException);
@@ -313,8 +325,10 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewPeriod)
 TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewPeriodFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewPeriod(getTestAutoRenewPeriod()), IllegalStateException);
@@ -337,8 +351,10 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewAccountId)
 TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewAccountIdFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAutoRenewAccountId(getTestAutoRenewAccountId()), IllegalStateException);
@@ -362,8 +378,10 @@ TEST_F(TopicUpdateTransactionTest, ClearAutoRenewAccountId)
 TEST_F(TopicUpdateTransactionTest, ClearAutoRenewAccountIdFrozen)
 {
   // Given
-  TopicUpdateTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TopicUpdateTransaction transaction = TopicUpdateTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.clearAutoRenewAccountId(), IllegalStateException);

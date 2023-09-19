@@ -20,6 +20,9 @@
 #ifndef HEDERA_SDK_CPP_IMPL_MIRROR_NETWORK_H_
 #define HEDERA_SDK_CPP_IMPL_MIRROR_NETWORK_H_
 
+#include "BaseNetwork.h"
+#include "BaseNodeAddress.h"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -32,7 +35,7 @@ class MirrorNode;
 
 namespace Hedera::internal
 {
-class MirrorNetwork
+class MirrorNetwork : public BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode>
 {
 public:
   /**
@@ -65,32 +68,38 @@ public:
   [[nodiscard]] static MirrorNetwork forNetwork(const std::vector<std::string>& networkMap);
 
   /**
+   * Set the MirrorNodes in the MirrorNetwork. This will put the input addresses into a map of addresses to
+   * BaseNodeAddresses, and then feed it to BaseNetwork::setNetwork.
+   *
+   * @param network The network to set for this MirrorNetwork.
+   * @return A reference to this MirrorNetwork object with the newly-set network.
+   */
+  MirrorNetwork& setNetwork(const std::vector<std::string>& network);
+
+  /**
+   * Get the addresses of the MirrorNodes in this MirrorNetwork.
+   *
+   * @return The addresses of the MirrorNodes in this MirrorNetwork.
+   */
+  [[nodiscard]] std::vector<std::string> getNetwork() const;
+
+  /**
    * Get a pointer to the next MirrorNode.
    *
    * @return A pointer to the next MirrorNode.
    */
   [[nodiscard]] std::shared_ptr<MirrorNode> getNextMirrorNode() const;
 
-  /**
-   * Initiate an orderly shutdown of communications with the MirrorNodes that are a part of this MirrorNetwork.
-   *
-   * After this method returns, this MirrorNetwork can be re-used. All network communication can be re-established as
-   * needed.
-   */
-  void close() const;
-
 private:
   /**
-   * Establish communications with all MirrorNodes for this MirrorNetwork that are specified in the input address list.
+   * Derived from BaseNetwork. Create a MirrorNode for this MirrorNetwork based on a network entry.
    *
-   * @param addresses The addresses of the MirrorNodes with which this MirrorNetwork will be communicating.
+   * @param address The address of the MirrorNode.
+   * @param key     The key for the MirrorNode. This is unused.
+   * @return A pointer to the created MirrorNode.
    */
-  void setNetwork(const std::vector<std::string>& addresses);
-
-  /**
-   * The list of pointers to MirrorNodes with which this MirrorNetwork is communicating.
-   */
-  std::vector<std::shared_ptr<MirrorNode>> mNodes;
+  [[nodiscard]] std::shared_ptr<MirrorNode> createNodeFromNetworkEntry(std::string_view address,
+                                                                       const BaseNodeAddress& /*key*/) const override;
 };
 
 } // namespace Hedera::internal

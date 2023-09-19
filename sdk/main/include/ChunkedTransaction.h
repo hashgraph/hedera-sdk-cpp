@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace Hedera
@@ -100,6 +101,63 @@ public:
   std::vector<TransactionResponse> executeAll(const Client& client, const std::chrono::duration<double>& timeout);
 
   /**
+   * Derived from Transaction. Add a signature to this ChunkedTransaction.
+   *
+   * @param publicKey The associated PublicKey of the PrivateKey that generated the signature.
+   * @param signature The signature to add.
+   * @return A reference to this derived ChunkedTransaction object with the newly-added signature.
+   * @throws IllegalStateException If there are multiple chunks in this ChunkedTransaction,there is not exactly one node
+   *                               account ID set, or if this ChunkedTransaction is not frozen.
+   */
+  SdkRequestType& addSignature(const std::shared_ptr<PublicKey>& publicKey,
+                               const std::vector<std::byte>& signature) override;
+
+  /**
+   * Derived from Transaction. Get the signatures of each potential Transaction protobuf object this ChunkedTransaction
+   * may send.
+   *
+   * @return The map of node account IDs to their PublicKeys and signatures.
+   */
+  [[nodiscard]] std::map<AccountId, std::map<std::shared_ptr<PublicKey>, std::vector<std::byte>>> getSignatures()
+    const override;
+
+  /**
+   * Get the signatures of all chunks of this ChunkedTransaction, for each potential node to which it may be sent.
+   *
+   * @return The list of signatures for each node account ID for each chunk.
+   */
+  [[nodiscard]] std::vector<std::map<AccountId, std::map<std::shared_ptr<PublicKey>, std::vector<std::byte>>>>
+  getAllSignatures() const;
+
+  /**
+   * Derived from Transaction. Get the SHA384 hash of this ChunkedTransaction.
+   *
+   * @return The SHA384 hash of this Transaction.
+   * @throws IllegalStateException If this ChunkedTransaction contains multiple chunks or this ChunkedTransaction is
+   * not frozen.
+   */
+  [[nodiscard]] std::vector<std::byte> getTransactionHash() const override;
+
+  /**
+   * Derived from Transaction. Get the SHA384 hash of each potential Transaction protobuf object this ChunkedTransaction
+   * may send.
+   *
+   * @return The map of node account IDs to the SHA384 hash of their Transaction.
+   * @throws IllegalStateException If this ChunkedTransaction contains multiple chunks or this ChunkedTransaction is not
+   *                               frozen.
+   */
+  [[nodiscard]] std::map<AccountId, std::vector<std::byte>> getTransactionHashPerNode() const override;
+
+  /**
+   * Get the SHA384 hashes of all Transaction protobuf objects for each chunk of this ChunkedTransaction, for each node
+   * account ID.
+   *
+   * @return The list of Transaction protobuf object hashes for each node account ID for each chunk.
+   * @throws IllegalStateException If this ChunkedTransaction isn't frozen.
+   */
+  [[nodiscard]] std::vector<std::map<AccountId, std::vector<std::byte>>> getAllTransactionHashesPerNode() const;
+
+  /**
    * Set the maximum number of chunks for this ChunkedTransaction.
    *
    * @param chunks The maximum number of chunks for this ChunkedTransaction.
@@ -120,16 +178,41 @@ public:
    *
    * @return The maximum number of chunks for this ChunkedTransaction.
    */
-  [[nodiscard]] inline unsigned int getMaxChunks() const { return mMaxChunks; }
+  [[nodiscard]] unsigned int getMaxChunks() const;
 
   /**
    * Get the size of each chunk, in bytes, for this ChunkedTransaction.
    *
    * @return The size of each chunk, in bytes, for this ChunkedTransaction.
    */
-  [[nodiscard]] inline unsigned int getChunkSize() const { return mChunkSize; }
+  [[nodiscard]] unsigned int getChunkSize() const;
 
 protected:
+  ChunkedTransaction();
+  ~ChunkedTransaction();
+  ChunkedTransaction(const ChunkedTransaction&);
+  ChunkedTransaction& operator=(const ChunkedTransaction&);
+  ChunkedTransaction(ChunkedTransaction&&) noexcept;
+  ChunkedTransaction& operator=(ChunkedTransaction&&) noexcept;
+
+  /**
+   * Construct from a TransactionBody protobuf object.
+   *
+   * @param txBody The TransactionBody protobuf object from which to construct.
+   */
+  explicit ChunkedTransaction(const proto::TransactionBody& txBody);
+
+  /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects. This
+   * will ignore the first TransactionId entry (as its information will be stored in the base Transaction
+   * implementation) and construct additional Transaction protobuf objects for each additional chunk of the Transaction
+   * that must be sent.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
+   */
+  explicit ChunkedTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
+
   /**
    * Set the data for this ChunkedTransaction.
    *
@@ -144,7 +227,15 @@ protected:
    *
    * @return The data for this ChunkedTransaction.
    */
-  [[nodiscard]] inline std::vector<std::byte> getData() const { return mData; }
+  [[nodiscard]] std::vector<std::byte> getData() const;
+
+  /**
+   * Get the data contained in the input chunk of this ChunkedTransaction.
+   *
+   * @param chunk The chunk number of which to get the data.
+   * @return The data contained in the input chunk number.
+   */
+  [[nodiscard]] std::vector<std::byte> getDataForChunk(unsigned int chunk) const;
 
   /**
    * Set the receipt retrieval policy for this ChunkedTransaction.
@@ -160,53 +251,60 @@ protected:
    * @retrun retrieveReceipt \c TRUE if this ChunkedTransaction should retrieve a receipt after each submitted chunk,
    *                         otherwise \c FALSE.
    */
-  [[nodiscard]] inline bool getShouldGetReceipt() const { return mShouldGetReceipt; }
+  [[nodiscard]] bool getShouldGetReceipt() const;
 
 private:
   /**
-   * Perform any needed actions for this ChunkedTransaction after it has been chunked.
+   * Build and add the derived ChunkedTransaction's chunked protobuf representation to the TransactionBody protobuf
+   * object.
    *
-   * @param firstTransactionId The transaction ID of the first chunk.
-   * @param chunk              The chunk number of this chunk.
-   * @param total              The total number of chunks being created.
-   * @throws UninitializedException If the client doesn't have an AccountId from which to generate a TransactionId.
+   * @param chunk The chunk number.
+   * @param total The total number of chunks being created.
+   * @param body  The TransactionBody protobuf object to which to add the chunked data.
    */
-  virtual void onChunk([[maybe_unused]] const TransactionId& firstTransactionId,
-                       [[maybe_unused]] int32_t chunk,
-                       [[maybe_unused]] int32_t total)
-  { // Intentionally unimplemented, no processing needs to occur by default.
-  }
+  virtual void addToChunk(uint32_t chunk, [[maybe_unused]] uint32_t total, proto::TransactionBody& body) const = 0;
 
   /**
-   * Wrapper function needed to execute the Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse,
-   * TransactionResponse> version of execute().
+   * Derived from Executable. Construct a Transaction protobuf object from this ChunkedTransaction, based on the attempt
+   * number. This will take into account the current chunk of this ChunkedTransaction trying to be sent.
    *
-   * @param client  The Client to use to submit the ChunkedTransaction.
-   * @param timeout The desired timeout for the execution of the ChunkedTransaction.
-   * @param tx      The ChunkedTransaction to execute.
-   * @return The TransactionResponse object sent from the Hedera network that contains the result of the request.
+   * @param attempt The attempt number of trying to execute this ChunkedTransaction.
+   * @return A Transaction protobuf object filled with this ChunkedTransaction's data, based on the attempt number.
    */
-  TransactionResponse wrappedExecute(const Client& client, const std::chrono::duration<double>& timeout);
+  [[nodiscard]] proto::Transaction makeRequest(unsigned int attempt) const override;
 
   /**
-   * This ChunkedTransaction's data.
+   * Derived from Transaction. Generate the SignedTransaction protobuf objects for this ChunkedTransaction.
+   *
+   * @param client A pointer to the Client to use to generate the SignedTransaction protobuf objects.
    */
-  std::vector<std::byte> mData;
+  void generateSignedTransactions(const Client* client) override;
 
   /**
-   * The size of this ChunkedTransaction's chunks, in bytes.
+   * Derived from Transaction. Clear the SignedTransaction and Transaction protobuf objects held by this
+   * ChunkedTransaction.
    */
-  unsigned int mChunkSize = 1024U;
+  void clearTransactions() override;
 
   /**
-   * The maximum number of chunks into which this ChunkedTransaction will get broken up.
+   * Derived from Transaction. Get the ID of the previously-executed ChunkedTransaction.
+   *
+   * @return The ID of the previously-executed ChunkedTransaction.
    */
-  unsigned int mMaxChunks = DEFAULT_MAX_CHUNKS;
+  [[nodiscard]] TransactionId getCurrentTransactionId() const override;
 
   /**
-   * Should this ChunkedTransaction get a receipt for each submitted chunk?
+   * Get the number of chunks that will be required to send this full ChunkedTransaction.
+   *
+   * @return The number of chunks that will be required to send this full ChunkedTransaction.
    */
-  bool mShouldGetReceipt = false;
+  [[nodiscard]] unsigned int getNumberOfChunksRequired() const;
+
+  /**
+   * Implementation object used to hide implementation details and internal headers.
+   */
+  struct ChunkedTransactionImpl;
+  std::unique_ptr<ChunkedTransactionImpl> mImpl;
 };
 
 } // namespace Hedera

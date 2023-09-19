@@ -31,6 +31,7 @@
 namespace proto
 {
 class Key;
+class SignaturePair;
 }
 
 namespace Hedera::internal::OpenSSLUtils
@@ -67,6 +68,17 @@ public:
    *                         from the input hex string.
    */
   [[nodiscard]] static std::unique_ptr<PublicKey> fromStringDer(std::string_view key);
+
+  /**
+   * Construct a PublicKey object from a raw byte vector. This will attempt to determine the type of key based on the
+   * input byte vector length.
+   *
+   * @param bytes The vector of raw bytes from which to construct a PublicKey.
+   * @return A pointer to a PublicKey representing the input DER-encoded bytes.
+   * @throws BadKeyException If the public key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
+   *                         from the input byte array.
+   */
+  [[nodiscard]] static std::unique_ptr<PublicKey> fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Construct a PublicKey object from a DER-encoded byte vector.
@@ -124,6 +136,14 @@ public:
    * @return The raw bytes of this PublicKey.
    */
   [[nodiscard]] virtual std::vector<std::byte> toBytesRaw() const = 0;
+
+  /**
+   * Serialize this PublicKey to a SignaturePair protobuf object with the given signature.
+   *
+   * @param signature The signature created by this PublicKey.
+   */
+  [[nodiscard]] virtual std::unique_ptr<proto::SignaturePair> toSignaturePairProtobuf(
+    const std::vector<std::byte>& signature) const = 0;
 
   /**
    * Construct an AccountId object using this PublicKey as its alias.

@@ -55,8 +55,10 @@ struct ScheduleCreateTransaction::ScheduleCreateTransactionImpl
 
 //-----
 ScheduleCreateTransaction::ScheduleCreateTransaction()
+  : Transaction<ScheduleCreateTransaction>()
+  , mImpl(std::make_unique<ScheduleCreateTransactionImpl>())
 {
-  initImpl();
+  setDefaultMaxTransactionFee(Hbar(5LL));
 }
 
 //-----
@@ -64,7 +66,8 @@ ScheduleCreateTransaction::~ScheduleCreateTransaction() = default;
 
 //-----
 ScheduleCreateTransaction::ScheduleCreateTransaction(const ScheduleCreateTransaction& other)
-  : mImpl(std::make_unique<ScheduleCreateTransactionImpl>(*other.mImpl))
+  : Transaction<ScheduleCreateTransaction>(other)
+  , mImpl(std::make_unique<ScheduleCreateTransactionImpl>(*other.mImpl))
 {
 }
 
@@ -73,6 +76,7 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::operator=(const ScheduleCr
 {
   if (this != &other)
   {
+    Transaction<ScheduleCreateTransaction>::operator=(other);
     mImpl = std::make_unique<ScheduleCreateTransactionImpl>(*other.mImpl);
   }
 
@@ -81,10 +85,11 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::operator=(const ScheduleCr
 
 //-----
 ScheduleCreateTransaction::ScheduleCreateTransaction(ScheduleCreateTransaction&& other) noexcept
-  : mImpl(std::move(other.mImpl))
+  : Transaction<ScheduleCreateTransaction>(std::move(other))
+  , mImpl(std::move(other.mImpl)) // NOLINT
 {
   // Leave the moved-from ScheduleCreateTransaction in a valid state.
-  other.mImpl = std::make_unique<ScheduleCreateTransactionImpl>();
+  other.mImpl = std::make_unique<ScheduleCreateTransactionImpl>(); // NOLINT
 }
 
 //-----
@@ -92,7 +97,8 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::operator=(ScheduleCreateTr
 {
   if (this != &other)
   {
-    mImpl = std::make_unique<ScheduleCreateTransactionImpl>(*other.mImpl);
+    Transaction<ScheduleCreateTransaction>::operator=(std::move(other));
+    mImpl = std::move(other.mImpl); // NOLINT
 
     // Leave the moved-from ScheduleCreateTransaction in a valid state.
     other.mImpl = std::make_unique<ScheduleCreateTransactionImpl>();
@@ -104,39 +110,20 @@ ScheduleCreateTransaction& ScheduleCreateTransaction::operator=(ScheduleCreateTr
 //-----
 ScheduleCreateTransaction::ScheduleCreateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<ScheduleCreateTransaction>(transactionBody)
+  , mImpl(std::make_unique<ScheduleCreateTransactionImpl>())
 {
-  initImpl();
+  setDefaultMaxTransactionFee(Hbar(5LL));
+  initFromSourceTransactionBody();
+}
 
-  if (!transactionBody.has_schedulecreate())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ScheduleCreate data");
-  }
-
-  const proto::ScheduleCreateTransactionBody& body = transactionBody.schedulecreate();
-
-  if (body.has_scheduledtransactionbody())
-  {
-    mImpl->mTransactionToSchedule = WrappedTransaction::fromProtobuf(body.scheduledtransactionbody());
-  }
-
-  mImpl->mMemo = body.memo();
-
-  if (body.has_adminkey())
-  {
-    mImpl->mAdminKey = Key::fromProtobuf(body.adminkey());
-  }
-
-  if (body.has_payeraccountid())
-  {
-    mImpl->mPayerAccountId = AccountId::fromProtobuf(body.payeraccountid());
-  }
-
-  if (body.has_expiration_time())
-  {
-    mImpl->mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expiration_time());
-  }
-
-  mImpl->mWaitForExpiration = body.wait_for_expiry();
+//-----
+ScheduleCreateTransaction::ScheduleCreateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<ScheduleCreateTransaction>(transactions)
+  , mImpl(std::make_unique<ScheduleCreateTransactionImpl>())
+{
+  setDefaultMaxTransactionFee(Hbar(5LL));
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -225,20 +212,12 @@ bool ScheduleCreateTransaction::isWaitForExpiry() const
 }
 
 //-----
-proto::Transaction ScheduleCreateTransaction::makeRequest(const Client& client,
-                                                          const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status ScheduleCreateTransaction::submitRequest(const Client& client,
-                                                      const std::chrono::system_clock::time_point& deadline,
+grpc::Status ScheduleCreateTransaction::submitRequest(const proto::Transaction& request,
                                                       const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
                                                       proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kScheduleCreate, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kScheduleCreate, request, deadline, response);
 }
 
 //-----
@@ -248,10 +227,47 @@ void ScheduleCreateTransaction::addToBody(proto::TransactionBody& body) const
 }
 
 //-----
+void ScheduleCreateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_schedulecreate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ScheduleCreate data");
+  }
+
+  const proto::ScheduleCreateTransactionBody& body = transactionBody.schedulecreate();
+
+  if (body.has_scheduledtransactionbody())
+  {
+    mImpl->mTransactionToSchedule = WrappedTransaction::fromProtobuf(body.scheduledtransactionbody());
+  }
+
+  mImpl->mMemo = body.memo();
+
+  if (body.has_adminkey())
+  {
+    mImpl->mAdminKey = Key::fromProtobuf(body.adminkey());
+  }
+
+  if (body.has_payeraccountid())
+  {
+    mImpl->mPayerAccountId = AccountId::fromProtobuf(body.payeraccountid());
+  }
+
+  if (body.has_expiration_time())
+  {
+    mImpl->mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expiration_time());
+  }
+
+  mImpl->mWaitForExpiration = body.wait_for_expiry();
+}
+
+//-----
 proto::ScheduleCreateTransactionBody* ScheduleCreateTransaction::build() const
 {
   auto body = std::make_unique<proto::ScheduleCreateTransactionBody>();
-  
+
   body->set_allocated_scheduledtransactionbody(mImpl->mTransactionToSchedule.toSchedulableProtobuf().release());
   body->set_memo(mImpl->mMemo);
 
@@ -273,12 +289,6 @@ proto::ScheduleCreateTransactionBody* ScheduleCreateTransaction::build() const
   body->set_wait_for_expiry(mImpl->mWaitForExpiration);
 
   return body.release();
-}
-
-//-----
-void ScheduleCreateTransaction::initImpl()
-{
-  mImpl = std::make_unique<ScheduleCreateTransactionImpl>();
 }
 
 } // namespace Hedera

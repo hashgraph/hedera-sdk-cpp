@@ -132,6 +132,9 @@ add_library(${PROJECT_NAME} STATIC
         src/TransferTransaction.cc
         src/WrappedTransaction.cc
 
+        src/impl/BaseNetwork.cc
+        src/impl/BaseNode.cc
+        src/impl/BaseNodeAddress.cc
         src/impl/DerivationPathUtils.cc
         src/impl/Endpoint.cc
         src/impl/DurationConverter.cc

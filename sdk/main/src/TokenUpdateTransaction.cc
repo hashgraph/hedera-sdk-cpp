@@ -32,81 +32,17 @@ namespace Hedera
 {
 //-----
 TokenUpdateTransaction::TokenUpdateTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<TokenUpdateTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokenupdate())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenUpdate data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenUpdateTransactionBody& body = transactionBody.tokenupdate();
-
-  if (body.has_token())
-  {
-    mTokenId = TokenId::fromProtobuf(body.token());
-  }
-
-  mTokenName = body.name();
-  mTokenSymbol = body.symbol();
-
-  if (body.has_treasury())
-  {
-    mTreasuryAccountId = AccountId::fromProtobuf(body.treasury());
-  }
-
-  if (body.has_adminkey())
-  {
-    mAdminKey = Key::fromProtobuf(body.adminkey());
-  }
-
-  if (body.has_kyckey())
-  {
-    mKycKey = Key::fromProtobuf(body.kyckey());
-  }
-
-  if (body.has_freezekey())
-  {
-    mFreezeKey = Key::fromProtobuf(body.freezekey());
-  }
-
-  if (body.has_wipekey())
-  {
-    mWipeKey = Key::fromProtobuf(body.wipekey());
-  }
-
-  if (body.has_supplykey())
-  {
-    mSupplyKey = Key::fromProtobuf(body.supplykey());
-  }
-
-  if (body.has_autorenewaccount())
-  {
-    mAutoRenewAccountId = AccountId::fromProtobuf(body.autorenewaccount());
-  }
-
-  if (body.has_autorenewperiod())
-  {
-    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
-  }
-
-  if (body.has_expiry())
-  {
-    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expiry());
-  }
-
-  if (body.has_memo())
-  {
-    mTokenMemo = body.memo().value();
-  }
-
-  if (body.has_fee_schedule_key())
-  {
-    mFeeScheduleKey = Key::fromProtobuf(body.fee_schedule_key());
-  }
-
-  if (body.has_pause_key())
-  {
-    mPauseKey = Key::fromProtobuf(body.pause_key());
-  }
+//-----
+TokenUpdateTransaction::TokenUpdateTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenUpdateTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -231,26 +167,99 @@ TokenUpdateTransaction& TokenUpdateTransaction::setPauseKey(const std::shared_pt
 }
 
 //-----
-proto::Transaction TokenUpdateTransaction::makeRequest(const Client& client,
-                                                       const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenUpdateTransaction::submitRequest(const Client& client,
-                                                   const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenUpdateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
+                                                   const std::chrono::system_clock::time_point& deadline,
                                                    proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenUpdate, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenUpdate, request, deadline, response);
 }
 
 //-----
 void TokenUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenupdate(build());
+}
+
+//-----
+void TokenUpdateTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokenupdate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenUpdate data");
+  }
+
+  const proto::TokenUpdateTransactionBody& body = transactionBody.tokenupdate();
+
+  if (body.has_token())
+  {
+    mTokenId = TokenId::fromProtobuf(body.token());
+  }
+
+  mTokenName = body.name();
+  mTokenSymbol = body.symbol();
+
+  if (body.has_treasury())
+  {
+    mTreasuryAccountId = AccountId::fromProtobuf(body.treasury());
+  }
+
+  if (body.has_adminkey())
+  {
+    mAdminKey = Key::fromProtobuf(body.adminkey());
+  }
+
+  if (body.has_kyckey())
+  {
+    mKycKey = Key::fromProtobuf(body.kyckey());
+  }
+
+  if (body.has_freezekey())
+  {
+    mFreezeKey = Key::fromProtobuf(body.freezekey());
+  }
+
+  if (body.has_wipekey())
+  {
+    mWipeKey = Key::fromProtobuf(body.wipekey());
+  }
+
+  if (body.has_supplykey())
+  {
+    mSupplyKey = Key::fromProtobuf(body.supplykey());
+  }
+
+  if (body.has_autorenewaccount())
+  {
+    mAutoRenewAccountId = AccountId::fromProtobuf(body.autorenewaccount());
+  }
+
+  if (body.has_autorenewperiod())
+  {
+    mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(body.autorenewperiod());
+  }
+
+  if (body.has_expiry())
+  {
+    mExpirationTime = internal::TimestampConverter::fromProtobuf(body.expiry());
+  }
+
+  if (body.has_memo())
+  {
+    mTokenMemo = body.memo().value();
+  }
+
+  if (body.has_fee_schedule_key())
+  {
+    mFeeScheduleKey = Key::fromProtobuf(body.fee_schedule_key());
+  }
+
+  if (body.has_pause_key())
+  {
+    mPauseKey = Key::fromProtobuf(body.pause_key());
+  }
 }
 
 //-----

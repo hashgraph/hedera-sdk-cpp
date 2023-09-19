@@ -18,20 +18,22 @@
  *
  */
 #include "impl/NodeAddressBook.h"
+#include "impl/Utilities.h"
 
-#include <fstream>
 #include <proto/basic_types.pb.h>
 
 namespace Hedera::internal
 {
 //-----
-NodeAddressBook NodeAddressBook::fromFile(std::string_view fileName)
+NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& proto)
 {
-  std::ifstream infile(fileName.data(), std::ios_base::binary);
+  NodeAddressBook nodeAddressBook;
+  for (int i = 0; i < proto.nodeaddress_size(); ++i)
+  {
+    nodeAddressBook.mNodeAddresses.push_back(NodeAddress::fromProtobuf(proto.nodeaddress(i)));
+  }
 
-  std::vector<char> buffer((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
-
-  return NodeAddressBook::fromBytes(buffer);
+  return nodeAddressBook;
 }
 
 //-----
@@ -39,34 +41,32 @@ NodeAddressBook NodeAddressBook::fromBytes(const std::vector<char>& bytes)
 {
   proto::NodeAddressBook addressBook;
   addressBook.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
-
   return fromProtobuf(addressBook);
 }
 
 //-----
-NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& protoAddressBook)
+std::unique_ptr<proto::NodeAddressBook> NodeAddressBook::toProtobuf() const
 {
-  NodeAddressBook outputAddressBook;
-
-  for (int i = 0; i < protoAddressBook.nodeaddress_size(); ++i)
+  auto proto = std::make_unique<proto::NodeAddressBook>();
+  for (const NodeAddress& address : mNodeAddresses)
   {
-    const proto::NodeAddress& protoNodeAddress = protoAddressBook.nodeaddress(i);
-
-    outputAddressBook.mAddressMap.try_emplace(
-      AccountId::fromProtobuf(protoNodeAddress.nodeaccountid()),
-      std::make_shared<NodeAddress>(NodeAddress::fromProtobuf(protoNodeAddress)));
+    *proto->add_nodeaddress() = *address.toProtobuf();
   }
 
-  return outputAddressBook;
+  return proto;
 }
 
 //-----
-NodeAddressBook NodeAddressBook::fromAddressMap(
-  const std::unordered_map<AccountId, std::shared_ptr<NodeAddress>>& addressMap)
+std::vector<std::byte> NodeAddressBook::toBytes() const
 {
-  NodeAddressBook outputAddressBook;
-  outputAddressBook.mAddressMap = addressMap;
-  return outputAddressBook;
+  return Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+NodeAddressBook& NodeAddressBook::setNodeAddresses(const std::vector<NodeAddress>& addresses)
+{
+  mNodeAddresses = addresses;
+  return *this;
 }
 
 } // namespace Hedera::internal

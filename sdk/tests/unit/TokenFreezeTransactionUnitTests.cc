@@ -31,14 +31,10 @@ using namespace Hedera;
 class TokenFreezeTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
 
 private:
-  Client mClient;
   const AccountId mTestAccountId = AccountId(1ULL, 2ULL, 3ULL);
   const TokenId mTestTokenId = TokenId(4ULL, 5ULL, 6ULL);
 };
@@ -79,8 +75,10 @@ TEST_F(TokenFreezeTransactionTest, GetSetAccountId)
 TEST_F(TokenFreezeTransactionTest, GetSetAccountIdFrozen)
 {
   // Given
-  TokenFreezeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenFreezeTransaction transaction = TokenFreezeTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAccountId(getTestAccountId()), IllegalStateException);
@@ -103,8 +101,10 @@ TEST_F(TokenFreezeTransactionTest, GetSetTokenId)
 TEST_F(TokenFreezeTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
-  TokenFreezeTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenFreezeTransaction transaction = TokenFreezeTransaction()
+                                         .setNodeAccountIds({ AccountId(1ULL) })
+                                         .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);

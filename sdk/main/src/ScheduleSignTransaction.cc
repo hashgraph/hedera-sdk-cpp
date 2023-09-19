@@ -31,17 +31,15 @@ namespace Hedera
 ScheduleSignTransaction::ScheduleSignTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<ScheduleSignTransaction>(transactionBody)
 {
-  if (!transactionBody.has_schedulesign())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain ScheduleSign data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::ScheduleSignTransactionBody& body = transactionBody.schedulesign();
-
-  if (body.has_scheduleid())
-  {
-    mScheduleId = ScheduleId::fromProtobuf(body.scheduleid());
-  }
+//-----
+ScheduleSignTransaction::ScheduleSignTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<ScheduleSignTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -61,26 +59,36 @@ ScheduleSignTransaction& ScheduleSignTransaction::clearScheduleId()
 }
 
 //-----
-proto::Transaction ScheduleSignTransaction::makeRequest(const Client& client,
-                                                        const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status ScheduleSignTransaction::submitRequest(const Client& client,
-                                                    const std::chrono::system_clock::time_point& deadline,
+grpc::Status ScheduleSignTransaction::submitRequest(const proto::Transaction& request,
                                                     const std::shared_ptr<internal::Node>& node,
+                                                    const std::chrono::system_clock::time_point& deadline,
                                                     proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kScheduleSign, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kScheduleSign, request, deadline, response);
 }
 
 //-----
 void ScheduleSignTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_schedulesign(build());
+}
+
+//-----
+void ScheduleSignTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_schedulesign())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ScheduleSign data");
+  }
+
+  const proto::ScheduleSignTransactionBody& body = transactionBody.schedulesign();
+
+  if (body.has_scheduleid())
+  {
+    mScheduleId = ScheduleId::fromProtobuf(body.scheduleid());
+  }
 }
 
 //-----

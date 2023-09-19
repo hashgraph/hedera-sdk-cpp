@@ -30,13 +30,9 @@ using namespace Hedera;
 class ScheduleDeleteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const ScheduleId& getTestScheduleId() const { return mTestScheduleId; }
 
 private:
-  Client mClient;
   const ScheduleId mTestScheduleId = ScheduleId(1ULL);
 };
 
@@ -84,8 +80,10 @@ TEST_F(ScheduleDeleteTransactionTest, GetSetScheduleId)
 TEST_F(ScheduleDeleteTransactionTest, GetSetScheduleIdFrozen)
 {
   // Given
-  ScheduleDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ScheduleDeleteTransaction transaction = ScheduleDeleteTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setScheduleId(getTestScheduleId()), IllegalStateException);

@@ -49,6 +49,24 @@ std::unique_ptr<PublicKey> PublicKey::fromStringDer(std::string_view key)
 }
 
 //-----
+std::unique_ptr<PublicKey> PublicKey::fromBytes(const std::vector<std::byte>& bytes)
+{
+  if (bytes.size() == ED25519PublicKey::KEY_SIZE)
+  {
+    return ED25519PublicKey::fromBytes(bytes);
+  }
+  else if (bytes.size() == ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE ||
+           bytes.size() == ECDSAsecp256k1PublicKey::UNCOMPRESSED_KEY_SIZE)
+  {
+    return ECDSAsecp256k1PublicKey::fromBytes(bytes);
+  }
+  else
+  {
+    return PublicKey::fromBytesDer(bytes);
+  }
+}
+
+//-----
 std::unique_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<std::byte>& bytes)
 {
   if (internal::Utilities::isPrefixOf(bytes, ED25519PublicKey::DER_ENCODED_PREFIX_BYTES))
@@ -73,7 +91,7 @@ std::unique_ptr<PublicKey> PublicKey::fromAliasBytes(const std::vector<std::byte
 
   if (std::unique_ptr<Key> key = Key::fromProtobuf(protoKey); auto* publicKey = dynamic_cast<PublicKey*>(key.get()))
   {
-    key.release();
+    key.release(); // NOLINT
     return std::unique_ptr<PublicKey>(publicKey);
   }
   else

@@ -19,8 +19,7 @@
  */
 #include "impl/MirrorNetwork.h"
 #include "impl/MirrorNode.h"
-
-#include <random>
+#include "impl/Utilities.h"
 
 namespace Hedera::internal
 {
@@ -57,35 +56,48 @@ MirrorNetwork MirrorNetwork::forNetwork(const std::vector<std::string>& networkM
 }
 
 //-----
+MirrorNetwork& MirrorNetwork::setNetwork(const std::vector<std::string>& network)
+{
+  std::unordered_map<std::string, BaseNodeAddress> networkMap;
+  for (const auto& address : network)
+  {
+    networkMap.try_emplace(address, BaseNodeAddress::fromString(address));
+  }
+
+  BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode>::setNetwork(networkMap);
+  return *this;
+}
+
+//-----
+std::vector<std::string> MirrorNetwork::getNetwork() const
+{
+  std::vector<std::string> network;
+  for (const auto& [address, nodes] : BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode>::getNetworkInternal())
+  {
+    network.push_back(address.toString());
+  }
+
+  return network;
+}
+
+//-----
 std::shared_ptr<MirrorNode> MirrorNetwork::getNextMirrorNode() const
 {
-  if (mNodes.empty())
+  if (getNodes().empty())
   {
     return nullptr;
   }
 
-  static std::random_device rd;
-  static std::mt19937 gen(rd());
-  std::uniform_int_distribution distribution(0, static_cast<int>(mNodes.size()) - 1);
-  return mNodes.at(distribution(gen));
+  auto nodeIter = getNodes().cbegin();
+  std::advance(nodeIter, Utilities::getRandomNumber(0U, static_cast<unsigned int>(getNodes().size()) - 1U));
+  return *nodeIter;
 }
 
 //-----
-void MirrorNetwork::close() const
+std::shared_ptr<MirrorNode> MirrorNetwork::createNodeFromNetworkEntry(std::string_view address,
+                                                                      const BaseNodeAddress&) const
 {
-  for (const auto& node : mNodes)
-  {
-    node->shutdown();
-  }
-}
-
-//-----
-void MirrorNetwork::setNetwork(const std::vector<std::string>& addresses)
-{
-  for (const std::string& str : addresses)
-  {
-    mNodes.push_back(std::make_shared<MirrorNode>(str));
-  }
+  return std::make_shared<MirrorNode>(address);
 }
 
 } // namespace Hedera::internal

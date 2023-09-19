@@ -34,9 +34,6 @@ using namespace Hedera;
 class TokenMintTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
   [[nodiscard]] inline const uint64_t& getTestAmount() const { return mTestAmount; }
   [[nodiscard]] inline const std::vector<std::vector<std::byte>>& getTestMetadataList() const
@@ -45,7 +42,6 @@ protected:
   }
 
 private:
-  Client mClient;
   const TokenId mTestTokenId = TokenId(1ULL, 2ULL, 3ULL);
   const uint64_t mTestAmount = 4ULL;
   const std::vector<std::vector<std::byte>> mTestMetadataList = {
@@ -97,8 +93,10 @@ TEST_F(TokenMintTransactionTest, GetSetTokenId)
 TEST_F(TokenMintTransactionTest, GetSetTokenIdFrozen)
 {
   // Given
-  TokenMintTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenMintTransaction transaction = TokenMintTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTokenId(getTestTokenId()), IllegalStateException);
@@ -121,8 +119,10 @@ TEST_F(TokenMintTransactionTest, GetSetAmount)
 TEST_F(TokenMintTransactionTest, GetSetAmountFrozen)
 {
   // Given
-  TokenMintTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenMintTransaction transaction = TokenMintTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setAmount(getTestAmount()), IllegalStateException);
@@ -145,8 +145,10 @@ TEST_F(TokenMintTransactionTest, GetSetMetadata)
 TEST_F(TokenMintTransactionTest, GetSetMetadataFrozen)
 {
   // Given
-  TokenMintTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  TokenMintTransaction transaction = TokenMintTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setMetadata(getTestMetadataList()), IllegalStateException);
@@ -164,4 +166,18 @@ TEST_F(TokenMintTransactionTest, AddMetadata)
 
   // Then
   EXPECT_EQ(tokenMintTransaction.getMetadata(), std::vector<std::vector<std::byte>>{ metadata });
+}
+
+//-----
+TEST_F(TokenMintTransactionTest, AddMetadataFrozen)
+{
+  // Given
+  TokenMintTransaction transaction = TokenMintTransaction()
+                                       .setNodeAccountIds({ AccountId(1ULL) })
+                                       .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  const std::vector<std::byte> metadata = { std::byte(0x0E), std::byte(0x0F) };
+  ASSERT_NO_THROW(transaction.freeze());
+
+  // When / Then
+  EXPECT_THROW(transaction.addMetadata(metadata), IllegalStateException);
 }

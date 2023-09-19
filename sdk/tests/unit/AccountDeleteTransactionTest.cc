@@ -30,14 +30,10 @@ using namespace Hedera;
 class AccountDeleteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const AccountId& getTestDeleteAccountId() const { return mDeleteAccountId; }
   [[nodiscard]] inline const AccountId& getTestTransferAccountId() const { return mTransferAccountId; }
 
 private:
-  Client mClient;
   const AccountId mDeleteAccountId = AccountId(1ULL);
   const AccountId mTransferAccountId = AccountId(2ULL);
 };
@@ -89,8 +85,10 @@ TEST_F(AccountDeleteTransactionTest, SetDeleteAccountId)
 TEST_F(AccountDeleteTransactionTest, SetDeleteAccountIdFrozen)
 {
   // Given
-  AccountDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountDeleteTransaction transaction = AccountDeleteTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setDeleteAccountId(getTestDeleteAccountId()), IllegalStateException);
@@ -113,8 +111,10 @@ TEST_F(AccountDeleteTransactionTest, SetTransferAccountId)
 TEST_F(AccountDeleteTransactionTest, SetTransferAccountIdFrozen)
 {
   // Given
-  AccountDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  AccountDeleteTransaction transaction = AccountDeleteTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTransferAccountId(getTestTransferAccountId()), IllegalStateException);

@@ -31,29 +31,15 @@ namespace Hedera
 TokenWipeTransaction::TokenWipeTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenWipeTransaction>(transactionBody)
 {
-  if (!transactionBody.has_tokenwipe())
-  {
-    throw std::invalid_argument("Transaction body doesn't contain TokenWipe data");
-  }
+  initFromSourceTransactionBody();
+}
 
-  const proto::TokenWipeAccountTransactionBody& body = transactionBody.tokenwipe();
-
-  if (body.has_token())
-  {
-    mTokenId = TokenId::fromProtobuf(body.token());
-  }
-
-  if (body.has_account())
-  {
-    mAccountId = AccountId::fromProtobuf(body.account());
-  }
-
-  mAmount = body.amount();
-
-  for (int i = 0; i < body.serialnumbers_size(); ++i)
-  {
-    mSerialNumbers.push_back(static_cast<uint64_t>(body.serialnumbers(i)));
-  }
+//-----
+TokenWipeTransaction::TokenWipeTransaction(
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<TokenWipeTransaction>(transactions)
+{
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -89,25 +75,48 @@ TokenWipeTransaction& TokenWipeTransaction::setSerialNumbers(const std::vector<u
 }
 
 //-----
-proto::Transaction TokenWipeTransaction::makeRequest(const Client& client, const std::shared_ptr<internal::Node>&) const
-{
-  return signTransaction(generateTransactionBody(&client), client);
-}
-
-//-----
-grpc::Status TokenWipeTransaction::submitRequest(const Client& client,
-                                                 const std::chrono::system_clock::time_point& deadline,
+grpc::Status TokenWipeTransaction::submitRequest(const proto::Transaction& request,
                                                  const std::shared_ptr<internal::Node>& node,
+                                                 const std::chrono::system_clock::time_point& deadline,
                                                  proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(
-    proto::TransactionBody::DataCase::kTokenWipe, makeRequest(client, node), deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenWipe, request, deadline, response);
 }
 
 //-----
 void TokenWipeTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenwipe(build());
+}
+
+//-----
+void TokenWipeTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokenwipe())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain TokenWipe data");
+  }
+
+  const proto::TokenWipeAccountTransactionBody& body = transactionBody.tokenwipe();
+
+  if (body.has_token())
+  {
+    mTokenId = TokenId::fromProtobuf(body.token());
+  }
+
+  if (body.has_account())
+  {
+    mAccountId = AccountId::fromProtobuf(body.account());
+  }
+
+  mAmount = body.amount();
+
+  for (int i = 0; i < body.serialnumbers_size(); ++i)
+  {
+    mSerialNumbers.push_back(static_cast<uint64_t>(body.serialnumbers(i)));
+  }
 }
 
 //-----

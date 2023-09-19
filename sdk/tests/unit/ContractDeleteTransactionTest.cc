@@ -34,15 +34,11 @@ using namespace Hedera;
 class ContractDeleteTransactionTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get()); }
-
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
   [[nodiscard]] inline const AccountId& getTestTransferAccountId() const { return mTestTransferAccountId; }
   [[nodiscard]] inline const ContractId& getTestTransferContractId() const { return mTestTransferContractId; }
 
 private:
-  Client mClient;
   const ContractId mTestContractId = ContractId(1ULL);
   const AccountId mTestTransferAccountId = AccountId(2ULL);
   const ContractId mTestTransferContractId = ContractId(3ULL);
@@ -99,8 +95,10 @@ TEST_F(ContractDeleteTransactionTest, GetSetContractId)
 TEST_F(ContractDeleteTransactionTest, GetSetContractIdFrozen)
 {
   // Given
-  ContractDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractDeleteTransaction transaction = ContractDeleteTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setContractId(getTestContractId()), IllegalStateException);
@@ -123,8 +121,10 @@ TEST_F(ContractDeleteTransactionTest, GetSetTransferAccountId)
 TEST_F(ContractDeleteTransactionTest, GetSetTransferAccountIdFrozen)
 {
   // Given
-  ContractDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractDeleteTransaction transaction = ContractDeleteTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTransferAccountId(getTestTransferAccountId()), IllegalStateException);
@@ -147,8 +147,10 @@ TEST_F(ContractDeleteTransactionTest, GetSetTransferContractId)
 TEST_F(ContractDeleteTransactionTest, GetSetTransferContractIdFrozen)
 {
   // Given
-  ContractDeleteTransaction transaction;
-  ASSERT_NO_THROW(transaction.freezeWith(&getTestClient()));
+  ContractDeleteTransaction transaction = ContractDeleteTransaction()
+                                            .setNodeAccountIds({ AccountId(1ULL) })
+                                            .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
   EXPECT_THROW(transaction.setTransferContractId(getTestTransferContractId()), IllegalStateException);

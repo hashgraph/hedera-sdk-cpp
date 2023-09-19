@@ -150,6 +150,16 @@ template<typename T>
  */
 [[nodiscard]] std::string byteVectorToString(const std::vector<std::byte>& bytes);
 
+/**
+ * Get a random number between the two input inclusive bounds.
+ *
+ * @param lowerBound The lower bound of the random number.
+ * @param upperBound The upper bound of the random number.
+ * @return A random number between the two bounds.
+ * @throws std::invalid_argument If lowerBound is greater than or equal to upperBound.
+ */
+[[nodiscard]] unsigned int getRandomNumber(unsigned int lowerBound, unsigned int upperBound);
+
 } // namespace Hedera::internal::Utilities
 
 #endif // HEDERA_SDK_CPP_IMPL_UTILITIES_H_
