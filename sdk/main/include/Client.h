@@ -119,7 +119,7 @@ public:
    *
    * After this method returns, this Client can be re-used. All network communication can be re-established as needed.
    */
-  void close() const;
+  void close();
 
   /**
    * Set the length of time a request sent by this Client can be processed before it times out.
@@ -293,6 +293,13 @@ public:
   [[nodiscard]] std::optional<std::chrono::duration<double>> getMaxBackoff() const;
 
   /**
+   * Get the period of time this Client wait between updating its network.
+   *
+   * @return The period of time this Client wait between updating its network.
+   */
+  [[nodiscard]] std::chrono::duration<double> getNetworkUpdatePeriod() const;
+
+  /**
    * Get a pointer to the MirrorNetwork being used by this client.
    *
    * @return A pointer to the MirrorNetwork being used by this client.
@@ -300,6 +307,13 @@ public:
   [[nodiscard]] std::shared_ptr<internal::MirrorNetwork> getMirrorNetwork() const;
 
 private:
+  /**
+   * Start the network update thread.
+   *
+   * @param period The period of time to wait before a network update is performed.
+   */
+  void startNetworkUpdateThread(const std::chrono::duration<double>& period);
+
   /**
    * Schedule a network update a certain period of time from when this is called.
    *
@@ -311,6 +325,14 @@ private:
    * Cancel any scheduled network updates.
    */
   void cancelScheduledNetworkUpdate();
+
+  /**
+   * Helper function used for moving a Client implementation into this Client, as well as doing network update thread
+   * handling.
+   *
+   * @param other The Client to move into this Client.
+   */
+  void moveClient(Client&& other);
 
   /**
    * Implementation object used to hide implementation details and internal headers.

@@ -80,6 +80,17 @@ struct Client::ClientImpl
   // The period of time to wait between network updates.
   std::chrono::duration<double> mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
 
+  // Has this Client made its initial network update? This is utilized in case the user updates the network update
+  // period before the initial update is made, as it prevents the update period from being overwritten.
+  bool mMadeInitialNetworkUpdate = false;
+
+  // Is this Client trying to cancel its network update? Used to signal to the network update thread that it should
+  // shut down.
+  bool mCancelUpdate = false;
+
+  // The time at which this Client started waiting to update. This is needed in case Clients get moved.
+  std::chrono::system_clock::time_point mStartNetworkUpdateWaitTime;
+
   // The mutex for updating this Client.
   std::mutex mMutex;
 
@@ -87,7 +98,7 @@ struct Client::ClientImpl
   std::condition_variable mConditionVariable;
 
   // The thread that handles the network updates.
-  std::thread mNetworkUpdateThread;
+  std::unique_ptr<std::thread> mNetworkUpdateThread = nullptr;
 };
 
 //-----
@@ -95,7 +106,7 @@ Client::Client()
   : mImpl(std::make_unique<ClientImpl>())
 {
   // Start the network update thread.
-  mImpl->mNetworkUpdateThread = std::thread(&Client::scheduleNetworkUpdate, this, DEFAULT_NETWORK_UPDATE_INITIAL_DELAY);
+  startNetworkUpdateThread(DEFAULT_NETWORK_UPDATE_INITIAL_DELAY);
 }
 
 //-----
@@ -106,8 +117,9 @@ Client::~Client()
 
 //-----
 Client::Client(Client&& other) noexcept
-  : mImpl(std::move(other.mImpl))
 {
+  moveClient(std::move(other));
+
   // Leave moved-from object in a valid state
   other.mImpl = std::make_unique<ClientImpl>();
 }
@@ -115,10 +127,14 @@ Client::Client(Client&& other) noexcept
 //-----
 Client& Client::operator=(Client&& other) noexcept
 {
-  mImpl = std::move(other.mImpl);
+  if (this != &other)
+  {
+    moveClient(std::move(other));
 
-  // Leave moved-from object in a valid state
-  other.mImpl = std::make_unique<ClientImpl>();
+    // Leave moved-from object in a valid state
+    other.mImpl = std::make_unique<ClientImpl>();
+  }
+
   return *this;
 }
 
@@ -174,8 +190,10 @@ Client& Client::setOperator(const AccountId& accountId, const PrivateKey* privat
   return *this;
 }
 
-void Client::close() const
+void Client::close()
 {
+  cancelScheduledNetworkUpdate();
+
   if (mImpl->mNetwork)
   {
     mImpl->mNetwork->close();
@@ -262,10 +280,14 @@ Client& Client::setNetworkUpdatePeriod(const std::chrono::duration<double>& upda
   // Cancel any previous network updates and wait for the thread to complete.
   cancelScheduledNetworkUpdate();
 
-  // Start the new network update period thread.
-  std::unique_lock lock(mImpl->mMutex);
+  // Update the network update period.
   mImpl->mNetworkUpdatePeriod = update;
-  mImpl->mNetworkUpdateThread = std::thread(&Client::scheduleNetworkUpdate, this, mImpl->mNetworkUpdatePeriod);
+
+  // If this was called before the initial network update was made, the initial update should be skipped.
+  mImpl->mMadeInitialNetworkUpdate = true;
+
+  // Start the thread with the new network update period.
+  startNetworkUpdateThread(mImpl->mNetworkUpdatePeriod);
   return *this;
 }
 
@@ -338,18 +360,32 @@ std::optional<std::chrono::duration<double>> Client::getMaxBackoff() const
 }
 
 //-----
+std::chrono::duration<double> Client::getNetworkUpdatePeriod() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetworkUpdatePeriod;
+}
+
+//-----
 std::shared_ptr<internal::MirrorNetwork> Client::getMirrorNetwork() const
 {
   return mImpl->mMirrorNetwork;
 }
 
 //-----
+void Client::startNetworkUpdateThread(const std::chrono::duration<double>& period)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
+  mImpl->mNetworkUpdateThread = std::make_unique<std::thread>(&Client::scheduleNetworkUpdate, this, period);
+}
+
+//-----
 void Client::scheduleNetworkUpdate(const std::chrono::duration<double>& period)
 {
-  // Wait for the period of time to pass and update the network. If the network update is cancelled (i.e.
-  // mNetworkUpdatePeriod is set to zero), do nothing.
+  // Wait for the period of time to pass and update the network. If the network update is being cancelled, do nothing.
   if (std::unique_lock lock(mImpl->mMutex);
-      mImpl->mConditionVariable.wait_for(lock, period, [this]() { return mImpl->mNetworkUpdatePeriod.count() == 0; }))
+      !mImpl->mConditionVariable.wait_for(lock, period, [this]() { return mImpl->mCancelUpdate; }))
   {
     // Get the address book.
     const NodeAddressBook nodeAddressBook = AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this);
@@ -362,7 +398,15 @@ void Client::scheduleNetworkUpdate(const std::chrono::duration<double>& period)
     }
     mImpl->mNetwork->setNetwork(addressBookMap);
 
-    // Schedule the next network update
+    // Adjust the network update period if this is the initial update.
+    if (!mImpl->mMadeInitialNetworkUpdate)
+    {
+      mImpl->mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
+      mImpl->mMadeInitialNetworkUpdate = true;
+    }
+
+    // Schedule the next network update.
+    mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
     return scheduleNetworkUpdate(mImpl->mNetworkUpdatePeriod);
   }
 }
@@ -370,15 +414,49 @@ void Client::scheduleNetworkUpdate(const std::chrono::duration<double>& period)
 //-----
 void Client::cancelScheduledNetworkUpdate()
 {
-  // Zeroing out the update period will signal to the update thread that it's time to quit.
-  std::unique_lock lock(mImpl->mMutex);
-  mImpl->mNetworkUpdatePeriod = std::chrono::system_clock::duration::zero();
+  // Only cancel if there's a network update scheduled.
+  if (!mImpl->mNetworkUpdateThread)
+  {
+    return;
+  }
 
   // Signal the thread to stop and wait for it to stop.
+  mImpl->mCancelUpdate = true;
   mImpl->mConditionVariable.notify_one();
-  if (mImpl->mNetworkUpdateThread.joinable())
+  if (mImpl->mNetworkUpdateThread->joinable())
   {
-    mImpl->mNetworkUpdateThread.join();
+    mImpl->mNetworkUpdateThread->join();
+    mImpl->mNetworkUpdateThread = nullptr;
+  }
+
+  // The update thread is closed at this point, reset mCancelUpdate.
+  mImpl->mCancelUpdate = false;
+}
+
+//-----
+void Client::moveClient(Client&& other)
+{
+  // If there's a network update thread running in the moved-from Client, it can't be simply moved. Since it still holds
+  // a reference to the moved-from Client, the thread must be stopped and restarted in this Client with the remaining
+  // time so that the Client reference can be updated to this Client and no longer be pointing to a moved-from Client.
+  if (other.mImpl->mNetworkUpdateThread)
+  {
+    // Cancel the update.
+    other.cancelScheduledNetworkUpdate();
+
+    // Move the implementation to this Client.
+    mImpl = std::move(other.mImpl);
+
+    // Start the network update thread with the remaining time.
+    startNetworkUpdateThread(
+      mImpl->mStartNetworkUpdateWaitTime +
+      std::chrono::duration_cast<std::chrono::system_clock::duration>(mImpl->mNetworkUpdatePeriod) -
+      std::chrono::system_clock::now());
+  }
+  else
+  {
+    // If there was no update thread running, simply move the implementation.
+    mImpl = std::move(other.mImpl);
   }
 }
 

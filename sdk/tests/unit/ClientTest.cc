@@ -37,10 +37,15 @@ class ClientTest : public ::testing::Test
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
+  [[nodiscard]] inline const std::chrono::duration<double>& getTestNetworkUpdatePeriod() const
+  {
+    return mTestNetworkUpdatePeriod;
+  }
 
 private:
   const AccountId mAccountId = AccountId(10ULL);
   const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::chrono::duration<double> mTestNetworkUpdatePeriod = std::chrono::seconds(2);
 };
 
 //-----
@@ -89,4 +94,17 @@ TEST_F(ClientTest, SetDefaultMaxTransactionFee)
 
   // Negative value should throw
   EXPECT_THROW(client.setMaxTransactionFee(fee.negated()), std::invalid_argument);
+}
+
+//-----
+TEST_F(ClientTest, SetNetworkUpdatePeriod)
+{
+  // Given
+  Client client;
+
+  // When
+  client.setNetworkUpdatePeriod(getTestNetworkUpdatePeriod());
+
+  // Then
+  EXPECT_EQ(client.getNetworkUpdatePeriod(), getTestNetworkUpdatePeriod());
 }
