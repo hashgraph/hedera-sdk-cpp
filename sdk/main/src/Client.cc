@@ -117,6 +117,7 @@ Client::~Client()
 
 //-----
 Client::Client(Client&& other) noexcept
+  : mImpl(std::make_unique<ClientImpl>())
 {
   moveClient(std::move(other));
 
@@ -436,6 +437,7 @@ void Client::cancelScheduledNetworkUpdate()
 //-----
 void Client::moveClient(Client&& other)
 {
+  // Cancel this Client's network update if one exists.
   cancelScheduledNetworkUpdate();
 
   // If there's a network update thread running in the moved-from Client, it can't be simply moved. Since it still holds
@@ -443,9 +445,6 @@ void Client::moveClient(Client&& other)
   // time so that the Client reference can be updated to this Client and no longer be pointing to a moved-from Client.
   if (other.mImpl->mNetworkUpdateThread)
   {
-    // Cancel this Client's network update if one exists.
-    cancelScheduledNetworkUpdate();
-
     // Cancel the update.
     other.cancelScheduledNetworkUpdate();
 
