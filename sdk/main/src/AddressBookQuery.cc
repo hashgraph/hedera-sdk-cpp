@@ -51,10 +51,19 @@ NodeAddressBook AddressBookQuery::execute(const Client& client, const std::chron
                                          std::to_string(mMaxAttempts));
     }
 
+    // Grab the MirrorNode to use to send this AddressBookQuery and make sure its connected.
+    std::shared_ptr<internal::MirrorNode> node = client.getMirrorNetwork()->getNextMirrorNode();
+    while (node->channelFailedToConnect())
+    {
+      std::cout << "Failed to connect to node " << node->getAddress().toString() << " on attempt " << attempt
+                << std::endl;
+      node = client.getMirrorNetwork()->getNextMirrorNode();
+    }
+
     // Send this AddressBookQuery.
     grpc::ClientContext context;
     context.set_deadline(timeoutTime);
-    auto reader = client.getMirrorNetwork()->getNextMirrorNode()->getNetworkServiceStub()->getNodes(&context, build());
+    auto reader = node->getNetworkServiceStub()->getNodes(&context, build());
 
     // Container in which to put the received NodeAddresses.
     std::vector<NodeAddress> nodeAddresses;
