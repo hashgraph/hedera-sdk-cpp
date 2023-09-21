@@ -199,6 +199,15 @@ public:
   Client& setMaxBackoff(const std::chrono::duration<double>& backoff);
 
   /**
+   * Set the period of time this Client wait between updating its network. This will immediately cancel any scheduled
+   * network updates and start a new waiting period.
+   *
+   * @param update The period of time this Client wait between updating its network.
+   * @return A reference to this Client with the newly-set network update period.
+   */
+  Client& setNetworkUpdatePeriod(const std::chrono::duration<double>& update);
+
+  /**
    * Get a pointer to the Network this Client is using to communicate with consensus nodes.
    *
    * @return A pointer to the Network this Client is using to communicate with consensus nodes.
@@ -291,6 +300,18 @@ public:
   [[nodiscard]] std::shared_ptr<internal::MirrorNetwork> getMirrorNetwork() const;
 
 private:
+  /**
+   * Schedule a network update a certain period of time from when this is called.
+   *
+   * @param period The period of time to wait before a network update is performed.
+   */
+  void scheduleNetworkUpdate(const std::chrono::duration<double>& period);
+
+  /**
+   * Cancel any scheduled network updates.
+   */
+  void cancelScheduledNetworkUpdate();
+
   /**
    * Implementation object used to hide implementation details and internal headers.
    */

@@ -19,8 +19,8 @@
  */
 #include "impl/Network.h"
 #include "AccountId.h"
-#include "impl/Endpoint.h"
-#include "impl/NodeAddress.h"
+#include "Endpoint.h"
+#include "NodeAddress.h"
 
 #include <algorithm>
 #include <cmath>
@@ -47,9 +47,9 @@ Network Network::forPreviewnet()
 }
 
 //-----
-Network Network::forNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
+Network Network::forNetwork(const std::unordered_map<std::string, AccountId>& network)
 {
-  return Network(networkMap);
+  return Network(network);
 }
 
 //-----
@@ -146,6 +146,7 @@ Network::Network(const std::unordered_map<std::string, AccountId>& network)
 Network Network::getNetworkForLedgerId(const LedgerId& ledgerId)
 {
   const std::unordered_map<AccountId, NodeAddress> addressBook = getAddressBookForLedgerId(ledgerId);
+
   std::unordered_map<std::string, AccountId> network;
   for (const auto& [accountId, nodeAddress] : addressBook)
   {
@@ -198,7 +199,7 @@ Network& Network::setLedgerIdInternal(const LedgerId& ledgerId,
   // Set the ledger ID.
   BaseNetwork<Network, AccountId, Node>::setLedgerId(ledgerId);
 
-  // Update each Node's address book entry with the new address book.
+  // Update the node certificate hash of each node.
   std::for_each(getNodes().cbegin(),
                 getNodes().cend(),
                 [&addressBook](const std::shared_ptr<Node>& node)

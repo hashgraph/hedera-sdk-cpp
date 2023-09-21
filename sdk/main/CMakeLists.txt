@@ -12,6 +12,7 @@ add_library(${PROJECT_NAME} STATIC
         src/AccountRecordsQuery.cc
         src/AccountStakersQuery.cc
         src/AccountUpdateTransaction.cc
+        src/AddressBookQuery.cc
         src/AssessedCustomFee.cc
         src/ChunkedTransaction.cc
         src/Client.cc
@@ -40,6 +41,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ECDSAsecp256k1PublicKey.cc
         src/ED25519PrivateKey.cc
         src/ED25519PublicKey.cc
+        src/Endpoint.cc
         src/EthereumFlow.cc
         src/EthereumTransaction.cc
         src/EthereumTransactionData.cc
@@ -61,6 +63,7 @@ add_library(${PROJECT_NAME} STATIC
         src/FreezeType.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc
+        src/IPv4Address.cc
         src/Key.cc
         src/KeyList.cc
         src/LedgerId.cc
@@ -69,6 +72,8 @@ add_library(${PROJECT_NAME} STATIC
         src/NetworkVersionInfo.cc
         src/NetworkVersionInfoQuery.cc
         src/NftId.cc
+        src/NodeAddress.cc
+        src/NodeAddressBook.cc
         src/PrivateKey.cc
         src/ProxyStaker.cc
         src/PublicKey.cc
@@ -136,17 +141,13 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/BaseNode.cc
         src/impl/BaseNodeAddress.cc
         src/impl/DerivationPathUtils.cc
-        src/impl/Endpoint.cc
         src/impl/DurationConverter.cc
         src/impl/HederaCertificateVerifier.cc
         src/impl/HexConverter.cc
-        src/impl/IPv4Address.cc
         src/impl/MirrorNetwork.cc
         src/impl/MirrorNode.cc
         src/impl/Network.cc
         src/impl/Node.cc
-        src/impl/NodeAddress.cc
-        src/impl/NodeAddressBook.cc
         src/impl/OpenSSLUtils.cc
         src/impl/RLPItem.cc
         src/impl/TimestampConverter.cc

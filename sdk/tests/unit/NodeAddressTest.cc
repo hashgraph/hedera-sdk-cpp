@@ -17,10 +17,10 @@
  * limitations under the License.
  *
  */
-#include "impl/NodeAddress.h"
+#include "NodeAddress.h"
 #include "AccountId.h"
-#include "impl/Endpoint.h"
-#include "impl/IPv4Address.h"
+#include "Endpoint.h"
+#include "IPv4Address.h"
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>

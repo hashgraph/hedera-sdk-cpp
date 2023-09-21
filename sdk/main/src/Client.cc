@@ -19,16 +19,19 @@
  */
 #include "Client.h"
 #include "AccountId.h"
+#include "AddressBookQuery.h"
 #include "Defaults.h"
 #include "Hbar.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
-#include "exceptions/UninitializedException.h"
 #include "impl/MirrorNetwork.h"
 #include "impl/Network.h"
 #include "impl/ValuePtr.h"
 
+#include <condition_variable>
+#include <mutex>
 #include <stdexcept>
+#include <thread>
 
 namespace Hedera
 {
@@ -73,12 +76,26 @@ struct Client::ClientImpl
   // The maximum length of time a request sent to a Node by this Client will wait before attempting to send a request
   // again after a failure to the same Node. A manually-set maximum backoff in the request will override this.
   std::optional<std::chrono::duration<double>> mMaxBackoff;
+
+  // The period of time to wait between network updates.
+  std::chrono::duration<double> mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
+
+  // The mutex for updating this Client.
+  std::mutex mMutex;
+
+  // The condition variable for the network update.
+  std::condition_variable mConditionVariable;
+
+  // The thread that handles the network updates.
+  std::thread mNetworkUpdateThread;
 };
 
 //-----
 Client::Client()
   : mImpl(std::make_unique<ClientImpl>())
 {
+  // Start the network update thread.
+  mImpl->mNetworkUpdateThread = std::thread(&Client::scheduleNetworkUpdate, this, DEFAULT_NETWORK_UPDATE_INITIAL_DELAY);
 }
 
 //-----
@@ -137,7 +154,6 @@ Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& netw
 {
   Client client;
   client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
-  client.mImpl->mMirrorNetwork = nullptr;
   return client;
 }
 
@@ -241,6 +257,19 @@ Client& Client::setMaxBackoff(const std::chrono::duration<double>& backoff)
 }
 
 //-----
+Client& Client::setNetworkUpdatePeriod(const std::chrono::duration<double>& update)
+{
+  // Cancel any previous network updates and wait for the thread to complete.
+  cancelScheduledNetworkUpdate();
+
+  // Start the new network update period thread.
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mNetworkUpdatePeriod = update;
+  mImpl->mNetworkUpdateThread = std::thread(&Client::scheduleNetworkUpdate, this, mImpl->mNetworkUpdatePeriod);
+  return *this;
+}
+
+//-----
 std::shared_ptr<internal::Network> Client::getNetwork() const
 {
   return mImpl->mNetwork;
@@ -312,6 +341,45 @@ std::optional<std::chrono::duration<double>> Client::getMaxBackoff() const
 std::shared_ptr<internal::MirrorNetwork> Client::getMirrorNetwork() const
 {
   return mImpl->mMirrorNetwork;
+}
+
+//-----
+void Client::scheduleNetworkUpdate(const std::chrono::duration<double>& period)
+{
+  // Wait for the period of time to pass and update the network. If the network update is cancelled (i.e.
+  // mNetworkUpdatePeriod is set to zero), do nothing.
+  if (std::unique_lock lock(mImpl->mMutex);
+      mImpl->mConditionVariable.wait_for(lock, period, [this]() { return mImpl->mNetworkUpdatePeriod.count() == 0; }))
+  {
+    // Get the address book.
+    const NodeAddressBook nodeAddressBook = AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this);
+
+    // Set the network based on the address book.
+    std::unordered_map<std::string, AccountId> addressBookMap;
+    for (const auto& nodeAddress : nodeAddressBook.getNodeAddresses())
+    {
+      addressBookMap[nodeAddress.toString()] = nodeAddress.getAccountId();
+    }
+    mImpl->mNetwork->setNetwork(addressBookMap);
+
+    // Schedule the next network update
+    return scheduleNetworkUpdate(mImpl->mNetworkUpdatePeriod);
+  }
+}
+
+//-----
+void Client::cancelScheduledNetworkUpdate()
+{
+  // Zeroing out the update period will signal to the update thread that it's time to quit.
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mNetworkUpdatePeriod = std::chrono::system_clock::duration::zero();
+
+  // Signal the thread to stop and wait for it to stop.
+  mImpl->mConditionVariable.notify_one();
+  if (mImpl->mNetworkUpdateThread.joinable())
+  {
+    mImpl->mNetworkUpdateThread.join();
+  }
 }
 
 } // namespace Hedera

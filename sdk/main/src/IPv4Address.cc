@@ -17,11 +17,11 @@
  * limitations under the License.
  *
  */
-#include "impl/IPv4Address.h"
+#include "IPv4Address.h"
 
 #include <stdexcept>
 
-namespace Hedera::internal
+namespace Hedera
 {
 //-----
 IPv4Address IPv4Address::fromBytes(const std::vector<std::byte>& bytes)
@@ -51,4 +51,4 @@ std::string IPv4Address::toString() const
          std::to_string(std::to_integer<unsigned char>(mAddress.at(3)));
 }
 
-} // namespace Hedera::internal
+} // namespace Hedera

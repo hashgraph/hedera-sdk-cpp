@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_ENDPOINT_H_
-#define HEDERA_SDK_CPP_IMPL_ENDPOINT_H_
+#ifndef HEDERA_SDK_CPP_ENDPOINT_H_
+#define HEDERA_SDK_CPP_ENDPOINT_H_
 
 #include "IPv4Address.h"
 
@@ -30,7 +30,7 @@ namespace proto
 class ServiceEndpoint;
 }
 
-namespace Hedera::internal
+namespace Hedera
 {
 /**
  * A network endpoint, which contains an IPv4 address and a port.
@@ -102,6 +102,6 @@ private:
   unsigned int mPort = 0U;
 };
 
-} // namespace Hedera::internal
+} // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_IMPL_ENDPOINT_H_
+#endif // HEDERA_SDK_CPP_ENDPOINT_H_

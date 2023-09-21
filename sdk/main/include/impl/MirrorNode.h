@@ -21,6 +21,7 @@
 #define HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_
 
 #include <proto/mirror/consensus_service.grpc.pb.h>
+#include <proto/mirror/mirror_network_service.grpc.pb.h>
 
 #include "BaseNode.h"
 
@@ -71,6 +72,16 @@ public:
     return mConsensusStub;
   }
 
+  /**
+   * Get a pointer to the NetworkService stub used by this MirrorNode.
+   *
+   * @return A pointer ot the NetworkService stub used by this MirrorNode.
+   */
+  [[nodiscard]] std::shared_ptr<com::hedera::mirror::api::proto::NetworkService::Stub> getNetworkServiceStub() const
+  {
+    return mNetworkStub;
+  }
+
 private:
   /**
    * Derived from BaseNode. Get the authority of this MirrorNode.
@@ -95,6 +106,11 @@ private:
    * Pointer to the gRPC stub used to communicate with the consensus service living on the remote mirror node.
    */
   std::shared_ptr<com::hedera::mirror::api::proto::ConsensusService::Stub> mConsensusStub = nullptr;
+
+  /**
+   * Pointer to the gRPC stub used to communicate with the network service living on the remote mirror node.
+   */
+  std::shared_ptr<com::hedera::mirror::api::proto::NetworkService::Stub> mNetworkStub = nullptr;
 };
 
 } // namespace Hedera::internal

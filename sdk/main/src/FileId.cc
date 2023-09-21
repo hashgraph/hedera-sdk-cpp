@@ -26,6 +26,15 @@
 namespace Hedera
 {
 //-----
+const FileId FileId::ADDRESS_BOOK = FileId(0ULL, 0ULL, 102ULL);
+
+//-----
+const FileId FileId::FEE_SCHEDULE = FileId(0ULL, 0ULL, 111ULL);
+
+//-----
+const FileId FileId::EXCHANGE_RATES = FileId(0ULL, 0ULL, 112ULL);
+
+//-----
 FileId::FileId(const uint64_t& num)
   : mFileNum(num)
 {

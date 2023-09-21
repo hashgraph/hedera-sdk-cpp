@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "impl/NodeAddress.h"
+#include "NodeAddress.h"
+#include "IPv4Address.h"
 #include "impl/HexConverter.h"
-#include "impl/IPv4Address.h"
 #include "impl/Utilities.h"
 
 #include <iomanip>
@@ -27,7 +27,7 @@
 #include <proto/basic_types.pb.h>
 #include <sstream>
 
-namespace Hedera::internal
+namespace Hedera
 {
 //-----
 NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress)
@@ -36,7 +36,7 @@ NodeAddress NodeAddress::fromProtobuf(const proto::NodeAddress& protoNodeAddress
   outputNodeAddress.mRSAPublicKey = protoNodeAddress.rsa_pubkey();
   outputNodeAddress.mNodeId = protoNodeAddress.nodeid();
   outputNodeAddress.mNodeAccountId = AccountId::fromProtobuf(protoNodeAddress.nodeaccountid());
-  outputNodeAddress.mNodeCertHash = Utilities::stringToByteVector(protoNodeAddress.nodecerthash());
+  outputNodeAddress.mNodeCertHash = internal::Utilities::stringToByteVector(protoNodeAddress.nodecerthash());
 
   for (int i = 0; i < protoNodeAddress.serviceendpoint_size(); ++i)
   {
@@ -55,7 +55,7 @@ std::unique_ptr<proto::NodeAddress> NodeAddress::toProtobuf() const
   protoNodeAddress->set_rsa_pubkey(mRSAPublicKey);
   protoNodeAddress->set_nodeid(mNodeId);
   protoNodeAddress->set_allocated_nodeaccountid(mNodeAccountId.toProtobuf().release());
-  protoNodeAddress->set_nodecerthash(Utilities::byteVectorToString(mNodeCertHash));
+  protoNodeAddress->set_nodecerthash(internal::Utilities::byteVectorToString(mNodeCertHash));
 
   for (const auto& endpoint : mEndpoints)
   {
@@ -79,7 +79,7 @@ std::string NodeAddress::toString() const
   outputStream << std::setw(columnWidth) << std::right << "Description: " << std::left << mDescription << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "RSA Public Key: " << std::left << mRSAPublicKey << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Certificate Hash: " << std::left
-               << HexConverter::bytesToHex(mNodeCertHash) << std::endl;
+               << internal::HexConverter::bytesToHex(mNodeCertHash) << std::endl;
   outputStream << std::setw(columnWidth) << std::right << "Endpoints: ";
 
   if (size_t endpointCount = mEndpoints.size(); !endpointCount)
@@ -136,7 +136,7 @@ NodeAddress& NodeAddress::setAccountId(const AccountId& accountId)
 //-----
 NodeAddress& NodeAddress::setCertHash(std::string_view certHash)
 {
-  mNodeCertHash = Utilities::stringToByteVector(certHash);
+  mNodeCertHash = internal::Utilities::stringToByteVector(certHash);
   return *this;
 }
 
@@ -161,4 +161,4 @@ NodeAddress& NodeAddress::setDescription(std::string_view description)
   return *this;
 }
 
-} // namespace Hedera::internal
+} // namespace Hedera

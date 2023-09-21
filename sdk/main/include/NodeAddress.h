@@ -17,11 +17,11 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_H_
-#define HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_H_
+#ifndef HEDERA_SDK_CPP_NODE_ADDRESS_H_
+#define HEDERA_SDK_CPP_NODE_ADDRESS_H_
 
 #include "AccountId.h"
-#include "impl/Endpoint.h"
+#include "Endpoint.h"
 
 #include <cstddef>
 #include <string>
@@ -33,7 +33,7 @@ namespace proto
 class NodeAddress;
 }
 
-namespace Hedera::internal
+namespace Hedera
 {
 /**
  * Class containing all information related to the address(es) of a node.
@@ -187,6 +187,6 @@ private:
   std::string mDescription;
 };
 
-} // namespace Hedera::internal
+} // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_H_
+#endif // HEDERA_SDK_CPP_NODE_ADDRESS_H_
