@@ -40,6 +40,21 @@ public:
   FileId() = default;
 
   /**
+   * The public NodeAddressBook for the current network.
+   */
+  [[maybe_unused]] static const FileId ADDRESS_BOOK;
+
+  /**
+   * The fee schedule for the current network.
+   */
+  [[maybe_unused]] static const FileId FEE_SCHEDULE;
+
+  /**
+   * The current exchange rate of HBAR to USD for the current network.
+   */
+  [[maybe_unused]] static const FileId EXCHANGE_RATES;
+
+  /**
    * Construct with a file number.
    *
    * @param num The desired file number.

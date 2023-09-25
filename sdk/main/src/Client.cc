@@ -19,16 +19,19 @@
  */
 #include "Client.h"
 #include "AccountId.h"
+#include "AddressBookQuery.h"
 #include "Defaults.h"
 #include "Hbar.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
-#include "exceptions/UninitializedException.h"
 #include "impl/MirrorNetwork.h"
 #include "impl/Network.h"
 #include "impl/ValuePtr.h"
 
+#include <condition_variable>
+#include <mutex>
 #include <stdexcept>
+#include <thread>
 
 namespace Hedera
 {
@@ -73,12 +76,37 @@ struct Client::ClientImpl
   // The maximum length of time a request sent to a Node by this Client will wait before attempting to send a request
   // again after a failure to the same Node. A manually-set maximum backoff in the request will override this.
   std::optional<std::chrono::duration<double>> mMaxBackoff;
+
+  // The period of time to wait between network updates.
+  std::chrono::duration<double> mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
+
+  // Has this Client made its initial network update? This is utilized in case the user updates the network update
+  // period before the initial update is made, as it prevents the update period from being overwritten.
+  bool mMadeInitialNetworkUpdate = false;
+
+  // Is this Client trying to cancel its network update? Used to signal to the network update thread that it should
+  // shut down.
+  bool mCancelUpdate = false;
+
+  // The time at which this Client started waiting to update. This is needed in case Clients get moved.
+  std::chrono::system_clock::time_point mStartNetworkUpdateWaitTime;
+
+  // The mutex for updating this Client.
+  std::mutex mMutex;
+
+  // The condition variable for the network update.
+  std::condition_variable mConditionVariable;
+
+  // The thread that handles the network updates.
+  std::unique_ptr<std::thread> mNetworkUpdateThread = nullptr;
 };
 
 //-----
 Client::Client()
   : mImpl(std::make_unique<ClientImpl>())
 {
+  // Start the network update thread.
+  startNetworkUpdateThread(DEFAULT_NETWORK_UPDATE_INITIAL_DELAY);
 }
 
 //-----
@@ -89,19 +117,25 @@ Client::~Client()
 
 //-----
 Client::Client(Client&& other) noexcept
-  : mImpl(std::move(other.mImpl))
+  : mImpl(std::make_unique<ClientImpl>())
 {
+  moveClient(std::move(other));
+
   // Leave moved-from object in a valid state
-  other.mImpl = std::make_unique<ClientImpl>();
+  other.mImpl = std::make_unique<ClientImpl>(); // NOLINT
 }
 
 //-----
 Client& Client::operator=(Client&& other) noexcept
 {
-  mImpl = std::move(other.mImpl);
+  if (this != &other)
+  {
+    moveClient(std::move(other));
 
-  // Leave moved-from object in a valid state
-  other.mImpl = std::make_unique<ClientImpl>();
+    // Leave moved-from object in a valid state
+    other.mImpl = std::make_unique<ClientImpl>(); // NOLINT
+  }
+
   return *this;
 }
 
@@ -137,7 +171,6 @@ Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& netw
 {
   Client client;
   client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
-  client.mImpl->mMirrorNetwork = nullptr;
   return client;
 }
 
@@ -158,8 +191,10 @@ Client& Client::setOperator(const AccountId& accountId, const PrivateKey* privat
   return *this;
 }
 
-void Client::close() const
+void Client::close()
 {
+  cancelScheduledNetworkUpdate();
+
   if (mImpl->mNetwork)
   {
     mImpl->mNetwork->close();
@@ -241,6 +276,23 @@ Client& Client::setMaxBackoff(const std::chrono::duration<double>& backoff)
 }
 
 //-----
+Client& Client::setNetworkUpdatePeriod(const std::chrono::duration<double>& update)
+{
+  // Cancel any previous network updates and wait for the thread to complete.
+  cancelScheduledNetworkUpdate();
+
+  // Update the network update period.
+  mImpl->mNetworkUpdatePeriod = update;
+
+  // If this was called before the initial network update was made, the initial update should be skipped.
+  mImpl->mMadeInitialNetworkUpdate = true;
+
+  // Start the thread with the new network update period.
+  startNetworkUpdateThread(mImpl->mNetworkUpdatePeriod);
+  return *this;
+}
+
+//-----
 std::shared_ptr<internal::Network> Client::getNetwork() const
 {
   return mImpl->mNetwork;
@@ -309,9 +361,107 @@ std::optional<std::chrono::duration<double>> Client::getMaxBackoff() const
 }
 
 //-----
+std::chrono::duration<double> Client::getNetworkUpdatePeriod() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetworkUpdatePeriod;
+}
+
+//-----
 std::shared_ptr<internal::MirrorNetwork> Client::getMirrorNetwork() const
 {
   return mImpl->mMirrorNetwork;
+}
+
+//-----
+void Client::startNetworkUpdateThread(const std::chrono::duration<double>& period)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
+  mImpl->mNetworkUpdateThread = std::make_unique<std::thread>(&Client::scheduleNetworkUpdate, this, period);
+}
+
+//-----
+void Client::scheduleNetworkUpdate(const std::chrono::duration<double>& period)
+{
+  // Wait for the period of time to pass and update the network. If the network update is being cancelled, do nothing.
+  if (std::unique_lock lock(mImpl->mMutex);
+      !mImpl->mConditionVariable.wait_for(lock, period, [this]() { return mImpl->mCancelUpdate; }))
+  {
+    // Get the address book.
+    const NodeAddressBook nodeAddressBook = AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this);
+
+    // Set the network based on the address book.
+    std::unordered_map<std::string, AccountId> addressBookMap;
+    for (const auto& nodeAddress : nodeAddressBook.getNodeAddresses())
+    {
+      addressBookMap[nodeAddress.toString()] = nodeAddress.getAccountId();
+    }
+    mImpl->mNetwork->setNetwork(addressBookMap);
+
+    // Adjust the network update period if this is the initial update.
+    if (!mImpl->mMadeInitialNetworkUpdate)
+    {
+      mImpl->mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
+      mImpl->mMadeInitialNetworkUpdate = true;
+    }
+
+    // Schedule the next network update.
+    mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
+    return scheduleNetworkUpdate(mImpl->mNetworkUpdatePeriod);
+  }
+}
+
+//-----
+void Client::cancelScheduledNetworkUpdate()
+{
+  // Only cancel if there's a network update scheduled.
+  if (!mImpl->mNetworkUpdateThread)
+  {
+    return;
+  }
+
+  // Signal the thread to stop and wait for it to stop.
+  mImpl->mCancelUpdate = true;
+  mImpl->mConditionVariable.notify_one();
+  if (mImpl->mNetworkUpdateThread->joinable())
+  {
+    mImpl->mNetworkUpdateThread->join();
+    mImpl->mNetworkUpdateThread = nullptr;
+  }
+
+  // The update thread is closed at this point, reset mCancelUpdate.
+  mImpl->mCancelUpdate = false;
+}
+
+//-----
+void Client::moveClient(Client&& other)
+{
+  // Cancel this Client's network update if one exists.
+  cancelScheduledNetworkUpdate();
+
+  // If there's a network update thread running in the moved-from Client, it can't be simply moved. Since it still holds
+  // a reference to the moved-from Client, the thread must be stopped and restarted in this Client with the remaining
+  // time so that the Client reference can be updated to this Client and no longer be pointing to a moved-from Client.
+  if (other.mImpl->mNetworkUpdateThread)
+  {
+    // Cancel the update.
+    other.cancelScheduledNetworkUpdate();
+
+    // Move the implementation to this Client.
+    mImpl = std::move(other.mImpl);
+
+    // Start the network update thread with the remaining time.
+    startNetworkUpdateThread(
+      mImpl->mStartNetworkUpdateWaitTime +
+      std::chrono::duration_cast<std::chrono::system_clock::duration>(mImpl->mNetworkUpdatePeriod) -
+      std::chrono::system_clock::now());
+  }
+  else
+  {
+    // If there was no update thread running, simply move the implementation.
+    mImpl = std::move(other.mImpl);
+  }
 }
 
 } // namespace Hedera

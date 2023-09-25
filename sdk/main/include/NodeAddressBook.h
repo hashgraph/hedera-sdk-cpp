@@ -17,10 +17,10 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_BOOK_H_
-#define HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_BOOK_H_
+#ifndef HEDERA_SDK_CPP_NODE_ADDRESS_BOOK_H_
+#define HEDERA_SDK_CPP_NODE_ADDRESS_BOOK_H_
 
-#include "impl/NodeAddress.h"
+#include "NodeAddress.h"
 
 #include <cstddef>
 #include <vector>
@@ -30,7 +30,7 @@ namespace proto
 class NodeAddressBook;
 }
 
-namespace Hedera::internal
+namespace Hedera
 {
 /**
  * An address book containing all known nodes on the network.
@@ -90,6 +90,6 @@ private:
   std::vector<NodeAddress> mNodeAddresses;
 };
 
-} // namespace Hedera::internal
+} // namespace Hedera
 
-#endif // HEDERA_SDK_CPP_IMPL_NODE_ADDRESS_BOOK_H_
+#endif // HEDERA_SDK_CPP_NODE_ADDRESS_BOOK_H_

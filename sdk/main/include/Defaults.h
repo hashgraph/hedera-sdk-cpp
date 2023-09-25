@@ -83,6 +83,14 @@ constexpr auto DEFAULT_CHUNK_SIZE = 1024U;
  * The default number of chunks for a ChunkedTransaction.
  */
 constexpr auto DEFAULT_MAX_CHUNKS = 20U;
+/**
+ * The default amount of time to wait after a network update to update again.
+ */
+constexpr auto DEFAULT_NETWORK_UPDATE_PERIOD = std::chrono::hours(24);
+/**
+ * The default amount of time to wait after Client creation to update the network for the first time.
+ */
+constexpr auto DEFAULT_NETWORK_UPDATE_INITIAL_DELAY = std::chrono::seconds(10);
 
 }
 

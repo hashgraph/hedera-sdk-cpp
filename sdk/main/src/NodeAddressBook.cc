@@ -17,12 +17,12 @@
  * limitations under the License.
  *
  */
-#include "impl/NodeAddressBook.h"
+#include "NodeAddressBook.h"
 #include "impl/Utilities.h"
 
 #include <proto/basic_types.pb.h>
 
-namespace Hedera::internal
+namespace Hedera
 {
 //-----
 NodeAddressBook NodeAddressBook::fromProtobuf(const proto::NodeAddressBook& proto)
@@ -59,7 +59,7 @@ std::unique_ptr<proto::NodeAddressBook> NodeAddressBook::toProtobuf() const
 //-----
 std::vector<std::byte> NodeAddressBook::toBytes() const
 {
-  return Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
 //-----
@@ -69,4 +69,4 @@ NodeAddressBook& NodeAddressBook::setNodeAddresses(const std::vector<NodeAddress
   return *this;
 }
 
-} // namespace Hedera::internal
+} // namespace Hedera

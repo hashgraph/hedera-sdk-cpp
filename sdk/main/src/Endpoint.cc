@@ -17,18 +17,18 @@
  * limitations under the License.
  *
  */
-#include "impl/Endpoint.h"
+#include "Endpoint.h"
 #include "impl/Utilities.h"
 
 #include <proto/basic_types.pb.h>
 
-namespace Hedera::internal
+namespace Hedera
 {
 //-----
 Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& protoServiceEndpoint)
 {
   return Endpoint()
-    .setAddress(IPv4Address::fromBytes(Utilities::stringToByteVector(protoServiceEndpoint.ipaddressv4())))
+    .setAddress(IPv4Address::fromBytes(internal::Utilities::stringToByteVector(protoServiceEndpoint.ipaddressv4())))
     .setPort(static_cast<unsigned int>(protoServiceEndpoint.port()));
 }
 
@@ -36,7 +36,7 @@ Endpoint Endpoint::fromProtobuf(const proto::ServiceEndpoint& protoServiceEndpoi
 std::unique_ptr<proto::ServiceEndpoint> Endpoint::toProtobuf() const
 {
   auto proto = std::make_unique<proto::ServiceEndpoint>();
-  proto->set_ipaddressv4(Utilities::byteVectorToString(mAddress.toBytes()));
+  proto->set_ipaddressv4(internal::Utilities::byteVectorToString(mAddress.toBytes()));
   proto->set_port(static_cast<int32_t>(mPort));
   return proto;
 }
@@ -61,4 +61,4 @@ Endpoint& Endpoint::setPort(unsigned int port)
   return *this;
 }
 
-} // namespace Hedera::internal
+} // namespace Hedera

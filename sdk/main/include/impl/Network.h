@@ -62,7 +62,7 @@ public:
   [[nodiscard]] static Network forPreviewnet();
 
   /**
-   * Construct a custom Network.
+   * Construct a custom Network from a map of node addresses to their corresponding AccountId.
    *
    * @param network The map with string representation of node addresses with their corresponding AccountIds.
    * @return A Network object that is set-up to communicate with the custom network.

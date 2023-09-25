@@ -41,12 +41,18 @@ void MirrorNode::initializeStubs(const std::shared_ptr<grpc::Channel>& channel)
   {
     mConsensusStub = com::hedera::mirror::api::proto::ConsensusService::NewStub(channel);
   }
+
+  if (!mNetworkStub)
+  {
+    mNetworkStub = com::hedera::mirror::api::proto::NetworkService::NewStub(channel);
+  }
 }
 
 //-----
 void MirrorNode::closeStubs()
 {
   mConsensusStub = nullptr;
+  mNetworkStub = nullptr;
 }
 
 } // namespace Hedera::internal
