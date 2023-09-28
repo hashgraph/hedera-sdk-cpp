@@ -17,27 +17,41 @@
  * limitations under the License.
  *
  */
+#include "AccountBalance.h"
+#include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
 #include "AccountId.h"
+#include "AccountInfo.h"
+#include "AccountInfoQuery.h"
+#include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 #include "PublicKey.h"
 #include "TransactionReceipt.h"
+#include "TransactionRecord.h"
 #include "TransactionResponse.h"
+#include "TransferTransaction.h"
+#include "exceptions/UninitializedException.h"
+#include "impl/Utilities.h"
 
 #include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 using json = nlohmann::json;
+using namespace std;
 using namespace Hedera;
 
-class ClientIntegrationTest : public ::testing::Test
+class ClientIntegrationTest : public BaseIntegrationTest
 {
 protected:
+  // [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const std::string_view& getJsonNetworkTag() const { return mJsonNetworkTag; }
   [[nodiscard]] inline const std::string_view& getJsonOperatorTag() const { return mJsonOperatorTag; }
   [[nodiscard]] inline const std::string_view& getJsonAccountIdTag() const { return mJsonAccountIdTag; }
@@ -53,6 +67,8 @@ protected:
   [[nodiscard]] inline const std::chrono::milliseconds getAboveMaxBackoffTime() const { return mAboveMaxBackoffTime; }
 
 private:
+  // Client mClient;
+
   const std::string_view mJsonNetworkTag = "network";
   const std::string_view mJsonOperatorTag = "operator";
   const std::string_view mJsonAccountIdTag = "accountId";
@@ -172,4 +188,53 @@ TEST_F(ClientIntegrationTest, SetValidMaxBackoff)
   // When / Then
   EXPECT_NO_THROW(client.setMaxBackoff(DEFAULT_MIN_BACKOFF));
   EXPECT_NO_THROW(client.setMaxBackoff(DEFAULT_MAX_BACKOFF));
+}
+
+//-----
+TEST_F(ClientIntegrationTest, SetNetworkIskWorkingCorrectly)
+{
+  // Given
+  const std::unique_ptr<PrivateKey> myPrivateKey = ED25519PrivateKey::fromString(
+    "302e020100300506032b6570042204202e000363977258a41f418cf84a7df9cf1e8ae98b72de86803e64846defa43054");
+  const AccountId accountId_3 = AccountId::fromString("0.0.3");
+  const AccountId accountId_4 = AccountId::fromString("0.0.4");
+  const AccountId accountId_5 = AccountId::fromString("0.0.5");
+
+  std::unordered_map<std::string, AccountId> testnetMap;
+  testnetMap.insert(std::pair<std::string, AccountId>("34.94.106.61:50211", accountId_3));
+  testnetMap.insert(std::pair<std::string, AccountId>("35.237.119.55:50211", accountId_4));
+
+  cout << "!!! Got accountId_3 & accountId_4 !!!" << endl << endl;
+
+  Client client = Client::forNetwork(testnetMap);
+
+  cout << "!!! START !!!" << endl << endl;
+
+  // Given
+  AccountBalance accountBalance_3;
+  AccountBalance accountBalance_4;
+  AccountBalance accountBalance_5;
+
+  ASSERT_NO_THROW(accountBalance_3 = AccountBalanceQuery().setAccountId(accountId_3).execute(client));
+  ASSERT_NO_THROW(accountBalance_4 = AccountBalanceQuery().setAccountId(accountId_4).execute(client));
+
+  cout << "Balance for Account 3: " << accountBalance_3.getBalance().toTinybars() << " tynibars." << endl;
+  cout << "Balance for Account 4: " << accountBalance_4.getBalance().toTinybars() << " tynibars." << endl << endl;
+
+  // When / Then
+  std::unordered_map<std::string, AccountId> newTestnetMap;
+  newTestnetMap.insert(std::pair<std::string, AccountId>("35.237.119.55:50211", accountId_4));
+  newTestnetMap.insert(std::pair<std::string, AccountId>("35.245.27.193:50211", accountId_5));
+
+  client.setNetwork(newTestnetMap);
+
+  cout << "!!! newTestnetMap was configured !!!" << endl << endl;
+
+  ASSERT_NO_THROW(accountBalance_4 = AccountBalanceQuery().setAccountId(accountId_4).execute(client));
+  ASSERT_NO_THROW(accountBalance_5 = AccountBalanceQuery().setAccountId(accountId_5).execute(client));
+
+  cout << "Balance for Account 4: " << accountBalance_4.getBalance().toTinybars() << " tynibars." << endl;
+  cout << "Balance for Account 5: " << accountBalance_5.getBalance().toTinybars() << " tynibars." << endl << endl;
+
+  cout << "!!! END !!!" << endl << endl;
 }
