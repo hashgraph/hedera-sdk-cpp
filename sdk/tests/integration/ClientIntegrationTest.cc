@@ -113,3 +113,109 @@ TEST_F(ClientIntegrationTest, ConnectToLocalNode)
   EXPECT_NE(client.getOperatorPublicKey(), nullptr);
   EXPECT_FALSE(newAccountId.toString().empty());
 }
+
+//-----
+TEST_F(ClientIntegrationTest, MinBackoff)
+{
+  // Given
+  const auto accountId = getAccountId();
+
+  const std::string_view accountIdStr = getAccountIdStr();
+  const std::string_view networkTag = getJsonNetworkTag();
+  const std::string_view operatorTag = getJsonOperatorTag();
+  const std::string_view accountIdTag = getJsonAccountIdTag();
+  const std::string_view privateKeyTag = getJsonPrivateKeyTag();
+
+  const std::string testPathToJSON = getPathToJSON();
+  const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+
+  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
+  const auto testInitialHbarBalance = Hbar(1000ULL, HbarUnit::TINYBAR());
+
+  AccountId operatorAccountId;
+  std::string operatorAccountPrivateKey;
+  std::ifstream testInputFile(testPathToJSON, std::ios::in);
+  std::string nodeAddressString;
+  json jsonData = json::parse(testInputFile);
+
+  if (jsonData[networkTag][accountIdStr].is_string())
+  {
+    nodeAddressString = jsonData[networkTag][accountIdStr];
+  }
+
+  if (jsonData[operatorTag][accountIdTag].is_string() && jsonData[operatorTag][privateKeyTag].is_string())
+  {
+    std::string operatorAccountIdStr = jsonData[operatorTag][accountIdTag];
+
+    operatorAccountId = AccountId::fromString(operatorAccountIdStr);
+    operatorAccountPrivateKey = jsonData[operatorTag][privateKeyTag];
+  }
+
+  testInputFile.close();
+
+  std::unordered_map<std::string, AccountId> networkMap;
+  networkMap.insert(std::pair<std::string, AccountId>(nodeAddressString, accountId));
+
+  // When
+  Client client = Client::forNetwork(networkMap);
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
+  client.setMinBackoff(std::chrono::seconds(5));
+  client.setMaxBackoff(std::chrono::seconds(7));
+
+  // Then
+  EXPECT_EQ(client.getOperatorAccountId()->toString(), operatorAccountId.toString());
+  EXPECT_NE(client.getOperatorPublicKey(), nullptr);
+}
+
+//-----
+TEST_F(ClientIntegrationTest, MaxBackoff)
+{
+  // Given
+  const auto accountId = getAccountId();
+
+  const std::string_view accountIdStr = getAccountIdStr();
+  const std::string_view networkTag = getJsonNetworkTag();
+  const std::string_view operatorTag = getJsonOperatorTag();
+  const std::string_view accountIdTag = getJsonAccountIdTag();
+  const std::string_view privateKeyTag = getJsonPrivateKeyTag();
+
+  const std::string testPathToJSON = getPathToJSON();
+  const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+
+  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
+  const auto testInitialHbarBalance = Hbar(1000ULL, HbarUnit::TINYBAR());
+
+  AccountId operatorAccountId;
+  std::string operatorAccountPrivateKey;
+  std::ifstream testInputFile(testPathToJSON, std::ios::in);
+  std::string nodeAddressString;
+  json jsonData = json::parse(testInputFile);
+
+  if (jsonData[networkTag][accountIdStr].is_string())
+  {
+    nodeAddressString = jsonData[networkTag][accountIdStr];
+  }
+
+  if (jsonData[operatorTag][accountIdTag].is_string() && jsonData[operatorTag][privateKeyTag].is_string())
+  {
+    std::string operatorAccountIdStr = jsonData[operatorTag][accountIdTag];
+
+    operatorAccountId = AccountId::fromString(operatorAccountIdStr);
+    operatorAccountPrivateKey = jsonData[operatorTag][privateKeyTag];
+  }
+
+  testInputFile.close();
+
+  std::unordered_map<std::string, AccountId> networkMap;
+  networkMap.insert(std::pair<std::string, AccountId>(nodeAddressString, accountId));
+
+  // When
+  Client client = Client::forNetwork(networkMap);
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
+  client.setMinBackoff(std::chrono::seconds(2));
+  client.setMaxBackoff(std::chrono::seconds(5));
+
+  // Then
+  EXPECT_EQ(client.getOperatorAccountId()->toString(), operatorAccountId.toString());
+  EXPECT_NE(client.getOperatorPublicKey(), nullptr);
+}
