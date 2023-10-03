@@ -136,21 +136,33 @@ public:
    *
    * @return The AccountId of this Node.
    */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; };
+  [[nodiscard]] inline AccountId getAccountId() const
+  {
+    std::unique_lock lock(*getLock());
+    return mAccountId;
+  };
 
   /**
    * Get the node certificate hash of this Node.
    *
    * @return The node certificate hash of this Node.
    */
-  [[nodiscard]] inline std::vector<std::byte> getNodeCertificateHash() const { return mNodeCertificateHash; }
+  [[nodiscard]] inline std::vector<std::byte> getNodeCertificateHash() const
+  {
+    std::unique_lock lock(*getLock());
+    return mNodeCertificateHash;
+  }
 
   /**
    * Get the certificate verification policy of this Node.
    *
    * @return \c TRUE if this Node is currently configured to verify certificates, otherwise \c FALSE.
    */
-  [[nodiscard]] inline bool getVerifyCertificates() const { return mVerifyCertificates; }
+  [[nodiscard]] inline bool getVerifyCertificates() const
+  {
+    std::unique_lock lock(*getLock());
+    return mVerifyCertificates;
+  }
 
 private:
   /**
@@ -169,11 +181,9 @@ private:
   [[nodiscard]] std::shared_ptr<grpc::ChannelCredentials> getTlsChannelCredentials() const override;
 
   /**
-   * Derived from BaseNode. Initialize the stubs in this Node with a gRPC channel.
-   *
-   * @param channel The gRPC channel with which to initialize the stubs.
+   * Derived from BaseNode. Initialize the stubs in this Node with this Node's gRPC channel.
    */
-  void initializeStubs(const std::shared_ptr<grpc::Channel>& channel) override;
+  void initializeStubs() override;
 
   /**
    * Derived from BaseNode. Close the stubs in this Node.

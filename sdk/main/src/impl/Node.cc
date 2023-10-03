@@ -18,7 +18,6 @@
  *
  */
 #include "impl/Node.h"
-#include "exceptions/UninitializedException.h"
 #include "impl/BaseNodeAddress.h"
 #include "impl/HederaCertificateVerifier.h"
 
@@ -46,6 +45,8 @@ grpc::Status Node::submitQuery(proto::Query::QueryCase funcEnum,
                                const std::chrono::system_clock::time_point& deadline,
                                proto::Response* response)
 {
+  std::unique_lock lock(*getLock());
+
   grpc::ClientContext context;
   context.set_deadline(deadline);
 
@@ -97,6 +98,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
                                      const std::chrono::system_clock::time_point& deadline,
                                      proto::TransactionResponse* response)
 {
+  std::unique_lock lock(*getLock());
+
   grpc::ClientContext context;
   context.set_deadline(deadline);
 
@@ -195,18 +198,25 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
 //-----
 Node& Node::toInsecure()
 {
-  return BaseNode<Node, AccountId>::setAddress(getAddress().toInsecure());
+  const BaseNodeAddress address = getAddress().toInsecure();
+
+  std::unique_lock lock(*getLock());
+  return BaseNode<Node, AccountId>::setAddress(address);
 }
 
 //-----
 Node& Node::toSecure()
 {
-  return BaseNode<Node, AccountId>::setAddress(getAddress().toSecure());
+  const BaseNodeAddress address = getAddress().toSecure();
+
+  std::unique_lock lock(*getLock());
+  return BaseNode<Node, AccountId>::setAddress(address);
 }
 
 //-----
 Node& Node::setNodeCertificateHash(const std::vector<std::byte>& hash)
 {
+  std::unique_lock lock(*getLock());
   mNodeCertificateHash = hash;
   return *this;
 }
@@ -214,6 +224,7 @@ Node& Node::setNodeCertificateHash(const std::vector<std::byte>& hash)
 //-----
 Node& Node::setVerifyCertificates(bool verify)
 {
+  std::unique_lock lock(*getLock());
   mVerifyCertificates = verify;
   return *this;
 }
@@ -251,17 +262,17 @@ std::shared_ptr<grpc::ChannelCredentials> Node::getTlsChannelCredentials() const
 }
 
 //-----
-void Node::initializeStubs(const std::shared_ptr<grpc::Channel>& channel)
+void Node::initializeStubs()
 {
   // clang-format off
-  if (!mConsensusStub)     mConsensusStub = proto::ConsensusService::NewStub(channel);
-  if (!mCryptoStub)        mCryptoStub = proto::CryptoService::NewStub(channel);
-  if (!mFileStub)          mFileStub = proto::FileService::NewStub(channel);
-  if (!mFreezeStub)        mFreezeStub = proto::FreezeService::NewStub(channel);
-  if (!mNetworkStub)       mNetworkStub = proto::NetworkService::NewStub(channel);
-  if (!mScheduleStub)      mScheduleStub = proto::ScheduleService::NewStub(channel);
-  if (!mSmartContractStub) mSmartContractStub = proto::SmartContractService::NewStub(channel);
-  if (!mTokenStub)         mTokenStub = proto::TokenService::NewStub(channel);
+  if (!mConsensusStub)     mConsensusStub = proto::ConsensusService::NewStub(getChannel());
+  if (!mCryptoStub)        mCryptoStub = proto::CryptoService::NewStub(getChannel());
+  if (!mFileStub)          mFileStub = proto::FileService::NewStub(getChannel());
+  if (!mFreezeStub)        mFreezeStub = proto::FreezeService::NewStub(getChannel());
+  if (!mNetworkStub)       mNetworkStub = proto::NetworkService::NewStub(getChannel());
+  if (!mScheduleStub)      mScheduleStub = proto::ScheduleService::NewStub(getChannel());
+  if (!mSmartContractStub) mSmartContractStub = proto::SmartContractService::NewStub(getChannel());
+  if (!mTokenStub)         mTokenStub = proto::TokenService::NewStub(getChannel());
   // clang-format on
 }
 

@@ -26,6 +26,7 @@
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
+#include <algorithm>
 #include <thread>
 
 namespace Hedera::internal
@@ -35,6 +36,8 @@ template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setNetwork(
   const std::unordered_map<std::string, KeyType>& network)
 {
+  std::unique_lock lock(*mMutex);
+
   // New containers to hold new network.
   std::unordered_map<KeyType, std::unordered_set<std::shared_ptr<NodeType>>> newNetwork;
   std::unordered_set<std::shared_ptr<NodeType>> newNodes;
@@ -43,18 +46,37 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setNetwork(
   // the newNodes list, or create a new NodeType for that entry.
   for (const auto& [address, key] : network)
   {
+    // Addresses can be added with the same IP addresses, but different ports. Since the different ports just represent
+    // a TLS connection or not, they shouldn't be treated as different NodeTypes. Grab just the IP address and use that
+    // to compare to the current NodeTypes.
+    const std::string ipAddress = BaseNodeAddress::fromString(address).getAddress();
+
     // Determine if this entry already has a NodeType.
     bool entryAlreadyExists = false;
     for (const auto& node : mNodes)
     {
-      if (node->getAddress().toString() == address && node->getKey() == key)
+      if (node->getAddress().getAddress() == ipAddress && node->getKey() == key)
       {
         // Move this node to the newNodes set and go to the next entry.
-        mNodes.erase(node);
-        newNodes.insert(node);
-        newNetwork[key].insert(node);
+        const std::shared_ptr<NodeType> extractedNode = mNodes.extract(node).value();
+        newNodes.insert(extractedNode);
+        newNetwork[key].insert(extractedNode);
         entryAlreadyExists = true;
         break;
+      }
+    }
+
+    // If the entry wasn't found, verify that the address doesn't match a node that has already been added to newNodes.
+    // Addresses can be repeated with different ports, so this makes sure duplicates don't get added.
+    if (!entryAlreadyExists)
+    {
+      for (const std::shared_ptr<NodeType>& node : newNodes)
+      {
+        if (node->getAddress().getAddress() == ipAddress && node->getKey() == key)
+        {
+          entryAlreadyExists = true;
+          break;
+        }
       }
     }
 
@@ -82,6 +104,8 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setNetwork(
   mNetwork = newNetwork;
   mHealthyNodes.clear();
 
+  // Try to readmit all nodes.
+  mEarliestReadmitTime = std::chrono::system_clock::now();
   readmitNodes();
 
   return static_cast<NetworkType&>(*this);
@@ -91,6 +115,7 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setNetwork(
 template<typename NetworkType, typename KeyType, typename NodeType>
 void BaseNetwork<NetworkType, KeyType, NodeType>::increaseBackoff(const std::shared_ptr<NodeType>& node)
 {
+  std::unique_lock lock(*mMutex);
   node->increaseBackoff();
   mHealthyNodes.erase(node);
 }
@@ -99,6 +124,7 @@ void BaseNetwork<NetworkType, KeyType, NodeType>::increaseBackoff(const std::sha
 template<typename NetworkType, typename KeyType, typename NodeType>
 void BaseNetwork<NetworkType, KeyType, NodeType>::decreaseBackoff(const std::shared_ptr<NodeType>& node) const
 {
+  std::unique_lock lock(*mMutex);
   node->decreaseBackoff();
 }
 
@@ -106,6 +132,7 @@ void BaseNetwork<NetworkType, KeyType, NodeType>::decreaseBackoff(const std::sha
 template<typename NetworkType, typename KeyType, typename NodeType>
 std::vector<std::shared_ptr<NodeType>> BaseNetwork<NetworkType, KeyType, NodeType>::getNodeProxies(const KeyType& key)
 {
+  std::unique_lock lock(*mMutex);
   readmitNodes();
   return { mNetwork[key].cbegin(), mNetwork[key].cend() };
 }
@@ -114,6 +141,7 @@ std::vector<std::shared_ptr<NodeType>> BaseNetwork<NetworkType, KeyType, NodeTyp
 template<typename NetworkType, typename KeyType, typename NodeType>
 void BaseNetwork<NetworkType, KeyType, NodeType>::close() const
 {
+  std::unique_lock lock(*mMutex);
   for (const std::shared_ptr<NodeType>& node : mNodes)
   {
     node->close();
@@ -124,6 +152,7 @@ void BaseNetwork<NetworkType, KeyType, NodeType>::close() const
 template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeAttempts(unsigned int attempts)
 {
+  std::unique_lock lock(*mMutex);
   mMaxNodeAttempts = attempts;
   return static_cast<NetworkType&>(*this);
 }
@@ -133,6 +162,7 @@ template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMinNodeBackoff(
   const std::chrono::duration<double>& backoff)
 {
+  std::unique_lock lock(*mMutex);
   mMinNodeBackoff = backoff;
   return static_cast<NetworkType&>(*this);
 }
@@ -142,6 +172,7 @@ template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeBackoff(
   const std::chrono::duration<double>& backoff)
 {
+  std::unique_lock lock(*mMutex);
   mMaxNodeBackoff = backoff;
   return static_cast<NetworkType&>(*this);
 }
@@ -151,6 +182,7 @@ template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMinNodeReadmitTime(
   const std::chrono::duration<double>& time)
 {
+  std::unique_lock lock(*mMutex);
   mMinNodeReadmitTime = time;
   return static_cast<NetworkType&>(*this);
 }
@@ -160,6 +192,7 @@ template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeReadmitTime(
   const std::chrono::duration<double>& time)
 {
+  std::unique_lock lock(*mMutex);
   mMaxNodeReadmitTime = time;
   return static_cast<NetworkType&>(*this);
 }
@@ -168,6 +201,7 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeReadmitTime(
 template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setCloseTimeout(const std::chrono::duration<double>& timeout)
 {
+  std::unique_lock lock(*mMutex);
   mCloseTimeout = timeout;
   return static_cast<NetworkType&>(*this);
 }
@@ -176,6 +210,7 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setCloseTimeout(const 
 template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setLedgerId(const LedgerId& ledgerId)
 {
+  std::unique_lock lock(*mMutex);
   mLedgerId = ledgerId;
   return static_cast<NetworkType&>(*this);
 }

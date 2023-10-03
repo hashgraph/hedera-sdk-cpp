@@ -87,8 +87,12 @@ int main(int argc, char** argv)
   /**
    * Step 2: Mint the NFTs.
    */
-  TransactionReceipt txReceipt =
-    TokenMintTransaction().setTokenId(tokenId).setMetadata(CIDs).execute(client).getReceipt(client);
+  TransactionReceipt txReceipt = TokenMintTransaction()
+                                   .setMaxTransactionFee(Hbar(10LL))
+                                   .setTokenId(tokenId)
+                                   .setMetadata(CIDs)
+                                   .execute(client)
+                                   .getReceipt(client);
   std::cout << "Minted " << txReceipt.mSerialNumbers.size() << " NFTs" << std::endl;
 
   /**

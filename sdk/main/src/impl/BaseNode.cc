@@ -34,16 +34,15 @@ namespace Hedera::internal
 template<typename NodeType, typename KeyType>
 void BaseNode<NodeType, KeyType>::close()
 {
-  closeStubs();
-
-  // The connection is closed automatically upon destruction of the channel.
-  mChannel = nullptr;
+  std::unique_lock lock(*mMutex);
+  closeChannel();
 }
 
 //-----
 template<typename NodeType, typename KeyType>
 void BaseNode<NodeType, KeyType>::increaseBackoff()
 {
+  std::unique_lock lock(*mMutex);
   ++mBadGrpcStatusCount;
   mReadmitTime =
     std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(mCurrentBackoff);
@@ -60,6 +59,7 @@ void BaseNode<NodeType, KeyType>::increaseBackoff()
 template<typename NodeType, typename KeyType>
 void BaseNode<NodeType, KeyType>::decreaseBackoff()
 {
+  std::unique_lock lock(*mMutex);
   mCurrentBackoff /= 2.0;
 
   // Make sure the current backoff doesn't go below the min backoff.
@@ -73,6 +73,7 @@ void BaseNode<NodeType, KeyType>::decreaseBackoff()
 template<typename NodeType, typename KeyType>
 bool BaseNode<NodeType, KeyType>::isHealthy() const
 {
+  std::unique_lock lock(*mMutex);
   return mReadmitTime < std::chrono::system_clock::now();
 }
 
@@ -80,6 +81,7 @@ bool BaseNode<NodeType, KeyType>::isHealthy() const
 template<typename NodeType, typename KeyType>
 bool BaseNode<NodeType, KeyType>::channelFailedToConnect()
 {
+  std::unique_lock lock(*mMutex);
   if (mIsConnected)
   {
     return false;
@@ -95,6 +97,7 @@ bool BaseNode<NodeType, KeyType>::channelFailedToConnect()
 template<typename NodeType, typename KeyType>
 std::chrono::duration<double> BaseNode<NodeType, KeyType>::getRemainingTimeForBackoff() const
 {
+  std::unique_lock lock(*mMutex);
   return mReadmitTime - std::chrono::system_clock::now();
 }
 
@@ -102,6 +105,7 @@ std::chrono::duration<double> BaseNode<NodeType, KeyType>::getRemainingTimeForBa
 template<typename NodeType, typename KeyType>
 NodeType& BaseNode<NodeType, KeyType>::setMinNodeBackoff(const std::chrono::duration<double>& backoff)
 {
+  std::unique_lock lock(*mMutex);
   if (mCurrentBackoff == mMinNodeBackoff)
   {
     mCurrentBackoff = backoff;
@@ -115,6 +119,7 @@ NodeType& BaseNode<NodeType, KeyType>::setMinNodeBackoff(const std::chrono::dura
 template<typename NodeType, typename KeyType>
 NodeType& BaseNode<NodeType, KeyType>::setMaxNodeBackoff(const std::chrono::duration<double>& backoff)
 {
+  std::unique_lock lock(*mMutex);
   mMaxNodeBackoff = backoff;
   return static_cast<NodeType&>(*this);
 }
@@ -131,7 +136,7 @@ template<typename NodeType, typename KeyType>
 NodeType& BaseNode<NodeType, KeyType>::setAddress(const BaseNodeAddress& address)
 {
   // Close the connection since the address is changing.
-  close();
+  closeChannel();
 
   mAddress = address;
   return static_cast<NodeType&>(*this);
@@ -157,7 +162,7 @@ std::shared_ptr<grpc::Channel> BaseNode<NodeType, KeyType>::getChannel()
                                          mAddress.isTransportSecurity() ? getTlsChannelCredentials()
                                                                         : grpc::InsecureChannelCredentials(),
                                          channelArguments);
-    initializeStubs(mChannel);
+    initializeStubs();
   }
 
   return mChannel;
@@ -168,6 +173,16 @@ template<typename NodeType, typename KeyType>
 std::shared_ptr<grpc::ChannelCredentials> BaseNode<NodeType, KeyType>::getTlsChannelCredentials() const
 {
   return grpc::experimental::TlsCredentials(grpc::experimental::TlsChannelCredentialsOptions());
+}
+
+//-----
+template<typename NodeType, typename KeyType>
+void BaseNode<NodeType, KeyType>::closeChannel()
+{
+  closeStubs();
+
+  // The connection is closed automatically upon destruction of the channel.
+  mChannel = nullptr;
 }
 
 /**

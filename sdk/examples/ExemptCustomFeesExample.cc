@@ -98,12 +98,13 @@ int main(int argc, char** argv)
 
   /**
    * Step 2: Create a fungible token that has three fractional fees.
-   *    - Fee #1 sends 1/100 of the transferred value to collector 0.0.A.
-   *    - Fee #2 sends 2/100 of the transferred value to collector 0.0.B.
-   *    - Fee #3 sends 3/100 of the transferred value to collector 0.0.C.
+   *    - Fee #1 sends 1/10th of the transferred value to collector 0.0.A.
+   *    - Fee #2 sends 2/10th of the transferred value to collector 0.0.B.
+   *    - Fee #3 sends 3/10th of the transferred value to collector 0.0.C.
    */
   const TokenId createdTokenId =
     TokenCreateTransaction()
+      .setMaxTransactionFee(Hbar(50LL))
       .setTokenName("HIP-573 Token")
       .setTokenSymbol("H573")
       .setInitialSupply(100000000ULL)

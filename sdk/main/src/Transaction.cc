@@ -78,6 +78,7 @@
 #include <proto/transaction_body.pb.h>
 #include <proto/transaction_contents.pb.h>
 #include <proto/transaction_list.pb.h>
+#include <proto/transaction_response.pb.h>
 #include <vector>
 
 namespace Hedera
