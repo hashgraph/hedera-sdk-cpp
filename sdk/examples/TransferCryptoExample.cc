@@ -24,6 +24,7 @@
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 #include "TransactionRecord.h"
+#include "TransactionRecordQuery.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 

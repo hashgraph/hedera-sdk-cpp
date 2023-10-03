@@ -71,6 +71,8 @@ MirrorNetwork& MirrorNetwork::setNetwork(const std::vector<std::string>& network
 //-----
 std::vector<std::string> MirrorNetwork::getNetwork() const
 {
+  std::unique_lock lock(*getLock());
+
   std::vector<std::string> network;
   for (const auto& [address, nodes] : BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode>::getNetworkInternal())
   {
@@ -83,6 +85,8 @@ std::vector<std::string> MirrorNetwork::getNetwork() const
 //-----
 std::shared_ptr<MirrorNode> MirrorNetwork::getNextMirrorNode() const
 {
+  std::unique_lock lock(*getLock());
+
   if (getNodes().empty())
   {
     return nullptr;

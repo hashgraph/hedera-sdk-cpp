@@ -60,6 +60,7 @@
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/transaction.pb.h>
+#include <thread>
 
 namespace Hedera
 {
@@ -110,8 +111,11 @@ Hbar Query<SdkRequestType, SdkResponseType>::getCost(const Client& client)
 template<typename SdkRequestType, typename SdkResponseType>
 Hbar Query<SdkRequestType, SdkResponseType>::getCost(const Client& client, const std::chrono::duration<double>& timeout)
 {
+  // Configure this Query to get the cost.
   mImpl->mGetCost = true;
   Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::execute(client, timeout);
+
+  // Reset this Query to not get the cost.
   mImpl->mGetCost = false;
 
   return mImpl->mCost;
@@ -241,7 +245,7 @@ void Query<SdkRequestType, SdkResponseType>::onExecute(const Client& client)
       throw UninitializedException("Client has not been initialized with a valid network");
     }
 
-    // Have the Client's network generate the node account IDs to which to send this Transaction.
+    // Have the Client's network generate the node account IDs to which to send this Query.
     Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::setNodeAccountIds(
       client.getNetwork()->getNodeAccountIdsForExecute());
   }
@@ -256,6 +260,9 @@ void Query<SdkRequestType, SdkResponseType>::onExecute(const Client& client)
   mImpl->mClient = &client;
 
   // Get the cost and make sure it's willing to be paid.
+  std::this_thread::sleep_for(
+    std::chrono::seconds(2)); // It's not really clear why this needs to be here, but if it isn't the incorrect
+                              // transaction fee is fetched. This should be investigated at a later point.
   mImpl->mCost = getCost(client);
   if (mImpl->mCost.toTinybars() > ((mImpl->mMaxPayment.has_value()) ? mImpl->mMaxPayment->toTinybars()
                                                                     : ((client.getMaxQueryPayment().has_value())

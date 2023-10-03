@@ -21,6 +21,8 @@
 #include "AccountId.h"
 #include "Endpoint.h"
 #include "NodeAddress.h"
+#include "NodeAddressBook.h"
+#include "impl/Node.h"
 
 #include <algorithm>
 #include <cmath>
@@ -53,6 +55,25 @@ Network Network::forNetwork(const std::unordered_map<std::string, AccountId>& ne
 }
 
 //-----
+std::unordered_map<std::string, AccountId> Network::getNetworkFromAddressBook(const NodeAddressBook& addressBook,
+                                                                              unsigned int port)
+{
+  std::unordered_map<std::string, AccountId> network;
+  for (const auto& nodeAddress : addressBook.getNodeAddresses())
+  {
+    for (const auto& endpoint : nodeAddress.getEndpoints())
+    {
+      if (endpoint.getPort() == port)
+      {
+        network[endpoint.toString()] = nodeAddress.getAccountId();
+      }
+    }
+  }
+
+  return network;
+}
+
+//-----
 Network& Network::setLedgerId(const LedgerId& ledgerId)
 {
   return setLedgerIdInternal(ledgerId, getAddressBookForLedgerId(ledgerId));
@@ -61,6 +82,7 @@ Network& Network::setLedgerId(const LedgerId& ledgerId)
 //-----
 Network& Network::setVerifyCertificates(bool verify)
 {
+  std::unique_lock lock(*getLock());
   mVerifyCertificates = verify;
 
   // Set the new certificate verification policy for all Nodes on this Network.
@@ -74,6 +96,7 @@ Network& Network::setVerifyCertificates(bool verify)
 //-----
 Network& Network::setMaxNodesPerRequest(unsigned int max)
 {
+  std::unique_lock lock(*getLock());
   mMaxNodesPerRequest = max;
   return *this;
 }
@@ -81,6 +104,7 @@ Network& Network::setMaxNodesPerRequest(unsigned int max)
 //-----
 Network& Network::setTransportSecurity(TLSBehavior tls)
 {
+  std::unique_lock lock(*getLock());
   if (isTransportSecurity() != tls)
   {
     for (const std::shared_ptr<Node>& node : getNodes())
@@ -113,13 +137,18 @@ Network& Network::setTransportSecurity(TLSBehavior tls)
 //-----
 std::vector<AccountId> Network::getNodeAccountIdsForExecute()
 {
+  std::unique_lock lock(*getLock());
+
+  // Get either the 1/3 most healthy nodes, or the number of most healthy nodes specified by mMaxNodesPerRequest.
+  const std::vector<std::shared_ptr<Node>> nodes = getNumberOfMostHealthyNodes(
+    mMaxNodesPerRequest > 0U ? std::min(mMaxNodesPerRequest, static_cast<unsigned int>(getNodes().size()))
+                             : static_cast<unsigned int>(std::ceil(static_cast<double>(getNodes().size()) / 3.0)));
+
   std::vector<AccountId> accountIds;
-  for (const std::shared_ptr<Node>& node : getNumberOfMostHealthyNodes(
-         mMaxNodesPerRequest > 0U ? std::min(mMaxNodesPerRequest, static_cast<unsigned int>(getNodes().size()))
-                                  : static_cast<unsigned int>(std::ceil(static_cast<double>(getNodes().size()) / 3.0))))
-  {
-    accountIds.push_back(node->getAccountId());
-  }
+  accountIds.reserve(nodes.size());
+  std::for_each(nodes.cbegin(),
+                nodes.cend(),
+                [&accountIds](const std::shared_ptr<Node>& node) { accountIds.push_back(node->getAccountId()); });
 
   return accountIds;
 }
@@ -127,11 +156,12 @@ std::vector<AccountId> Network::getNodeAccountIdsForExecute()
 //-----
 std::unordered_map<std::string, AccountId> Network::getNetwork() const
 {
+  std::unique_lock lock(*getLock());
   std::unordered_map<std::string, AccountId> network;
-  for (const std::shared_ptr<Node>& node : getNodes())
-  {
-    network[node->getAddress().toString()] = node->getAccountId();
-  }
+  std::for_each(getNodes().cbegin(),
+                getNodes().cend(),
+                [&network](const std::shared_ptr<Node>& node)
+                { network[node->getAddress().toString()] = node->getAccountId(); });
 
   return network;
 }
@@ -145,25 +175,13 @@ Network::Network(const std::unordered_map<std::string, AccountId>& network)
 //-----
 Network Network::getNetworkForLedgerId(const LedgerId& ledgerId)
 {
-  const std::unordered_map<AccountId, NodeAddress> addressBook = getAddressBookForLedgerId(ledgerId);
-
-  std::unordered_map<std::string, AccountId> network;
-  for (const auto& [accountId, nodeAddress] : addressBook)
-  {
-    for (const auto& endpoint : nodeAddress.getEndpoints())
-    {
-      if (endpoint.getPort() == BaseNodeAddress::PORT_NODE_PLAIN)
-      {
-        network[endpoint.toString()] = accountId;
-      }
-    }
-  }
-
-  return Network(network).setLedgerIdInternal(ledgerId, addressBook);
+  const NodeAddressBook addressBook = getAddressBookForLedgerId(ledgerId);
+  return Network(Network::getNetworkFromAddressBook(addressBook, BaseNodeAddress::PORT_NODE_PLAIN))
+    .setLedgerIdInternal(ledgerId, addressBook);
 }
 
 //-----
-std::unordered_map<AccountId, NodeAddress> Network::getAddressBookForLedgerId(const LedgerId& ledgerId)
+NodeAddressBook Network::getAddressBookForLedgerId(const LedgerId& ledgerId)
 {
   // The address book can only be fetched for known Hedera networks.
   if (!ledgerId.isKnownNetwork())
@@ -172,16 +190,7 @@ std::unordered_map<AccountId, NodeAddress> Network::getAddressBookForLedgerId(co
   }
 
   std::ifstream infile(ledgerId.toString() + ".pb", std::ios_base::binary);
-  const NodeAddressBook addressBook =
-    NodeAddressBook::fromBytes({ std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() });
-
-  std::unordered_map<AccountId, NodeAddress> addresses;
-  for (const auto& nodeAddress : addressBook.getNodeAddresses())
-  {
-    addresses[nodeAddress.getAccountId()] = nodeAddress;
-  }
-
-  return addresses;
+  return NodeAddressBook::fromBytes({ std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() });
 }
 
 //-----
@@ -193,21 +202,34 @@ std::shared_ptr<Node> Network::createNodeFromNetworkEntry(std::string_view addre
 }
 
 //-----
-Network& Network::setLedgerIdInternal(const LedgerId& ledgerId,
-                                      const std::unordered_map<AccountId, NodeAddress>& addressBook)
+Network& Network::setLedgerIdInternal(const LedgerId& ledgerId, const NodeAddressBook& addressBook)
 {
-  // Set the ledger ID.
+  // Set the ledger ID. Don't lock here because setLedgerId locks.
   BaseNetwork<Network, AccountId, Node>::setLedgerId(ledgerId);
 
-  // Update the node certificate hash of each node.
-  std::for_each(getNodes().cbegin(),
-                getNodes().cend(),
-                [&addressBook](const std::shared_ptr<Node>& node)
-                {
-                  node->setNodeCertificateHash(addressBook.empty()
-                                                 ? std::vector<std::byte>()
-                                                 : addressBook.at(node->getAccountId()).getCertHash());
-                });
+  // Reset the node certificate hash of each node if the address book is empty.
+  std::unique_lock lock(*getLock());
+  if (addressBook.getNodeAddresses().empty())
+  {
+    std::for_each(getNodes().cbegin(),
+                  getNodes().cend(),
+                  [](const std::shared_ptr<Node>& node) { node->setNodeCertificateHash({}); });
+  }
+  else
+  {
+    std::for_each(getNodes().cbegin(),
+                  getNodes().cend(),
+                  [&addressBook](const std::shared_ptr<Node>& node)
+                  {
+                    for (const NodeAddress& address : addressBook.getNodeAddresses())
+                    {
+                      if (node->getAccountId() == address.getAccountId())
+                      {
+                        node->setNodeCertificateHash(address.getCertHash());
+                      }
+                    }
+                  });
+  }
 
   return *this;
 }

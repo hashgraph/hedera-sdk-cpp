@@ -91,11 +91,9 @@ private:
   [[nodiscard]] inline std::string getAuthority() const override { return {}; }
 
   /**
-   * Derived from BaseNode. Initialize the stubs in this MirrorNode with a gRPC channel.
-   *
-   * @param channel The gRPC channel with which to initialize the stubs.
+   * Derived from BaseNode. Initialize the stubs in this MirrorNode with this MirrorNode's gRPC channel.
    */
-  void initializeStubs(const std::shared_ptr<grpc::Channel>& channel) override;
+  void initializeStubs() override;
 
   /**
    * Derived from BaseNode. Close the stubs in this MirrorNode.

@@ -22,10 +22,13 @@
 #include "AddressBookQuery.h"
 #include "Defaults.h"
 #include "Hbar.h"
+#include "NodeAddressBook.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
+#include "impl/BaseNodeAddress.h"
 #include "impl/MirrorNetwork.h"
 #include "impl/Network.h"
+#include "impl/TLSBehavior.h"
 #include "impl/ValuePtr.h"
 
 #include <condition_variable>
@@ -378,37 +381,42 @@ void Client::startNetworkUpdateThread(const std::chrono::duration<double>& perio
 {
   std::unique_lock lock(mImpl->mMutex);
   mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
-  mImpl->mNetworkUpdateThread = std::make_unique<std::thread>(&Client::scheduleNetworkUpdate, this, period);
+  mImpl->mNetworkUpdatePeriod = period;
+  mImpl->mNetworkUpdateThread = std::make_unique<std::thread>(&Client::scheduleNetworkUpdate, this);
 }
 
 //-----
-void Client::scheduleNetworkUpdate(const std::chrono::duration<double>& period)
+void Client::scheduleNetworkUpdate()
 {
-  // Wait for the period of time to pass and update the network. If the network update is being cancelled, do nothing.
-  if (std::unique_lock lock(mImpl->mMutex);
-      !mImpl->mConditionVariable.wait_for(lock, period, [this]() { return mImpl->mCancelUpdate; }))
+  // Network updates should keep occurring until they're cancelled.
+  while (true)
   {
-    // Get the address book.
-    const NodeAddressBook nodeAddressBook = AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this);
-
-    // Set the network based on the address book.
-    std::unordered_map<std::string, AccountId> addressBookMap;
-    for (const auto& nodeAddress : nodeAddressBook.getNodeAddresses())
+    if (std::unique_lock lock(mImpl->mMutex); !mImpl->mConditionVariable.wait_for(
+          lock, mImpl->mNetworkUpdatePeriod, [this]() { return mImpl->mCancelUpdate; }))
     {
-      addressBookMap[nodeAddress.toString()] = nodeAddress.getAccountId();
-    }
-    mImpl->mNetwork->setNetwork(addressBookMap);
+      // Get the address book and set the network based on the address book.
+      mImpl->mNetwork->setNetwork(internal::Network::getNetworkFromAddressBook(
+        AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this),
+        mImpl->mNetwork->isTransportSecurity() == internal::TLSBehavior::REQUIRE
+          ? internal::BaseNodeAddress::PORT_NODE_TLS
+          : internal::BaseNodeAddress::PORT_NODE_PLAIN));
 
-    // Adjust the network update period if this is the initial update.
-    if (!mImpl->mMadeInitialNetworkUpdate)
+      // Adjust the network update period if this is the initial update.
+      if (!mImpl->mMadeInitialNetworkUpdate)
+      {
+        mImpl->mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
+        mImpl->mMadeInitialNetworkUpdate = true;
+      }
+
+      // Schedule the next network update.
+      mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
+    }
+
+    // The network update was cancelled, stop looping.
+    else
     {
-      mImpl->mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
-      mImpl->mMadeInitialNetworkUpdate = true;
+      break;
     }
-
-    // Schedule the next network update.
-    mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
-    return scheduleNetworkUpdate(mImpl->mNetworkUpdatePeriod);
   }
 }
 
@@ -423,7 +431,7 @@ void Client::cancelScheduledNetworkUpdate()
 
   // Signal the thread to stop and wait for it to stop.
   mImpl->mCancelUpdate = true;
-  mImpl->mConditionVariable.notify_one();
+  mImpl->mConditionVariable.notify_all();
   if (mImpl->mNetworkUpdateThread->joinable())
   {
     mImpl->mNetworkUpdateThread->join();

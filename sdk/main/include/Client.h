@@ -315,11 +315,9 @@ private:
   void startNetworkUpdateThread(const std::chrono::duration<double>& period);
 
   /**
-   * Schedule a network update a certain period of time from when this is called.
-   *
-   * @param period The period of time to wait before a network update is performed.
+   * Schedule a network update.
    */
-  void scheduleNetworkUpdate(const std::chrono::duration<double>& period);
+  void scheduleNetworkUpdate();
 
   /**
    * Cancel any scheduled network updates.

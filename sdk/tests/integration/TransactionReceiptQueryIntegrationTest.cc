@@ -56,6 +56,7 @@ TEST_F(TransactionReceiptQueryIntegrationTest, CanGetTransactionReceipt)
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(
     txReceipt = TransactionReceiptQuery().setTransactionId(testTxResponse.getTransactionId()).execute(getTestClient()));
+  EXPECT_EQ(txReceipt.mTransactionId, testTxResponse.getTransactionId());
 
   // Clean up
   AccountId accountId;
