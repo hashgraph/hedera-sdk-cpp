@@ -182,7 +182,7 @@ private:
    * The amount of the token to mint. This is for tokens of type FUNGIBLE_COMMON. The amount provided must be in the
    * lowest denomination possible (i.e. if a token has 2 decimals, a value of 10,000 here will mint 100 tokens).
    */
-  uint64_t mAmount;
+  uint64_t mAmount = 0ULL;
 
   /**
    * The metadata of the NFTs to mint. This for tokens of type NON_FUNGIBLE_UNIQUE. Once an NFT is minted, its metadata

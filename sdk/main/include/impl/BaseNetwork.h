@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_BASE_NETWORK_H_
 #define HEDERA_SDK_CPP_IMPL_BASE_NETWORK_H_
 
+#include "AccountId.h"
 #include "BaseNode.h"
 #include "Defaults.h"
 #include "LedgerId.h"
@@ -27,6 +28,7 @@
 
 #include <chrono>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -222,6 +224,10 @@ protected:
   {
     return mNetwork;
   }
+  [[nodiscard]] inline std::unordered_map<KeyType, std::unordered_set<std::shared_ptr<NodeType>>> getNetworkInternal()
+  {
+    return mNetwork;
+  }
 
   /**
    * Get the list of NodeTypes on this BaseNetwork.
@@ -229,6 +235,14 @@ protected:
    * @return The list of NodeTypes on this BaseNetwork.
    */
   [[nodiscard]] inline const std::unordered_set<std::shared_ptr<NodeType>>& getNodes() const { return mNodes; }
+  [[nodiscard]] inline std::unordered_set<std::shared_ptr<NodeType>>& getNodes() { return mNodes; }
+
+  /**
+   * Get this BaseNetwork's mutex.
+   *
+   * @return This BaseNetwork's mutex.
+   */
+  [[nodiscard]] inline std::shared_ptr<std::mutex> getLock() const { return mMutex; }
 
 private:
   /**
@@ -317,6 +331,11 @@ private:
    * The ledger ID of the network.
    */
   LedgerId mLedgerId;
+
+  /**
+   * The mutex for this BaseNetwork, kept inside a std::shared_ptr to keep BaseNetwork copyable/movable.
+   */
+  std::shared_ptr<std::mutex> mMutex = std::make_shared<std::mutex>();
 };
 
 } // namespace Hedera::internal

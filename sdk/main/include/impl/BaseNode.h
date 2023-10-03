@@ -28,6 +28,7 @@
 #include <chrono>
 #include <grpcpp/channel.h>
 #include <grpcpp/security/credentials.h>
+#include <mutex>
 
 namespace Hedera::internal
 {
@@ -99,35 +100,62 @@ public:
    *
    * @return address The BaseNodeAddress of this BaseNode.
    */
-  [[nodiscard]] inline BaseNodeAddress getAddress() const { return mAddress; }
+  [[nodiscard]] inline BaseNodeAddress getAddress() const
+  {
+    std::unique_lock lock(*mMutex);
+    return mAddress;
+  }
 
   /**
    * Get the minimum amount of time for this BaseNode to backoff after a bad gRPC status is received.
    *
    * @return The minimum amount of time for this BaseNode to backoff after a bad gRPC status is received.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMinNodeBackoff() const { return mMinNodeBackoff; }
+  [[nodiscard]] inline std::chrono::duration<double> getMinNodeBackoff() const
+  {
+    std::unique_lock lock(*mMutex);
+    return mMinNodeBackoff;
+  }
 
   /**
    * Get the maximum amount of time for this BaseNode to backoff after a bad gRPC status is received.
    *
    * @return The maximum amount of time for this BaseNode to backoff after a bad gRPC status is received.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMaxNodeBackoff() const { return mMaxNodeBackoff; }
+  [[nodiscard]] inline std::chrono::duration<double> getMaxNodeBackoff() const
+  {
+    std::unique_lock lock(*mMutex);
+    return mMaxNodeBackoff;
+  }
 
   /**
    * Get the number of times this BaseNode has received a bad gRPC status when attempting to submit a request.
    *
    * @return The number of times this BaseNode has received a bad gRPC status.
    */
-  [[nodiscard]] inline unsigned int getBadGrpcStatusCount() const { return mBadGrpcStatusCount; }
+  [[nodiscard]] inline unsigned int getBadGrpcStatusCount() const
+  {
+    std::unique_lock lock(*mMutex);
+    return mBadGrpcStatusCount;
+  }
 
   /**
    * Get the time at which this BaseNode will be considered "healthy".
    *
    * @return The time at which this BaseNode will be considered "healthy".
    */
-  [[nodiscard]] inline std::chrono::system_clock::time_point getReadmitTime() const { return mReadmitTime; }
+  [[nodiscard]] inline std::chrono::system_clock::time_point getReadmitTime() const
+  {
+    std::unique_lock lock(*mMutex);
+    return mReadmitTime;
+  }
+
+  /**
+   * Get this BaseNode's mutex.
+   *
+   * @return This BaseNode's mutex.
+   */
+  [[nodiscard]] inline std::shared_ptr<std::mutex> getLock() const { return mMutex; }
 
 protected:
   ~BaseNode() = default;
@@ -172,11 +200,9 @@ private:
   [[nodiscard]] virtual std::shared_ptr<grpc::ChannelCredentials> getTlsChannelCredentials() const;
 
   /**
-   * Initialize the stubs in this derived BaseNode with a gRPC channel.
-   *
-   * @param channel The gRPC channel with which to initialize the stubs.
+   * Initialize the stubs in this derived BaseNode with this BaseNode's gRPC channel.
    */
-  virtual void initializeStubs([[maybe_unused]] const std::shared_ptr<grpc::Channel>& channel)
+  virtual void initializeStubs()
   { // Intentionally unimplemented, derived BaseNodes that don't use stubs require no functionality.
   }
 
@@ -193,6 +219,11 @@ private:
    * @return The authority of this BaseNode.
    */
   [[nodiscard]] virtual inline std::string getAuthority() const { return "127.0.0.1"; }
+
+  /**
+   * Close this BaseNode's channel and any stubs using that channel.
+   */
+  void closeChannel();
 
   /**
    * The address of this BaseNode.
@@ -234,6 +265,11 @@ private:
    * Is the gRPC channel being utilized by this BaseNode to communicate with its remote node initialized?
    */
   bool mIsConnected = false;
+
+  /**
+   * The mutex for this BaseNode, kept inside a std::shared_ptr to keep BaseNetwork copyable/movable.
+   */
+  std::shared_ptr<std::mutex> mMutex = std::make_shared<std::mutex>();
 };
 
 } // namespace Hedera::internal

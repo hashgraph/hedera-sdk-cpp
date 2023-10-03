@@ -35,16 +35,16 @@ MirrorNode::MirrorNode(std::string_view address)
 }
 
 //-----
-void MirrorNode::initializeStubs(const std::shared_ptr<grpc::Channel>& channel)
+void MirrorNode::initializeStubs()
 {
   if (!mConsensusStub)
   {
-    mConsensusStub = com::hedera::mirror::api::proto::ConsensusService::NewStub(channel);
+    mConsensusStub = com::hedera::mirror::api::proto::ConsensusService::NewStub(getChannel());
   }
 
   if (!mNetworkStub)
   {
-    mNetworkStub = com::hedera::mirror::api::proto::NetworkService::NewStub(channel);
+    mNetworkStub = com::hedera::mirror::api::proto::NetworkService::NewStub(getChannel());
   }
 }
 

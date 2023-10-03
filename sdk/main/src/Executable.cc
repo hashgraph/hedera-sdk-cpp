@@ -132,12 +132,15 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const std::chrono::system_clock::time_point timeoutTime =
     std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(timeout);
 
+  // Keep track of the responses from each node.
+  std::unordered_map<std::shared_ptr<internal::Node>, Status> nodeResponses;
+
   for (unsigned int attempt = 0U;; ++attempt)
   {
     if (attempt >= mCurrentMaxAttempts)
     {
-      throw MaxAttemptsExceededException("Max number of attempts made (max attempts allowed: " +
-                                         std::to_string(mCurrentMaxAttempts));
+      throw MaxAttemptsExceededException(
+        "Max number of attempts made (max attempts allowed: " + std::to_string(mCurrentMaxAttempts) + ')');
     }
 
     const unsigned int nodeIndex = getNodeIndexForExecute(nodes, attempt);
@@ -179,12 +182,26 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     // Successful submission, so decrease backoff for this node.
     node->decreaseBackoff();
 
+    // Grab and save the response status, and determine what to do next.
     const Status responseStatus = mapResponseStatus(response);
+    nodeResponses[node] = responseStatus;
     switch (determineStatus(responseStatus, client, response))
     {
       case ExecutionStatus::SERVER_ERROR:
       {
-        continue;
+        // If all nodes have returned a BUSY signal, backoff (just fallthrough to ExecutionStatus::RETRY case).
+        // Otherwise, try the next node.
+        if (nodeResponses.size() != nodes.size() ||
+            !std::all_of(nodeResponses.cbegin(),
+                         nodeResponses.cend(),
+                         [](const auto& nodeAndStatus) { return nodeAndStatus.second == Status::BUSY; }))
+        {
+          continue;
+        }
+
+        // If all nodes have returned BUSY, clear the responses.
+        nodeResponses.clear();
+        [[fallthrough]];
       }
       // Response isn't ready yet from the network
       case ExecutionStatus::RETRY:

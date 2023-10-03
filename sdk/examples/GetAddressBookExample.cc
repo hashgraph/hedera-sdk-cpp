@@ -23,6 +23,7 @@
 #include "NodeAddressBook.h"
 
 #include <iostream>
+#include <thread>
 
 using namespace Hedera;
 
@@ -39,6 +40,8 @@ int main(int argc, char** argv)
   {
     std::cout << nodeAddress.toString() << std::endl;
   }
+
+  std::cout << std::endl;
 
   return 0;
 }

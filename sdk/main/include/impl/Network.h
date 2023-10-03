@@ -21,9 +21,6 @@
 #define HEDERA_SDK_CPP_IMPL_NETWORK_H_
 
 #include "BaseNetwork.h"
-#include "Node.h"
-#include "NodeAddressBook.h"
-#include "TLSBehavior.h"
 
 #include <memory>
 #include <string>
@@ -32,7 +29,16 @@
 
 namespace Hedera
 {
+namespace internal
+{
+class Node;
+enum class TLSBehavior;
+}
+
 class AccountId;
+class LedgerId;
+class NodeAddress;
+class NodeAddressBook;
 }
 
 namespace Hedera::internal
@@ -68,6 +74,17 @@ public:
    * @return A Network object that is set-up to communicate with the custom network.
    */
   [[nodiscard]] static Network forNetwork(const std::unordered_map<std::string, AccountId>& network);
+
+  /**
+   * Construct a network map from a NodeAddressBook with a specific port for the endpoints.
+   *
+   * @param addressBook The NodeAddressBook from which to construct the network map.
+   * @param port        The desired port.
+   * @return A network map that contains the nodes in the input NodeAddressBook.
+   */
+  [[nodiscard]] static std::unordered_map<std::string, AccountId> getNetworkFromAddressBook(
+    const NodeAddressBook& addressBook,
+    unsigned int port);
 
   /**
    * Derived from BaseNetwork. Set the ledger ID of this Network.
@@ -141,7 +158,7 @@ private:
    * @return The map of node addresses and AccountIds of the Nodes that exist on the network represented by the input
    *         LedgerId.
    */
-  [[nodiscard]] static std::unordered_map<AccountId, NodeAddress> getAddressBookForLedgerId(const LedgerId& ledgerId);
+  [[nodiscard]] static NodeAddressBook getAddressBookForLedgerId(const LedgerId& ledgerId);
 
   /**
    * Derived from BaseNetwork. Create a Node for this Network based on a network entry.
@@ -158,9 +175,9 @@ private:
    * contained in the input map.
    *
    * @param ledgerId    The new LedgerId of the Network.
-   * @param addressBook The address book with which to update this Network's Node's address book entry.
+   * @param addressBook The NodeAddressBook with which to update this Network's Node's address book entry.
    */
-  Network& setLedgerIdInternal(const LedgerId& ledgerId, const std::unordered_map<AccountId, NodeAddress>& addressBook);
+  Network& setLedgerIdInternal(const LedgerId& ledgerId, const NodeAddressBook& addressBook);
 
   /**
    * The maximum number of nodes to be returned for each request.
