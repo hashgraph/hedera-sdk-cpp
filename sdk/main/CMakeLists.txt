@@ -288,3 +288,17 @@ install(DIRECTORY include/ TYPE INCLUDE FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY ${HAPI_INCLUDE_DIR}/ TYPE INCLUDE)
 install(DIRECTORY ${HAPI_LIB_DIR}/ TYPE LIB)
 install(DIRECTORY ${Protobuf_INCLUDE_DIRS} DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+# Install the address books
+install(FILES
+        ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
+        ${PROJECT_SOURCE_DIR}/addressbook/previewnet.pb
+        ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
+        DESTINATION addressbook)
+
+# Install the configuration JSON files
+install(FILES
+        ${PROJECT_SOURCE_DIR}/config/hello_world.json
+        ${PROJECT_SOURCE_DIR}/config/local_node.json
+        ${PROJECT_SOURCE_DIR}/config/stateful.json
+        DESTINATION config)
