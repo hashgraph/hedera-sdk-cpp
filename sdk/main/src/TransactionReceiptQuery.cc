@@ -53,7 +53,7 @@ TransactionReceiptQuery& TransactionReceiptQuery::setIncludeDuplicates(bool dupl
 //-----
 TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& response) const
 {
-  return TransactionReceipt::fromProtobuf(response.transactiongetreceipt().receipt(), mTransactionId.value());
+  return TransactionReceipt::fromProtobuf(response.transactiongetreceipt(), mTransactionId.value());
 }
 
 //-----
