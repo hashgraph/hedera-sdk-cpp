@@ -52,10 +52,13 @@ public:
   /**
    * Construct a TransactionReceipt object from a TransactionGetReceiptResponse protobuf object.
    *
-   * @param proto The TransactionGetReceiptResponse protobuf object from which to construct a TransactionReceipt object.
+   * @param proto         The TransactionGetReceiptResponse protobuf object from which to construct a TransactionReceipt
+   *                      object.
+   * @param transactionId The ID of the transaction to which the constructed TransactionReceipt will correspond.
    * @return The constructed TransactionReceipt object.
    */
-  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionGetReceiptResponse& proto);
+  [[nodiscard]] static TransactionReceipt fromProtobuf(const proto::TransactionGetReceiptResponse& proto,
+                                                       const TransactionId& transactionId);
 
   /**
    * Construct a TransactionReceipt object from a TransactionReceipt protobuf object.
