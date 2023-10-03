@@ -27,9 +27,11 @@
 namespace Hedera
 {
 //-----
-TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionGetReceiptResponse& proto)
+TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionGetReceiptResponse& proto,
+                                                    const TransactionId& transactionId)
 {
   TransactionReceipt receipt = TransactionReceipt::fromProtobuf(proto.receipt());
+  receipt.mTransactionId = transactionId;
 
   for (int i = 0; i < proto.duplicatetransactionreceipts_size(); ++i)
   {
