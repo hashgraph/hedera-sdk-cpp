@@ -47,11 +47,21 @@ protected:
   [[nodiscard]] inline const AccountId& getAccountId() const { return mAccountId; }
   [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
 
+  [[nodiscard]] inline const std::chrono::milliseconds getNegativeBackoffTime() const { return mNegativeBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds getZeroBackoffTime() const { return mZeroBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds getBelowMinBackoffTime() const { return mBelowMinBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds getAboveMaxBackoffTime() const { return mAboveMaxBackoffTime; }
+
 private:
   const std::string_view mJsonNetworkTag = "network";
   const std::string_view mJsonOperatorTag = "operator";
   const std::string_view mJsonAccountIdTag = "accountId";
   const std::string_view mJsonPrivateKeyTag = "privateKey";
+
+  const std::chrono::milliseconds mNegativeBackoffTime = std::chrono::milliseconds(-1);
+  const std::chrono::milliseconds mZeroBackoffTime = std::chrono::milliseconds(0);
+  const std::chrono::milliseconds mBelowMinBackoffTime = DEFAULT_MIN_BACKOFF - std::chrono::milliseconds(1);
+  const std::chrono::milliseconds mAboveMaxBackoffTime = DEFAULT_MAX_BACKOFF + std::chrono::milliseconds(1);
 
   const std::string_view mAccountIdStr = "0.0.3";
   const AccountId mAccountId = AccountId::fromString("0.0.3");
@@ -120,12 +130,9 @@ TEST_F(ClientIntegrationTest, SetInvalidMinBackoff)
   std::unordered_map<std::string, AccountId> networkMap;
   Client client = Client::forNetwork(networkMap);
 
-  std::chrono::duration negativeBackoffTime = std::chrono::milliseconds(-1);
-  std::chrono::duration aboveMaximumBackoffTime = std::chrono::milliseconds(8001);
-
   // When / Then
-  EXPECT_THROW(client.setMinBackoff(negativeBackoffTime), std::invalid_argument);     // INVALID_ARGUMENT
-  EXPECT_THROW(client.setMinBackoff(aboveMaximumBackoffTime), std::invalid_argument); // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMinBackoff(getNegativeBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMinBackoff(getAboveMaxBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
 }
 
 //-----
@@ -135,14 +142,10 @@ TEST_F(ClientIntegrationTest, SetValidMinBackoff)
   std::unordered_map<std::string, AccountId> networkMap;
   Client client = Client::forNetwork(networkMap);
 
-  std::chrono::duration zeroBackoffTime = std::chrono::milliseconds(0);
-  std::chrono::duration defaultMinBackoffTime = DEFAULT_MIN_BACKOFF;
-  std::chrono::duration defaultMaxBackoffTime = DEFAULT_MAX_BACKOFF;
-
   // When / Then
-  EXPECT_NO_THROW(client.setMinBackoff(zeroBackoffTime));
-  EXPECT_NO_THROW(client.setMinBackoff(defaultMinBackoffTime));
-  EXPECT_NO_THROW(client.setMinBackoff(defaultMaxBackoffTime));
+  EXPECT_NO_THROW(client.setMinBackoff(getZeroBackoffTime()));
+  EXPECT_NO_THROW(client.setMinBackoff(DEFAULT_MIN_BACKOFF));
+  EXPECT_NO_THROW(client.setMinBackoff(DEFAULT_MAX_BACKOFF));
 }
 
 //-----
@@ -152,16 +155,11 @@ TEST_F(ClientIntegrationTest, SetInvalidMaxBackoff)
   std::unordered_map<std::string, AccountId> networkMap;
   Client client = Client::forNetwork(networkMap);
 
-  std::chrono::duration negativeBackoffTime = std::chrono::milliseconds(-1);
-  std::chrono::duration zeroBackoffTime = std::chrono::milliseconds(0);
-  std::chrono::duration belowMinimumBackoffTime = std::chrono::milliseconds(249);
-  std::chrono::duration aboveMaximumBackoffTime = std::chrono::milliseconds(8001);
-
   // When / Then
-  EXPECT_THROW(client.setMaxBackoff(negativeBackoffTime), std::invalid_argument);     // INVALID_ARGUMENT
-  EXPECT_THROW(client.setMaxBackoff(zeroBackoffTime), std::invalid_argument);         // INVALID_ARGUMENT
-  EXPECT_THROW(client.setMaxBackoff(belowMinimumBackoffTime), std::invalid_argument); // INVALID_ARGUMENT
-  EXPECT_THROW(client.setMaxBackoff(aboveMaximumBackoffTime), std::invalid_argument); // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMaxBackoff(getNegativeBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMaxBackoff(getZeroBackoffTime()), std::invalid_argument);     // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMaxBackoff(getBelowMinBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMaxBackoff(getAboveMaxBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
 }
 
 //-----
@@ -169,12 +167,9 @@ TEST_F(ClientIntegrationTest, SetValidMaxBackoff)
 {
   // Given
   std::unordered_map<std::string, AccountId> networkMap;
-  std::chrono::duration defaultMinBackoffTime = DEFAULT_MIN_BACKOFF;
-  std::chrono::duration defaultMaxBackoffTime = DEFAULT_MAX_BACKOFF;
-
   Client client = Client::forNetwork(networkMap);
 
   // When / Then
-  EXPECT_NO_THROW(client.setMaxBackoff(defaultMinBackoffTime));
-  EXPECT_NO_THROW(client.setMaxBackoff(defaultMaxBackoffTime));
+  EXPECT_NO_THROW(client.setMaxBackoff(DEFAULT_MIN_BACKOFF));
+  EXPECT_NO_THROW(client.setMaxBackoff(DEFAULT_MAX_BACKOFF));
 }
