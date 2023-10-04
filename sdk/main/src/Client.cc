@@ -257,7 +257,8 @@ Client& Client::setMaxAttempts(uint32_t attempts)
 //-----
 Client& Client::setMinBackoff(const std::chrono::duration<double>& backoff)
 {
-  if ((mImpl->mMaxBackoff && backoff > *mImpl->mMaxBackoff) || (!mImpl->mMaxBackoff && backoff > DEFAULT_MAX_BACKOFF))
+  if ((mImpl->mMaxBackoff && backoff > *mImpl->mMaxBackoff) || (!mImpl->mMaxBackoff && backoff > DEFAULT_MAX_BACKOFF) ||
+      (!mImpl->mMaxBackoff && backoff < std::chrono::milliseconds(0)))
   {
     throw std::invalid_argument("Minimum backoff would be larger than maximum backoff");
   }
@@ -269,7 +270,8 @@ Client& Client::setMinBackoff(const std::chrono::duration<double>& backoff)
 //-----
 Client& Client::setMaxBackoff(const std::chrono::duration<double>& backoff)
 {
-  if ((mImpl->mMinBackoff && backoff < *mImpl->mMinBackoff) || (!mImpl->mMinBackoff && backoff < DEFAULT_MIN_BACKOFF))
+  if ((mImpl->mMinBackoff && backoff < *mImpl->mMinBackoff) || (!mImpl->mMinBackoff && backoff < DEFAULT_MIN_BACKOFF) ||
+      (!mImpl->mMinBackoff && backoff > DEFAULT_MAX_BACKOFF))
   {
     throw std::invalid_argument("Maximum backoff would be smaller than minimum backoff");
   }
