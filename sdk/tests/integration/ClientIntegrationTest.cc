@@ -191,7 +191,7 @@ TEST_F(ClientIntegrationTest, SetValidMaxBackoff)
 }
 
 //-----
-TEST_F(ClientIntegrationTest, SetNetworkIskWorkingCorrectly)
+TEST_F(ClientIntegrationTest, SetNetworkIsWorkingCorrectly)
 {
   // Given
   const std::unique_ptr<PrivateKey> myPrivateKey = ED25519PrivateKey::fromString(
@@ -204,11 +204,7 @@ TEST_F(ClientIntegrationTest, SetNetworkIskWorkingCorrectly)
   testnetMap.insert(std::pair<std::string, AccountId>("34.94.106.61:50211", accountId_3));
   testnetMap.insert(std::pair<std::string, AccountId>("35.237.119.55:50211", accountId_4));
 
-  cout << "!!! Got accountId_3 & accountId_4 !!!" << endl << endl;
-
   Client client = Client::forNetwork(testnetMap);
-
-  cout << "!!! START !!!" << endl << endl;
 
   // Given
   AccountBalance accountBalance_3;
@@ -218,9 +214,6 @@ TEST_F(ClientIntegrationTest, SetNetworkIskWorkingCorrectly)
   ASSERT_NO_THROW(accountBalance_3 = AccountBalanceQuery().setAccountId(accountId_3).execute(client));
   ASSERT_NO_THROW(accountBalance_4 = AccountBalanceQuery().setAccountId(accountId_4).execute(client));
 
-  cout << "Balance for Account 3: " << accountBalance_3.getBalance().toTinybars() << " tynibars." << endl;
-  cout << "Balance for Account 4: " << accountBalance_4.getBalance().toTinybars() << " tynibars." << endl << endl;
-
   // When / Then
   std::unordered_map<std::string, AccountId> newTestnetMap;
   newTestnetMap.insert(std::pair<std::string, AccountId>("35.237.119.55:50211", accountId_4));
@@ -228,13 +221,6 @@ TEST_F(ClientIntegrationTest, SetNetworkIskWorkingCorrectly)
 
   client.setNetwork(newTestnetMap);
 
-  cout << "!!! newTestnetMap was configured !!!" << endl << endl;
-
   ASSERT_NO_THROW(accountBalance_4 = AccountBalanceQuery().setAccountId(accountId_4).execute(client));
   ASSERT_NO_THROW(accountBalance_5 = AccountBalanceQuery().setAccountId(accountId_5).execute(client));
-
-  cout << "Balance for Account 4: " << accountBalance_4.getBalance().toTinybars() << " tynibars." << endl;
-  cout << "Balance for Account 5: " << accountBalance_5.getBalance().toTinybars() << " tynibars." << endl << endl;
-
-  cout << "!!! END !!!" << endl << endl;
 }
