@@ -47,7 +47,7 @@ public:
    * @param serialNumber The serial number to set.
    * @throws std::invalid_argument If the serial number is too big (max value is std::numeric_limits<int64_t>::max()).
    */
-  explicit NftId(const TokenId& id, const uint64_t& serialNumber);
+  explicit NftId(TokenId id, const uint64_t& serialNumber);
 
   /**
    * Compare this NftId to another NftId and determine if they represent the same token.
@@ -86,45 +86,6 @@ public:
    * @return The string representation of this NftId.
    */
   [[nodiscard]] std::string toString() const;
-
-  /**
-   * Set the token ID.
-   *
-   * @param id The desired token ID to set.
-   * @return A reference to this NftId object with the newly-set TokenId.
-   */
-  NftId& setTokenId(const TokenId& id);
-
-  /**
-   * Set the serial number.
-   *
-   * @param num The desired serial number to set.
-   * @return A reference to this NftId object with the newly-set serial number.
-   * @throws std::invalid_argument If the serial number is too big (max value is std::numeric_limits<int64_t>::max()).
-   */
-  NftId& setSerialNum(const uint64_t& num);
-
-  /**
-   * Get the token ID.
-   *
-   * @return The token ID.
-   */
-  [[nodiscard]] inline TokenId getTokenId() const { return mTokenId; }
-
-  /**
-   * Get the serial number.
-   *
-   * @return The serial number.
-   */
-  [[nodiscard]] inline uint64_t getSerialNum() const { return mSerialNum; }
-
-private:
-  /**
-   * Check if the serial number is too big.
-   *
-   * @throws std::invalid_argument If the serial number is too big (max value is std::numeric_limits<int64_t>::max()).
-   */
-  void checkSerialNum() const;
 
   /**
    * The ID of the non-fungible token of which this NFT is an instance.

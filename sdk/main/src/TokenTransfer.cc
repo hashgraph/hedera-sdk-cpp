@@ -47,22 +47,17 @@ TokenTransfer::TokenTransfer(const TokenId& tokenId,
 }
 
 //-----
-std::vector<TokenTransfer> TokenTransfer::fromProtobuf(const proto::TokenTransferList& proto)
+TokenTransfer TokenTransfer::fromProtobuf(const proto::AccountAmount& proto, const TokenId& tokenId, uint32_t decimals)
 {
-  std::vector<TokenTransfer> transfers;
-  const TokenId tokenId = TokenId::fromProtobuf(proto.token());
+  return TokenTransfer(
+    tokenId, AccountId::fromProtobuf(proto.accountid()), proto.amount(), decimals, proto.is_approval());
+}
 
-  for (int i = 0; i < proto.transfers_size(); ++i)
-  {
-    const proto::AccountAmount& amount = proto.transfers(i);
-    transfers.emplace_back(tokenId,
-                           AccountId::fromProtobuf(amount.accountid()),
-                           amount.amount(),
-                           proto.has_expected_decimals() ? proto.expected_decimals().value() : 0U,
-                           amount.is_approval());
-  }
-
-  return transfers;
+//-----
+void TokenTransfer::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+  mAccountId.validateChecksum(client);
 }
 
 //-----

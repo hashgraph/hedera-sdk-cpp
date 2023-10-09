@@ -32,6 +32,11 @@ class CryptoAllowance;
 
 namespace Hedera
 {
+class Client;
+}
+
+namespace Hedera
+{
 /**
  * An approved allowance of Hbar transfers for a spender.
  */
@@ -58,58 +63,20 @@ public:
   [[nodiscard]] static HbarAllowance fromProtobuf(const proto::CryptoAllowance& proto);
 
   /**
+   * Validate the checksums of the entity IDs in this HbarAllowance.
+   *
+   * @param client The Client to use to validate the checksums.
+   * @throws BadEntityException If the checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const;
+
+  /**
    * Construct a CryptoAllowance protobuf object from this HbarAllowance object.
    *
    * @return A pointer to a constructed CryptoAllowance protobuf object filled with this HbarAllowance object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::CryptoAllowance> toProtobuf() const;
 
-  /**
-   * Set the ID of the account approving an allowance of its Hbars.
-   *
-   * @param accountId The ID of the account approving an allowance of its Hbars.
-   * @return A reference to this HbarAllowance object with the newly-set owner account ID.
-   */
-  HbarAllowance& setOwnerAccountId(const AccountId& accountId);
-
-  /**
-   * Set the ID of the account being allowed to spend the Hbars.
-   *
-   * @param accountId The ID of the account being allowed to spend the Hbars.
-   * @return A reference to this HbarAllowance object with the newly-set spender account ID.
-   */
-  HbarAllowance& setSpenderAccountId(const AccountId& accountId);
-
-  /**
-   * Set the amount of Hbars that are being allowed to be spent.
-   *
-   * @param amount The amount of Hbars that are being allowed to be spent.
-   * @return A reference to this HbarAllowance object with the newly-set amount.
-   */
-  HbarAllowance& setAmount(const Hbar& amount);
-
-  /**
-   * Set the ID of the account approving an allowance of its Hbars.
-   *
-   * @return The ID of the account approving an allowance of its Hbars.
-   */
-  [[nodiscard]] inline AccountId getOwnerAccountId() const { return mOwnerAccountId; }
-
-  /**
-   * Get the ID of the account being allowed to spend the Hbars.
-   *
-   * @return The ID of the account being allowed to spend the Hbars.
-   */
-  [[nodiscard]] inline AccountId getSpenderAccountId() const { return mSpenderAccountId; }
-
-  /**
-   * Get the amount of Hbars that are being allowed to be spent.
-   *
-   * @return The amount of Hbars that are being allowed to be spent.
-   */
-  [[nodiscard]] inline Hbar getAmount() const { return mAmount; }
-
-private:
   /**
    * The ID of the account approving an allowance of its Hbars.
    */

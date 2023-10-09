@@ -68,6 +68,13 @@ grpc::Status TokenRevokeKycTransaction::submitRequest(const proto::Transaction& 
 }
 
 //-----
+void TokenRevokeKycTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+  mAccountId.validateChecksum(client);
+}
+
+//-----
 void TokenRevokeKycTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenrevokekyc(build());

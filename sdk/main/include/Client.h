@@ -36,6 +36,7 @@ class Network;
 }
 class AccountId;
 class Hbar;
+class LedgerId;
 class PrivateKey;
 class PublicKey;
 }
@@ -208,6 +209,24 @@ public:
   Client& setNetworkUpdatePeriod(const std::chrono::duration<double>& update);
 
   /**
+   * Set the automatic entity checksum validation policy.
+   *
+   * @param validate \c TRUE if this Client should validate entity checksums when submitting Executables, otherwise \c
+   *                 FALSE.
+   * @return A reference to this Client with the newly-set automatic entity checksum validation policy.
+   */
+  Client& setAutoValidateChecksums(bool validate);
+
+  /**
+   * Set the ID of the ledger of this Client's Network. Useful when constructing a Network which is a subset of an
+   * existing known network. Does nothing if the Client's Network is not yet initialized.
+   *
+   * @param ledgerId The LedgerId to set.
+   * @return A reference to this Client with the newly-set ledger ID.
+   */
+  Client& setLedgerId(const LedgerId& ledgerId);
+
+  /**
    * Get a pointer to the Network this Client is using to communicate with consensus nodes.
    *
    * @return A pointer to the Network this Client is using to communicate with consensus nodes.
@@ -298,6 +317,21 @@ public:
    * @return The period of time this Client wait between updating its network.
    */
   [[nodiscard]] std::chrono::duration<double> getNetworkUpdatePeriod() const;
+
+  /**
+   * Is automatic entity checksum validation turned on for this Client?
+   *
+   * @return \c TRUE if automatic entity checksum validation is turned on, otherwise \c FALSE.
+   */
+  [[nodiscard]] bool isAutoValidateChecksumsEnabled() const;
+
+  /**
+   * Get the ID of the ledger on which this Client's Network is running.
+   *
+   * @returns The ID of the ledger on which this Client's Network is running.
+   * @throws UninitializedException If this Client does not have a Network initialized.
+   */
+  [[nodiscard]] LedgerId getLedgerId() const;
 
   /**
    * Get a pointer to the MirrorNetwork being used by this client.

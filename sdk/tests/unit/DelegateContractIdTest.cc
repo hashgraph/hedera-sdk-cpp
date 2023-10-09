@@ -42,30 +42,17 @@ private:
 };
 
 //-----
-TEST_F(DelegateContractIdTest, DefaultConstructDelegateContractId)
-{
-  // Given / When
-  const DelegateContractId delegateContractId;
-
-  // Then
-  EXPECT_EQ(delegateContractId.getShardNum(), 0ULL);
-  EXPECT_EQ(delegateContractId.getRealmNum(), 0ULL);
-  EXPECT_FALSE(delegateContractId.getContractNum().has_value());
-  EXPECT_FALSE(delegateContractId.getEvmAddress().has_value());
-}
-
-//-----
 TEST_F(DelegateContractIdTest, ConstructWithContractNum)
 {
   // Given / When
   const DelegateContractId delegateContractId(getTestContractNum());
 
   // Then
-  EXPECT_EQ(delegateContractId.getShardNum(), 0ULL);
-  EXPECT_EQ(delegateContractId.getRealmNum(), 0ULL);
-  ASSERT_TRUE(delegateContractId.getContractNum().has_value());
-  EXPECT_EQ(delegateContractId.getContractNum(), getTestContractNum());
-  EXPECT_FALSE(delegateContractId.getEvmAddress().has_value());
+  EXPECT_EQ(delegateContractId.mShardNum, 0ULL);
+  EXPECT_EQ(delegateContractId.mRealmNum, 0ULL);
+  ASSERT_TRUE(delegateContractId.mContractNum.has_value());
+  EXPECT_EQ(delegateContractId.mContractNum, getTestContractNum());
+  EXPECT_FALSE(delegateContractId.mEvmAddress.has_value());
 }
 
 //-----
@@ -82,11 +69,11 @@ TEST_F(DelegateContractIdTest, ConstructWithShardRealmContractNum)
   const DelegateContractId delegateContractId(getTestShardNum(), getTestRealmNum(), getTestContractNum());
 
   // Then
-  EXPECT_EQ(delegateContractId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(delegateContractId.getRealmNum(), getTestRealmNum());
-  ASSERT_TRUE(delegateContractId.getContractNum().has_value());
-  EXPECT_EQ(delegateContractId.getContractNum(), getTestContractNum());
-  EXPECT_FALSE(delegateContractId.getEvmAddress().has_value());
+  EXPECT_EQ(delegateContractId.mShardNum, getTestShardNum());
+  EXPECT_EQ(delegateContractId.mRealmNum, getTestRealmNum());
+  ASSERT_TRUE(delegateContractId.mContractNum.has_value());
+  EXPECT_EQ(delegateContractId.mContractNum, getTestContractNum());
+  EXPECT_FALSE(delegateContractId.mEvmAddress.has_value());
 }
 
 //-----
@@ -126,10 +113,10 @@ TEST_F(DelegateContractIdTest, FromCorrectlyFormedString)
                                                                       std::to_string(getTestContractNum())));
 
   // Then
-  EXPECT_EQ(delegateContractId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(delegateContractId.getRealmNum(), getTestRealmNum());
-  ASSERT_TRUE(delegateContractId.getContractNum().has_value());
-  EXPECT_EQ(delegateContractId.getContractNum(), getTestContractNum());
+  EXPECT_EQ(delegateContractId.mShardNum, getTestShardNum());
+  EXPECT_EQ(delegateContractId.mRealmNum, getTestRealmNum());
+  ASSERT_TRUE(delegateContractId.mContractNum.has_value());
+  EXPECT_EQ(delegateContractId.mContractNum, getTestContractNum());
 }
 
 //-----
@@ -213,11 +200,11 @@ TEST_F(DelegateContractIdTest, FromProtobuf)
   const DelegateContractId delegateContractId = DelegateContractId::fromProtobuf(protoContractId);
 
   // Then
-  EXPECT_EQ(delegateContractId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(delegateContractId.getRealmNum(), getTestRealmNum());
-  ASSERT_TRUE(delegateContractId.getContractNum().has_value());
-  EXPECT_EQ(delegateContractId.getContractNum(), getTestContractNum());
-  EXPECT_FALSE(delegateContractId.getEvmAddress().has_value());
+  EXPECT_EQ(delegateContractId.mShardNum, getTestShardNum());
+  EXPECT_EQ(delegateContractId.mRealmNum, getTestRealmNum());
+  ASSERT_TRUE(delegateContractId.mContractNum.has_value());
+  EXPECT_EQ(delegateContractId.mContractNum, getTestContractNum());
+  EXPECT_FALSE(delegateContractId.mEvmAddress.has_value());
 }
 
 //-----

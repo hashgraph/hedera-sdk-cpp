@@ -18,21 +18,21 @@
  *
  */
 #include "DelegateContractId.h"
+#include "impl/EntityIdHelper.h"
 
-#include <charconv>
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
 //-----
-DelegateContractId::DelegateContractId(const uint64_t& num)
+DelegateContractId::DelegateContractId(uint64_t num)
   : ContractId(num)
 {
 }
 
 //-----
-DelegateContractId::DelegateContractId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num)
-  : ContractId(shard, realm, num)
+DelegateContractId::DelegateContractId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum)
+  : ContractId(shard, realm, num, checksum)
 {
 }
 
@@ -45,47 +45,17 @@ bool DelegateContractId::operator==(const DelegateContractId& other) const
 //-----
 DelegateContractId DelegateContractId::fromString(std::string_view id)
 {
-  // Get the indices of the two delimiter '.'
-  const size_t firstDot = id.find_first_of('.');
-  const size_t secondDot = id.find_last_of('.');
+  return DelegateContractId(internal::EntityIdHelper::getShardNum(id),
+                            internal::EntityIdHelper::getRealmNum(id),
+                            internal::EntityIdHelper::getEntityNum(id),
+                            internal::EntityIdHelper::getChecksum(id));
+}
 
-  // Make sure there are at least two dots
-  if (firstDot == secondDot)
-  {
-    throw std::invalid_argument("Input delegate contract ID string is malformed");
-  }
-
-  uint64_t shardNum;
-  uint64_t realmNum;
-  uint64_t contractNum;
-
-  // Grab the three strings
-  const std::string_view shardStr = id.substr(0, firstDot);
-  const std::string_view realmStr = id.substr(firstDot + 1, secondDot - firstDot - 1);
-  const std::string_view contractNumStr = id.substr(secondDot + 1, id.size() - secondDot - 1);
-
-  // Convert the shard number
-  auto result = std::from_chars(shardStr.data(), shardStr.data() + shardStr.size(), shardNum);
-  if (result.ec != std::errc() || result.ptr != shardStr.data() + shardStr.size())
-  {
-    throw std::invalid_argument("Input account ID string is malformed");
-  }
-
-  // Convert the realm number
-  result = std::from_chars(realmStr.data(), realmStr.data() + realmStr.size(), realmNum);
-  if (result.ec != std::errc() || result.ptr != realmStr.data() + realmStr.size())
-  {
-    throw std::invalid_argument("Input account ID string is malformed");
-  }
-
-  // Convert the contract number.
-  result = std::from_chars(contractNumStr.data(), contractNumStr.data() + contractNumStr.size(), contractNum);
-  if (result.ec != std::errc() || result.ptr != contractNumStr.data() + contractNumStr.size())
-  {
-    throw std::invalid_argument("Input account ID string is malformed");
-  }
-
-  return DelegateContractId(shardNum, realmNum, contractNum);
+//-----
+DelegateContractId DelegateContractId::fromSolidityAddress(std::string_view address)
+{
+  return internal::EntityIdHelper::fromSolidityAddress<DelegateContractId>(
+    internal::EntityIdHelper::decodeSolidityAddress(address));
 }
 
 //-----
@@ -94,6 +64,14 @@ DelegateContractId DelegateContractId::fromProtobuf(const proto::ContractID& pro
   return DelegateContractId(static_cast<uint64_t>(proto.shardnum()),
                             static_cast<uint64_t>(proto.realmnum()),
                             static_cast<uint64_t>(proto.contractnum()));
+}
+
+//-----
+DelegateContractId DelegateContractId::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::ContractID proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
 }
 
 //-----

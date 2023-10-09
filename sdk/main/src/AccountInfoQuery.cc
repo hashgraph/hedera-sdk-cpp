@@ -51,6 +51,12 @@ grpc::Status AccountInfoQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void AccountInfoQuery::validateChecksums(const Client& client) const
+{
+  mAccountId.validateChecksum(client);
+}
+
+//-----
 proto::Query AccountInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto accountInfoQuery = std::make_unique<proto::CryptoGetInfoQuery>();

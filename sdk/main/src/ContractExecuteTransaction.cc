@@ -95,6 +95,12 @@ grpc::Status ContractExecuteTransaction::submitRequest(const proto::Transaction&
 }
 
 //-----
+void ContractExecuteTransaction::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+}
+
+//-----
 void ContractExecuteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_contractcall(build());

@@ -226,6 +226,15 @@ private:
                                            const std::shared_ptr<internal::Node>& node,
                                            const std::chrono::system_clock::time_point& deadline,
                                            proto::TransactionResponse* response) const override;
+
+  /**
+   * Derived from Transaction. Verify that all the checksums in this TransferTransaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This TransferTransaction's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
   /**
    * Derived from Transaction. Build and add the TransferTransaction protobuf representation to the Transaction
    * protobuf object.
@@ -250,9 +259,11 @@ private:
   /**
    * Add an Hbar transfer to the Hbar transfers list.
    *
-   * @param transfer The Hbar transfer to add.
+   * @param accountId The ID of the account doing the transfer.
+   * @param amount    The amount to transfer.
+   * @param approved  \c TRUE if this is an approved allowance transfer, otherwise \c FALSE.
    */
-  void doHbarTransfer(const HbarTransfer& transfer);
+  void doHbarTransfer(const AccountId& accountId, const Hbar& amount, bool approved);
 
   /**
    * Add a token transfer to the token transfers list.
@@ -264,9 +275,12 @@ private:
   /**
    * Add an NFT transfer to the NFT transfers list.
    *
-   * @param transfer The NFT transfer to add.
+   * @param nftId The ID of the NFT.
+   * @param sender The ID of the account sending the NFT.
+   * @param receiver The ID of the account receiving the NFT.
+   * @param approved \c TRUE if this is an approved allowance NFT transfer, otherwise \c FALSE.
    */
-  void doNftTransfer(const TokenNftTransfer& transfer);
+  void doNftTransfer(const NftId& nftId, const AccountId& sender, const AccountId& receiver, bool approved);
 
   /**
    * The desired Hbar balance adjustments.

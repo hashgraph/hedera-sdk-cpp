@@ -23,13 +23,21 @@
 #include "EvmAddress.h"
 #include "PublicKey.h"
 
+#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
+#include <vector>
 
 namespace proto
 {
 class AccountID;
+}
+
+namespace Hedera
+{
+class Client;
 }
 
 namespace Hedera
@@ -45,56 +53,51 @@ public:
   /**
    * Construct with an account number.
    *
-   * @param num The desired account number.
-   * @throws std::invalid_argument If the account number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param num The account number.
    */
-  explicit AccountId(const uint64_t& num);
+  explicit AccountId(uint64_t num);
 
   /**
-   * Construct with an account alias.
+   * Construct with a PublicKey alias.
    *
-   * @param alias The desired public key account alias.
+   * @param alias The PublicKey alias.
    */
   explicit AccountId(const std::shared_ptr<PublicKey>& alias);
 
   /**
-   * Construct with an EVM address.
+   * Construct with an EVM address alias.
    *
-   * @param address The desired EVM address.
+   * @param address The EVM address alias.
    */
   explicit AccountId(const EvmAddress& address);
 
   /**
-   * Construct with a shard, realm, and account number.
+   * Construct with a shard, realm, an account number, and optionally a checksum.
    *
-   * @param shard The desired shard number.
-   * @param realm The desired realm number.
-   * @param num   The desired account number.
-   * @throws std::invalid_argument If any number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param shard    The shard number.
+   * @param realm    The realm number.
+   * @param num      The account number.
+   * @param checksum The checksum.
    */
-  explicit AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
+  explicit AccountId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum = "");
 
   /**
-   * Construct with shard and realm numbers, and an account alias.
+   * Construct with shard and realm numbers, and a PublicKey alias.
    *
-   * @param shard The desired shard number.
-   * @param realm The desired realm number.
-   * @param alias The desired account alias.
-   * @throws std::invalid_argument If the shard or realm number is too big (max value is
-   *                               std::numeric_limits<int64_t>::max()).
+   * @param shard The shard number.
+   * @param realm The realm number.
+   * @param alias The PublicKey alias.
    */
-  explicit AccountId(const uint64_t& shard, const uint64_t& realm, const std::shared_ptr<PublicKey>& alias);
+  explicit AccountId(uint64_t shard, uint64_t realm, const std::shared_ptr<PublicKey>& alias);
 
   /**
-   * Construct with shard and realm numbers, and an EVM address.
+   * Construct with shard and realm numbers, and an EVM address alias.
    *
-   * @param shard   The desired shard number.
-   * @param realm   The desired realm number.
-   * @param address The desired EVM address.
-   * @throws std::invalid_argument If the shard or realm number is too big (max value is
-   *                               std::numeric_limits<int64_t>::max()).
+   * @param shard   The shard number.
+   * @param realm   The realm number.
+   * @param address The EVM address alias.
    */
-  explicit AccountId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address);
+  explicit AccountId(uint64_t shard, uint64_t realm, const EvmAddress& address);
 
   /**
    * Compare this AccountId to another AccountId and determine if they represent the same account.
@@ -142,12 +145,38 @@ public:
                                                 uint64_t realm = 0ULL);
 
   /**
-   * Create an AccountId object from an AccountID protobuf object.
+   * Construct an AccountId from a Solidity address.
+   *
+   * @param address The Solidity address from which to create an AccountId, in a string.
+   * @return The constructed AccountId object.
+   * @throws std::invalid_argument If a Solidity address cannot be realized from the input string.
+   */
+  [[nodiscard]] static AccountId fromSolidityAddress(std::string_view address);
+
+  /**
+   * Construct an AccountId object from an AccountID protobuf object.
    *
    * @param proto The AccountID protobuf object from which to create an AccountId object.
    * @return The constructed AccountId object.
    */
   [[nodiscard]] static AccountId fromProtobuf(const proto::AccountID& proto);
+
+  /**
+   * Construct an AccountId object from a representative byte array.
+   *
+   * @param bytes The byte array from which to construct an AccountId object.
+   * @return The constructed AccountId object.
+   */
+  [[nodiscard]] static AccountId fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Verify the checksum of this AccountId using the input Client's network. Does nothing if this AccountId does not use
+   * an account number (i.e. it contains a PublicKey or EvmAddress alias).
+   *
+   * @param client The Client with which to validate this AccountId's checksum.
+   * @throws BadEntityException If the checksum of this AccountId is invalid.
+   */
+  void validateChecksum(const Client& client) const;
 
   /**
    * Construct an AccountID protobuf object from this AccountId object.
@@ -157,18 +186,42 @@ public:
   [[nodiscard]] std::unique_ptr<proto::AccountID> toProtobuf() const;
 
   /**
-   * Get a Solidity address representation of this AccountId (Long-Zero address).
+   * Get the Solidity address representation of this AccountId (Long-Zero address form).
    *
-   * @return A Solidity address representation of this AccountId.
+   * @return The Solidity address representation of this AccountId.
+   * @throws IllegalStateException If this AccountId contains an alias.
    */
   [[nodiscard]] std::string toSolidityAddress() const;
 
   /**
-   * Get a string representation of this AccountId object with the form "<shard>.<realm>.<num>".
+   * Get the string representation of this AccountId object.
    *
-   * @return A string representation of this AccountId.
+   * @return The string representation of this AccountId.
    */
   [[nodiscard]] std::string toString() const;
+
+  /**
+   * Get the string representation of this AccountId object with the checksum.
+   *
+   * @param client The Client with which to generate the checksum.
+   * @return The string representation of this AccountId object with the checksum.
+   * @throws IllegalStateException If this AccountId contains an alias.
+   */
+  [[nodiscard]] std::string toStringWithChecksum([[maybe_unused]] const Client& client) const;
+
+  /**
+   * Get a byte array representation of this AccountId object.
+   *
+   * @return A byte array representation of this AccountId object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Get the checksum of this AccountId.
+   *
+   * @return The checksum of this AccountId.
+   */
+  [[nodiscard]] inline std::string getChecksum() const { return mChecksum; }
 
   /**
    * The shard number.
@@ -210,13 +263,9 @@ public:
 
 private:
   /**
-   * Check if the shard, realm, or account numbers (respectively) are too big.
-   *
-   * @throws std::invalid_argument If the shard, realm, or account number (respectively) is too big.
+   * The checksum of this AccountId.
    */
-  void checkShardNum() const;
-  void checkRealmNum() const;
-  void checkAccountNum() const;
+  mutable std::string mChecksum;
 };
 
 } // namespace Hedera

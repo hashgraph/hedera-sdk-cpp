@@ -22,6 +22,8 @@
 
 #include "ContractId.h"
 
+#include <string_view>
+
 namespace proto
 {
 class ContractID;
@@ -43,20 +45,19 @@ public:
   /**
    * Construct with a contract number.
    *
-   * @param num The desired contract number.
-   * @throws std::invalid_argument If the contract number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param num The contract number.
    */
-  explicit DelegateContractId(const uint64_t& num);
+  explicit DelegateContractId(uint64_t num);
 
   /**
-   * Construct with a shard, realm, and contract number.
+   * Construct with a shard, realm, a contract number, and optionally a checksum.
    *
-   * @param shard The desired shard number.
-   * @param realm The desired realm number.
-   * @param num   The desired contract number.
-   * @throws std::invalid_argument If any number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param shard    The shard number.
+   * @param realm    The realm number.
+   * @param num      The account number.
+   * @param checksum The checksum.
    */
-  explicit DelegateContractId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
+  explicit DelegateContractId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum = "");
 
   /**
    * Compare this DelegateContractId to another DelegateContractId and determine if they represent the same contract.
@@ -67,12 +68,21 @@ public:
   [[nodiscard]] bool operator==(const DelegateContractId& other) const;
 
   /**
-   * Construct an DelegateContractId object from a string of the form "<shard>.<realm>.<num>".
+   * Construct a DelegateContractId object from a string of the form "<shard>.<realm>.<num>".
    *
-   * @param id The account ID string from which to construct.
+   * @param id The contract ID string from which to construct.
    * @return The constructed DelegateContractId object.
    */
   [[nodiscard]] static DelegateContractId fromString(std::string_view id);
+
+  /**
+   * Construct a DelegateContractId from a Solidity address.
+   *
+   * @param address The Solidity address from which to create a DelegateContractId, as a string.
+   * @return The constructed DelegateContractId object.
+   * @throws std::invalid_argument If a Solidity address cannot be realized from the input string.
+   */
+  [[nodiscard]] static DelegateContractId fromSolidityAddress(std::string_view address);
 
   /**
    * Construct an DelegateContractId object from an DelegateContractId protobuf object.
@@ -81,6 +91,14 @@ public:
    * @return The constructed DelegateContractId object.
    */
   [[nodiscard]] static DelegateContractId fromProtobuf(const proto::ContractID& id);
+
+  /**
+   * Construct a DelegateContractId object from a representative byte array.
+   *
+   * @param bytes The byte array from which to construct a DelegateContractId object.
+   * @return The constructed ContractId object.
+   */
+  [[nodiscard]] static DelegateContractId fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Derived from Key. Create a clone of this DelegateContractId object.

@@ -88,6 +88,12 @@ grpc::Status FileAppendTransaction::submitRequest(const proto::Transaction& requ
 }
 
 //-----
+void FileAppendTransaction::validateChecksums(const Client& client) const
+{
+  mFileId.validateChecksum(client);
+}
+
+//-----
 void FileAppendTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_fileappend(build());

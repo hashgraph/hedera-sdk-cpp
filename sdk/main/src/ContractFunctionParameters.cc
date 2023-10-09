@@ -19,6 +19,7 @@
  */
 #include "ContractFunctionParameters.h"
 #include "exceptions/OpenSSLException.h"
+#include "impl/EntityIdHelper.h"
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
@@ -29,10 +30,6 @@ namespace Hedera
 {
 namespace
 {
-// The length of a solidity address.
-constexpr int SOLIDITY_ADDRESS_LEN = 20;
-// The length of a hex-encoded solidity address.
-constexpr int SOLIDITY_ADDRESS_LEN_HEX = SOLIDITY_ADDRESS_LEN * 2;
 // Padding that can substring without new allocations.
 const std::vector<std::byte> POSITIVE_PADDING(31, std::byte(0x00));
 const std::vector<std::byte> NEGATIVE_PADDING(31, std::byte(0xFF));
@@ -237,10 +234,10 @@ template<typename ValType, typename ToBytesFuncType>
     address.remove_prefix(2);
   }
 
-  if (address.size() != SOLIDITY_ADDRESS_LEN_HEX)
+  if (address.size() != internal::EntityIdHelper::SOLIDITY_ADDRESS_LEN_HEX)
   {
-    throw std::invalid_argument("Solidity addresses must be " + std::to_string(SOLIDITY_ADDRESS_LEN_HEX) +
-                                " characters");
+    throw std::invalid_argument("Solidity addresses must be " +
+                                std::to_string(internal::EntityIdHelper::SOLIDITY_ADDRESS_LEN_HEX) + " characters");
   }
 
   try

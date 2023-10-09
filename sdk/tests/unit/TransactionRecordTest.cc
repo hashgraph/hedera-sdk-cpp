@@ -88,10 +88,10 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   aa->set_amount(-amount);
 
   list = protoTransactionRecord.add_tokentransferlists();
-  list->set_allocated_token(nftId.getTokenId().toProtobuf().release());
+  list->set_allocated_token(nftId.mTokenId.toProtobuf().release());
 
   proto::NftTransfer* nft = list->add_nfttransfers();
-  nft->set_serialnumber(static_cast<int64_t>(nftId.getSerialNum()));
+  nft->set_serialnumber(static_cast<int64_t>(nftId.mSerialNum));
   nft->set_allocated_senderaccountid(accountIdFrom.toProtobuf().release());
   nft->set_allocated_receiveraccountid(accountIdTo.toProtobuf().release());
 
@@ -134,10 +134,10 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   EXPECT_EQ(txRecord.mContractFunctionResult->mContractCallResult, contractCallResult);
 
   ASSERT_EQ(txRecord.mHbarTransferList.size(), 2);
-  EXPECT_EQ(txRecord.mHbarTransferList.at(0).getAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.mHbarTransferList.at(0).getAmount().toTinybars(), -amount);
-  EXPECT_EQ(txRecord.mHbarTransferList.at(1).getAccountId(), accountIdTo);
-  EXPECT_EQ(txRecord.mHbarTransferList.at(1).getAmount().toTinybars(), amount);
+  EXPECT_EQ(txRecord.mHbarTransferList.at(0).mAccountId, accountIdFrom);
+  EXPECT_EQ(txRecord.mHbarTransferList.at(0).mAmount.toTinybars(), -amount);
+  EXPECT_EQ(txRecord.mHbarTransferList.at(1).mAccountId, accountIdTo);
+  EXPECT_EQ(txRecord.mHbarTransferList.at(1).mAmount.toTinybars(), amount);
 
   ASSERT_EQ(txRecord.mTokenTransferList.size(), 2);
   EXPECT_EQ(txRecord.mTokenTransferList.at(0).mTokenId, tokenId);
@@ -148,9 +148,9 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   EXPECT_EQ(txRecord.mTokenTransferList.at(1).mAmount, -amount);
 
   ASSERT_EQ(txRecord.mNftTransferList.size(), 1);
-  EXPECT_EQ(txRecord.mNftTransferList.at(0).getNftId(), nftId);
-  EXPECT_EQ(txRecord.mNftTransferList.at(0).getSenderAccountId(), accountIdFrom);
-  EXPECT_EQ(txRecord.mNftTransferList.at(0).getReceiverAccountId(), accountIdTo);
+  EXPECT_EQ(txRecord.mNftTransferList.at(0).mNftId, nftId);
+  EXPECT_EQ(txRecord.mNftTransferList.at(0).mSenderAccountId, accountIdFrom);
+  EXPECT_EQ(txRecord.mNftTransferList.at(0).mReceiverAccountId, accountIdTo);
 
   EXPECT_EQ(txRecord.mScheduleRef, scheduleId);
 

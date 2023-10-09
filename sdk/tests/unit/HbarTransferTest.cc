@@ -41,21 +41,14 @@ private:
 TEST_F(HbarTransferTest, SerializeTransferToProtobuf)
 {
   // Given
-  const AccountId testAccountId = getTestAccountId();
-  const int64_t testAmount = getTestAmount();
-  const auto testHbarAmount = Hbar(testAmount, HbarUnit::TINYBAR());
-
-  HbarTransfer testTransfer;
-  testTransfer.setAccountId(testAccountId);
-  testTransfer.setAmount(testHbarAmount);
-  testTransfer.setApproved(false);
+  const HbarTransfer testTransfer(getTestAccountId(), Hbar(getTestAmount(), HbarUnit::TINYBAR()), false);
 
   // When
   const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(testTransfer.toProtobuf());
 
   // Then
-  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), testAccountId.mAccountNum);
-  EXPECT_EQ(protoAccountAmountPtr->amount(), testAmount);
+  EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), getTestAccountId().mAccountNum);
+  EXPECT_EQ(protoAccountAmountPtr->amount(), getTestAmount());
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }
 
@@ -74,9 +67,9 @@ TEST_F(HbarTransferTest, DeserializeTransferFromProtobuf)
   const HbarTransfer transfer = HbarTransfer::fromProtobuf(testProtoAccountAmount);
 
   // Then
-  EXPECT_EQ(transfer.getAccountId(), testAccountId);
-  EXPECT_EQ(transfer.getAmount().toTinybars(), testAmount);
-  EXPECT_TRUE(transfer.getApproval());
+  EXPECT_EQ(transfer.mAccountId, testAccountId);
+  EXPECT_EQ(transfer.mAmount.toTinybars(), testAmount);
+  EXPECT_TRUE(transfer.mIsApproved);
 }
 
 // Tests serialization & deserialization of Hedera::HbarTransfer -> proto::AccountAmount -> Hedera::HbarTransfer.
@@ -91,16 +84,16 @@ TEST_F(HbarTransferTest, ProtoTransfer)
   protoAccountAmount.set_is_approval(true);
 
   HbarTransfer transfer = HbarTransfer::fromProtobuf(protoAccountAmount);
-  EXPECT_EQ(transfer.getAccountId(), accountId);
-  EXPECT_EQ(transfer.getAmount().toTinybars(), amount);
-  EXPECT_TRUE(transfer.getApproval());
+  EXPECT_EQ(transfer.mAccountId, accountId);
+  EXPECT_EQ(transfer.mAmount.toTinybars(), amount);
+  EXPECT_TRUE(transfer.mIsApproved);
 
   accountId.mAccountNum = 15ULL;
   amount = 15LL;
 
-  transfer.setAccountId(accountId);
-  transfer.setAmount(Hbar(amount, HbarUnit::TINYBAR()));
-  transfer.setApproved(false);
+  transfer.mAccountId = accountId;
+  transfer.mAmount = Hbar(amount, HbarUnit::TINYBAR());
+  transfer.mIsApproved = false;
 
   const auto protoAccountAmountPtr = std::unique_ptr<proto::AccountAmount>(transfer.toProtobuf());
   EXPECT_EQ(protoAccountAmountPtr->accountid().accountnum(), accountId.mAccountNum);

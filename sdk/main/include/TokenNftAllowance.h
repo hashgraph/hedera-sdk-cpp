@@ -82,6 +82,14 @@ public:
   [[nodiscard]] static TokenNftAllowance fromBytes(const std::vector<std::byte>& bytes);
 
   /**
+   * Validate the checksums of the entity IDs in this TokenNftAllowance.
+   *
+   * @param client The Client to use to validate the checksums.
+   * @throws BadEntityException If the checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const;
+
+  /**
    * Construct an NftAllowance protobuf object from this TokenNftAllowance object.
    *
    * @return A pointer to a constructed NftAllowance protobuf object filled with this TokenNftAllowance object's data.
@@ -92,7 +100,7 @@ public:
    * Construct an NftRemoveAllowance protobuf object from this TokenNftAllowance object.
    *
    * @return A pointer to a constructed NftRemoveAllowance protobuf object filled with this TokenNftAllowance object's
-   * data.
+   *         data.
    */
   [[nodiscard]] std::unique_ptr<proto::NftRemoveAllowance> toRemoveProtobuf() const;
 

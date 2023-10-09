@@ -54,6 +54,12 @@ grpc::Status TopicInfoQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void TopicInfoQuery::validateChecksums(const Client& client) const
+{
+  mTopicId.validateChecksum(client);
+}
+
+//-----
 proto::Query TopicInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto consensusGetTopicInfoQuery = std::make_unique<proto::ConsensusGetTopicInfoQuery>();

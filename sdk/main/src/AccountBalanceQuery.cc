@@ -62,6 +62,20 @@ grpc::Status AccountBalanceQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void AccountBalanceQuery::validateChecksums(const Client& client) const
+{
+  if (mAccountId.has_value())
+  {
+    mAccountId->validateChecksum(client);
+  }
+
+  if (mContractId.has_value())
+  {
+    mContractId->validateChecksum(client);
+  }
+}
+
+//-----
 proto::Query AccountBalanceQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto accountBalanceQuery = std::make_unique<proto::CryptoGetAccountBalanceQuery>();

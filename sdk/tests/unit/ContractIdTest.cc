@@ -44,30 +44,17 @@ private:
 };
 
 //-----
-TEST_F(ContractIdTest, DefaultConstructContractId)
-{
-  // Given / When
-  const ContractId contractId;
-
-  // Then
-  EXPECT_EQ(contractId.getShardNum(), 0ULL);
-  EXPECT_EQ(contractId.getRealmNum(), 0ULL);
-  EXPECT_FALSE(contractId.getContractNum().has_value());
-  EXPECT_FALSE(contractId.getEvmAddress().has_value());
-}
-
-//-----
 TEST_F(ContractIdTest, ConstructWithContractNum)
 {
   // Given / When
   const ContractId contractId(getTestContractNum());
 
   // Then
-  EXPECT_EQ(contractId.getShardNum(), 0ULL);
-  EXPECT_EQ(contractId.getRealmNum(), 0ULL);
-  ASSERT_TRUE(contractId.getContractNum().has_value());
-  EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
-  EXPECT_FALSE(contractId.getEvmAddress().has_value());
+  EXPECT_EQ(contractId.mShardNum, 0ULL);
+  EXPECT_EQ(contractId.mRealmNum, 0ULL);
+  ASSERT_TRUE(contractId.mContractNum.has_value());
+  EXPECT_EQ(contractId.mContractNum, getTestContractNum());
+  EXPECT_FALSE(contractId.mEvmAddress.has_value());
 }
 
 //-----
@@ -84,11 +71,11 @@ TEST_F(ContractIdTest, ConstructWithEvmAddress)
   const ContractId contractId(getTestEvmAddress());
 
   // Then
-  EXPECT_EQ(contractId.getShardNum(), 0ULL);
-  EXPECT_EQ(contractId.getRealmNum(), 0ULL);
-  EXPECT_FALSE(contractId.getContractNum().has_value());
-  ASSERT_TRUE(contractId.getEvmAddress().has_value());
-  EXPECT_EQ(contractId.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+  EXPECT_EQ(contractId.mShardNum, 0ULL);
+  EXPECT_EQ(contractId.mRealmNum, 0ULL);
+  EXPECT_FALSE(contractId.mContractNum.has_value());
+  ASSERT_TRUE(contractId.mEvmAddress.has_value());
+  EXPECT_EQ(contractId.mEvmAddress->toBytes(), getTestEvmAddress().toBytes());
 }
 
 //-----
@@ -98,11 +85,11 @@ TEST_F(ContractIdTest, ConstructWithShardRealmContractNum)
   const ContractId contractId(getTestShardNum(), getTestRealmNum(), getTestContractNum());
 
   // Then
-  EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
-  ASSERT_TRUE(contractId.getContractNum().has_value());
-  EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
-  EXPECT_FALSE(contractId.getEvmAddress().has_value());
+  EXPECT_EQ(contractId.mShardNum, getTestShardNum());
+  EXPECT_EQ(contractId.mRealmNum, getTestRealmNum());
+  ASSERT_TRUE(contractId.mContractNum.has_value());
+  EXPECT_EQ(contractId.mContractNum, getTestContractNum());
+  EXPECT_FALSE(contractId.mEvmAddress.has_value());
 }
 
 //-----
@@ -124,11 +111,11 @@ TEST_F(ContractIdTest, ConstructWithShardRealmEvmAddress)
   const ContractId contractId(getTestShardNum(), getTestRealmNum(), getTestEvmAddress());
 
   // Then
-  EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
-  EXPECT_FALSE(contractId.getContractNum().has_value());
-  ASSERT_TRUE(contractId.getEvmAddress().has_value());
-  EXPECT_EQ(contractId.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+  EXPECT_EQ(contractId.mShardNum, getTestShardNum());
+  EXPECT_EQ(contractId.mRealmNum, getTestRealmNum());
+  EXPECT_FALSE(contractId.mContractNum.has_value());
+  ASSERT_TRUE(contractId.mEvmAddress.has_value());
+  EXPECT_EQ(contractId.mEvmAddress->toBytes(), getTestEvmAddress().toBytes());
 }
 
 //-----
@@ -176,17 +163,17 @@ TEST_F(ContractIdTest, FromProtobuf)
   const ContractId contractIdEvmAddress = ContractId::fromProtobuf(protoContractIdEvmAddress);
 
   // Then
-  EXPECT_EQ(contractIdContractNum.getShardNum(), getTestShardNum());
-  EXPECT_EQ(contractIdContractNum.getRealmNum(), getTestRealmNum());
-  ASSERT_TRUE(contractIdContractNum.getContractNum().has_value());
-  EXPECT_EQ(contractIdContractNum.getContractNum(), getTestContractNum());
-  EXPECT_FALSE(contractIdContractNum.getEvmAddress().has_value());
+  EXPECT_EQ(contractIdContractNum.mShardNum, getTestShardNum());
+  EXPECT_EQ(contractIdContractNum.mRealmNum, getTestRealmNum());
+  ASSERT_TRUE(contractIdContractNum.mContractNum.has_value());
+  EXPECT_EQ(contractIdContractNum.mContractNum, getTestContractNum());
+  EXPECT_FALSE(contractIdContractNum.mEvmAddress.has_value());
 
-  EXPECT_EQ(contractIdEvmAddress.getShardNum(), getTestShardNum());
-  EXPECT_EQ(contractIdEvmAddress.getRealmNum(), getTestRealmNum());
-  EXPECT_FALSE(contractIdEvmAddress.getContractNum().has_value());
-  ASSERT_TRUE(contractIdEvmAddress.getEvmAddress().has_value());
-  EXPECT_EQ(contractIdEvmAddress.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
+  EXPECT_EQ(contractIdEvmAddress.mShardNum, getTestShardNum());
+  EXPECT_EQ(contractIdEvmAddress.mRealmNum, getTestRealmNum());
+  EXPECT_FALSE(contractIdEvmAddress.mContractNum.has_value());
+  ASSERT_TRUE(contractIdEvmAddress.mEvmAddress.has_value());
+  EXPECT_EQ(contractIdEvmAddress.mEvmAddress->toBytes(), getTestEvmAddress().toBytes());
 }
 
 //-----
@@ -283,77 +270,4 @@ TEST_F(ContractIdTest, ToString)
   EXPECT_EQ(strContractIdShardRealmEvmAddress,
             std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
               getTestEvmAddress().toString());
-}
-
-//-----
-TEST_F(ContractIdTest, GetSetShardNum)
-{
-  // Given
-  ContractId contractId;
-
-  // When
-  EXPECT_THROW(contractId.setShardNum(getTestNumTooBig()), std::invalid_argument);
-  contractId.setShardNum(getTestShardNum());
-
-  // Then
-  EXPECT_EQ(contractId.getShardNum(), getTestShardNum());
-}
-
-//-----
-TEST_F(ContractIdTest, GetSetRealmNum)
-{
-  // Given
-  ContractId contractId;
-
-  // When
-  EXPECT_THROW(contractId.setRealmNum(getTestNumTooBig()), std::invalid_argument);
-  contractId.setRealmNum(getTestRealmNum());
-
-  // Then
-  EXPECT_EQ(contractId.getRealmNum(), getTestRealmNum());
-}
-
-//-----
-TEST_F(ContractIdTest, GetSetContractNum)
-{
-  // Given
-  ContractId contractId;
-
-  // When
-  EXPECT_THROW(contractId.setContractNum(getTestNumTooBig()), std::invalid_argument);
-  contractId.setContractNum(getTestContractNum());
-
-  // Then
-  ASSERT_TRUE(contractId.getContractNum().has_value());
-  EXPECT_EQ(contractId.getContractNum(), getTestContractNum());
-}
-
-//-----
-TEST_F(ContractIdTest, GetSetEvmAddress)
-{
-  // Given
-  ContractId contractId;
-
-  // When
-  contractId.setEvmAddress(getTestEvmAddress());
-
-  // Then
-  ASSERT_TRUE(contractId.getEvmAddress().has_value());
-  EXPECT_EQ(contractId.getEvmAddress()->toBytes(), getTestEvmAddress().toBytes());
-}
-
-//-----
-TEST_F(ContractIdTest, ResetMutuallyExclusiveIds)
-{
-  // Given
-  ContractId contractIdContractNum(getTestContractNum());
-  ContractId contractIdEvmAddress(getTestEvmAddress());
-
-  // When
-  contractIdContractNum.setEvmAddress(getTestEvmAddress());
-  contractIdEvmAddress.setContractNum(getTestContractNum());
-
-  // Then
-  EXPECT_FALSE(contractIdContractNum.getContractNum().has_value());
-  EXPECT_FALSE(contractIdEvmAddress.getEvmAddress().has_value());
 }

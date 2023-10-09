@@ -25,6 +25,7 @@
 #include "NodeAddressBook.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/BaseNodeAddress.h"
 #include "impl/MirrorNetwork.h"
 #include "impl/Network.h"
@@ -82,6 +83,9 @@ struct Client::ClientImpl
 
   // The period of time to wait between network updates.
   std::chrono::duration<double> mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
+
+  // Should this Client automatically validate entity checksums?
+  bool mAutoValidateChecksums = false;
 
   // Has this Client made its initial network update? This is utilized in case the user updates the network update
   // period before the initial update is made, as it prevents the update period from being overwritten.
@@ -298,6 +302,24 @@ Client& Client::setNetworkUpdatePeriod(const std::chrono::duration<double>& upda
 }
 
 //-----
+Client& Client::setAutoValidateChecksums(bool validate)
+{
+  mImpl->mAutoValidateChecksums = validate;
+  return *this;
+}
+
+//-----
+Client& Client::setLedgerId(const LedgerId& ledgerId)
+{
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setLedgerId(ledgerId);
+  }
+
+  return *this;
+}
+
+//-----
 std::shared_ptr<internal::Network> Client::getNetwork() const
 {
   return mImpl->mNetwork;
@@ -370,6 +392,23 @@ std::chrono::duration<double> Client::getNetworkUpdatePeriod() const
 {
   std::unique_lock lock(mImpl->mMutex);
   return mImpl->mNetworkUpdatePeriod;
+}
+
+//-----
+bool Client::isAutoValidateChecksumsEnabled() const
+{
+  return mImpl->mAutoValidateChecksums;
+}
+
+//-----
+LedgerId Client::getLedgerId() const
+{
+  if (!mImpl->mNetwork)
+  {
+    throw UninitializedException("Client does not have a Network from which to grab the ledger ID");
+  }
+
+  return mImpl->mNetwork->getLedgerId();
 }
 
 //-----

@@ -60,6 +60,15 @@ grpc::Status ScheduleDeleteTransaction::submitRequest(const proto::Transaction& 
 }
 
 //-----
+void ScheduleDeleteTransaction::validateChecksums(const Client& client) const
+{
+  if (mScheduleId.has_value())
+  {
+    mScheduleId->validateChecksum(client);
+  }
+}
+
+//-----
 void ScheduleDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_scheduledelete(build());

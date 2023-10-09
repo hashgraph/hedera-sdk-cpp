@@ -133,6 +133,14 @@ private:
   [[nodiscard]] virtual proto::ResponseHeader mapResponseHeader(const proto::Response& response) const = 0;
 
   /**
+   * Verify that all the checksums in this Transaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This Transaction's checksums are not valid.
+   */
+  virtual void validateChecksums(const Client& client) const = 0;
+
+  /**
    * Derived from Executable. Construct a Query protobuf object from this Query, based on the node account ID at the
    * given index.
    *

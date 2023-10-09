@@ -54,6 +54,12 @@ grpc::Status TokenNftInfoQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void TokenNftInfoQuery::validateChecksums(const Client& client) const
+{
+  mNftId.mTokenId.validateChecksum(client);
+}
+
+//-----
 proto::Query TokenNftInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto tokenGetNftInfoQuery = std::make_unique<proto::TokenGetNftInfoQuery>();

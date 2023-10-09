@@ -85,6 +85,14 @@ private:
                                            proto::Response* response) const override;
 
   /**
+   * Derived from Query. Verify that all the checksums in this TransactionRecordQuery are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This TransactionRecordQuery's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
+  /**
    * Derived from Executable. Determine the ExecutionStatus of this TransactionRecordQuery after being submitted.
    *
    * @param status   The response status of the previous attempt.

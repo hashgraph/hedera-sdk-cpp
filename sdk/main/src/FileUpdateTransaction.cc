@@ -111,6 +111,12 @@ grpc::Status FileUpdateTransaction::submitRequest(const proto::Transaction& requ
 }
 
 //-----
+void FileUpdateTransaction::validateChecksums(const Client& client) const
+{
+  mFileId.validateChecksum(client);
+}
+
+//-----
 void FileUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_fileupdate(build());

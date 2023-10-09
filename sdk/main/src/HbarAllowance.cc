@@ -51,6 +51,13 @@ HbarAllowance HbarAllowance::fromProtobuf(const proto::CryptoAllowance& proto)
 }
 
 //-----
+void HbarAllowance::validateChecksums(const Client& client) const
+{
+  mOwnerAccountId.validateChecksum(client);
+  mSpenderAccountId.validateChecksum(client);
+}
+
+//-----
 std::unique_ptr<proto::CryptoAllowance> HbarAllowance::toProtobuf() const
 {
   auto proto = std::make_unique<proto::CryptoAllowance>();
@@ -58,27 +65,6 @@ std::unique_ptr<proto::CryptoAllowance> HbarAllowance::toProtobuf() const
   proto->set_allocated_spender(mSpenderAccountId.toProtobuf().release());
   proto->set_amount(mAmount.toTinybars());
   return proto;
-}
-
-//-----
-HbarAllowance& HbarAllowance::setOwnerAccountId(const AccountId& accountId)
-{
-  mOwnerAccountId = accountId;
-  return *this;
-}
-
-//-----
-HbarAllowance& HbarAllowance::setSpenderAccountId(const AccountId& accountId)
-{
-  mSpenderAccountId = accountId;
-  return *this;
-}
-
-//-----
-HbarAllowance& HbarAllowance::setAmount(const Hbar& amount)
-{
-  mAmount = amount;
-  return *this;
 }
 
 } // namespace Hedera

@@ -42,27 +42,15 @@ private:
 };
 
 //-----
-TEST_F(FileIdTest, DefaultConstructFileId)
-{
-  // Given / When
-  const FileId fileId;
-
-  // Then
-  EXPECT_EQ(fileId.getShardNum(), 0ULL);
-  EXPECT_EQ(fileId.getRealmNum(), 0ULL);
-  EXPECT_EQ(fileId.getFileNum(), 0ULL);
-}
-
-//-----
 TEST_F(FileIdTest, ConstructWithFileNum)
 {
   // Given / When
   const FileId fileId(getTestFileNum());
 
   // Then
-  EXPECT_EQ(fileId.getShardNum(), 0ULL);
-  EXPECT_EQ(fileId.getRealmNum(), 0ULL);
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
+  EXPECT_EQ(fileId.mShardNum, 0ULL);
+  EXPECT_EQ(fileId.mRealmNum, 0ULL);
+  EXPECT_EQ(fileId.mFileNum, getTestFileNum());
 }
 
 //-----
@@ -79,9 +67,9 @@ TEST_F(FileIdTest, ConstructWithShardRealmFileNum)
   const FileId fileId(getTestShardNum(), getTestRealmNum(), getTestFileNum());
 
   // Then
-  EXPECT_EQ(fileId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(fileId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
+  EXPECT_EQ(fileId.mShardNum, getTestShardNum());
+  EXPECT_EQ(fileId.mRealmNum, getTestRealmNum());
+  EXPECT_EQ(fileId.mFileNum, getTestFileNum());
 }
 
 //-----
@@ -120,9 +108,9 @@ TEST_F(FileIdTest, FromString)
                                        '.' + std::to_string(getTestFileNum())));
 
   // Then
-  EXPECT_EQ(fileId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(fileId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
+  EXPECT_EQ(fileId.mShardNum, getTestShardNum());
+  EXPECT_EQ(fileId.mRealmNum, getTestRealmNum());
+  EXPECT_EQ(fileId.mFileNum, getTestFileNum());
 }
 
 //-----
@@ -191,9 +179,9 @@ TEST_F(FileIdTest, FromProtobuf)
   const FileId fileId = FileId::fromProtobuf(protoFileId);
 
   // Then
-  EXPECT_EQ(fileId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(fileId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
+  EXPECT_EQ(fileId.mShardNum, getTestShardNum());
+  EXPECT_EQ(fileId.mRealmNum, getTestRealmNum());
+  EXPECT_EQ(fileId.mFileNum, getTestFileNum());
 }
 
 //-----
@@ -230,73 +218,4 @@ TEST_F(FileIdTest, ToString)
   EXPECT_EQ(fileIdShardRealmFileNumStr,
             std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
               std::to_string(getTestFileNum()));
-}
-
-//-----
-TEST_F(FileIdTest, SetGetShardNum)
-{
-  // Given
-  FileId fileId;
-
-  // When
-  fileId.setShardNum(getTestShardNum());
-
-  // Then
-  EXPECT_EQ(fileId.getShardNum(), getTestShardNum());
-}
-
-//-----
-TEST_F(FileIdTest, SetGetShardNumTooBig)
-{
-  // Given
-  FileId fileId;
-
-  // When / Then
-  EXPECT_THROW(fileId.setShardNum(getTestNumTooBig()), std::invalid_argument);
-}
-
-//-----
-TEST_F(FileIdTest, SetGetRealmNum)
-{
-  // Given
-  FileId fileId;
-
-  // When
-  fileId.setRealmNum(getTestRealmNum());
-
-  // Then
-  EXPECT_EQ(fileId.getRealmNum(), getTestRealmNum());
-}
-
-//-----
-TEST_F(FileIdTest, SetGetRealmNumTooBig)
-{
-  // Given
-  FileId fileId;
-
-  // When / Then
-  EXPECT_THROW(fileId.setRealmNum(getTestNumTooBig()), std::invalid_argument);
-}
-
-//-----
-TEST_F(FileIdTest, SetGetFileNum)
-{
-  // Given
-  FileId fileId;
-
-  // When
-  fileId.setFileNum(getTestFileNum());
-
-  // Then
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
-}
-
-//-----
-TEST_F(FileIdTest, SetGetFileNumTooBig)
-{
-  // Given
-  FileId fileId;
-
-  // When / Then
-  EXPECT_THROW(fileId.setFileNum(getTestNumTooBig()), std::invalid_argument);
 }

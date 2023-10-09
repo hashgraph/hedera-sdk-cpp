@@ -39,19 +39,11 @@ private:
 };
 
 //-----
-TEST_F(NftIdTest, DefaultConstructNftId)
-{
-  const NftId nftId;
-  EXPECT_EQ(nftId.getTokenId(), TokenId());
-  EXPECT_EQ(nftId.getSerialNum(), 0ULL);
-}
-
-//-----
 TEST_F(NftIdTest, ConstructWithTokenIdSerialNum)
 {
   const NftId nftId(getTestTokenId(), getTestSerialNum());
-  EXPECT_EQ(nftId.getTokenId(), getTestTokenId());
-  EXPECT_EQ(nftId.getSerialNum(), getTestSerialNum());
+  EXPECT_EQ(nftId.mTokenId, getTestTokenId());
+  EXPECT_EQ(nftId.mSerialNum, getTestSerialNum());
 
   EXPECT_THROW(NftId(getTestTokenId(), getTestNumTooBig()), std::invalid_argument);
 }
@@ -72,8 +64,8 @@ TEST_F(NftIdTest, ConstructFromString)
 
   NftId nftId;
   EXPECT_NO_THROW(nftId = NftId::fromString(testTokenIdStr + '/' + testSerialNumSr));
-  EXPECT_EQ(nftId.getTokenId(), getTestTokenId());
-  EXPECT_EQ(nftId.getSerialNum(), getTestSerialNum());
+  EXPECT_EQ(nftId.mTokenId, getTestTokenId());
+  EXPECT_EQ(nftId.mSerialNum, getTestSerialNum());
 
   EXPECT_THROW(nftId = NftId::fromString(testTokenIdStr + testSerialNumSr), std::invalid_argument);
   EXPECT_THROW(nftId = NftId::fromString('/' + testTokenIdStr + testSerialNumSr), std::invalid_argument);
@@ -92,9 +84,7 @@ TEST_F(NftIdTest, ConstructFromString)
 //-----
 TEST_F(NftIdTest, ProtobufNftId)
 {
-  NftId nftId;
-  nftId.setTokenId(getTestTokenId());
-  nftId.setSerialNum(getTestSerialNum());
+  NftId nftId(getTestTokenId(), getTestSerialNum());
 
   // Serialize token ID and serial number
   std::unique_ptr<proto::NftID> protoNftID = nftId.toProtobuf();
@@ -106,8 +96,8 @@ TEST_F(NftIdTest, ProtobufNftId)
 
   // Deserialize token ID and serial number
   nftId = NftId::fromProtobuf(*protoNftID);
-  EXPECT_EQ(nftId.getTokenId(), getTestTokenId());
-  EXPECT_EQ(nftId.getSerialNum(), getTestSerialNum() - 1ULL);
+  EXPECT_EQ(nftId.mTokenId, getTestTokenId());
+  EXPECT_EQ(nftId.mSerialNum, getTestSerialNum() - 1ULL);
 }
 
 //-----
@@ -116,25 +106,7 @@ TEST_F(NftIdTest, ToString)
   NftId nftId;
   EXPECT_EQ(nftId.toString(), "0.0.0/0");
 
-  nftId.setTokenId(getTestTokenId());
-  nftId.setSerialNum(getTestSerialNum());
+  nftId.mTokenId = getTestTokenId();
+  nftId.mSerialNum = getTestSerialNum();
   EXPECT_EQ(nftId.toString(), getTestTokenId().toString() + '/' + std::to_string(getTestSerialNum()));
-}
-
-//-----
-TEST_F(NftIdTest, SetGetTokenId)
-{
-  NftId nftId;
-  nftId.setTokenId(getTestTokenId());
-  EXPECT_EQ(nftId.getTokenId(), getTestTokenId());
-}
-
-//-----
-TEST_F(NftIdTest, SetGetSerialNum)
-{
-  NftId nftId;
-  nftId.setSerialNum(getTestSerialNum());
-
-  EXPECT_EQ(nftId.getSerialNum(), getTestSerialNum());
-  EXPECT_THROW(nftId.setSerialNum(getTestNumTooBig()), std::invalid_argument);
 }

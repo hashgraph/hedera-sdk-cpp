@@ -70,6 +70,16 @@ grpc::Status TokenFeeScheduleUpdateTransaction::submitRequest(const proto::Trans
 }
 
 //-----
+void TokenFeeScheduleUpdateTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+
+  std::for_each(mCustomFees.cbegin(),
+                mCustomFees.cend(),
+                [&client](const std::shared_ptr<CustomFee>& fee) { fee->validateChecksums(client); });
+}
+
+//-----
 void TokenFeeScheduleUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_token_fee_schedule_update(build());

@@ -25,11 +25,10 @@
 namespace Hedera
 {
 //-----
-NftId::NftId(const TokenId& id, const uint64_t& serialNumber)
-  : mTokenId(id)
+NftId::NftId(TokenId id, const uint64_t& serialNumber)
+  : mTokenId(std::move(id))
   , mSerialNum(serialNumber)
 {
-  checkSerialNum();
 }
 
 //-----
@@ -61,7 +60,6 @@ NftId NftId::fromString(std::string_view id)
   {
     throw std::invalid_argument("Input NFT ID string is malformed");
   }
-  nftId.checkSerialNum();
 
   return nftId;
 }
@@ -69,15 +67,7 @@ NftId NftId::fromString(std::string_view id)
 //-----
 NftId NftId::fromProtobuf(const proto::NftID& proto)
 {
-  NftId nftId;
-
-  if (proto.has_token_id())
-  {
-    nftId.mTokenId = TokenId::fromProtobuf(proto.token_id());
-  }
-
-  nftId.mSerialNum = static_cast<uint64_t>(proto.serial_number());
-  return nftId;
+  return NftId(TokenId::fromProtobuf(proto.token_id()), static_cast<uint64_t>(proto.serial_number()));
 }
 
 //-----
@@ -93,30 +83,6 @@ std::unique_ptr<proto::NftID> NftId::toProtobuf() const
 std::string NftId::toString() const
 {
   return mTokenId.toString() + '/' + std::to_string(mSerialNum);
-}
-
-//-----
-NftId& NftId::setTokenId(const TokenId& id)
-{
-  mTokenId = id;
-  return *this;
-}
-
-//-----
-NftId& NftId::setSerialNum(const uint64_t& num)
-{
-  mSerialNum = num;
-  checkSerialNum();
-  return *this;
-}
-
-//-----
-void NftId::checkSerialNum() const
-{
-  if (mSerialNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input serial number too big");
-  }
 }
 
 } // namespace Hedera

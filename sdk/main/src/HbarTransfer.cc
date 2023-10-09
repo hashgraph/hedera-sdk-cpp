@@ -24,6 +24,14 @@
 namespace Hedera
 {
 //-----
+HbarTransfer::HbarTransfer(AccountId accountId, const Hbar& amount, bool approval)
+  : mAccountId(std::move(accountId))
+  , mAmount(amount)
+  , mIsApproved(approval)
+{
+}
+
+//-----
 HbarTransfer HbarTransfer::fromProtobuf(const proto::AccountAmount& proto)
 {
   HbarTransfer transfer;
@@ -48,27 +56,6 @@ std::unique_ptr<proto::AccountAmount> HbarTransfer::toProtobuf() const
   proto->set_is_approval(mIsApproved);
 
   return proto;
-}
-
-//-----
-HbarTransfer& HbarTransfer::setAccountId(const AccountId& accountId)
-{
-  mAccountId = accountId;
-  return *this;
-}
-
-//-----
-HbarTransfer& HbarTransfer::setAmount(const Hbar& amount)
-{
-  mAmount = amount;
-  return *this;
-}
-
-//-----
-HbarTransfer& HbarTransfer::setApproved(bool approved)
-{
-  mIsApproved = approved;
-  return *this;
 }
 
 } // namespace Hedera

@@ -233,6 +233,24 @@ grpc::Status TokenCreateTransaction::submitRequest(const proto::Transaction& req
 }
 
 //-----
+void TokenCreateTransaction::validateChecksums(const Client& client) const
+{
+  if (mTreasuryAccountId.has_value())
+  {
+    mTreasuryAccountId->validateChecksum(client);
+  }
+
+  if (mAutoRenewAccountId.has_value())
+  {
+    mAutoRenewAccountId->validateChecksum(client);
+  }
+
+  std::for_each(mCustomFees.cbegin(),
+                mCustomFees.cend(),
+                [&client](const std::shared_ptr<CustomFee>& fee) { fee->validateChecksums(client); });
+}
+
+//-----
 void TokenCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokencreation(build());

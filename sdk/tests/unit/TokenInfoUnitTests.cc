@@ -337,9 +337,9 @@ TEST_F(TokenInfoTest, ToProtobuf)
   const std::unique_ptr<proto::TokenInfo> protoTokenInfo = tokenInfo.toProtobuf();
 
   // Then
-  EXPECT_EQ(protoTokenInfo->tokenid().shardnum(), getTestTokenId().getShardNum());
-  EXPECT_EQ(protoTokenInfo->tokenid().realmnum(), getTestTokenId().getRealmNum());
-  EXPECT_EQ(protoTokenInfo->tokenid().tokennum(), getTestTokenId().getTokenNum());
+  EXPECT_EQ(protoTokenInfo->tokenid().shardnum(), getTestTokenId().mShardNum);
+  EXPECT_EQ(protoTokenInfo->tokenid().realmnum(), getTestTokenId().mRealmNum);
+  EXPECT_EQ(protoTokenInfo->tokenid().tokennum(), getTestTokenId().mTokenNum);
   EXPECT_EQ(protoTokenInfo->name(), getTestTokenName());
   EXPECT_EQ(protoTokenInfo->symbol(), getTestTokenSymbol());
   EXPECT_EQ(protoTokenInfo->decimals(), getTestDecimals());

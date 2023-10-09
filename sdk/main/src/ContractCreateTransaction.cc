@@ -175,6 +175,25 @@ grpc::Status ContractCreateTransaction::submitRequest(const proto::Transaction& 
 }
 
 //-----
+void ContractCreateTransaction::validateChecksums(const Client& client) const
+{
+  if (mBytecodeFileId.has_value())
+  {
+    mBytecodeFileId->validateChecksum(client);
+  }
+
+  if (mAutoRenewAccountId.has_value())
+  {
+    mAutoRenewAccountId->validateChecksum(client);
+  }
+
+  if (mStakedAccountId.has_value())
+  {
+    mStakedAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 void ContractCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_contractcreateinstance(build());

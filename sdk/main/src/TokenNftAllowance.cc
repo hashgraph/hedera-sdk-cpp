@@ -88,6 +88,25 @@ TokenNftAllowance TokenNftAllowance::fromBytes(const std::vector<std::byte>& byt
 }
 
 //-----
+void TokenNftAllowance::validateChecksums(const Client& client) const
+{
+  if (mTokenId.has_value())
+  {
+    mTokenId->validateChecksum(client);
+  }
+
+  if (mOwnerAccountId.has_value())
+  {
+    mOwnerAccountId->validateChecksum(client);
+  }
+
+  if (mSpenderAccountId.has_value())
+  {
+    mSpenderAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 std::unique_ptr<proto::NftAllowance> TokenNftAllowance::toProtobuf() const
 {
   auto proto = std::make_unique<proto::NftAllowance>();

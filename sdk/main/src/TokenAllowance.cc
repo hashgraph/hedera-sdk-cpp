@@ -51,6 +51,14 @@ TokenAllowance TokenAllowance::fromBytes(const std::vector<std::byte>& bytes)
 }
 
 //-----
+void TokenAllowance::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+  mOwnerAccountId.validateChecksum(client);
+  mSpenderAccountId.validateChecksum(client);
+}
+
+//-----
 std::unique_ptr<proto::TokenAllowance> TokenAllowance::toProtobuf() const
 {
   auto proto = std::make_unique<proto::TokenAllowance>();

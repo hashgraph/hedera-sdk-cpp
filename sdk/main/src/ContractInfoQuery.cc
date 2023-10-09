@@ -51,6 +51,12 @@ grpc::Status ContractInfoQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void ContractInfoQuery::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+}
+
+//-----
 proto::Query ContractInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto contractGetInfoQuery = std::make_unique<proto::ContractGetInfoQuery>();
