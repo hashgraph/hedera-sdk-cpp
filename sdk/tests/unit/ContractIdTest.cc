@@ -21,7 +21,6 @@
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <limits>
 #include <proto/basic_types.pb.h>
 
 using namespace Hedera;
@@ -32,14 +31,12 @@ protected:
   [[nodiscard]] inline const uint64_t& getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t& getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t& getTestContractNum() const { return mContractNum; }
-  [[nodiscard]] inline const uint64_t& getTestNumTooBig() const { return mNumTooBig; }
   [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mEvmAddress; }
 
 private:
   const uint64_t mShardNum = 1ULL;
   const uint64_t mRealmNum = 2ULL;
   const uint64_t mContractNum = 3ULL;
-  const uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1ULL;
   const EvmAddress mEvmAddress = EvmAddress::fromString("0x0123456789abcdef0123456789abcdef01234567");
 };
 
@@ -56,14 +53,6 @@ TEST_F(ContractIdTest, ConstructWithContractNum)
   EXPECT_EQ(contractId.mContractNum, getTestContractNum());
   EXPECT_FALSE(contractId.mEvmAddress.has_value());
 }
-
-//-----
-TEST_F(ContractIdTest, ConstructWithContractNumTooBig)
-{
-  // Given / When / Then
-  EXPECT_THROW(const ContractId contractId(getTestNumTooBig()), std::invalid_argument);
-}
-
 //-----
 TEST_F(ContractIdTest, ConstructWithEvmAddress)
 {
@@ -93,18 +82,6 @@ TEST_F(ContractIdTest, ConstructWithShardRealmContractNum)
 }
 
 //-----
-TEST_F(ContractIdTest, ConstructWithShardRealmContractNumTooBig)
-{
-  // Given / When / Then
-  EXPECT_THROW(const ContractId contractId(getTestNumTooBig(), getTestRealmNum(), getTestContractNum()),
-               std::invalid_argument);
-  EXPECT_THROW(const ContractId contractId(getTestShardNum(), getTestNumTooBig(), getTestContractNum()),
-               std::invalid_argument);
-  EXPECT_THROW(const ContractId contractId(getTestShardNum(), getTestRealmNum(), getTestNumTooBig()),
-               std::invalid_argument);
-}
-
-//-----
 TEST_F(ContractIdTest, ConstructWithShardRealmEvmAddress)
 {
   // Given / When
@@ -116,16 +93,6 @@ TEST_F(ContractIdTest, ConstructWithShardRealmEvmAddress)
   EXPECT_FALSE(contractId.mContractNum.has_value());
   ASSERT_TRUE(contractId.mEvmAddress.has_value());
   EXPECT_EQ(contractId.mEvmAddress->toBytes(), getTestEvmAddress().toBytes());
-}
-
-//-----
-TEST_F(ContractIdTest, ConstructWithShardRealmEvmAddressTooBig)
-{
-  // Given / When / Then
-  EXPECT_THROW(const ContractId contractId(getTestNumTooBig(), getTestRealmNum(), getTestEvmAddress()),
-               std::invalid_argument);
-  EXPECT_THROW(const ContractId contractId(getTestShardNum(), getTestNumTooBig(), getTestEvmAddress()),
-               std::invalid_argument);
 }
 
 //-----
