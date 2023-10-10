@@ -21,11 +21,7 @@
 #include "AccountDeleteTransaction.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
-#include "ContractCreateTransaction.h"
-#include "ContractDeleteTransaction.h"
 #include "ED25519PrivateKey.h"
-#include "FileCreateTransaction.h"
-#include "FileDeleteTransaction.h"
 #include "TransactionId.h"
 #include "TransactionRecord.h"
 #include "TransactionRecordQuery.h"
@@ -45,11 +41,11 @@ class TransactionRecordQueryIntegrationTest : public BaseIntegrationTest
 TEST_F(TransactionRecordQueryIntegrationTest, CanGetTransactionRecord)
 {
   // Given
-  const std::unique_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
 
   TransactionResponse testTxResponse;
-  ASSERT_NO_THROW(testTxResponse = AccountCreateTransaction().setKey(testPublicKey.get()).execute(getTestClient()));
+  ASSERT_NO_THROW(testTxResponse = AccountCreateTransaction().setKey(testPublicKey).execute(getTestClient()));
 
   // When / Then
   TransactionRecord txRecord;
@@ -61,6 +57,6 @@ TEST_F(TransactionRecordQueryIntegrationTest, CanGetTransactionRecord)
                     .setDeleteAccountId(txRecord.mReceipt->mAccountId.value())
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(testPrivateKey.get())
+                    .sign(testPrivateKey)
                     .execute(getTestClient()));
 }

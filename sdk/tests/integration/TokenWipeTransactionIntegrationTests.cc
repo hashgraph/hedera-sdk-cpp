@@ -18,7 +18,6 @@
  *
  */
 #include "AccountCreateTransaction.h"
-#include "AccountDeleteTransaction.h"
 #include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "ED25519PrivateKey.h"
@@ -61,7 +60,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, ExecuteTokenWipeTransaction)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -87,7 +86,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, ExecuteTokenWipeTransaction)
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()
@@ -128,7 +127,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CanWipeNfts)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -162,7 +161,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CanWipeNfts)
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()
@@ -203,7 +202,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeNftsIfTheAccountDoesNotOwn
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -237,7 +236,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeNftsIfTheAccountDoesNotOwn
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()
@@ -276,7 +275,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeTokensIfNoAccountId)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -302,7 +301,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeTokensIfNoAccountId)
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()
@@ -343,7 +342,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeAccountIfNoTokenId)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -369,7 +368,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeAccountIfNoTokenId)
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()
@@ -412,7 +411,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CanWipeAccountWithNoBalance)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -438,7 +437,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CanWipeAccountWithNoBalance)
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenGrantKycTransaction()

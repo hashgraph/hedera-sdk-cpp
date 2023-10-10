@@ -50,7 +50,7 @@ TEST_F(FileCreateTransactionIntegrationTest, ExecuteFileCreateTransaction)
   ASSERT_NO_THROW(contents = internal::Utilities::stringToByteVector("[e2e::FileCreateTransaction]"));
 
   const std::string memo = "test file memo";
-  const KeyList keys = KeyList::of({ operatorKey->getPublicKey().get() });
+  const KeyList keys = KeyList::of({ operatorKey->getPublicKey() });
 
   // When
   TransactionReceipt txReceipt;
@@ -87,7 +87,7 @@ TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoContents)
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
 
-  const KeyList keys = KeyList::of({ operatorKey->getPublicKey().get() });
+  const KeyList keys = KeyList::of({ operatorKey->getPublicKey() });
 
   // When
   TransactionReceipt txReceipt;

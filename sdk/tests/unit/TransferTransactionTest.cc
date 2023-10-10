@@ -222,7 +222,7 @@ TEST_F(TransferTransactionTest, AddNftTransfer)
   EXPECT_NO_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId1(), getTestAccountId2()));
 
   // Then
-  ASSERT_NO_THROW(transaction.getNftTransfers().empty());
+  ASSERT_FALSE(transaction.getNftTransfers().empty());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->first, getTestTokenId());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getSenderAccountId(), getTestAccountId1());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getReceiverAccountId(), getTestAccountId2());

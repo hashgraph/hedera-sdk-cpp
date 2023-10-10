@@ -62,10 +62,10 @@ ContractUpdateTransaction& ContractUpdateTransaction::setExpirationTime(
 }
 
 //-----
-ContractUpdateTransaction& ContractUpdateTransaction::setAdminKey(const Key* adminKey)
+ContractUpdateTransaction& ContractUpdateTransaction::setAdminKey(const std::shared_ptr<Key>& adminKey)
 {
   requireNotFrozen();
-  mAdminKey = ValuePtr<Key, KeyCloner>(adminKey->clone().release());
+  mAdminKey = adminKey;
   return *this;
 }
 
@@ -180,7 +180,7 @@ void ContractUpdateTransaction::initFromSourceTransactionBody()
 
   if (body.has_adminkey())
   {
-    mAdminKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.adminkey()).release());
+    mAdminKey = Key::fromProtobuf(body.adminkey());
   }
 
   if (body.has_autorenewperiod())

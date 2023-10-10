@@ -60,7 +60,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, ExecuteTokenUnfreezeTransaction)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -83,7 +83,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, ExecuteTokenUnfreezeTransaction)
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 
@@ -92,7 +92,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, ExecuteTokenUnfreezeTransaction)
                                                          .setAccountId(accountId)
                                                          .setTokenId(tokenId)
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 
@@ -115,7 +115,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, ExecuteTokenUnfreezeTransaction)
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =
@@ -136,7 +136,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, CannotUnfreezeWithNoTokenId)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -146,7 +146,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, CannotUnfreezeWithNoTokenId)
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenUnfreezeTransaction()
                                                       .setAccountId(accountId)
                                                       .freezeWith(&getTestClient())
-                                                      .sign(accountKey.get())
+                                                      .sign(accountKey)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
                PrecheckStatusException); // INVALID_TOKEN_ID
@@ -156,7 +156,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, CannotUnfreezeWithNoTokenId)
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 }
@@ -207,7 +207,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, CannotUnfreezeTokenOnAccountWith
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -230,7 +230,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, CannotUnfreezeTokenOnAccountWith
                                                       .setAccountId(accountId)
                                                       .setTokenId(tokenId)
                                                       .freezeWith(&getTestClient())
-                                                      .sign(accountKey.get())
+                                                      .sign(accountKey)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
                ReceiptStatusException); // TOKEN_NOT_ASSOCIATED_TO_ACCOUNT
@@ -240,7 +240,7 @@ TEST_F(TokenUnfreezeTransactionIntegrationTest, CannotUnfreezeTokenOnAccountWith
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =

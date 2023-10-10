@@ -47,12 +47,12 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorAccountId = AccountId::fromString(argv[1]);
-  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]).get());
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]));
 
   // Generate ECDSAsecp256k1 key combinations for Alice, Bob, and Charlie.
-  const std::unique_ptr<PrivateKey> alicePrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
-  const std::unique_ptr<PrivateKey> bobPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
-  const std::unique_ptr<PrivateKey> charliePrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> alicePrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> bobPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> charliePrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
 
   std::cout << "Generated Alice private key: " << alicePrivateKey->toStringRaw() << std::endl;
   std::cout << "Generated Bob private key: " << bobPrivateKey->toStringRaw() << std::endl;
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
   // Generate accounts for Alice, Bob, and Charlie, giving each 5 Hbar.
   const AccountId aliceAccountId = AccountCreateTransaction()
-                                     .setKey(alicePublicKey.get())
+                                     .setKey(alicePublicKey)
                                      .setInitialBalance(Hbar(5LL))
                                      .execute(client)
                                      .getReceipt(client)
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
 
   const AccountId bobAccountId = AccountCreateTransaction()
-                                   .setKey(bobPublicKey.get())
+                                   .setKey(bobPublicKey)
                                    .setInitialBalance(Hbar(5LL))
                                    .execute(client)
                                    .getReceipt(client)
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
 
   const AccountId charlieAccountId = AccountCreateTransaction()
-                                       .setKey(charliePublicKey.get())
+                                       .setKey(charliePublicKey)
                                        .setInitialBalance(Hbar(5LL))
                                        .execute(client)
                                        .getReceipt(client)
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
   TransactionReceipt txReceipt = AccountAllowanceApproveTransaction()
                                    .approveHbarAllowance(aliceAccountId, bobAccountId, Hbar(2LL))
                                    .freezeWith(&client)
-                                   .sign(alicePrivateKey.get())
+                                   .sign(alicePrivateKey)
                                    .execute(client)
                                    .getReceipt(client);
   std::cout << "Alice 2 Hbar allowance approval transaction status: " << gStatusToString.at(txReceipt.mStatus)
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
                 // The allowance spender must pay the fee for the transaction.
                 .setTransactionId(TransactionId::generate(bobAccountId))
                 .freezeWith(&client)
-                .sign(bobPrivateKey.get())
+                .sign(bobPrivateKey)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Transfer of 1 Hbar from Alice to Charlie, using Bob's allowance: "
@@ -131,7 +131,7 @@ int main(int argc, char** argv)
                   .addHbarTransfer(charlieAccountId, Hbar(2LL))
                   .setTransactionId(TransactionId::generate(bobAccountId))
                   .freezeWith(&client)
-                  .sign(bobPrivateKey.get())
+                  .sign(bobPrivateKey)
                   .execute(client)
                   .getReceipt(client);
     std::cout << "Transfer of 2 Hbar from Alice to Charlie, using Bob's allowance: "
@@ -148,7 +148,7 @@ int main(int argc, char** argv)
   txReceipt = AccountAllowanceApproveTransaction()
                 .approveHbarAllowance(aliceAccountId, bobAccountId, Hbar(3LL))
                 .freezeWith(&client)
-                .sign(alicePrivateKey.get())
+                .sign(alicePrivateKey)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Alice 3 Hbar allowance approval transaction status: " << gStatusToString.at(txReceipt.mStatus)
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
                 .addHbarTransfer(charlieAccountId, Hbar(2LL))
                 .setTransactionId(TransactionId::generate(bobAccountId))
                 .freezeWith(&client)
-                .sign(bobPrivateKey.get())
+                .sign(bobPrivateKey)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Transfer of 2 Hbar from Alice to Charlie, using Bob's allowance: "
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
   txReceipt = AccountAllowanceApproveTransaction()
                 .approveHbarAllowance(aliceAccountId, bobAccountId, Hbar(0LL))
                 .freezeWith(&client)
-                .sign(alicePrivateKey.get())
+                .sign(alicePrivateKey)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Alice allowance deletion for Bob: " << gStatusToString.at(txReceipt.mStatus) << std::endl << std::endl;
@@ -195,7 +195,7 @@ int main(int argc, char** argv)
                 .setDeleteAccountId(aliceAccountId)
                 .setTransferAccountId(operatorAccountId)
                 .freezeWith(&client)
-                .sign(alicePrivateKey.get())
+                .sign(alicePrivateKey)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Alice account deletion: " << gStatusToString.at(txReceipt.mStatus) << std::endl;
@@ -204,7 +204,7 @@ int main(int argc, char** argv)
                 .setDeleteAccountId(bobAccountId)
                 .setTransferAccountId(operatorAccountId)
                 .freezeWith(&client)
-                .sign(bobPrivateKey.get())
+                .sign(bobPrivateKey)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Bob account deletion: " << gStatusToString.at(txReceipt.mStatus) << std::endl;
@@ -213,7 +213,7 @@ int main(int argc, char** argv)
                 .setDeleteAccountId(charlieAccountId)
                 .setTransferAccountId(operatorAccountId)
                 .freezeWith(&client)
-                .sign(charliePrivateKey.get())
+                .sign(charliePrivateKey)
                 .execute(client)
                 .getReceipt(client);
   std::cout << "Charlie account deletion: " << gStatusToString.at(txReceipt.mStatus) << std::endl;

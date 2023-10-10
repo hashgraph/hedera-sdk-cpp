@@ -43,11 +43,11 @@ class AccountInfoQueryIntegrationTest : public BaseIntegrationTest
 TEST_F(AccountInfoQueryIntegrationTest, ExecuteAccountInfoQuery)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const Hbar balance(2LL);
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey().get())
+                                .setKey(privateKey->getPublicKey())
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -70,7 +70,7 @@ TEST_F(AccountInfoQueryIntegrationTest, ExecuteAccountInfoQuery)
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(privateKey.get())
+                    .sign(privateKey)
                     .execute(getTestClient()));
 }
 
@@ -85,10 +85,10 @@ TEST_F(AccountInfoQueryIntegrationTest, NoAccountId)
 TEST_F(AccountInfoQueryIntegrationTest, CannotQueryDeletedAccount)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey().get())
+                                .setKey(privateKey->getPublicKey())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -96,7 +96,7 @@ TEST_F(AccountInfoQueryIntegrationTest, CannotQueryDeletedAccount)
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .freezeWith(&getTestClient())
-                                                         .sign(privateKey.get())
+                                                         .sign(privateKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 

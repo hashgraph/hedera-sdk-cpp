@@ -45,9 +45,8 @@ class AccountUpdateTransactionIntegrationTest : public BaseIntegrationTest
 TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
 {
   // Given
-  const std::unique_ptr<PrivateKey> initialPrivateKey = ED25519PrivateKey::generatePrivateKey();
-
-  const std::unique_ptr<PrivateKey> newPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> initialPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> newPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const bool newReceiverSignatureRequired = true;
   const std::chrono::duration<double> newAutoRenewPeriod = std::chrono::seconds(8000000);
   const std::chrono::system_clock::time_point newExpirationTime =
@@ -59,7 +58,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(initialPrivateKey->getPublicKey().get())
+                                .setKey(initialPrivateKey->getPublicKey())
                                 .setAutoRenewPeriod(std::chrono::seconds(2592000))
                                 .setAccountMemo("test account memo")
                                 .setMaxAutomaticTokenAssociations(10U)
@@ -72,7 +71,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountUpdateTransaction()
                                  .setAccountId(accountId)
-                                 .setKey(newPrivateKey->getPublicKey().get())
+                                 .setKey(newPrivateKey->getPublicKey())
                                  .setReceiverSignatureRequired(newReceiverSignatureRequired)
                                  .setAutoRenewPeriod(newAutoRenewPeriod)
                                  .setExpirationTime(newExpirationTime)
@@ -81,8 +80,8 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
                                  .setStakedNodeId(newStakedNodeId)
                                  .setDeclineStakingReward(newDeclineStakingRewards)
                                  .freezeWith(&getTestClient())
-                                 .sign(initialPrivateKey.get())
-                                 .sign(newPrivateKey.get())
+                                 .sign(initialPrivateKey)
+                                 .sign(newPrivateKey)
                                  .execute(getTestClient()));
 
   // Then
@@ -108,7 +107,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(newPrivateKey.get())
+                    .sign(newPrivateKey)
                     .execute(getTestClient()));
 }
 
@@ -116,11 +115,11 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
 TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutSignature)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey().get())
+                                .setKey(privateKey->getPublicKey())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -136,7 +135,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutSignat
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(privateKey.get())
+                    .sign(privateKey)
                     .execute(getTestClient()));
 }
 
@@ -144,11 +143,11 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutSignat
 TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutAccountId)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey().get())
+                                .setKey(privateKey->getPublicKey())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -156,7 +155,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutAccoun
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountUpdateTransaction()
                                                       .freezeWith(&getTestClient())
-                                                      .sign(privateKey.get())
+                                                      .sign(privateKey)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
                ReceiptStatusException); // ACCOUNT_ID_DOES_NOT_EXIST
@@ -166,7 +165,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutAccoun
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(privateKey.get())
+                    .sign(privateKey)
                     .execute(getTestClient()));
 }
 
@@ -174,10 +173,10 @@ TEST_F(AccountUpdateTransactionIntegrationTest, CannotUpdateAccountWithoutAccoun
 TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteWithOnlyAccountId)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey().get())
+                                .setKey(privateKey->getPublicKey())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -186,7 +185,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteWithOnlyAccountId)
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = AccountUpdateTransaction()
                                                          .setAccountId(accountId)
                                                          .freezeWith(&getTestClient())
-                                                         .sign(privateKey.get())
+                                                         .sign(privateKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 
@@ -195,7 +194,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteWithOnlyAccountId)
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(privateKey.get())
+                    .sign(privateKey)
                     .execute(getTestClient()));
 }
 
@@ -203,12 +202,12 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteWithOnlyAccountId)
 TEST_F(AccountUpdateTransactionIntegrationTest, InvalidAutoRenewPeriod)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const std::chrono::duration<double> invalidAutoRenewPeriod = std::chrono::seconds(777600000);
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey().get())
+                                .setKey(privateKey->getPublicKey())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -218,7 +217,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, InvalidAutoRenewPeriod)
                                                         .setAccountId(accountId)
                                                         .setAutoRenewPeriod(invalidAutoRenewPeriod)
                                                         .freezeWith(&getTestClient())
-                                                        .sign(privateKey.get())
+                                                        .sign(privateKey)
                                                         .execute(getTestClient()),
                PrecheckStatusException); // AUTORENEW_DURATION_NOT_IN_RANGE
 
@@ -227,6 +226,6 @@ TEST_F(AccountUpdateTransactionIntegrationTest, InvalidAutoRenewPeriod)
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(privateKey.get())
+                    .sign(privateKey)
                     .execute(getTestClient()));
 }

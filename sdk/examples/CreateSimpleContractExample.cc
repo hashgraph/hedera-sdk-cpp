@@ -51,9 +51,9 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorId = AccountId::fromString(argv[1]);
-  std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(argv[2]);
+  const std::shared_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(argv[2]);
   const std::shared_ptr<PublicKey> operatorPublicKey = operatorKey->getPublicKey();
-  client.setOperator(operatorId, operatorKey.get());
+  client.setOperator(operatorId, operatorKey);
 
   // Get the contract's bytecode
   const std::vector<std::byte> byteCode = internal::Utilities::stringToByteVector(
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
   // Create the contract's bytecode file
   TransactionReceipt txReceipt = FileCreateTransaction()
-                                   .setKeys({ operatorPublicKey.get() })
+                                   .setKeys({ operatorPublicKey })
                                    .setContents(byteCode)
                                    .setMaxTransactionFee(Hbar(2LL))
                                    .execute(client)
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   txReceipt = ContractCreateTransaction()
                 .setGas(500000ULL)
                 .setBytecodeFileId(fileId)
-                .setAdminKey(operatorPublicKey.get())
+                .setAdminKey(operatorPublicKey)
                 .setMaxTransactionFee(Hbar(16LL))
                 .execute(client)
                 .getReceipt(client);

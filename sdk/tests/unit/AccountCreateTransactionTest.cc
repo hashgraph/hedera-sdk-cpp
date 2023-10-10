@@ -20,7 +20,6 @@
 #include "AccountCreateTransaction.h"
 #include "Client.h"
 #include "Defaults.h"
-#include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 #include "PublicKey.h"
@@ -136,7 +135,7 @@ TEST_F(AccountCreateTransactionTest, SetKey)
   AccountCreateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setKey(getTestPublicKey().get()));
+  EXPECT_NO_THROW(transaction.setKey(getTestPublicKey()));
 
   // Then
   EXPECT_EQ(transaction.getKey()->toBytes(), getTestPublicKey()->toBytes());
@@ -152,7 +151,7 @@ TEST_F(AccountCreateTransactionTest, SetKeyFrozen)
   ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
-  EXPECT_THROW(transaction.setKey(getTestPublicKey().get()), IllegalStateException);
+  EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
 }
 
 //-----

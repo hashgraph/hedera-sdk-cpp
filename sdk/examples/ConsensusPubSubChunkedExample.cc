@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(operatorAccountId, operatorPrivateKey.get());
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   // Generate a submit key for the topic.
   const std::shared_ptr<PrivateKey> submitKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
@@ -249,7 +249,7 @@ int main(int argc, char** argv)
                                                                   .setMaxChunks(15U)
                                                                   .setMessage(bigContents)
                                                                   .freezeWith(&client)
-                                                                  .sign(operatorPrivateKey.get());
+                                                                  .sign(operatorPrivateKey);
 
   // "Send" the message to be signed again "elsewhere" by the submit key.
   std::vector<std::byte> txBytes = topicMessageSubmitTransaction.toBytes();
@@ -259,7 +259,7 @@ int main(int argc, char** argv)
   topicMessageSubmitTransaction = *deserializedTx.getTransaction<TopicMessageSubmitTransaction>();
 
   // Sign the message with the submit key.
-  topicMessageSubmitTransaction.sign(submitKey.get());
+  topicMessageSubmitTransaction.sign(submitKey);
 
   // Submit the transaction
   const std::vector<TransactionResponse> txResponses = topicMessageSubmitTransaction.executeAll(client);

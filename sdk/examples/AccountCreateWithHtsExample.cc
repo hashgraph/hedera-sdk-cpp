@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(operatorAccountId, operatorPrivateKey.get());
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   // IPFS content identifiers for the NFT metadata
   const std::vector<std::vector<std::byte>> CIDs = {

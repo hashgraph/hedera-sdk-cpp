@@ -21,7 +21,6 @@
 #define HEDERA_SDK_CPP_KEYLIST_H_
 
 #include "Key.h"
-#include "impl/ValuePtr.h"
 
 #include <memory>
 #include <vector>
@@ -63,7 +62,7 @@ public:
    * @param keys The list of Keys to add to this KeyList.
    * @return The created KeyList object.
    */
-  [[nodiscard]] static KeyList of(const std::vector<Key*>& keys);
+  [[nodiscard]] static KeyList of(const std::vector<std::shared_ptr<Key>>& keys);
 
   /**
    * Construct a Keylist object with a threshold.
@@ -137,7 +136,7 @@ public:
    *
    * @param key The key to add to this KeyList.
    */
-  void push_back(const Key* key);
+  void push_back(const std::shared_ptr<Key>& key);
 
   /**
    * Remove a key from this KeyList. Does nothing if the input key is not a part of this KeyList.
@@ -155,7 +154,7 @@ private:
   /**
    * The list of Keys that all must sign transactions.
    */
-  std::vector<ValuePtr<Key, KeyCloner>> mKeys;
+  std::vector<std::shared_ptr<Key>> mKeys;
 
   /**
    * The threshold number of keys that must sign a transaction. -1 means all keys must sign.

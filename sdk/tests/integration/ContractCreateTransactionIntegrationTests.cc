@@ -19,7 +19,6 @@
  */
 #include "AccountId.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
@@ -55,7 +54,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
   const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2016);
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -66,7 +65,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
   EXPECT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
-                      .setAdminKey(operatorKey->getPublicKey().get())
+                      .setAdminKey(operatorKey->getPublicKey())
                       .setGas(100000ULL)
                       .setAutoRenewPeriod(autoRenewPeriod)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
@@ -109,7 +108,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
   const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2016);
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -154,7 +153,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoGas)
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -163,7 +162,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoGas)
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
                  ContractCreateTransaction()
-                   .setAdminKey(operatorKey->getPublicKey().get())
+                   .setAdminKey(operatorKey->getPublicKey())
                    .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                    .setBytecodeFileId(fileId)
                    .setMemo("[e2e::ContractCreateTransaction]")
@@ -184,7 +183,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoConst
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -192,7 +191,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoConst
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = ContractCreateTransaction()
-                                                      .setAdminKey(operatorKey->getPublicKey().get())
+                                                      .setAdminKey(operatorKey->getPublicKey())
                                                       .setGas(100000ULL)
                                                       .setBytecodeFileId(fileId)
                                                       .setMemo("[e2e::ContractCreateTransaction]")

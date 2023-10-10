@@ -18,7 +18,6 @@
  *
  */
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ContractCreateFlow.h"
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
@@ -46,7 +45,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlow)
   TransactionResponse txResponse;
   ASSERT_NO_THROW(txResponse = ContractCreateFlow()
                                  .setBytecode(getTestSmartContractBytecode())
-                                 .setAdminKey(getTestClient().getOperatorPublicKey().get())
+                                 .setAdminKey(getTestClient().getOperatorPublicKey())
                                  .setGas(100000ULL)
                                  .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
                                  .execute(getTestClient()));
@@ -71,13 +70,13 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlow)
 TEST_F(ContractCreateFlowIntegrationTest, CannotCreateContractWithFlowWithoutSigning)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> adminKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ED25519PrivateKey> adminKey = ED25519PrivateKey::generatePrivateKey();
 
   // When / Then
   EXPECT_THROW(const TransactionResponse txResponse =
                  ContractCreateFlow()
                    .setBytecode(getTestSmartContractBytecode())
-                   .setAdminKey(adminKey.get())
+                   .setAdminKey(adminKey)
                    .setGas(100000ULL)
                    .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
                    .execute(getTestClient()),
@@ -88,17 +87,17 @@ TEST_F(ContractCreateFlowIntegrationTest, CannotCreateContractWithFlowWithoutSig
 TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPrivateKey)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> adminKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ED25519PrivateKey> adminKey = ED25519PrivateKey::generatePrivateKey();
 
   // When
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = ContractCreateFlow()
                                  .setBytecode(getTestSmartContractBytecode())
-                                 .setAdminKey(adminKey.get())
+                                 .setAdminKey(adminKey)
                                  .setGas(100000ULL)
                                  .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
                                  .freezeWith(getTestClient())
-                                 .sign(adminKey.get())
+                                 .sign(adminKey)
                                  .execute(getTestClient()));
 
   // Then
@@ -114,7 +113,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPrivateKe
                       .setContractId(contractId)
                       .setTransferAccountId(getTestClient().getOperatorAccountId().value())
                       .freezeWith(&getTestClient())
-                      .sign(adminKey.get())
+                      .sign(adminKey)
                       .execute(getTestClient())
                       .getReceipt(getTestClient()));
 }
@@ -123,14 +122,14 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPrivateKe
 TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPublicKeyAndTransactionSigner)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> adminKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ED25519PrivateKey> adminKey = ED25519PrivateKey::generatePrivateKey();
 
   // When
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse =
                     ContractCreateFlow()
                       .setBytecode(getTestSmartContractBytecode())
-                      .setAdminKey(adminKey.get())
+                      .setAdminKey(adminKey)
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
                       .freezeWith(getTestClient())
@@ -151,7 +150,7 @@ TEST_F(ContractCreateFlowIntegrationTest, ExecuteContractCreateFlowWithPublicKey
                       .setContractId(contractId)
                       .setTransferAccountId(getTestClient().getOperatorAccountId().value())
                       .freezeWith(&getTestClient())
-                      .sign(adminKey.get())
+                      .sign(adminKey)
                       .execute(getTestClient())
                       .getReceipt(getTestClient()));
 }

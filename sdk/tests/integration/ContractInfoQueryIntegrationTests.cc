@@ -52,7 +52,7 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
   const std::string memo = "[e2e::Contract]";
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -60,7 +60,7 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setAdminKey(operatorKey->getPublicKey().get())
+                      .setAdminKey(operatorKey->getPublicKey())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
@@ -102,7 +102,7 @@ TEST_F(ContractInfoQueryIntegrationTest, CanQueryContractInfoWhenAdminKeyIsNull)
   const std::string memo = "[e2e::Contract]";
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())

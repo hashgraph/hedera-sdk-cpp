@@ -18,7 +18,6 @@
  *
  */
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
@@ -52,7 +51,7 @@ TEST_F(FileInfoQueryIntegrationTest, ExecuteFileInfoQuery)
   ASSERT_NO_THROW(contents = internal::Utilities::stringToByteVector("[e2e::FileCreateTransaction]"));
 
   const std::string memo = "test file memo";
-  const KeyList keys = KeyList::of({ operatorKey->getPublicKey().get() });
+  const KeyList keys = KeyList::of({ operatorKey->getPublicKey() });
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()

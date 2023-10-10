@@ -58,7 +58,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]).get());
+  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
 
   /**
    * Step 1: Create accounts A, B, and C.
@@ -66,9 +66,9 @@ int main(int argc, char** argv)
   const std::shared_ptr<ED25519PrivateKey> firstAccountPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const AccountId firstAccountId = AccountCreateTransaction()
                                      .setInitialBalance(Hbar(10LL))
-                                     .setKey(firstAccountPrivateKey.get())
+                                     .setKey(firstAccountPrivateKey)
                                      .freezeWith(&client)
-                                     .sign(firstAccountPrivateKey.get())
+                                     .sign(firstAccountPrivateKey)
                                      .execute(client)
                                      .getReceipt(client)
                                      .mAccountId.value();
@@ -77,9 +77,9 @@ int main(int argc, char** argv)
   const std::shared_ptr<ED25519PrivateKey> secondAccountPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const AccountId secondAccountId = AccountCreateTransaction()
                                       .setInitialBalance(Hbar(10LL))
-                                      .setKey(secondAccountPrivateKey.get())
+                                      .setKey(secondAccountPrivateKey)
                                       .freezeWith(&client)
-                                      .sign(secondAccountPrivateKey.get())
+                                      .sign(secondAccountPrivateKey)
                                       .execute(client)
                                       .getReceipt(client)
                                       .mAccountId.value();
@@ -88,9 +88,9 @@ int main(int argc, char** argv)
   const std::shared_ptr<ED25519PrivateKey> thirdAccountPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const AccountId thirdAccountId = AccountCreateTransaction()
                                      .setInitialBalance(Hbar(10LL))
-                                     .setKey(thirdAccountPrivateKey.get())
+                                     .setKey(thirdAccountPrivateKey)
                                      .freezeWith(&client)
-                                     .sign(thirdAccountPrivateKey.get())
+                                     .sign(thirdAccountPrivateKey)
                                      .execute(client)
                                      .getReceipt(client)
                                      .mAccountId.value();
@@ -130,9 +130,9 @@ int main(int argc, char** argv)
                                                                .setDenominator(10LL)
                                                                .setAllCollectorsAreExempt(true)) })
       .freezeWith(&client)
-      .sign(firstAccountPrivateKey.get())
-      .sign(secondAccountPrivateKey.get())
-      .sign(thirdAccountPrivateKey.get())
+      .sign(firstAccountPrivateKey)
+      .sign(secondAccountPrivateKey)
+      .sign(thirdAccountPrivateKey)
       .execute(client)
       .getReceipt(client)
       .mTokenId.value();
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
                                  .addTokenTransfer(createdTokenId, secondAccountId, -10000LL)
                                  .addTokenTransfer(createdTokenId, firstAccountId, 10000LL)
                                  .freezeWith(&client)
-                                 .sign(secondAccountPrivateKey.get())
+                                 .sign(secondAccountPrivateKey)
                                  .execute(client)
                                  .getRecord(client);
   std::cout << gStatusToString.at(txRecord.mReceipt->mStatus) << std::endl;

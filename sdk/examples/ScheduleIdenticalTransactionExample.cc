@@ -48,7 +48,7 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorAccountId = AccountId::fromString(argv[1]);
-  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]).get());
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]));
 
   // Create three clients, each having a different account and private key.
   std::array<Client, 3> clients;
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     std::cout << "Generated private key " << i + 1 << ": " << privateKeys.at(i)->toStringRaw() << std::endl;
 
     accountIds[i] = AccountCreateTransaction()
-                      .setKey(privateKeys.at(i).get())
+                      .setKey(privateKeys.at(i))
                       .setInitialBalance(Hbar(1LL))
                       .execute(client)
                       .getReceipt(client)
@@ -71,17 +71,18 @@ int main(int argc, char** argv)
     std::cout << "Generated account " << i + 1 << ": " << accountIds.at(i).toString() << std::endl;
 
     clients[i] = Client::forTestnet();
-    clients.at(i).setOperator(accountIds.at(i), privateKeys.at(i).get());
+    clients.at(i).setOperator(accountIds.at(i), privateKeys.at(i));
     std::cout << "Generated client " << i + 1 << std::endl;
   }
 
   // Create another account that will contain all three keys.
-  const KeyList keyList = KeyList::of({ privateKeys.at(0).get(), privateKeys.at(1).get(), privateKeys.at(2).get() });
+  const auto keyList =
+    std::make_shared<KeyList>(KeyList::of({ privateKeys.at(0), privateKeys.at(1), privateKeys.at(2) }));
 
   // Create another sender account.
   std::cout << "Generate a sender account" << std::endl;
   const AccountId senderAccountId = AccountCreateTransaction()
-                                      .setKey(&keyList)
+                                      .setKey(keyList)
                                       .setInitialBalance(Hbar(10LL))
                                       .execute(client)
                                       .getReceipt(client)
@@ -147,7 +148,7 @@ int main(int argc, char** argv)
                                       .setDeleteAccountId(accountIds.at(i))
                                       .setTransferAccountId(operatorAccountId)
                                       .freezeWith(&client)
-                                      .sign(privateKeys.at(i).get())
+                                      .sign(privateKeys.at(i))
                                       .execute(client)
                                       .getReceipt(client)
                                       .mStatus)
@@ -159,9 +160,9 @@ int main(int argc, char** argv)
                                     .setDeleteAccountId(senderAccountId)
                                     .setTransferAccountId(operatorAccountId)
                                     .freezeWith(&client)
-                                    .sign(privateKeys.at(0).get())
-                                    .sign(privateKeys.at(1).get())
-                                    .sign(privateKeys.at(2).get())
+                                    .sign(privateKeys.at(0))
+                                    .sign(privateKeys.at(1))
+                                    .sign(privateKeys.at(2))
                                     .execute(client)
                                     .getReceipt(client)
                                     .mStatus)

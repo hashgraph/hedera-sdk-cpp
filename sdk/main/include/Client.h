@@ -107,11 +107,10 @@ public:
    * key is used to sign all transactions executed by this Client.
    *
    * @param accountId  The account ID of the operator.
-   * @param privateKey Pointer to the private key of the operator. This transfers ownership of the pointed-to PrivateKey
-   *                   to this Client.
+   * @param privateKey Pointer to the private key of the operator.
    * @return A reference to this Client object with the newly-set operator account ID and private key.
    */
-  Client& setOperator(const AccountId& accountId, const PrivateKey* privateKey);
+  Client& setOperator(const AccountId& accountId, const std::shared_ptr<PrivateKey>& privateKey);
 
   /**
    * Initiate an orderly close of communications with the network with which this Client was configured to

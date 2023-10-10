@@ -18,7 +18,6 @@
  *
  */
 #include "AccountInfo.h"
-#include "exceptions/BadKeyException.h"
 #include "impl/DurationConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
@@ -43,7 +42,7 @@ AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_Account
 
   if (proto.has_key())
   {
-    accountInfo.mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(proto.key()).release());
+    accountInfo.mKey = Key::fromProtobuf(proto.key());
   }
 
   accountInfo.mBalance = Hbar(static_cast<int64_t>(proto.balance()), HbarUnit::TINYBAR());

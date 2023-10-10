@@ -45,7 +45,7 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorAccountId = AccountId::fromString(argv[1]);
-  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]).get());
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]));
 
   /*
    * Hedera supports a form of auto account creation.

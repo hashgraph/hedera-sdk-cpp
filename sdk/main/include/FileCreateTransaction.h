@@ -91,7 +91,7 @@ public:
    * @return A reference to this FileCreateTransaction object with the newly-set keys.
    * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
-  FileCreateTransaction& setKeys(const std::vector<Key*>& keys);
+  FileCreateTransaction& setKeys(const std::vector<std::shared_ptr<Key>>& keys);
   FileCreateTransaction& setKeys(const KeyList& keys);
 
   /**

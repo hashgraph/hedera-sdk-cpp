@@ -54,7 +54,7 @@ TEST_F(ScheduleInfoQueryIntegrationTest, ExecuteScheduleInfoQuery)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(newKey.get())
+                                .setKey(newKey)
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -96,7 +96,7 @@ TEST_F(ScheduleInfoQueryIntegrationTest, ExecuteScheduleInfoQuery)
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .freezeWith(&getTestClient())
-                                                         .sign(newKey.get())
+                                                         .sign(newKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
   ASSERT_NO_THROW(

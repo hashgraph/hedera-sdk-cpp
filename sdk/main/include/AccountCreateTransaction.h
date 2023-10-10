@@ -26,7 +26,6 @@
 #include "Hbar.h"
 #include "Key.h"
 #include "Transaction.h"
-#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <memory>
@@ -100,7 +99,7 @@ public:
    * @return A reference to this AccountCreateTransaction object with the newly-set key.
    * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
-  AccountCreateTransaction& setKey(const Key* key);
+  AccountCreateTransaction& setKey(const std::shared_ptr<Key>& key);
 
   /**
    * Set the initial amount to transfer into the new account from the paying account.
@@ -197,7 +196,7 @@ public:
    *
    * @return A pointer to the key to be used for the new account. Nullptr if the key has not yet been set.
    */
-  [[nodiscard]] inline const Key* getKey() const { return mKey.get(); }
+  [[nodiscard]] inline std::shared_ptr<Key> getKey() const { return mKey; }
 
   /**
    * Get the initial balance to be transferred into the new account upon creation (from the paying account).
@@ -307,7 +306,7 @@ private:
    * The key that must sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
    * also sign any transfer into the account.
    */
-  ValuePtr<Key, KeyCloner> mKey;
+  std::shared_ptr<Key> mKey = nullptr;
 
   /**
    * The initial amount to transfer into the new account.

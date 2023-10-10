@@ -142,7 +142,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutTreasuryAc
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -161,7 +161,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutTreasuryAc
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 }

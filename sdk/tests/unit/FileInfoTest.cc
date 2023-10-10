@@ -45,10 +45,8 @@ private:
   const uint64_t mTestSize = 2ULL;
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const bool mTestIsDeleted = true;
-  const KeyList mTestKeys =
-    KeyList::of({ PublicKey::fromStringDer(
-                    "302A300506032B6570032100D75A980182B10AB7D54BFED3C964073A0EE172f3DAA62325AF021A68F707511A")
-                    .get() });
+  const KeyList mTestKeys = KeyList::of({ PublicKey::fromStringDer(
+    "302A300506032B6570032100D75A980182B10AB7D54BFED3C964073A0EE172f3DAA62325AF021A68F707511A") });
   const LedgerId mTestLedgerId = LedgerId({ std::byte(0x03), std::byte(0x04), std::byte(0x05) });
 };
 

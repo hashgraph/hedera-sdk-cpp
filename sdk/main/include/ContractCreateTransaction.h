@@ -25,7 +25,6 @@
 #include "Hbar.h"
 #include "Key.h"
 #include "Transaction.h"
-#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <cstddef>
@@ -147,7 +146,7 @@ public:
    * @return A reference to this ContractCreateTransaction object with the newly-set admin key.
    * @throws IllegalStateException If this ContractCreateTransaction is frozen.
    */
-  ContractCreateTransaction& setAdminKey(const Key* key);
+  ContractCreateTransaction& setAdminKey(const std::shared_ptr<Key>& key);
 
   /**
    * Set the amount of gas required to run the constructor of the new smart contract instance.
@@ -270,7 +269,7 @@ public:
    * @return A pointer to the admin key for the new smart contract instance. Return nullptr if the admin key has not yet
    *         been set.
    */
-  [[nodiscard]] inline const Key* getAdminKey() const { return mAdminKey.get(); }
+  [[nodiscard]] inline std::shared_ptr<Key> getAdminKey() const { return mAdminKey; }
 
   /**
    * Get the amount of gas required to run the constructor of the new smart contract instance.
@@ -400,7 +399,7 @@ private:
   /**
    * The admin key for the new smart contract instance.
    */
-  ValuePtr<Key, KeyCloner> mAdminKey;
+  std::shared_ptr<Key> mAdminKey = nullptr;
 
   /**
    * The amount of gas required to run the constructor of the new smart contract instance.

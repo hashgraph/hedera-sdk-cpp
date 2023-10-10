@@ -56,7 +56,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransact
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -84,7 +84,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransact
                                 .setAccountId(accountId)
                                 .setTokenIds({ tokenId })
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
@@ -93,7 +93,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransact
                                 .setAccountId(accountId)
                                 .setTokenIds({ tokenId })
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
@@ -102,7 +102,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransact
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
   ASSERT_NO_THROW(txReceipt =
@@ -123,7 +123,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CanDissociateNoTokens)
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -134,7 +134,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CanDissociateNoTokens)
   EXPECT_NO_THROW(txReceipt = TokenDissociateTransaction()
                                 .setAccountId(accountId)
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
@@ -143,7 +143,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CanDissociateNoTokens)
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 }
@@ -162,7 +162,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateWithNoAccountI
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -172,7 +172,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateWithNoAccountI
   TransactionReceipt txReceipt;
   EXPECT_THROW(txReceipt = TokenDissociateTransaction()
                              .freezeWith(&getTestClient())
-                             .sign(accountKey.get())
+                             .sign(accountKey)
                              .execute(getTestClient())
                              .getReceipt(getTestClient()),
                PrecheckStatusException); // INVALID_ACCOUNT_ID
@@ -182,7 +182,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateWithNoAccountI
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 }
@@ -201,7 +201,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfDissociating
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -229,7 +229,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfDissociating
                                 .setAccountId(accountId)
                                 .setTokenIds({ tokenId })
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
@@ -246,7 +246,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfDissociating
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
   ASSERT_NO_THROW(txReceipt =
@@ -267,7 +267,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfNotAssociate
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .setInitialBalance(Hbar(1LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -296,7 +296,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfNotAssociate
                              .setAccountId(accountId)
                              .setTokenIds({ tokenId })
                              .freezeWith(&getTestClient())
-                             .sign(accountKey.get())
+                             .sign(accountKey)
                              .execute(getTestClient())
                              .getReceipt(getTestClient()),
                ReceiptStatusException); // TOKEN_NOT_ASSOCIATED_TO_ACCOUNT
@@ -306,7 +306,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfNotAssociate
                                 .setDeleteAccountId(accountId)
                                 .setTransferAccountId(AccountId(2ULL))
                                 .freezeWith(&getTestClient())
-                                .sign(accountKey.get())
+                                .sign(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
   ASSERT_NO_THROW(txReceipt =
