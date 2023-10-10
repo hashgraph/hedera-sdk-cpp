@@ -27,7 +27,7 @@
 #include "ScheduleId.h"
 #include "TokenId.h"
 #include "TopicId.h"
-#include "exceptions/BadEntityException.h"
+#include "exceptions/BadEntityIdException.h"
 #include "exceptions/OpenSSLException.h"
 #include "exceptions/UninitializedException.h"
 #include "impl/HexConverter.h"
@@ -149,7 +149,7 @@ std::string checksum(std::string_view address, const LedgerId& ledgerId)
   unsigned int digitArrayWeightedSum = 0U;
   for (unsigned int i = 0U; i < digitArray.size(); ++i)
   {
-    digitArrayWeightedSum = digitArrayWeightedSum * weight + digitArray.at(i);
+    digitArrayWeightedSum = (digitArrayWeightedSum * weight + digitArray.at(i)) % p3;
     if (i % 2U == 0U)
     {
       evenIndexSum += digitArray.at(i);
@@ -162,7 +162,6 @@ std::string checksum(std::string_view address, const LedgerId& ledgerId)
 
   evenIndexSum %= 11U;
   oddIndexSum %= 11U;
-  digitArrayWeightedSum %= p3;
 
   // Step 4: Get the weighted sum of all bytes in the ledger ID bytes, modded by p5.
   unsigned int ledgerIdWeightedSum = 0U;
@@ -280,7 +279,7 @@ void validate(uint64_t shard, uint64_t realm, uint64_t num, const Client& client
 
   if (calculatedChecksum != expectedChecksum)
   {
-    throw BadEntityException(shard, realm, num, expectedChecksum, calculatedChecksum);
+    throw BadEntityIdException(shard, realm, num, expectedChecksum, calculatedChecksum);
   }
 }
 

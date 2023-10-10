@@ -28,6 +28,7 @@ set(STAKING_EXAMPLE_NAME ${PROJECT_NAME}-staking-example)
 set(TRANSFER_CRYPTO_EXAMPLE_NAME ${PROJECT_NAME}-transfer-crypto-example)
 set(TRANSFER_TOKENS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-tokens-example)
 set(UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME ${PROJECT_NAME}-update-account-public-key-example)
+set(VALIDATE_CHECKSUM_EXAMPLE_NAME ${PROJECT_NAME}-validate-checksum-example)
 
 add_executable(${ACCOUNT_ALIAS_EXAMPLE_NAME} AccountAliasExample.cc)
 add_executable(${ACCOUNT_ALLOWANCE_EXAMPLE_NAME} AccountAllowanceExample.cc)
@@ -59,6 +60,7 @@ add_executable(${STAKING_EXAMPLE_NAME} StakingExample.cc)
 add_executable(${TRANSFER_CRYPTO_EXAMPLE_NAME} TransferCryptoExample.cc)
 add_executable(${TRANSFER_TOKENS_EXAMPLE_NAME} TransferTokensExample.cc)
 add_executable(${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME} UpdateAccountPublicKeyExample.cc)
+add_executable(${VALIDATE_CHECKSUM_EXAMPLE_NAME} ValidateChecksumExample.cc)
 
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -108,6 +110,7 @@ target_link_libraries(${STAKING_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_CRYPTO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_TOKENS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${VALIDATE_CHECKSUM_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE} DESTINATION examples FILES_MATCHING PATTERN *)
 
@@ -142,4 +145,5 @@ install(TARGETS
         ${TRANSFER_CRYPTO_EXAMPLE_NAME}
         ${TRANSFER_TOKENS_EXAMPLE_NAME}
         ${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME}
+        ${VALIDATE_CHECKSUM_EXAMPLE_NAME}
         RUNTIME DESTINATION examples)
