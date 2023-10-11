@@ -51,7 +51,6 @@ using namespace Hedera;
 class ClientIntegrationTest : public BaseIntegrationTest
 {
 protected:
-  // [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const std::string_view& getJsonNetworkTag() const { return mJsonNetworkTag; }
   [[nodiscard]] inline const std::string_view& getJsonOperatorTag() const { return mJsonOperatorTag; }
   [[nodiscard]] inline const std::string_view& getJsonAccountIdTag() const { return mJsonAccountIdTag; }
@@ -62,8 +61,6 @@ protected:
   [[nodiscard]] inline const std::string getPathToJSON() const { return mFilePath.string(); }
 
 private:
-  // Client mClient;
-
   const std::string_view mJsonNetworkTag = "network";
   const std::string_view mJsonOperatorTag = "operator";
   const std::string_view mJsonAccountIdTag = "accountId";
