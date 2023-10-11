@@ -43,7 +43,7 @@ int main(int argc, char** argv)
   Client client = Client::forTestnet();
   const AccountId operatorAccountId = AccountId::fromString(argv[1]);
   const std::shared_ptr<ED25519PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(argv[2]);
-  client.setOperator(operatorAccountId, operatorPrivateKey.get());
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   /*
    * Entity IDs, such as TokenId and AccountId, can be constructed from strings. For example, the

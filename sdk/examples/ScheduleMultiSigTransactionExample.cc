@@ -49,7 +49,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(operatorAccountId, operatorPrivateKey.get());
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   // Create an account with a Keylist of three keys.
   const std::shared_ptr<PrivateKey> key1 = ED25519PrivateKey::generatePrivateKey();
@@ -62,12 +62,12 @@ int main(int argc, char** argv)
   std::cout << "Generated key: " << key3->toStringRaw() << std::endl;
 
   // Put the three generated keys in a keylist.
-  const KeyList keyList = KeyList::of({ key1.get(), key2.get(), key3.get() });
+  const auto keyList = std::make_shared<KeyList>(KeyList::of({ key1, key2, key3 }));
 
   // Create an account with the three keys.
   std::cout << "Creating account with generated keys: ";
   TransactionReceipt txReceipt =
-    AccountCreateTransaction().setKey(&keyList).setInitialBalance(Hbar(10LL)).execute(client).getReceipt(client);
+    AccountCreateTransaction().setKey(keyList).setInitialBalance(Hbar(10LL)).execute(client).getReceipt(client);
   std::cout << gStatusToString.at(txReceipt.mStatus) << std::endl;
 
   // Schedule a transfer out of the created account with 2/3 needed signatures.
@@ -79,8 +79,8 @@ int main(int argc, char** argv)
                                   .setPayerAccountId(operatorAccountId)
                                   .setAdminKey(operatorPrivateKey)
                                   .freezeWith(&client)
-                                  .sign(key1.get())
-                                  .sign(key2.get())
+                                  .sign(key1)
+                                  .sign(key2)
                                   .execute(client)
                                   .getReceipt(client)
                                   .mScheduleId.value();
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
             << gStatusToString.at(ScheduleSignTransaction()
                                     .setScheduleId(scheduleId)
                                     .freezeWith(&client)
-                                    .sign(key3.get())
+                                    .sign(key3)
                                     .execute(client)
                                     .getReceipt(client)
                                     .mStatus)
@@ -135,9 +135,9 @@ int main(int argc, char** argv)
                                     .setDeleteAccountId(accountId)
                                     .setTransferAccountId(operatorAccountId)
                                     .freezeWith(&client)
-                                    .sign(key1.get())
-                                    .sign(key2.get())
-                                    .sign(key3.get())
+                                    .sign(key1)
+                                    .sign(key2)
+                                    .sign(key3)
                                     .execute(client)
                                     .getReceipt(client)
                                     .mStatus)

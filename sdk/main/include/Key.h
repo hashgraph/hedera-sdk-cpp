@@ -81,15 +81,6 @@ protected:
   Key& operator=(Key&&) = default;
 };
 
-/**
- * Helper struct that handles proper copying of Key classes.
- */
-struct KeyCloner
-{
-  Key* operator()(const Key& key) const { return key.clone().release(); }
-  Key* operator()(const Key* key) const { return key ? key->clone().release() : nullptr; }
-};
-
 } // namespace Hedera
 
 #endif // HEDERA_SDK_CPP_KEY_H_

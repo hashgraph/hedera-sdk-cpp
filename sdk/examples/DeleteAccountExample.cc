@@ -42,10 +42,10 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorAccountId = AccountId::fromString(argv[1]);
-  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]).get());
+  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]));
 
   // Generate a ED25519 private, public key pair
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
 
   std::cout << "Generated private key: " << privateKey->toStringRaw() << std::endl;
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 
   // Create a new account with an initial balance of 2 Hbars. The only required field here is the key.
   TransactionResponse txResp =
-    AccountCreateTransaction().setKey(publicKey.get()).setInitialBalance(Hbar(2LL)).execute(client);
+    AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(2LL)).execute(client);
 
   // Get the receipt when it becomes available
   TransactionReceipt txReceipt = txResp.getReceipt(client);
@@ -66,7 +66,7 @@ int main(int argc, char** argv)
                 .setDeleteAccountId(newAccountId)
                 .setTransferAccountId(operatorAccountId)
                 .freezeWith(&client)
-                .sign(privateKey.get())
+                .sign(privateKey)
                 .execute(client)
                 .getReceipt(client);
 

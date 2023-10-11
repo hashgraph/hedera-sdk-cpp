@@ -23,7 +23,6 @@
 #include "AccountId.h"
 #include "PublicKey.h"
 #include "Transaction.h"
-#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <memory>
@@ -84,7 +83,7 @@ public:
    * @return A reference to this AccountUpdateTransaction object with the newly-set key.
    * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
-  AccountUpdateTransaction& setKey(const Key* key);
+  AccountUpdateTransaction& setKey(const std::shared_ptr<Key>& key);
 
   /**
    * Set a new transfer receiver signature policy for the account.
@@ -178,7 +177,7 @@ public:
    *
    * @return A pointer to the new public key to be used for the account. Nullptr if the key has not yet been set.
    */
-  [[nodiscard]] inline const Key* getKey() const { return mKey.get(); }
+  [[nodiscard]] inline std::shared_ptr<Key> getKey() const { return mKey; }
 
   /**
    * Get the new Hbar transfer receiver signature policy to be used by the account.
@@ -304,7 +303,7 @@ private:
    * The new key to use to sign each transfer out of the account. If mReceiverSignatureRequired is \c TRUE, then it must
    * also sign any transfer into the account.
    */
-  ValuePtr<Key, KeyCloner> mKey;
+  std::shared_ptr<Key> mKey = nullptr;
 
   /**
    * If \c TRUE, the account will have to sign any transaction being deposited into it (in addition to all withdrawals).

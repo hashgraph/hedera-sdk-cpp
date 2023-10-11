@@ -24,7 +24,6 @@
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 #include "TransactionRecord.h"
-#include "TransactionRecordQuery.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
@@ -44,7 +43,7 @@ int main(int argc, char** argv)
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   const AccountId operatorId = AccountId::fromString(argv[1]);
-  client.setOperator(operatorId, ED25519PrivateKey::fromString(argv[2]).get());
+  client.setOperator(operatorId, ED25519PrivateKey::fromString(argv[2]));
 
   const auto recipientId = AccountId(3ULL);
   const Hbar amount(10000ULL, HbarUnit::TINYBAR());

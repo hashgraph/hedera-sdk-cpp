@@ -49,7 +49,7 @@ TEST_F(FileContentsQueryIntegrationTest, ExecuteFileContentsQuery)
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(getTestFileContents())
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -75,7 +75,7 @@ TEST_F(FileContentsQueryIntegrationTest, CanQueryEmptyFileContents)
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .mFileId.value());

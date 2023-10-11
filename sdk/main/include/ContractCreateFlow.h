@@ -25,7 +25,6 @@
 #include "Hbar.h"
 #include "Key.h"
 #include "TransactionResponse.h"
-#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <cstddef>
@@ -98,7 +97,7 @@ public:
    * @param key The admin key for the new smart contract instance.
    * @return A reference to this ContractCreateFlow object with the newly-set admin key.
    */
-  ContractCreateFlow& setAdminKey(const Key* key);
+  ContractCreateFlow& setAdminKey(const std::shared_ptr<Key>& key);
 
   /**
    * Set the amount of gas required to run the constructor of the new smart contract instance.
@@ -226,7 +225,7 @@ public:
    * @param key The PrivateKey with which to sign the ContractCreateTransaction.
    * @return A reference to this ContractCreateFlow object with the newly-set signing PrivateKey.
    */
-  ContractCreateFlow& sign(const PrivateKey* key);
+  ContractCreateFlow& sign(const std::shared_ptr<PrivateKey>& key);
 
   /**
    * Set the PublicKey and signer function with which the ContractCreateTransaction will be signed.
@@ -260,7 +259,7 @@ public:
    * @return A pointer to the admin key for the new smart contract instance. Return nullptr if the admin key has not yet
    *         been set.
    */
-  [[nodiscard]] inline const Key* getAdminKey() const { return mAdminKey.get(); }
+  [[nodiscard]] inline std::shared_ptr<Key> getAdminKey() const { return mAdminKey; }
 
   /**
    * Get the amount of gas required to run the constructor of the new smart contract instance.
@@ -369,7 +368,7 @@ private:
   /**
    * The admin key for the new smart contract instance.
    */
-  ValuePtr<Key, KeyCloner> mAdminKey;
+  std::shared_ptr<Key> mAdminKey = nullptr;
 
   /**
    * The amount of gas required to run the constructor of the new smart contract instance.
@@ -428,12 +427,12 @@ private:
   /**
    * The PrivateKey with which to sign the ContractCreateTransaction.
    */
-  ValuePtr<PrivateKey, KeyCloner> mPrivateKey;
+  std::shared_ptr<PrivateKey> mPrivateKey = nullptr;
 
   /**
    * The PublicKey associated with the signer function to sign the ContractCreateTransaction.
    */
-  std::shared_ptr<PublicKey> mPublicKey;
+  std::shared_ptr<PublicKey> mPublicKey = nullptr;
 
   /**
    * The signer function to use to sign the ContractCreateTransaction.

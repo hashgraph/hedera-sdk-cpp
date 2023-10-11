@@ -107,8 +107,47 @@ AccountId PublicKey::toAccountId(uint64_t shard, uint64_t realm) const
 }
 
 //-----
+PublicKey::PublicKey(const PublicKey& other)
+  : mImpl(std::make_unique<PublicKeyImpl>(*other.mImpl))
+{
+}
+
+//-----
+PublicKey& PublicKey::operator=(const PublicKey& other)
+{
+  if (this != &other)
+  {
+    mImpl = std::make_unique<PublicKeyImpl>(*other.mImpl);
+  }
+
+  return *this;
+}
+
+//-----
+PublicKey::PublicKey(PublicKey&& other) noexcept
+  : mImpl(std::move(other.mImpl))
+{
+  // Leave the moved-from PublicKey in a valid state.
+  other.mImpl = std::make_unique<PublicKeyImpl>();
+}
+
+//-----
+PublicKey& PublicKey::operator=(PublicKey&& other) noexcept
+{
+  if (this != &other)
+  {
+    mImpl = std::move(other.mImpl);
+
+    // Leave the moved-from PublicKey in a valid state.
+    other.mImpl = std::make_unique<PublicKeyImpl>();
+  }
+
+  return *this;
+}
+
+//-----
 PublicKey::PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key)
-  : mImpl(PublicKeyImpl())
+  : mImpl(std::make_unique<PublicKeyImpl>())
 {
   mImpl->mKey = std::move(key);
 }

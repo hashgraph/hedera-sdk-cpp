@@ -88,7 +88,7 @@ TEST_F(TokenInfoQueryIntegrationTest, ExecuteTokenInfoQuery)
                               .setCustomFees(customFees)
                               .setPauseKey(pauseKey)
                               .freezeWith(&getTestClient())
-                              .sign(adminKey.get())
+                              .sign(adminKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
                               .mTokenId.value());
@@ -131,7 +131,7 @@ TEST_F(TokenInfoQueryIntegrationTest, ExecuteTokenInfoQuery)
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TokenDeleteTransaction()
                                                          .setTokenId(tokenId)
                                                          .freezeWith(&getTestClient())
-                                                         .sign(adminKey.get())
+                                                         .sign(adminKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 }

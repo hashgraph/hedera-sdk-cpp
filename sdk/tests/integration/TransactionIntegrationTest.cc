@@ -67,7 +67,7 @@ TEST_F(TransactionIntegrationTest, ExecuteTransactionRegenerateTransactionId)
 {
   // Given
   AccountCreateTransaction accountCreateTransaction = AccountCreateTransaction()
-                                                        .setKey(getTestPublicKey().get())
+                                                        .setKey(getTestPublicKey())
                                                         .setTransactionId(TransactionId::generate(AccountId(2ULL)))
                                                         .setValidTransactionDuration(std::chrono::seconds(30))
                                                         .freezeWith(&getTestClient());

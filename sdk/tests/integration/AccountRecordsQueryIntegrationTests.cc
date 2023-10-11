@@ -45,12 +45,12 @@ class AccountRecordsQueryIntegrationTest : public BaseIntegrationTest
 TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
   const AccountId operatorAccountId(2ULL);
   const Hbar amount(1LL);
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey().get())
+                                .setKey(privateKey->getPublicKey())
                                 .setInitialBalance(amount)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -64,7 +64,7 @@ TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
                                                          .addHbarTransfer(operatorAccountId, amount)
                                                          .addHbarTransfer(accountId, amount.negated())
                                                          .freezeWith(&getTestClient())
-                                                         .sign(privateKey.get())
+                                                         .sign(privateKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 
@@ -80,7 +80,7 @@ TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(operatorAccountId)
                     .freezeWith(&getTestClient())
-                    .sign(privateKey.get())
+                    .sign(privateKey)
                     .execute(getTestClient()));
 }
 

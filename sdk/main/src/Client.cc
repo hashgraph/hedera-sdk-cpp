@@ -30,7 +30,6 @@
 #include "impl/MirrorNetwork.h"
 #include "impl/Network.h"
 #include "impl/TLSBehavior.h"
-#include "impl/ValuePtr.h"
 
 #include <condition_variable>
 #include <mutex>
@@ -54,7 +53,7 @@ struct Client::ClientImpl
   std::optional<AccountId> mOperatorAccountId;
 
   // Pointer to the private key this Client should use to sign transactions.
-  ValuePtr<PrivateKey, KeyCloner> mOperatorPrivateKey;
+  std::shared_ptr<PrivateKey> mOperatorPrivateKey = nullptr;
 
   // The maximum fee this Client is willing to pay for transactions.
   std::optional<Hbar> mMaxTransactionFee;
@@ -189,11 +188,10 @@ Client& Client::setMirrorNetwork(const std::vector<std::string>& network)
 }
 
 //-----
-Client& Client::setOperator(const AccountId& accountId, const PrivateKey* privateKey)
+Client& Client::setOperator(const AccountId& accountId, const std::shared_ptr<PrivateKey>& privateKey)
 {
   mImpl->mOperatorAccountId = accountId;
-  mImpl->mOperatorPrivateKey =
-    ValuePtr<PrivateKey, KeyCloner>(dynamic_cast<PrivateKey*>(privateKey->clone().release()));
+  mImpl->mOperatorPrivateKey = privateKey;
 
   return *this;
 }

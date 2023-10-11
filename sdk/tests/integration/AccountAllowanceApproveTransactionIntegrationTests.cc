@@ -44,18 +44,18 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
 {
   // Given
   const Hbar amount(5LL);
-  const std::unique_ptr<PrivateKey> allowerKey = ED25519PrivateKey::generatePrivateKey();
-  const std::unique_ptr<PrivateKey> alloweeKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> allowerKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> alloweeKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   AccountId allowerAccountId;
   AccountId alloweeAccountId;
   ASSERT_NO_THROW(allowerAccountId = AccountCreateTransaction()
-                                       .setKey(allowerKey->getPublicKey().get())
+                                       .setKey(allowerKey->getPublicKey())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
                                        .mAccountId.value());
   ASSERT_NO_THROW(alloweeAccountId = AccountCreateTransaction()
-                                       .setKey(alloweeKey->getPublicKey().get())
+                                       .setKey(alloweeKey->getPublicKey())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
@@ -66,7 +66,7 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
   EXPECT_NO_THROW(txResponse = AccountAllowanceApproveTransaction()
                                  .approveHbarAllowance(allowerAccountId, alloweeAccountId, amount)
                                  .freezeWith(&getTestClient())
-                                 .sign(allowerKey.get())
+                                 .sign(allowerKey)
                                  .execute(getTestClient()));
 
   // Then
@@ -77,13 +77,13 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
                     .setDeleteAccountId(allowerAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(allowerKey.get())
+                    .sign(allowerKey)
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(alloweeAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(alloweeKey.get())
+                    .sign(alloweeKey)
                     .execute(getTestClient()));
 }
 
@@ -92,18 +92,18 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, CannotAllowAllowanceWi
 {
   // Given
   const Hbar amount(5LL);
-  const std::unique_ptr<PrivateKey> allowerKey = ED25519PrivateKey::generatePrivateKey();
-  const std::unique_ptr<PrivateKey> alloweeKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> allowerKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> alloweeKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   AccountId allowerAccountId;
   AccountId alloweeAccountId;
   ASSERT_NO_THROW(allowerAccountId = AccountCreateTransaction()
-                                       .setKey(allowerKey->getPublicKey().get())
+                                       .setKey(allowerKey->getPublicKey())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
                                        .mAccountId.value());
   ASSERT_NO_THROW(alloweeAccountId = AccountCreateTransaction()
-                                       .setKey(alloweeKey->getPublicKey().get())
+                                       .setKey(alloweeKey->getPublicKey())
                                        .setInitialBalance(amount)
                                        .execute(getTestClient())
                                        .getReceipt(getTestClient())
@@ -121,12 +121,12 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, CannotAllowAllowanceWi
                     .setDeleteAccountId(allowerAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(allowerKey.get())
+                    .sign(allowerKey)
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(alloweeAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(alloweeKey.get())
+                    .sign(alloweeKey)
                     .execute(getTestClient()));
 }

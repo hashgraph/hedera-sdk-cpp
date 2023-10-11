@@ -73,8 +73,7 @@ TEST_F(KeyListTest, FromProtobuf)
 TEST_F(KeyListTest, Of)
 {
   // Given / When
-  const KeyList keyList =
-    KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get(), getTestPublicKey3().get() });
+  const KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2(), getTestPublicKey3() });
 
   // Then
   EXPECT_TRUE(keyList.contains(getTestPublicKey1().get()));
@@ -86,8 +85,7 @@ TEST_F(KeyListTest, Of)
 TEST_F(KeyListTest, ToProtobufKey)
 {
   // Given
-  const KeyList keyList =
-    KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get(), getTestPublicKey3().get() });
+  const KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2(), getTestPublicKey3() });
 
   // When
   std::unique_ptr<proto::Key> protoKey;
@@ -108,8 +106,7 @@ TEST_F(KeyListTest, ToProtobufKey)
 TEST_F(KeyListTest, ToProtobuf)
 {
   // Given
-  const KeyList keyList =
-    KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get(), getTestPublicKey3().get() });
+  const KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2(), getTestPublicKey3() });
 
   // When
   std::unique_ptr<proto::KeyList> protoKeyList;
@@ -129,8 +126,7 @@ TEST_F(KeyListTest, ToProtobuf)
 TEST_F(KeyListTest, Size)
 {
   // Given / When
-  const KeyList keyList =
-    KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get(), getTestPublicKey3().get() });
+  const KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2(), getTestPublicKey3() });
   const KeyList emptyKeyList;
 
   // Then
@@ -142,8 +138,7 @@ TEST_F(KeyListTest, Size)
 TEST_F(KeyListTest, Empty)
 {
   // Given / When
-  const KeyList keyList =
-    KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get(), getTestPublicKey3().get() });
+  const KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2(), getTestPublicKey3() });
   const KeyList emptyKeyList;
 
   // Then
@@ -155,8 +150,7 @@ TEST_F(KeyListTest, Empty)
 TEST_F(KeyListTest, Contains)
 {
   // Given / When
-  const KeyList keyList =
-    KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get(), getTestPublicKey3().get() });
+  const KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2(), getTestPublicKey3() });
   const KeyList emptyKeyList;
 
   // Then
@@ -173,10 +167,10 @@ TEST_F(KeyListTest, Contains)
 TEST_F(KeyListTest, PushBack)
 {
   // Given
-  KeyList keyList = KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get() });
+  KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2() });
 
   // When
-  keyList.push_back(getTestPublicKey3().get());
+  keyList.push_back(getTestPublicKey3());
 
   // Then
   EXPECT_EQ(keyList.size(), 3);
@@ -187,7 +181,7 @@ TEST_F(KeyListTest, PushBack)
 TEST_F(KeyListTest, Remove)
 {
   // Given
-  KeyList keyList = KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get(), getTestPublicKey3().get() });
+  KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2(), getTestPublicKey3() });
 
   // When
   keyList.remove(getTestPublicKey1().get());
@@ -203,7 +197,7 @@ TEST_F(KeyListTest, Remove)
 TEST_F(KeyListTest, Clear)
 {
   // Given
-  KeyList keyList = KeyList::of({ getTestPublicKey1().get(), getTestPublicKey2().get(), getTestPublicKey3().get() });
+  KeyList keyList = KeyList::of({ getTestPublicKey1(), getTestPublicKey2(), getTestPublicKey3() });
 
   // When
   keyList.clear();

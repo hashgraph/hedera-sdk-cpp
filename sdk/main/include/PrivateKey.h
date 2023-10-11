@@ -21,7 +21,6 @@
 #define HEDERA_SDK_CPP_PRIVATE_KEY_H_
 
 #include "Key.h"
-#include "impl/ValuePtr.h"
 
 #include <cstdint>
 #include <memory>
@@ -118,10 +117,10 @@ protected:
   /**
    * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
    */
-  PrivateKey(const PrivateKey&) = default;
-  PrivateKey& operator=(const PrivateKey&) = default;
-  PrivateKey(PrivateKey&&) noexcept = default;
-  PrivateKey& operator=(PrivateKey&&) noexcept = default;
+  PrivateKey(const PrivateKey&);
+  PrivateKey& operator=(const PrivateKey&);
+  PrivateKey(PrivateKey&&) noexcept;
+  PrivateKey& operator=(PrivateKey&&) noexcept;
 
   /**
    * Construct from a wrapped OpenSSL key object and optionally a chain code.
@@ -146,7 +145,7 @@ private:
    * Implementation object used to hide implementation details and internal headers.
    */
   struct PrivateKeyImpl;
-  ValuePtr<PrivateKeyImpl> mImpl;
+  std::unique_ptr<PrivateKeyImpl> mImpl;
 };
 
 } // namespace Hedera

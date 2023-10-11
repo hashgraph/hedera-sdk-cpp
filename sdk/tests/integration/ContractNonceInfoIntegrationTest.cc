@@ -65,7 +65,7 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
   FileId fileId;
   ASSERT_NO_THROW(fileId =
                     FileCreateTransaction()
-                      .setKeys({ operatorKey->getPublicKey().get() })
+                      .setKeys({ operatorKey->getPublicKey() })
                       .setContents(internal::Utilities::stringToByteVector(getTestBytecodeHexWithContractNonceInfo()))
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
@@ -73,7 +73,7 @@ TEST_F(ContractNonceInfoIntegrationTest, ContractADeploysContractBInConstructor)
 
   TransactionResponse response;
   ASSERT_NO_THROW(response = ContractCreateTransaction()
-                               .setAdminKey(operatorKey->getPublicKey().get())
+                               .setAdminKey(operatorKey->getPublicKey())
                                .setGas(100000ULL)
                                .setBytecodeFileId(fileId)
                                .setMemo(memo)

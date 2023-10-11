@@ -112,7 +112,7 @@ public:
    * @return A reference to this derived Transaction object with the signature.
    * @throws IllegalStateException If this Transaction object is not frozen.
    */
-  SdkRequestType& sign(const PrivateKey* key);
+  SdkRequestType& sign(const std::shared_ptr<PrivateKey>& key);
 
   /**
    * Sign this Transaction with a given PublicKey and a signing callback. Signing a Transaction with a key that has
@@ -511,6 +511,19 @@ private:
    * @return \c TRUE if the input PublicKey has already signed this Transaction, otherwise \c FALSE.
    */
   [[nodiscard]] bool keyAlreadySigned(const std::shared_ptr<PublicKey>& publicKey) const;
+
+  /**
+   * Add a PublicKey and a signer function to this Transaction, and optionally the PrivateKey from which the signer
+   * function was generated.
+   *
+   * @param publicKey  The PublicKey to add.
+   * @param signer     The singer function to add.
+   * @param privateKey The PrivateKey to add.
+   * @return A reference to this derived Transaction object with the newly-set "signature(s)".
+   */
+  SdkRequestType& signInternal(const std::shared_ptr<PublicKey>& publicKey,
+                               const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer,
+                               const std::shared_ptr<PrivateKey>& privateKey = nullptr);
 
   /**
    * Implementation object used to hide implementation details and internal headers.

@@ -44,22 +44,22 @@ protected:
   {
     return mTestExpirationTime;
   }
-  [[nodiscard]] inline const std::vector<Key*>& getTestKeyVector() const { return mTestKeyVector; }
+  [[nodiscard]] inline const std::vector<std::shared_ptr<Key>>& getTestKeyVector() const { return mTestKeyVector; }
   [[nodiscard]] inline const KeyList& getTestKeyList() const { return mTestKeyList; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestContents() const { return mTestContents; }
   [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
 
 private:
-  const std::unique_ptr<ED25519PrivateKey> mPrivateKey1 = ED25519PrivateKey::fromString(
-    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10");
-  const std::unique_ptr<ED25519PrivateKey> mPrivateKey2 = ED25519PrivateKey::fromString(
-    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e11");
-  const std::unique_ptr<ED25519PrivateKey> mPrivateKey3 = ED25519PrivateKey::fromString(
-    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e12");
-
   const FileId mTestFileId = FileId(1ULL);
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
-  const std::vector<Key*> mTestKeyVector = { mPrivateKey1.get(), mPrivateKey2.get(), mPrivateKey3.get() };
+  const std::vector<std::shared_ptr<Key>> mTestKeyVector = {
+    ED25519PrivateKey::fromString(
+      "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10"),
+    ED25519PrivateKey::fromString(
+      "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e11"),
+    ED25519PrivateKey::fromString(
+      "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e12")
+  };
   const KeyList mTestKeyList = KeyList::of(mTestKeyVector);
   const std::vector<std::byte> mTestContents = { std::byte(0x08), std::byte(0x09), std::byte(0x10) };
   const std::string mTestMemo = "test file memo";

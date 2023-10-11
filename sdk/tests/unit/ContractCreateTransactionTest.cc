@@ -176,7 +176,7 @@ TEST_F(ContractCreateTransactionTest, GetSetAdminKey)
   ContractCreateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setAdminKey(getTestAdminKey().get()));
+  EXPECT_NO_THROW(transaction.setAdminKey(getTestAdminKey()));
 
   // Then
   EXPECT_EQ(transaction.getAdminKey()->toBytes(), getTestAdminKey()->toBytes());
@@ -192,7 +192,7 @@ TEST_F(ContractCreateTransactionTest, GetSetAdminKeyFrozen)
   ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
-  EXPECT_THROW(transaction.setAdminKey(getTestAdminKey().get()), IllegalStateException);
+  EXPECT_THROW(transaction.setAdminKey(getTestAdminKey()), IllegalStateException);
 }
 
 //-----

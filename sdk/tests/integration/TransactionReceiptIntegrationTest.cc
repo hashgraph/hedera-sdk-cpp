@@ -54,7 +54,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteAccountCreateTransactionAndChec
   // When
   TransactionReceipt txReceipt;
   ASSERT_NO_THROW(txReceipt = AccountCreateTransaction()
-                                .setKey(operatorKey->getPublicKey().get())
+                                .setKey(operatorKey->getPublicKey())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
@@ -84,7 +84,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteFileCreateTransactionAndCheckTr
   // When
   TransactionReceipt txReceipt;
   ASSERT_NO_THROW(txReceipt = FileCreateTransaction()
-                                .setKeys({ operatorKey->getPublicKey().get() })
+                                .setKeys({ operatorKey->getPublicKey() })
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
@@ -112,7 +112,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateTransactionAndChe
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(getTestFileContent())
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -123,7 +123,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateTransactionAndChe
   ASSERT_NO_THROW(txReceipt = ContractCreateTransaction()
                                 .setGas(500000ULL)
                                 .setBytecodeFileId(fileId)
-                                .setAdminKey(operatorKey->getPublicKey().get())
+                                .setAdminKey(operatorKey->getPublicKey())
                                 .setMaxTransactionFee(Hbar(16LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));

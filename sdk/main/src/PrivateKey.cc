@@ -45,8 +45,47 @@ std::shared_ptr<PublicKey> PrivateKey::getPublicKey() const
 }
 
 //-----
+PrivateKey::PrivateKey(const PrivateKey& other)
+  : mImpl(std::make_unique<PrivateKeyImpl>(*other.mImpl))
+{
+}
+
+//-----
+PrivateKey& PrivateKey::operator=(const PrivateKey& other)
+{
+  if (this != &other)
+  {
+    mImpl = std::make_unique<PrivateKeyImpl>(*other.mImpl);
+  }
+
+  return *this;
+}
+
+//-----
+PrivateKey::PrivateKey(PrivateKey&& other) noexcept
+  : mImpl(std::move(other.mImpl))
+{
+  // Leave the moved-from PrivateKey in a valid state.
+  other.mImpl = std::make_unique<PrivateKeyImpl>();
+}
+
+//-----
+PrivateKey& PrivateKey::operator=(PrivateKey&& other) noexcept
+{
+  if (this != &other)
+  {
+    mImpl = std::move(other.mImpl);
+
+    // Leave the moved-from PrivateKey in a valid state.
+    other.mImpl = std::make_unique<PrivateKeyImpl>();
+  }
+
+  return *this;
+}
+
+//-----
 PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<std::byte> chainCode)
-  : mImpl(PrivateKeyImpl())
+  : mImpl(std::make_unique<PrivateKeyImpl>())
 {
   mImpl->mKey = std::move(key);
   mImpl->mChainCode = std::move(chainCode);

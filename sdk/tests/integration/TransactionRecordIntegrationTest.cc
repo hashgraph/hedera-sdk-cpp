@@ -54,14 +54,14 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteEmptyAccountCreateTransaction)
 TEST_F(TransactionRecordIntegrationTest, ExecuteAccountCreateTransactionAndCheckTransactionRecord)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ED25519PrivateKey> testPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const auto testPublicKey = testPrivateKey->getPublicKey();
   const auto testMemo = "Test memo for TransactionRecord.";
 
   // When
   TransactionRecord txRecord;
   EXPECT_NO_THROW(txRecord = AccountCreateTransaction()
-                               .setKey(testPublicKey.get())
+                               .setKey(testPublicKey)
                                .setTransactionMemo(testMemo)
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
@@ -83,7 +83,7 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteAccountCreateTransactionAndCheck
                     .setDeleteAccountId(txRecord.mReceipt->mAccountId.value())
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(testPrivateKey.get())
+                    .sign(testPrivateKey)
                     .execute(getTestClient()));
 }
 
@@ -98,7 +98,7 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteFileCreateTransactionAndCheckTra
   // When
   TransactionRecord txRecord;
   EXPECT_NO_THROW(txRecord = FileCreateTransaction()
-                               .setKeys({ operatorKey->getPublicKey().get() })
+                               .setKeys({ operatorKey->getPublicKey() })
                                .setTransactionMemo(testMemo)
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
@@ -132,7 +132,7 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteContractCreateTransactionAndChec
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(getTestFileContent())
                              .setMaxTransactionFee(Hbar(2LL))
                              .execute(getTestClient())
@@ -145,7 +145,7 @@ TEST_F(TransactionRecordIntegrationTest, ExecuteContractCreateTransactionAndChec
                                .setGas(500000ULL)
                                .setBytecodeFileId(fileId)
                                .setTransactionMemo(testMemo)
-                               .setAdminKey(operatorKey->getPublicKey().get())
+                               .setAdminKey(operatorKey->getPublicKey())
                                .setMaxTransactionFee(Hbar(16LL))
                                .execute(getTestClient())
                                .getRecord(getTestClient()));

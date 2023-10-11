@@ -41,14 +41,14 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]).get());
+  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
 
   // Content to be stored in the file
   const std::vector<std::byte> contents = internal::Utilities::stringToByteVector("Hedera is great!");
 
   // Create a new file with the contents
   FileId fileId = FileCreateTransaction()
-                    .setKeys({ client.getOperatorPublicKey().get() })
+                    .setKeys({ client.getOperatorPublicKey() })
                     .setContents(contents)
                     .execute(client)
                     .getReceipt(client)

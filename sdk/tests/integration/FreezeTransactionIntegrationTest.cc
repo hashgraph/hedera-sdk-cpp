@@ -27,8 +27,6 @@
 #include "PrivateKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
-#include "exceptions/ReceiptStatusException.h"
-#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 
@@ -49,7 +47,7 @@ TEST_F(FreezeTransactionIntegrationTest, DISABLED_ExecuteFreezeTransaction)
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .mFileId.value());

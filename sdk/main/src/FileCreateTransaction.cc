@@ -62,7 +62,7 @@ FileCreateTransaction& FileCreateTransaction::setExpirationTime(
 }
 
 //-----
-FileCreateTransaction& FileCreateTransaction::setKeys(const std::vector<Key*>& keys)
+FileCreateTransaction& FileCreateTransaction::setKeys(const std::vector<std::shared_ptr<Key>>& keys)
 {
   requireNotFrozen();
   mKeys = KeyList::of(keys);

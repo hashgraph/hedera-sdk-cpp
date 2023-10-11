@@ -27,6 +27,7 @@
 #include "impl/PrivateKeyImpl.h"
 #include "impl/Utilities.h"
 #include "impl/openssl_utils/EVP_MD_CTX.h"
+#include "impl/openssl_utils/EVP_PKEY.h"
 #include "impl/openssl_utils/EVP_PKEY_CTX.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
 

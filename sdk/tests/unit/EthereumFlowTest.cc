@@ -36,7 +36,7 @@ class EthereumFlowTest : public ::testing::Test
 protected:
   void SetUp() override
   {
-    mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey().get());
+    mClient.setOperator(AccountId(), ECDSAsecp256k1PrivateKey::generatePrivateKey());
     mTestEthereumData = internal::HexConverter::hexToBytes(
       "02f87082012a022f2f83018000947e3a9eaf9bcc39e2ffa38eb30bf7a93feacbc181880de0b6b3a"
       "7640000831234568001a0df48f2efd10421811de2bfb125ab75b2d3c44139c4642837fb1fccce91"

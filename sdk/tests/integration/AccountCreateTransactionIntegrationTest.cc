@@ -51,7 +51,7 @@ class AccountCreateTransactionIntegrationTest : public BaseIntegrationTest
 TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
 {
   // Given
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
   const EvmAddress testEvmAddress = testPublicKey->toEvmAddress();
@@ -63,7 +63,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
   // When
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
-                                 .setKey(testPublicKey.get())
+                                 .setKey(testPublicKey)
                                  .setInitialBalance(testInitialBalance)
                                  .setReceiverSignatureRequired(true)
                                  .setAutoRenewPeriod(testAutoRenewPeriod)
@@ -72,7 +72,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
                                  .setDeclineStakingReward(true)
                                  .setAlias(testEvmAddress)
                                  .freezeWith(&getTestClient())
-                                 .sign(testPrivateKey.get())
+                                 .sign(testPrivateKey)
                                  .execute(getTestClient()));
 
   // Then
@@ -96,7 +96,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(testPrivateKey.get())
+                    .sign(testPrivateKey)
                     .execute(getTestClient()));
 }
 
@@ -104,7 +104,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
 TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
 {
   // Given
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
   const AccountId operatorAccountId(2ULL);
@@ -115,12 +115,12 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
   TransactionResponse txResponseStakedNodeId;
 
   EXPECT_NO_THROW(txResponseStakedAccountId = AccountCreateTransaction()
-                                                .setKey(testPublicKey.get())
+                                                .setKey(testPublicKey)
                                                 .setStakedAccountId(operatorAccountId)
                                                 .freezeWith(&getTestClient())
                                                 .execute(getTestClient()));
   EXPECT_NO_THROW(txResponseStakedNodeId = AccountCreateTransaction()
-                                             .setKey(testPublicKey.get())
+                                             .setKey(testPublicKey)
                                              .setStakedNodeId(nodeId)
                                              .freezeWith(&getTestClient())
                                              .execute(getTestClient()));
@@ -151,13 +151,13 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
                     .setDeleteAccountId(accountIdStakedAccountId)
                     .setTransferAccountId(operatorAccountId)
                     .freezeWith(&getTestClient())
-                    .sign(testPrivateKey.get())
+                    .sign(testPrivateKey)
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountIdStakedNodeId)
                     .setTransferAccountId(operatorAccountId)
                     .freezeWith(&getTestClient())
-                    .sign(testPrivateKey.get())
+                    .sign(testPrivateKey)
                     .execute(getTestClient()));
 }
 
@@ -165,12 +165,11 @@ TEST_F(AccountCreateTransactionIntegrationTest, MutuallyExclusiveStakingIds)
 TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> testKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ED25519PrivateKey> testKey = ED25519PrivateKey::generatePrivateKey();
 
   // When
   TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse =
-                    AccountCreateTransaction().setKey(testKey->getPublicKey().get()).execute(getTestClient()));
+  EXPECT_NO_THROW(txResponse = AccountCreateTransaction().setKey(testKey->getPublicKey()).execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -190,7 +189,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(testKey.get())
+                    .sign(testKey)
                     .execute(getTestClient()));
 }
 
@@ -198,22 +197,22 @@ TEST_F(AccountCreateTransactionIntegrationTest, NoInitialBalance)
 TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
 {
   // Given
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> adminPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> adminPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<ECDSAsecp256k1PublicKey> adminPublicKey =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(adminPrivateKey->getPublicKey());
   const EvmAddress evmAddress = adminPublicKey->toEvmAddress();
 
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminPublicKey.get())
+                                     .setKey(adminPublicKey)
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .mAccountId.value());
 
   // When
   TransactionResponse txResponse;
-  EXPECT_NO_THROW(
-    txResponse = AccountCreateTransaction().setKey(adminPublicKey.get()).setAlias(evmAddress).execute(getTestClient()));
+  EXPECT_NO_THROW(txResponse =
+                    AccountCreateTransaction().setKey(adminPublicKey).setAlias(evmAddress).execute(getTestClient()));
 
   // Then
   AccountId accountId;
@@ -230,13 +229,13 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(adminPrivateKey.get())
+                    .sign(adminPrivateKey)
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(adminPrivateKey.get())
+                    .sign(adminPrivateKey)
                     .execute(getTestClient()));
 }
 
@@ -244,14 +243,14 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKey)
 TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSigRequired)
 {
   // Given
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> adminKeyPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> adminKeyPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<ECDSAsecp256k1PublicKey> adminKeyPublicKey =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(adminKeyPrivateKey->getPublicKey());
   const EvmAddress evmAddress = adminKeyPublicKey->toEvmAddress();
 
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminKeyPublicKey.get())
+                                     .setKey(adminKeyPublicKey)
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .mAccountId.value());
@@ -260,10 +259,10 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
                                  .setReceiverSignatureRequired(true)
-                                 .setKey(adminKeyPublicKey.get())
+                                 .setKey(adminKeyPublicKey)
                                  .setAlias(evmAddress)
                                  .freezeWith(&getTestClient())
-                                 .sign(adminKeyPrivateKey.get())
+                                 .sign(adminKeyPrivateKey)
                                  .execute(getTestClient()));
 
   // Then
@@ -281,13 +280,13 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(adminKeyPrivateKey.get())
+                    .sign(adminKeyPrivateKey)
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(adminKeyPrivateKey.get())
+                    .sign(adminKeyPrivateKey)
                     .execute(getTestClient()));
 }
 
@@ -295,14 +294,14 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasFromAdminKeyWithReceiverSig
 TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWithReceiverSigRequiredWithoutSignature)
 {
   // Given
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> adminKeyPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> adminKeyPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<ECDSAsecp256k1PublicKey> adminKeyPublicKey =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(adminKeyPrivateKey->getPublicKey());
   const EvmAddress evmAddress = adminKeyPublicKey->toEvmAddress();
 
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminKeyPublicKey.get())
+                                     .setKey(adminKeyPublicKey)
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .mAccountId.value());
@@ -310,7 +309,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWit
   // When
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountCreateTransaction()
                                                       .setReceiverSignatureRequired(true)
-                                                      .setKey(adminKeyPublicKey.get())
+                                                      .setKey(adminKeyPublicKey)
                                                       .setAlias(evmAddress)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
@@ -321,7 +320,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWit
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(adminKeyPrivateKey.get())
+                    .sign(adminKeyPrivateKey)
                     .execute(getTestClient()));
 }
 
@@ -329,15 +328,15 @@ TEST_F(AccountCreateTransactionIntegrationTest, CannotCreateAliasFromAdminKeyWit
 TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithReceiverSigRequired)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminPrivateKey->getPublicKey().get())
+                                     .setKey(adminPrivateKey->getPublicKey())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .mAccountId.value());
 
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> aliasPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> aliasPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const EvmAddress alias =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(aliasPrivateKey->getPublicKey())->toEvmAddress();
 
@@ -345,11 +344,11 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
   TransactionResponse txResponse;
   EXPECT_NO_THROW(txResponse = AccountCreateTransaction()
                                  .setReceiverSignatureRequired(true)
-                                 .setKey(adminPrivateKey->getPublicKey().get())
+                                 .setKey(adminPrivateKey->getPublicKey())
                                  .setAlias(alias)
                                  .freezeWith(&getTestClient())
-                                 .sign(adminPrivateKey.get())
-                                 .sign(aliasPrivateKey.get())
+                                 .sign(adminPrivateKey)
+                                 .sign(aliasPrivateKey)
                                  .execute(getTestClient()));
 
   // Then
@@ -367,13 +366,13 @@ TEST_F(AccountCreateTransactionIntegrationTest, AliasDifferentFromAdminKeyWithRe
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(adminPrivateKey.get())
+                    .sign(adminPrivateKey)
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(adminPrivateKey.get())
+                    .sign(adminPrivateKey)
                     .execute(getTestClient()));
 }
 
@@ -382,25 +381,25 @@ TEST_F(AccountCreateTransactionIntegrationTest,
        CannotCreateWithAliasDifferentFromAdminKeyWithReceiverSigRequiredWithoutSignature)
 {
   // Given
-  const std::unique_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ED25519PrivateKey> adminPrivateKey = ED25519PrivateKey::generatePrivateKey();
   AccountId adminAccountId;
   ASSERT_NO_THROW(adminAccountId = AccountCreateTransaction()
-                                     .setKey(adminPrivateKey->getPublicKey().get())
+                                     .setKey(adminPrivateKey->getPublicKey())
                                      .execute(getTestClient())
                                      .getReceipt(getTestClient())
                                      .mAccountId.value());
 
-  const std::unique_ptr<ECDSAsecp256k1PrivateKey> aliasPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> aliasPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const EvmAddress alias =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(aliasPrivateKey->getPublicKey())->toEvmAddress();
 
   // When
   EXPECT_THROW(const TransactionReceipt txReceipt = AccountCreateTransaction()
                                                       .setReceiverSignatureRequired(true)
-                                                      .setKey(adminPrivateKey->getPublicKey().get())
+                                                      .setKey(adminPrivateKey->getPublicKey())
                                                       .setAlias(alias)
                                                       .freezeWith(&getTestClient())
-                                                      .sign(aliasPrivateKey.get())
+                                                      .sign(aliasPrivateKey)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
                ReceiptStatusException); // INVALID_SIGNATURE
@@ -410,6 +409,6 @@ TEST_F(AccountCreateTransactionIntegrationTest,
                     .setDeleteAccountId(adminAccountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(adminPrivateKey.get())
+                    .sign(adminPrivateKey)
                     .execute(getTestClient()));
 }
