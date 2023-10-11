@@ -70,6 +70,20 @@ grpc::Status AccountDeleteTransaction::submitRequest(const proto::Transaction& r
 }
 
 //-----
+void AccountDeleteTransaction::validateChecksums(const Client& client) const
+{
+  if (mDeleteAccountId.has_value())
+  {
+    mDeleteAccountId->validateChecksum(client);
+  }
+
+  if (mTransferAccountId.has_value())
+  {
+    mTransferAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 void AccountDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_cryptodelete(build());

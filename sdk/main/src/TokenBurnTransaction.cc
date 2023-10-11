@@ -76,6 +76,12 @@ grpc::Status TokenBurnTransaction::submitRequest(const proto::Transaction& reque
 }
 
 //-----
+void TokenBurnTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+}
+
+//-----
 void TokenBurnTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenburn(build());

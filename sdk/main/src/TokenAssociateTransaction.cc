@@ -68,6 +68,18 @@ grpc::Status TokenAssociateTransaction::submitRequest(const proto::Transaction& 
 }
 
 //-----
+void TokenAssociateTransaction::validateChecksums(const Client& client) const
+{
+  if (mAccountId.has_value())
+  {
+    mAccountId->validateChecksum(client);
+  }
+
+  std::for_each(
+    mTokenIds.cbegin(), mTokenIds.cend(), [&client](const TokenId& tokenId) { tokenId.validateChecksum(client); });
+}
+
+//-----
 void TokenAssociateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenassociate(build());

@@ -85,18 +85,18 @@ AccountAllowanceApproveTransaction& AccountAllowanceApproveTransaction::approveT
   // Add the serial number to the token allowance if there's already an allowance for this token ID, owner, and spender.
   for (TokenNftAllowance& allowance : mNftAllowances)
   {
-    if (allowance.mTokenId == nftId.getTokenId() && allowance.mOwnerAccountId == ownerAccountId &&
+    if (allowance.mTokenId == nftId.mTokenId && allowance.mOwnerAccountId == ownerAccountId &&
         allowance.mSpenderAccountId == spenderAccountId)
     {
-      allowance.mSerialNumbers.push_back(nftId.getSerialNum());
+      allowance.mSerialNumbers.push_back(nftId.mSerialNum);
       return *this;
     }
   }
 
-  mNftAllowances.emplace_back(nftId.getTokenId(),
+  mNftAllowances.emplace_back(nftId.mTokenId,
                               ownerAccountId,
                               spenderAccountId,
-                              std::vector<uint64_t>{ nftId.getSerialNum() },
+                              std::vector<uint64_t>{ nftId.mSerialNum },
                               std::optional<bool>(),
                               (delegatingAccountId == AccountId()) ? std::optional<AccountId>() : delegatingAccountId);
   return *this;
@@ -143,6 +143,20 @@ grpc::Status AccountAllowanceApproveTransaction::submitRequest(const proto::Tran
 {
   return node->submitTransaction(
     proto::TransactionBody::DataCase::kCryptoApproveAllowance, request, deadline, response);
+}
+
+//-----
+void AccountAllowanceApproveTransaction::validateChecksums(const Client& client) const
+{
+  std::for_each(mHbarAllowances.cbegin(),
+                mHbarAllowances.cend(),
+                [&client](const HbarAllowance& allowance) { allowance.validateChecksums(client); });
+  std::for_each(mTokenAllowances.cbegin(),
+                mTokenAllowances.cend(),
+                [&client](const TokenAllowance& allowance) { allowance.validateChecksums(client); });
+  std::for_each(mNftAllowances.cbegin(),
+                mNftAllowances.cend(),
+                [&client](const TokenNftAllowance& allowance) { allowance.validateChecksums(client); });
 }
 
 //-----

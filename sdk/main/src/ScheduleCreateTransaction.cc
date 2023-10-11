@@ -221,6 +221,15 @@ grpc::Status ScheduleCreateTransaction::submitRequest(const proto::Transaction& 
 }
 
 //-----
+void ScheduleCreateTransaction::validateChecksums(const Client& client) const
+{
+  if (mImpl->mPayerAccountId.has_value())
+  {
+    mImpl->mPayerAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 void ScheduleCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_schedulecreate(build());

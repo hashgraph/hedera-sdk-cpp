@@ -68,6 +68,13 @@ grpc::Status TokenFreezeTransaction::submitRequest(const proto::Transaction& req
 }
 
 //-----
+void TokenFreezeTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+  mAccountId.validateChecksum(client);
+}
+
+//-----
 void TokenFreezeTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenfreeze(build());

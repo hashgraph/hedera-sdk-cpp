@@ -143,6 +143,17 @@ grpc::Status TopicUpdateTransaction::submitRequest(const proto::Transaction& req
 }
 
 //-----
+void TopicUpdateTransaction::validateChecksums(const Client& client) const
+{
+  mTopicId.validateChecksum(client);
+
+  if (mAutoRenewAccountId.has_value())
+  {
+    mAutoRenewAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 void TopicUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_consensusupdatetopic(build());

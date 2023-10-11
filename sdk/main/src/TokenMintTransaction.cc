@@ -86,6 +86,12 @@ grpc::Status TokenMintTransaction::submitRequest(const proto::Transaction& reque
 }
 
 //-----
+void TokenMintTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+}
+
+//-----
 void TokenMintTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenmint(build());

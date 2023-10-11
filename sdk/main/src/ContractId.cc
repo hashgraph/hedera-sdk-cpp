@@ -18,6 +18,11 @@
  *
  */
 #include "ContractId.h"
+#include "Client.h"
+#include "LedgerId.h"
+#include "exceptions/IllegalStateException.h"
+#include "impl/EntityIdHelper.h"
+#include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
 #include <limits>
@@ -26,10 +31,9 @@
 namespace Hedera
 {
 //-----
-ContractId::ContractId(const uint64_t& num)
+ContractId::ContractId(uint64_t num)
   : mContractNum(num)
 {
-  checkContractNum();
 }
 
 //-----
@@ -39,24 +43,20 @@ ContractId::ContractId(const EvmAddress& address)
 }
 
 //-----
-ContractId::ContractId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num)
+ContractId::ContractId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum)
   : mShardNum(shard)
   , mRealmNum(realm)
   , mContractNum(num)
+  , mChecksum(checksum)
 {
-  checkShardNum();
-  checkRealmNum();
-  checkContractNum();
 }
 
 //-----
-ContractId::ContractId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address)
+ContractId::ContractId(uint64_t shard, uint64_t realm, const EvmAddress& address)
   : mShardNum(shard)
   , mRealmNum(realm)
   , mEvmAddress(address)
 {
-  checkShardNum();
-  checkRealmNum();
 }
 
 //-----
@@ -66,6 +66,70 @@ bool ContractId::operator==(const ContractId& other) const
          ((mContractNum && other.mContractNum && *mContractNum == *other.mContractNum) ||
           (mEvmAddress && other.mEvmAddress && mEvmAddress->toBytes() == other.mEvmAddress->toBytes()) ||
           (!mContractNum && !other.mContractNum && !mEvmAddress && !other.mEvmAddress));
+}
+
+//-----
+ContractId ContractId::fromString(std::string_view id)
+{
+  // Get the shard and realm numbers.
+  const uint64_t shard = internal::EntityIdHelper::getShardNum(id);
+  const uint64_t realm = internal::EntityIdHelper::getRealmNum(id);
+
+  // Determine what the entity ID number is. First try to see if it's just a contract number. Get the entity number
+  // string before the try-block to verify the input ID isn't malformed.
+  const std::string_view entityNum = internal::EntityIdHelper::getEntityNumStr(id);
+  const std::string_view checksum = internal::EntityIdHelper::getChecksum(id);
+  try
+  {
+    return ContractId(shard, realm, internal::EntityIdHelper::getNum(entityNum), checksum);
+  }
+  catch (const std::invalid_argument&)
+  {
+    // If the entity number isn't a contract number, it's an EvmAddress. An EvmAddress cannot have checksums, so verify
+    // that first.
+    if (!checksum.empty())
+    {
+      throw std::invalid_argument("Contract IDs with EVM addresses can't have checksums");
+    }
+
+    // Try the entity number as an EVM address.
+    try
+    {
+      return ContractId(shard, realm, EvmAddress::fromString(entityNum));
+    }
+    catch (const std::invalid_argument&)
+    {
+      // If not an EVM address, the entity ID cannot be realized.
+      throw std::invalid_argument(std::string("Contract number/EVM address cannot be realized from ") +
+                                  entityNum.data());
+    }
+  }
+}
+
+//-----
+ContractId ContractId::fromEvmAddress(std::string_view evmAddress, uint64_t shard, uint64_t realm)
+{
+  return fromEvmAddress(EvmAddress::fromString(evmAddress), shard, realm);
+}
+
+//-----
+ContractId ContractId::fromEvmAddress(const EvmAddress& evmAddress, uint64_t shard, uint64_t realm)
+{
+  return ContractId(shard, realm, evmAddress);
+}
+
+//-----
+ContractId ContractId::fromSolidityAddress(std::string_view address)
+{
+  const std::vector<std::byte> bytes = internal::EntityIdHelper::decodeSolidityAddress(address);
+  if (internal::EntityIdHelper::isLongZeroAddress(bytes))
+  {
+    return internal::EntityIdHelper::fromSolidityAddress<ContractId>(bytes);
+  }
+  else
+  {
+    return fromEvmAddress(address);
+  }
 }
 
 //-----
@@ -88,6 +152,14 @@ ContractId ContractId::fromProtobuf(const proto::ContractID& proto)
 }
 
 //-----
+ContractId ContractId::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::ContractID proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
 std::unique_ptr<Key> ContractId::clone() const
 {
   return std::make_unique<ContractId>(*this);
@@ -102,17 +174,32 @@ std::unique_ptr<proto::Key> ContractId::toProtobufKey() const
 }
 
 //-----
+std::vector<std::byte> ContractId::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+void ContractId::validateChecksum(const Client& client) const
+{
+  if (mContractNum.has_value() && !mChecksum.empty())
+  {
+    internal::EntityIdHelper::validate(mShardNum, mRealmNum, mContractNum.value(), client, mChecksum);
+  }
+}
+
+//-----
 std::unique_ptr<proto::ContractID> ContractId::toProtobuf() const
 {
   auto proto = std::make_unique<proto::ContractID>();
   proto->set_shardnum(static_cast<int64_t>(mShardNum));
   proto->set_realmnum(static_cast<int64_t>(mRealmNum));
 
-  if (mContractNum)
+  if (mContractNum.has_value())
   {
-    proto->set_contractnum(static_cast<int64_t>(*mContractNum));
+    proto->set_contractnum(static_cast<int64_t>(mContractNum.value()));
   }
-  else if (mEvmAddress)
+  else if (mEvmAddress.has_value())
   {
     proto->set_evm_address(internal::Utilities::byteVectorToString(mEvmAddress->toBytes()));
   }
@@ -121,15 +208,33 @@ std::unique_ptr<proto::ContractID> ContractId::toProtobuf() const
 }
 
 //-----
+std::string ContractId::toSolidityAddress() const
+{
+  if (mEvmAddress.has_value())
+  {
+    return internal::HexConverter::bytesToHex(mEvmAddress->toBytes());
+  }
+  else if (mContractNum.has_value())
+  {
+    return internal::EntityIdHelper::toSolidityAddress(mShardNum, mRealmNum, mContractNum.value());
+  }
+  else
+  {
+    throw IllegalStateException(
+      "ContractId must contain a contract number of EVM address to generate a Solidity address");
+  }
+}
+
+//-----
 std::string ContractId::toString() const
 {
   std::string str = std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.';
 
-  if (mContractNum)
+  if (mContractNum.has_value())
   {
-    return str + std::to_string(*mContractNum);
+    return str + std::to_string(mContractNum.value());
   }
-  else if (mEvmAddress)
+  else if (mEvmAddress.has_value())
   {
     return str + mEvmAddress->toString();
   }
@@ -141,63 +246,21 @@ std::string ContractId::toString() const
 }
 
 //-----
-ContractId& ContractId::setShardNum(const uint64_t& num)
+std::string ContractId::toStringWithChecksum(const Client& client) const
 {
-  mShardNum = num;
-  checkShardNum();
-  return *this;
-}
-
-//-----
-ContractId& ContractId::setRealmNum(const uint64_t& num)
-{
-  mRealmNum = num;
-  checkRealmNum();
-  return *this;
-}
-
-//-----
-ContractId& ContractId::setContractNum(const uint64_t& num)
-{
-  mContractNum = num;
-  checkContractNum();
-  mEvmAddress.reset();
-  return *this;
-}
-
-//-----
-ContractId& ContractId::setEvmAddress(const EvmAddress& address)
-{
-  mEvmAddress = address;
-  mContractNum.reset();
-  return *this;
-}
-
-//-----
-void ContractId::checkShardNum() const
-{
-  if (mShardNum > std::numeric_limits<int64_t>::max())
+  // Checksums are only valid for contracts using a contract number.
+  if (!mContractNum.has_value())
   {
-    throw std::invalid_argument("Input shard number is too large");
+    throw IllegalStateException("Checksums can only be generated for ContractIds that contain a contract number");
   }
-}
 
-//-----
-void ContractId::checkRealmNum() const
-{
-  if (mRealmNum > std::numeric_limits<int64_t>::max())
+  if (mChecksum.empty())
   {
-    throw std::invalid_argument("Input realm number is too large");
+    mChecksum = internal::EntityIdHelper::checksum(
+      internal::EntityIdHelper::toString(mShardNum, mRealmNum, mContractNum.value()), client.getLedgerId());
   }
-}
 
-//-----
-void ContractId::checkContractNum() const
-{
-  if (mContractNum && *mContractNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input contract number is too large");
-  }
+  return internal::EntityIdHelper::toString(mShardNum, mRealmNum, mContractNum.value(), mChecksum);
 }
 
 } // namespace Hedera

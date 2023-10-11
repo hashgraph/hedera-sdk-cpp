@@ -448,6 +448,14 @@ private:
   virtual void addToBody(proto::TransactionBody& body) const = 0;
 
   /**
+   * Verify that all the checksums in this Transaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This Transaction's checksums are not valid.
+   */
+  virtual void validateChecksums(const Client& client) const = 0;
+
+  /**
    * Derived from Executable. Construct a TransactionResponse object from a TransactionResponse protobuf object.
    *
    * @param response The TransactionResponse protobuf object from which to construct a TransactionResponse object.

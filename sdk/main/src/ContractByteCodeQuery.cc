@@ -51,6 +51,12 @@ grpc::Status ContractByteCodeQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void ContractByteCodeQuery::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+}
+
+//-----
 proto::Query ContractByteCodeQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto contractByteCodeQuery = std::make_unique<proto::ContractGetBytecodeQuery>();

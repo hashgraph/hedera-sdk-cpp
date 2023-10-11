@@ -20,7 +20,6 @@
 #include "FileId.h"
 
 #include <gtest/gtest.h>
-#include <limits>
 #include <proto/basic_types.pb.h>
 #include <stdexcept>
 
@@ -32,26 +31,12 @@ protected:
   [[nodiscard]] inline const uint64_t& getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t& getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t& getTestFileNum() const { return mFileNum; }
-  [[nodiscard]] inline const uint64_t& getTestNumTooBig() const { return mNumTooBig; }
 
 private:
   const uint64_t mShardNum = 1ULL;
   const uint64_t mRealmNum = 20ULL;
   const uint64_t mFileNum = 300ULL;
-  const uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1ULL;
 };
-
-//-----
-TEST_F(FileIdTest, DefaultConstructFileId)
-{
-  // Given / When
-  const FileId fileId;
-
-  // Then
-  EXPECT_EQ(fileId.getShardNum(), 0ULL);
-  EXPECT_EQ(fileId.getRealmNum(), 0ULL);
-  EXPECT_EQ(fileId.getFileNum(), 0ULL);
-}
 
 //-----
 TEST_F(FileIdTest, ConstructWithFileNum)
@@ -60,16 +45,9 @@ TEST_F(FileIdTest, ConstructWithFileNum)
   const FileId fileId(getTestFileNum());
 
   // Then
-  EXPECT_EQ(fileId.getShardNum(), 0ULL);
-  EXPECT_EQ(fileId.getRealmNum(), 0ULL);
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
-}
-
-//-----
-TEST_F(FileIdTest, ConstructWithFileNumTooBig)
-{
-  // Given / When / Then
-  EXPECT_THROW(const FileId fileId(getTestNumTooBig()), std::invalid_argument);
+  EXPECT_EQ(fileId.mShardNum, 0ULL);
+  EXPECT_EQ(fileId.mRealmNum, 0ULL);
+  EXPECT_EQ(fileId.mFileNum, getTestFileNum());
 }
 
 //-----
@@ -79,18 +57,9 @@ TEST_F(FileIdTest, ConstructWithShardRealmFileNum)
   const FileId fileId(getTestShardNum(), getTestRealmNum(), getTestFileNum());
 
   // Then
-  EXPECT_EQ(fileId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(fileId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
-}
-
-//-----
-TEST_F(FileIdTest, ConstructWithShardRealmFileNumTooBig)
-{
-  // Given / When / Then
-  EXPECT_THROW(const FileId fileId(getTestNumTooBig(), getTestRealmNum(), getTestFileNum()), std::invalid_argument);
-  EXPECT_THROW(const FileId fileId(getTestShardNum(), getTestNumTooBig(), getTestFileNum()), std::invalid_argument);
-  EXPECT_THROW(const FileId fileId(getTestShardNum(), getTestRealmNum(), getTestNumTooBig()), std::invalid_argument);
+  EXPECT_EQ(fileId.mShardNum, getTestShardNum());
+  EXPECT_EQ(fileId.mRealmNum, getTestRealmNum());
+  EXPECT_EQ(fileId.mFileNum, getTestFileNum());
 }
 
 //-----
@@ -120,9 +89,9 @@ TEST_F(FileIdTest, FromString)
                                        '.' + std::to_string(getTestFileNum())));
 
   // Then
-  EXPECT_EQ(fileId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(fileId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
+  EXPECT_EQ(fileId.mShardNum, getTestShardNum());
+  EXPECT_EQ(fileId.mRealmNum, getTestRealmNum());
+  EXPECT_EQ(fileId.mFileNum, getTestFileNum());
 }
 
 //-----
@@ -133,7 +102,6 @@ TEST_F(FileIdTest, FromBadString)
   const std::string testShardNumStr = std::to_string(getTestShardNum());
   const std::string testRealmNumStr = std::to_string(getTestRealmNum());
   const std::string testFileNumStr = std::to_string(getTestFileNum());
-  const std::string testNumTooBigStr = std::to_string(getTestNumTooBig());
 
   const std::string fileIdStrNoDots = testShardNumStr + testRealmNumStr + testFileNumStr;
   const std::string fileIdOneDotBefore = '.' + fileIdStrNoDots;
@@ -152,9 +120,6 @@ TEST_F(FileIdTest, FromBadString)
     '.' + testShardNumStr + '.' + testRealmNumStr + '.' + testFileNumStr + '.';
   const std::string fileIdRandomAlphaChars = "this is a bad file id";
   const std::string fileIdWithDotsAndAlphaChars = "ab.cd.ef";
-  const std::string fileIdShardNumTooBig = testNumTooBigStr + '.' + testRealmNumStr + '.' + testFileNumStr;
-  const std::string fileIdRealmNumTooBig = testShardNumStr + '.' + testNumTooBigStr + '.' + testFileNumStr;
-  const std::string fileIdFileNumTooBig = testShardNumStr + '.' + testRealmNumStr + '.' + testNumTooBigStr;
 
   // When / Then
   EXPECT_THROW(fileId = FileId::fromString(fileIdStrNoDots), std::invalid_argument);
@@ -173,9 +138,6 @@ TEST_F(FileIdTest, FromBadString)
   EXPECT_THROW(fileId = FileId::fromString(fileIdDotsBetweenAllParts), std::invalid_argument);
   EXPECT_THROW(fileId = FileId::fromString(fileIdRandomAlphaChars), std::invalid_argument);
   EXPECT_THROW(fileId = FileId::fromString(fileIdWithDotsAndAlphaChars), std::invalid_argument);
-  EXPECT_THROW(fileId = FileId::fromString(fileIdShardNumTooBig), std::invalid_argument);
-  EXPECT_THROW(fileId = FileId::fromString(fileIdRealmNumTooBig), std::invalid_argument);
-  EXPECT_THROW(fileId = FileId::fromString(fileIdFileNumTooBig), std::invalid_argument);
 }
 
 //-----
@@ -191,9 +153,9 @@ TEST_F(FileIdTest, FromProtobuf)
   const FileId fileId = FileId::fromProtobuf(protoFileId);
 
   // Then
-  EXPECT_EQ(fileId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(fileId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
+  EXPECT_EQ(fileId.mShardNum, getTestShardNum());
+  EXPECT_EQ(fileId.mRealmNum, getTestRealmNum());
+  EXPECT_EQ(fileId.mFileNum, getTestFileNum());
 }
 
 //-----
@@ -230,73 +192,4 @@ TEST_F(FileIdTest, ToString)
   EXPECT_EQ(fileIdShardRealmFileNumStr,
             std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
               std::to_string(getTestFileNum()));
-}
-
-//-----
-TEST_F(FileIdTest, SetGetShardNum)
-{
-  // Given
-  FileId fileId;
-
-  // When
-  fileId.setShardNum(getTestShardNum());
-
-  // Then
-  EXPECT_EQ(fileId.getShardNum(), getTestShardNum());
-}
-
-//-----
-TEST_F(FileIdTest, SetGetShardNumTooBig)
-{
-  // Given
-  FileId fileId;
-
-  // When / Then
-  EXPECT_THROW(fileId.setShardNum(getTestNumTooBig()), std::invalid_argument);
-}
-
-//-----
-TEST_F(FileIdTest, SetGetRealmNum)
-{
-  // Given
-  FileId fileId;
-
-  // When
-  fileId.setRealmNum(getTestRealmNum());
-
-  // Then
-  EXPECT_EQ(fileId.getRealmNum(), getTestRealmNum());
-}
-
-//-----
-TEST_F(FileIdTest, SetGetRealmNumTooBig)
-{
-  // Given
-  FileId fileId;
-
-  // When / Then
-  EXPECT_THROW(fileId.setRealmNum(getTestNumTooBig()), std::invalid_argument);
-}
-
-//-----
-TEST_F(FileIdTest, SetGetFileNum)
-{
-  // Given
-  FileId fileId;
-
-  // When
-  fileId.setFileNum(getTestFileNum());
-
-  // Then
-  EXPECT_EQ(fileId.getFileNum(), getTestFileNum());
-}
-
-//-----
-TEST_F(FileIdTest, SetGetFileNumTooBig)
-{
-  // Given
-  FileId fileId;
-
-  // When / Then
-  EXPECT_THROW(fileId.setFileNum(getTestNumTooBig()), std::invalid_argument);
 }

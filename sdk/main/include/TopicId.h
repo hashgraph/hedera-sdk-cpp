@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -21,7 +21,6 @@
 #define HEDERA_SDK_CPP_TOPIC_ID_H_
 
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -30,6 +29,11 @@
 namespace proto
 {
 class TopicID;
+}
+
+namespace Hedera
+{
+class Client;
 }
 
 namespace Hedera
@@ -45,18 +49,19 @@ public:
   /**
    * Construct with a topic number.
    *
-   * @param num The desired topic number.
+   * @param num The topic number.
    */
-  explicit TopicId(const uint64_t& num);
+  explicit TopicId(uint64_t num);
 
   /**
-   * Construct with a shard, realm, and topic number.
+   * Construct with a shard, realm, a topic number, and optionally a checksum.
    *
-   * @param shard The desired shard number.
-   * @param realm The desired realm number.
-   * @param num   The desired topic number.
+   * @param shard    The shard number.
+   * @param realm    The realm number.
+   * @param num      The topic number.
+   * @param checksum The checksum.
    */
-  explicit TopicId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
+  explicit TopicId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum = "");
 
   /**
    * Compare this TopicId to another TopicId and determine if they represent the same topic.
@@ -70,64 +75,86 @@ public:
    * Construct a TopicId object from a string of the form "<shard>.<realm>.<num>".
    *
    * @param id The topic ID string from which to construct.
-   * @throws std::invalid_argument If the input string is malformed.
    * @return The constructed TopicId object.
+   * @throws std::invalid_argument If the input string is malformed.
    */
   [[nodiscard]] static TopicId fromString(std::string_view id);
 
   /**
-   * Construct a TopicId object from a solidity address.
+   * Construct a TopicId from a Solidity address.
    *
-   * @param addr The solidity address from which to construct.
-   * @throws std::invalid_argument If the input address is malformed.
+   * @param address The Solidity address from which to create a TopicId, as a string.
    * @return The constructed TopicId object.
+   * @throws std::invalid_argument If a Solidity address cannot be realized from the input string.
    */
-  [[nodiscard]] static TopicId fromSolidityAddress(std::string_view addr);
+  [[nodiscard]] static TopicId fromSolidityAddress(std::string_view address);
 
   /**
-   * Construct a TopicId object from a TopicId protobuf object.
+   * Construct a TopicId from a TopicId protobuf object.
    *
-   * @param proto The TopicId protobuf object from which to construct a TopicId object.
+   * @param proto The TopicId protobuf object from which to create a TopicId object.
    * @return The constructed TopicId object.
    */
   [[nodiscard]] static TopicId fromProtobuf(const proto::TopicID& proto);
 
   /**
-   * Construct a TopicId object from a byte array.
+   * Construct a TopicId object from a representative byte array.
    *
-   * @param bytes The byte array from which to construct.
+   * @param bytes The byte array from which to construct a TopicId object.
    * @return The constructed TopicId object.
-   * @throws std::invalid_argument If a TopicId object cannot be constructed from the input byte array.
    */
   [[nodiscard]] static TopicId fromBytes(const std::vector<std::byte>& bytes);
 
   /**
-   * Get the solidity address representation of this TopicId object.
+   * Verify the checksum of this TopicId using the input Client's network.
    *
-   * @return The solidity address representation, as a string.
+   * @param client The Client with which to validate this TopicId's checksum.
+   * @throws BadEntityException If the checksum of this TopicId is invalid.
    */
-  [[nodiscard]] std::string toSolidityAddress() const;
+  void validateChecksum(const Client& client) const;
 
   /**
-   * Construct a TopicId protobuf object from this TopicId object.
+   * Construct a TopicID protobuf object from this TopicId object.
    *
    * @return A pointer to the created TopicId protobuf object filled with this TopicId object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::TopicID> toProtobuf() const;
 
   /**
-   * Get the byte representation of this TopicId object.
+   * Get the Solidity address representation of this TopicId (Long-Zero address form).
    *
-   * @return The byte representation of this TopicId.
+   * @return The Solidity address representation of this TopicId.
    */
-  [[nodiscard]] std::vector<std::byte> toBytes() const;
+  [[nodiscard]] std::string toSolidityAddress() const;
 
   /**
-   * Get the string representation of this TopicId object with the form "<shard>.<realm>.<num>".
+   * Get the string representation of this TopicId object.
    *
    * @return The string representation of this TopicId.
    */
   [[nodiscard]] std::string toString() const;
+
+  /**
+   * Get the string representation of this TopicId object with the checksum.
+   *
+   * @param client The Client with which to generate the checksum.
+   * @return The string representation of this TopicId object with the checksum.
+   */
+  [[nodiscard]] std::string toStringWithChecksum([[maybe_unused]] const Client& client) const;
+
+  /**
+   * Get a byte array representation of this TopicId object.
+   *
+   * @return A byte array representation of this TopicId object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Get the checksum of this ContractId.
+   *
+   * @return The checksum of this ContractId.
+   */
+  [[nodiscard]] inline std::string getChecksum() const { return mChecksum; }
 
   /**
    * The shard number.
@@ -140,9 +167,15 @@ public:
   uint64_t mRealmNum = 0ULL;
 
   /**
-   * The topic ID number.
+   * The topic number.
    */
   uint64_t mTopicNum = 0ULL;
+
+private:
+  /**
+   * The checksum of this TopicIds.
+   */
+  mutable std::string mChecksum;
 };
 
 } // namespace Hedera

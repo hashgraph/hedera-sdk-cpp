@@ -86,9 +86,9 @@ TEST_F(AssessedCustomFeeTest, ToProtobuf)
   // Then
   EXPECT_EQ(protoAssessedCustomFee->amount(), getTestAmount());
   ASSERT_TRUE(protoAssessedCustomFee->has_token_id());
-  EXPECT_EQ(protoAssessedCustomFee->token_id().shardnum(), getTestTokenId().getShardNum());
-  EXPECT_EQ(protoAssessedCustomFee->token_id().realmnum(), getTestTokenId().getRealmNum());
-  EXPECT_EQ(protoAssessedCustomFee->token_id().tokennum(), getTestTokenId().getTokenNum());
+  EXPECT_EQ(protoAssessedCustomFee->token_id().shardnum(), getTestTokenId().mShardNum);
+  EXPECT_EQ(protoAssessedCustomFee->token_id().realmnum(), getTestTokenId().mRealmNum);
+  EXPECT_EQ(protoAssessedCustomFee->token_id().tokennum(), getTestTokenId().mTokenNum);
   ASSERT_TRUE(protoAssessedCustomFee->has_fee_collector_account_id());
   EXPECT_EQ(protoAssessedCustomFee->fee_collector_account_id().shardnum(), getTestFeeCollectorAccountId().mShardNum);
   EXPECT_EQ(protoAssessedCustomFee->fee_collector_account_id().realmnum(), getTestFeeCollectorAccountId().mRealmNum);

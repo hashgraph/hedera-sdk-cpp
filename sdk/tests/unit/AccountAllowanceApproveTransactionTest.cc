@@ -106,10 +106,9 @@ TEST_F(AccountAllowanceApproveTransactionTest, ConstructAccountAllowanceApproveT
 
   // Then
   ASSERT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().size(), 1);
-  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getSpenderAccountId(),
-            getTestSpenderAccountId());
-  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).getAmount(), getTestAmountHbar());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(accountAllowanceApproveTransaction.getHbarApprovals().at(0).mAmount, getTestAmountHbar());
 
   ASSERT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().size(), 1);
   EXPECT_EQ(accountAllowanceApproveTransaction.getTokenApprovals().at(0).mTokenId, getTestTokenId());
@@ -140,9 +139,9 @@ TEST_F(AccountAllowanceApproveTransactionTest, ApproveHbarAllowance)
 
   // Then
   ASSERT_EQ(transaction.getHbarApprovals().size(), 1);
-  EXPECT_EQ(transaction.getHbarApprovals().at(0).getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(transaction.getHbarApprovals().at(0).getSpenderAccountId(), getTestSpenderAccountId());
-  EXPECT_EQ(transaction.getHbarApprovals().at(0).getAmount(), getTestAmountHbar());
+  EXPECT_EQ(transaction.getHbarApprovals().at(0).mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(transaction.getHbarApprovals().at(0).mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(transaction.getHbarApprovals().at(0).mAmount, getTestAmountHbar());
 }
 
 //-----

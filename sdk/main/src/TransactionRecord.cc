@@ -78,22 +78,16 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
     const TokenId tokenId = TokenId::fromProtobuf(list.token());
 
     // Fungible token
-    const std::vector<TokenTransfer> fungibleTransfers = TokenTransfer::fromProtobuf(list);
-    transactionRecord.mTokenTransferList.insert(
-      transactionRecord.mTokenTransferList.cend(), fungibleTransfers.cbegin(), fungibleTransfers.cend());
+    for (int j = 0; j < list.transfers_size(); ++j)
+    {
+      transactionRecord.mTokenTransferList.push_back(TokenTransfer::fromProtobuf(
+        list.transfers(j), tokenId, list.has_expected_decimals() ? list.expected_decimals().value() : 0U));
+    }
 
     // NFT
     for (int j = 0; j < list.nfttransfers_size(); ++j)
     {
-      const proto::NftTransfer& nftTransfer = list.nfttransfers(j);
-
-      TokenNftTransfer transfer;
-      transfer.setNftId(NftId(tokenId, static_cast<uint64_t>(nftTransfer.serialnumber())));
-      transfer.setSenderAccountId(AccountId::fromProtobuf(nftTransfer.senderaccountid()));
-      transfer.setReceiverAccountId(AccountId::fromProtobuf(nftTransfer.receiveraccountid()));
-      transfer.setApproval(nftTransfer.is_approval());
-
-      transactionRecord.mNftTransferList.push_back(transfer);
+      transactionRecord.mNftTransferList.push_back(TokenNftTransfer::fromProtobuf(list.nfttransfers(j), tokenId));
     }
   }
 

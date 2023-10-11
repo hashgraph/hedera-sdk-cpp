@@ -18,29 +18,30 @@
  *
  */
 #include "TokenId.h"
+#include "Client.h"
+#include "LedgerId.h"
+#include "NftId.h"
+#include "impl/EntityIdHelper.h"
+#include "impl/Utilities.h"
 
-#include <charconv>
+#include <limits>
 #include <proto/basic_types.pb.h>
-#include <stdexcept>
 
 namespace Hedera
 {
 //-----
-TokenId::TokenId(const uint64_t& num)
+TokenId::TokenId(uint64_t num)
   : mTokenNum(num)
 {
-  checkTokenNum();
 }
 
 //-----
-TokenId::TokenId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num)
+TokenId::TokenId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum)
   : mShardNum(shard)
   , mRealmNum(realm)
   , mTokenNum(num)
+  , mChecksum(checksum)
 {
-  checkShardNum();
-  checkRealmNum();
-  checkTokenNum();
 }
 
 //-----
@@ -52,125 +53,82 @@ bool TokenId::operator==(const TokenId& other) const
 //-----
 TokenId TokenId::fromString(std::string_view id)
 {
-  TokenId tokenId;
+  return TokenId(internal::EntityIdHelper::getShardNum(id),
+                 internal::EntityIdHelper::getRealmNum(id),
+                 internal::EntityIdHelper::getEntityNum(id),
+                 internal::EntityIdHelper::getChecksum(id));
+}
 
-  // Get the indices of the two delimiter '.'
-  const size_t firstDot = id.find_first_of('.');
-  const size_t secondDot = id.find_last_of('.');
-
-  // Make sure there are at least two dots
-  if (firstDot == secondDot)
-  {
-    throw std::invalid_argument("Input token ID string is malformed");
-  }
-
-  // Grab the three strings
-  const std::string_view shardStr = id.substr(0, firstDot);
-  const std::string_view realmStr = id.substr(firstDot + 1, secondDot - firstDot - 1);
-  const std::string_view tokenStr = id.substr(secondDot + 1, id.size() - secondDot - 1);
-
-  // Convert the shard number
-  auto result = std::from_chars(shardStr.data(), shardStr.data() + shardStr.size(), tokenId.mShardNum);
-  if (result.ec != std::errc() || result.ptr != shardStr.data() + shardStr.size())
-  {
-    throw std::invalid_argument("Input token ID string is malformed");
-  }
-  tokenId.checkShardNum();
-
-  // Convert the realm number
-  result = std::from_chars(realmStr.data(), realmStr.data() + realmStr.size(), tokenId.mRealmNum);
-  if (result.ec != std::errc() || result.ptr != realmStr.data() + realmStr.size())
-  {
-    throw std::invalid_argument("Input token ID string is malformed");
-  }
-  tokenId.checkRealmNum();
-
-  // Convert the token number
-  result = std::from_chars(tokenStr.data(), tokenStr.data() + tokenStr.size(), tokenId.mTokenNum);
-  if (result.ec != std::errc() || result.ptr != tokenStr.data() + tokenStr.size())
-  {
-    throw std::invalid_argument("Input token ID string is malformed");
-  }
-  tokenId.checkTokenNum();
-
-  return tokenId;
+//-----
+TokenId TokenId::fromSolidityAddress(std::string_view address)
+{
+  return internal::EntityIdHelper::fromSolidityAddress<TokenId>(
+    internal::EntityIdHelper::decodeSolidityAddress(address));
 }
 
 //-----
 TokenId TokenId::fromProtobuf(const proto::TokenID& proto)
 {
-  TokenId tokenId;
-  tokenId.mShardNum = static_cast<uint64_t>(proto.shardnum());
-  tokenId.mRealmNum = static_cast<uint64_t>(proto.realmnum());
-  tokenId.mTokenNum = static_cast<uint64_t>(proto.tokennum());
-  return tokenId;
+  return TokenId(static_cast<uint64_t>(proto.shardnum()),
+                 static_cast<uint64_t>(proto.realmnum()),
+                 static_cast<uint64_t>(proto.tokennum()));
+}
+
+//-----
+TokenId TokenId::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::TokenID proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
+void TokenId::validateChecksum(const Client& client) const
+{
+  if (!mChecksum.empty())
+  {
+    internal::EntityIdHelper::validate(mShardNum, mRealmNum, mTokenNum, client, mChecksum);
+  }
+}
+
+//-----
+NftId TokenId::nft(uint64_t serial) const
+{
+  return NftId(*this, serial);
 }
 
 //-----
 std::unique_ptr<proto::TokenID> TokenId::toProtobuf() const
 {
-  auto proto = std::make_unique<proto::TokenID>();
-  proto->set_shardnum(static_cast<int64_t>(mShardNum));
-  proto->set_realmnum(static_cast<int64_t>(mRealmNum));
-  proto->set_tokennum(static_cast<int64_t>(mTokenNum));
-  return proto;
+  auto body = std::make_unique<proto::TokenID>();
+  body->set_shardnum(static_cast<int64_t>(mShardNum));
+  body->set_realmnum(static_cast<int64_t>(mRealmNum));
+  body->set_tokennum(static_cast<int64_t>(mTokenNum));
+  return body;
 }
 
 //-----
 std::string TokenId::toString() const
 {
-  return std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.' + std::to_string(mTokenNum);
+  return internal::EntityIdHelper::toString(mShardNum, mRealmNum, mTokenNum);
 }
 
 //-----
-TokenId& TokenId::setShardNum(const uint64_t& num)
+std::string TokenId::toStringWithChecksum(const Client& client) const
 {
-  mShardNum = num;
-  checkShardNum();
-  return *this;
-}
-
-//-----
-TokenId& TokenId::setRealmNum(const uint64_t& num)
-{
-  mRealmNum = num;
-  checkRealmNum();
-  return *this;
-}
-
-//-----
-TokenId& TokenId::setTokenNum(const uint64_t& num)
-{
-  mTokenNum = num;
-  checkTokenNum();
-  return *this;
-}
-
-//-----
-void TokenId::checkShardNum() const
-{
-  if (mShardNum > std::numeric_limits<int64_t>::max())
+  if (mChecksum.empty())
   {
-    throw std::invalid_argument("Input shard number is too large");
+    mChecksum = internal::EntityIdHelper::checksum(internal::EntityIdHelper::toString(mShardNum, mRealmNum, mTokenNum),
+                                                   client.getLedgerId());
   }
+
+  return internal::EntityIdHelper::toString(mShardNum, mRealmNum, mTokenNum, mChecksum);
 }
 
 //-----
-void TokenId::checkRealmNum() const
+std::vector<std::byte> TokenId::toBytes() const
 {
-  if (mRealmNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input realm number is too large");
-  }
-}
-
-//-----
-void TokenId::checkTokenNum() const
-{
-  if (mTokenNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input token number is too large");
-  }
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
 } // namespace Hedera

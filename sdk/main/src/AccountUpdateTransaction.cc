@@ -157,6 +157,17 @@ grpc::Status AccountUpdateTransaction::submitRequest(const proto::Transaction& r
 }
 
 //-----
+void AccountUpdateTransaction::validateChecksums(const Client& client) const
+{
+  mAccountId.validateChecksum(client);
+
+  if (mStakedAccountId.has_value())
+  {
+    mStakedAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 void AccountUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_cryptoupdateaccount(build());

@@ -24,7 +24,6 @@
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <limits>
 #include <proto/basic_types.pb.h>
 
 using namespace Hedera;
@@ -35,7 +34,6 @@ protected:
   [[nodiscard]] inline const uint64_t& getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t& getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t& getTestAccountNum() const { return mAccountNum; }
-  [[nodiscard]] inline const uint64_t& getTestNumTooBig() const { return mNumTooBig; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestEd25519Alias() const { return mEd25519Alias; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestEcdsaSecp256k1Alias() const
   {
@@ -47,7 +45,6 @@ private:
   const uint64_t mShardNum = 8ULL;
   const uint64_t mRealmNum = 90ULL;
   const uint64_t mAccountNum = 1000ULL;
-  const uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1ULL;
   const std::shared_ptr<PublicKey> mEd25519Alias = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
   const std::shared_ptr<PublicKey> mEcdsaSecp256k1Alias =
     ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
@@ -55,34 +52,28 @@ private:
 };
 
 //-----
-TEST_F(AccountIdTest, DefaultConstructAccountId)
-{
-  const AccountId accountId;
-  EXPECT_EQ(accountId.mShardNum, 0ULL);
-  EXPECT_EQ(accountId.mRealmNum, 0ULL);
-  EXPECT_FALSE(accountId.mAccountNum.has_value());
-  EXPECT_EQ(accountId.mPublicKeyAlias, nullptr);
-  EXPECT_FALSE(accountId.mEvmAddressAlias.has_value());
-}
-
-//-----
 TEST_F(AccountIdTest, ConstructWithAccountNum)
 {
+  // Given / When
   const AccountId accountId(getTestAccountNum());
+
+  // Then
   EXPECT_EQ(accountId.mShardNum, 0ULL);
   EXPECT_EQ(accountId.mRealmNum, 0ULL);
   EXPECT_TRUE(accountId.mAccountNum.has_value());
   EXPECT_EQ(*accountId.mAccountNum, getTestAccountNum());
   EXPECT_EQ(accountId.mPublicKeyAlias, nullptr);
   EXPECT_FALSE(accountId.mEvmAddressAlias.has_value());
-
-  EXPECT_THROW(AccountId{ getTestNumTooBig() }, std::invalid_argument);
 }
 
 //-----
 TEST_F(AccountIdTest, ConstructWithAccountAlias)
 {
+  // Given / When
   const AccountId ed25519AliasAccountId(getTestEd25519Alias());
+  const AccountId ecdsaAliasAccountId(getTestEcdsaSecp256k1Alias());
+
+  // Then
   EXPECT_EQ(ed25519AliasAccountId.mShardNum, 0ULL);
   EXPECT_EQ(ed25519AliasAccountId.mRealmNum, 0ULL);
   EXPECT_FALSE(ed25519AliasAccountId.mAccountNum.has_value());
@@ -90,7 +81,6 @@ TEST_F(AccountIdTest, ConstructWithAccountAlias)
   EXPECT_EQ(ed25519AliasAccountId.mPublicKeyAlias->toStringDer(), getTestEd25519Alias()->toStringDer());
   EXPECT_FALSE(ed25519AliasAccountId.mEvmAddressAlias.has_value());
 
-  const AccountId ecdsaAliasAccountId(getTestEcdsaSecp256k1Alias());
   EXPECT_EQ(ecdsaAliasAccountId.mShardNum, 0ULL);
   EXPECT_EQ(ecdsaAliasAccountId.mRealmNum, 0ULL);
   EXPECT_FALSE(ecdsaAliasAccountId.mAccountNum.has_value());
@@ -102,7 +92,10 @@ TEST_F(AccountIdTest, ConstructWithAccountAlias)
 //-----
 TEST_F(AccountIdTest, ConstructWithEvmAddress)
 {
+  // Given / When
   const AccountId accountId(getTestEvmAddressAlias());
+
+  // Then
   EXPECT_EQ(accountId.mShardNum, 0ULL);
   EXPECT_EQ(accountId.mRealmNum, 0ULL);
   EXPECT_FALSE(accountId.mAccountNum.has_value());
@@ -114,23 +107,26 @@ TEST_F(AccountIdTest, ConstructWithEvmAddress)
 //-----
 TEST_F(AccountIdTest, ConstructWithShardRealmAccountNum)
 {
+  // Given / When
   const AccountId accountId(getTestShardNum(), getTestRealmNum(), getTestAccountNum());
+
+  // Then
   EXPECT_EQ(accountId.mShardNum, getTestShardNum());
   EXPECT_EQ(accountId.mRealmNum, getTestRealmNum());
   EXPECT_TRUE(accountId.mAccountNum.has_value());
   EXPECT_EQ(*accountId.mAccountNum, getTestAccountNum());
   EXPECT_EQ(accountId.mPublicKeyAlias, nullptr);
   EXPECT_FALSE(accountId.mEvmAddressAlias.has_value());
-
-  EXPECT_THROW((AccountId{ getTestNumTooBig(), getTestRealmNum(), getTestAccountNum() }), std::invalid_argument);
-  EXPECT_THROW((AccountId{ getTestShardNum(), getTestNumTooBig(), getTestAccountNum() }), std::invalid_argument);
-  EXPECT_THROW((AccountId{ getTestShardNum(), getTestRealmNum(), getTestNumTooBig() }), std::invalid_argument);
 }
 
 //-----
 TEST_F(AccountIdTest, ConstructWithShardRealmAccountAlias)
 {
+  // Given / When
   const AccountId ed25519AliasAccountId(getTestShardNum(), getTestRealmNum(), getTestEd25519Alias());
+  const AccountId ecdsaAliasAccountId(getTestShardNum(), getTestRealmNum(), getTestEcdsaSecp256k1Alias());
+
+  // Then
   EXPECT_EQ(ed25519AliasAccountId.mShardNum, getTestShardNum());
   EXPECT_EQ(ed25519AliasAccountId.mRealmNum, getTestRealmNum());
   EXPECT_FALSE(ed25519AliasAccountId.mAccountNum.has_value());
@@ -138,36 +134,27 @@ TEST_F(AccountIdTest, ConstructWithShardRealmAccountAlias)
   EXPECT_EQ(ed25519AliasAccountId.mPublicKeyAlias->toStringDer(), getTestEd25519Alias()->toStringDer());
   EXPECT_FALSE(ed25519AliasAccountId.mEvmAddressAlias.has_value());
 
-  EXPECT_THROW((AccountId{ getTestNumTooBig(), getTestRealmNum(), getTestEd25519Alias() }), std::invalid_argument);
-  EXPECT_THROW((AccountId{ getTestShardNum(), getTestNumTooBig(), getTestEd25519Alias() }), std::invalid_argument);
-
-  const AccountId ecdsaAliasAccountId(getTestShardNum(), getTestRealmNum(), getTestEcdsaSecp256k1Alias());
   EXPECT_EQ(ecdsaAliasAccountId.mShardNum, getTestShardNum());
   EXPECT_EQ(ecdsaAliasAccountId.mRealmNum, getTestRealmNum());
   EXPECT_FALSE(ecdsaAliasAccountId.mAccountNum.has_value());
   EXPECT_NE(ecdsaAliasAccountId.mPublicKeyAlias, nullptr);
   EXPECT_EQ(ecdsaAliasAccountId.mPublicKeyAlias->toStringDer(), getTestEcdsaSecp256k1Alias()->toStringDer());
   EXPECT_FALSE(ecdsaAliasAccountId.mEvmAddressAlias.has_value());
-
-  EXPECT_THROW((AccountId{ getTestNumTooBig(), getTestRealmNum(), getTestEcdsaSecp256k1Alias() }),
-               std::invalid_argument);
-  EXPECT_THROW((AccountId{ getTestShardNum(), getTestNumTooBig(), getTestEcdsaSecp256k1Alias() }),
-               std::invalid_argument);
 }
 
 //-----
 TEST_F(AccountIdTest, ConstructWithShardRealmEvmAddress)
 {
+  // Given / When
   const AccountId accountId(getTestShardNum(), getTestRealmNum(), getTestEvmAddressAlias());
+
+  // Then
   EXPECT_EQ(accountId.mShardNum, getTestShardNum());
   EXPECT_EQ(accountId.mRealmNum, getTestRealmNum());
   EXPECT_FALSE(accountId.mAccountNum.has_value());
   EXPECT_EQ(accountId.mPublicKeyAlias, nullptr);
   EXPECT_TRUE(accountId.mEvmAddressAlias.has_value());
   EXPECT_EQ(accountId.mEvmAddressAlias->toString(), getTestEvmAddressAlias().toString());
-
-  EXPECT_THROW((AccountId{ getTestNumTooBig(), getTestRealmNum(), getTestAccountNum() }), std::invalid_argument);
-  EXPECT_THROW((AccountId{ getTestShardNum(), getTestNumTooBig(), getTestAccountNum() }), std::invalid_argument);
 }
 
 //-----
@@ -219,7 +206,6 @@ TEST_F(AccountIdTest, ConstructFromString)
   const std::string testShardNumStr = std::to_string(getTestShardNum());
   const std::string testRealmNumStr = std::to_string(getTestRealmNum());
   const std::string testAccountNumStr = std::to_string(getTestAccountNum());
-  const std::string testNumTooBigStr = std::to_string(getTestNumTooBig());
 
   AccountId accountId;
   EXPECT_NO_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + testAccountNumStr));
@@ -261,12 +247,6 @@ TEST_F(AccountIdTest, ConstructFromString)
   EXPECT_THROW(accountId = AccountId::fromString("abc"), std::invalid_argument);
   EXPECT_THROW(accountId = AccountId::fromString("o.o.e"), std::invalid_argument);
   EXPECT_THROW(accountId = AccountId::fromString("0.0.1!"), std::invalid_argument);
-  EXPECT_THROW(accountId = AccountId::fromString(testNumTooBigStr + '.' + testRealmNumStr + '.' + testAccountNumStr),
-               std::invalid_argument);
-  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testNumTooBigStr + '.' + testAccountNumStr),
-               std::invalid_argument);
-  EXPECT_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + testNumTooBigStr),
-               std::invalid_argument);
 
   const std::string ed25519AliasStr = getTestEd25519Alias()->toStringDer();
   EXPECT_NO_THROW(accountId = AccountId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + ed25519AliasStr));

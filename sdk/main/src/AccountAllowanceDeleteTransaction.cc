@@ -54,15 +54,15 @@ AccountAllowanceDeleteTransaction& AccountAllowanceDeleteTransaction::deleteAllT
   // Add the serial number to the token allowance if there's already an allowance for this token ID, owner, and spender.
   for (TokenNftAllowance& allowance : mNftAllowanceDeletions)
   {
-    if (allowance.mTokenId == nftId.getTokenId() && allowance.mOwnerAccountId == owner)
+    if (allowance.mTokenId == nftId.mTokenId && allowance.mOwnerAccountId == owner)
     {
-      allowance.mSerialNumbers.push_back(nftId.getSerialNum());
+      allowance.mSerialNumbers.push_back(nftId.mSerialNum);
       return *this;
     }
   }
 
   mNftAllowanceDeletions.emplace_back(
-    nftId.getTokenId(), owner, std::optional<AccountId>(), std::vector<uint64_t>{ nftId.getSerialNum() });
+    nftId.mTokenId, owner, std::optional<AccountId>(), std::vector<uint64_t>{ nftId.mSerialNum });
   return *this;
 }
 
@@ -73,6 +73,14 @@ grpc::Status AccountAllowanceDeleteTransaction::submitRequest(const proto::Trans
                                                               proto::TransactionResponse* response) const
 {
   return node->submitTransaction(proto::TransactionBody::DataCase::kCryptoDeleteAllowance, request, deadline, response);
+}
+
+//-----
+void AccountAllowanceDeleteTransaction::validateChecksums(const Client& client) const
+{
+  std::for_each(mNftAllowanceDeletions.cbegin(),
+                mNftAllowanceDeletions.cend(),
+                [&client](const TokenNftAllowance& allowance) { allowance.validateChecksums(client); });
 }
 
 //-----

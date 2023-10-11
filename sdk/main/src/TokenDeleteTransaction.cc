@@ -60,6 +60,15 @@ grpc::Status TokenDeleteTransaction::submitRequest(const proto::Transaction& req
 }
 
 //-----
+void TokenDeleteTransaction::validateChecksums(const Client& client) const
+{
+  if (mTokenId.has_value())
+  {
+    mTokenId->validateChecksum(client);
+  }
+}
+
+//-----
 void TokenDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokendeletion(build());

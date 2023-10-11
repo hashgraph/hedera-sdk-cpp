@@ -69,9 +69,9 @@ TEST_F(TokenAssociationTest, ToProtobuf)
   EXPECT_EQ(protoTokenAssociation->account_id().realmnum(), getTestAccountId().mRealmNum);
   EXPECT_EQ(protoTokenAssociation->account_id().accountnum(), getTestAccountId().mAccountNum);
   ASSERT_TRUE(protoTokenAssociation->has_token_id());
-  EXPECT_EQ(protoTokenAssociation->token_id().shardnum(), getTestTokenId().getShardNum());
-  EXPECT_EQ(protoTokenAssociation->token_id().realmnum(), getTestTokenId().getRealmNum());
-  EXPECT_EQ(protoTokenAssociation->token_id().tokennum(), getTestTokenId().getTokenNum());
+  EXPECT_EQ(protoTokenAssociation->token_id().shardnum(), getTestTokenId().mShardNum);
+  EXPECT_EQ(protoTokenAssociation->token_id().realmnum(), getTestTokenId().mRealmNum);
+  EXPECT_EQ(protoTokenAssociation->token_id().tokennum(), getTestTokenId().mTokenNum);
 }
 
 //-----

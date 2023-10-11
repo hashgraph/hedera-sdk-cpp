@@ -41,70 +41,25 @@ private:
 };
 
 //-----
-TEST_F(TokenNftTransferTest, DefaultConstruction)
-{
-  TokenNftTransfer tokenNftTransfer;
-  EXPECT_EQ(tokenNftTransfer.getNftId(), NftId());
-  EXPECT_EQ(tokenNftTransfer.getSenderAccountId(), AccountId());
-  EXPECT_EQ(tokenNftTransfer.getReceiverAccountId(), AccountId());
-  EXPECT_FALSE(tokenNftTransfer.getApproval());
-}
-
-//-----
-TEST_F(TokenNftTransferTest, SetGetNftId)
-{
-  TokenNftTransfer tokenNftTransfer;
-  tokenNftTransfer.setNftId(getTestNftId());
-  EXPECT_EQ(tokenNftTransfer.getNftId(), getTestNftId());
-}
-
-//-----
-TEST_F(TokenNftTransferTest, SetGetSenderAccountId)
-{
-  TokenNftTransfer tokenNftTransfer;
-  tokenNftTransfer.setSenderAccountId(getTestSenderAccountId());
-  EXPECT_EQ(tokenNftTransfer.getSenderAccountId(), getTestSenderAccountId());
-}
-
-//-----
-TEST_F(TokenNftTransferTest, SetGetReceiverAccountId)
-{
-  TokenNftTransfer tokenNftTransfer;
-  tokenNftTransfer.setReceiverAccountId(getTestReceiverAccountId());
-  EXPECT_EQ(tokenNftTransfer.getReceiverAccountId(), getTestReceiverAccountId());
-}
-
-//-----
-TEST_F(TokenNftTransferTest, SetGetApproval)
-{
-  TokenNftTransfer tokenNftTransfer;
-  tokenNftTransfer.setApproval(getTestIsApproval());
-  EXPECT_EQ(tokenNftTransfer.getApproval(), getTestIsApproval());
-}
-
-//-----
 TEST_F(TokenNftTransferTest, ProtobufTokenNftTransfer)
 {
-  TokenNftTransfer tokenNftTransfer;
-  tokenNftTransfer.setNftId(getTestNftId());
-  tokenNftTransfer.setSenderAccountId(getTestSenderAccountId());
-  tokenNftTransfer.setReceiverAccountId(getTestReceiverAccountId());
-  tokenNftTransfer.setApproval(getTestIsApproval());
+  TokenNftTransfer tokenNftTransfer(
+    getTestNftId(), getTestSenderAccountId(), getTestReceiverAccountId(), getTestIsApproval());
 
   std::unique_ptr<proto::NftTransfer> protoNftTransfer = tokenNftTransfer.toProtobuf();
   EXPECT_EQ(protoNftTransfer->senderaccountid().accountnum(), getTestSenderAccountId().mAccountNum);
   EXPECT_EQ(protoNftTransfer->receiveraccountid().accountnum(), getTestReceiverAccountId().mAccountNum);
-  EXPECT_EQ(protoNftTransfer->serialnumber(), getTestNftId().getSerialNum());
+  EXPECT_EQ(protoNftTransfer->serialnumber(), getTestNftId().mSerialNum);
   EXPECT_EQ(protoNftTransfer->is_approval(), getTestIsApproval());
 
   protoNftTransfer->set_allocated_senderaccountid(getTestReceiverAccountId().toProtobuf().release());
   protoNftTransfer->set_allocated_receiveraccountid(getTestSenderAccountId().toProtobuf().release());
-  protoNftTransfer->set_serialnumber(static_cast<int64_t>(getTestNftId().getSerialNum()) - 1LL);
+  protoNftTransfer->set_serialnumber(static_cast<int64_t>(getTestNftId().mSerialNum) - 1LL);
   protoNftTransfer->set_is_approval(!getTestIsApproval());
 
-  tokenNftTransfer = TokenNftTransfer::fromProtobuf(*protoNftTransfer);
-  EXPECT_EQ(tokenNftTransfer.getNftId().getSerialNum(), getTestNftId().getSerialNum() - 1ULL);
-  EXPECT_EQ(tokenNftTransfer.getSenderAccountId(), getTestReceiverAccountId());
-  EXPECT_EQ(tokenNftTransfer.getReceiverAccountId(), getTestSenderAccountId());
-  EXPECT_EQ(tokenNftTransfer.getApproval(), !getTestIsApproval());
+  tokenNftTransfer = TokenNftTransfer::fromProtobuf(*protoNftTransfer, getTestNftId().mTokenId);
+  EXPECT_EQ(tokenNftTransfer.mNftId.mSerialNum, getTestNftId().mSerialNum - 1ULL);
+  EXPECT_EQ(tokenNftTransfer.mSenderAccountId, getTestReceiverAccountId());
+  EXPECT_EQ(tokenNftTransfer.mReceiverAccountId, getTestSenderAccountId());
+  EXPECT_EQ(tokenNftTransfer.mIsApproval, !getTestIsApproval());
 }

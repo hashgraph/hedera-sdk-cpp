@@ -60,6 +60,12 @@ grpc::Status TokenPauseTransaction::submitRequest(const proto::Transaction& requ
 }
 
 //-----
+void TokenPauseTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+}
+
+//-----
 void TokenPauseTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_token_pause(build());

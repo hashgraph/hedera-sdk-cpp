@@ -118,6 +118,14 @@ private:
                                            proto::Response* response) const override;
 
   /**
+   * Derived from Query. Verify that all the checksums in this TopicUpdateTransaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This TopicUpdateTransaction's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
+  /**
    * Derived from Executable. Determine the ExecutionStatus of this TransactionReceiptQuery after being submitted.
    *
    * @param status   The response status from the network.

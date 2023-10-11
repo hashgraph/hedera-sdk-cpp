@@ -155,8 +155,7 @@ int main(int argc, char** argv)
   // Give the spender an allowance of the NFTs.
   const NftId nft1(tokenId, serialNumbers.at(0));
   const NftId nft2(tokenId, serialNumbers.at(1));
-  std::cout << "Approve spender allowance for NFT serials " << nft1.getSerialNum() << " and " << nft2.getSerialNum()
-            << ": "
+  std::cout << "Approve spender allowance for NFT serials " << nft1.mSerialNum << " and " << nft2.mSerialNum << ": "
             << gStatusToString.at(AccountAllowanceApproveTransaction()
                                     .approveTokenNftAllowance(nft1, operatorAccountId, spenderAccountId)
                                     .approveTokenNftAllowance(nft2, operatorAccountId, spenderAccountId)
@@ -167,7 +166,7 @@ int main(int argc, char** argv)
 
   // Send NFT1 to receiver account, using the spender account's allowance. A TransactionId must be generated manually
   // from the spender account ID in order for the transaction to be executed on behalf of the spender.
-  std::cout << "Transfer NFT " << nft1.getSerialNum() << " on behalf of the spender: "
+  std::cout << "Transfer NFT " << nft1.mSerialNum << " on behalf of the spender: "
             << gStatusToString.at(TransferTransaction()
                                     .addApprovedNftTransfer(nft1, operatorAccountId, receiverAccountId)
                                     .setTransactionId(TransactionId::generate(spenderAccountId))
@@ -179,7 +178,7 @@ int main(int argc, char** argv)
             << std::endl;
 
   // Remove the spender's allowance for NFT2.
-  std::cout << "Remove NFT " << nft2.getSerialNum() << " allowance from spender: "
+  std::cout << "Remove NFT " << nft2.mSerialNum << " allowance from spender: "
             << gStatusToString.at(AccountAllowanceDeleteTransaction()
                                     .deleteAllTokenNftAllowances(nft2, operatorAccountId)
                                     .execute(client)
@@ -188,7 +187,7 @@ int main(int argc, char** argv)
             << std::endl;
 
   // Attempt to transfer NFT2 using the spender's now-deleted allowance. This should not work.
-  std::cout << "Transfer NFT " << nft2.getSerialNum() << " with no allowance (should return "
+  std::cout << "Transfer NFT " << nft2.mSerialNum << " with no allowance (should return "
             << gStatusToString.at(Status::SPENDER_DOES_NOT_HAVE_ALLOWANCE) << "): "
             << gStatusToString.at(TransferTransaction()
                                     .addApprovedNftTransfer(nft2, operatorAccountId, receiverAccountId)
@@ -202,7 +201,7 @@ int main(int argc, char** argv)
             << std::endl;
 
   // Return NFT1 back to the treasury account.
-  std::cout << "Transfer NFT " << nft1.getSerialNum() << " back to the operator: "
+  std::cout << "Transfer NFT " << nft1.mSerialNum << " back to the operator: "
             << gStatusToString.at(TransferTransaction()
                                     .addNftTransfer(nft1, receiverAccountId, operatorAccountId)
                                     .freezeWith(&client)
@@ -213,7 +212,7 @@ int main(int argc, char** argv)
             << std::endl;
 
   // Remove the allowance for NFT1 from the spender account.
-  std::cout << "Remove NFT " << nft1.getSerialNum() << " allowance from spender: "
+  std::cout << "Remove NFT " << nft1.mSerialNum << " allowance from spender: "
             << gStatusToString.at(AccountAllowanceDeleteTransaction()
                                     .deleteAllTokenNftAllowances(nft1, operatorAccountId)
                                     .execute(client)
@@ -261,7 +260,7 @@ int main(int argc, char** argv)
 
   // Send NFT1 to receiver account, using the spender account's allowance. A TransactionId must be generated manually
   // from the spender account ID in order for the transaction to be executed on behalf of the spender.
-  std::cout << "Transfer NFT " << nft1.getSerialNum() << " on behalf of the spender: "
+  std::cout << "Transfer NFT " << nft1.mSerialNum << " on behalf of the spender: "
             << gStatusToString.at(TransferTransaction()
                                     .addApprovedNftTransfer(nft1, operatorAccountId, receiverAccountId)
                                     .setTransactionId(TransactionId::generate(spenderAccountId))
@@ -282,7 +281,7 @@ int main(int argc, char** argv)
             << std::endl;
 
   // Attempt to transfer NFT2 using the spender's now-deleted allowance. This should not work.
-  std::cout << "Transfer NFT " << nft2.getSerialNum() << " with no allowance (should return "
+  std::cout << "Transfer NFT " << nft2.mSerialNum << " with no allowance (should return "
             << gStatusToString.at(Status::SPENDER_DOES_NOT_HAVE_ALLOWANCE) << "): "
             << gStatusToString.at(TransferTransaction()
                                     .addApprovedNftTransfer(nft2, operatorAccountId, receiverAccountId)

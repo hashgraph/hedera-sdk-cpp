@@ -79,6 +79,22 @@ grpc::Status ContractDeleteTransaction::submitRequest(const proto::Transaction& 
 }
 
 //-----
+void ContractDeleteTransaction::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+
+  if (mTransferContractId.has_value())
+  {
+    mTransferContractId->validateChecksum(client);
+  }
+
+  if (mTransferAccountId.has_value())
+  {
+    mTransferAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 void ContractDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_contractdeleteinstance(build());

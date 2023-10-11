@@ -94,9 +94,9 @@ TEST_F(CustomFixedFeeTest, ToProtobuf)
 
   ASSERT_EQ(protoCustomFee->fee_case(), proto::CustomFee::FeeCase::kFixedFee);
   EXPECT_EQ(protoCustomFee->fixed_fee().amount(), getTestAmount());
-  EXPECT_EQ(protoCustomFee->fixed_fee().denominating_token_id().shardnum(), getTestTokenId().getShardNum());
-  EXPECT_EQ(protoCustomFee->fixed_fee().denominating_token_id().realmnum(), getTestTokenId().getRealmNum());
-  EXPECT_EQ(protoCustomFee->fixed_fee().denominating_token_id().tokennum(), getTestTokenId().getTokenNum());
+  EXPECT_EQ(protoCustomFee->fixed_fee().denominating_token_id().shardnum(), getTestTokenId().mShardNum);
+  EXPECT_EQ(protoCustomFee->fixed_fee().denominating_token_id().realmnum(), getTestTokenId().mRealmNum);
+  EXPECT_EQ(protoCustomFee->fixed_fee().denominating_token_id().tokennum(), getTestTokenId().mTokenNum);
 }
 
 //-----
@@ -112,9 +112,9 @@ TEST_F(CustomFixedFeeTest, ToFixedFeeProtobuf)
 
   // Then
   EXPECT_EQ(protoFixedFee->amount(), getTestAmount());
-  EXPECT_EQ(protoFixedFee->denominating_token_id().shardnum(), getTestTokenId().getShardNum());
-  EXPECT_EQ(protoFixedFee->denominating_token_id().realmnum(), getTestTokenId().getRealmNum());
-  EXPECT_EQ(protoFixedFee->denominating_token_id().tokennum(), getTestTokenId().getTokenNum());
+  EXPECT_EQ(protoFixedFee->denominating_token_id().shardnum(), getTestTokenId().mShardNum);
+  EXPECT_EQ(protoFixedFee->denominating_token_id().realmnum(), getTestTokenId().mRealmNum);
+  EXPECT_EQ(protoFixedFee->denominating_token_id().tokennum(), getTestTokenId().mTokenNum);
 }
 
 //-----

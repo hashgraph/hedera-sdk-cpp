@@ -60,6 +60,12 @@ grpc::Status AccountStakersQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void AccountStakersQuery::validateChecksums(const Client& client) const
+{
+  mAccountId.validateChecksum(client);
+}
+
+//-----
 proto::Query AccountStakersQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto accountStakersQuery = std::make_unique<proto::CryptoGetStakersQuery>();

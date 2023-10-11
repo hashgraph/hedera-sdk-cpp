@@ -18,13 +18,14 @@
  *
  */
 #include "AccountId.h"
+#include "Client.h"
+#include "LedgerId.h"
 #include "PublicKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/IllegalStateException.h"
-#include "impl/HexConverter.h"
+#include "impl/EntityIdHelper.h"
 #include "impl/Utilities.h"
 
-#include <charconv>
 #include <limits>
 #include <proto/basic_types.pb.h>
 #include <stdexcept>
@@ -32,10 +33,9 @@
 namespace Hedera
 {
 //-----
-AccountId::AccountId(const uint64_t& num)
+AccountId::AccountId(uint64_t num)
   : mAccountNum(num)
 {
-  checkAccountNum();
 }
 
 //-----
@@ -51,105 +51,94 @@ AccountId::AccountId(const EvmAddress& address)
 }
 
 //-----
-AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num)
+AccountId::AccountId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum)
   : mShardNum(shard)
   , mRealmNum(realm)
   , mAccountNum(num)
+  , mChecksum(checksum)
 {
-  checkShardNum();
-  checkRealmNum();
-  checkAccountNum();
 }
 
 //-----
-AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const std::shared_ptr<PublicKey>& alias)
+AccountId::AccountId(uint64_t shard, uint64_t realm, const std::shared_ptr<PublicKey>& alias)
   : mShardNum(shard)
   , mRealmNum(realm)
   , mPublicKeyAlias(alias)
 {
-  checkShardNum();
-  checkRealmNum();
 }
 
 //-----
-AccountId::AccountId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address)
+AccountId::AccountId(uint64_t shard, uint64_t realm, const EvmAddress& address)
   : mShardNum(shard)
   , mRealmNum(realm)
   , mEvmAddressAlias(address)
 {
-  checkShardNum();
-  checkRealmNum();
+}
+
+//-----
+bool AccountId::operator==(const AccountId& other) const
+{
+  return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) &&
+         ((mAccountNum && other.mAccountNum && mAccountNum == other.mAccountNum) ||
+          (mPublicKeyAlias && other.mPublicKeyAlias &&
+           mPublicKeyAlias->toStringDer() == other.mPublicKeyAlias->toStringDer()) ||
+          (mEvmAddressAlias && other.mEvmAddressAlias &&
+           mEvmAddressAlias->toString() == other.mEvmAddressAlias->toString()) ||
+          (!mAccountNum && !other.mAccountNum && !mPublicKeyAlias && !other.mPublicKeyAlias && !mEvmAddressAlias &&
+           !other.mEvmAddressAlias));
 }
 
 //-----
 AccountId AccountId::fromString(std::string_view id)
 {
-  if (id.size() == 2 * EvmAddress::NUM_BYTES || id.size() == 2 * EvmAddress::NUM_BYTES + 2)
+  // First try the input id as an EvmAddress. If not an EvmAddress, process as normal.
+  try
   {
     return fromEvmAddress(id);
   }
-
-  AccountId accountId;
-
-  // Get the indices of the two delimiter '.'
-  const size_t firstDot = id.find_first_of('.');
-  const size_t secondDot = id.find_last_of('.');
-
-  // Make sure there are at least two dots
-  if (firstDot == secondDot)
+  catch (const std::invalid_argument&)
   {
-    throw std::invalid_argument("Input account ID string is malformed");
-  }
+    // Get the shard and realm numbers.
+    const uint64_t shard = internal::EntityIdHelper::getShardNum(id);
+    const uint64_t realm = internal::EntityIdHelper::getRealmNum(id);
 
-  // Grab the three strings
-  const std::string_view shardStr = id.substr(0, firstDot);
-  const std::string_view realmStr = id.substr(firstDot + 1, secondDot - firstDot - 1);
-  const std::string_view accountNumStr = id.substr(secondDot + 1, id.size() - secondDot - 1);
-
-  // Convert the shard number
-  auto result = std::from_chars(shardStr.data(), shardStr.data() + shardStr.size(), accountId.mShardNum);
-  if (result.ec != std::errc() || result.ptr != shardStr.data() + shardStr.size())
-  {
-    throw std::invalid_argument("Input account ID string is malformed");
-  }
-  accountId.checkShardNum();
-
-  // Convert the realm number
-  result = std::from_chars(realmStr.data(), realmStr.data() + realmStr.size(), accountId.mRealmNum);
-  if (result.ec != std::errc() || result.ptr != realmStr.data() + realmStr.size())
-  {
-    throw std::invalid_argument("Input account ID string is malformed");
-  }
-  accountId.checkRealmNum();
-
-  // Determine what the input account number is. First determine if it is an alias (stringified DER-encoded PublicKey)
-  try
-  {
-    accountId.mPublicKeyAlias = PublicKey::fromStringDer(accountNumStr);
-    return accountId;
-  }
-  catch (const BadKeyException&)
-  {
-    // If not an alias, determine if it is an EVM address
+    // Determine what the entity ID number is. First try to see if it's just an account number. Get the entity number
+    // string before the try-block to verify the input ID isn't malformed.
+    const std::string_view entityNum = internal::EntityIdHelper::getEntityNumStr(id);
+    const std::string_view checksum = internal::EntityIdHelper::getChecksum(id);
     try
     {
-      accountId.mEvmAddressAlias = EvmAddress::fromString(accountNumStr);
+      return AccountId(shard, realm, internal::EntityIdHelper::getNum(entityNum), checksum);
     }
     catch (const std::invalid_argument&)
     {
-      // If not an EVM address, then treat as a normal account number
-      uint64_t accountNum;
-      result = std::from_chars(accountNumStr.data(), accountNumStr.data() + accountNumStr.size(), accountNum);
-      if (result.ec != std::errc() || result.ptr != accountNumStr.data() + accountNumStr.size())
+      // If the entity number isn't an account number, it's an alias. Aliases cannot have checksums, so verify that
+      // first.
+      if (!checksum.empty())
       {
-        throw std::invalid_argument("Input account ID string is malformed");
+        throw std::invalid_argument("Account ID aliases can't have checksums");
       }
-      accountId.mAccountNum = accountNum;
-      accountId.checkAccountNum();
+
+      // First try the alias as a PublicKey.
+      try
+      {
+        return AccountId(shard, realm, PublicKey::fromStringDer(entityNum));
+      }
+      catch (const BadKeyException&)
+      {
+        // If not a PublicKey, it must be an EVM address.
+        try
+        {
+          return AccountId(shard, realm, EvmAddress::fromString(entityNum));
+        }
+        catch (const std::invalid_argument&)
+        {
+          // If not an EVM address, the entity ID cannot be realized.
+          throw std::invalid_argument(std::string("Account number/alias cannot be realized from ") + entityNum.data());
+        }
+      }
     }
   }
-
-  return accountId;
 }
 
 //-----
@@ -165,16 +154,17 @@ AccountId AccountId::fromEvmAddress(const EvmAddress& evmAddress, uint64_t shard
 }
 
 //-----
-bool AccountId::operator==(const AccountId& other) const
+AccountId AccountId::fromSolidityAddress(std::string_view address)
 {
-  return (mShardNum == other.mShardNum) && (mRealmNum == other.mRealmNum) &&
-         ((mAccountNum && other.mAccountNum && mAccountNum == other.mAccountNum) ||
-          (mPublicKeyAlias && other.mPublicKeyAlias &&
-           mPublicKeyAlias->toStringDer() == other.mPublicKeyAlias->toStringDer()) ||
-          (mEvmAddressAlias && other.mEvmAddressAlias &&
-           mEvmAddressAlias->toString() == other.mEvmAddressAlias->toString()) ||
-          (!mAccountNum && !other.mAccountNum && !mPublicKeyAlias && !other.mPublicKeyAlias && !mEvmAddressAlias &&
-           !other.mEvmAddressAlias));
+  const std::vector<std::byte> bytes = internal::EntityIdHelper::decodeSolidityAddress(address);
+  if (internal::EntityIdHelper::isLongZeroAddress(bytes))
+  {
+    return internal::EntityIdHelper::fromSolidityAddress<AccountId>(bytes);
+  }
+  else
+  {
+    return fromEvmAddress(address);
+  }
 }
 
 //-----
@@ -211,6 +201,23 @@ AccountId AccountId::fromProtobuf(const proto::AccountID& proto)
 }
 
 //-----
+AccountId AccountId::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::AccountID proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
+void AccountId::validateChecksum(const Client& client) const
+{
+  if (mAccountNum.has_value() && !mChecksum.empty())
+  {
+    internal::EntityIdHelper::validate(mShardNum, mRealmNum, mAccountNum.value(), client, mChecksum);
+  }
+}
+
+//-----
 std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
 {
   auto proto = std::make_unique<proto::AccountID>();
@@ -236,16 +243,14 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
 //-----
 std::string AccountId::toSolidityAddress() const
 {
-  // If the shard number is a value greater than 32 bits can represent, then creating a Long-Zero format is impossible.
-  if (mShardNum > std::numeric_limits<uint32_t>::max())
+  if (mAccountNum.has_value())
   {
-    throw IllegalStateException("Shard number is too big. Its value must be able to fit in 32 bits.");
+    return internal::EntityIdHelper::toSolidityAddress(mShardNum, mRealmNum, mAccountNum.value());
   }
-
-  return internal::HexConverter::bytesToHex(internal::Utilities::concatenateVectors(
-    { internal::Utilities::removePrefix(internal::Utilities::getBytes(mShardNum), sizeof(uint64_t) - 4),
-      internal::Utilities::getBytes(mRealmNum),
-      internal::Utilities::getBytes(mAccountNum.value()) }));
+  else
+  {
+    throw IllegalStateException("AccountId must contain an account number to generate a Solidity address");
+  }
 }
 
 //-----
@@ -273,30 +278,27 @@ std::string AccountId::toString() const
 }
 
 //-----
-void AccountId::checkShardNum() const
+std::string AccountId::toStringWithChecksum(const Client& client) const
 {
-  if (mShardNum > std::numeric_limits<int64_t>::max())
+  // Checksums are only valid for accounts not using an alias.
+  if (!mAccountNum.has_value())
   {
-    throw std::invalid_argument("Input shard number is too large");
+    throw IllegalStateException("Checksums can only be generated for AccountIds that have an account number");
   }
+
+  if (mChecksum.empty())
+  {
+    mChecksum = internal::EntityIdHelper::checksum(
+      internal::EntityIdHelper::toString(mShardNum, mRealmNum, mAccountNum.value()), client.getLedgerId());
+  }
+
+  return internal::EntityIdHelper::toString(mShardNum, mRealmNum, mAccountNum.value(), mChecksum);
 }
 
 //-----
-void AccountId::checkRealmNum() const
+std::vector<std::byte> AccountId::toBytes() const
 {
-  if (mRealmNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input realm number is too large");
-  }
-}
-
-//-----
-void AccountId::checkAccountNum() const
-{
-  if (*mAccountNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input account number is too large");
-  }
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
 } // namespace Hedera

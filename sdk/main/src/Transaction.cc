@@ -1032,6 +1032,12 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
     freezeWith(&client);
   }
 
+  // Validate checksums if that option is enabled.
+  if (client.isAutoValidateChecksumsEnabled())
+  {
+    validateChecksums(client);
+  }
+
   // Sign with the operator if the operator's presence, and if it's paying for the Transaction.
   if (client.getOperatorAccountId().has_value() &&
       client.getOperatorAccountId().value() == mImpl->mTransactionId.getAccountId())

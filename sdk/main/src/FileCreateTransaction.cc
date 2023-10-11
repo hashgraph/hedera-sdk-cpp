@@ -103,6 +103,12 @@ grpc::Status FileCreateTransaction::submitRequest(const proto::Transaction& requ
 }
 
 //-----
+void FileCreateTransaction::validateChecksums(const Client& client) const
+{
+  // No entity IDs to validate.
+}
+
+//-----
 void FileCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_filecreate(build());

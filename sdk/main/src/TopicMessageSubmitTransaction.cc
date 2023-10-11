@@ -81,6 +81,12 @@ grpc::Status TopicMessageSubmitTransaction::submitRequest(const proto::Transacti
 }
 
 //-----
+void TopicMessageSubmitTransaction::validateChecksums(const Client& client) const
+{
+  mTopicId.validateChecksum(client);
+}
+
+//-----
 void TopicMessageSubmitTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_consensussubmitmessage(build());

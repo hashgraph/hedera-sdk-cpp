@@ -60,6 +60,15 @@ grpc::Status TopicDeleteTransaction::submitRequest(const proto::Transaction& req
 }
 
 //-----
+void TopicDeleteTransaction::validateChecksums(const Client& client) const
+{
+  if (mTopicId.has_value())
+  {
+    mTopicId->validateChecksum(client);
+  }
+}
+
+//-----
 void TopicDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_consensusdeletetopic(build());

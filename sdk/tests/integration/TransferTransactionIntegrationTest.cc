@@ -34,7 +34,6 @@
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 #include "impl/HexConverter.h"
-#include "impl/TimestampConverter.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_record.pb.h>
@@ -183,7 +182,7 @@ TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
   bool transferFound = false;
   for (const auto& transfer : txRecord.mHbarTransferList)
   {
-    if (transfer.getAccountId() == allowerId && transfer.getAmount() == amount.negated())
+    if (transfer.mAccountId == allowerId && transfer.mAmount == amount.negated())
     {
       transferFound = true;
       break;
