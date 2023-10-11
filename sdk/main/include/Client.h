@@ -21,9 +21,13 @@
 #define HEDERA_SDK_CPP_CLIENT_H_
 
 #include <chrono>
+#include <filesystem>
 #include <functional>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <optional>
+#include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -74,6 +78,15 @@ public:
   [[nodiscard]] static Client forNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
 
   /**
+   * Construct a Client by a name. The name must be one of "mainnet", "testnet", or "previewnet", otherwise this will
+   * throw std::invalid_argument.
+   *
+   * @param name The name of the Client to construct.
+   * @return A Client object that is set-up to communicate with the input network name.
+   */
+  [[nodiscard]] static Client forName(std::string_view name);
+
+  /**
    * Construct a Client pre-configured for Hedera Mainnet access.
    *
    * @return A Client object that is set-up to communicate with the Hedera Mainnet.
@@ -93,6 +106,30 @@ public:
    * @return A Client object that is set-up to communicate with the Hedera Previewnet.
    */
   [[nodiscard]] static Client forPreviewnet();
+
+  /**
+   * Construct a Client from a JSON configuration string.
+   *
+   * @param json The JSON configuration string.
+   * @return A Client object initialized with the properties specified in the JSON configuration string.
+   */
+  [[nodiscard]] static Client fromConfig(std::string_view json);
+
+  /**
+   * Construct a Client from a JSON configuration object.
+   *
+   * @param json The JSON configuration object.
+   * @return A Client object initialized with the properties specified in the JSON configuration object.
+   */
+  [[nodiscard]] static Client fromConfig(const nlohmann::json& json);
+
+  /**
+   * Construct a Client from a JSON configuration file.
+   *
+   * @param path The filepath to the JSON configuration file.
+   * @return A Client object initialized with the properties specified in the JSON configuration file.
+   */
+  [[nodiscard]] static Client fromConfigFile(std::string_view path);
 
   /**
    * Set the mirror network with which this Client should communicate.
