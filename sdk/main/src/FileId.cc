@@ -18,8 +18,11 @@
  *
  */
 #include "FileId.h"
+#include "Client.h"
+#include "LedgerId.h"
+#include "impl/EntityIdHelper.h"
+#include "impl/Utilities.h"
 
-#include <charconv>
 #include <limits>
 #include <proto/basic_types.pb.h>
 
@@ -35,21 +38,18 @@ const FileId FileId::FEE_SCHEDULE = FileId(0ULL, 0ULL, 111ULL);
 const FileId FileId::EXCHANGE_RATES = FileId(0ULL, 0ULL, 112ULL);
 
 //-----
-FileId::FileId(const uint64_t& num)
+FileId::FileId(uint64_t num)
   : mFileNum(num)
 {
-  checkFileNum();
 }
 
 //-----
-FileId::FileId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num)
+FileId::FileId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum)
   : mShardNum(shard)
   , mRealmNum(realm)
   , mFileNum(num)
+  , mChecksum(checksum)
 {
-  checkShardNum();
-  checkRealmNum();
-  checkFileNum();
 }
 
 //-----
@@ -61,31 +61,17 @@ bool FileId::operator==(const FileId& other) const
 //-----
 FileId FileId::fromString(std::string_view id)
 {
-  FileId fileId;
+  return FileId(internal::EntityIdHelper::getShardNum(id),
+                internal::EntityIdHelper::getRealmNum(id),
+                internal::EntityIdHelper::getEntityNum(id),
+                internal::EntityIdHelper::getChecksum(id));
+}
 
-  // Get the indices of the two delimiter '.'
-  const size_t firstDot = id.find_first_of('.');
-  const size_t secondDot = id.find_last_of('.');
-
-  // Make sure there are at least two dots
-  if (firstDot == secondDot)
-  {
-    throw std::invalid_argument("Input file ID string is malformed");
-  }
-
-  // Convert the shard number
-  parseNum(id.substr(0, firstDot), fileId.mShardNum);
-  fileId.checkShardNum();
-
-  // Convert the realm number
-  parseNum(id.substr(firstDot + 1, secondDot - firstDot - 1), fileId.mRealmNum);
-  fileId.checkRealmNum();
-
-  // Convert the shard number
-  parseNum(id.substr(secondDot + 1, id.size() - secondDot - 1), fileId.mFileNum);
-  fileId.checkFileNum();
-
-  return fileId;
+//-----
+FileId FileId::fromSolidityAddress(std::string_view address)
+{
+  return internal::EntityIdHelper::fromSolidityAddress<FileId>(
+    internal::EntityIdHelper::decodeSolidityAddress(address));
 }
 
 //-----
@@ -94,6 +80,23 @@ FileId FileId::fromProtobuf(const proto::FileID& proto)
   return FileId(static_cast<uint64_t>(proto.shardnum()),
                 static_cast<uint64_t>(proto.realmnum()),
                 static_cast<uint64_t>(proto.filenum()));
+}
+
+//-----
+FileId FileId::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::FileID proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
+void FileId::validateChecksum(const Client& client) const
+{
+  if (!mChecksum.empty())
+  {
+    internal::EntityIdHelper::validate(mShardNum, mRealmNum, mFileNum, client, mChecksum);
+  }
 }
 
 //-----
@@ -107,70 +110,33 @@ std::unique_ptr<proto::FileID> FileId::toProtobuf() const
 }
 
 //-----
+std::string FileId::toSolidityAddress() const
+{
+  return internal::EntityIdHelper::toSolidityAddress(mShardNum, mRealmNum, mFileNum);
+}
+
+//-----
 std::string FileId::toString() const
 {
-  return std::to_string(mShardNum) + '.' + std::to_string(mRealmNum) + '.' + std::to_string(mFileNum);
+  return internal::EntityIdHelper::toString(mShardNum, mRealmNum, mFileNum);
 }
 
 //-----
-FileId& FileId::setShardNum(const uint64_t& num)
+std::string FileId::toStringWithChecksum(const Client& client) const
 {
-  mShardNum = num;
-  checkShardNum();
-  return *this;
-}
-
-//-----
-FileId& FileId::setRealmNum(const uint64_t& num)
-{
-  mRealmNum = num;
-  checkRealmNum();
-  return *this;
-}
-
-//-----
-FileId& FileId::setFileNum(const uint64_t& num)
-{
-  mFileNum = num;
-  checkFileNum();
-  return *this;
-}
-
-//-----
-void FileId::checkShardNum() const
-{
-  if (mShardNum > std::numeric_limits<int64_t>::max())
+  if (mChecksum.empty())
   {
-    throw std::invalid_argument("Input shard number is too large");
+    mChecksum = internal::EntityIdHelper::checksum(internal::EntityIdHelper::toString(mShardNum, mRealmNum, mFileNum),
+                                                   client.getLedgerId());
   }
+
+  return internal::EntityIdHelper::toString(mShardNum, mRealmNum, mFileNum, mChecksum);
 }
 
 //-----
-void FileId::checkRealmNum() const
+std::vector<std::byte> FileId::toBytes() const
 {
-  if (mRealmNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input realm number is too large");
-  }
-}
-
-//-----
-void FileId::checkFileNum() const
-{
-  if (mFileNum > std::numeric_limits<int64_t>::max())
-  {
-    throw std::invalid_argument("Input file number is too large");
-  }
-}
-
-//-----
-void FileId::parseNum(std::string_view str, uint64_t& num)
-{
-  if (std::from_chars_result result = std::from_chars(str.data(), str.data() + str.size(), num);
-      result.ec != std::errc() || result.ptr != str.data() + str.size())
-  {
-    throw std::invalid_argument("Input file ID string is malformed");
-  }
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
 } // namespace Hedera

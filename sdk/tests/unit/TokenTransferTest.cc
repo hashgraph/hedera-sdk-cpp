@@ -104,15 +104,15 @@ TEST_F(TokenTransferTest, FromProtobuf)
   tokenTransferList.set_allocated_expected_decimals(decimalPtr.release());
 
   // When
-  const std::vector<TokenTransfer> tokenTransfers = TokenTransfer::fromProtobuf(tokenTransferList);
+  const TokenTransfer tokenTransfer =
+    TokenTransfer::fromProtobuf(*amount, getTestTokenId(), tokenTransferList.expected_decimals().value());
 
   // Then
-  ASSERT_EQ(tokenTransfers.size(), 1);
-  EXPECT_EQ(tokenTransfers.at(0).mTokenId, getTestTokenId());
-  EXPECT_EQ(tokenTransfers.at(0).mAccountId, getTestAccountId());
-  EXPECT_EQ(tokenTransfers.at(0).mAmount, getTestAmount());
-  EXPECT_EQ(tokenTransfers.at(0).mExpectedDecimals, getTestExpectedDecimals());
-  EXPECT_EQ(tokenTransfers.at(0).mIsApproval, getTestIsApproval());
+  EXPECT_EQ(tokenTransfer.mTokenId, getTestTokenId());
+  EXPECT_EQ(tokenTransfer.mAccountId, getTestAccountId());
+  EXPECT_EQ(tokenTransfer.mAmount, getTestAmount());
+  EXPECT_EQ(tokenTransfer.mExpectedDecimals, getTestExpectedDecimals());
+  EXPECT_EQ(tokenTransfer.mIsApproval, getTestIsApproval());
 }
 
 //-----

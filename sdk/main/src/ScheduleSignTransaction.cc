@@ -68,6 +68,15 @@ grpc::Status ScheduleSignTransaction::submitRequest(const proto::Transaction& re
 }
 
 //-----
+void ScheduleSignTransaction::validateChecksums(const Client& client) const
+{
+  if (mScheduleId.has_value())
+  {
+    mScheduleId->validateChecksum(client);
+  }
+}
+
+//-----
 void ScheduleSignTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_schedulesign(build());

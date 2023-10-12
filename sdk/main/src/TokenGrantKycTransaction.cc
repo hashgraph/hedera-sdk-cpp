@@ -68,6 +68,13 @@ grpc::Status TokenGrantKycTransaction::submitRequest(const proto::Transaction& r
 }
 
 //-----
+void TokenGrantKycTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+  mAccountId.validateChecksum(client);
+}
+
+//-----
 void TokenGrantKycTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokengrantkyc(build());

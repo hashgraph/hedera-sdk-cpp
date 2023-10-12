@@ -93,6 +93,15 @@ grpc::Status TopicCreateTransaction::submitRequest(const proto::Transaction& req
 }
 
 //-----
+void TopicCreateTransaction::validateChecksums(const Client& client) const
+{
+  if (mAutoRenewAccountId.has_value())
+  {
+    mAutoRenewAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 void TopicCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_consensuscreatetopic(build());

@@ -31,6 +31,11 @@ class CustomFee;
 
 namespace Hedera
 {
+class Client;
+}
+
+namespace Hedera
+{
 /**
  * Base class for custom fees. This is assessed during a CryptoTransfer that transfers units of the token to which the
  * fee is attached. A custom fee may be either fixed, fractional, or a royalty, and must specify a fee collector account
@@ -62,6 +67,14 @@ public:
    * @return A pointer to the created CustomFee protobuf object filled with this CustomFee object's data.
    */
   [[nodiscard]] virtual std::unique_ptr<proto::CustomFee> toProtobuf() const = 0;
+
+  /**
+   * Verify the checksums of all the entities involved in this CustomFee.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This CustomFee's checksums are not valid.
+   */
+  virtual void validateChecksums(const Client& client) const;
 
   /**
    * Get the ID of the desired fee collector account.

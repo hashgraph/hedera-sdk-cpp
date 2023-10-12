@@ -47,6 +47,12 @@ grpc::Status NetworkVersionInfoQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void NetworkVersionInfoQuery::validateChecksums(const Client& client) const
+{
+  // No entity IDs to validate.
+}
+
+//-----
 proto::Query NetworkVersionInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto networkVersionInfoQuery = std::make_unique<proto::NetworkGetVersionInfoQuery>();

@@ -51,6 +51,12 @@ grpc::Status AccountRecordsQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void AccountRecordsQuery::validateChecksums(const Client& client) const
+{
+  mAccountId.validateChecksum(client);
+}
+
+//-----
 proto::Query AccountRecordsQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto accountRecordsQuery = std::make_unique<proto::CryptoGetAccountRecordsQuery>();

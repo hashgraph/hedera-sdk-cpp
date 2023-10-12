@@ -207,26 +207,6 @@ TEST_F(TopicIdTest, FromBytes)
 }
 
 //-----
-TEST_F(TopicIdTest, ToSolidityAddress)
-{
-  // Given
-  const std::string solidityAddress = "0123456789ABCDEF0123456789ABCDEF01234567";
-  const TopicId topicId = TopicId::fromSolidityAddress(solidityAddress);
-
-  TopicId topicIdShardTooBig = topicId;
-  topicIdShardTooBig.mShardNum = static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1ULL;
-
-  // When
-  std::string newSolidityAddress;
-  EXPECT_NO_THROW(newSolidityAddress = topicId.toSolidityAddress());
-
-  EXPECT_THROW(newSolidityAddress = topicIdShardTooBig.toSolidityAddress(), IllegalStateException);
-
-  // Then
-  EXPECT_EQ(newSolidityAddress, solidityAddress);
-}
-
-//-----
 TEST_F(TopicIdTest, ToProtobuf)
 {
   // Given

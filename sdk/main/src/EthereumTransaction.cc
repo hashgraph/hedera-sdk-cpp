@@ -76,6 +76,15 @@ grpc::Status EthereumTransaction::submitRequest(const proto::Transaction& reques
 }
 
 //-----
+void EthereumTransaction::validateChecksums(const Client& client) const
+{
+  if (mCallDataFileId.has_value())
+  {
+    mCallDataFileId->validateChecksum(client);
+  }
+}
+
+//-----
 void EthereumTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_ethereumtransaction(build());

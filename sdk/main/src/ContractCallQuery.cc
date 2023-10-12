@@ -79,6 +79,12 @@ grpc::Status ContractCallQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void ContractCallQuery::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+}
+
+//-----
 proto::Query ContractCallQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto contractCallQuery = std::make_unique<proto::ContractCallLocalQuery>();

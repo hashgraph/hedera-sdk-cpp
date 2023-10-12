@@ -29,7 +29,11 @@
 namespace proto
 {
 class AccountAmount;
-class TokenTransferList;
+}
+
+namespace Hedera
+{
+class Client;
 }
 
 namespace Hedera
@@ -46,9 +50,9 @@ public:
   /**
    * Construct with a token ID, account ID, amount, and approval.
    *
-   * @param tokenId The ID of the token involved with this TokenTransfer.
-   * @param accountId The ID of the account to/from which the token is being transferred.
-   * @param amount The amount of the token being transferred.
+   * @param tokenId    The ID of the token involved with this TokenTransfer.
+   * @param accountId  The ID of the account to/from which the token is being transferred.
+   * @param amount     The amount of the token being transferred.
    * @param isApproved \c TRUE if this transfer is approved, otherwise \c FALSE.
    */
   TokenTransfer(const TokenId& tokenId, AccountId accountId, int64_t amount, bool isApproved);
@@ -56,20 +60,33 @@ public:
   /**
    * Construct with a token ID, account ID, amount, expected decimals of the token, and approval.
    *
-   * @param tokenId The ID of the token involved with this TokenTransfer.
-   * @param accountId The ID of the account to/from which the token is being transferred.
-   * @param amount The amount of the token being transferred.
+   * @param tokenId    The ID of the token involved with this TokenTransfer.
+   * @param accountId  The ID of the account to/from which the token is being transferred.
+   * @param amount     The amount of the token being transferred.
    * @param isApproved \c TRUE if this transfer is approved, otherwise \c FALSE.
    */
   TokenTransfer(const TokenId& tokenId, AccountId accountId, int64_t amount, uint32_t decimals, bool isApproved);
 
   /**
-   * Construct a list of TokenTransfers objects from a TokenTransferList protobuf object.
+   * Construct a TokenTransfer object from an AccountAmount protobuf object, a TokenId object, and the number of
+   * expected decimals.
    *
-   * @param proto The TokenTransferList protobuf object from which to construct the list of TokenTransfer objects.
-   * @return The list of TokenTransfer objects.
+   * @param proto    The AccountAmount protobuf object from which to construct the TokenTransfer object.
+   * @param tokenId  The ID of the token.
+   * @param decimals The number of expected decimals.
+   * @return The constructed TokenTransfer object.
    */
-  [[nodiscard]] static std::vector<TokenTransfer> fromProtobuf(const proto::TokenTransferList& proto);
+  [[nodiscard]] static TokenTransfer fromProtobuf(const proto::AccountAmount& proto,
+                                                  const TokenId& tokenId,
+                                                  uint32_t expectedDecimals);
+
+  /**
+   * Validate the checksums of the entities in this TokenTransfer.
+   *
+   * @param client The Client to use to validate the checksums.
+   * @throws BadEntityException If a checksum of one of the entities is not valid.
+   */
+  void validateChecksums(const Client& client) const;
 
   /**
    * Construct an AccountAmount protobuf object from this TokenTransfer object.

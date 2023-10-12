@@ -33,6 +33,17 @@ namespace Hedera
 class HbarTransfer
 {
 public:
+  HbarTransfer() = default;
+
+  /**
+   * Construct with an account ID, amount, and approval.
+   *
+   * @param accountId The ID of the account doing the transfer.
+   * @param amount    The amount to transfer.
+   * @param approval  \c TRUE if this is an approved allowance transfer, otherwise \c FALSE.
+   */
+  explicit HbarTransfer(AccountId accountId, const Hbar& amount, bool approval);
+
   /**
    * Construct an HbarTransfer object from an AccountAmount protobuf object.
    *
@@ -48,52 +59,6 @@ public:
    */
   [[nodiscard]] std::unique_ptr<proto::AccountAmount> toProtobuf() const;
 
-  /**
-   * Set the ID of the account associated with this HbarTransfer.
-   *
-   * @param accountId The ID of the account associated with this HbarTransfer.
-   * @return A reference to this HbarTransfer object with the newly-set account ID.
-   */
-  HbarTransfer& setAccountId(const AccountId& accountId);
-
-  /**
-   * Set the amount of Hbar that was transferred into (positive) or out of (negative) the account.
-   *
-   * @param amount The amount transferred.
-   * @return A reference to this HbarTransfer object with the newly-set transfer amount.
-   */
-  HbarTransfer& setAmount(const Hbar& amount);
-
-  /**
-   * Set if this HbarTransfer is approved.
-   *
-   * @param approved \c TRUE if this HbarTransfer is approved, otherwise \c FALSE.
-   * @return A reference to this HbarTransfer object with the newly-set approval status.
-   */
-  HbarTransfer& setApproved(bool approved);
-
-  /**
-   * Get the ID of the account associated with this HbarTransfer.
-   *
-   * @return The account ID.
-   */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
-
-  /**
-   * Get the amount that was or will be transferred.
-   *
-   * @return The transfer amount.
-   */
-  [[nodiscard]] inline Hbar getAmount() const { return mAmount; }
-
-  /**
-   * Determine if this HbarTransfer is approved or not.
-   *
-   * @return \c TRUE if this transfer is approved, otherwise \c FALSE
-   */
-  [[nodiscard]] inline bool getApproval() const { return mIsApproved; }
-
-private:
   /**
    * The ID of the account associated with this HbarTransfer.
    */

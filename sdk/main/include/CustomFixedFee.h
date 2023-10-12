@@ -64,6 +64,14 @@ public:
   [[nodiscard]] std::unique_ptr<proto::CustomFee> toProtobuf() const override;
 
   /**
+   * Derived from CustomFee. Verify the checksums of all the entities involved in this CustomFixedFee.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This CustomFixedFee's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
+  /**
    * Construct a FixedFee protobuf object from this CustomFixedFee object.
    *
    * @return A pointer to the created FixedFee protobuf object filled with this CustomFixedFee object's data.

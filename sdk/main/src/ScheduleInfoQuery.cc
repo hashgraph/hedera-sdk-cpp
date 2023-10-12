@@ -51,6 +51,12 @@ grpc::Status ScheduleInfoQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void ScheduleInfoQuery::validateChecksums(const Client& client) const
+{
+  mScheduleId.validateChecksum(client);
+}
+
+//-----
 proto::Query ScheduleInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto scheduleGetInfoQuery = std::make_unique<proto::ScheduleGetInfoQuery>();

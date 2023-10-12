@@ -35,6 +35,11 @@ class TokenAllowance;
 
 namespace Hedera
 {
+class Client;
+}
+
+namespace Hedera
+{
 /**
  * An approved allowance of fungible token transfers for a spender.
  */
@@ -68,6 +73,14 @@ public:
    * @return The constructed TokenAllowance object.
    */
   [[nodiscard]] static TokenAllowance fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Validate the checksums of the entity IDs in this TokenAllowance.
+   *
+   * @param client The Client to use to validate the checksums.
+   * @throws BadEntityException If the checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const;
 
   /**
    * Construct a TokenAllowance protobuf object from this TokenAllowance object.

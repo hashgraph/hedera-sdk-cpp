@@ -250,6 +250,12 @@ void Query<SdkRequestType, SdkResponseType>::onExecute(const Client& client)
       client.getNetwork()->getNodeAccountIdsForExecute());
   }
 
+  // Validate checksums if that option is enabled.
+  if (client.isAutoValidateChecksumsEnabled())
+  {
+    validateChecksums(client);
+  }
+
   // There's nothing else to do if this Query is free or is meant to get the cost.
   if (!isPaymentRequired() || mImpl->mGetCost)
   {

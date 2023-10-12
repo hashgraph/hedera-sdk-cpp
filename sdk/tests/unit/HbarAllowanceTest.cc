@@ -46,48 +46,9 @@ TEST_F(HbarAllowanceTest, ConstructWithOwnerSpenderAmount)
   const HbarAllowance hbarAllowance(getTestOwnerAccountId(), getTestSpenderAccountId(), getTestAmount());
 
   // Then
-  EXPECT_EQ(hbarAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(hbarAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-  EXPECT_EQ(hbarAllowance.getAmount(), getTestAmount());
-}
-
-//-----
-TEST_F(HbarAllowanceTest, GetSetOwnerAccountId)
-{
-  // Given
-  HbarAllowance hbarAllowance;
-
-  // When
-  hbarAllowance.setOwnerAccountId(getTestOwnerAccountId());
-
-  // Then
-  EXPECT_EQ(hbarAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-}
-
-//-----
-TEST_F(HbarAllowanceTest, GetSetSpenderAccountId)
-{
-  // Given
-  HbarAllowance hbarAllowance;
-
-  // When
-  hbarAllowance.setSpenderAccountId(getTestSpenderAccountId());
-
-  // Then
-  EXPECT_EQ(hbarAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-}
-
-//-----
-TEST_F(HbarAllowanceTest, GetSetAmount)
-{
-  // Given
-  HbarAllowance hbarAllowance;
-
-  // When
-  hbarAllowance.setAmount(getTestAmount());
-
-  // Then
-  EXPECT_EQ(hbarAllowance.getAmount(), getTestAmount());
+  EXPECT_EQ(hbarAllowance.mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(hbarAllowance.mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(hbarAllowance.mAmount, getTestAmount());
 }
 
 //-----
@@ -103,19 +64,16 @@ TEST_F(HbarAllowanceTest, FromProtobuf)
   const HbarAllowance hbarAllowance = HbarAllowance::fromProtobuf(cryptoAllowance);
 
   // Then
-  EXPECT_EQ(hbarAllowance.getOwnerAccountId(), getTestOwnerAccountId());
-  EXPECT_EQ(hbarAllowance.getSpenderAccountId(), getTestSpenderAccountId());
-  EXPECT_EQ(hbarAllowance.getAmount(), getTestAmount());
+  EXPECT_EQ(hbarAllowance.mOwnerAccountId, getTestOwnerAccountId());
+  EXPECT_EQ(hbarAllowance.mSpenderAccountId, getTestSpenderAccountId());
+  EXPECT_EQ(hbarAllowance.mAmount, getTestAmount());
 }
 
 //-----
 TEST_F(HbarAllowanceTest, ToProtobuf)
 {
   // Given
-  HbarAllowance hbarAllowance;
-  hbarAllowance.setOwnerAccountId(getTestOwnerAccountId());
-  hbarAllowance.setSpenderAccountId(getTestSpenderAccountId());
-  hbarAllowance.setAmount(getTestAmount());
+  const HbarAllowance hbarAllowance(getTestOwnerAccountId(), getTestSpenderAccountId(), getTestAmount());
 
   // When
   const std::unique_ptr<proto::CryptoAllowance> cryptoAllowance = hbarAllowance.toProtobuf();

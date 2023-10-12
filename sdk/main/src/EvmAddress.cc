@@ -18,6 +18,7 @@
  *
  */
 #include "EvmAddress.h"
+#include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
 
 #include <algorithm>
@@ -40,22 +41,23 @@ EvmAddress EvmAddress::fromString(std::string_view address)
     throw std::invalid_argument("Input EVM address string is not the correct size");
   }
 
-  // Remove the prefix if it exists
+  // Remove the prefix if it exists.
   if (hasPrefix)
   {
     address.remove_prefix(prefix.size());
   }
 
-  // Ensure all digits are hex digits
-  if (!std::all_of(address.cbegin(), address.cend(), [](unsigned char c) { return std::isxdigit(c); }))
+  // Decode the EVM address and return it.
+  try
   {
-    throw std::invalid_argument("Input EVM address is not a hex-encoded string");
+    evmAddress.mEvmAddress = internal::HexConverter::hexToBytes(address);
+    evmAddress.checkEvmAddress();
+    return evmAddress;
   }
-
-  evmAddress.mEvmAddress = internal::HexConverter::hexToBytes(address);
-  evmAddress.checkEvmAddress();
-
-  return evmAddress;
+  catch (const OpenSSLException&)
+  {
+    throw std::invalid_argument("Input EVM address is malformed");
+  }
 }
 
 //-----

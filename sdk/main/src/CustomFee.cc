@@ -18,6 +18,7 @@
  *
  */
 #include "CustomFee.h"
+#include "Client.h"
 #include "CustomFixedFee.h"
 #include "CustomFractionalFee.h"
 #include "CustomRoyaltyFee.h"
@@ -40,6 +41,12 @@ std::unique_ptr<CustomFee> CustomFee::fromProtobuf(const proto::CustomFee& proto
     default:
       throw std::invalid_argument("Fee protobuf case not recognized");
   }
+}
+
+//-----
+void CustomFee::validateChecksums(const Client& client) const
+{
+  mFeeCollectorAccountId.validateChecksum(client);
 }
 
 //-----

@@ -102,6 +102,15 @@ private:
                                            const std::shared_ptr<internal::Node>& node,
                                            const std::chrono::system_clock::time_point& deadline,
                                            proto::TransactionResponse* response) const override;
+
+  /**
+   * Derived from Transaction. Verify that all the checksums in this TokenDeleteTransaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This TokenDeleteTransaction's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
   /**
    * Derived from Transaction. Build and add the TokenDeleteTransaction protobuf representation to the Transaction
    * protobuf object.

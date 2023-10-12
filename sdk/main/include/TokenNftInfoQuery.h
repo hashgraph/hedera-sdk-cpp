@@ -80,6 +80,15 @@ private:
                                            const std::shared_ptr<internal::Node>& node,
                                            const std::chrono::system_clock::time_point& deadline,
                                            proto::Response* response) const override;
+
+  /**
+   * Derived from Query. Verify that all the checksums in this TokenNftInfoQuery are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This TokenNftInfoQuery's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
   /**
    * Derived from Query. Build a Query protobuf object with this TokenNftInfoQuery's data, with the input QueryHeader
    * protobuf object.

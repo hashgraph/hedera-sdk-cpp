@@ -23,12 +23,21 @@
 #include "EvmAddress.h"
 #include "Key.h"
 
+#include <cstddef>
 #include <memory>
 #include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace proto
 {
 class ContractID;
+}
+
+namespace Hedera
+{
+class Client;
 }
 
 namespace Hedera
@@ -44,38 +53,35 @@ public:
   /**
    * Construct with a contract number.
    *
-   * @param num The desired contract number.
-   * @throws std::invalid_argument If the contract number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param num The contract number.
    */
-  explicit ContractId(const uint64_t& num);
+  explicit ContractId(uint64_t num);
 
   /**
    * Construct with an EVM address.
    *
-   * @param address The desired EVM address.
+   * @param address The EVM address.
    */
   explicit ContractId(const EvmAddress& address);
 
   /**
-   * Construct with a shard, realm, and contract number.
+   * Construct with a shard, realm, a contract number, and optionally a checksum.
    *
-   * @param shard The desired shard number.
-   * @param realm The desired realm number.
-   * @param num   The desired contract number.
-   * @throws std::invalid_argument If any number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param shard    The shard number.
+   * @param realm    The realm number.
+   * @param num      The contract number.
+   * @param checksum The checksum.
    */
-  explicit ContractId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
+  explicit ContractId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum = "");
 
   /**
    * Construct with shard and realm numbers, and an EVM address.
    *
-   * @param shard   The desired shard number.
-   * @param realm   The desired realm number.
-   * @param address The desired EVM address.
-   * @throws std::invalid_argument If the shard or realm number is too big (max value is
-   *                               std::numeric_limits<int64_t>::max()).
+   * @param shard   The shard number.
+   * @param realm   The realm number.
+   * @param address The EVM address.
    */
-  explicit ContractId(const uint64_t& shard, const uint64_t& realm, const EvmAddress& address);
+  explicit ContractId(uint64_t shard, uint64_t realm, const EvmAddress& address);
 
   /**
    * Compare this ContractId to another ContractId and determine if they represent the same contract.
@@ -86,12 +92,66 @@ public:
   bool operator==(const ContractId& other) const;
 
   /**
+   * Construct a ContractId object from a string of the form "<shard>.<realm>.<num>". <num> can be the contract number
+   * or a stringified EVM address.
+   *
+   * @param id The contract ID string from which to construct.
+   * @return The constructed ContractId object.
+   * @throws std::invalid_argument If the input string is malformed or the type of <num> cannot be determined.
+   */
+  [[nodiscard]] static ContractId fromString(std::string_view id);
+
+  /**
+   * Construct a ContractId object from a string that represents an EvmAddress and, optionally, a shard and realm
+   * number.
+   *
+   * @param evmAddress The string that represents an EvmAddress.
+   * @param shard      The shard number.
+   * @param realm      The realm number.
+   * @return The constructed ContractId object.
+   * @throws std::invalid_argument If the input string is malformed.
+   * @throws OpenSSLException If OpenSSL is unable to convert the string to a byte array.
+   */
+  [[nodiscard]] static ContractId fromEvmAddress(std::string_view evmAddress,
+                                                 uint64_t shard = 0ULL,
+                                                 uint64_t realm = 0ULL);
+
+  /**
+   * Construct a ContractId object from an EvmAddress object and, optionally, a shard and realm number.
+   *
+   * @param evmAddress The EvmAddress from which to construct a ContractId.
+   * @param shard      The shard number.
+   * @param realm      The realm number.
+   * @return The constructed ContractId object.
+   */
+  [[nodiscard]] static ContractId fromEvmAddress(const EvmAddress& evmAddress,
+                                                 uint64_t shard = 0ULL,
+                                                 uint64_t realm = 0ULL);
+
+  /**
+   * Construct a ContractId from a Solidity address.
+   *
+   * @param address The Solidity address from which to create a ContractId, as a string.
+   * @return The constructed ContractId object.
+   * @throws std::invalid_argument If a Solidity address cannot be realized from the input string.
+   */
+  [[nodiscard]] static ContractId fromSolidityAddress(std::string_view address);
+
+  /**
    * Construct an ContractId object from an ContractID protobuf object.
    *
    * @param proto The ContractID protobuf object from which to create an ContractId object.
    * @return The constructed ContractId object.
    */
   [[nodiscard]] static ContractId fromProtobuf(const proto::ContractID& id);
+
+  /**
+   * Construct a ContractId object from a representative byte array.
+   *
+   * @param bytes The byte array from which to construct a ContractId object.
+   * @return The constructed ContractId object.
+   */
+  [[nodiscard]] static ContractId fromBytes(const std::vector<std::byte>& bytes);
 
   /**
    * Derived from Key. Create a clone of this ContractId object.
@@ -108,6 +168,22 @@ public:
   [[nodiscard]] std::unique_ptr<proto::Key> toProtobufKey() const override;
 
   /**
+   * Derived from Key. Get a byte array representation of this ContractId object.
+   *
+   * @return A byte array representation of this ContractId object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const override;
+
+  /**
+   * Verify the checksum of this ContractId using the input Client's network. Does nothing if this ContractId does not
+   * use a contract number (i.e. it contains an EvmAddress).
+   *
+   * @param client The Client with which to validate this ContractId's checksum.
+   * @throws BadEntityException If the checksum of this ContractId is invalid.
+   */
+  void validateChecksum(const Client& client) const;
+
+  /**
    * Construct a ContractID protobuf object from this ContractId object.
    *
    * @return A pointer to the created ContractID protobuf object filled with this ContractId object's data.
@@ -115,86 +191,34 @@ public:
   [[nodiscard]] std::unique_ptr<proto::ContractID> toProtobuf() const;
 
   /**
-   * Get a string representation of this ContractId object with the form "<shard>.<realm>.<num>".
+   * Get the Solidity address representation of this ContractId (Long-Zero address form).
    *
-   * @return A string representation of this ContractId.
+   * @return The Solidity address representation of this ContractId.
+   */
+  [[nodiscard]] std::string toSolidityAddress() const;
+
+  /**
+   * Get the string representation of this ContractId object.
+   *
+   * @return The string representation of this ContractId.
    */
   [[nodiscard]] std::string toString() const;
 
   /**
-   * Set the shard number.
+   * Get the string representation of this ContractId object with the checksum.
    *
-   * @param num The desired shard number to set.
-   * @return A reference to this ContractId object with the newly-set shard number.
-   * @throws std::invalid_argument If the shard number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param client The Client with which to generate the checksum.
+   * @return The string representation of this ContractId object with the checksum.
+   * @throws IllegalStateException If this ContractId contains an alias.
    */
-  ContractId& setShardNum(const uint64_t& num);
+  [[nodiscard]] std::string toStringWithChecksum([[maybe_unused]] const Client& client) const;
 
   /**
-   * Set the realm number.
+   * Get the checksum of this ContractId.
    *
-   * @param num The realm number to set.
-   * @return A reference to this ContractId object with the newly-set realm number.
-   * @throws std::invalid_argument If the realm number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @return The checksum of this ContractId.
    */
-  ContractId& setRealmNum(const uint64_t& num);
-
-  /**
-   * Set the contract number. This is mutually exclusive with mEvmAddress, and will reset the value of mEvmAddress if is
-   * set.
-   *
-   * @param num The contract number to set.
-   * @return A reference to this ContractId object with the newly-set contract number.
-   * @throws std::invalid_argument If the contract number is too big (max value is std::numeric_limits<int64_t>::max()).
-   */
-  ContractId& setContractNum(const uint64_t& num);
-
-  /**
-   * Set the contract EVM address. This is mutually exclusive with mContractNum, and will reset the value of the
-   * mContractNum is is set.
-   *
-   * @param address The EVM address to set.
-   * @return A reference to this ContractId object with the newly-set contract EVM address.
-   */
-  ContractId& setEvmAddress(const EvmAddress& address);
-
-  /**
-   * Get the shard number.
-   *
-   * @return The shard number.
-   */
-  [[nodiscard]] inline uint64_t getShardNum() const { return mShardNum; }
-
-  /**
-   * Get the realm number.
-   *
-   * @return The realm number.
-   */
-  [[nodiscard]] inline uint64_t getRealmNum() const { return mRealmNum; }
-
-  /**
-   * Get the account number.
-   *
-   * @return The account number.
-   */
-  [[nodiscard]] inline std::optional<uint64_t> getContractNum() const { return mContractNum; }
-
-  /**
-   * Get the contract EVM address.
-   *
-   * @return The contract EVM address.
-   */
-  [[nodiscard]] inline std::optional<EvmAddress> getEvmAddress() const { return mEvmAddress; }
-
-private:
-  /**
-   * Check if the shard, realm, or contract numbers (respectively) are too big.
-   *
-   * @throws std::invalid_argument If the shard, realm, or contract number (respectively) is too big.
-   */
-  void checkShardNum() const;
-  void checkRealmNum() const;
-  void checkContractNum() const;
+  [[nodiscard]] inline std::string getChecksum() const { return mChecksum; }
 
   /**
    * The shard number.
@@ -225,6 +249,12 @@ private:
    * (Please do note that CREATE2 contracts can also be referenced by the three-part EVM address described above.)
    */
   std::optional<EvmAddress> mEvmAddress;
+
+private:
+  /**
+   * The checksum of this ContractId.
+   */
+  mutable std::string mChecksum;
 };
 
 } // namespace Hedera

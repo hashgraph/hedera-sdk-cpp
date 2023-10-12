@@ -51,6 +51,12 @@ grpc::Status TokenInfoQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void TokenInfoQuery::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+}
+
+//-----
 proto::Query TokenInfoQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto tokenGetInfoQuery = std::make_unique<proto::TokenGetInfoQuery>();

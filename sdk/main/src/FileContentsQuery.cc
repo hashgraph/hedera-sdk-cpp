@@ -51,6 +51,12 @@ grpc::Status FileContentsQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void FileContentsQuery::validateChecksums(const Client& client) const
+{
+  mFileId.validateChecksum(client);
+}
+
+//-----
 proto::Query FileContentsQuery::buildRequest(proto::QueryHeader* header) const
 {
   auto fileGetContentsQuery = std::make_unique<proto::FileGetContentsQuery>();

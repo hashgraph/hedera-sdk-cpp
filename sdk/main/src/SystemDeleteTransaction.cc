@@ -80,6 +80,20 @@ grpc::Status SystemDeleteTransaction::submitRequest(const proto::Transaction& re
 }
 
 //-----
+void SystemDeleteTransaction::validateChecksums(const Client& client) const
+{
+  if (mFileId.has_value())
+  {
+    mFileId->validateChecksum(client);
+  }
+
+  if (mContractId.has_value())
+  {
+    mContractId->validateChecksum(client);
+  }
+}
+
+//-----
 void SystemDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_systemdelete(build());

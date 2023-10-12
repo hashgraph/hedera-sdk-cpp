@@ -85,12 +85,12 @@ TEST_F(TransferTransactionTest, ConstructTransferTransactionFromTransactionBodyP
   amount->set_is_approval(getTestApproval());
 
   list = body->add_tokentransfers();
-  list->set_allocated_token(getTestNftId().getTokenId().toProtobuf().release());
+  list->set_allocated_token(getTestNftId().mTokenId.toProtobuf().release());
 
   proto::NftTransfer* nft = list->add_nfttransfers();
   nft->set_allocated_senderaccountid(getTestAccountId1().toProtobuf().release());
   nft->set_allocated_receiveraccountid(getTestAccountId2().toProtobuf().release());
-  nft->set_serialnumber(static_cast<int64_t>(getTestNftId().getSerialNum()));
+  nft->set_serialnumber(static_cast<int64_t>(getTestNftId().mSerialNum));
   nft->set_is_approval(getTestApproval());
 
   proto::TransactionBody txBody;
@@ -116,12 +116,12 @@ TEST_F(TransferTransactionTest, ConstructTransferTransactionFromTransactionBodyP
   EXPECT_EQ(tokenTransfers.cbegin()->second.cbegin()->second, getTestAmount().toTinybars());
 
   ASSERT_EQ(nftTransfers.size(), 1);
-  EXPECT_EQ(nftTransfers.cbegin()->first, getTestNftId().getTokenId());
+  EXPECT_EQ(nftTransfers.cbegin()->first, getTestNftId().mTokenId);
   EXPECT_EQ(nftTransfers.cbegin()->second.size(), 1);
-  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getNftId(), getTestNftId());
-  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getSenderAccountId(), getTestAccountId1());
-  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getReceiverAccountId(), getTestAccountId2());
-  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->getApproval(), getTestApproval());
+  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->mNftId, getTestNftId());
+  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->mSenderAccountId, getTestAccountId1());
+  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->mReceiverAccountId, getTestAccountId2());
+  EXPECT_EQ(nftTransfers.cbegin()->second.cbegin()->mIsApproval, getTestApproval());
 }
 
 //-----
@@ -222,12 +222,11 @@ TEST_F(TransferTransactionTest, AddNftTransfer)
   EXPECT_NO_THROW(transaction.addNftTransfer(getTestNftId(), getTestAccountId1(), getTestAccountId2()));
 
   // Then
-  ASSERT_NO_THROW(transaction.getNftTransfers().empty());
+  ASSERT_FALSE(transaction.getNftTransfers().empty());
   EXPECT_EQ(transaction.getNftTransfers().cbegin()->first, getTestTokenId());
-  EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getSenderAccountId(), getTestAccountId1());
-  EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getReceiverAccountId(), getTestAccountId2());
-  EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->getNftId().getSerialNum(),
-            getTestNftId().getSerialNum());
+  EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->mSenderAccountId, getTestAccountId1());
+  EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->mReceiverAccountId, getTestAccountId2());
+  EXPECT_EQ(transaction.getNftTransfers().cbegin()->second.cbegin()->mNftId.mSerialNum, getTestNftId().mSerialNum);
 }
 
 //-----

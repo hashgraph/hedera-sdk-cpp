@@ -54,6 +54,15 @@ grpc::Status TransactionRecordQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void TransactionRecordQuery::validateChecksums(const Client& client) const
+{
+  if (mTransactionId.has_value())
+  {
+    mTransactionId->getAccountId().validateChecksum(client);
+  }
+}
+
+//-----
 typename Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::ExecutionStatus
 TransactionRecordQuery::determineStatus(Status status, const Client& client, const proto::Response& response)
 {

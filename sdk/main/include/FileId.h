@@ -20,13 +20,20 @@
 #ifndef HEDERA_SDK_CPP_FILE_ID_H_
 #define HEDERA_SDK_CPP_FILE_ID_H_
 
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace proto
 {
 class FileID;
+}
+
+namespace Hedera
+{
+class Client;
 }
 
 namespace Hedera
@@ -57,20 +64,19 @@ public:
   /**
    * Construct with a file number.
    *
-   * @param num The desired file number.
-   * @throws std::invalid_argument If the file number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param num The file number.
    */
-  explicit FileId(const uint64_t& num);
+  explicit FileId(uint64_t num);
 
   /**
-   * Construct with a shard, realm, and file number.
+   * Construct with a shard, realm, a file number, and optionally a checksum.
    *
-   * @param shard The desired shard number.
-   * @param realm The desired realm number.
-   * @param num   The desired file number.
-   * @throws std::invalid_argument If any number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param shard    The shard number.
+   * @param realm    The realm number.
+   * @param num      The file number.
+   * @param checksum The checksum.
    */
-  explicit FileId(const uint64_t& shard, const uint64_t& realm, const uint64_t& num);
+  explicit FileId(uint64_t shard, uint64_t realm, uint64_t num, std::string_view checksum = "");
 
   /**
    * Compare this FileId to another FileId and determine if they represent the same file.
@@ -81,7 +87,7 @@ public:
   bool operator==(const FileId& other) const;
 
   /**
-   * Construct an FileId object from a string of the form "<shard>.<realm>.<num>".
+   * Construct a FileId object from a string of the form "<shard>.<realm>.<num>".
    *
    * @param id The file ID string from which to construct.
    * @return The constructed FileId object.
@@ -90,93 +96,80 @@ public:
   [[nodiscard]] static FileId fromString(std::string_view id);
 
   /**
-   * Create an FileId object from an FileId protobuf object.
+   * Construct a FileId from a Solidity address.
    *
-   * @param proto The FileId protobuf object from which to create an FileId object.
+   * @param address The Solidity address from which to create a FileId, as a string.
+   * @return The constructed FileId object.
+   * @throws std::invalid_argument If a Solidity address cannot be realized from the input string.
+   */
+  [[nodiscard]] static FileId fromSolidityAddress(std::string_view address);
+
+  /**
+   * Construct a FileId from a FileId protobuf object.
+   *
+   * @param proto The FileId protobuf object from which to create a FileId object.
    * @return The constructed FileId object.
    */
   [[nodiscard]] static FileId fromProtobuf(const proto::FileID& proto);
 
   /**
-   * Construct an FileId protobuf object from this FileId object.
+   * Construct a FileId object from a representative byte array.
+   *
+   * @param bytes The byte array from which to construct a FileId object.
+   * @return The constructed FileId object.
+   */
+  [[nodiscard]] static FileId fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Verify the checksum of this FileId using the input Client's network.
+   *
+   * @param client The Client with which to validate this FileId's checksum.
+   * @throws BadEntityException If the checksum of this FileId is invalid.
+   */
+  void validateChecksum(const Client& client) const;
+
+  /**
+   * Construct a FileID protobuf object from this FileId object.
    *
    * @return A pointer to the created FileId protobuf object filled with this FileId object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::FileID> toProtobuf() const;
 
   /**
-   * Get a string representation of this FileId object with the form "<shard>.<realm>.<num>".
+   * Get the Solidity address representation of this FileId (Long-Zero address form).
    *
-   * @return A string representation of this FileId.
+   * @return The Solidity address representation of this FileId.
+   */
+  [[nodiscard]] std::string toSolidityAddress() const;
+
+  /**
+   * Get the string representation of this FileId object.
+   *
+   * @return The string representation of this FileId.
    */
   [[nodiscard]] std::string toString() const;
 
   /**
-   * Set the shard number.
+   * Get the string representation of this FileId object with the checksum.
    *
-   * @param num The desired shard number to set.
-   * @return A reference to this FileId object with the newly-set shard number.
-   * @throws std::invalid_argument If the shard number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @param client The Client with which to generate the checksum.
+   * @return The string representation of this FileId object with the checksum.
    */
-  FileId& setShardNum(const uint64_t& num);
+  [[nodiscard]] std::string toStringWithChecksum([[maybe_unused]] const Client& client) const;
 
   /**
-   * Set the realm number.
+   * Get a byte array representation of this FileId object.
    *
-   * @param num The realm number to set.
-   * @return A reference to this FileId object with the newly-set realm number.
-   * @throws std::invalid_argument If the realm number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @return A byte array representation of this FileId object.
    */
-  FileId& setRealmNum(const uint64_t& num);
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
 
   /**
-   * Set the file number.
+   * Get the checksum of this ContractId.
    *
-   * @param num The file number to set.
-   * @return A reference to this FileId object with the newly-set file number.
-   * @throws std::invalid_argument If the account number is too big (max value is std::numeric_limits<int64_t>::max()).
+   * @return The checksum of this ContractId.
    */
-  FileId& setFileNum(const uint64_t& num);
-
-  /**
-   * Get the shard number.
-   *
-   * @return The shard number.
-   */
-  [[nodiscard]] inline uint64_t getShardNum() const { return mShardNum; }
-
-  /**
-   * Get the realm number.
-   *
-   * @return The realm number.
-   */
-  [[nodiscard]] inline uint64_t getRealmNum() const { return mRealmNum; }
-
-  /**
-   * Get the file number.
-   *
-   * @return The file number.
-   */
-  [[nodiscard]] inline uint64_t getFileNum() const { return mFileNum; }
-
-private:
-  /**
-   * Parse the input string and attempt to put it into the input number.
-   *
-   * @param str The string to parse.
-   * @param num The number in which to put the parsed string.
-   * @throws std::invalid_argument If unable to parse the string and put it into the input number.
-   */
-  static void parseNum(std::string_view str, uint64_t& num);
-
-  /**
-   * Check if the shard, realm, or file numbers (respectively) are too big.
-   *
-   * @throws std::invalid_argument If the shard, realm, or file number (respectively) is too big.
-   */
-  void checkShardNum() const;
-  void checkRealmNum() const;
-  void checkFileNum() const;
+  [[nodiscard]] inline std::string getChecksum() const { return mChecksum; }
 
   /**
    * The shard number.
@@ -192,6 +185,12 @@ private:
    * The file number.
    */
   uint64_t mFileNum = 0ULL;
+
+private:
+  /**
+   * The checksum of this FileIds.
+   */
+  mutable std::string mChecksum;
 };
 
 } // namespace Hedera

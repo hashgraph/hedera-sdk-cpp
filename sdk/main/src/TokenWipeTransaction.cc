@@ -84,6 +84,13 @@ grpc::Status TokenWipeTransaction::submitRequest(const proto::Transaction& reque
 }
 
 //-----
+void TokenWipeTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+  mAccountId.validateChecksum(client);
+}
+
+//-----
 void TokenWipeTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenwipe(build());

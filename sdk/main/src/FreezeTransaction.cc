@@ -86,6 +86,15 @@ grpc::Status FreezeTransaction::submitRequest(const proto::Transaction& request,
 }
 
 //-----
+void FreezeTransaction::validateChecksums(const Client& client) const
+{
+  if (mFileId.has_value())
+  {
+    mFileId->validateChecksum(client);
+  }
+}
+
+//-----
 void FreezeTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_freeze(build());

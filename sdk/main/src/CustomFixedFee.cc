@@ -58,6 +58,17 @@ std::unique_ptr<proto::CustomFee> CustomFixedFee::toProtobuf() const
 }
 
 //-----
+void CustomFixedFee::validateChecksums(const Client& client) const
+{
+  CustomFee::validateChecksums(client);
+
+  if (mDenominatingTokenId.has_value())
+  {
+    mDenominatingTokenId->validateChecksum(client);
+  }
+}
+
+//-----
 std::unique_ptr<proto::FixedFee> CustomFixedFee::toFixedFeeProtobuf() const
 {
   auto fee = std::make_unique<proto::FixedFee>();

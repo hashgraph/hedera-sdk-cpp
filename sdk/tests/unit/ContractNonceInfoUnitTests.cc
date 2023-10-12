@@ -66,12 +66,12 @@ TEST_F(ContractNonceInfoTest, ToProtobuf)
 
   // Then
   EXPECT_EQ(protoContractNonceInfo.get()->contract_id().shardnum(),
-            static_cast<int64_t>(getTestContractId().getShardNum()));
+            static_cast<int64_t>(getTestContractId().mShardNum));
   EXPECT_EQ(protoContractNonceInfo.get()->contract_id().realmnum(),
-            static_cast<int64_t>(getTestContractId().getRealmNum()));
+            static_cast<int64_t>(getTestContractId().mRealmNum));
   ASSERT_EQ(protoContractNonceInfo.get()->contract_id().contract_case(), proto::ContractID::ContractCase::kContractNum);
   EXPECT_EQ(protoContractNonceInfo.get()->contract_id().contractnum(),
-            static_cast<int64_t>(getTestContractId().getContractNum().value()));
+            static_cast<int64_t>(getTestContractId().mContractNum.value()));
   EXPECT_EQ(protoContractNonceInfo.get()->nonce(), getTestNonce());
 }
 
@@ -101,8 +101,8 @@ TEST_F(ContractNonceInfoTest, FromBytes)
     ContractNonceInfo::fromBytes(internal::Utilities::stringToByteVector(protoContractNonceInfo.SerializeAsString()));
 
   // Then
-  EXPECT_EQ(contractNonceInfo.mContractId.getShardNum(), getTestContractId().getShardNum());
-  EXPECT_EQ(contractNonceInfo.mContractId.getRealmNum(), getTestContractId().getRealmNum());
-  EXPECT_EQ(contractNonceInfo.mContractId.getContractNum(), getTestContractId().getContractNum());
+  EXPECT_EQ(contractNonceInfo.mContractId.mShardNum, getTestContractId().mShardNum);
+  EXPECT_EQ(contractNonceInfo.mContractId.mRealmNum, getTestContractId().mRealmNum);
+  EXPECT_EQ(contractNonceInfo.mContractId.mContractNum, getTestContractId().mContractNum);
   EXPECT_EQ(contractNonceInfo.mNonce, getTestNonce());
 }

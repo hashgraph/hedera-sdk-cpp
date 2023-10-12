@@ -20,7 +20,6 @@
 #include "TokenId.h"
 
 #include <gtest/gtest.h>
-#include <limits>
 #include <proto/basic_types.pb.h>
 
 using namespace Hedera;
@@ -31,46 +30,35 @@ protected:
   [[nodiscard]] inline const uint64_t& getTestShardNum() const { return mShardNum; }
   [[nodiscard]] inline const uint64_t& getTestRealmNum() const { return mRealmNum; }
   [[nodiscard]] inline const uint64_t& getTestTokenNum() const { return mTokenNum; }
-  [[nodiscard]] inline const uint64_t& getTestNumTooBig() const { return mNumTooBig; }
 
 private:
   const uint64_t mShardNum = 8ULL;
   const uint64_t mRealmNum = 90ULL;
   const uint64_t mTokenNum = 1000ULL;
-  const uint64_t mNumTooBig = static_cast<uint64_t>(std::numeric_limits<int64_t>::max()) + 1ULL;
 };
-
-//-----
-TEST_F(TokenIdTest, DefaultConstructTokenId)
-{
-  const TokenId tokenId;
-  EXPECT_EQ(tokenId.getShardNum(), 0ULL);
-  EXPECT_EQ(tokenId.getRealmNum(), 0ULL);
-  EXPECT_EQ(tokenId.getTokenNum(), 0ULL);
-}
 
 //-----
 TEST_F(TokenIdTest, ConstructWithTokenNum)
 {
+  // Given / When
   const TokenId tokenId(getTestTokenNum());
-  EXPECT_EQ(tokenId.getShardNum(), 0ULL);
-  EXPECT_EQ(tokenId.getRealmNum(), 0ULL);
-  EXPECT_EQ(tokenId.getTokenNum(), getTestTokenNum());
 
-  EXPECT_THROW(TokenId{ getTestNumTooBig() }, std::invalid_argument);
+  // Then
+  EXPECT_EQ(tokenId.mShardNum, 0ULL);
+  EXPECT_EQ(tokenId.mRealmNum, 0ULL);
+  EXPECT_EQ(tokenId.mTokenNum, getTestTokenNum());
 }
 
 //-----
 TEST_F(TokenIdTest, ConstructWithShardRealmTokenNum)
 {
+  // Given / When
   const TokenId tokenId(getTestShardNum(), getTestRealmNum(), getTestTokenNum());
-  EXPECT_EQ(tokenId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(tokenId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(tokenId.getTokenNum(), getTestTokenNum());
 
-  EXPECT_THROW((TokenId{ getTestNumTooBig(), getTestRealmNum(), getTestTokenNum() }), std::invalid_argument);
-  EXPECT_THROW((TokenId{ getTestShardNum(), getTestNumTooBig(), getTestTokenNum() }), std::invalid_argument);
-  EXPECT_THROW((TokenId{ getTestShardNum(), getTestRealmNum(), getTestNumTooBig() }), std::invalid_argument);
+  // Then
+  EXPECT_EQ(tokenId.mShardNum, getTestShardNum());
+  EXPECT_EQ(tokenId.mRealmNum, getTestRealmNum());
+  EXPECT_EQ(tokenId.mTokenNum, getTestTokenNum());
 }
 
 //-----
@@ -88,13 +76,12 @@ TEST_F(TokenIdTest, ConstructFromString)
   const std::string testShardNumStr = std::to_string(getTestShardNum());
   const std::string testRealmNumStr = std::to_string(getTestRealmNum());
   const std::string testTokenNumStr = std::to_string(getTestTokenNum());
-  const std::string testNumTooBigStr = std::to_string(getTestNumTooBig());
 
   TokenId tokenId;
   EXPECT_NO_THROW(tokenId = TokenId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + testTokenNumStr));
-  EXPECT_EQ(tokenId.getShardNum(), getTestShardNum());
-  EXPECT_EQ(tokenId.getRealmNum(), getTestRealmNum());
-  EXPECT_EQ(tokenId.getTokenNum(), getTestTokenNum());
+  EXPECT_EQ(tokenId.mShardNum, getTestShardNum());
+  EXPECT_EQ(tokenId.mRealmNum, getTestRealmNum());
+  EXPECT_EQ(tokenId.mTokenNum, getTestTokenNum());
 
   EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + testRealmNumStr + testTokenNumStr),
                std::invalid_argument);
@@ -129,21 +116,12 @@ TEST_F(TokenIdTest, ConstructFromString)
   EXPECT_THROW(tokenId = TokenId::fromString("abc"), std::invalid_argument);
   EXPECT_THROW(tokenId = TokenId::fromString("o.o.e"), std::invalid_argument);
   EXPECT_THROW(tokenId = TokenId::fromString("0.0.1!"), std::invalid_argument);
-  EXPECT_THROW(tokenId = TokenId::fromString(testNumTooBigStr + '.' + testRealmNumStr + '.' + testTokenNumStr),
-               std::invalid_argument);
-  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + '.' + testNumTooBigStr + '.' + testTokenNumStr),
-               std::invalid_argument);
-  EXPECT_THROW(tokenId = TokenId::fromString(testShardNumStr + '.' + testRealmNumStr + '.' + testNumTooBigStr),
-               std::invalid_argument);
 }
 
 //-----
 TEST_F(TokenIdTest, ProtobufTokenId)
 {
-  TokenId tokenId;
-  tokenId.setShardNum(getTestShardNum());
-  tokenId.setRealmNum(getTestRealmNum());
-  tokenId.setTokenNum(getTestTokenNum());
+  TokenId tokenId(getTestShardNum(), getTestRealmNum(), getTestTokenNum());
 
   // Serialize shard, realm, token number
   std::unique_ptr<proto::TokenID> protoTokenId = tokenId.toProtobuf();
@@ -163,9 +141,9 @@ TEST_F(TokenIdTest, ProtobufTokenId)
 
   // Deserialize shard, realm, token number
   tokenId = TokenId::fromProtobuf(*protoTokenId);
-  EXPECT_EQ(tokenId.getShardNum(), newShard);
-  EXPECT_EQ(tokenId.getRealmNum(), newRealm);
-  EXPECT_EQ(tokenId.getTokenNum(), newToken);
+  EXPECT_EQ(tokenId.mShardNum, newShard);
+  EXPECT_EQ(tokenId.mRealmNum, newRealm);
+  EXPECT_EQ(tokenId.mTokenNum, newToken);
 }
 
 //-----
@@ -174,40 +152,10 @@ TEST_F(TokenIdTest, ToString)
   TokenId tokenId;
   EXPECT_EQ(tokenId.toString(), "0.0.0");
 
-  tokenId.setShardNum(getTestShardNum());
-  tokenId.setRealmNum(getTestRealmNum());
-  tokenId.setTokenNum(getTestTokenNum());
+  tokenId.mShardNum = getTestShardNum();
+  tokenId.mRealmNum = getTestRealmNum();
+  tokenId.mTokenNum = getTestTokenNum();
   EXPECT_EQ(tokenId.toString(),
             std::to_string(getTestShardNum()) + '.' + std::to_string(getTestRealmNum()) + '.' +
               std::to_string(getTestTokenNum()));
-}
-
-//-----
-TEST_F(TokenIdTest, SetGetShardNum)
-{
-  TokenId tokenId;
-  tokenId.setShardNum(getTestShardNum());
-
-  EXPECT_EQ(tokenId.getShardNum(), getTestShardNum());
-  EXPECT_THROW(tokenId.setShardNum(getTestNumTooBig()), std::invalid_argument);
-}
-
-//-----
-TEST_F(TokenIdTest, SetGetRealmNum)
-{
-  TokenId tokenId;
-  tokenId.setRealmNum(getTestRealmNum());
-
-  EXPECT_EQ(tokenId.getRealmNum(), getTestRealmNum());
-  EXPECT_THROW(tokenId.setRealmNum(getTestNumTooBig()), std::invalid_argument);
-}
-
-//-----
-TEST_F(TokenIdTest, SetGetAccountNum)
-{
-  TokenId tokenId;
-  tokenId.setTokenNum(getTestTokenNum());
-
-  EXPECT_EQ(tokenId.getTokenNum(), getTestTokenNum());
-  EXPECT_THROW(tokenId.setTokenNum(getTestNumTooBig()), std::invalid_argument);
 }

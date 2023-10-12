@@ -66,6 +66,15 @@ grpc::Status TransactionReceiptQuery::submitRequest(const proto::Query& request,
 }
 
 //-----
+void TransactionReceiptQuery::validateChecksums(const Client& client) const
+{
+  if (mTransactionId.has_value())
+  {
+    mTransactionId->getAccountId().validateChecksum(client);
+  }
+}
+
+//-----
 typename Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::ExecutionStatus
 TransactionReceiptQuery::determineStatus(Status status, const Client& client, const proto::Response& response)
 {

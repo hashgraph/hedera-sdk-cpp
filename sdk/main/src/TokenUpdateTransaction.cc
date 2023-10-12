@@ -176,6 +176,22 @@ grpc::Status TokenUpdateTransaction::submitRequest(const proto::Transaction& req
 }
 
 //-----
+void TokenUpdateTransaction::validateChecksums(const Client& client) const
+{
+  mTokenId.validateChecksum(client);
+
+  if (mTreasuryAccountId.has_value())
+  {
+    mTreasuryAccountId->validateChecksum(client);
+  }
+
+  if (mAutoRenewAccountId.has_value())
+  {
+    mAutoRenewAccountId->validateChecksum(client);
+  }
+}
+
+//-----
 void TokenUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_tokenupdate(build());

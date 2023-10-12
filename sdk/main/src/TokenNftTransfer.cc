@@ -19,68 +19,45 @@
  */
 #include "TokenNftTransfer.h"
 
-#include <limits>
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
 //-----
-TokenNftTransfer TokenNftTransfer::fromProtobuf(const proto::NftTransfer& proto)
+TokenNftTransfer::TokenNftTransfer(NftId nftId, AccountId sender, AccountId receiver, bool approved)
+  : mNftId(std::move(nftId))
+  , mSenderAccountId(std::move(sender))
+  , mReceiverAccountId(std::move(receiver))
+  , mIsApproval(approved)
 {
-  TokenNftTransfer tokenNftTransfer;
+}
 
-  if (proto.has_senderaccountid())
-  {
-    tokenNftTransfer.mSenderAccountID = AccountId::fromProtobuf(proto.senderaccountid());
-  }
+//-----
+TokenNftTransfer TokenNftTransfer::fromProtobuf(const proto::NftTransfer& proto, const TokenId& tokenId)
+{
+  return TokenNftTransfer(NftId(tokenId, static_cast<uint64_t>(proto.serialnumber())),
+                          AccountId::fromProtobuf(proto.senderaccountid()),
+                          AccountId::fromProtobuf(proto.receiveraccountid()),
+                          proto.is_approval());
+}
 
-  if (proto.has_receiveraccountid())
-  {
-    tokenNftTransfer.mReceiverAccountID = AccountId::fromProtobuf(proto.receiveraccountid());
-  }
-
-  tokenNftTransfer.mNftId.setSerialNum(static_cast<uint64_t>(proto.serialnumber()));
-  tokenNftTransfer.mIsApproval = proto.is_approval();
-  return tokenNftTransfer;
+//-----
+void TokenNftTransfer::validateChecksums(const Hedera::Client& client) const
+{
+  mNftId.mTokenId.validateChecksum(client);
+  mSenderAccountId.validateChecksum(client);
+  mReceiverAccountId.validateChecksum(client);
 }
 
 //-----
 std::unique_ptr<proto::NftTransfer> TokenNftTransfer::toProtobuf() const
 {
   auto proto = std::make_unique<proto::NftTransfer>();
-  proto->set_allocated_senderaccountid(mSenderAccountID.toProtobuf().release());
-  proto->set_allocated_receiveraccountid(mReceiverAccountID.toProtobuf().release());
-  proto->set_serialnumber(static_cast<int64_t>(mNftId.getSerialNum()));
+  proto->set_allocated_senderaccountid(mSenderAccountId.toProtobuf().release());
+  proto->set_allocated_receiveraccountid(mReceiverAccountId.toProtobuf().release());
+  proto->set_serialnumber(static_cast<int64_t>(mNftId.mSerialNum));
   proto->set_is_approval(mIsApproval);
   return proto;
-}
-
-//-----
-TokenNftTransfer& TokenNftTransfer::setNftId(const NftId& nftId)
-{
-  mNftId = nftId;
-  return *this;
-}
-
-//-----
-TokenNftTransfer& TokenNftTransfer::setSenderAccountId(const AccountId& accountId)
-{
-  mSenderAccountID = accountId;
-  return *this;
-}
-
-//-----
-TokenNftTransfer& TokenNftTransfer::setReceiverAccountId(const AccountId& accountId)
-{
-  mReceiverAccountID = accountId;
-  return *this;
-}
-
-//-----
-TokenNftTransfer& TokenNftTransfer::setApproval(bool approval)
-{
-  mIsApproval = approval;
-  return *this;
 }
 
 } // namespace Hedera

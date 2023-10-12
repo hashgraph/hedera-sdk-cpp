@@ -40,13 +40,34 @@ namespace Hedera
 class TokenNftTransfer
 {
 public:
+  TokenNftTransfer() = default;
+
   /**
-   * Construct a TokenNftTransfer object from an NftTransfer protobuf object.
+   * Construct with an nft ID, sender account ID, receiver account ID, and approval.
    *
-   * @param proto The NftTransfer protobuf object from which to construct an TokenNftTransfer object.
+   * @param nftId The ID of the NFT.
+   * @param sender The ID of the account sending the NFT.
+   * @param receiver The ID of the account receiving the NFT.
+   * @param approved \c TRUE if this is an approved allowance NFT transfer, otherwise \c FALSE.
+   */
+  TokenNftTransfer(NftId nftId, AccountId sender, AccountId receiver, bool approved);
+
+  /**
+   * Construct a TokenNftTransfer object from an NftTransfer protobuf object and a TokenId object.
+   *
+   * @param proto   The NftTransfer protobuf object from which to construct an TokenNftTransfer object.
+   * @param tokenId The ID of the token.
    * @return The constructed TokenNftTransfer object.
    */
-  [[nodiscard]] static TokenNftTransfer fromProtobuf(const proto::NftTransfer& proto);
+  [[nodiscard]] static TokenNftTransfer fromProtobuf(const proto::NftTransfer& proto, const TokenId& tokenId);
+
+  /**
+   * Validate the checksums of the entities associated with this TokenNftTransfer.
+   *
+   * @param client The Client to use to validate the checksums.
+   * @throws BadEntityException If any of the checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const;
 
   /**
    * Construct an NftTransfer protobuf object from this TokenNftTransfer object.
@@ -56,67 +77,6 @@ public:
   [[nodiscard]] std::unique_ptr<proto::NftTransfer> toProtobuf() const;
 
   /**
-   * Set the ID of the NFT.
-   *
-   * @param nftId The ID of the NFT.
-   * @param A reference to this TokenNftTransfer object with the newly-set NFT ID.
-   */
-  TokenNftTransfer& setNftId(const NftId& nftId);
-
-  /**
-   * Set the ID of the account sending the NFT.
-   *
-   * @param accountId The ID of the account that is sending the NFT.
-   * @return A reference to this TokenNftTransfer object with the newly-set sender account ID.
-   */
-  TokenNftTransfer& setSenderAccountId(const AccountId& accountId);
-
-  /**
-   * Set the ID of the account receiving the NFT.
-   *
-   * @param accountId The ID of the account that is receiving the NFT.
-   * @return A reference to this TokenNftTransfer object with the newly-set receiver account ID.
-   */
-  TokenNftTransfer& setReceiverAccountId(const AccountId& accountId);
-
-  /**
-   * Set if this TokenNftTransfer is approved.
-   *
-   * @param approval \c TRUE if this is an approved transfer, otherwise \c FALSE.
-   * @return A reference to this TokenNftTransfer object with the newly-set approval status.
-   */
-  TokenNftTransfer& setApproval(bool approval);
-
-  /**
-   * Get the NFT ID.
-   *
-   * @return The NFT ID.
-   */
-  [[nodiscard]] inline NftId getNftId() const { return mNftId; }
-
-  /**
-   * Get the sender account ID.
-   *
-   * @return The sender account ID.
-   */
-  [[nodiscard]] inline AccountId getSenderAccountId() const { return mSenderAccountID; }
-
-  /**
-   * Get the receiver account ID.
-   *
-   * @return The receiver account ID.
-   */
-  [[nodiscard]] inline AccountId getReceiverAccountId() const { return mReceiverAccountID; }
-
-  /**
-   * Determine if this transfer is approved or not.
-   *
-   * @return \c TRUE if this is an approved transfer, otherwise \c FALSE.
-   */
-  [[nodiscard]] inline bool getApproval() const { return mIsApproval; }
-
-private:
-  /**
    * The ID of the NFT.
    */
   NftId mNftId;
@@ -124,12 +84,12 @@ private:
   /**
    * The account ID of the sender.
    */
-  AccountId mSenderAccountID;
+  AccountId mSenderAccountId;
 
   /**
    * The account ID of the receiver.
    */
-  AccountId mReceiverAccountID;
+  AccountId mReceiverAccountId;
 
   /**
    * If \c TRUE then the transfer is expected to be an approved allowance and the senderAccountID is expected to be the

@@ -60,6 +60,12 @@ grpc::Status FileDeleteTransaction::submitRequest(const proto::Transaction& requ
 }
 
 //-----
+void FileDeleteTransaction::validateChecksums(const Client& client) const
+{
+  mFileId.validateChecksum(client);
+}
+
+//-----
 void FileDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
   body.set_allocated_filedelete(build());
