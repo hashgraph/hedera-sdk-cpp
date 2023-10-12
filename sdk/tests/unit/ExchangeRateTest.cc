@@ -18,8 +18,9 @@
  *
  */
 #include "ExchangeRate.h"
-#include "ExchangeRateSet.h"
+#include "ExchangeRates.h"
 #include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 #include <proto/exchange_rate.pb.h>
@@ -29,117 +30,129 @@ using namespace Hedera;
 class ExchangeRateTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const int32_t& getTestCents() const { return mCents; }
-  [[nodiscard]] inline const int32_t& getTestHbar() const { return mHbar; }
-  [[nodiscard]] inline const uint64_t& getTestSeconds() const { return mSeconds; }
+  [[nodiscard]] inline int32_t getTestCents() const { return mTestCents; }
+  [[nodiscard]] inline int32_t getTestHbar() const { return mTestHbar; }
+  [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
+  {
+    return mTestExpirationTime;
+  }
 
 private:
-  const int32_t mCents = 2;
-  const int32_t mHbar = 1;
-  const uint64_t mSeconds = 100ULL;
+  const int32_t mTestCents = 2;
+  const int32_t mTestHbar = 1;
+  const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
 };
 
-TEST_F(ExchangeRateTest, ConstructExchangeRateAndSet)
+//-----
+TEST_F(ExchangeRateTest, ExchangeRateConstructor)
 {
-  ExchangeRate rate;
-  EXPECT_FALSE(rate.getExpirationTime().has_value());
-
-  ExchangeRateSet set;
-  EXPECT_FALSE(set.getCurrentExchangeRate().has_value());
-  EXPECT_FALSE(set.getNextExchangeRate().has_value());
-}
-
-// Tests deserialization of proto::ExchangeRate -> Hedera::ExchangeRate
-TEST_F(ExchangeRateTest, DeserializeExchangeRateFromProtobuf)
-{
-  // Given
-  const int32_t testCents = getTestCents();
-  const int32_t testHbar = getTestHbar();
-  const uint64_t testSeconds = getTestSeconds();
-
-  auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
-  proto::TimestampSeconds* testProtoExchangeRateSecs = testProtoExchangeRate->mutable_expirationtime();
-
-  testProtoExchangeRate->set_centequiv(testCents);
-  testProtoExchangeRate->set_hbarequiv(testHbar);
-  testProtoExchangeRateSecs->set_seconds(static_cast<int64_t>(testSeconds));
-
-  // When
-  ExchangeRate exchangeRate = ExchangeRate::fromProtobuf(*testProtoExchangeRate);
+  // Given / When
+  const ExchangeRate exchangeRate(getTestHbar(), getTestCents(), getTestExpirationTime());
 
   // Then
-  EXPECT_EQ(exchangeRate.getCurrentExchangeRate(), testCents / testHbar);
-  EXPECT_TRUE(exchangeRate.getExpirationTime().has_value());
-  EXPECT_EQ(exchangeRate.getExpirationTime().value().time_since_epoch().count(),
-            internal::TimestampConverter::fromProtobuf(*testProtoExchangeRateSecs).time_since_epoch().count());
+  EXPECT_EQ(exchangeRate.mHbars, getTestHbar());
+  EXPECT_EQ(exchangeRate.mCents, getTestCents());
+  EXPECT_EQ(exchangeRate.mExpirationTime, getTestExpirationTime());
 }
 
-// Tests deserialization of proto::ExchangeRateSet -> Hedera::ExchangeRateSet.
-TEST_F(ExchangeRateTest, DeserializeExchangeRateSetFromProtobuf)
+//-----
+TEST_F(ExchangeRateTest, ExchangeRateFromProtobuf)
 {
   // Given
-  const int32_t testCents = getTestCents();
-  const int32_t testHbar = getTestHbar();
-
-  auto testProtoExchangeRate = std::make_unique<proto::ExchangeRate>();
-  testProtoExchangeRate->set_centequiv(testCents * testCents);
-  testProtoExchangeRate->set_hbarequiv(testHbar * testHbar);
-
-  proto::ExchangeRateSet testProtoExchangeRateSet;
-  testProtoExchangeRateSet.set_allocated_nextrate(testProtoExchangeRate.release());
+  proto::ExchangeRate protoExchangeRate;
+  protoExchangeRate.set_hbarequiv(getTestHbar());
+  protoExchangeRate.set_centequiv(getTestCents());
+  protoExchangeRate.set_allocated_expirationtime(
+    internal::TimestampConverter::toSecondsProtobuf(getTestExpirationTime()));
 
   // When
-  ExchangeRateSet exchangeRateSet = ExchangeRateSet::fromProtobuf(testProtoExchangeRateSet);
+  const ExchangeRate exchangeRate = ExchangeRate::fromProtobuf(protoExchangeRate);
 
   // Then
-  EXPECT_FALSE(exchangeRateSet.getCurrentExchangeRate().has_value());
-  EXPECT_TRUE(exchangeRateSet.getNextExchangeRate().has_value());
-  EXPECT_EQ(exchangeRateSet.getNextExchangeRate().value().getCurrentExchangeRate(),
-            testCents * testCents / testHbar * testHbar);
+  EXPECT_EQ(exchangeRate.mHbars, getTestHbar());
+  EXPECT_EQ(exchangeRate.mCents, getTestCents());
+  EXPECT_EQ(std::chrono::duration_cast<std::chrono::seconds>(exchangeRate.mExpirationTime.time_since_epoch()),
+            std::chrono::duration_cast<std::chrono::seconds>(getTestExpirationTime().time_since_epoch()));
+  EXPECT_EQ(exchangeRate.mExchangeRateInCents, getTestCents() / getTestHbar());
 }
 
-// Tests serialization & deserialization of Hedera::ExchangeRate -> proto::ExchangeRate -> Hedera::ExchangeRate.
-TEST_F(ExchangeRateTest, ProtobufExchangeRate)
+//-----
+TEST_F(ExchangeRateTest, ExchangeRatesConstructor)
 {
-  auto protoRate = std::make_unique<proto::ExchangeRate>();
-  proto::TimestampSeconds* protoRateSecs = protoRate->mutable_expirationtime();
+  // Given / When
+  const ExchangeRate exchangeRate(getTestHbar(), getTestCents(), getTestExpirationTime());
+  const ExchangeRates exchangeRates(exchangeRate, exchangeRate);
 
-  const uint64_t seconds = 100ULL;
-  const int32_t cents = 2;
-  const int32_t hbar = 1;
+  // Then
+  EXPECT_EQ(exchangeRates.mCurrentRate.mHbars, getTestHbar());
+  EXPECT_EQ(exchangeRates.mCurrentRate.mCents, getTestCents());
+  EXPECT_EQ(exchangeRates.mCurrentRate.mExpirationTime, getTestExpirationTime());
+  EXPECT_EQ(exchangeRates.mNextRate.mHbars, getTestHbar());
+  EXPECT_EQ(exchangeRates.mNextRate.mCents, getTestCents());
+  EXPECT_EQ(exchangeRates.mNextRate.mExpirationTime, getTestExpirationTime());
+}
 
-  protoRateSecs->set_seconds(seconds);
-  protoRate->set_centequiv(cents);
-  protoRate->set_hbarequiv(hbar);
+//-----
+TEST_F(ExchangeRateTest, ExchangeRatesFromProtobuf)
+{
+  // Given
+  proto::ExchangeRate protoExchangeRate;
+  protoExchangeRate.set_hbarequiv(getTestHbar());
+  protoExchangeRate.set_centequiv(getTestCents());
+  protoExchangeRate.set_allocated_expirationtime(
+    internal::TimestampConverter::toSecondsProtobuf(getTestExpirationTime()));
 
-  ExchangeRate rate = ExchangeRate::fromProtobuf(*protoRate);
-  EXPECT_EQ(rate.getCurrentExchangeRate(), cents / hbar);
-  EXPECT_TRUE(rate.getExpirationTime().has_value());
-  EXPECT_EQ(rate.getExpirationTime().value().time_since_epoch().count(),
-            internal::TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
+  proto::ExchangeRateSet protoExchangeRateSet;
+  *protoExchangeRateSet.mutable_currentrate() = protoExchangeRate;
+  *protoExchangeRateSet.mutable_nextrate() = protoExchangeRate;
 
-  protoRateSecs->set_seconds(seconds + seconds);
-  protoRate->set_centequiv(cents * cents);
-  protoRate->set_hbarequiv(hbar * hbar);
+  // When
+  const ExchangeRates exchangeRates = ExchangeRates::fromProtobuf(protoExchangeRateSet);
 
-  proto::ExchangeRateSet protoSet;
-  protoSet.set_allocated_nextrate(protoRate.release());
+  // Then
+  EXPECT_EQ(exchangeRates.mCurrentRate.mHbars, getTestHbar());
+  EXPECT_EQ(exchangeRates.mCurrentRate.mCents, getTestCents());
+  EXPECT_EQ(
+    std::chrono::duration_cast<std::chrono::seconds>(exchangeRates.mCurrentRate.mExpirationTime.time_since_epoch()),
+    std::chrono::duration_cast<std::chrono::seconds>(getTestExpirationTime().time_since_epoch()));
+  EXPECT_EQ(exchangeRates.mCurrentRate.mExchangeRateInCents, getTestCents() / getTestHbar());
+  EXPECT_EQ(exchangeRates.mNextRate.mHbars, getTestHbar());
+  EXPECT_EQ(exchangeRates.mNextRate.mCents, getTestCents());
+  EXPECT_EQ(
+    std::chrono::duration_cast<std::chrono::seconds>(exchangeRates.mNextRate.mExpirationTime.time_since_epoch()),
+    std::chrono::duration_cast<std::chrono::seconds>(getTestExpirationTime().time_since_epoch()));
+  EXPECT_EQ(exchangeRates.mNextRate.mExchangeRateInCents, getTestCents() / getTestHbar());
+}
 
-  ExchangeRateSet set = ExchangeRateSet::fromProtobuf(protoSet);
-  EXPECT_FALSE(set.getCurrentExchangeRate().has_value());
-  EXPECT_TRUE(set.getNextExchangeRate().has_value());
-  EXPECT_EQ(set.getNextExchangeRate().value().getCurrentExchangeRate(), cents * cents / hbar * hbar);
-  EXPECT_TRUE(set.getNextExchangeRate().has_value());
-  EXPECT_EQ(set.getNextExchangeRate().value().getExpirationTime().value().time_since_epoch().count(),
-            internal::TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
+//-----
+TEST_F(ExchangeRateTest, ExchangeRatesFromBytes)
+{
+  // Given
+  proto::ExchangeRate protoExchangeRate;
+  protoExchangeRate.set_hbarequiv(getTestHbar());
+  protoExchangeRate.set_centequiv(getTestCents());
+  protoExchangeRate.set_allocated_expirationtime(
+    internal::TimestampConverter::toSecondsProtobuf(getTestExpirationTime()));
 
-  protoSet.set_allocated_currentrate(protoSet.release_nextrate());
+  proto::ExchangeRateSet protoExchangeRateSet;
+  *protoExchangeRateSet.mutable_currentrate() = protoExchangeRate;
+  *protoExchangeRateSet.mutable_nextrate() = protoExchangeRate;
 
-  set = ExchangeRateSet::fromProtobuf(protoSet);
-  EXPECT_TRUE(set.getCurrentExchangeRate().has_value());
-  EXPECT_EQ(set.getCurrentExchangeRate().value().getCurrentExchangeRate(), cents * cents / hbar * hbar);
-  EXPECT_TRUE(set.getCurrentExchangeRate().has_value());
-  EXPECT_EQ(set.getCurrentExchangeRate().value().getExpirationTime().value().time_since_epoch().count(),
-            internal::TimestampConverter::fromProtobuf(*protoRateSecs).time_since_epoch().count());
-  EXPECT_FALSE(set.getNextExchangeRate().has_value());
+  // When
+  const ExchangeRates exchangeRates =
+    ExchangeRates::fromBytes(internal::Utilities::stringToByteVector(protoExchangeRateSet.SerializeAsString()));
+
+  // Then
+  EXPECT_EQ(exchangeRates.mCurrentRate.mHbars, getTestHbar());
+  EXPECT_EQ(exchangeRates.mCurrentRate.mCents, getTestCents());
+  EXPECT_EQ(
+    std::chrono::duration_cast<std::chrono::seconds>(exchangeRates.mCurrentRate.mExpirationTime.time_since_epoch()),
+    std::chrono::duration_cast<std::chrono::seconds>(getTestExpirationTime().time_since_epoch()));
+  EXPECT_EQ(exchangeRates.mCurrentRate.mExchangeRateInCents, getTestCents() / getTestHbar());
+  EXPECT_EQ(exchangeRates.mNextRate.mHbars, getTestHbar());
+  EXPECT_EQ(exchangeRates.mNextRate.mCents, getTestCents());
+  EXPECT_EQ(
+    std::chrono::duration_cast<std::chrono::seconds>(exchangeRates.mNextRate.mExpirationTime.time_since_epoch()),
+    std::chrono::duration_cast<std::chrono::seconds>(getTestExpirationTime().time_since_epoch()));
+  EXPECT_EQ(exchangeRates.mNextRate.mExchangeRateInCents, getTestCents() / getTestHbar());
 }

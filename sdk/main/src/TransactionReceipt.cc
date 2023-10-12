@@ -71,7 +71,7 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
 
   if (proto.has_exchangerate())
   {
-    receipt.mExchangeRates = ExchangeRateSet::fromProtobuf(proto.exchangerate());
+    receipt.mExchangeRates = ExchangeRates::fromProtobuf(proto.exchangerate());
   }
 
   if (proto.has_topicid())
