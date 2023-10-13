@@ -24,7 +24,6 @@
 #include "ContractId.h"
 #include "Key.h"
 #include "Transaction.h"
-#include "impl/ValuePtr.h"
 
 #include <chrono>
 #include <memory>
@@ -101,7 +100,7 @@ public:
    * @return A reference to this ContractUpdateTransaction object with the newly-set admin key.
    * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setAdminKey(const Key* adminKey);
+  ContractUpdateTransaction& setAdminKey(const std::shared_ptr<Key>& adminKey);
 
   /**
    * Set a new auto renew period for the contract.
@@ -195,7 +194,7 @@ public:
    * @return A pointer to the new admin key to be used for the contract. Returns nullptr if the key has not yet been
    *         set.
    */
-  [[nodiscard]] inline const Key* getAdminKey() const { return mAdminKey.get(); }
+  [[nodiscard]] inline std::shared_ptr<Key> getAdminKey() const { return mAdminKey; }
 
   /**
    * Get the new auto renew period for the contract.
@@ -319,7 +318,7 @@ private:
   /**
    * The new admin key to be used for the contract.
    */
-  ValuePtr<Key, KeyCloner> mAdminKey;
+  std::shared_ptr<Key> mAdminKey = nullptr;
 
   /**
    * The new auto renew period for the contract.

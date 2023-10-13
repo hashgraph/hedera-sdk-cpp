@@ -53,18 +53,18 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(operatorAccountId, operatorPrivateKey.get());
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   std::cout << "Generate two keys for an account.." << std::endl;
   const std::shared_ptr<PrivateKey> key1 = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PrivateKey> key2 = ED25519PrivateKey::generatePrivateKey();
   std::cout << "Private keys generated: \n -" << key1->toStringRaw() << "\n -" << key2->toStringRaw() << std::endl;
 
-  const KeyList keyList = KeyList::of({ key1.get(), key2.get() });
+  const auto keyList = std::make_shared<KeyList>(KeyList::of({ key1, key2 }));
 
   std::cout << "Generate account.. " << std::endl;
   const AccountId accountId = AccountCreateTransaction()
-                                .setKey(&keyList)
+                                .setKey(keyList)
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(client)
                                 .getReceipt(client)
@@ -87,8 +87,8 @@ int main(int argc, char** argv)
             << gStatusToString.at(ScheduleSignTransaction()
                                     .setScheduleId(scheduleId)
                                     .freezeWith(&client)
-                                    .sign(key1.get())
-                                    .sign(key2.get())
+                                    .sign(key1)
+                                    .sign(key2)
                                     .execute(client)
                                     .getReceipt(client)
                                     .mStatus)
@@ -104,8 +104,8 @@ int main(int argc, char** argv)
                                     .setDeleteAccountId(accountId)
                                     .setTransferAccountId(operatorAccountId)
                                     .freezeWith(&client)
-                                    .sign(key1.get())
-                                    .sign(key2.get())
+                                    .sign(key1)
+                                    .sign(key2)
                                     .execute(client)
                                     .getReceipt(client)
                                     .mStatus)

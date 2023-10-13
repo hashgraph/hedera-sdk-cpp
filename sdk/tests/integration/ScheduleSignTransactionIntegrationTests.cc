@@ -23,7 +23,6 @@
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "ScheduleCreateTransaction.h"
-#include "ScheduleDeleteTransaction.h"
 #include "ScheduleId.h"
 #include "ScheduleInfo.h"
 #include "ScheduleInfoQuery.h"
@@ -60,11 +59,11 @@ TEST_F(ScheduleSignTransactionIntegrationTest, ExecuteScheduleSignTransaction)
   ASSERT_NO_THROW(newKey2 = ED25519PrivateKey::generatePrivateKey());
   ASSERT_NO_THROW(newKey3 = ED25519PrivateKey::generatePrivateKey());
 
-  const KeyList keyList = KeyList::of({ newKey1.get(), newKey2.get(), newKey3.get() });
+  const auto keyList = std::make_shared<KeyList>(KeyList::of({ newKey1, newKey2, newKey3 }));
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(&keyList)
+                                .setKey(keyList)
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -83,9 +82,9 @@ TEST_F(ScheduleSignTransactionIntegrationTest, ExecuteScheduleSignTransaction)
   EXPECT_NO_THROW(const TransactionReceipt txReceipt = ScheduleSignTransaction()
                                                          .setScheduleId(scheduleId)
                                                          .freezeWith(&getTestClient())
-                                                         .sign(newKey1.get())
-                                                         .sign(newKey2.get())
-                                                         .sign(newKey3.get())
+                                                         .sign(newKey1)
+                                                         .sign(newKey2)
+                                                         .sign(newKey3)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 
@@ -99,9 +98,9 @@ TEST_F(ScheduleSignTransactionIntegrationTest, ExecuteScheduleSignTransaction)
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .freezeWith(&getTestClient())
-                                                         .sign(newKey1.get())
-                                                         .sign(newKey2.get())
-                                                         .sign(newKey3.get())
+                                                         .sign(newKey1)
+                                                         .sign(newKey2)
+                                                         .sign(newKey3)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 }

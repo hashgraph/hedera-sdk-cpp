@@ -42,10 +42,10 @@ class AccountDeleteTransactionIntegrationTest : public BaseIntegrationTest
 TEST_F(AccountDeleteTransactionIntegrationTest, ExecuteAccountDeleteTransaction)
 {
   // Given
-  const std::unique_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(key->getPublicKey().get())
+                                .setKey(key->getPublicKey())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -56,7 +56,7 @@ TEST_F(AccountDeleteTransactionIntegrationTest, ExecuteAccountDeleteTransaction)
                                  .setDeleteAccountId(accountId)
                                  .setTransferAccountId(AccountId(2ULL))
                                  .freezeWith(&getTestClient())
-                                 .sign(key.get())
+                                 .sign(key)
                                  .execute(getTestClient()));
 
   // Then
@@ -76,10 +76,10 @@ TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteInvalidAccountId)
 TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteAccountWithoutSignature)
 {
   // Given
-  const std::unique_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(key->getPublicKey().get())
+                                .setKey(key->getPublicKey())
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -98,6 +98,6 @@ TEST_F(AccountDeleteTransactionIntegrationTest, CannotDeleteAccountWithoutSignat
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(key.get())
+                    .sign(key)
                     .execute(getTestClient()));
 }

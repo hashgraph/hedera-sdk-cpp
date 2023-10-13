@@ -75,11 +75,11 @@ TEST_F(TransferTransactionIntegrationTest, TransferNothing)
 TEST_F(TransferTransactionIntegrationTest, TransferOutOfNonOperatorAccount)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const Hbar amount(1LL);
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(privateKey->getPublicKey().get())
+                                .setKey(privateKey->getPublicKey())
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -91,7 +91,7 @@ TEST_F(TransferTransactionIntegrationTest, TransferOutOfNonOperatorAccount)
                                .addHbarTransfer(AccountId(2ULL), amount)
                                .addHbarTransfer(accountId, amount.negated())
                                .freezeWith(&getTestClient())
-                               .sign(privateKey.get())
+                               .sign(privateKey)
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
 
@@ -103,7 +103,7 @@ TEST_F(TransferTransactionIntegrationTest, TransferOutOfNonOperatorAccount)
                     .setDeleteAccountId(accountId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(privateKey.get())
+                    .sign(privateKey)
                     .execute(getTestClient()));
 }
 
@@ -111,7 +111,7 @@ TEST_F(TransferTransactionIntegrationTest, TransferOutOfNonOperatorAccount)
 TEST_F(TransferTransactionIntegrationTest, CanTransferHbarWithAliasID)
 {
   // Given
-  const std::unique_ptr<PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const Hbar amount(1LL);
   const EvmAddress evmAddress =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(privateKey->getPublicKey())->toEvmAddress();
@@ -134,7 +134,7 @@ TEST_F(TransferTransactionIntegrationTest, CanTransferHbarWithAliasID)
                     .setDeleteAccountId(aliasId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(privateKey.get())
+                    .sign(privateKey)
                     .execute(getTestClient()));
 }
 
@@ -142,20 +142,20 @@ TEST_F(TransferTransactionIntegrationTest, CanTransferHbarWithAliasID)
 TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
 {
   // Given
-  const std::unique_ptr<PrivateKey> allowerKey = ED25519PrivateKey::generatePrivateKey();
-  const std::unique_ptr<PrivateKey> alloweeKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> allowerKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> alloweeKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const Hbar balance(10LL);
   const Hbar amount(1LL);
   AccountId allowerId;
   AccountId alloweeId;
   ASSERT_NO_THROW(allowerId = AccountCreateTransaction()
-                                .setKey(allowerKey->getPublicKey().get())
+                                .setKey(allowerKey->getPublicKey())
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
   ASSERT_NO_THROW(alloweeId = AccountCreateTransaction()
-                                .setKey(alloweeKey->getPublicKey().get())
+                                .setKey(alloweeKey->getPublicKey())
                                 .setInitialBalance(balance)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -163,7 +163,7 @@ TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountAllowanceApproveTransaction()
                                                          .approveHbarAllowance(allowerId, alloweeId, amount)
                                                          .freezeWith(&getTestClient())
-                                                         .sign(allowerKey.get())
+                                                         .sign(allowerKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 
@@ -174,7 +174,7 @@ TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
                                .addApprovedHbarTransfer(allowerId, amount.negated())
                                .setTransactionId(TransactionId::generate(alloweeId))
                                .freezeWith(&getTestClient())
-                               .sign(alloweeKey.get())
+                               .sign(alloweeKey)
                                .execute(getTestClient())
                                .getRecord(getTestClient()));
 
@@ -196,12 +196,12 @@ TEST_F(TransferTransactionIntegrationTest, CanSpendHbarAllowance)
                     .setDeleteAccountId(allowerId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(allowerKey.get())
+                    .sign(allowerKey)
                     .execute(getTestClient()));
   ASSERT_NO_THROW(AccountDeleteTransaction()
                     .setDeleteAccountId(alloweeId)
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
-                    .sign(alloweeKey.get())
+                    .sign(alloweeKey)
                     .execute(getTestClient()));
 }

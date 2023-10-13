@@ -30,8 +30,6 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/Utilities.h"
 
-#include <iostream>
-
 namespace Hedera
 {
 //-----
@@ -53,7 +51,7 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
 
   // Create the file.
   FileCreateTransaction fileCreateTransaction =
-    FileCreateTransaction().setKeys({ client.getOperatorPublicKey().get() }).setContents(mBytecode);
+    FileCreateTransaction().setKeys({ client.getOperatorPublicKey() }).setContents(mBytecode);
 
   if (!mNodeAccountIds.empty())
   {
@@ -89,7 +87,7 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
 
   if (mAdminKey)
   {
-    contractCreateTransaction.setAdminKey(mAdminKey.get());
+    contractCreateTransaction.setAdminKey(mAdminKey);
   }
 
   if (mAutoRenewAccountId.has_value())
@@ -123,7 +121,7 @@ TransactionResponse ContractCreateFlow::execute(const Client& client, const std:
 
   if (mPrivateKey)
   {
-    contractCreateTransaction.sign(mPrivateKey.get());
+    contractCreateTransaction.sign(mPrivateKey);
   }
   else if (mPublicKey && mSigner.has_value())
   {
@@ -157,9 +155,9 @@ ContractCreateFlow& ContractCreateFlow::setBytecode(std::string_view byteCode)
 }
 
 //-----
-ContractCreateFlow& ContractCreateFlow::setAdminKey(const Key* key)
+ContractCreateFlow& ContractCreateFlow::setAdminKey(const std::shared_ptr<Key>& key)
 {
-  mAdminKey = ValuePtr<Key, KeyCloner>(key->clone().release());
+  mAdminKey = key;
   return *this;
 }
 
@@ -264,9 +262,9 @@ ContractCreateFlow& ContractCreateFlow::freezeWith(const Client& client)
 }
 
 //-----
-ContractCreateFlow& ContractCreateFlow::sign(const PrivateKey* key)
+ContractCreateFlow& ContractCreateFlow::sign(const std::shared_ptr<PrivateKey>& key)
 {
-  mPrivateKey = ValuePtr<PrivateKey, KeyCloner>(dynamic_cast<PrivateKey*>(key->clone().release()));
+  mPrivateKey = key;
   mPublicKey = nullptr;
   mSigner.reset();
   return *this;
@@ -277,7 +275,7 @@ ContractCreateFlow& ContractCreateFlow::signWith(
   const std::shared_ptr<PublicKey>& key,
   const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer)
 {
-  mPrivateKey = ValuePtr<PrivateKey, KeyCloner>();
+  mPrivateKey = nullptr;
   mPublicKey = key;
   mSigner = signer;
   return *this;
@@ -291,7 +289,7 @@ ContractCreateFlow& ContractCreateFlow::signWithOperator(const Client& client)
     throw UninitializedException("Client operator has not yet been set");
   }
 
-  mPrivateKey = ValuePtr<PrivateKey, KeyCloner>();
+  mPrivateKey = nullptr;
   mPublicKey = client.getOperatorPublicKey();
   mSigner = client.getOperatorSigner();
   return *this;

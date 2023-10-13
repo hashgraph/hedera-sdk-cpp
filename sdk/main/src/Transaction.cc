@@ -108,6 +108,11 @@ struct Transaction<SdkRequestType>::TransactionImpl
   std::unordered_map<std::shared_ptr<PublicKey>, std::function<std::vector<std::byte>(const std::vector<std::byte>&)>>
     mSignatories;
 
+  // Keep a map of PublicKeys to their associated PrivateKeys. If the Transaction is signed with a PrivateKey, the
+  // Transaction must make sure the PrivateKey does not go out of scope, otherwise it will crash when trying to generate
+  // a signature.
+  std::unordered_map<std::shared_ptr<PublicKey>, std::shared_ptr<PrivateKey>> mPrivateKeys;
+
   // Is this Transaction frozen?
   bool mIsFrozen = false;
 
@@ -298,9 +303,10 @@ std::vector<std::byte> Transaction<SdkRequestType>::toBytes() const
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::sign(const PrivateKey* key)
+SdkRequestType& Transaction<SdkRequestType>::sign(const std::shared_ptr<PrivateKey>& key)
 {
-  return signWith(key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); });
+  return signInternal(
+    key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
 }
 
 //-----
@@ -309,20 +315,7 @@ SdkRequestType& Transaction<SdkRequestType>::signWith(
   const std::shared_ptr<PublicKey>& key,
   const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer)
 {
-  if (!isFrozen())
-  {
-    throw IllegalStateException("Transaction must be frozen in order to sign");
-  }
-
-  if (!keyAlreadySigned(key))
-  {
-    // Adding a signature will require all Transaction protobuf objects to be regenerated.
-    mImpl->mTransactions.clear();
-    mImpl->mTransactions.resize(mImpl->mSignedTransactions.size());
-    mImpl->mSignatories[key] = signer;
-  }
-
-  return static_cast<SdkRequestType&>(*this);
+  return signInternal(key, signer);
 }
 
 //-----
@@ -336,7 +329,7 @@ SdkRequestType& Transaction<SdkRequestType>::signWithOperator(const Client& clie
 
   freezeWith(&client);
 
-  return signWith(client.getOperatorPublicKey(), client.getOperatorSigner());
+  return signInternal(client.getOperatorPublicKey(), client.getOperatorSigner());
 }
 
 //-----
@@ -363,6 +356,7 @@ SdkRequestType& Transaction<SdkRequestType>::addSignature(const std::shared_ptr<
   mImpl->mTransactions.clear();
   mImpl->mTransactions.resize(mImpl->mSignedTransactions.size());
   mImpl->mSignatories.emplace(publicKey, std::function<std::vector<std::byte>(const std::vector<std::byte>&)>());
+  mImpl->mPrivateKeys.emplace(publicKey, nullptr);
 
   // Add the signature to the SignedTransaction protobuf object. Since there's only one node account ID, there's only
   // one SignedTransaction protobuf object in the vector.
@@ -728,9 +722,10 @@ Transaction<SdkRequestType>::Transaction(
       const proto::SignedTransaction& signedTx = mImpl->mSignedTransactions.back();
       for (int i = 0; i < signedTx.sigmap().sigpair_size(); ++i)
       {
-        mImpl->mSignatories.emplace(
-          PublicKey::fromBytes(internal::Utilities::stringToByteVector(signedTx.sigmap().sigpair(i).pubkeyprefix())),
-          std::function<std::vector<std::byte>(const std::vector<std::byte>&)>());
+        const std::shared_ptr<PublicKey> publicKey =
+          PublicKey::fromBytes(internal::Utilities::stringToByteVector(signedTx.sigmap().sigpair(i).pubkeyprefix()));
+        mImpl->mSignatories.emplace(publicKey, std::function<std::vector<std::byte>(const std::vector<std::byte>&)>());
+        mImpl->mPrivateKeys.emplace(publicKey, nullptr);
       }
     }
   }
@@ -1089,6 +1084,30 @@ bool Transaction<SdkRequestType>::keyAlreadySigned(const std::shared_ptr<PublicK
     [&publicKeyBytes](
       const std::pair<std::shared_ptr<PublicKey>, std::function<std::vector<std::byte>(const std::vector<std::byte>&)>>&
         toSign) { return toSign.first->toBytesDer() == publicKeyBytes; });
+}
+
+//-----
+template<typename SdkRequestType>
+SdkRequestType& Transaction<SdkRequestType>::signInternal(
+  const std::shared_ptr<PublicKey>& publicKey,
+  const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer,
+  const std::shared_ptr<PrivateKey>& privateKey)
+{
+  if (!isFrozen())
+  {
+    throw IllegalStateException("Transaction must be frozen in order to sign");
+  }
+
+  if (!keyAlreadySigned(publicKey))
+  {
+    // Adding a signature will require all Transaction protobuf objects to be regenerated.
+    mImpl->mTransactions.clear();
+    mImpl->mTransactions.resize(mImpl->mSignedTransactions.size());
+    mImpl->mSignatories.emplace(publicKey, signer);
+    mImpl->mPrivateKeys.emplace(publicKey, privateKey);
+  }
+
+  return static_cast<SdkRequestType&>(*this);
 }
 
 /**

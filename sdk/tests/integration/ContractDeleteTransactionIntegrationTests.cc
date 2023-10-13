@@ -19,7 +19,6 @@
  */
 #include "AccountId.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
@@ -50,7 +49,7 @@ TEST_F(ContractDeleteTransactionIntegrationTest, DeleteContractWithAdminKey)
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setBytecode({})
-                      .setAdminKey(operatorKey->getPublicKey().get())
+                      .setAdminKey(operatorKey->getPublicKey())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())

@@ -21,7 +21,6 @@
 #define HEDERA_SDK_CPP_PUBLIC_KEY_H_
 
 #include "Key.h"
-#include "impl/ValuePtr.h"
 
 #include <memory>
 #include <string>
@@ -34,13 +33,13 @@ class Key;
 class SignaturePair;
 }
 
-namespace Hedera::internal::OpenSSLUtils
+namespace Hedera
+{
+namespace internal::OpenSSLUtils
 {
 class EVP_PKEY;
 }
 
-namespace Hedera
-{
 class AccountId;
 }
 
@@ -158,10 +157,10 @@ protected:
   /**
    * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
    */
-  PublicKey(const PublicKey&) = default;
-  PublicKey& operator=(const PublicKey&) = default;
-  PublicKey(PublicKey&&) noexcept = default;
-  PublicKey& operator=(PublicKey&&) noexcept = default;
+  PublicKey(const PublicKey&);
+  PublicKey& operator=(const PublicKey&);
+  PublicKey(PublicKey&&) noexcept;
+  PublicKey& operator=(PublicKey&&) noexcept;
 
   /**
    * Construct with a wrapped OpenSSL key object.
@@ -189,7 +188,7 @@ private:
    * Implementation object used to hide implementation details and internal headers.
    */
   struct PublicKeyImpl;
-  ValuePtr<PublicKeyImpl> mImpl;
+  std::unique_ptr<PublicKeyImpl> mImpl;
 };
 
 } // namespace Hedera

@@ -167,7 +167,7 @@ TEST_F(AccountUpdateTransactionTest, SetKey)
   AccountUpdateTransaction transaction;
 
   // When
-  EXPECT_NO_THROW(transaction.setKey(getTestPublicKey().get()));
+  EXPECT_NO_THROW(transaction.setKey(getTestPublicKey()));
 
   // Then
   EXPECT_EQ(transaction.getKey()->toBytes(), getTestPublicKey()->toBytes());
@@ -183,7 +183,7 @@ TEST_F(AccountUpdateTransactionTest, SetKeyFrozen)
   ASSERT_NO_THROW(transaction.freeze());
 
   // When / Then
-  EXPECT_THROW(transaction.setKey(getTestPublicKey().get()), IllegalStateException);
+  EXPECT_THROW(transaction.setKey(getTestPublicKey()), IllegalStateException);
 }
 
 //-----

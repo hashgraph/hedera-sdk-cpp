@@ -18,15 +18,10 @@
  *
  */
 #include "Client.h"
-#include "AccountCreateTransaction.h"
 #include "AccountId.h"
-#include "Client.h"
+#include "Defaults.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
-#include "PublicKey.h"
-#include "TransactionReceipt.h"
-#include "TransactionResponse.h"
-#include "exceptions/UninitializedException.h"
 
 #include <gtest/gtest.h>
 
@@ -36,7 +31,7 @@ class ClientTest : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
-  [[nodiscard]] inline const std::unique_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
+  [[nodiscard]] inline const std::shared_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
   [[nodiscard]] inline const std::chrono::duration<double>& getTestNetworkUpdatePeriod() const
   {
     return mTestNetworkUpdatePeriod;
@@ -49,7 +44,7 @@ protected:
 
 private:
   const AccountId mAccountId = AccountId(10ULL);
-  const std::unique_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const std::chrono::duration<double> mTestNetworkUpdatePeriod = std::chrono::seconds(2);
 
   const std::chrono::milliseconds mNegativeBackoffTime = std::chrono::milliseconds(-1);
@@ -72,7 +67,7 @@ TEST_F(ClientTest, ConstructClient)
 TEST_F(ClientTest, MoveClient)
 {
   Client client;
-  client.setOperator(getTestAccountId(), getTestPrivateKey().get());
+  client.setOperator(getTestAccountId(), getTestPrivateKey());
 
   Client client2 = std::move(client);
   EXPECT_EQ(*client2.getOperatorAccountId(), getTestAccountId());
@@ -83,12 +78,12 @@ TEST_F(ClientTest, MoveClient)
 TEST_F(ClientTest, SetOperator)
 {
   Client client;
-  client.setOperator(getTestAccountId(), getTestPrivateKey().get());
+  client.setOperator(getTestAccountId(), getTestPrivateKey());
 
   EXPECT_EQ(*client.getOperatorAccountId(), getTestAccountId());
   EXPECT_EQ(client.getOperatorPublicKey()->toStringDer(), getTestPrivateKey()->getPublicKey()->toStringDer());
 
-  client.setOperator(getTestAccountId(), ED25519PrivateKey::generatePrivateKey().get());
+  client.setOperator(getTestAccountId(), ED25519PrivateKey::generatePrivateKey());
 
   // No way to grab the string value of the rvalue, just make it's not empty
   EXPECT_FALSE(client.getOperatorPublicKey()->toStringDer().empty());

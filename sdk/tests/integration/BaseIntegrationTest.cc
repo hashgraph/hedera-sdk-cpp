@@ -75,7 +75,7 @@ void BaseIntegrationTest::SetUp()
   testInputFile.close();
 
   mClient = Client::forNetwork(networkAccountsMap);
-  mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey).get());
+  mClient.setOperator(operatorAccountId, ED25519PrivateKey::fromString(operatorAccountPrivateKey));
   mClient.setMirrorNetwork({ "127.0.0.1:5600" });
   mClient.setNetworkUpdatePeriod(std::chrono::hours(24));
 

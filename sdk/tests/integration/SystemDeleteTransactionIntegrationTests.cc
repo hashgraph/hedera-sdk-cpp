@@ -31,7 +31,6 @@
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
-#include "exceptions/ReceiptStatusException.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_body.pb.h>
@@ -53,7 +52,7 @@ TEST_F(SystemDeleteTransactionIntegrationTest, DeleteFile)
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey.get() })
+                             .setKeys({ operatorKey })
                              .setContents(getTestFileContent())
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -78,7 +77,7 @@ TEST_F(SystemDeleteTransactionIntegrationTest, DeleteContract)
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey.get() })
+                             .setKeys({ operatorKey })
                              .setContents(getTestFileContent())
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -87,7 +86,7 @@ TEST_F(SystemDeleteTransactionIntegrationTest, DeleteContract)
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setAdminKey(operatorKey.get())
+                      .setAdminKey(operatorKey)
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)

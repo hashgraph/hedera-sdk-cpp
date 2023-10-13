@@ -57,20 +57,19 @@ protected:
   [[nodiscard]] inline bool getTestWaitForExpiry() const { return mTestWaitForExpiry; }
 
 private:
-  const std::unique_ptr<ED25519PrivateKey> mPrivateKey1 = ED25519PrivateKey::fromString(
-    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10");
-  const std::unique_ptr<ED25519PrivateKey> mPrivateKey2 = ED25519PrivateKey::fromString(
-    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e11");
-  const std::unique_ptr<ED25519PrivateKey> mPrivateKey3 = ED25519PrivateKey::fromString(
-    "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e12");
-
   const ScheduleId mTestScheduleId = ScheduleId(1ULL, 2ULL, 3ULL);
   const std::chrono::system_clock::time_point mTestExecutionTime = std::chrono::system_clock::now();
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const WrappedTransaction mTestSchedulableTransaction = WrappedTransaction(AccountCreateTransaction());
   const std::string mTestMemo = "test memo";
   const std::shared_ptr<PublicKey> mTestAdminKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
-  const KeyList mTestSigners = KeyList::of({ mPrivateKey1.get(), mPrivateKey2.get(), mPrivateKey3.get() });
+  const KeyList mTestSigners = KeyList::of(
+    { ED25519PrivateKey::fromString(
+        "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e10"),
+      ED25519PrivateKey::fromString(
+        "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e11"),
+      ED25519PrivateKey::fromString(
+        "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e12") });
   const AccountId mTestCreatorAccountId = AccountId(4ULL, 5ULL, 6ULL);
   const AccountId mTestPayerAccountId = AccountId(7ULL, 8ULL, 9ULL);
   const TransactionId mTestScheduledTransactionId = TransactionId::generate(AccountId(10ULL, 11ULL, 12ULL));

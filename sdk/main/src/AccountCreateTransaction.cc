@@ -56,11 +56,11 @@ AccountCreateTransaction::AccountCreateTransaction(
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setKey(const Key* key)
+AccountCreateTransaction& AccountCreateTransaction::setKey(const std::shared_ptr<Key>& key)
 {
   requireNotFrozen();
 
-  mKey = ValuePtr<Key, KeyCloner>(key->clone().release());
+  mKey = key;
   return *this;
 }
 
@@ -196,7 +196,7 @@ void AccountCreateTransaction::initFromSourceTransactionBody()
 
   if (body.has_key())
   {
-    mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.key()).release());
+    mKey = Key::fromProtobuf(body.key());
   }
 
   mInitialBalance = Hbar(static_cast<int64_t>(body.initialbalance()), HbarUnit::TINYBAR());

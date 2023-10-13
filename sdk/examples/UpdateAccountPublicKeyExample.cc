@@ -44,17 +44,15 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]).get());
+  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
 
   // Generate an ECDSAsecp256k1 public key to use for the new account
   const std::shared_ptr<PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> publicKey = privateKey->getPublicKey();
 
   // Create a new account with an initial balance of 1000 tinybars. The only required field here is the key.
-  TransactionResponse txResp = AccountCreateTransaction()
-                                 .setKey(publicKey.get())
-                                 .setInitialBalance(Hbar(1000ULL, HbarUnit::TINYBAR()))
-                                 .execute(client);
+  TransactionResponse txResp =
+    AccountCreateTransaction().setKey(publicKey).setInitialBalance(Hbar(1000ULL, HbarUnit::TINYBAR())).execute(client);
 
   // Get the receipt when it becomes available
   TransactionReceipt txReceipt = txResp.getReceipt(client);
@@ -64,17 +62,17 @@ int main(int argc, char** argv)
             << publicKey->toStringDer() << std::endl;
 
   // Generate a new ED25519PrivateKey public key with which to update the account.
-  const std::unique_ptr<PrivateKey> newPrivateKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> newPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PublicKey> newPublicKey = newPrivateKey->getPublicKey();
 
   // Update the account
   std::cout << "Updating account to use new public key: " << newPublicKey->toStringDer() << std::endl;
   txResp = AccountUpdateTransaction()
              .setAccountId(newAccountId)
-             .setKey(newPublicKey.get())
+             .setKey(newPublicKey)
              .freezeWith(&client)
-             .sign(privateKey.get())
-             .sign(newPrivateKey.get())
+             .sign(privateKey)
+             .sign(newPrivateKey)
              .execute(client);
 
   txReceipt = txResp.getReceipt(client);

@@ -52,7 +52,7 @@ TEST_F(FileAppendTransactionIntegrationTest, ExecuteFileAppendTransaction)
   ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hedera is great!"));
   ASSERT_NO_THROW(appendedContents = internal::Utilities::stringToByteVector(" It is also awesome!"));
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(origContents)
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -227,7 +227,7 @@ TEST_F(FileAppendTransactionIntegrationTest, CanAppendLargeContents)
       "aliquam maximus, velit ipsum laoreet ligula, id ullamcorper lacus nibh eget nisl. Donec eget lacus venenatis "
       "enim consequat auctor vel in.\n"));
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(origContents)
                              .execute(getTestClient())
                              .getReceipt(getTestClient())

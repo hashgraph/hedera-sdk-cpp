@@ -19,7 +19,6 @@
  */
 #include "AccountCreateTransaction.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
 #include "ScheduleCreateTransaction.h"
@@ -53,7 +52,7 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, ExecuteScheduleCreateTransactio
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(newKey.get())
+                                .setKey(newKey)
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -79,13 +78,13 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, ExecuteScheduleCreateTransactio
                     ScheduleInfoQuery().setScheduleId(txReceipt.mScheduleId.value()).execute(getTestClient()));
 
   // Clean up
-  ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
-                                                         .setDeleteAccountId(accountId)
-                                                         .setTransferAccountId(AccountId(2ULL))
-                                                         .freezeWith(&getTestClient())
-                                                         .sign(newKey.get())
-                                                         .execute(getTestClient())
-                                                         .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
+                                .setDeleteAccountId(accountId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .freezeWith(&getTestClient())
+                                .sign(newKey)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
 }
 
 //-----
@@ -101,7 +100,7 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, CanCreateScheduleCreateTransact
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(newKey.get())
+                                .setKey(newKey)
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -124,13 +123,13 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, CanCreateScheduleCreateTransact
   // TODO: ScheduleInfoQuery
 
   // Clean up
-  ASSERT_NO_THROW(const TransactionReceipt txReceipt = AccountDeleteTransaction()
-                                                         .setDeleteAccountId(accountId)
-                                                         .setTransferAccountId(AccountId(2ULL))
-                                                         .freezeWith(&getTestClient())
-                                                         .sign(newKey.get())
-                                                         .execute(getTestClient())
-                                                         .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
+                                .setDeleteAccountId(accountId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .freezeWith(&getTestClient())
+                                .sign(newKey)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
 }
 
 //-----
@@ -146,7 +145,7 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, CannotScheduleTwoIdenticalTrans
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
-                                .setKey(newKey.get())
+                                .setKey(newKey)
                                 .setInitialBalance(Hbar(10LL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -179,7 +178,7 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, CannotScheduleTwoIdenticalTrans
                                                          .setDeleteAccountId(accountId)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .freezeWith(&getTestClient())
-                                                         .sign(newKey.get())
+                                                         .sign(newKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 }

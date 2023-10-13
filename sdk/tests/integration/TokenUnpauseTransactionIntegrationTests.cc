@@ -59,7 +59,7 @@ TEST_F(TokenUnpauseTransactionIntegrationTest, ExecuteTokenUnpauseTransaction)
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
                                 .setInitialBalance(Hbar(2LL))
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -81,7 +81,7 @@ TEST_F(TokenUnpauseTransactionIntegrationTest, ExecuteTokenUnpauseTransaction)
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 
@@ -111,7 +111,7 @@ TEST_F(TokenUnpauseTransactionIntegrationTest, ExecuteTokenUnpauseTransaction)
                                                          .setTransferAccountId(AccountId(2ULL))
                                                          .setDeleteAccountId(accountId)
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 }

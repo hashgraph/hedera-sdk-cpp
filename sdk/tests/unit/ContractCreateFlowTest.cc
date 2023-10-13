@@ -36,7 +36,7 @@ using namespace Hedera;
 class ContractCreateFlowTest : public ::testing::Test
 {
 protected:
-  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey().get()); }
+  void SetUp() override { mClient.setOperator(AccountId(), ED25519PrivateKey::generatePrivateKey()); }
 
   [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestBytecode() const { return mTestBytecode; }
@@ -102,7 +102,7 @@ TEST_F(ContractCreateFlowTest, GetSetAdminKey)
   ContractCreateFlow flow;
 
   // When
-  EXPECT_NO_THROW(flow.setAdminKey(getTestAdminKey().get()));
+  EXPECT_NO_THROW(flow.setAdminKey(getTestAdminKey()));
 
   // Then
   EXPECT_EQ(flow.getAdminKey()->toBytes(), getTestAdminKey()->toBytes());

@@ -19,7 +19,6 @@
  */
 #include "AccountId.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
@@ -53,12 +52,12 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
-  const std::unique_ptr<PrivateKey> newAdminKey = ED25519PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PrivateKey> newAdminKey = ED25519PrivateKey::generatePrivateKey();
   const auto newAutoRenewPeriod = std::chrono::hours(2016);
   const std::string newMemo = "[e2e::ContractUpdateTransaction]";
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
@@ -67,7 +66,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   EXPECT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
-                      .setAdminKey(operatorKey->getPublicKey().get())
+                      .setAdminKey(operatorKey->getPublicKey())
                       .setGas(100000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setAutoRenewAccountId(AccountId(2ULL))
@@ -80,12 +79,12 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = ContractUpdateTransaction()
                                 .setContractId(contractId)
-                                .setAdminKey(newAdminKey->getPublicKey().get())
+                                .setAdminKey(newAdminKey->getPublicKey())
                                 .setAutoRenewPeriod(newAutoRenewPeriod)
                                 .setContractMemo(newMemo)
                                 .setDeclineStakingReward(true)
                                 .freezeWith(&getTestClient())
-                                .sign(newAdminKey.get())
+                                .sign(newAdminKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
@@ -104,7 +103,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
                                 .setContractId(contractId)
                                 .setTransferAccountId(AccountId(2ULL))
                                 .freezeWith(&getTestClient())
-                                .sign(newAdminKey.get())
+                                .sign(newAdminKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
   ASSERT_NO_THROW(txReceipt =
@@ -128,7 +127,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, CannotModifyImmutableContract)
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey().get() })
+                             .setKeys({ operatorKey->getPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())

@@ -49,7 +49,7 @@ TEST_F(SystemUndeleteTransactionIntegrationTest, UndeleteFile)
 
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey.get() })
+                             .setKeys({ operatorKey })
                              .setContents(getTestFileContent())
                              .execute(getTestClient())
                              .getReceipt(getTestClient())

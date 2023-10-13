@@ -18,7 +18,6 @@
  *
  */
 #include "AccountCreateTransaction.h"
-#include "AccountDeleteTransaction.h"
 #include "AccountId.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
@@ -26,7 +25,6 @@
 #include "PrivateKey.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenCreateTransaction.h"
-#include "TokenDeleteTransaction.h"
 #include "TokenPauseTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
@@ -59,7 +57,7 @@ TEST_F(TokenPauseTransactionIntegrationTest, ExecuteTokenPauseTransaction)
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()
                                 .setInitialBalance(Hbar(1LL))
-                                .setKey(accountKey.get())
+                                .setKey(accountKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
                                 .mAccountId.value());
@@ -80,7 +78,7 @@ TEST_F(TokenPauseTransactionIntegrationTest, ExecuteTokenPauseTransaction)
                                                          .setAccountId(accountId)
                                                          .setTokenIds({ tokenId })
                                                          .freezeWith(&getTestClient())
-                                                         .sign(accountKey.get())
+                                                         .sign(accountKey)
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 
@@ -99,7 +97,7 @@ TEST_F(TokenPauseTransactionIntegrationTest, ExecuteTokenPauseTransaction)
                                                       .addTokenTransfer(tokenId, accountId, -amount)
                                                       .addTokenTransfer(tokenId, AccountId(2ULL), amount)
                                                       .freezeWith(&getTestClient())
-                                                      .sign(accountKey.get())
+                                                      .sign(accountKey)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
                ReceiptStatusException); // TOKEN_IS_PAUSED

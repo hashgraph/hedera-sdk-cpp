@@ -53,11 +53,11 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAccountId(const AccountId
 }
 
 //-----
-AccountUpdateTransaction& AccountUpdateTransaction::setKey(const Key* key)
+AccountUpdateTransaction& AccountUpdateTransaction::setKey(const std::shared_ptr<Key>& key)
 {
   requireNotFrozen();
 
-  mKey = ValuePtr<Key, KeyCloner>(key->clone().release());
+  mKey = key;
   return *this;
 }
 
@@ -192,7 +192,7 @@ void AccountUpdateTransaction::initFromSourceTransactionBody()
 
   if (body.has_key())
   {
-    mKey = ValuePtr<Key, KeyCloner>(Key::fromProtobuf(body.key()).release());
+    mKey = Key::fromProtobuf(body.key());
   }
 
   if (body.has_receiversigrequiredwrapper())
