@@ -418,6 +418,14 @@ void Client::close()
 }
 
 //-----
+Client& Client::setNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
+{
+  mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
+  mImpl->mMirrorNetwork = nullptr;
+  return *this;
+}
+
+//-----
 Client& Client::setRequestTimeout(const std::chrono::duration<double>& timeout)
 {
   mImpl->mRequestTimeout = timeout;
