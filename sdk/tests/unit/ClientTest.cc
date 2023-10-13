@@ -19,6 +19,7 @@
  */
 #include "Client.h"
 #include "AccountId.h"
+#include "Defaults.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
 
@@ -36,10 +37,20 @@ protected:
     return mTestNetworkUpdatePeriod;
   }
 
+  [[nodiscard]] inline const std::chrono::milliseconds getNegativeBackoffTime() const { return mNegativeBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds getZeroBackoffTime() const { return mZeroBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds getBelowMinBackoffTime() const { return mBelowMinBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds getAboveMaxBackoffTime() const { return mAboveMaxBackoffTime; }
+
 private:
   const AccountId mAccountId = AccountId(10ULL);
   const std::shared_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const std::chrono::duration<double> mTestNetworkUpdatePeriod = std::chrono::seconds(2);
+
+  const std::chrono::milliseconds mNegativeBackoffTime = std::chrono::milliseconds(-1);
+  const std::chrono::milliseconds mZeroBackoffTime = std::chrono::milliseconds(0);
+  const std::chrono::milliseconds mBelowMinBackoffTime = DEFAULT_MIN_BACKOFF - std::chrono::milliseconds(1);
+  const std::chrono::milliseconds mAboveMaxBackoffTime = DEFAULT_MAX_BACKOFF + std::chrono::milliseconds(1);
 };
 
 //-----
@@ -101,4 +112,55 @@ TEST_F(ClientTest, SetNetworkUpdatePeriod)
 
   // Then
   EXPECT_EQ(client.getNetworkUpdatePeriod(), getTestNetworkUpdatePeriod());
+}
+
+//-----
+TEST_F(ClientTest, SetInvalidMinBackoff)
+{
+  // Given
+  std::unordered_map<std::string, AccountId> networkMap;
+  Client client = Client::forNetwork(networkMap);
+
+  // When / Then
+  EXPECT_THROW(client.setMinBackoff(getNegativeBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMinBackoff(getAboveMaxBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
+}
+
+//-----
+TEST_F(ClientTest, SetValidMinBackoff)
+{
+  // Given
+  std::unordered_map<std::string, AccountId> networkMap;
+  Client client = Client::forNetwork(networkMap);
+
+  // When / Then
+  EXPECT_NO_THROW(client.setMinBackoff(getZeroBackoffTime()));
+  EXPECT_NO_THROW(client.setMinBackoff(DEFAULT_MIN_BACKOFF));
+  EXPECT_NO_THROW(client.setMinBackoff(DEFAULT_MAX_BACKOFF));
+}
+
+//-----
+TEST_F(ClientTest, SetInvalidMaxBackoff)
+{
+  // Given
+  std::unordered_map<std::string, AccountId> networkMap;
+  Client client = Client::forNetwork(networkMap);
+
+  // When / Then
+  EXPECT_THROW(client.setMaxBackoff(getNegativeBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMaxBackoff(getZeroBackoffTime()), std::invalid_argument);     // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMaxBackoff(getBelowMinBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
+  EXPECT_THROW(client.setMaxBackoff(getAboveMaxBackoffTime()), std::invalid_argument); // INVALID_ARGUMENT
+}
+
+//-----
+TEST_F(ClientTest, SetValidMaxBackoff)
+{
+  // Given
+  std::unordered_map<std::string, AccountId> networkMap;
+  Client client = Client::forNetwork(networkMap);
+
+  // When / Then
+  EXPECT_NO_THROW(client.setMaxBackoff(DEFAULT_MIN_BACKOFF));
+  EXPECT_NO_THROW(client.setMaxBackoff(DEFAULT_MAX_BACKOFF));
 }

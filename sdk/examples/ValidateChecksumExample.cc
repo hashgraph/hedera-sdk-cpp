@@ -41,9 +41,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  const AccountId operatorAccountId = AccountId::fromString(argv[1]);
-  const std::shared_ptr<ED25519PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(argv[2]);
-  client.setOperator(operatorAccountId, operatorPrivateKey);
+  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
 
   /*
    * Entity IDs, such as TokenId and AccountId, can be constructed from strings. For example, the

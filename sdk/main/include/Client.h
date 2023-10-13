@@ -122,6 +122,14 @@ public:
   void close();
 
   /**
+   * Replace all nodes in this Client with a new set of nodes from the Hedera network.
+   *
+   * @param networkMap The map with string representation of node addresses with their corresponding accountId.
+   * @return A reference to this Client object with the newly-set operator account ID from the map.
+   */
+  Client& setNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
+
+  /**
    * Set the length of time a request sent by this Client can be processed before it times out.
    *
    * @param timeout The desired timeout for requests submitted by this Client.
