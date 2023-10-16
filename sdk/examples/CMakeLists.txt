@@ -8,6 +8,7 @@ set(CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-chu
 set(CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-with-submit-key-example)
 set(CONSTRUCT_CLIENT_EXAMPLE_NAME ${PROJECT_NAME}-construct-client-example)
 set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
+set(CREATE_FILE_EXAMPLE_NAME ${PROJECT_NAME}-create-file-example)
 set(CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME ${PROJECT_NAME}-create-account-threshold-key-example)
 set(CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-simple-contract-example)
 set(CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-stateful-contract-example)
@@ -44,6 +45,7 @@ add_executable(${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME} ConsensusPubSubChunkedE
 add_executable(${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME} ConsensusPubSubWithSubmitKeyExample.cc)
 add_executable(${CONSTRUCT_CLIENT_EXAMPLE_NAME} ConstructClientExample.cc)
 add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
+add_executable(${CREATE_FILE_EXAMPLE_NAME} CreateFileExample.cc)
 add_executable(${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME} CreateAccountThresholdKeyExample.cc)
 add_executable(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} CreateSimpleContractExample.cc)
 add_executable(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} CreateStatefulContractExample.cc)
@@ -100,6 +102,7 @@ target_link_libraries(${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME} PUBLIC ${PROJECT
 target_link_libraries(${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSTRUCT_CLIENT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CREATE_FILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -139,6 +142,7 @@ install(TARGETS
         ${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME}
         ${CONSTRUCT_CLIENT_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
+        ${CREATE_FILE_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME}
         ${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME}
         ${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME}
