@@ -19,6 +19,7 @@ set(GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME ${PROJECT_NAME}-generate-pri
 set(GET_ACCOUNT_BALANCE_EXAMPLE_NAME ${PROJECT_NAME}-get-account-balance-example)
 set(GET_ADDRESS_BOOK_EXAMPLE_NAME ${PROJECT_NAME}-get-address-book-example)
 set(GET_FILE_CONTENTS_EXAMPLE_NAME ${PROJECT_NAME}-get-file-contents-example)
+set(MULTI_SIG_OFFLINE_EXAMPLE_NAME ${PROJECT_NAME}-multi-sig-offline-example)
 set(NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME ${PROJECT_NAME}-nft-add-remove-allowances-example)
 set(SCHEDULE_EXAMPLE_NAME ${PROJECT_NAME}-schedule-example)
 set(SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-schedule-identical-transaction-example)
@@ -52,6 +53,7 @@ add_executable(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} GeneratePrivat
 add_executable(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} GetAccountBalanceExample.cc)
 add_executable(${GET_ADDRESS_BOOK_EXAMPLE_NAME} GetAddressBookExample.cc)
 add_executable(${GET_FILE_CONTENTS_EXAMPLE_NAME} GetFileContentsExample.cc)
+add_executable(${MULTI_SIG_OFFLINE_EXAMPLE_NAME} MultiSigOfflineExample.cc)
 add_executable(${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME} NftAddRemoveAllowancesExample.cc)
 add_executable(${SCHEDULE_EXAMPLE_NAME} ScheduleExample.cc)
 add_executable(${SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME} ScheduleIdenticalTransactionExample.cc)
@@ -103,6 +105,7 @@ target_link_libraries(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} PUBLIC 
 target_link_libraries(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ADDRESS_BOOK_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_FILE_CONTENTS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${MULTI_SIG_OFFLINE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -139,6 +142,7 @@ install(TARGETS
         ${GET_ACCOUNT_BALANCE_EXAMPLE_NAME}
         ${GET_ADDRESS_BOOK_EXAMPLE_NAME}
         ${GET_FILE_CONTENTS_EXAMPLE_NAME}
+        ${MULTI_SIG_OFFLINE_EXAMPLE_NAME}
         ${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME}
         ${SCHEDULE_EXAMPLE_NAME}
         ${SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME}
