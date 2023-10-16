@@ -22,6 +22,7 @@ set(GENERATE_KEY_EXAMPLE_NAME ${PROJECT_NAME}-generate-key-example)
 set(GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME ${PROJECT_NAME}-generate-private-key-from-mnemonic-example)
 set(GET_ACCOUNT_BALANCE_EXAMPLE_NAME ${PROJECT_NAME}-get-account-balance-example)
 set(GET_ADDRESS_BOOK_EXAMPLE_NAME ${PROJECT_NAME}-get-address-book-example)
+set(GET_EXCHANGE_RATES_EXAMPLE_NAME ${PROJECT_NAME}-get-exchange-rates-example)
 set(GET_FILE_CONTENTS_EXAMPLE_NAME ${PROJECT_NAME}-get-file-contents-example)
 set(NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME ${PROJECT_NAME}-nft-add-remove-allowances-example)
 set(SCHEDULE_EXAMPLE_NAME ${PROJECT_NAME}-schedule-example)
@@ -59,6 +60,7 @@ add_executable(${GENERATE_KEY_EXAMPLE_NAME} GenerateKeyExample.cc)
 add_executable(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} GeneratePrivateKeyFromMnemonic.cc)
 add_executable(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} GetAccountBalanceExample.cc)
 add_executable(${GET_ADDRESS_BOOK_EXAMPLE_NAME} GetAddressBookExample.cc)
+add_executable(${GET_EXCHANGE_RATES_EXAMPLE_NAME} GetExchangeRatesExample.cc)
 add_executable(${GET_FILE_CONTENTS_EXAMPLE_NAME} GetFileContentsExample.cc)
 add_executable(${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME} NftAddRemoveAllowancesExample.cc)
 add_executable(${SCHEDULE_EXAMPLE_NAME} ScheduleExample.cc)
@@ -116,6 +118,7 @@ target_link_libraries(${GENERATE_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ADDRESS_BOOK_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${GET_EXCHANGE_RATES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_FILE_CONTENTS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -156,6 +159,7 @@ install(TARGETS
         ${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME}
         ${GET_ACCOUNT_BALANCE_EXAMPLE_NAME}
         ${GET_ADDRESS_BOOK_EXAMPLE_NAME}
+        ${GET_EXCHANGE_RATES_EXAMPLE_NAME}
         ${GET_FILE_CONTENTS_EXAMPLE_NAME}
         ${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME}
         ${SCHEDULE_EXAMPLE_NAME}

@@ -65,7 +65,6 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteAccountCreateTransactionAndChec
   EXPECT_FALSE(txReceipt.mFileId.has_value());
   EXPECT_FALSE(txReceipt.mContractId.has_value());
   ASSERT_TRUE(txReceipt.mExchangeRates.has_value());
-  EXPECT_TRUE(txReceipt.mExchangeRates.value().getCurrentExchangeRate().has_value());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -94,7 +93,6 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteFileCreateTransactionAndCheckTr
   EXPECT_FALSE(txReceipt.mAccountId.has_value());
   EXPECT_FALSE(txReceipt.mContractId.has_value());
   ASSERT_TRUE(txReceipt.mExchangeRates.has_value());
-  EXPECT_TRUE(txReceipt.mExchangeRates.value().getCurrentExchangeRate().has_value());
 
   // Clean up
   ASSERT_NO_THROW(txReceipt = FileDeleteTransaction()
@@ -134,7 +132,6 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteContractCreateTransactionAndChe
   EXPECT_FALSE(txReceipt.mAccountId.has_value());
   EXPECT_FALSE(txReceipt.mFileId.has_value());
   ASSERT_TRUE(txReceipt.mExchangeRates.has_value());
-  EXPECT_TRUE(txReceipt.mExchangeRates.value().getCurrentExchangeRate().has_value());
 
   // Clean up
   ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()
@@ -176,7 +173,6 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckT
   EXPECT_FALSE(txReceipt.mContractId.has_value());
   EXPECT_FALSE(txReceipt.mFileId.has_value());
   ASSERT_TRUE(txReceipt.mExchangeRates.has_value());
-  EXPECT_TRUE(txReceipt.mExchangeRates.value().getCurrentExchangeRate().has_value());
   EXPECT_TRUE(txReceipt.mTokenId.has_value());
 
   // Clean up

@@ -22,7 +22,7 @@
 
 #include "AccountId.h"
 #include "ContractId.h"
-#include "ExchangeRateSet.h"
+#include "ExchangeRates.h"
 #include "FileId.h"
 #include "ScheduleId.h"
 #include "Status.h"
@@ -106,7 +106,7 @@ public:
   /**
    * The exchange rates in effect when the transaction reached consensus.
    */
-  std::optional<ExchangeRateSet> mExchangeRates;
+  std::optional<ExchangeRates> mExchangeRates;
 
   /**
    * In the receipt of a ConsensusCreateTopic, the ID of the newly created topic.
