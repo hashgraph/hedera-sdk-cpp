@@ -366,7 +366,7 @@ Client Client::fromConfig(const nlohmann::json& json)
 //-----
 Client Client::fromConfigFile(std::string_view path)
 {
-  std::ifstream infile(path);
+  std::ifstream infile(path.data());
   if (!infile.is_open())
   {
     throw std::invalid_argument(std::string("File cannot be found at ") + path.data());
