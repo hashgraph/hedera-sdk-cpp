@@ -86,6 +86,13 @@ FileCreateTransaction& FileCreateTransaction::setContents(const std::vector<std:
 }
 
 //-----
+FileCreateTransaction& FileCreateTransaction::setContents(std::string_view contents)
+{
+  requireNotFrozen();
+  return setContents(internal::Utilities::stringToByteVector(contents));
+}
+
+//-----
 FileCreateTransaction& FileCreateTransaction::setFileMemo(std::string_view memo)
 {
   requireNotFrozen();
