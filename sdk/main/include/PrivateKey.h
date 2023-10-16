@@ -56,6 +56,26 @@ public:
   ~PrivateKey() override;
 
   /**
+   * Construct a PrivateKey object from a hex-encoded, DER-encoded key string.
+   *
+   * @param key The DER-encoded hex string from which to construct a PrivateKey.
+   * @return A pointer to an PrivateKey representing the input DER-encoded hex string.
+   * @throws BadKeyException If the private key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
+   *                         from the input hex string.
+   */
+  [[nodiscard]] static std::unique_ptr<PrivateKey> fromStringDer(std::string_view key);
+
+  /**
+   * Construct a PrivateKey object from a DER-encoded byte vector.
+   *
+   * @param bytes The vector of DER-encoded bytes from which to construct a PrivateKey.
+   * @return A pointer to a PrivateKey representing the input DER-encoded bytes.
+   * @throws BadKeyException If the private key type (ED25519 or ECDSAsecp256k1) is unable to be determined or realized
+   *                         from the input byte array.
+   */
+  [[nodiscard]] static std::unique_ptr<PrivateKey> fromBytesDer(const std::vector<std::byte>& bytes);
+
+  /**
    * Derive a child PrivateKey from this PrivateKey.
    *
    * @param childIndex The index of the child to derive.

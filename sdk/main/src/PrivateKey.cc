@@ -18,9 +18,12 @@
  *
  */
 #include "PrivateKey.h"
+#include "ECDSAsecp256k1PrivateKey.h"
+#include "ED25519PrivateKey.h"
 #include "PublicKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
+#include "impl/HexConverter.h"
 #include "impl/PrivateKeyImpl.h"
 #include "impl/Utilities.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
@@ -31,6 +34,40 @@ namespace Hedera
 {
 //-----
 PrivateKey::~PrivateKey() = default;
+
+//-----
+std::unique_ptr<PrivateKey> PrivateKey::fromStringDer(std::string_view key)
+{
+  if (const std::string_view prefix = "0x"; key.substr(0, prefix.size()) == prefix)
+  {
+    key.remove_prefix(prefix.size());
+  }
+
+  try
+  {
+    return PrivateKey::fromBytesDer(internal::HexConverter::hexToBytes(key));
+  }
+  catch (const OpenSSLException&)
+  {
+    throw BadKeyException(std::string("Unable to decode input key string ") + key.data());
+  }
+}
+
+//-----
+std::unique_ptr<PrivateKey> PrivateKey::fromBytesDer(const std::vector<std::byte>& bytes)
+{
+  if (internal::Utilities::isPrefixOf(bytes, ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES))
+  {
+    return ED25519PrivateKey::fromBytes(bytes);
+  }
+
+  else if (internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES))
+  {
+    return ECDSAsecp256k1PrivateKey::fromBytes(bytes);
+  }
+
+  throw BadKeyException("Key type cannot be determined from input DER-encoded byte array");
+}
 
 //-----
 std::vector<std::byte> PrivateKey::getChainCode() const
@@ -97,7 +134,7 @@ PrivateKey::PrivateKey(internal::OpenSSLUtils::EVP_PKEY&& key, std::vector<std::
 
   std::vector<std::byte> keyBytes(i2d_PUBKEY(mImpl->mKey.get(), nullptr));
 
-  if (unsigned char* rawPublicKeyBytes = internal::Utilities::toTypePtr<unsigned char>(keyBytes.data());
+  if (auto* rawPublicKeyBytes = internal::Utilities::toTypePtr<unsigned char>(keyBytes.data());
       i2d_PUBKEY(mImpl->mKey.get(), &rawPublicKeyBytes) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("i2d_PUBKEY"));

@@ -104,6 +104,7 @@ public:
    * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
   FileCreateTransaction& setContents(const std::vector<std::byte>& contents);
+  FileCreateTransaction& setContents(std::string_view contents);
 
   /**
    * Set the memo for the new file. The memo cannot exceed 100 bytes.
