@@ -5,6 +5,8 @@ set(ACCOUNT_CREATION_WAYS_EXAMPLE_NAME ${PROJECT_NAME}-account-creation-ways-exa
 set(AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-auto-create-account-transfer-transaction-example)
 set(CONSENSUS_PUB_SUB_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-example)
 set(CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-chunked-example)
+set(CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-with-submit-key-example)
+set(CONSTRUCT_CLIENT_EXAMPLE_NAME ${PROJECT_NAME}-construct-client-example)
 set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
 set(CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME ${PROJECT_NAME}-create-account-threshold-key-example)
 set(CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-simple-contract-example)
@@ -38,6 +40,8 @@ add_executable(${ACCOUNT_CREATION_WAYS_EXAMPLE_NAME} AccountCreationWaysExample.
 add_executable(${AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME} AutoCreateAccountTransferTransactionExample.cc)
 add_executable(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} ConsensusPubSubExample.cc)
 add_executable(${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME} ConsensusPubSubChunkedExample.cc)
+add_executable(${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME} ConsensusPubSubWithSubmitKeyExample.cc)
+add_executable(${CONSTRUCT_CLIENT_EXAMPLE_NAME} ConstructClientExample.cc)
 add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
 add_executable(${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME} CreateAccountThresholdKeyExample.cc)
 add_executable(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} CreateSimpleContractExample.cc)
@@ -73,6 +77,8 @@ file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
 
 file(COPY ${PROJECT_SOURCE_DIR}/config/hello_world.json
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+file(COPY ${PROJECT_SOURCE_DIR}/config/local_node.json
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 file(COPY ${PROJECT_SOURCE_DIR}/config/stateful.json
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
@@ -89,6 +95,8 @@ target_link_libraries(${ACCOUNT_CREATION_WAYS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAM
 target_link_libraries(${AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CONSTRUCT_CLIENT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -125,6 +133,8 @@ install(TARGETS
         ${AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME}
         ${CONSENSUS_PUB_SUB_EXAMPLE_NAME}
         ${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME}
+        ${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME}
+        ${CONSTRUCT_CLIENT_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME}
         ${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME}
