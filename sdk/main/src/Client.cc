@@ -32,7 +32,7 @@
 #include "impl/TLSBehavior.h"
 
 #include <condition_variable>
-#include <mutex>
+#include <fstream>
 #include <stdexcept>
 #include <thread>
 
@@ -146,6 +146,25 @@ Client& Client::operator=(Client&& other) noexcept
 }
 
 //-----
+Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
+{
+  Client client;
+  client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
+  return client;
+}
+
+//-----
+Client Client::forName(std::string_view name)
+{
+  // clang-format off
+  if      (name == "mainnet")    return Client::forMainnet();
+  else if (name == "testnet")    return Client::forTestnet();
+  else if (name == "previewnet") return Client::forPreviewnet();
+  else throw std::invalid_argument("Unknown Client name");
+  // clang-format on
+}
+
+//-----
 Client Client::forMainnet()
 {
   Client client;
@@ -173,12 +192,198 @@ Client Client::forPreviewnet()
 }
 
 //-----
-Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
+Client Client::fromConfig(std::string_view json)
+{
+  // Make sure the input string is valid JSON.
+  nlohmann::json jsonObj;
+  try
+  {
+    jsonObj = nlohmann::json::parse(json);
+  }
+  catch (const std::exception& ex)
+  {
+    throw std::invalid_argument(std::string("Cannot parse JSON: ") + ex.what());
+  }
+
+  return fromConfig(jsonObj);
+}
+
+//-----
+Client Client::fromConfig(const nlohmann::json& json)
 {
   Client client;
-  client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
-  client.mImpl->mMirrorNetwork = nullptr;
+
+  // A "network" tag should always be specified.
+  if (!json.contains("network"))
+  {
+    throw std::invalid_argument("Network tag is not set in JSON");
+  }
+
+  // If the network tags specifies a dictionary of nodes, parse each one.
+  if (const nlohmann::json& jsonNetwork = json["network"]; jsonNetwork.is_object())
+  {
+    std::unordered_map<std::string, AccountId> networkMap;
+    for (const auto& [accountId, url] : jsonNetwork.items())
+    {
+      networkMap.try_emplace(url, AccountId::fromString(accountId));
+    }
+
+    client = Client::forNetwork(networkMap);
+
+    // If a network name is provided, set the ledger ID based on it.
+    if (json.contains("networkName"))
+    {
+      try
+      {
+        client.setLedgerId(LedgerId::fromString(jsonNetwork["networkName"].get<std::string_view>()));
+      }
+      catch (const std::exception&)
+      {
+        throw std::invalid_argument(
+          R"(Invalid argument for network name. Should be one of "mainnet", "testnet", or "previewnet")");
+      }
+    }
+  }
+
+  // If the network tag specifies a name, get the Client for that name.
+  else if (jsonNetwork.is_string())
+  {
+    try
+    {
+      client = Client::forName(jsonNetwork.get<std::string_view>());
+    }
+    catch (const std::exception&)
+    {
+      throw std::invalid_argument("Invalid argument for network tag ");
+    }
+  }
+
+  // If the network tag type is unclear, throw.
+  else
+  {
+    throw std::invalid_argument("Invalid argument for network tag");
+  }
+
+  // Check if there's an operator configured.
+  if (json.contains("operator"))
+  {
+    const nlohmann::json& jsonOperator = json["operator"];
+
+    if (!jsonOperator.is_object())
+    {
+      throw std::invalid_argument("Invalid argument for operator");
+    }
+
+    // If an operator is configured, an AccountId and PrivateKey must also be configured.
+    if (!jsonOperator.contains("accountId") || !jsonOperator.contains("privateKey"))
+    {
+      throw std::invalid_argument("An operator must have an accountId and privateKey");
+    }
+
+    // Verify the account ID is valid.
+    AccountId operatorAccountId;
+    try
+    {
+      operatorAccountId = AccountId::fromString(jsonOperator["accountId"].get<std::string_view>());
+    }
+    catch (const std::exception&)
+    {
+      throw std::invalid_argument("Invalid argument for operator accountId");
+    }
+
+    // Verify the private key is valid.
+    std::shared_ptr<PrivateKey> operatorPrivateKey;
+    try
+    {
+      operatorPrivateKey = PrivateKey::fromStringDer(jsonOperator["privateKey"].get<std::string_view>());
+    }
+    catch (const std::exception&)
+    {
+      throw std::invalid_argument("Invalid argument for operator privateKey");
+    }
+
+    // Set the operator.
+    client.setOperator(operatorAccountId, operatorPrivateKey);
+  }
+
+  // Check if there's a mirror network configured.
+  if (json.contains("mirrorNetwork"))
+  {
+    // If the mirror network tags specifies a list of nodes, parse each one.
+    if (const nlohmann::json& jsonMirrorNetwork = json["mirrorNetwork"]; jsonMirrorNetwork.is_array())
+    {
+      std::vector<std::string> mirrorNetwork;
+      for (const auto& url : jsonMirrorNetwork)
+      {
+        mirrorNetwork.push_back(url);
+      }
+
+      client.setMirrorNetwork(mirrorNetwork);
+    }
+
+    // If the mirror network tag specifies a name, get the mirror network for that name.
+    else if (jsonMirrorNetwork.is_string())
+    {
+      try
+      {
+        const std::string_view mirrorNetworkName = jsonMirrorNetwork.get<std::string_view>();
+        if (mirrorNetworkName == "mainnet")
+        {
+          client.mImpl->mMirrorNetwork =
+            std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forMainnet());
+        }
+        else if (mirrorNetworkName == "testnet")
+        {
+          client.mImpl->mMirrorNetwork =
+            std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forTestnet());
+        }
+        else if (mirrorNetworkName == "previewnet")
+        {
+          client.mImpl->mMirrorNetwork =
+            std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forPreviewnet());
+        }
+        else
+        {
+          throw std::invalid_argument("Invalid argument for mirrorNetwork tag");
+        }
+      }
+      catch (const std::exception&)
+      {
+        throw std::invalid_argument("Invalid argument for mirrorNetwork tag");
+      }
+    }
+
+    // If the mirrorNetwork tag type is unclear, throw.
+    else
+    {
+      throw std::invalid_argument("Invalid argument for mirrorNetwork tag");
+    }
+  }
+
   return client;
+}
+
+//-----
+Client Client::fromConfigFile(std::string_view path)
+{
+  std::ifstream infile(path.data());
+  if (!infile.is_open())
+  {
+    throw std::invalid_argument(std::string("File cannot be found at ") + path.data());
+  }
+
+  // Make sure the input file is valid JSON.
+  nlohmann::json jsonObj;
+  try
+  {
+    jsonObj = nlohmann::json::parse(infile);
+  }
+  catch (const std::exception& ex)
+  {
+    throw std::invalid_argument(std::string("Cannot parse JSON: ") + ex.what());
+  }
+
+  return fromConfig(jsonObj);
 }
 
 //-----
