@@ -22,6 +22,7 @@ set(FILE_APPEND_CHUNKED_EXAMPLE_NAME ${PROJECT_NAME}-file-append-chunked-example
 set(GENERATE_KEY_EXAMPLE_NAME ${PROJECT_NAME}-generate-key-example)
 set(GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME ${PROJECT_NAME}-generate-private-key-from-mnemonic-example)
 set(GET_ACCOUNT_BALANCE_EXAMPLE_NAME ${PROJECT_NAME}-get-account-balance-example)
+set(GET_ACCOUNT_INFO_EXAMPLE_NAME ${PROJECT_NAME}-get-account-info-example)
 set(GET_ADDRESS_BOOK_EXAMPLE_NAME ${PROJECT_NAME}-get-address-book-example)
 set(GET_EXCHANGE_RATES_EXAMPLE_NAME ${PROJECT_NAME}-get-exchange-rates-example)
 set(GET_FILE_CONTENTS_EXAMPLE_NAME ${PROJECT_NAME}-get-file-contents-example)
@@ -62,6 +63,7 @@ add_executable(${FILE_APPEND_CHUNKED_EXAMPLE_NAME} FileAppendChunkedExample.cc)
 add_executable(${GENERATE_KEY_EXAMPLE_NAME} GenerateKeyExample.cc)
 add_executable(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} GeneratePrivateKeyFromMnemonic.cc)
 add_executable(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} GetAccountBalanceExample.cc)
+add_executable(${GET_ACCOUNT_INFO_EXAMPLE_NAME} GetAccountInfoExample.cc)
 add_executable(${GET_ADDRESS_BOOK_EXAMPLE_NAME} GetAddressBookExample.cc)
 add_executable(${GET_EXCHANGE_RATES_EXAMPLE_NAME} GetExchangeRatesExample.cc)
 add_executable(${GET_FILE_CONTENTS_EXAMPLE_NAME} GetFileContentsExample.cc)
@@ -122,6 +124,7 @@ target_link_libraries(${FILE_APPEND_CHUNKED_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME}
 target_link_libraries(${GENERATE_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${GET_ACCOUNT_INFO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ADDRESS_BOOK_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_EXCHANGE_RATES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_FILE_CONTENTS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -165,6 +168,7 @@ install(TARGETS
         ${GENERATE_KEY_EXAMPLE_NAME}
         ${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME}
         ${GET_ACCOUNT_BALANCE_EXAMPLE_NAME}
+        ${GET_ACCOUNT_INFO_EXAMPLE_NAME}
         ${GET_ADDRESS_BOOK_EXAMPLE_NAME}
         ${GET_EXCHANGE_RATES_EXAMPLE_NAME}
         ${GET_FILE_CONTENTS_EXAMPLE_NAME}
