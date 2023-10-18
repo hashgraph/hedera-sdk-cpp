@@ -22,7 +22,8 @@
 
 #include "ExchangeRate.h"
 
-#include <optional>
+#include <cstddef>
+#include <vector>
 
 namespace proto
 {
@@ -35,41 +36,44 @@ namespace Hedera
  * Two sets of exchange rates, one being the current exchange rate and its expiration, and the other being the exchange
  * rate to be used after the current expires.
  */
-class ExchangeRateSet
+class ExchangeRates
 {
 public:
-  /**
-   * Construct an ExchangeRateSet object from a ExchangeRateSet protobuf object.
-   *
-   * @param proto The ExchangeRateSet protobuf object from which to construct an ExchangeRateSet object.
-   * @return The constructed ExchangeRateSet object.
-   */
-  [[nodiscard]] static ExchangeRateSet fromProtobuf(const proto::ExchangeRateSet& proto);
+  ExchangeRates() = default;
 
   /**
-   * Get the current exchange rate.
+   * Construct with the current ExchangeRate and the next ExchangeRate.
    *
-   * @return The current exchange rate.
+   * @param current The current ExchangeRate.
+   * @param next    The next ExchangeRate.
    */
-  [[nodiscard]] inline std::optional<ExchangeRate> getCurrentExchangeRate() const { return mCurrentRate; }
+  ExchangeRates(const ExchangeRate& current, const ExchangeRate& next);
 
   /**
-   * Get the next exchange rate.
+   * Construct an ExchangeRates object from a ExchangeRateSet protobuf object.
    *
-   * @return The next exchange rate.
+   * @param proto The ExchangeRateSet protobuf object from which to construct an ExchangeRates object.
+   * @return The constructed ExchangeRates object.
    */
-  [[nodiscard]] inline std::optional<ExchangeRate> getNextExchangeRate() const { return mNextRate; }
+  [[nodiscard]] static ExchangeRates fromProtobuf(const proto::ExchangeRateSet& proto);
 
-private:
+  /**
+   * Construct an ExchangeRates from a representative byte array.
+   *
+   * @param bytes The byte array from which to construct an ExchangeRates object.
+   * @return The constructed ExchangeRates object.
+   */
+  [[nodiscard]] static ExchangeRates fromBytes(const std::vector<std::byte>& bytes);
+
   /**
    * The current exchange rate.
    */
-  std::optional<ExchangeRate> mCurrentRate;
+  ExchangeRate mCurrentRate;
 
   /**
    * The next exchange rate which will take effect when current rate expires.
    */
-  std::optional<ExchangeRate> mNextRate;
+  ExchangeRate mNextRate;
 };
 
 } // namespace Hedera

@@ -6,19 +6,27 @@ set(AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-auto-c
 set(CONSENSUS_PUB_SUB_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-example)
 set(CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-chunked-example)
 set(CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME ${PROJECT_NAME}-consensus-pub-sub-with-submit-key-example)
+set(CONSTRUCT_CLIENT_EXAMPLE_NAME ${PROJECT_NAME}-construct-client-example)
 set(CREATE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-create-account-example)
+set(CREATE_FILE_EXAMPLE_NAME ${PROJECT_NAME}-create-file-example)
+set(CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME ${PROJECT_NAME}-create-account-threshold-key-example)
 set(CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-simple-contract-example)
 set(CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME ${PROJECT_NAME}-create-stateful-contract-example)
+set(CREATE_TOPIC_EXAMPLE_NAME ${PROJECT_NAME}-create-topic-example)
 set(CONTRACT_NONCES_EXAMPLE_NAME ${PROJECT_NAME}-contract-nonces-example)
 set(CUSTOM_FEES_EXAMPLE_NAME ${PROJECT_NAME}-custom-fees-example)
 set(DELETE_ACCOUNT_EXAMPLE_NAME ${PROJECT_NAME}-delete-account-example)
 set(DELETE_FILE_EXAMPLE_NAME ${PROJECT_NAME}-delete-file-example)
 set(EXEMPT_CUSTOM_FEES_EXAMPLE_NAME ${PROJECT_NAME}-exempt-custom-fees-example)
 set(FILE_APPEND_CHUNKED_EXAMPLE_NAME ${PROJECT_NAME}-file-append-chunked-example)
+set(GENERATE_KEY_EXAMPLE_NAME ${PROJECT_NAME}-generate-key-example)
 set(GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME ${PROJECT_NAME}-generate-private-key-from-mnemonic-example)
 set(GET_ACCOUNT_BALANCE_EXAMPLE_NAME ${PROJECT_NAME}-get-account-balance-example)
+set(GET_ACCOUNT_INFO_EXAMPLE_NAME ${PROJECT_NAME}-get-account-info-example)
 set(GET_ADDRESS_BOOK_EXAMPLE_NAME ${PROJECT_NAME}-get-address-book-example)
+set(GET_EXCHANGE_RATES_EXAMPLE_NAME ${PROJECT_NAME}-get-exchange-rates-example)
 set(GET_FILE_CONTENTS_EXAMPLE_NAME ${PROJECT_NAME}-get-file-contents-example)
+set(MULTI_APP_TRANSFER_EXAMPLE_NAME ${PROJECT_NAME}-multi-app-transfer-example)
 set(MULTI_SIG_OFFLINE_EXAMPLE_NAME ${PROJECT_NAME}-multi-sig-offline-example)
 set(NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME ${PROJECT_NAME}-nft-add-remove-allowances-example)
 set(SCHEDULE_EXAMPLE_NAME ${PROJECT_NAME}-schedule-example)
@@ -40,19 +48,27 @@ add_executable(${AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME} AutoCrea
 add_executable(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} ConsensusPubSubExample.cc)
 add_executable(${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME} ConsensusPubSubChunkedExample.cc)
 add_executable(${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME} ConsensusPubSubWithSubmitKeyExample.cc)
+add_executable(${CONSTRUCT_CLIENT_EXAMPLE_NAME} ConstructClientExample.cc)
 add_executable(${CREATE_ACCOUNT_EXAMPLE_NAME} CreateAccountExample.cc)
+add_executable(${CREATE_FILE_EXAMPLE_NAME} CreateFileExample.cc)
+add_executable(${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME} CreateAccountThresholdKeyExample.cc)
 add_executable(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} CreateSimpleContractExample.cc)
 add_executable(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} CreateStatefulContractExample.cc)
+add_executable(${CREATE_TOPIC_EXAMPLE_NAME} CreateTopicExample.cc)
 add_executable(${CONTRACT_NONCES_EXAMPLE_NAME} ContractNoncesExample.cc)
 add_executable(${CUSTOM_FEES_EXAMPLE_NAME} CustomFeesExample.cc)
 add_executable(${DELETE_ACCOUNT_EXAMPLE_NAME} DeleteAccountExample.cc)
 add_executable(${DELETE_FILE_EXAMPLE_NAME} DeleteFileExample.cc)
 add_executable(${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME} ExemptCustomFeesExample.cc)
 add_executable(${FILE_APPEND_CHUNKED_EXAMPLE_NAME} FileAppendChunkedExample.cc)
+add_executable(${GENERATE_KEY_EXAMPLE_NAME} GenerateKeyExample.cc)
 add_executable(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} GeneratePrivateKeyFromMnemonic.cc)
 add_executable(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} GetAccountBalanceExample.cc)
+add_executable(${GET_ACCOUNT_INFO_EXAMPLE_NAME} GetAccountInfoExample.cc)
 add_executable(${GET_ADDRESS_BOOK_EXAMPLE_NAME} GetAddressBookExample.cc)
+add_executable(${GET_EXCHANGE_RATES_EXAMPLE_NAME} GetExchangeRatesExample.cc)
 add_executable(${GET_FILE_CONTENTS_EXAMPLE_NAME} GetFileContentsExample.cc)
+add_executable(${MULTI_APP_TRANSFER_EXAMPLE_NAME} MultiAppTransferExample.cc)
 add_executable(${MULTI_SIG_OFFLINE_EXAMPLE_NAME} MultiSigOfflineExample.cc)
 add_executable(${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME} NftAddRemoveAllowancesExample.cc)
 add_executable(${SCHEDULE_EXAMPLE_NAME} ScheduleExample.cc)
@@ -75,6 +91,8 @@ file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
 
 file(COPY ${PROJECT_SOURCE_DIR}/config/hello_world.json
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+file(COPY ${PROJECT_SOURCE_DIR}/config/local_node.json
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 file(COPY ${PROJECT_SOURCE_DIR}/config/stateful.json
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
@@ -92,19 +110,27 @@ target_link_libraries(${AUTO_CREATE_ACCOUNT_TRANSFER_TRANSACTION_EXAMPLE_NAME} P
 target_link_libraries(${CONSENSUS_PUB_SUB_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CONSTRUCT_CLIENT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CREATE_FILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${CREATE_TOPIC_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CONTRACT_NONCES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${CUSTOM_FEES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${DELETE_ACCOUNT_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${DELETE_FILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${FILE_APPEND_CHUNKED_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${GENERATE_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${GET_ACCOUNT_INFO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ADDRESS_BOOK_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${GET_EXCHANGE_RATES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_FILE_CONTENTS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${MULTI_APP_TRANSFER_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${MULTI_SIG_OFFLINE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -129,19 +155,27 @@ install(TARGETS
         ${CONSENSUS_PUB_SUB_EXAMPLE_NAME}
         ${CONSENSUS_PUB_SUB_CHUNKED_EXAMPLE_NAME}
         ${CONSENSUS_PUB_SUB_WITH_SUBMIT_KEY_EXAMPLE_NAME}
+        ${CONSTRUCT_CLIENT_EXAMPLE_NAME}
         ${CREATE_ACCOUNT_EXAMPLE_NAME}
+        ${CREATE_FILE_EXAMPLE_NAME}
+        ${CREATE_ACCOUNT_THRESHOLD_KEY_EXAMPLE_NAME}
         ${CREATE_SIMPLE_CONTRACT_EXAMPLE_NAME}
         ${CREATE_STATEFUL_CONTRACT_EXAMPLE_NAME}
+        ${CREATE_TOPIC_EXAMPLE_NAME}
         ${CONTRACT_NONCES_EXAMPLE_NAME}
         ${CUSTOM_FEES_EXAMPLE_NAME}
         ${DELETE_ACCOUNT_EXAMPLE_NAME}
         ${DELETE_FILE_EXAMPLE_NAME}
         ${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME}
         ${FILE_APPEND_CHUNKED_EXAMPLE_NAME}
+        ${GENERATE_KEY_EXAMPLE_NAME}
         ${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME}
         ${GET_ACCOUNT_BALANCE_EXAMPLE_NAME}
+        ${GET_ACCOUNT_INFO_EXAMPLE_NAME}
         ${GET_ADDRESS_BOOK_EXAMPLE_NAME}
+        ${GET_EXCHANGE_RATES_EXAMPLE_NAME}
         ${GET_FILE_CONTENTS_EXAMPLE_NAME}
+        ${MULTI_APP_TRANSFER_EXAMPLE_NAME}
         ${MULTI_SIG_OFFLINE_EXAMPLE_NAME}
         ${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME}
         ${SCHEDULE_EXAMPLE_NAME}

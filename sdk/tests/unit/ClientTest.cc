@@ -37,10 +37,10 @@ protected:
     return mTestNetworkUpdatePeriod;
   }
 
-  [[nodiscard]] inline const std::chrono::milliseconds getNegativeBackoffTime() const { return mNegativeBackoffTime; }
-  [[nodiscard]] inline const std::chrono::milliseconds getZeroBackoffTime() const { return mZeroBackoffTime; }
-  [[nodiscard]] inline const std::chrono::milliseconds getBelowMinBackoffTime() const { return mBelowMinBackoffTime; }
-  [[nodiscard]] inline const std::chrono::milliseconds getAboveMaxBackoffTime() const { return mAboveMaxBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds& getNegativeBackoffTime() const { return mNegativeBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds& getZeroBackoffTime() const { return mZeroBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds& getBelowMinBackoffTime() const { return mBelowMinBackoffTime; }
+  [[nodiscard]] inline const std::chrono::milliseconds& getAboveMaxBackoffTime() const { return mAboveMaxBackoffTime; }
 
 private:
   const AccountId mAccountId = AccountId(10ULL);

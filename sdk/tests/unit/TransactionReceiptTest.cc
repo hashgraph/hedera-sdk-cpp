@@ -106,15 +106,11 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   ASSERT_TRUE(txRx.mContractId.has_value());
   EXPECT_EQ(txRx.mContractId, getTestContractId());
   ASSERT_TRUE(txRx.mExchangeRates.has_value());
-  ASSERT_TRUE(txRx.mExchangeRates->getCurrentExchangeRate().has_value());
-  EXPECT_EQ(txRx.mExchangeRates->getCurrentExchangeRate()->getCurrentExchangeRate(), value / value);
-  ASSERT_TRUE(txRx.mExchangeRates->getCurrentExchangeRate()->getExpirationTime().has_value());
-  EXPECT_EQ(txRx.mExchangeRates->getCurrentExchangeRate()->getExpirationTime(),
+  EXPECT_EQ(txRx.mExchangeRates->mCurrentRate.mExchangeRateInCents, value / value);
+  EXPECT_EQ(txRx.mExchangeRates->mCurrentRate.mExpirationTime,
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
-  EXPECT_TRUE(txRx.mExchangeRates->getNextExchangeRate().has_value());
-  EXPECT_EQ(txRx.mExchangeRates->getNextExchangeRate()->getCurrentExchangeRate(), value / value);
-  EXPECT_TRUE(txRx.mExchangeRates->getNextExchangeRate()->getExpirationTime().has_value());
-  EXPECT_EQ(txRx.mExchangeRates->getNextExchangeRate()->getExpirationTime(),
+  EXPECT_EQ(txRx.mExchangeRates->mNextRate.mExchangeRateInCents, value / value);
+  EXPECT_EQ(txRx.mExchangeRates->mNextRate.mExpirationTime,
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
   ASSERT_TRUE(txRx.mTopicId.has_value());
   EXPECT_EQ(txRx.mTopicId, getTestTopicId());

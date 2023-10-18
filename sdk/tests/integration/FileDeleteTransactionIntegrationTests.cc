@@ -46,7 +46,7 @@ TEST_F(FileDeleteTransactionIntegrationTest, ExecuteFileDeleteTransaction)
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey() })
-                             .setContents({})
+                             .setContents("")
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .mFileId.value());
@@ -68,7 +68,7 @@ TEST_F(FileDeleteTransactionIntegrationTest, CannotDeleteFileWithNoAdminKey)
   FileId fileId;
   ASSERT_NO_THROW(
     fileId =
-      FileCreateTransaction().setContents({}).execute(getTestClient()).getReceipt(getTestClient()).mFileId.value());
+      FileCreateTransaction().setContents("").execute(getTestClient()).getReceipt(getTestClient()).mFileId.value());
 
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =

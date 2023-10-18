@@ -25,18 +25,18 @@
 namespace Hedera
 {
 //-----
+ExchangeRate::ExchangeRate(int hbar, int cents, const std::chrono::system_clock::time_point& expirationTime)
+  : mHbars(hbar)
+  , mCents(cents)
+  , mExpirationTime(expirationTime)
+  , mExchangeRateInCents(static_cast<double>(cents) / static_cast<double>(hbar))
+{
+}
+
+//-----
 ExchangeRate ExchangeRate::fromProtobuf(const proto::ExchangeRate& proto)
 {
-  ExchangeRate exchangeRate;
-  exchangeRate.mHbars = proto.hbarequiv();
-  exchangeRate.mCents = proto.centequiv();
-
-  if (proto.has_expirationtime())
-  {
-    exchangeRate.mExpirationTime = internal::TimestampConverter::fromProtobuf(proto.expirationtime());
-  }
-
-  return exchangeRate;
+  return { proto.hbarequiv(), proto.centequiv(), internal::TimestampConverter::fromProtobuf(proto.expirationtime()) };
 }
 
 } // namespace Hedera

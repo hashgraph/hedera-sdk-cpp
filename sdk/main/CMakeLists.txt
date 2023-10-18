@@ -49,7 +49,7 @@ add_library(${PROJECT_NAME} STATIC
         src/EthereumTransactionDataLegacy.cc
         src/EvmAddress.cc
         src/ExchangeRate.cc
-        src/ExchangeRateSet.cc
+        src/ExchangeRates.cc
         src/Executable.cc
         src/FileAppendTransaction.cc
         src/FileContentsQuery.cc

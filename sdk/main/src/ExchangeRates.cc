@@ -17,28 +17,31 @@
  * limitations under the License.
  *
  */
-#include "ExchangeRateSet.h"
+#include "ExchangeRates.h"
 
 #include <proto/exchange_rate.pb.h>
 
 namespace Hedera
 {
 //-----
-ExchangeRateSet ExchangeRateSet::fromProtobuf(const proto::ExchangeRateSet& proto)
+ExchangeRates::ExchangeRates(const ExchangeRate& current, const ExchangeRate& next)
+  : mCurrentRate(current)
+  , mNextRate(next)
 {
-  ExchangeRateSet exchangeRateSet;
+}
 
-  if (proto.has_currentrate())
-  {
-    exchangeRateSet.mCurrentRate = ExchangeRate::fromProtobuf(proto.currentrate());
-  }
+//-----
+ExchangeRates ExchangeRates::fromProtobuf(const proto::ExchangeRateSet& proto)
+{
+  return { ExchangeRate::fromProtobuf(proto.currentrate()), ExchangeRate::fromProtobuf(proto.nextrate()) };
+}
 
-  if (proto.has_nextrate())
-  {
-    exchangeRateSet.mNextRate = ExchangeRate::fromProtobuf(proto.nextrate());
-  }
-
-  return exchangeRateSet;
+//-----
+ExchangeRates ExchangeRates::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::ExchangeRateSet proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
 }
 
 } // namespace Hedera
