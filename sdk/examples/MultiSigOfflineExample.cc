@@ -62,7 +62,6 @@ int main(int argc, char** argv)
   std::cout << "Created multi-sig account with ID " << accountId.toString() << std::endl;
 
   // Create a transfer of 2 Hbar from the new account to the operator account.
-  std::cout << "Create transaction" << std::endl;
   TransferTransaction transferTransaction = TransferTransaction()
                                               .setNodeAccountIds({ AccountId(3ULL) })
                                               .addHbarTransfer(accountId, Hbar(-2LL))
@@ -70,17 +69,14 @@ int main(int argc, char** argv)
                                               .freezeWith(&client);
 
   // Serialize the transaction and "send" it to its signatories.
-  std::cout << "send transaction" << std::endl;
   std::vector<std::byte> transferTransactionBytes = transferTransaction.toBytes();
   WrappedTransaction wrappedTransferTransaction = Transaction<TransferTransaction>::fromBytes(transferTransactionBytes);
 
   // Users sign the transaction with their private keys.
-  std::cout << "sign transaction" << std::endl;
-  const std::vector<std::byte> key1Signature = key1->sign(transferTransactionBytes);
-  const std::vector<std::byte> key2Signature = key2->sign(transferTransactionBytes);
+  const std::vector<std::byte> key1Signature = key1->signTransaction(wrappedTransferTransaction);
+  const std::vector<std::byte> key2Signature = key2->signTransaction(wrappedTransferTransaction);
 
   // Add the signatures.
-  std::cout << "add to transaction" << std::endl;
   transferTransaction = *wrappedTransferTransaction.getTransaction<TransferTransaction>();
   transferTransaction.signWithOperator(client);
   transferTransaction.addSignature(key1->getPublicKey(), key1Signature);

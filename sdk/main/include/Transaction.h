@@ -440,6 +440,8 @@ protected:
   [[nodiscard]] virtual TransactionId getCurrentTransactionId() const;
 
 private:
+  friend class PrivateKey;
+
   /**
    * Build and add the derived Transaction's protobuf representation to the Transaction protobuf object.
    *
