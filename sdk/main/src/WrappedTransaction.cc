@@ -94,6 +94,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(FreezeTransaction(proto));
   }
+  else if (proto.has_util_prng())
+  {
+    return WrappedTransaction(PrngTransaction(proto));
+  }
   else if (proto.has_schedulecreate())
   {
     return WrappedTransaction(ScheduleCreateTransaction(proto));
@@ -272,6 +276,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
   {
     *txBody.mutable_freeze() = proto.freeze();
     return WrappedTransaction(FreezeTransaction(txBody));
+  }
+  else if (proto.has_util_prng())
+  {
+    *txBody.mutable_util_prng() = proto.util_prng();
+    return WrappedTransaction(PrngTransaction(txBody));
   }
   else if (proto.has_scheduledelete())
   {
@@ -481,6 +490,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
     case FREEZE_TRANSACTION:
     {
       const auto transaction = getTransaction<FreezeTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case PRNG_TRANSACTION:
+    {
+      const auto transaction = getTransaction<PrngTransaction>();
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
@@ -705,6 +720,10 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   else if (txBody.has_freeze())
   {
     schedulableTxBody->set_allocated_freeze(txBody.release_freeze());
+  }
+  else if (txBody.has_util_prng())
+  {
+    schedulableTxBody->set_allocated_util_prng(txBody.release_util_prng());
   }
   else if (txBody.has_scheduledelete())
   {

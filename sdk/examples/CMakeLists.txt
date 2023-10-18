@@ -29,6 +29,7 @@ set(GET_FILE_CONTENTS_EXAMPLE_NAME ${PROJECT_NAME}-get-file-contents-example)
 set(MULTI_APP_TRANSFER_EXAMPLE_NAME ${PROJECT_NAME}-multi-app-transfer-example)
 set(MULTI_SIG_OFFLINE_EXAMPLE_NAME ${PROJECT_NAME}-multi-sig-offline-example)
 set(NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME ${PROJECT_NAME}-nft-add-remove-allowances-example)
+set(PRNG_EXAMPLE_NAME ${PROJECT_NAME}-prng-example)
 set(SCHEDULE_EXAMPLE_NAME ${PROJECT_NAME}-schedule-example)
 set(SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-schedule-identical-transaction-example)
 set(SCHEDULE_MULTI_SIG_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-schedule-multisig-transaction-example)
@@ -71,6 +72,7 @@ add_executable(${GET_FILE_CONTENTS_EXAMPLE_NAME} GetFileContentsExample.cc)
 add_executable(${MULTI_APP_TRANSFER_EXAMPLE_NAME} MultiAppTransferExample.cc)
 add_executable(${MULTI_SIG_OFFLINE_EXAMPLE_NAME} MultiSigOfflineExample.cc)
 add_executable(${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME} NftAddRemoveAllowancesExample.cc)
+add_executable(${PRNG_EXAMPLE_NAME} PrngExample.cc)
 add_executable(${SCHEDULE_EXAMPLE_NAME} ScheduleExample.cc)
 add_executable(${SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME} ScheduleIdenticalTransactionExample.cc)
 add_executable(${SCHEDULE_MULTI_SIG_TRANSACTION_EXAMPLE_NAME} ScheduleMultiSigTransactionExample.cc)
@@ -133,6 +135,7 @@ target_link_libraries(${GET_FILE_CONTENTS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${MULTI_APP_TRANSFER_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${MULTI_SIG_OFFLINE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${PRNG_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_MULTI_SIG_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -178,6 +181,7 @@ install(TARGETS
         ${MULTI_APP_TRANSFER_EXAMPLE_NAME}
         ${MULTI_SIG_OFFLINE_EXAMPLE_NAME}
         ${NFT_ADD_REMOVE_ALLOWANCES_EXAMPLE_NAME}
+        ${PRNG_EXAMPLE_NAME}
         ${SCHEDULE_EXAMPLE_NAME}
         ${SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME}
         ${SCHEDULE_MULTI_SIG_TRANSACTION_EXAMPLE_NAME}

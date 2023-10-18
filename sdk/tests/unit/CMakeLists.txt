@@ -64,6 +64,7 @@ add_executable(${TEST_PROJECT_NAME}
         NetworkVersionInfoUnitTests.cc
         NftIdTest.cc
         NodeAddressTest.cc
+        PrngTransactionUnitTests.cc
         ProxyStakerUnitTests.cc
         ScheduleCreateTransactionUnitTests.cc
         ScheduleDeleteTransactionUnitTests.cc

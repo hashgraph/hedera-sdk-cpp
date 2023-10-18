@@ -36,6 +36,7 @@
 #include "FileUpdateTransaction.h"
 #include "FreezeTransaction.h"
 #include "PrivateKey.h"
+#include "PrngTransaction.h"
 #include "PublicKey.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
@@ -226,6 +227,8 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(FileUpdateTransaction(transactions));
     case proto::TransactionBody::kFreeze:
       return WrappedTransaction(FreezeTransaction(transactions));
+    case proto::TransactionBody::kUtilPrng:
+      return WrappedTransaction(PrngTransaction(transactions));
     case proto::TransactionBody::kScheduleCreate:
       return WrappedTransaction(ScheduleCreateTransaction(transactions));
     case proto::TransactionBody::kScheduleDelete:
@@ -1128,6 +1131,7 @@ template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
 template class Transaction<FreezeTransaction>;
+template class Transaction<PrngTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<ScheduleDeleteTransaction>;
 template class Transaction<ScheduleSignTransaction>;
