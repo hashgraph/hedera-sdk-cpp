@@ -1042,7 +1042,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
     validateChecksums(client);
   }
 
-  // Sign with the operator if the operator's presence, and if it's paying for the Transaction.
+  // Sign with the operator if the operator's present, and if it's paying for the Transaction.
   if (client.getOperatorAccountId().has_value() &&
       client.getOperatorAccountId().value() == mImpl->mTransactionId.getAccountId())
   {
