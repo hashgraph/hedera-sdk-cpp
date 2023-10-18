@@ -17,7 +17,11 @@
  * limitations under the License.
  *
  */
+#include "AccountId.h"
 #include "impl/Network.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -31,8 +35,54 @@ class NetworkUnitTests : public ::testing::Test
 TEST_F(NetworkUnitTests, ConstructForMainnet)
 {
   // Given / When
-  const Hedera::internal::Network network = Hedera::internal::Network::forMainnet();
+  Hedera::internal::Network mainnetNetwork = Hedera::internal::Network::forMainnet();
 
   // Then
-  EXPECT_EQ(network.getMaxNodeAttempts(), 0);
+  std::unordered_map<std::string, AccountId> networkMap;
+  std::vector<AccountId> nodeAccountIds;
+
+  EXPECT_NO_THROW(networkMap = mainnetNetwork.getNetwork());
+  EXPECT_NO_THROW(nodeAccountIds = mainnetNetwork.getNodeAccountIdsForExecute());
+  EXPECT_GT(networkMap.size(), 0);
+  EXPECT_GT(nodeAccountIds.size(), 0);
+
+  // Clean up
+  mainnetNetwork.close();
+}
+
+TEST_F(NetworkUnitTests, ConstructForTestnet)
+{
+  // Given / When
+  Hedera::internal::Network testnetNetwork = Hedera::internal::Network::forTestnet();
+
+  // Then
+  std::unordered_map<std::string, AccountId> networkMap;
+  std::vector<AccountId> nodeAccountIds;
+
+  EXPECT_NO_THROW(networkMap = testnetNetwork.getNetwork());
+  EXPECT_NO_THROW(nodeAccountIds = testnetNetwork.getNodeAccountIdsForExecute());
+
+  EXPECT_GT(networkMap.size(), 0);
+  EXPECT_GT(nodeAccountIds.size(), 0);
+
+  // Clean up
+  testnetNetwork.close();
+}
+
+TEST_F(NetworkUnitTests, ConstructForPreviewnet)
+{
+  // Given / When
+  Hedera::internal::Network previewnetNetwork = Hedera::internal::Network::forPreviewnet();
+  std::vector<AccountId> nodeAccountIds;
+
+  // Then
+  std::unordered_map<std::string, AccountId> networkMap;
+  EXPECT_NO_THROW(networkMap = previewnetNetwork.getNetwork());
+  EXPECT_NO_THROW(nodeAccountIds = previewnetNetwork.getNodeAccountIdsForExecute());
+
+  EXPECT_GT(networkMap.size(), 0);
+  EXPECT_GT(nodeAccountIds.size(), 0);
+
+  // Clean up
+  previewnetNetwork.close();
 }
