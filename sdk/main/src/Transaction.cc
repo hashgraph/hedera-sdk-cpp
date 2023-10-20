@@ -36,6 +36,7 @@
 #include "FileUpdateTransaction.h"
 #include "FreezeTransaction.h"
 #include "PrivateKey.h"
+#include "PrngTransaction.h"
 #include "PublicKey.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
@@ -226,6 +227,8 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(FileUpdateTransaction(transactions));
     case proto::TransactionBody::kFreeze:
       return WrappedTransaction(FreezeTransaction(transactions));
+    case proto::TransactionBody::kUtilPrng:
+      return WrappedTransaction(PrngTransaction(transactions));
     case proto::TransactionBody::kScheduleCreate:
       return WrappedTransaction(ScheduleCreateTransaction(transactions));
     case proto::TransactionBody::kScheduleDelete:
@@ -836,13 +839,14 @@ void Transaction<SdkRequestType>::addTransaction(const proto::Transaction& trans
                           static_cast<int>(transaction.signedtransactionbytes().size()));
 
   // Add the SignedTransaction protobuf object to the SignedTransaction protobuf object list.
-  addTransaction(signedTx);
+  mImpl->mSignedTransactions.push_back(signedTx);
 }
 
 //-----
 template<typename SdkRequestType>
 void Transaction<SdkRequestType>::addTransaction(const proto::SignedTransaction& transaction)
 {
+  mImpl->mTransactions.push_back(proto::Transaction());
   mImpl->mSignedTransactions.push_back(transaction);
 }
 
@@ -1038,7 +1042,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
     validateChecksums(client);
   }
 
-  // Sign with the operator if the operator's presence, and if it's paying for the Transaction.
+  // Sign with the operator if the operator's present, and if it's paying for the Transaction.
   if (client.getOperatorAccountId().has_value() &&
       client.getOperatorAccountId().value() == mImpl->mTransactionId.getAccountId())
   {
@@ -1128,6 +1132,7 @@ template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
 template class Transaction<FreezeTransaction>;
+template class Transaction<PrngTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<ScheduleDeleteTransaction>;
 template class Transaction<ScheduleSignTransaction>;
