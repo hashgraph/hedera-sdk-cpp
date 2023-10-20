@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <filesystem>
 
 namespace Hedera::internal
 {
@@ -189,7 +190,8 @@ NodeAddressBook Network::getAddressBookForLedgerId(const LedgerId& ledgerId)
     return {};
   }
 
-  std::ifstream infile(ledgerId.toString() + ".pb", std::ios_base::binary);
+  std::string buildPath = std::filesystem::current_path().string() + "/addressbook/" + ledgerId.toString()+".pb";
+  std::ifstream infile(buildPath, std::ios_base::binary);
   return NodeAddressBook::fromBytes({ std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() });
 }
 
