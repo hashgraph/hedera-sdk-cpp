@@ -839,13 +839,14 @@ void Transaction<SdkRequestType>::addTransaction(const proto::Transaction& trans
                           static_cast<int>(transaction.signedtransactionbytes().size()));
 
   // Add the SignedTransaction protobuf object to the SignedTransaction protobuf object list.
-  addTransaction(signedTx);
+  mImpl->mSignedTransactions.push_back(signedTx);
 }
 
 //-----
 template<typename SdkRequestType>
 void Transaction<SdkRequestType>::addTransaction(const proto::SignedTransaction& transaction)
 {
+  mImpl->mTransactions.push_back(proto::Transaction());
   mImpl->mSignedTransactions.push_back(transaction);
 }
 

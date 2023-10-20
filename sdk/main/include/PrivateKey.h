@@ -22,6 +22,7 @@
 
 #include "Key.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -29,7 +30,11 @@
 
 namespace Hedera
 {
+template<typename SdkRequestType>
+class Transaction;
+
 class PublicKey;
+class WrappedTransaction;
 }
 
 namespace Hedera::internal::OpenSSLUtils
@@ -118,6 +123,18 @@ public:
    * @return The raw bytes of this PrivateKey.
    */
   [[nodiscard]] virtual std::vector<std::byte> toBytesRaw() const = 0;
+
+  /**
+   * Sign a Transaction with this PrivateKey.
+   *
+   * @param transaction The Transaction to sign.
+   * @return The generated signature.
+   * @throws IllegalStateException If there is not exactly one node account ID set for the Transaction or if the
+   *                               Transaction is not frozen and doesn't have a TransactionId set.
+   */
+  template<typename SdkRequestType>
+  std::vector<std::byte> signTransaction(Transaction<SdkRequestType>& transaction) const;
+  std::vector<std::byte> signTransaction(WrappedTransaction& transaction) const;
 
   /**
    * Get this PrivateKey's chain code. It is possible that the chain code could be empty.
