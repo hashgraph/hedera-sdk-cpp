@@ -36,6 +36,7 @@ class CryptoTransferTransactionBody;
 namespace Hedera
 {
 class AccountId;
+class EvmAddress;
 class NftId;
 class TokenId;
 }
@@ -82,6 +83,16 @@ public:
    * @throws IllegalStateException If this TransferTransaction is frozen.
    */
   TransferTransaction& addHbarTransfer(const AccountId& accountId, const Hbar& amount);
+
+  /**
+   * Add an Hbar transfer to be submitted as part of this TransferTransaction.
+   *
+   * @param evmAddress The EVM address associated with this transfer.
+   * @param amount     The amount of Hbar to transfer.
+   * @return A reference to this TransferTransaction object with the newly-added Hbar transfer.
+   * @throws IllegalStateException If this TransferTransaction is frozen.
+   */
+  TransferTransaction& addHbarTransfer(const EvmAddress& evmAddress, const Hbar& amount);
 
   /**
    * Add a token transfer to be submitted as part of this TransferTransaction.
