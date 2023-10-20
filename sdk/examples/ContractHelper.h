@@ -236,7 +236,7 @@ private:
    */
   static std::string getBytecodeHex(std::string_view file)
   {
-    std::ifstream infile(file);
+    std::ifstream infile(file.data());
     nlohmann::json json = nlohmann::json::parse(infile);
 
     if (json.contains("object") && json["object"].is_string())
