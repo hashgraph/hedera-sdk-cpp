@@ -755,7 +755,7 @@ TEST_F(TransactionTest, FileAppendTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<FileAppendTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<FileAppendTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FILE_APPEND_TRANSACTION);
@@ -950,7 +950,7 @@ TEST_F(TransactionTest, FileUpdateTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<FileUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<FileUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FILE_UPDATE_TRANSACTION);
@@ -1015,7 +1015,7 @@ TEST_F(TransactionTest, FreezeTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<FreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<FreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FREEZE_TRANSACTION);
@@ -1046,6 +1046,71 @@ TEST_F(TransactionTest, FreezeTransactionFromTransactionListBytes)
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::FREEZE_TRANSACTION);
   EXPECT_NE(wrappedTx.getTransaction<FreezeTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, PrngTransactionFromTransactionBodyBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_util_prng(new proto::UtilPrngTransactionBody);
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<PrngTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::PRNG_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<PrngTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, PrngTransactionFromTransactionBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_util_prng(new proto::UtilPrngTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<PrngTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::PRNG_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<PrngTransaction>(), nullptr);
+}
+
+//-----
+TEST_F(TransactionTest, PrngTransactionFromTransactionListBytes)
+{
+  // Given
+  proto::TransactionBody txBody;
+  txBody.set_allocated_util_prng(new proto::UtilPrngTransactionBody);
+
+  proto::SignedTransaction signedTx;
+  signedTx.set_bodybytes(txBody.SerializeAsString());
+  // SignatureMap not required
+
+  proto::Transaction tx;
+  tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
+  proto::TransactionList txList;
+  *txList.add_transaction_list() = tx;
+
+  // When
+  const WrappedTransaction wrappedTx =
+    Transaction<PrngTransaction>::fromBytes(internal::Utilities::stringToByteVector(txList.SerializeAsString()));
+
+  // Then
+  ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::PRNG_TRANSACTION);
+  EXPECT_NE(wrappedTx.getTransaction<PrngTransaction>(), nullptr);
 }
 
 //-----
@@ -1404,8 +1469,8 @@ TEST_F(TransactionTest, TokenAssociateTransactionFromTransactionBytes)
   tx.set_signedtransactionbytes(signedTx.SerializeAsString());
 
   // When
-  const WrappedTransaction wrappedTx = Transaction<TokenAssociateTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+  const WrappedTransaction wrappedTx =
+    Transaction<TokenAssociateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_ASSOCIATE_TRANSACTION);
@@ -1470,7 +1535,7 @@ TEST_F(TransactionTest, TokenBurnTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TokenBurnTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TokenBurnTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_BURN_TRANSACTION);
@@ -1535,7 +1600,7 @@ TEST_F(TransactionTest, TokenCreateTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TokenCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TokenCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_CREATE_TRANSACTION);
@@ -1600,7 +1665,7 @@ TEST_F(TransactionTest, TokenDeleteTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TokenDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TokenDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_DELETE_TRANSACTION);
@@ -1664,8 +1729,8 @@ TEST_F(TransactionTest, TokenDissociateTransactionFromTransactionBytes)
   tx.set_signedtransactionbytes(signedTx.SerializeAsString());
 
   // When
-  const WrappedTransaction wrappedTx = Transaction<TokenDissociateTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+  const WrappedTransaction wrappedTx =
+    Transaction<TokenDissociateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_DISSOCIATE_TRANSACTION);
@@ -1730,7 +1795,7 @@ TEST_F(TransactionTest, TokenFeeScheduleUpdateTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx = Transaction<TokenFeeScheduleUpdateTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION);
@@ -1795,7 +1860,7 @@ TEST_F(TransactionTest, TokenFreezeTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TokenFreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TokenFreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_FREEZE_TRANSACTION);
@@ -1859,8 +1924,8 @@ TEST_F(TransactionTest, TokenGrantKycTransactionFromTransactionBytes)
   tx.set_signedtransactionbytes(signedTx.SerializeAsString());
 
   // When
-  const WrappedTransaction wrappedTx = Transaction<TokenGrantKycTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+  const WrappedTransaction wrappedTx =
+    Transaction<TokenGrantKycTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_GRANT_KYC_TRANSACTION);
@@ -1925,7 +1990,7 @@ TEST_F(TransactionTest, TokenMintTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TokenMintTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TokenMintTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_MINT_TRANSACTION);
@@ -1990,7 +2055,7 @@ TEST_F(TransactionTest, TokenPauseTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TokenPauseTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TokenPauseTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_PAUSE_TRANSACTION);
@@ -2054,8 +2119,8 @@ TEST_F(TransactionTest, TokenRevokeKycTransactionFromTransactionBytes)
   tx.set_signedtransactionbytes(signedTx.SerializeAsString());
 
   // When
-  const WrappedTransaction wrappedTx = Transaction<TokenRevokeKycTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+  const WrappedTransaction wrappedTx =
+    Transaction<TokenRevokeKycTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_REVOKE_KYC_TRANSACTION);
@@ -2119,8 +2184,8 @@ TEST_F(TransactionTest, TokenUnfreezeTransactionFromTransactionBytes)
   tx.set_signedtransactionbytes(signedTx.SerializeAsString());
 
   // When
-  const WrappedTransaction wrappedTx = Transaction<TokenUnfreezeTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+  const WrappedTransaction wrappedTx =
+    Transaction<TokenUnfreezeTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_UNFREEZE_TRANSACTION);
@@ -2184,8 +2249,8 @@ TEST_F(TransactionTest, TokenUnpauseTransactionFromTransactionBytes)
   tx.set_signedtransactionbytes(signedTx.SerializeAsString());
 
   // When
-  const WrappedTransaction wrappedTx = Transaction<TokenUnpauseTransaction>::fromBytes(
-    internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+  const WrappedTransaction wrappedTx =
+    Transaction<TokenUnpauseTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_UNPAUSE_TRANSACTION);
@@ -2250,7 +2315,7 @@ TEST_F(TransactionTest, TokenUpdateTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TokenUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TokenUpdateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_UPDATE_TRANSACTION);
@@ -2315,7 +2380,7 @@ TEST_F(TransactionTest, TokenWipeTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TokenWipeTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TokenWipeTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOKEN_WIPE_TRANSACTION);
@@ -2380,7 +2445,7 @@ TEST_F(TransactionTest, TopicCreateTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TopicCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TopicCreateTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_CREATE_TRANSACTION);
@@ -2445,7 +2510,7 @@ TEST_F(TransactionTest, TopicDeleteTransactionFromTransactionBytes)
 
   // When
   const WrappedTransaction wrappedTx =
-    Transaction<TopicDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(txBody.SerializeAsString()));
+    Transaction<TopicDeleteTransaction>::fromBytes(internal::Utilities::stringToByteVector(tx.SerializeAsString()));
 
   // Then
   ASSERT_EQ(wrappedTx.getTransactionType(), TransactionType::TOPIC_DELETE_TRANSACTION);

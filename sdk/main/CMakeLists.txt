@@ -75,6 +75,7 @@ add_library(${PROJECT_NAME} STATIC
         src/NodeAddress.cc
         src/NodeAddressBook.cc
         src/PrivateKey.cc
+        src/PrngTransaction.cc
         src/ProxyStaker.cc
         src/PublicKey.cc
         src/Query.cc

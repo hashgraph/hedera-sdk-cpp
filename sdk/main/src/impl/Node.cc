@@ -189,6 +189,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->updateToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenWipe:
       return mTokenStub->wipeTokenAccount(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kUtilPrng:
+      return mUtilStub->prng(&context, transaction, response);
     default:
       // This should never happen
       throw std::invalid_argument("Unrecognized gRPC transaction method case");
@@ -265,14 +267,15 @@ std::shared_ptr<grpc::ChannelCredentials> Node::getTlsChannelCredentials() const
 void Node::initializeStubs()
 {
   // clang-format off
-  if (!mConsensusStub)     mConsensusStub = proto::ConsensusService::NewStub(getChannel());
-  if (!mCryptoStub)        mCryptoStub = proto::CryptoService::NewStub(getChannel());
-  if (!mFileStub)          mFileStub = proto::FileService::NewStub(getChannel());
-  if (!mFreezeStub)        mFreezeStub = proto::FreezeService::NewStub(getChannel());
-  if (!mNetworkStub)       mNetworkStub = proto::NetworkService::NewStub(getChannel());
-  if (!mScheduleStub)      mScheduleStub = proto::ScheduleService::NewStub(getChannel());
+  if (!mConsensusStub)     mConsensusStub     = proto::ConsensusService::NewStub(getChannel());
+  if (!mCryptoStub)        mCryptoStub        = proto::CryptoService::NewStub(getChannel());
+  if (!mFileStub)          mFileStub          = proto::FileService::NewStub(getChannel());
+  if (!mFreezeStub)        mFreezeStub        = proto::FreezeService::NewStub(getChannel());
+  if (!mNetworkStub)       mNetworkStub       = proto::NetworkService::NewStub(getChannel());
+  if (!mScheduleStub)      mScheduleStub      = proto::ScheduleService::NewStub(getChannel());
   if (!mSmartContractStub) mSmartContractStub = proto::SmartContractService::NewStub(getChannel());
-  if (!mTokenStub)         mTokenStub = proto::TokenService::NewStub(getChannel());
+  if (!mTokenStub)         mTokenStub         = proto::TokenService::NewStub(getChannel());
+  if (!mUtilStub)          mUtilStub          = proto::UtilService::NewStub(getChannel());
   // clang-format on
 }
 
@@ -287,6 +290,7 @@ void Node::closeStubs()
   mScheduleStub = nullptr;
   mSmartContractStub = nullptr;
   mTokenStub = nullptr;
+  mUtilStub = nullptr;
 }
 
 } // namespace Hedera::internal

@@ -32,6 +32,7 @@
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
 
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <utility>
@@ -127,6 +128,16 @@ public:
    * All token associations implicitly created while handling this transaction.
    */
   std::vector<TokenAssociation> mAutomaticTokenAssociations;
+
+  /**
+   * In the record of a PrngTransaction with no range, a pseudorandom 384-bit string.
+   */
+  std::vector<std::byte> mPrngBytes;
+
+  /**
+   * In the record of a PrngTransaction with a range, the pseudorandom 32-bit number.
+   */
+  std::optional<int> mPrngNumber;
 
   /**
    * The new default EVM address of the account created by transaction with which this TransactionRecord is

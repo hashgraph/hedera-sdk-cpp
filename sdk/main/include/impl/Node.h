@@ -28,6 +28,7 @@
 #include <proto/schedule_service.grpc.pb.h>
 #include <proto/smart_contract_service.grpc.pb.h>
 #include <proto/token_service.grpc.pb.h>
+#include <proto/util_service.grpc.pb.h>
 
 #include "AccountId.h"
 #include "BaseNode.h"
@@ -229,6 +230,11 @@ private:
    * Pointer to the gRPC stub used to communicate with the token service living on the remote node.
    */
   std::unique_ptr<proto::TokenService::Stub> mTokenStub = nullptr;
+
+  /**
+   * Pointer to the gRPC stub used to communicate with the utility service living on the remote node.
+   */
+  std::unique_ptr<proto::UtilService::Stub> mUtilStub = nullptr;
 
   /**
    * The AccountId that runs the remote node represented by this Node.

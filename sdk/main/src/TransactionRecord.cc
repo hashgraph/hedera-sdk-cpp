@@ -107,6 +107,15 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
       TokenAssociation::fromProtobuf(proto.automatic_token_associations(i)));
   }
 
+  if (proto.has_prng_bytes())
+  {
+    transactionRecord.mPrngBytes = internal::Utilities::stringToByteVector(proto.prng_bytes());
+  }
+  else if (proto.has_prng_number())
+  {
+    transactionRecord.mPrngNumber = proto.prng_number();
+  }
+
   if (!proto.evm_address().empty())
   {
     transactionRecord.mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.evm_address()));
