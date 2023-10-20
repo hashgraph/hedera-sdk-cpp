@@ -152,7 +152,8 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/OpenSSLUtils.cc
         src/impl/RLPItem.cc
         src/impl/TimestampConverter.cc
-        src/impl/Utilities.cc)
+        src/impl/Utilities.cc
+        src/impl/HttpClient.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
