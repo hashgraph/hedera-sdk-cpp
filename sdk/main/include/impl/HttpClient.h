@@ -1,6 +1,7 @@
 #include <curl/curl.h>
 #include <iostream>
 #include <string>
+#include <memory>
 
 class HttpClient
 {
