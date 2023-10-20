@@ -33,6 +33,7 @@ set(SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-schedule-identic
 set(SCHEDULE_MULTI_SIG_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-schedule-multisig-transaction-example)
 set(SCHEDULE_TRANSACTION_MULTI_SIG_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-schedule-transaction-multisig-threshold-example)
 set(SCHEDULE_TRANSFER_EXAMPLE_NAME ${PROJECT_NAME}-schedule-transfer-example)
+set(SOLIDITY_PRECOMPILE_EXAMPLE_NAME ${PROJECT_NAME}-solidity-precompile-example)
 set(STAKING_EXAMPLE_NAME ${PROJECT_NAME}-staking-example)
 set(TRANSFER_CRYPTO_EXAMPLE_NAME ${PROJECT_NAME}-transfer-crypto-example)
 set(TRANSFER_TOKENS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-tokens-example)
@@ -74,6 +75,7 @@ add_executable(${SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME} ScheduleIdenticalT
 add_executable(${SCHEDULE_MULTI_SIG_TRANSACTION_EXAMPLE_NAME} ScheduleMultiSigTransactionExample.cc)
 add_executable(${SCHEDULE_TRANSACTION_MULTI_SIG_TRANSACTION_EXAMPLE_NAME} ScheduleTransactionMultiSigThresholdExample.cc)
 add_executable(${SCHEDULE_TRANSFER_EXAMPLE_NAME} ScheduleTransferExample.cc)
+add_executable(${SOLIDITY_PRECOMPILE_EXAMPLE_NAME} SolidityPrecompileExample.cc)
 add_executable(${STAKING_EXAMPLE_NAME} StakingExample.cc)
 add_executable(${TRANSFER_CRYPTO_EXAMPLE_NAME} TransferCryptoExample.cc)
 add_executable(${TRANSFER_TOKENS_EXAMPLE_NAME} TransferTokensExample.cc)
@@ -93,6 +95,8 @@ file(COPY ${PROJECT_SOURCE_DIR}/config/local_node.json
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 file(COPY ${PROJECT_SOURCE_DIR}/config/stateful.json
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+
+file(COPY precompile-example DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
 # Install gRPC's roots.pem file for Windows with the examples so that it can be easily referenced.
 if (WIN32)
@@ -135,6 +139,7 @@ target_link_libraries(${SCHEDULE_IDENTICAL_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PR
 target_link_libraries(${SCHEDULE_MULTI_SIG_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_TRANSACTION_MULTI_SIG_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SCHEDULE_TRANSFER_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${SOLIDITY_PRECOMPILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${STAKING_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_CRYPTO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_TOKENS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -179,6 +184,7 @@ install(TARGETS
         ${SCHEDULE_MULTI_SIG_TRANSACTION_EXAMPLE_NAME}
         ${SCHEDULE_TRANSACTION_MULTI_SIG_TRANSACTION_EXAMPLE_NAME}
         ${SCHEDULE_TRANSFER_EXAMPLE_NAME}
+        ${SOLIDITY_PRECOMPILE_EXAMPLE_NAME}
         ${STAKING_EXAMPLE_NAME}
         ${TRANSFER_CRYPTO_EXAMPLE_NAME}
         ${TRANSFER_TOKENS_EXAMPLE_NAME}
