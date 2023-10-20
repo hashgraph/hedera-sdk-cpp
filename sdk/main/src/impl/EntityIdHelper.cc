@@ -167,7 +167,7 @@ std::string checksum(std::string_view address, const LedgerId& ledgerId)
   unsigned int ledgerIdWeightedSum = 0U;
   std::for_each(ledgerIdArray.cbegin(),
                 ledgerIdArray.cend(),
-                [&ledgerIdWeightedSum](std::byte byte)
+                [&ledgerIdWeightedSum, &weight](std::byte byte)
                 { ledgerIdWeightedSum = ledgerIdWeightedSum * weight + std::to_integer<unsigned int>(byte); });
   ledgerIdWeightedSum %= p5;
 
