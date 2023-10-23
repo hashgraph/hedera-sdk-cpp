@@ -145,6 +145,7 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/EntityIdHelper.cc
         src/impl/HederaCertificateVerifier.cc
         src/impl/HexConverter.cc
+        src/impl/HttpClient.cc
         src/impl/MirrorNetwork.cc
         src/impl/MirrorNode.cc
         src/impl/Network.cc
@@ -152,8 +153,7 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/OpenSSLUtils.cc
         src/impl/RLPItem.cc
         src/impl/TimestampConverter.cc
-        src/impl/Utilities.cc
-        src/impl/HttpClient.cc)
+        src/impl/Utilities.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})

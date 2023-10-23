@@ -1,8 +1,32 @@
+/*-
+ *
+ * Hedera C++ SDK
+ *
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#ifndef HEDERA_SDK_CPP_IMPL_HTTP_CLIENT_H_
+#define HEDERA_SDK_CPP_IMPL_HTTP_CLIENT_H_
+
 #include <curl/curl.h>
 #include <iostream>
-#include <string>
 #include <memory>
+#include <string>
 
+namespace Hedera::internal
+{
 class HttpClient
 {
 public:
@@ -16,8 +40,8 @@ public:
    */
   HttpClient();
 
-  HttpClient(const HttpClient&) = delete;            // no need as only one httpClient could be used
-  HttpClient& operator=(const HttpClient&) = delete; // no need as only one httpClient could be used
+  HttpClient(const HttpClient&) = delete; // no use case for httpClient copy
+  HttpClient& operator=(const HttpClient&) = delete; // no use case for httpClient copy
 
   /**
    * @brief Destructor for HttpClient.
@@ -32,7 +56,7 @@ public:
    * @param rpcMethod The RPC method.
    * @return The fetched data as a string.
    */
-  [[nodiscard]] const std::string invokeRPC(const std::string& url, const std::string& rpcMethod);
+  [[nodiscard]] std::string invokeRPC(const std::string& url, const std::string& rpcMethod);
   /**
    * @brief This invokeREST function creates GET and POST requests.
    *  Can be further extended for supporting other HTTP
@@ -42,9 +66,9 @@ public:
    * @param requestBody The HTTP request body.
    * @return The fetched data as a string.
    */
-  [[nodiscard]] const std::string invokeREST(const std::string& url,
-                                             const std::string& httpMethod,
-                                             const std::string& requestBody);
+  [[nodiscard]] std::string invokeREST(const std::string& url,
+                                       const std::string& httpMethod,
+                                       const std::string& requestBody);
   /**
    * @brief The callback function used for writing fetched data.
    * @param contents A pointer to the fetched data.
@@ -56,3 +80,7 @@ public:
 private:
   static size_t writeCallback(char* contents, size_t size, size_t nmemb, std::string* output);
 };
+
+} // namespace Hedera::internal
+
+#endif // HEDERA_SDK_CPP_IMPL_HTTP_CLIENT_H_

@@ -1,5 +1,7 @@
 #include "impl/HttpClient.h"
 
+namespace Hedera::internal
+{
 HttpClient::HttpClient()
 {
   if (curl_global_init(CURL_GLOBAL_DEFAULT) != 0)
@@ -16,7 +18,7 @@ HttpClient::~HttpClient()
 // example mirrorNode query httpClient.invokeREST("https://testnet.mirrornode.hedera.com/api/v1/accounts/" + newAccountId ,"GET","");
 // note: should time out before calling this function because the mirror node is not updated on time if accountID has been created
 // exactly before the call. Works without timeout if the data in the mirror node is there from some seconds beforehand
-const std::string HttpClient::invokeREST(const std::string& url,
+std::string HttpClient::invokeREST(const std::string& url,
                                          const std::string& httpMethod,
                                          const std::string& requestBody)
 {
@@ -52,7 +54,7 @@ const std::string HttpClient::invokeREST(const std::string& url,
 
 // example infura query: rpcMethod = R"({"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":[")" + hash +
 // R"("],"id":1})"
-const std::string HttpClient::invokeRPC(const std::string& url, const std::string& rpcMethod)
+std::string HttpClient::invokeRPC(const std::string& url, const std::string& rpcMethod)
 {
   std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl(curl_easy_init(), curl_easy_cleanup);
   if (!curl)
@@ -89,3 +91,4 @@ size_t HttpClient::writeCallback(char* contents, size_t size, size_t nmemb, std:
   output->append(contents, totalSize);
   return totalSize;
 };
+} // namespace Hedera::internal
