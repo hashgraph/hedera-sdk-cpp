@@ -66,10 +66,9 @@ TEST_F(HttpClientIntegrationTest, GETAccountFromLocalMirrorNode)
   // When 
   internal::HttpClient httpClient;
   std::string response;
-
-  // Then
   ASSERT_NO_THROW(response = httpClient.invokeREST(url,"GET"));
-
+  
+  // Then
   json responseData = json::parse(response);
 
   ASSERT_FALSE(responseData.empty());
