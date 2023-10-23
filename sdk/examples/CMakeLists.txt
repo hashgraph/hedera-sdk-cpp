@@ -40,6 +40,7 @@ set(STAKING_EXAMPLE_NAME ${PROJECT_NAME}-staking-example)
 set(TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME ${PROJECT_NAME}-topic-with-admin-key-example)
 set(TRANSFER_CRYPTO_EXAMPLE_NAME ${PROJECT_NAME}-transfer-crypto-example)
 set(TRANSFER_TOKENS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-tokens-example)
+set(TRANSFER_USING_EVM_ADDRESS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-using-evm-address-example)
 set(UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME ${PROJECT_NAME}-update-account-public-key-example)
 set(VALIDATE_CHECKSUM_EXAMPLE_NAME ${PROJECT_NAME}-validate-checksum-example)
 
@@ -85,6 +86,7 @@ add_executable(${STAKING_EXAMPLE_NAME} StakingExample.cc)
 add_executable(${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME} TopicWithAdminKeyExample.cc)
 add_executable(${TRANSFER_CRYPTO_EXAMPLE_NAME} TransferCryptoExample.cc)
 add_executable(${TRANSFER_TOKENS_EXAMPLE_NAME} TransferTokensExample.cc)
+add_executable(${TRANSFER_USING_EVM_ADDRESS_EXAMPLE_NAME} TransferUsingEvmAddressExample.cc)
 add_executable(${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME} UpdateAccountPublicKeyExample.cc)
 add_executable(${VALIDATE_CHECKSUM_EXAMPLE_NAME} ValidateChecksumExample.cc)
 
@@ -150,6 +152,7 @@ target_link_libraries(${STAKING_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_CRYPTO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_TOKENS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${TRANSFER_USING_EVM_ADDRESS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${VALIDATE_CHECKSUM_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 
@@ -198,6 +201,7 @@ install(TARGETS
         ${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME}
         ${TRANSFER_CRYPTO_EXAMPLE_NAME}
         ${TRANSFER_TOKENS_EXAMPLE_NAME}
+        ${TRANSFER_USING_EVM_ADDRESS_EXAMPLE_NAME}
         ${UPDATE_ACCOUNT_PUBLIC_KEY_EXAMPLE_NAME}
         ${VALIDATE_CHECKSUM_EXAMPLE_NAME}
         RUNTIME DESTINATION examples)
