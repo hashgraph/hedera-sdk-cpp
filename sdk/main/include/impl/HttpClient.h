@@ -68,7 +68,7 @@ public:
    */
   [[nodiscard]] std::string invokeREST(const std::string& url,
                                        const std::string& httpMethod,
-                                       const std::string& requestBody);
+                                       const std::string& requestBody = "");
   /**
    * @brief The callback function used for writing fetched data.
    * @param contents A pointer to the fetched data.
