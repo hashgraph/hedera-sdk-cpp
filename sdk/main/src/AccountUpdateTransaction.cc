@@ -105,6 +105,14 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAccountMemo(std::string_v
 }
 
 //-----
+AccountUpdateTransaction& AccountUpdateTransaction::clearAccountMemo()
+{
+  requireNotFrozen();
+  mAccountMemo = "";
+  return *this;
+}
+
+//-----
 AccountUpdateTransaction& AccountUpdateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
 {
   requireNotFrozen();
@@ -129,11 +137,30 @@ AccountUpdateTransaction& AccountUpdateTransaction::setStakedAccountId(const Acc
 }
 
 //-----
+AccountUpdateTransaction& AccountUpdateTransaction::clearStakedAccountId()
+{
+  requireNotFrozen();
+  mStakedAccountId = AccountId(0ULL);
+  mStakedNodeId.reset();
+  return *this;
+}
+
+//-----
 AccountUpdateTransaction& AccountUpdateTransaction::setStakedNodeId(const uint64_t& stakedNodeId)
 {
   requireNotFrozen();
 
   mStakedNodeId = stakedNodeId;
+  mStakedAccountId.reset();
+  return *this;
+}
+
+//-----
+AccountUpdateTransaction& AccountUpdateTransaction::clearStakedNodeId()
+{
+  requireNotFrozen();
+
+  mStakedNodeId = -1LL;
   mStakedAccountId.reset();
   return *this;
 }

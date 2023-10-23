@@ -301,6 +301,33 @@ TEST_F(AccountUpdateTransactionTest, SetAccountMemoFrozen)
 }
 
 //-----
+TEST_F(AccountUpdateTransactionTest, ClearAccountMemo)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+
+  // When
+  EXPECT_NO_THROW(transaction.clearAccountMemo());
+
+  // Then
+  EXPECT_TRUE(transaction.getAccountMemo().has_value());
+  EXPECT_TRUE(transaction.getAccountMemo().value().empty());
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, ClearAccountMemoFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
+
+  // When / Then
+  EXPECT_THROW(transaction.clearAccountMemo(), IllegalStateException);
+}
+
+//-----
 TEST_F(AccountUpdateTransactionTest, SetMaxAutomaticTokenAssociations)
 {
   // Given
@@ -363,6 +390,32 @@ TEST_F(AccountUpdateTransactionTest, SetStakedAccountIdFrozen)
 }
 
 //-----
+TEST_F(AccountUpdateTransactionTest, ClearStakedAccountId)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+
+  // When
+  EXPECT_NO_THROW(transaction.clearStakedAccountId());
+
+  // Then
+  EXPECT_EQ(transaction.getStakedAccountId(), AccountId(0ULL));
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, ClearStakedAccountIdFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
+
+  // When / Then
+  EXPECT_THROW(transaction.clearStakedAccountId(), IllegalStateException);
+}
+
+//-----
 TEST_F(AccountUpdateTransactionTest, SetStakedNodeId)
 {
   // Given
@@ -386,6 +439,32 @@ TEST_F(AccountUpdateTransactionTest, SetStakedNodeIdFrozen)
 
   // When / Then
   EXPECT_THROW(transaction.setStakedNodeId(getTestStakedNodeId()), IllegalStateException);
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, ClearStakedNodeId)
+{
+  // Given
+  AccountUpdateTransaction transaction;
+
+  // When
+  EXPECT_NO_THROW(transaction.clearStakedNodeId());
+
+  // Then
+  EXPECT_EQ(transaction.getStakedNodeId(), -1LL);
+}
+
+//-----
+TEST_F(AccountUpdateTransactionTest, ClearStakedNodeIdFrozen)
+{
+  // Given
+  AccountUpdateTransaction transaction = AccountUpdateTransaction()
+                                           .setNodeAccountIds({ AccountId(1ULL) })
+                                           .setTransactionId(TransactionId::generate(AccountId(1ULL)));
+  ASSERT_NO_THROW(transaction.freeze());
+
+  // When / Then
+  EXPECT_THROW(transaction.clearStakedNodeId(), IllegalStateException);
 }
 
 //-----

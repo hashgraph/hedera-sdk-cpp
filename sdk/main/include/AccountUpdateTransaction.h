@@ -126,6 +126,14 @@ public:
   AccountUpdateTransaction& setAccountMemo(std::string_view memo);
 
   /**
+   * Clear the memo for the account.
+   *
+   * @return A reference to this AccountUpdateTransaction object with the newly-cleared memo.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
+   */
+  AccountUpdateTransaction& clearAccountMemo();
+
+  /**
    * Set the new maximum automatic token associations the account can have.
    *
    * @param associations The desired new maximum amount of token associations for the account.
@@ -147,6 +155,14 @@ public:
   AccountUpdateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
   /**
+   * Clear the account to which this account should stake.
+   *
+   * @return A reference to this AccountUpdateTransaction object with the newly-cleared staked account ID.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
+   */
+  AccountUpdateTransaction& clearStakedAccountId();
+
+  /**
    * Set the new node to which the account should stake. This is mutually exclusive with mStakedAccountId, and will
    * reset the value of the mStakedAccountId if it is set.
    *
@@ -155,6 +171,14 @@ public:
    * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
   AccountUpdateTransaction& setStakedNodeId(const uint64_t& stakedNodeId);
+
+  /**
+   * Clear the node to which this account should stake.
+   *
+   * @return A reference to this AccountUpdateTransaction object with the newly-cleared staked node ID.
+   * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
+   */
+  AccountUpdateTransaction& clearStakedNodeId();
 
   /**
    * Set a new staking reward reception policy for the account.
