@@ -48,6 +48,14 @@ KeyList KeyList::of(const std::vector<std::shared_ptr<Key>>& keys)
 }
 
 //-----
+KeyList KeyList::withThreshold(int threshold)
+{
+  KeyList keyList;
+  keyList.mThreshold = threshold;
+  return keyList;
+}
+
+//-----
 std::unique_ptr<Key> KeyList::clone() const
 {
   return std::make_unique<KeyList>(*this);
