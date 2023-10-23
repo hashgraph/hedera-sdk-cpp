@@ -52,6 +52,13 @@ TransferTransaction& TransferTransaction::addHbarTransfer(const AccountId& accou
 }
 
 //-----
+TransferTransaction& TransferTransaction::addHbarTransfer(const EvmAddress& evmAddress, const Hbar& amount)
+{
+  requireNotFrozen();
+  return addHbarTransfer(AccountId::fromEvmAddress(evmAddress), amount);
+}
+
+//-----
 TransferTransaction& TransferTransaction::addTokenTransfer(const TokenId& tokenId,
                                                            const AccountId& accountId,
                                                            const int64_t& amount)
