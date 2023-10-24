@@ -20,6 +20,7 @@
 #include "CustomFixedFee.h"
 #include "AccountId.h"
 #include "TokenId.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 #include <proto/custom_fees.pb.h>
@@ -55,6 +56,30 @@ TEST_F(CustomFixedFeeTest, FromProtobuf)
   // Then
   EXPECT_EQ(customFixedFee.getAmount(), getTestAmount());
   EXPECT_EQ(customFixedFee.getDenominatingTokenId(), getTestTokenId());
+}
+
+//-----
+TEST_F(CustomFixedFeeTest, FromBytes)
+{
+  // Given
+  proto::CustomFee protoFee;
+  protoFee.set_allocated_fee_collector_account_id(getTestFeeCollectorAccountId().toProtobuf().release());
+  protoFee.set_all_collectors_are_exempt(getTestAllCollectorsAreExempt());
+  protoFee.mutable_fixed_fee()->set_amount(static_cast<int64_t>(getTestAmount()));
+  protoFee.mutable_fixed_fee()->set_allocated_denominating_token_id(getTestTokenId().toProtobuf().release());
+
+  // When
+  std::unique_ptr<CustomFee> customFee =
+    CustomFee::fromBytes(internal::Utilities::stringToByteVector(protoFee.SerializeAsString()));
+
+  // Then
+  ASSERT_NE(dynamic_cast<CustomFixedFee*>(customFee.get()), nullptr);
+
+  const std::unique_ptr<CustomFixedFee> customFixedFee(dynamic_cast<CustomFixedFee*>(customFee.release()));
+  EXPECT_EQ(customFixedFee->getFeeCollectorAccountId(), getTestFeeCollectorAccountId());
+  EXPECT_EQ(customFixedFee->getAllCollectorsAreExempt(), getTestAllCollectorsAreExempt());
+  EXPECT_EQ(customFixedFee->getAmount(), getTestAmount());
+  EXPECT_EQ(customFixedFee->getDenominatingTokenId(), getTestTokenId());
 }
 
 //-----

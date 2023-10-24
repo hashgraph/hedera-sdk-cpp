@@ -22,7 +22,9 @@
 
 #include "AccountId.h"
 
+#include <cstddef>
 #include <memory>
+#include <vector>
 
 namespace proto
 {
@@ -55,6 +57,14 @@ public:
   [[nodiscard]] static std::unique_ptr<CustomFee> fromProtobuf(const proto::CustomFee& proto);
 
   /**
+   * Create a CustomFee object from a byte array.
+   *
+   * @param bytes The byte array from which to create an CustomFee object.
+   * @return A pointer to the constructed CustomFee object.
+   */
+  [[nodiscard]] static std::unique_ptr<CustomFee> fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
    * Create a clone of this CustomFee object.
    *
    * @return A pointer to the created clone of this CustomFee.
@@ -75,6 +85,13 @@ public:
    * @throws BadEntityException This CustomFee's checksums are not valid.
    */
   virtual void validateChecksums(const Client& client) const;
+
+  /**
+   * Construct a byte array from this CustomFee object.
+   *
+   * @return A byte array filled with this CustomFee object's data.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
 
   /**
    * Get the ID of the desired fee collector account.

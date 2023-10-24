@@ -20,6 +20,7 @@
 #include "CustomFractionalFee.h"
 #include "AccountId.h"
 #include "FeeAssessmentMethod.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 #include <proto/custom_fees.pb.h>
@@ -68,6 +69,37 @@ TEST_F(CustomFractionalFeeTest, FromProtobuf)
   EXPECT_EQ(customFractionalFee.getMinimumAmount(), getTestMinAmount());
   EXPECT_EQ(customFractionalFee.getMaximumAmount(), getTestMaxAmount());
   EXPECT_EQ(customFractionalFee.getAssessmentMethod(), getTestAssessmentMethod());
+}
+
+//-----
+TEST_F(CustomFractionalFeeTest, FromBytes)
+{
+  // Given
+  proto::CustomFee protoFee;
+  protoFee.set_allocated_fee_collector_account_id(getTestFeeCollectorAccountId().toProtobuf().release());
+  protoFee.set_all_collectors_are_exempt(getTestAllCollectorsAreExempt());
+  protoFee.mutable_fractional_fee()->mutable_fractional_amount()->set_numerator(getTestNumerator());
+  protoFee.mutable_fractional_fee()->mutable_fractional_amount()->set_denominator(getTestDenominator());
+  protoFee.mutable_fractional_fee()->set_minimum_amount(static_cast<int64_t>(getTestMinAmount()));
+  protoFee.mutable_fractional_fee()->set_maximum_amount(static_cast<int64_t>(getTestMaxAmount()));
+  protoFee.mutable_fractional_fee()->set_net_of_transfers(getTestAssessmentMethod() == FeeAssessmentMethod::EXCLUSIVE);
+
+  // When
+  std::unique_ptr<CustomFee> customFee =
+    CustomFee::fromBytes(internal::Utilities::stringToByteVector(protoFee.SerializeAsString()));
+
+  // Then
+  ASSERT_NE(dynamic_cast<CustomFractionalFee*>(customFee.get()), nullptr);
+
+  const std::unique_ptr<CustomFractionalFee> customFractionalFee(
+    dynamic_cast<CustomFractionalFee*>(customFee.release()));
+  EXPECT_EQ(customFractionalFee->getFeeCollectorAccountId(), getTestFeeCollectorAccountId());
+  EXPECT_EQ(customFractionalFee->getAllCollectorsAreExempt(), getTestAllCollectorsAreExempt());
+  EXPECT_EQ(customFractionalFee->getNumerator(), getTestNumerator());
+  EXPECT_EQ(customFractionalFee->getDenominator(), getTestDenominator());
+  EXPECT_EQ(customFractionalFee->getMinimumAmount(), getTestMinAmount());
+  EXPECT_EQ(customFractionalFee->getMaximumAmount(), getTestMaxAmount());
+  EXPECT_EQ(customFractionalFee->getAssessmentMethod(), getTestAssessmentMethod());
 }
 
 //-----
