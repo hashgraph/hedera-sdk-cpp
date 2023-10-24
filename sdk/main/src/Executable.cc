@@ -138,6 +138,13 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
   for (unsigned int attempt = 0U;; ++attempt)
   {
+    // Get the timeout for the current attempt.
+    std::chrono::system_clock::time_point attemptTimeout = std::chrono::system_clock::now() + mCurrentGrpcDeadline;
+    if (attemptTimeout > timeoutTime)
+    {
+      attemptTimeout = timeoutTime;
+    }
+
     if (attempt >= mCurrentMaxAttempts)
     {
       throw MaxAttemptsExceededException(
@@ -164,11 +171,15 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     }
 
     // Create the request based on the index of the node being used.
-    const ProtoRequestType request = makeRequest(nodeIndex);
+    ProtoRequestType request = makeRequest(nodeIndex);
+    if (mRequestListener)
+    {
+      request = mRequestListener(request);
+    }
 
     // Submit the request and get the response.
     ProtoResponseType response;
-    const grpc::Status status = submitRequest(request, node, timeoutTime, &response);
+    const grpc::Status status = submitRequest(request, node, attemptTimeout, &response);
 
     // Increase backoff for this node but try submitting again for UNAVAILABLE, RESOURCE_EXHAUSTED, and INTERNAL
     // responses.
@@ -182,6 +193,12 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
     // Successful submission, so decrease backoff for this node.
     node->decreaseBackoff();
+
+    // Call the response callback if one exists.
+    if (mResponseListener)
+    {
+      response = mResponseListener(response);
+    }
 
     // Grab and save the response status, and determine what to do next.
     const Status responseStatus = mapResponseStatus(response);
@@ -209,6 +226,11 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
       {
         std::this_thread::sleep_for(mCurrentBackoff);
         mCurrentBackoff *= 2.0;
+        if (mCurrentBackoff > mCurrentMaxBackoff)
+        {
+          mCurrentBackoff = mCurrentMaxBackoff;
+        }
+
         break;
       }
       case ExecutionStatus::REQUEST_ERROR:
@@ -234,6 +256,24 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setRequestListener(
+  const std::function<ProtoRequestType(ProtoRequestType&)>& listener)
+{
+  mRequestListener = listener;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setResponseListener(
+  const std::function<ProtoResponseType(ProtoResponseType&)>& listener)
+{
+  mResponseListener = listener;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMaxAttempts(
   uint32_t attempts)
 {
@@ -246,7 +286,8 @@ template<typename SdkRequestType, typename ProtoRequestType, typename ProtoRespo
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMinBackoff(
   const std::chrono::duration<double>& backoff)
 {
-  if ((mMaxBackoff && backoff > *mMaxBackoff) || (!mMaxBackoff && backoff > DEFAULT_MAX_BACKOFF))
+  if ((mMaxBackoff.has_value() && backoff > mMaxBackoff.value()) ||
+      (!mMaxBackoff.has_value() && backoff > DEFAULT_MAX_BACKOFF))
   {
     throw std::invalid_argument("Minimum backoff would be larger than maximum backoff");
   }
@@ -260,12 +301,22 @@ template<typename SdkRequestType, typename ProtoRequestType, typename ProtoRespo
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMaxBackoff(
   const std::chrono::duration<double>& backoff)
 {
-  if ((mMinBackoff && backoff < *mMinBackoff) || (!mMinBackoff && backoff < DEFAULT_MIN_BACKOFF))
+  if ((mMinBackoff.has_value() && backoff < mMinBackoff.value()) ||
+      (!mMinBackoff.has_value() && backoff < DEFAULT_MIN_BACKOFF))
   {
     throw std::invalid_argument("Maximum backoff would be smaller than minimum backoff");
   }
 
   mMaxBackoff = backoff;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setGrpcDeadline(
+  const std::chrono::system_clock::duration& deadline)
+{
+  mGrpcDeadline = deadline;
   return static_cast<SdkRequestType&>(*this);
 }
 
@@ -296,16 +347,19 @@ template<typename SdkRequestType, typename ProtoRequestType, typename ProtoRespo
 void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setExecutionParameters(
   const Client& client)
 {
-  mCurrentMaxAttempts = mMaxAttempts              ? *mMaxAttempts
-                        : client.getMaxAttempts() ? *client.getMaxAttempts()
-                                                  : DEFAULT_MAX_ATTEMPTS;
-  mCurrentMinBackoff = mMinBackoff              ? *mMinBackoff
-                       : client.getMinBackoff() ? *client.getMinBackoff()
-                                                : DEFAULT_MIN_BACKOFF;
-  mCurrentMaxBackoff = mMaxBackoff              ? *mMaxBackoff
-                       : client.getMaxBackoff() ? *client.getMaxBackoff()
-                                                : DEFAULT_MAX_BACKOFF;
+  mCurrentMaxAttempts = mMaxAttempts.has_value()              ? mMaxAttempts.value()
+                        : client.getMaxAttempts().has_value() ? client.getMaxAttempts().value()
+                                                              : DEFAULT_MAX_ATTEMPTS;
+  mCurrentMinBackoff = mMinBackoff.has_value()              ? mMinBackoff.value()
+                       : client.getMinBackoff().has_value() ? client.getMinBackoff().value()
+                                                            : DEFAULT_MIN_BACKOFF;
+  mCurrentMaxBackoff = mMaxBackoff.has_value()              ? mMaxBackoff.value()
+                       : client.getMaxBackoff().has_value() ? client.getMaxBackoff().value()
+                                                            : DEFAULT_MAX_BACKOFF;
   mCurrentBackoff = mCurrentMinBackoff;
+  mCurrentGrpcDeadline = mGrpcDeadline.has_value()              ? mGrpcDeadline.value()
+                         : client.getGrpcDeadline().has_value() ? client.getGrpcDeadline().value()
+                                                                : DEFAULT_GRPC_DEADLINE;
 }
 
 //-----

@@ -90,6 +90,26 @@ public:
   virtual SdkRequestType& setNodeAccountIds(std::vector<AccountId> nodeAccountIds);
 
   /**
+   * Set a callback to be called right before a request is sent. The callback will receive the request protobuf and the
+   * callback should return the same request protobuf. The callback has an opportunity to read, copy, or modify the
+   * request that will be sent.
+   *
+   * @param listener The request listener.
+   * @return A reference to this Executable derived class with the newly-set request listener.
+   */
+  SdkRequestType& setRequestListener(const std::function<ProtoRequestType(ProtoRequestType&)>& listener);
+
+  /**
+   * Set a callback to be called right before a response is returned. The callback will receive the response protobuf
+   * and the callback should return the same response protobuf. The callback has an opportunity to read, copy, or modify
+   * the response that will be used.
+   *
+   * @param listener The response listener.
+   * @return A reference to this Executable derived class with the newly-set response listener.
+   */
+  SdkRequestType& setResponseListener(const std::function<ProtoResponseType(ProtoResponseType&)>& listener);
+
+  /**
    * Set the maximum number of times this Executable should try to resubmit itself after a failed attempt before it
    * considers itself a failure. This will override the maximum number of attempts of the Client used to submit this
    * Executable.
@@ -124,6 +144,15 @@ public:
   SdkRequestType& setMaxBackoff(const std::chrono::duration<double>& backoff);
 
   /**
+   * Set the maximum amount of time this Executable should spend trying to execute a request before giving up on that
+   * request attempt. This will override the gRPC deadline of the Client used to submit this Executable.
+   *
+   * @param deadline The desired maximum amount of time this Executable should spend trying to execute one request.
+   * @return A reference to this Executable derived class with the newly-set gRPC deadline time.
+   */
+  SdkRequestType& setGrpcDeadline(const std::chrono::system_clock::duration& deadline);
+
+  /**
    * Get the list of account IDs for nodes with which execution will be attempted.
    *
    * @return The list of account IDs of nodes this Executable would attempt request submission.
@@ -155,6 +184,18 @@ public:
    *         previously set.
    */
   [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMaxBackoff() const { return mMaxBackoff; }
+
+  /**
+   * Set the maximum amount of time this Executable should spend trying to execute a request before giving up on that
+   * request attempt.
+   *
+   * @return The maximum backoff time this Executable should spend on one submission attempt. Uninitialized value if not
+   *         previously set.
+   */
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getGrpcDeadline() const
+  {
+    return mGrpcDeadline;
+  }
 
 protected:
   Executable() = default;
@@ -285,6 +326,20 @@ private:
   std::vector<AccountId> mNodeAccountIds;
 
   /**
+   * The callback to be called before a request is sent. The callback will receive the protobuf of the request and
+   * return the protobuf of the request. This allows the callback to read, copy, and/or modify the request that will be
+   * sent.
+   */
+  std::function<ProtoRequestType(ProtoRequestType&)> mRequestListener;
+
+  /**
+   * The callback to be called before a response is returned. The callback will receive the protobuf of the response and
+   * return the protobuf of the response. This allows the callback to read, copy, and/or modify the response that will
+   * be used.
+   */
+  std::function<ProtoResponseType(ProtoResponseType&)> mResponseListener;
+
+  /**
    * The maximum number of attempts that will be made to submit this Executable. If not set, a submission will use the
    * Client's set maximum number of attempts. If that's not set, DEFAULT_MAX_ATTEMPTS will be used.
    */
@@ -301,6 +356,12 @@ private:
    * maximum backoff. If that's not set, DEFAULT_MAX_BACKOFF will be used.
    */
   std::optional<std::chrono::duration<double>> mMaxBackoff;
+
+  /**
+   * The timeout for one single execution attempt. If not set, a submission will use the Client's set gRPC deadline. If
+   * that's not set, DEFAULT_GRPC_DEADLINE will be used.
+   */
+  std::optional<std::chrono::system_clock::duration> mGrpcDeadline;
 
   /**
    * The maximum number of attempts to be used for an execution. This may be this Executable's mMaxAttempts, the
@@ -326,6 +387,12 @@ private:
    * attempt, up to the specified maximum backoff time, at which point the execution is considered a failure.
    */
   std::chrono::duration<double> mCurrentBackoff = DEFAULT_MIN_BACKOFF;
+
+  /**
+   * The current gRPC deadline being used for the current execution. This may be the Executable's mGrpcDeadline, the
+   * Client's set gRPC deadline, or DEFAULT_GRPC_DEADLINE.
+   */
+  std::chrono::system_clock::duration mCurrentGrpcDeadline = DEFAULT_GRPC_DEADLINE;
 };
 
 } // namespace Hedera

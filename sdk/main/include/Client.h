@@ -244,6 +244,17 @@ public:
   Client& setMaxBackoff(const std::chrono::duration<double>& backoff);
 
   /**
+   * Set the maximum amount of time this Client should spend trying to execute a request before giving up on that
+   * request attempt. Every request submitted with this Client will have its gRPC deadline overwritten by this Client's
+   * gRPC deadline if and only if it has not been set manually in the request itself.
+   *
+   * @param deadline The desired maximum amount of time this requests submitted by this Client should spend trying to
+   *                 execute.
+   * @return A reference to this Client with the newly-set gRPC deadline.
+   */
+  Client& setGrpcDeadline(const std::chrono::system_clock::duration& deadline);
+
+  /**
    * Set the period of time this Client wait between updating its network. This will immediately cancel any scheduled
    * network updates and start a new waiting period.
    *
@@ -354,6 +365,15 @@ public:
    *         not previously set.
    */
   [[nodiscard]] std::optional<std::chrono::duration<double>> getMaxBackoff() const;
+
+  /**
+   * Get the maximum amount of time this Client should spend trying to execute a request before giving up on that
+   * request attempt.
+   *
+   * @return  The maximum amount of time this requests submitted by this Client should spend trying to execute.
+   *          Uninitialized value if not previously set.
+   */
+  [[nodiscard]] std::optional<std::chrono::system_clock::duration> getGrpcDeadline() const;
 
   /**
    * Get the period of time this Client wait between updating its network.

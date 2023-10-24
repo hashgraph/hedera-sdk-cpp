@@ -80,6 +80,10 @@ struct Client::ClientImpl
   // again after a failure to the same Node. A manually-set maximum backoff in the request will override this.
   std::optional<std::chrono::duration<double>> mMaxBackoff;
 
+  // The maximum amount of time this Client should spend trying to execute a request before giving up on that request
+  // attempt. A manually-set gRPC deadline in the request will override this.
+  std::optional<std::chrono::system_clock::duration> mGrpcDeadline;
+
   // The period of time to wait between network updates.
   std::chrono::duration<double> mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
 
@@ -497,6 +501,13 @@ Client& Client::setMaxBackoff(const std::chrono::duration<double>& backoff)
 }
 
 //-----
+Client& Client::setGrpcDeadline(const std::chrono::system_clock::duration& deadline)
+{
+  mImpl->mGrpcDeadline = deadline;
+  return *this;
+}
+
+//-----
 Client& Client::setNetworkUpdatePeriod(const std::chrono::duration<double>& update)
 {
   // Cancel any previous network updates and wait for the thread to complete.
@@ -597,6 +608,12 @@ std::optional<std::chrono::duration<double>> Client::getMinBackoff() const
 std::optional<std::chrono::duration<double>> Client::getMaxBackoff() const
 {
   return mImpl->mMaxBackoff;
+}
+
+//-----
+std::optional<std::chrono::system_clock::duration> Client::getGrpcDeadline() const
+{
+  return mImpl->mGrpcDeadline;
 }
 
 //-----
