@@ -38,6 +38,7 @@ set(SCHEDULE_TRANSFER_EXAMPLE_NAME ${PROJECT_NAME}-schedule-transfer-example)
 set(SIGN_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-sign-transaction-example)
 set(SOLIDITY_PRECOMPILE_EXAMPLE_NAME ${PROJECT_NAME}-solidity-precompile-example)
 set(STAKING_EXAMPLE_NAME ${PROJECT_NAME}-staking-example)
+set(STAKING_WITH_UPDATE_EXAMPLE_NAME ${PROJECT_NAME}-staking-with-update-example)
 set(TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME ${PROJECT_NAME}-topic-with-admin-key-example)
 set(TRANSFER_CRYPTO_EXAMPLE_NAME ${PROJECT_NAME}-transfer-crypto-example)
 set(TRANSFER_TOKENS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-tokens-example)
@@ -86,6 +87,7 @@ add_executable(${SCHEDULE_TRANSFER_EXAMPLE_NAME} ScheduleTransferExample.cc)
 add_executable(${SIGN_TRANSACTION_EXAMPLE_NAME} SignTransactionExample.cc)
 add_executable(${SOLIDITY_PRECOMPILE_EXAMPLE_NAME} SolidityPrecompileExample.cc)
 add_executable(${STAKING_EXAMPLE_NAME} StakingExample.cc)
+add_executable(${STAKING_WITH_UPDATE_EXAMPLE_NAME} StakingWithUpdateExample.cc)
 add_executable(${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME} TopicWithAdminKeyExample.cc)
 add_executable(${TRANSFER_CRYPTO_EXAMPLE_NAME} TransferCryptoExample.cc)
 add_executable(${TRANSFER_TOKENS_EXAMPLE_NAME} TransferTokensExample.cc)
@@ -156,6 +158,7 @@ target_link_libraries(${SCHEDULE_TRANSFER_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SIGN_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SOLIDITY_PRECOMPILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${STAKING_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${STAKING_WITH_UPDATE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_CRYPTO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_TOKENS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -207,6 +210,7 @@ install(TARGETS
         ${SIGN_TRANSACTION_EXAMPLE_NAME}
         ${SOLIDITY_PRECOMPILE_EXAMPLE_NAME}
         ${STAKING_EXAMPLE_NAME}
+        ${STAKING_WITH_UPDATE_EXAMPLE_NAME}
         ${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME}
         ${TRANSFER_CRYPTO_EXAMPLE_NAME}
         ${TRANSFER_TOKENS_EXAMPLE_NAME}

@@ -146,6 +146,7 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/EntityIdHelper.cc
         src/impl/HederaCertificateVerifier.cc
         src/impl/HexConverter.cc
+        src/impl/HttpClient.cc
         src/impl/MirrorNetwork.cc
         src/impl/MirrorNode.cc
         src/impl/Network.cc
@@ -264,6 +265,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         absl::throw_delegate
         absl::time
         absl::time_zone)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         upb::upb
