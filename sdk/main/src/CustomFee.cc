@@ -22,6 +22,7 @@
 #include "CustomFixedFee.h"
 #include "CustomFractionalFee.h"
 #include "CustomRoyaltyFee.h"
+#include "impl/Utilities.h"
 
 #include <proto/custom_fees.pb.h>
 
@@ -30,23 +31,51 @@ namespace Hedera
 //-----
 std::unique_ptr<CustomFee> CustomFee::fromProtobuf(const proto::CustomFee& proto)
 {
+  std::unique_ptr<CustomFee> fee;
   switch (proto.fee_case())
   {
     case proto::CustomFee::FeeCase::kFixedFee:
-      return std::make_unique<CustomFixedFee>(CustomFixedFee::fromProtobuf(proto.fixed_fee()));
+    {
+      fee = std::make_unique<CustomFixedFee>(CustomFixedFee::fromProtobuf(proto.fixed_fee()));
+      break;
+    }
     case proto::CustomFee::FeeCase::kFractionalFee:
-      return std::make_unique<CustomFractionalFee>(CustomFractionalFee::fromProtobuf(proto.fractional_fee()));
+    {
+      fee = std::make_unique<CustomFractionalFee>(CustomFractionalFee::fromProtobuf(proto.fractional_fee()));
+      break;
+    }
     case proto::CustomFee::FeeCase::kRoyaltyFee:
-      return std::make_unique<CustomRoyaltyFee>(CustomRoyaltyFee::fromProtobuf(proto.royalty_fee()));
+    {
+      fee = std::make_unique<CustomRoyaltyFee>(CustomRoyaltyFee::fromProtobuf(proto.royalty_fee()));
+      break;
+    }
     default:
       throw std::invalid_argument("Fee protobuf case not recognized");
   }
+
+  fee->mFeeCollectorAccountId = AccountId::fromProtobuf(proto.fee_collector_account_id());
+  fee->mAllCollectorsAreExempt = proto.all_collectors_are_exempt();
+  return fee;
+}
+
+//-----
+std::unique_ptr<CustomFee> CustomFee::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::CustomFee fee;
+  fee.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(fee);
 }
 
 //-----
 void CustomFee::validateChecksums(const Client& client) const
 {
   mFeeCollectorAccountId.validateChecksum(client);
+}
+
+//-----
+std::vector<std::byte> CustomFee::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
 //-----

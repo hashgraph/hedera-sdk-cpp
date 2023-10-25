@@ -21,6 +21,7 @@
 #include "AccountId.h"
 #include "CustomFixedFee.h"
 #include "TokenId.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 #include <proto/custom_fees.pb.h>
@@ -60,6 +61,32 @@ TEST_F(CustomRoyaltyFeeTest, FromProtobuf)
   EXPECT_EQ(customRoyaltyFee.getNumerator(), getTestNumerator());
   EXPECT_EQ(customRoyaltyFee.getDenominator(), getTestDenominator());
   EXPECT_TRUE(customRoyaltyFee.getFallbackFee().has_value());
+}
+
+//-----
+TEST_F(CustomRoyaltyFeeTest, FromBytes)
+{
+  // Given
+  proto::CustomFee protoFee;
+  protoFee.set_allocated_fee_collector_account_id(getTestFeeCollectorAccountId().toProtobuf().release());
+  protoFee.set_all_collectors_are_exempt(getTestAllCollectorsAreExempt());
+  protoFee.mutable_royalty_fee()->mutable_exchange_value_fraction()->set_numerator(getTestNumerator());
+  protoFee.mutable_royalty_fee()->mutable_exchange_value_fraction()->set_denominator(getTestDenominator());
+  protoFee.mutable_royalty_fee()->set_allocated_fallback_fee(getTestFallbackFee().toFixedFeeProtobuf().release());
+
+  // When
+  std::unique_ptr<CustomFee> customFee =
+    CustomFee::fromBytes(internal::Utilities::stringToByteVector(protoFee.SerializeAsString()));
+
+  // Then
+  ASSERT_NE(dynamic_cast<CustomRoyaltyFee*>(customFee.get()), nullptr);
+
+  const std::unique_ptr<CustomRoyaltyFee> customRoyaltyFee(dynamic_cast<CustomRoyaltyFee*>(customFee.release()));
+  EXPECT_EQ(customRoyaltyFee->getFeeCollectorAccountId(), getTestFeeCollectorAccountId());
+  EXPECT_EQ(customRoyaltyFee->getAllCollectorsAreExempt(), getTestAllCollectorsAreExempt());
+  EXPECT_EQ(customRoyaltyFee->getNumerator(), getTestNumerator());
+  EXPECT_EQ(customRoyaltyFee->getDenominator(), getTestDenominator());
+  EXPECT_TRUE(customRoyaltyFee->getFallbackFee().has_value());
 }
 
 //-----
