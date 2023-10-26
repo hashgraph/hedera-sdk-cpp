@@ -43,6 +43,7 @@ TEST_F(NetworkUnitTests, ConstructForMainnet)
 
   EXPECT_NO_THROW(networkMap = mainnetNetwork.getNetwork());
   EXPECT_NO_THROW(nodeAccountIds = mainnetNetwork.getNodeAccountIdsForExecute());
+
   EXPECT_GT(networkMap.size(), 0);
   EXPECT_GT(nodeAccountIds.size(), 0);
 
@@ -85,4 +86,29 @@ TEST_F(NetworkUnitTests, ConstructForPreviewnet)
 
   // Clean up
   previewnetNetwork.close();
+}
+
+TEST_F(NetworkUnitTests, ConstructCustomNetwork)
+{
+  // Given
+  const std::unordered_map<std::string, AccountId> testNetwork = {
+    {"2.testnet.hedera.com:50211",  AccountId(5ULL)},
+    { "3.testnet.hedera.com:50211", AccountId(6ULL)}
+  };
+
+  // When
+  Hedera::internal::Network customNetwork = Hedera::internal::Network::forNetwork(testNetwork);
+
+  // Then
+  std::unordered_map<std::string, AccountId> networkMap;
+  std::vector<AccountId> nodeAccountIds;
+
+  EXPECT_NO_THROW(networkMap = customNetwork.getNetwork());
+  EXPECT_NO_THROW(nodeAccountIds = customNetwork.getNodeAccountIdsForExecute());
+
+  EXPECT_GT(networkMap.size(), 0);
+  EXPECT_GT(nodeAccountIds.size(), 0);
+
+  // Clean up
+  customNetwork.close();
 }
