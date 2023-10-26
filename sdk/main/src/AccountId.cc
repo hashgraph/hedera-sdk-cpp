@@ -23,12 +23,19 @@
 #include "PublicKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/IllegalStateException.h"
+#include "exceptions/UninitializedException.h"
+
 #include "impl/EntityIdHelper.h"
+#include "impl/HttpClient.h"
+#include "impl/MirrorNetwork.h"
 #include "impl/Utilities.h"
 
 #include <limits>
+#include <nlohmann/json.hpp>
 #include <proto/basic_types.pb.h>
 #include <stdexcept>
+
+using json = nlohmann::json;
 
 namespace Hedera
 {
@@ -243,7 +250,11 @@ std::unique_ptr<proto::AccountID> AccountId::toProtobuf() const
 //-----
 std::string AccountId::toSolidityAddress() const
 {
-  if (mAccountNum.has_value())
+  if (mEvmAddressAlias.has_value())
+  {
+    return mEvmAddressAlias.value().toString();
+  }
+  else if (mAccountNum.has_value())
   {
     return internal::EntityIdHelper::toSolidityAddress(mShardNum, mRealmNum, mAccountNum.value());
   }
@@ -251,6 +262,43 @@ std::string AccountId::toSolidityAddress() const
   {
     throw IllegalStateException("AccountId must contain an account number to generate a Solidity address");
   }
+}
+
+//-----
+AccountId& AccountId::populateAccountEvmAddress(const Client& client)
+{
+  if (!mAccountNum.has_value())
+  {
+    throw new IllegalStateException("member `mAccountNum` should not be empty");
+  }
+
+  std::vector<std::string> mirrorNetworks = client.getMirrorNetwork()->getNetwork();
+  if (mirrorNetworks.empty())
+  {
+    throw new UninitializedException("mirrorNetworks vector not populated!");
+  }
+
+  // build url for Mirror Node
+  std::string url = "https://" + mirrorNetworks.front() + "/api/v1/accounts/0.0." + std::to_string(mAccountNum.value());
+
+  internal::HttpClient httpClient;
+
+  // fetch account data for this account from Mirror Node
+  std::string response = httpClient.invokeREST(url, "GET");
+  json responseData = json::parse(response);
+
+  if (responseData["account"].empty() || responseData["evm_address"].empty())
+  {
+    throw new IllegalStateException("No such account in MirrorNetwork: " + responseData.dump());
+  }
+
+  std::string evmAddress = responseData["evm_address"].dump();
+  // json dump returns strings in dquotes, so we need to trim first and last characters
+  evmAddress = evmAddress.substr(1, evmAddress.length() - 2);
+
+  mEvmAddressAlias = EvmAddress::fromString(evmAddress);
+
+  return *this;
 }
 
 //-----
