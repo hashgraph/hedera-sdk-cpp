@@ -72,7 +72,7 @@ AccountUpdateTransaction& AccountUpdateTransaction::setReceiverSignatureRequired
 
 //-----
 AccountUpdateTransaction& AccountUpdateTransaction::setAutoRenewPeriod(
-  const std::chrono::duration<double>& autoRenewPeriod)
+  const std::chrono::system_clock::duration& autoRenewPeriod)
 {
   requireNotFrozen();
 

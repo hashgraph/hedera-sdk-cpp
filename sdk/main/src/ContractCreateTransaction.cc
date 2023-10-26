@@ -98,7 +98,7 @@ ContractCreateTransaction& ContractCreateTransaction::setInitialBalance(const Hb
 
 //-----
 ContractCreateTransaction& ContractCreateTransaction::setAutoRenewPeriod(
-  const std::chrono::duration<double>& autoRenewPeriod)
+  const std::chrono::system_clock::duration& autoRenewPeriod)
 {
   requireNotFrozen();
   mAutoRenewPeriod = autoRenewPeriod;

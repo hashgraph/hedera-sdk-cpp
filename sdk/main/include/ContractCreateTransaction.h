@@ -176,7 +176,7 @@ public:
    * @return A reference to this ContractCreateTransaction object with the newly-set auto renew period.
    * @throws IllegalStateException If this ContractCreateTransaction is frozen.
    */
-  ContractCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
+  ContractCreateTransaction& setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenewPeriod);
 
   /**
    * Set the parameters to pass to the new smart contract instance's constructor.
@@ -292,7 +292,7 @@ public:
    *
    * @return The auto renew period for the new smart contract instance.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Get the parameters to pass to the new smart contract instance's constructor.
@@ -426,7 +426,7 @@ private:
    * enough balance, it extends as long as possible. If the balance is zero when it expires, then the smart contract
    * instance is deleted.
    */
-  std::chrono::duration<double> mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
+  std::chrono::system_clock::duration mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The parameters to pass to the new smart contract instance's constructor.

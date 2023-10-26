@@ -35,7 +35,7 @@ protected:
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestEndTime() const { return mTestEndTime; }
   [[nodiscard]] inline uint64_t getTestLimit() const { return mTestLimit; }
   [[nodiscard]] inline uint32_t getTestMaxAttempts() const { return mTestMaxAttempts; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestMaxBackoff() const { return mTestMaxBackoff; }
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestMaxBackoff() const { return mTestMaxBackoff; }
 
 private:
   const TopicId mTestTopicId = TopicId(1ULL, 2ULL, 3ULL);
@@ -43,7 +43,7 @@ private:
   const std::chrono::system_clock::time_point mTestEndTime = mTestStartTime + std::chrono::seconds(4);
   const uint64_t mTestLimit = 5ULL;
   const uint32_t mTestMaxAttempts = 6ULL;
-  const std::chrono::duration<double> mTestMaxBackoff = std::chrono::seconds(7);
+  const std::chrono::system_clock::duration mTestMaxBackoff = std::chrono::seconds(7);
 };
 
 //-----

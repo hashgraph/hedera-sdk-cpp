@@ -85,7 +85,7 @@ public:
    *                                      TransactionResponse is configured to throw.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+  TransactionReceipt getReceipt(const Client& client, const std::chrono::system_clock::duration& timeout) const;
 
   /**
    * Get a TransactionRecord for the Transaction to which this TransactionResponse is responding.
@@ -110,7 +110,8 @@ public:
    * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
+  [[nodiscard]] TransactionRecord getRecord(const Client& client,
+                                            const std::chrono::system_clock::duration& timeout) const;
 
   /**
    * Set this TransactionResponse's TransactionReceipt validation policy.

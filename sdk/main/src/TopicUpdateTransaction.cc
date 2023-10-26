@@ -86,7 +86,7 @@ TopicUpdateTransaction& TopicUpdateTransaction::setSubmitKey(const std::shared_p
 }
 
 //-----
-TopicUpdateTransaction& TopicUpdateTransaction::setAutoRenewPeriod(const std::chrono::duration<double>& autoRenew)
+TopicUpdateTransaction& TopicUpdateTransaction::setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenew)
 {
   requireNotFrozen();
   mAutoRenewPeriod = autoRenew;

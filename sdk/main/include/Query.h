@@ -87,7 +87,7 @@ public:
    * @param timeout The timeout to use to get the cost.
    * @return The expected cost of this Query.
    */
-  [[nodiscard]] Hbar getCost(const Client& client, const std::chrono::duration<double>& timeout);
+  [[nodiscard]] Hbar getCost(const Client& client, const std::chrono::system_clock::duration& timeout);
 
 protected:
   /**

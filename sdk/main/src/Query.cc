@@ -109,7 +109,8 @@ Hbar Query<SdkRequestType, SdkResponseType>::getCost(const Client& client)
 
 //-----
 template<typename SdkRequestType, typename SdkResponseType>
-Hbar Query<SdkRequestType, SdkResponseType>::getCost(const Client& client, const std::chrono::duration<double>& timeout)
+Hbar Query<SdkRequestType, SdkResponseType>::getCost(const Client& client,
+                                                     const std::chrono::system_clock::duration& timeout)
 {
   // Configure this Query to get the cost.
   mImpl->mGetCost = true;

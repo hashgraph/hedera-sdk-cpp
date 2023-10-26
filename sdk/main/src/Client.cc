@@ -66,7 +66,7 @@ struct Client::ClientImpl
   std::optional<bool> mTransactionIdRegenerationPolicy;
 
   // The maximum length of time this Client should wait to get a response after sending a request to the network.
-  std::chrono::duration<double> mRequestTimeout = std::chrono::minutes(2);
+  std::chrono::system_clock::duration mRequestTimeout = std::chrono::minutes(2);
 
   // The maximum number of attempts a request sent by this Client will attempt to send a request. A manually-set
   // maximum number of attempts in the request will override this.
@@ -74,18 +74,18 @@ struct Client::ClientImpl
 
   // The minimum length of time a request sent to a Node by this Client will wait before attempting to send a request
   // again after a failure to the same Node. A manually-set minimum backoff in the request will override this.
-  std::optional<std::chrono::duration<double>> mMinBackoff;
+  std::optional<std::chrono::system_clock::duration> mMinBackoff;
 
   // The maximum length of time a request sent to a Node by this Client will wait before attempting to send a request
   // again after a failure to the same Node. A manually-set maximum backoff in the request will override this.
-  std::optional<std::chrono::duration<double>> mMaxBackoff;
+  std::optional<std::chrono::system_clock::duration> mMaxBackoff;
 
   // The maximum amount of time this Client should spend trying to execute a request before giving up on that request
   // attempt. A manually-set gRPC deadline in the request will override this.
   std::optional<std::chrono::system_clock::duration> mGrpcDeadline;
 
   // The period of time to wait between network updates.
-  std::chrono::duration<double> mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
+  std::chrono::system_clock::duration mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
 
   // Should this Client automatically validate entity checksums?
   bool mAutoValidateChecksums = false;
@@ -430,7 +430,7 @@ Client& Client::setNetwork(const std::unordered_map<std::string, AccountId>& net
 }
 
 //-----
-Client& Client::setRequestTimeout(const std::chrono::duration<double>& timeout)
+Client& Client::setRequestTimeout(const std::chrono::system_clock::duration& timeout)
 {
   mImpl->mRequestTimeout = timeout;
   return *this;
@@ -475,7 +475,7 @@ Client& Client::setMaxAttempts(uint32_t attempts)
 }
 
 //-----
-Client& Client::setMinBackoff(const std::chrono::duration<double>& backoff)
+Client& Client::setMinBackoff(const std::chrono::system_clock::duration& backoff)
 {
   if ((mImpl->mMaxBackoff && backoff > *mImpl->mMaxBackoff) || (!mImpl->mMaxBackoff && backoff > DEFAULT_MAX_BACKOFF) ||
       (!mImpl->mMaxBackoff && backoff < std::chrono::milliseconds(0)))
@@ -488,7 +488,7 @@ Client& Client::setMinBackoff(const std::chrono::duration<double>& backoff)
 }
 
 //-----
-Client& Client::setMaxBackoff(const std::chrono::duration<double>& backoff)
+Client& Client::setMaxBackoff(const std::chrono::system_clock::duration& backoff)
 {
   if ((mImpl->mMinBackoff && backoff < *mImpl->mMinBackoff) || (!mImpl->mMinBackoff && backoff < DEFAULT_MIN_BACKOFF) ||
       (!mImpl->mMinBackoff && backoff > DEFAULT_MAX_BACKOFF))
@@ -508,7 +508,7 @@ Client& Client::setGrpcDeadline(const std::chrono::system_clock::duration& deadl
 }
 
 //-----
-Client& Client::setNetworkUpdatePeriod(const std::chrono::duration<double>& update)
+Client& Client::setNetworkUpdatePeriod(const std::chrono::system_clock::duration& update)
 {
   // Cancel any previous network updates and wait for the thread to complete.
   cancelScheduledNetworkUpdate();
@@ -569,7 +569,7 @@ std::function<std::vector<std::byte>(const std::vector<std::byte>&)> Client::get
 }
 
 //-----
-std::chrono::duration<double> Client::getRequestTimeout() const
+std::chrono::system_clock::duration Client::getRequestTimeout() const
 {
   return mImpl->mRequestTimeout;
 }
@@ -599,13 +599,13 @@ std::optional<uint32_t> Client::getMaxAttempts() const
 }
 
 //-----
-std::optional<std::chrono::duration<double>> Client::getMinBackoff() const
+std::optional<std::chrono::system_clock::duration> Client::getMinBackoff() const
 {
   return mImpl->mMinBackoff;
 }
 
 //-----
-std::optional<std::chrono::duration<double>> Client::getMaxBackoff() const
+std::optional<std::chrono::system_clock::duration> Client::getMaxBackoff() const
 {
   return mImpl->mMaxBackoff;
 }
@@ -617,7 +617,7 @@ std::optional<std::chrono::system_clock::duration> Client::getGrpcDeadline() con
 }
 
 //-----
-std::chrono::duration<double> Client::getNetworkUpdatePeriod() const
+std::chrono::system_clock::duration Client::getNetworkUpdatePeriod() const
 {
   std::unique_lock lock(mImpl->mMutex);
   return mImpl->mNetworkUpdatePeriod;
@@ -647,12 +647,12 @@ std::shared_ptr<internal::MirrorNetwork> Client::getMirrorNetwork() const
 }
 
 //-----
-void Client::startNetworkUpdateThread(const std::chrono::duration<double>& period)
+void Client::startNetworkUpdateThread(const std::chrono::system_clock::duration& period)
 {
   std::unique_lock lock(mImpl->mMutex);
   mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
   mImpl->mNetworkUpdatePeriod = period;
-  mImpl->mNetworkUpdateThread = std::make_unique<std::thread>(&Client::scheduleNetworkUpdate, this);
+  // mImpl->mNetworkUpdateThread = std::make_unique<std::thread>(&Client::scheduleNetworkUpdate, this);
 }
 
 //-----
@@ -699,14 +699,16 @@ void Client::cancelScheduledNetworkUpdate()
     return;
   }
 
-  // Signal the thread to stop and wait for it to stop.
+  // Signal the thread to stop and wait for it to stop (if it was running).
   mImpl->mCancelUpdate = true;
   mImpl->mConditionVariable.notify_all();
   if (mImpl->mNetworkUpdateThread->joinable())
   {
     mImpl->mNetworkUpdateThread->join();
-    mImpl->mNetworkUpdateThread = nullptr;
   }
+
+  // The thread is finished executing, so it's safe to reset the network update thread.
+  mImpl->mNetworkUpdateThread = nullptr;
 
   // The update thread is closed at this point, reset mCancelUpdate.
   mImpl->mCancelUpdate = false;
@@ -730,10 +732,8 @@ void Client::moveClient(Client&& other)
     mImpl = std::move(other.mImpl);
 
     // Start the network update thread with the remaining time.
-    startNetworkUpdateThread(
-      mImpl->mStartNetworkUpdateWaitTime +
-      std::chrono::duration_cast<std::chrono::system_clock::duration>(mImpl->mNetworkUpdatePeriod) -
-      std::chrono::system_clock::now());
+    startNetworkUpdateThread(mImpl->mStartNetworkUpdateWaitTime + mImpl->mNetworkUpdatePeriod -
+                             std::chrono::system_clock::now());
   }
   else
   {

@@ -38,7 +38,7 @@ protected:
   {
     return mTestExpirationTime;
   }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
   {
     return mTestAutoRenewPeriod;
   }
@@ -65,7 +65,7 @@ private:
   const std::shared_ptr<PublicKey> mTestAdminKey = PublicKey::fromStringDer(
     "302A300506032B6570032100D75A980182B10AB7D54BFED3C964073A0EE172f3DAA62325AF021A68F707511A");
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
-  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(3);
+  const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(3);
   const uint64_t mTestStorage = 40000ULL;
   const std::string mTestMemo = "test memo";
   const Hbar mTestBalance = Hbar(5LL);

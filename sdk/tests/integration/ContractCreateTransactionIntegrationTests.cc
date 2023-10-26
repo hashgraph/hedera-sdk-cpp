@@ -51,7 +51,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   const std::string memo = "[e2e::ContractCreateTransaction]";
-  const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2016);
+  const std::chrono::system_clock::duration autoRenewPeriod = std::chrono::hours(2016);
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey() })
@@ -105,7 +105,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
     "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
   const std::string memo = "[e2e::ContractCreateTransaction]";
-  const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2016);
+  const std::chrono::system_clock::duration autoRenewPeriod = std::chrono::hours(2016);
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey() })

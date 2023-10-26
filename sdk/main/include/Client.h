@@ -172,7 +172,7 @@ public:
    * @param timeout The desired timeout for requests submitted by this Client.
    * @return A reference to this Client object with the newly-set request timeout.
    */
-  Client& setRequestTimeout(const std::chrono::duration<double>& timeout);
+  Client& setRequestTimeout(const std::chrono::system_clock::duration& timeout);
 
   /**
    * Set the maximum transaction fee willing to be paid for transactions executed by this Client. Every request
@@ -228,7 +228,7 @@ public:
    * @throws std::invalid_argument If the desired minimum backoff duration is longer than the set maximum backoff time
    *                               (DEFAULT_MAX_BACKOFF if the maximum backoff time has not been set).
    */
-  Client& setMinBackoff(const std::chrono::duration<double>& backoff);
+  Client& setMinBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the maximum amount of time this Client should wait before attempting to resubmit a previously failed request to
@@ -241,7 +241,7 @@ public:
    * @throws std::invalid_argument If the desired maximum backoff duration is shorter than the set minimum backoff time
    *                               (DEFAULT_MIN_BACKOFF if the minimum backoff time has not been set).
    */
-  Client& setMaxBackoff(const std::chrono::duration<double>& backoff);
+  Client& setMaxBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the maximum amount of time this Client should spend trying to execute a request before giving up on that
@@ -261,7 +261,7 @@ public:
    * @param update The period of time this Client wait between updating its network.
    * @return A reference to this Client with the newly-set network update period.
    */
-  Client& setNetworkUpdatePeriod(const std::chrono::duration<double>& update);
+  Client& setNetworkUpdatePeriod(const std::chrono::system_clock::duration& update);
 
   /**
    * Set the automatic entity checksum validation policy.
@@ -315,7 +315,7 @@ public:
    * @return The request timeout duration. Defaults to 2 minutes if this value has not been set with
    *         setRequestTimeout().
    */
-  [[nodiscard]] std::chrono::duration<double> getRequestTimeout() const;
+  [[nodiscard]] std::chrono::system_clock::duration getRequestTimeout() const;
 
   /**
    * Get the maximum transaction fee willing to be paid for transactions submitted by this Client.
@@ -355,7 +355,7 @@ public:
    * @return The minimum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
    *         not previously set.
    */
-  [[nodiscard]] std::optional<std::chrono::duration<double>> getMinBackoff() const;
+  [[nodiscard]] std::optional<std::chrono::system_clock::duration> getMinBackoff() const;
 
   /**
    * Get the maximum amount of time this Client should wait before attempting to resubmit a previously failed request to
@@ -364,7 +364,7 @@ public:
    * @return The maximum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
    *         not previously set.
    */
-  [[nodiscard]] std::optional<std::chrono::duration<double>> getMaxBackoff() const;
+  [[nodiscard]] std::optional<std::chrono::system_clock::duration> getMaxBackoff() const;
 
   /**
    * Get the maximum amount of time this Client should spend trying to execute a request before giving up on that
@@ -380,7 +380,7 @@ public:
    *
    * @return The period of time this Client wait between updating its network.
    */
-  [[nodiscard]] std::chrono::duration<double> getNetworkUpdatePeriod() const;
+  [[nodiscard]] std::chrono::system_clock::duration getNetworkUpdatePeriod() const;
 
   /**
    * Is automatic entity checksum validation turned on for this Client?
@@ -410,7 +410,7 @@ private:
    *
    * @param period The period of time to wait before a network update is performed.
    */
-  void startNetworkUpdateThread(const std::chrono::duration<double>& period);
+  void startNetworkUpdateThread(const std::chrono::system_clock::duration& period);
 
   /**
    * Schedule a network update.

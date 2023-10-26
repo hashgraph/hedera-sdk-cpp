@@ -37,7 +37,10 @@ protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
   [[nodiscard]] inline bool getTestReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
+  {
+    return mAutoRenewPeriod;
+  }
   [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestExpirationTime() const
   {
     return mExpirationTime;
@@ -52,7 +55,7 @@ private:
   const AccountId mAccountId = AccountId(1ULL);
   const std::shared_ptr<PublicKey> mPublicKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const bool mReceiverSignatureRequired = true;
-  const std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(2);
+  const std::chrono::system_clock::duration mAutoRenewPeriod = std::chrono::hours(2);
   const std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now();
   const std::string mAccountMemo = "test account memo";
   const uint32_t mMaxTokenAssociations = 3U;

@@ -121,7 +121,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
   const Client& client,
-  const std::chrono::duration<double>& timeout)
+  const std::chrono::system_clock::duration& timeout)
 {
   setExecutionParameters(client);
   onExecute(client);
@@ -130,8 +130,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const std::vector<std::shared_ptr<internal::Node>> nodes = getNodesFromNodeAccountIds(client);
 
   // The time to timeout.
-  const std::chrono::system_clock::time_point timeoutTime =
-    std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(timeout);
+  const std::chrono::system_clock::time_point timeoutTime = std::chrono::system_clock::now() + timeout;
 
   // Keep track of the responses from each node.
   std::unordered_map<std::shared_ptr<internal::Node>, Status> nodeResponses;
@@ -247,6 +246,84 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+std::future<SdkResponseType>
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::executeAsync(const Client& client)
+{
+  return executeAsync(client, client.getRequestTimeout());
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+std::future<SdkResponseType>
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::executeAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout)
+{
+  return std::async(std::launch::async, [this, &client, &timeout]() { return this->execute(client, timeout); });
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::executeAsync(
+  const Client& client,
+  const std::function<void(const SdkResponseType&, const std::exception&)>& callback)
+{
+  return executeAsync(client, client.getRequestTimeout(), callback);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::executeAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout,
+  const std::function<void(const SdkResponseType&, const std::exception&)>& callback)
+{
+  std::future<SdkResponseType> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->execute(client, timeout); });
+
+  try
+  {
+    callback(future.get(), std::exception());
+  }
+  catch (const std::exception& exception)
+  {
+    callback(SdkResponseType(), exception);
+  }
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::executeAsync(
+  const Client& client,
+  const std::function<void(const SdkResponseType&)>& responseCallback,
+  const std::function<void(const std::exception&)>& exceptionCallback)
+{
+  return executeAsync(client, client.getRequestTimeout(), responseCallback, exceptionCallback);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::executeAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout,
+  const std::function<void(const SdkResponseType&)>& responseCallback,
+  const std::function<void(const std::exception&)>& exceptionCallback)
+{
+  std::future<SdkResponseType> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->execute(client, timeout); });
+
+  try
+  {
+    responseCallback(future.get());
+  }
+  catch (const std::exception& exception)
+  {
+    exceptionCallback(exception);
+  }
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setNodeAccountIds(
   std::vector<AccountId> nodeAccountIds)
 {
@@ -284,7 +361,7 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMinBackoff(
-  const std::chrono::duration<double>& backoff)
+  const std::chrono::system_clock::duration& backoff)
 {
   if ((mMaxBackoff.has_value() && backoff > mMaxBackoff.value()) ||
       (!mMaxBackoff.has_value() && backoff > DEFAULT_MAX_BACKOFF))
@@ -299,7 +376,7 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setMaxBackoff(
-  const std::chrono::duration<double>& backoff)
+  const std::chrono::system_clock::duration& backoff)
 {
   if ((mMinBackoff.has_value() && backoff < mMinBackoff.value()) ||
       (!mMinBackoff.has_value() && backoff < DEFAULT_MIN_BACKOFF))
@@ -319,6 +396,48 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   mGrpcDeadline = deadline;
   return static_cast<SdkRequestType&>(*this);
 }
+
+//-----
+/*template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::Executable(
+  const Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>& other)
+{
+  std::unique_lock lock(other.mMutex);
+  mNodeAccountIds = other.mNodeAccountIds;
+  mRequestListener = other.mRequestListener;
+  mResponseListener = other.mResponseListener;
+  mMaxAttempts = other.mMaxAttempts;
+  mMinBackoff = other.mMinBackoff;
+  mMaxBackoff = other.mMaxBackoff;
+  mGrpcDeadline = other.mGrpcDeadline;
+  // Don't bother copying `mCurrent*` variables as those are reset every execution and only used there.
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>&
+Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::operator=(
+  const Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>& other)
+{
+  if (this != &other)
+  {
+    // Lock both Executables and prevent deadlocks.
+    std::lock(mMutex, other.mMutex);
+    std::lock_guard myLock(mMutex, std::adopt_lock);
+    std::lock_guard otherLock(other.mMutex, std::adopt_lock);
+
+    mNodeAccountIds = other.mNodeAccountIds;
+    mRequestListener = other.mRequestListener;
+    mResponseListener = other.mResponseListener;
+    mMaxAttempts = other.mMaxAttempts;
+    mMinBackoff = other.mMinBackoff;
+    mMaxBackoff = other.mMaxBackoff;
+    mGrpcDeadline = other.mGrpcDeadline;
+    // Don't bother copying `mCurrent*` variables as those are reset every execution and only used there.
+  }
+
+  return *this;
+}*/
 
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
@@ -416,7 +535,7 @@ unsigned int Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, Sdk
   // Keep track of the best candidate node and its delay (initialize to make compiler happy, but this should never be
   // returned without being provided an actual legitimate value).
   unsigned int candidateNodeIndex = -1U;
-  std::chrono::duration<double> candidateDelay(std::numeric_limits<int64_t>::max());
+  std::chrono::system_clock::duration candidateDelay(std::numeric_limits<int64_t>::max());
 
   // Start looking at nodes at the attempt index, but wrap if there's been more attempts than nodes.
   for (unsigned int i = attempt % nodes.size(); i < nodes.size(); ++i)
@@ -425,7 +544,7 @@ unsigned int Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, Sdk
     if (!node->isHealthy())
     {
       // Mark this the candidate node if it has the smaller delay than the previous candidate.
-      const std::chrono::duration<double> backoffTime = node->getRemainingTimeForBackoff();
+      const std::chrono::system_clock::duration backoffTime = node->getRemainingTimeForBackoff();
       if (backoffTime < candidateDelay)
       {
         candidateNodeIndex = i;

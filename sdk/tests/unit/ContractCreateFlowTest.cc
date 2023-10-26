@@ -43,7 +43,7 @@ protected:
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestAdminKey() const { return mTestAdminKey; }
   [[nodiscard]] inline const uint64_t& getTestGas() const { return mTestGas; }
   [[nodiscard]] inline const Hbar& getTestInitialBalance() const { return mTestInitialBalance; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
   {
     return mTestAutoRenewPeriod;
   }
@@ -67,7 +67,7 @@ private:
     "302A300506032B6570032100BCAF3153262A767B281CC8C888DB3E097C83D690AEF01B8C1BE64D3DE11AACC3");
   const uint64_t mTestGas = 5ULL;
   const Hbar mTestInitialBalance = Hbar(6LL);
-  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(7);
+  const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(7);
   const std::vector<std::byte> mTestConstructorParameters = { std::byte(0x08), std::byte(0x09), std::byte(0x10) };
   const std::string mTestMemo = "test smart contract memo";
   const uint32_t mTestMaxTokenAssociations = 11U;

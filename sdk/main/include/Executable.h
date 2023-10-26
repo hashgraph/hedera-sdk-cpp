@@ -25,8 +25,11 @@
 
 #include <chrono>
 #include <functional>
+#include <future>
 #include <memory>
+#include <mutex>
 #include <optional>
+#include <stdexcept>
 #include <vector>
 
 namespace Hedera
@@ -79,7 +82,78 @@ public:
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  virtual SdkResponseType execute(const Client& client, const std::chrono::duration<double>& timeout);
+  virtual SdkResponseType execute(const Client& client, const std::chrono::system_clock::duration& timeout);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously.
+   *
+   * @param client The Client to use to submit this Executable.
+   * @return The future SdkResponseType object sent from the Hedera network that contains the result of the request.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<SdkResponseType> executeAsync(const Client& client);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously with a specific timeout.
+   *
+   * @param client  The Client to use to submit this Executable.
+   * @param timeout The desired timeout for the execution of this Executable.
+   * @return The future SdkResponseType object sent from the Hedera network that contains the result of the request.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<SdkResponseType> executeAsync(const Client& client, const std::chrono::system_clock::duration& timeout);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously and consume the response and/or exception with a
+   * callback.
+   *
+   * @param client   The Client to use to submit this Executable.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void executeAsync(const Client& client,
+                    const std::function<void(const SdkResponseType&, const std::exception&)>& callback);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously with a specific timeout and consume the response and/or
+   * exception with a callback.
+   *
+   * @param client   The Client to use to submit this Executable.
+   * @param timeout  The desired timeout for the execution of this Executable.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void executeAsync(const Client& client,
+                    const std::chrono::system_clock::duration& timeout,
+                    const std::function<void(const SdkResponseType&, const std::exception&)>& callback);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously and consume the response and/or exception with separate
+   * callbacks.
+   *
+   * @param client            The Client to use to submit this Executable.
+   * @param responseCallback  The callback that should consume the response/exception.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void executeAsync(const Client& client,
+                    const std::function<void(const SdkResponseType&)>& responseCallback,
+                    const std::function<void(const std::exception&)>& exceptionCallback);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously with a specific timeout and consume the response and/or
+   * exception with separate callbacks.
+   *
+   * @param client            The Client to use to submit this Executable.
+   * @param timeout           The desired timeout for the execution of this Executable.
+   * @param responseCallback  The callback that should consume the response/exception.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void executeAsync(const Client& client,
+                    const std::chrono::system_clock::duration& timeout,
+                    const std::function<void(const SdkResponseType&)>& responseCallback,
+                    const std::function<void(const std::exception&)>& exceptionCallback);
 
   /**
    * Set the desired account IDs of nodes to which this request will be submitted.
@@ -129,7 +203,7 @@ public:
    * @throws std::invalid_argument If the desired minimum backoff duration is longer than the set maximum backoff time
    *                               (DEFAULT_MAX_BACKOFF if the maximum backoff time has not been set).
    */
-  SdkRequestType& setMinBackoff(const std::chrono::duration<double>& backoff);
+  SdkRequestType& setMinBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the maximum amount of time a Node should wait after this Executable failed to execute before being willing to
@@ -141,7 +215,7 @@ public:
    * @throws std::invalid_argument If the desired maximum backoff duration is shorter than the set minimum backoff time
    *                               (DEFAULT_MIN_BACKOFF if the minimum backoff time has not been set).
    */
-  SdkRequestType& setMaxBackoff(const std::chrono::duration<double>& backoff);
+  SdkRequestType& setMaxBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the maximum amount of time this Executable should spend trying to execute a request before giving up on that
@@ -174,7 +248,7 @@ public:
    * @return The minimum backoff time for Nodes for execution attempts of this Executable. Uninitialized value if not
    *         previously set.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMinBackoff() const { return mMinBackoff; }
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getMinBackoff() const { return mMinBackoff; }
 
   /**
    * Get the maximum amount of time a Node should wait after this Executable failed to execute before being willing to
@@ -183,7 +257,7 @@ public:
    * @return The maximum backoff time for Nodes for execution attempts of this Executable. Uninitialized value if not
    *         previously set.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMaxBackoff() const { return mMaxBackoff; }
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getMaxBackoff() const { return mMaxBackoff; }
 
   /**
    * Set the maximum amount of time this Executable should spend trying to execute a request before giving up on that
@@ -349,13 +423,13 @@ private:
    * The minimum amount of time to wait between submission attempts. If not set, a submission will use the Client's set
    * minimum backoff. If that's not set, DEFAULT_MIN_BACKOFF will be used.
    */
-  std::optional<std::chrono::duration<double>> mMinBackoff;
+  std::optional<std::chrono::system_clock::duration> mMinBackoff;
 
   /**
    * The maximum amount of time to wait between submission attempts. If not set, a submission will use the Client's set
    * maximum backoff. If that's not set, DEFAULT_MAX_BACKOFF will be used.
    */
-  std::optional<std::chrono::duration<double>> mMaxBackoff;
+  std::optional<std::chrono::system_clock::duration> mMaxBackoff;
 
   /**
    * The timeout for one single execution attempt. If not set, a submission will use the Client's set gRPC deadline. If
@@ -373,26 +447,31 @@ private:
    * The minimum backoff to be used for an execution. This may be this Executable's mMinBackoff, the Client's set
    * minimum backoff, or DEFAULT_MIN_BACKOFF.
    */
-  std::chrono::duration<double> mCurrentMinBackoff = DEFAULT_MIN_BACKOFF;
+  std::chrono::system_clock::duration mCurrentMinBackoff = DEFAULT_MIN_BACKOFF;
 
   /**
    * The maximum backoff to be used for an execution. This may be this Executable's mMaxBackoff, the Client's set
    * maximum backoff, or DEFAULT_MAX_BACKOFF.
    */
-  std::chrono::duration<double> mCurrentMaxBackoff = DEFAULT_MAX_BACKOFF;
+  std::chrono::system_clock::duration mCurrentMaxBackoff = DEFAULT_MAX_BACKOFF;
 
   /**
    * The current backoff time being used during the current execution. Every failed submission attempt waits a certain
    * amount of time that is double the previous amount of time this Executable waited for its previous submission
    * attempt, up to the specified maximum backoff time, at which point the execution is considered a failure.
    */
-  std::chrono::duration<double> mCurrentBackoff = DEFAULT_MIN_BACKOFF;
+  std::chrono::system_clock::duration mCurrentBackoff = DEFAULT_MIN_BACKOFF;
 
   /**
    * The current gRPC deadline being used for the current execution. This may be the Executable's mGrpcDeadline, the
    * Client's set gRPC deadline, or DEFAULT_GRPC_DEADLINE.
    */
   std::chrono::system_clock::duration mCurrentGrpcDeadline = DEFAULT_GRPC_DEADLINE;
+
+  /**
+   * This Executable's mutex in a std::shared_ptr to allow copying.
+   */
+  // mutable std::mutex mMutex;
 };
 
 } // namespace Hedera

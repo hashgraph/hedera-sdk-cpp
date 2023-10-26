@@ -75,7 +75,7 @@ public:
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  TransactionResponse execute(const Client& client, const std::chrono::duration<double>& timeout);
+  TransactionResponse execute(const Client& client, const std::chrono::system_clock::duration& timeout);
 
   /**
    * Set the bytes of the smart contract bytecode. If the bytecode is large (>5K), then it must be stored in a file.
@@ -124,7 +124,7 @@ public:
    * @param autoRenewPeriod The desired auto renew period for the new smart contract instance.
    * @return A reference to this ContractCreateFlow object with the newly-set auto renew period.
    */
-  ContractCreateFlow& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
+  ContractCreateFlow& setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenewPeriod);
 
   /**
    * Set the parameters to pass to the new smart contract instance's constructor.
@@ -282,7 +282,7 @@ public:
    *
    * @return The auto renew period for the new smart contract instance.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Get the parameters to pass to the new smart contract instance's constructor.
@@ -386,7 +386,7 @@ private:
    * enough balance, it extends as long as possible. If the balance is zero when it expires, then the smart contract
    * instance is deleted.
    */
-  std::chrono::duration<double> mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
+  std::chrono::system_clock::duration mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The parameters to pass to the new smart contract instance's constructor.

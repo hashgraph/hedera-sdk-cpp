@@ -43,7 +43,7 @@ TEST_F(TopicInfoQueryIntegrationTest, ExecuteTopicInfoQuery)
 {
   // Given
   const std::string memo = "test memo";
-  const std::chrono::duration<double> autoRenewPeriod = std::chrono::hours(2200);
+  const std::chrono::system_clock::duration autoRenewPeriod = std::chrono::hours(2200);
 
   std::shared_ptr<PrivateKey> operatorKey;
   ASSERT_NO_THROW(
