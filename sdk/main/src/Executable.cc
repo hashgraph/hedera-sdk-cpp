@@ -398,48 +398,6 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 }
 
 //-----
-/*template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
-Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::Executable(
-  const Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>& other)
-{
-  std::unique_lock lock(other.mMutex);
-  mNodeAccountIds = other.mNodeAccountIds;
-  mRequestListener = other.mRequestListener;
-  mResponseListener = other.mResponseListener;
-  mMaxAttempts = other.mMaxAttempts;
-  mMinBackoff = other.mMinBackoff;
-  mMaxBackoff = other.mMaxBackoff;
-  mGrpcDeadline = other.mGrpcDeadline;
-  // Don't bother copying `mCurrent*` variables as those are reset every execution and only used there.
-}
-
-//-----
-template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
-Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>&
-Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::operator=(
-  const Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>& other)
-{
-  if (this != &other)
-  {
-    // Lock both Executables and prevent deadlocks.
-    std::lock(mMutex, other.mMutex);
-    std::lock_guard myLock(mMutex, std::adopt_lock);
-    std::lock_guard otherLock(other.mMutex, std::adopt_lock);
-
-    mNodeAccountIds = other.mNodeAccountIds;
-    mRequestListener = other.mRequestListener;
-    mResponseListener = other.mResponseListener;
-    mMaxAttempts = other.mMaxAttempts;
-    mMinBackoff = other.mMinBackoff;
-    mMaxBackoff = other.mMaxBackoff;
-    mGrpcDeadline = other.mGrpcDeadline;
-    // Don't bother copying `mCurrent*` variables as those are reset every execution and only used there.
-  }
-
-  return *this;
-}*/
-
-//-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 typename Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::ExecutionStatus
 Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::determineStatus(

@@ -467,11 +467,6 @@ private:
    * Client's set gRPC deadline, or DEFAULT_GRPC_DEADLINE.
    */
   std::chrono::system_clock::duration mCurrentGrpcDeadline = DEFAULT_GRPC_DEADLINE;
-
-  /**
-   * This Executable's mutex in a std::shared_ptr to allow copying.
-   */
-  // mutable std::mutex mMutex;
 };
 
 } // namespace Hedera
