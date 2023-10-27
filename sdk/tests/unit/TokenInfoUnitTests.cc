@@ -56,7 +56,7 @@ protected:
     return mTestExpirationTime;
   }
   [[nodiscard]] inline const AccountId& getTestAutoRenewAccountId() const { return mTestAutoRenewAccountId; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
   {
     return mTestAutoRenewPeriod;
   }
@@ -90,7 +90,7 @@ private:
   const bool mTestIsDeleted = true;
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const AccountId mTestAutoRenewAccountId = AccountId(9ULL, 10ULL, 11ULL);
-  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(12);
+  const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(12);
   const std::string mTestTokenMemo = "test memo";
   const TokenType mTestTokenType = TokenType::NON_FUNGIBLE_UNIQUE;
   const TokenSupplyType mTestTokenSupplyType = TokenSupplyType::FINITE;

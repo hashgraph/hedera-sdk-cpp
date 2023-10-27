@@ -39,6 +39,10 @@ constexpr auto DEFAULT_MIN_BACKOFF = std::chrono::milliseconds(250);
  */
 constexpr auto DEFAULT_MAX_BACKOFF = std::chrono::seconds(8);
 /**
+ * The default maximum amount of time to spend on one execution attempt
+ */
+constexpr auto DEFAULT_GRPC_DEADLINE = std::chrono::seconds(10);
+/**
  * The default maximum number of times a node is allowed to return a bad gRPC status before it is permanently removed
  * from a network. 0 indicates there's no maximum.
  */

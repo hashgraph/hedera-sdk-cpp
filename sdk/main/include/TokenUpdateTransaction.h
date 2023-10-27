@@ -158,7 +158,7 @@ public:
    * @param period The new auto-renew period for the token.
    * @return A reference to this TokenUpdateTransaction with the newly-set auto-renew period.
    */
-  TokenUpdateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& period);
+  TokenUpdateTransaction& setAutoRenewPeriod(const std::chrono::system_clock::duration& period);
 
   /**
    * Set a new expiration time for the token.
@@ -269,7 +269,7 @@ public:
    *
    * @return The new auto-renew period for the token. Returns uninitialized if no new auto-renew period has been set.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getAutoRenewPeriod() const
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getAutoRenewPeriod() const
   {
     return mAutoRenewPeriod;
   }
@@ -413,7 +413,7 @@ private:
   /**
    * The new interval at which the auto-renew account will be charged to extend the token's expiry.
    */
-  std::optional<std::chrono::duration<double>> mAutoRenewPeriod;
+  std::optional<std::chrono::system_clock::duration> mAutoRenewPeriod;
 
   /**
    * The new expiration time of the token. Expiration time can be updated even if the admin key is not set. If the

@@ -129,7 +129,7 @@ struct Transaction<SdkRequestType>::TransactionImpl
   Hbar mDefaultMaxTransactionFee = DEFAULT_MAX_TRANSACTION_FEE;
 
   // The length of time this Transaction will remain valid.
-  std::chrono::duration<double> mTransactionValidDuration = DEFAULT_TRANSACTION_VALID_DURATION;
+  std::chrono::system_clock::duration mTransactionValidDuration = DEFAULT_TRANSACTION_VALID_DURATION;
 
   // The memo to be associated with this Transaction.
   std::string mTransactionMemo;
@@ -542,7 +542,8 @@ SdkRequestType& Transaction<SdkRequestType>::setMaxTransactionFee(const Hbar& fe
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
+SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(
+  const std::chrono::system_clock::duration& duration)
 {
   requireNotFrozen();
   mImpl->mTransactionValidDuration = duration;
@@ -595,7 +596,7 @@ Hbar Transaction<SdkRequestType>::getDefaultMaxTransactionFee() const
 
 //-----
 template<typename SdkRequestType>
-std::chrono::duration<double> Transaction<SdkRequestType>::getValidTransactionDuration() const
+std::chrono::system_clock::duration Transaction<SdkRequestType>::getValidTransactionDuration() const
 {
   return mImpl->mTransactionValidDuration;
 }

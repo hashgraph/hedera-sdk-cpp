@@ -29,13 +29,13 @@ protected:
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
   [[nodiscard]] inline unsigned int getTestLimit() const { return mTestLimit; }
   [[nodiscard]] inline unsigned int getTestMaxAttempts() const { return mTestMaxAttempts; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestMaxBackoff() const { return mTestMaxBackoff; }
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestMaxBackoff() const { return mTestMaxBackoff; }
 
 private:
   const FileId mTestFileId = FileId(1ULL, 2ULL, 3ULL);
   const unsigned int mTestLimit = 4ULL;
   const unsigned int mTestMaxAttempts = 5ULL;
-  const std::chrono::duration<double> mTestMaxBackoff = std::chrono::seconds(6ULL);
+  const std::chrono::system_clock::duration mTestMaxBackoff = std::chrono::seconds(6ULL);
 };
 
 //-----

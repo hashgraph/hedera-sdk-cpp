@@ -126,7 +126,7 @@ TokenUpdateTransaction& TokenUpdateTransaction::setAutoRenewAccountId(const Acco
 }
 
 //-----
-TokenUpdateTransaction& TokenUpdateTransaction::setAutoRenewPeriod(const std::chrono::duration<double>& period)
+TokenUpdateTransaction& TokenUpdateTransaction::setAutoRenewPeriod(const std::chrono::system_clock::duration& period)
 {
   requireNotFrozen();
   mAutoRenewPeriod = period;

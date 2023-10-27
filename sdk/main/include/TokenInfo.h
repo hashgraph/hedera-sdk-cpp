@@ -164,7 +164,7 @@ public:
   /**
    * The interval at which the auto-renew account will be charged to extend the token's expiry.
    */
-  std::chrono::duration<double> mAutoRenewPeriod;
+  std::chrono::system_clock::duration mAutoRenewPeriod;
 
   /**
    * The epoch second at which the token should expire.

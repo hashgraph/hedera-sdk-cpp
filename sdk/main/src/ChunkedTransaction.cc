@@ -70,7 +70,7 @@ TransactionResponse ChunkedTransaction<SdkRequestType>::execute(const Client& cl
 //-----
 template<typename SdkRequestType>
 TransactionResponse ChunkedTransaction<SdkRequestType>::execute(const Client& client,
-                                                                const std::chrono::duration<double>& timeout)
+                                                                const std::chrono::system_clock::duration& timeout)
 {
   return executeAll(client, timeout).at(0);
 }
@@ -86,7 +86,7 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
 template<typename SdkRequestType>
 std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
   const Client& client,
-  const std::chrono::duration<double>& timeout)
+  const std::chrono::system_clock::duration& timeout)
 {
   // Determine how many chunks are going to be required to send this whole ChunkedTransaction and make sure it's within
   // the set limit.

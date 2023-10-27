@@ -46,7 +46,7 @@ TransactionReceipt TransactionResponse::getReceipt(const Client& client) const
 
 //-----
 TransactionReceipt TransactionResponse::getReceipt(const Client& client,
-                                                   const std::chrono::duration<double>& timeout) const
+                                                   const std::chrono::system_clock::duration& timeout) const
 {
   TransactionReceipt txReceipt = TransactionReceiptQuery().setTransactionId(mTransactionId).execute(client, timeout);
 
@@ -66,7 +66,7 @@ TransactionRecord TransactionResponse::getRecord(const Client& client) const
 
 //-----
 TransactionRecord TransactionResponse::getRecord(const Client& client,
-                                                 const std::chrono::duration<double>& timeout) const
+                                                 const std::chrono::system_clock::duration& timeout) const
 {
   return TransactionRecordQuery().setTransactionId(mTransactionId).execute(client, timeout);
 }

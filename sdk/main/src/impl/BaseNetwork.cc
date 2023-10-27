@@ -160,7 +160,7 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeAttempts(uns
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMinNodeBackoff(
-  const std::chrono::duration<double>& backoff)
+  const std::chrono::system_clock::duration& backoff)
 {
   std::unique_lock lock(*mMutex);
   mMinNodeBackoff = backoff;
@@ -170,7 +170,7 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMinNodeBackoff(
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeBackoff(
-  const std::chrono::duration<double>& backoff)
+  const std::chrono::system_clock::duration& backoff)
 {
   std::unique_lock lock(*mMutex);
   mMaxNodeBackoff = backoff;
@@ -180,7 +180,7 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeBackoff(
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMinNodeReadmitTime(
-  const std::chrono::duration<double>& time)
+  const std::chrono::system_clock::duration& time)
 {
   std::unique_lock lock(*mMutex);
   mMinNodeReadmitTime = time;
@@ -190,7 +190,7 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMinNodeReadmitTime(
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
 NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeReadmitTime(
-  const std::chrono::duration<double>& time)
+  const std::chrono::system_clock::duration& time)
 {
   std::unique_lock lock(*mMutex);
   mMaxNodeReadmitTime = time;
@@ -199,7 +199,8 @@ NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setMaxNodeReadmitTime(
 
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
-NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setCloseTimeout(const std::chrono::duration<double>& timeout)
+NetworkType& BaseNetwork<NetworkType, KeyType, NodeType>::setCloseTimeout(
+  const std::chrono::system_clock::duration& timeout)
 {
   std::unique_lock lock(*mMutex);
   mCloseTimeout = timeout;
@@ -281,8 +282,7 @@ void BaseNetwork<NetworkType, KeyType, NodeType>::readmitNodes()
   }
 
   // Determine the next earliest readmit time.
-  std::chrono::system_clock::time_point nextEarliestReadmitTime =
-    now + std::chrono::duration_cast<std::chrono::system_clock::duration>(mMaxNodeReadmitTime);
+  std::chrono::system_clock::time_point nextEarliestReadmitTime = now + mMaxNodeReadmitTime;
 
   for (const auto& node : mNodes)
   {

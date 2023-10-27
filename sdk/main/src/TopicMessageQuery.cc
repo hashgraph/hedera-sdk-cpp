@@ -71,7 +71,7 @@ void startSubscription(
   std::function<void(void)> completionHandler,
   std::function<void(const TopicMessage&)> onNext,
   uint32_t maxAttempts,
-  std::chrono::duration<double> maxBackoff,
+  std::chrono::system_clock::duration maxBackoff,
   SubscriptionHandle* handle)
 {
   // Grab moved objects.
@@ -85,7 +85,7 @@ void startSubscription(
   com::hedera::mirror::api::proto::ConsensusTopicResponse response;
   std::unordered_map<TransactionId, std::vector<com::hedera::mirror::api::proto::ConsensusTopicResponse>>
     pendingMessages;
-  std::chrono::duration<double> backoff = DEFAULT_MIN_BACKOFF;
+  std::chrono::system_clock::duration backoff = DEFAULT_MIN_BACKOFF;
   grpc::Status grpcStatus;
   uint64_t attempt = 0ULL;
   bool complete = false;
@@ -262,7 +262,7 @@ struct TopicMessageQuery::TopicMessageQueryImpl
   uint32_t mMaxAttempts = DEFAULT_MAX_ATTEMPTS;
 
   // The maximum amount of time to wait between submission attempts.
-  std::chrono::duration<double> mMaxBackoff = DEFAULT_MAX_BACKOFF;
+  std::chrono::system_clock::duration mMaxBackoff = DEFAULT_MAX_BACKOFF;
 
   // The function to run when there's an error.
   std::function<void(grpc::Status)> mErrorHandler = [](const grpc::Status& status)
@@ -406,7 +406,7 @@ TopicMessageQuery& TopicMessageQuery::setMaxAttempts(uint32_t attempts)
 }
 
 //-----
-TopicMessageQuery& TopicMessageQuery::setMaxBackoff(const std::chrono::duration<double>& backoff)
+TopicMessageQuery& TopicMessageQuery::setMaxBackoff(const std::chrono::system_clock::duration& backoff)
 {
   mImpl->mMaxBackoff = backoff;
   return *this;
@@ -464,7 +464,7 @@ uint32_t TopicMessageQuery::getMaxAttempts() const
 }
 
 //-----
-std::chrono::duration<double> TopicMessageQuery::getMaxBackoff() const
+std::chrono::system_clock::duration TopicMessageQuery::getMaxBackoff() const
 {
   return mImpl->mMaxBackoff;
 }

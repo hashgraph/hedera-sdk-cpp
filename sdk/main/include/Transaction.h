@@ -239,7 +239,7 @@ public:
    * @return A reference to this derived Transaction object with the newly-set valid duration.
    * @throws IllegalStateException If this Transaction is frozen.
    */
-  SdkRequestType& setValidTransactionDuration(const std::chrono::duration<double>& duration);
+  SdkRequestType& setValidTransactionDuration(const std::chrono::system_clock::duration& duration);
 
   /**
    * Set the memo for this Transaction.
@@ -287,7 +287,7 @@ public:
    *
    * @return The length of time this Transaction will remain valid.
    */
-  [[nodiscard]] std::chrono::duration<double> getValidTransactionDuration() const;
+  [[nodiscard]] std::chrono::system_clock::duration getValidTransactionDuration() const;
 
   /**
    * Get the memo for this Transaction.

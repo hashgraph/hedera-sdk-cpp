@@ -67,7 +67,7 @@ public:
    * @throws PrecheckStatusException      If this AddressBookQuery fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  NodeAddressBook execute(const Client& client, const std::chrono::duration<double>& timeout);
+  NodeAddressBook execute(const Client& client, const std::chrono::system_clock::duration& timeout);
 
   /**
    * Set the ID of the file of which to request the address book.
@@ -100,7 +100,7 @@ public:
    * @return A reference to this Client with the newly-set maximum backoff time.
    * @throws std::invalid_argument If the desired maximum backoff duration is shorter than DEFAULT_MIN_BACKOFF.
    */
-  AddressBookQuery& setMaxBackoff(const std::chrono::duration<double>& backoff);
+  AddressBookQuery& setMaxBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Get the ID of the file of which this query is currently configured to get the address book.
@@ -128,7 +128,7 @@ public:
    *
    * @return The the maximum amount of time to wait before attempting to resubmit this AddressBookQuery.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMaxBackoff() const { return mMaxBackoff; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getMaxBackoff() const { return mMaxBackoff; }
 
 private:
   /**
@@ -156,7 +156,7 @@ private:
   /**
    * The the maximum amount of time to wait before attempting to resubmit this AddressBookQuery.
    */
-  std::chrono::duration<double> mMaxBackoff = DEFAULT_MAX_BACKOFF;
+  std::chrono::system_clock::duration mMaxBackoff = DEFAULT_MAX_BACKOFF;
 };
 
 } // namespace Hedera

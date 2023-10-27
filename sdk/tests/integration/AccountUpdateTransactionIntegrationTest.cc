@@ -48,7 +48,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, ExecuteAccountUpdateTransaction)
   const std::shared_ptr<PrivateKey> initialPrivateKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<PrivateKey> newPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const bool newReceiverSignatureRequired = true;
-  const std::chrono::duration<double> newAutoRenewPeriod = std::chrono::seconds(8000000);
+  const std::chrono::system_clock::duration newAutoRenewPeriod = std::chrono::seconds(8000000);
   const std::chrono::system_clock::time_point newExpirationTime =
     std::chrono::system_clock::now() + std::chrono::seconds(3000000);
   const std::string newAccountMemo = "New Account Memo!";
@@ -203,7 +203,7 @@ TEST_F(AccountUpdateTransactionIntegrationTest, InvalidAutoRenewPeriod)
 {
   // Given
   const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
-  const std::chrono::duration<double> invalidAutoRenewPeriod = std::chrono::seconds(777600000);
+  const std::chrono::system_clock::duration invalidAutoRenewPeriod = std::chrono::seconds(777600000);
 
   AccountId accountId;
   ASSERT_NO_THROW(accountId = AccountCreateTransaction()

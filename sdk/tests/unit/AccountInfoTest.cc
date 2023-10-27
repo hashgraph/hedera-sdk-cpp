@@ -48,7 +48,7 @@ protected:
   {
     return mTestExpirationTime;
   }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
   {
     return mTestAutoRenewPeriod;
   }
@@ -76,7 +76,7 @@ private:
   const Hbar mTestBalance = Hbar(3LL);
   const bool mTestReceiverSignatureRequired = true;
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
-  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(4);
+  const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(4);
   const std::string mTestMemo = "test memo";
   const uint64_t mTestOwnedNfts = 5ULL;
   const uint32_t mMaxAutomaticTokenAssociations = 6U;
