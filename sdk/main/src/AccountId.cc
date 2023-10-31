@@ -17,6 +17,8 @@
  * limitations under the License.
  *
  */
+#include <proto/basic_types.pb.h>
+
 #include "AccountId.h"
 #include "Client.h"
 #include "LedgerId.h"
@@ -32,7 +34,6 @@
 
 #include <limits>
 #include <nlohmann/json.hpp>
-#include <proto/basic_types.pb.h>
 #include <stdexcept>
 
 using json = nlohmann::json;
