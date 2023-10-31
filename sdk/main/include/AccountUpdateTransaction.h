@@ -104,7 +104,7 @@ public:
    * @return A reference to this AccountUpdateTransaction object with the newly-set auto renew period.
    * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
-  AccountUpdateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
+  AccountUpdateTransaction& setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenewPeriod);
 
   /**
    * Set a new expiration time for the account.
@@ -215,7 +215,7 @@ public:
    *
    * @return The new auto renew period for the new account.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getAutoRenewPeriod() const
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getAutoRenewPeriod() const
   {
     return mAutoRenewPeriod;
   }
@@ -338,7 +338,7 @@ private:
    * The new duration to use for the account to automatically extend its expiration period. It it doesn't have enough
    * balance, it extends as long as possible. If it is empty when it expires, then it is deleted.
    */
-  std::optional<std::chrono::duration<double>> mAutoRenewPeriod;
+  std::optional<std::chrono::system_clock::duration> mAutoRenewPeriod;
 
   /**
    * The new expiration time to which to extend this account.

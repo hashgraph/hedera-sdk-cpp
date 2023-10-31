@@ -73,7 +73,7 @@ public:
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  TransactionResponse execute(const Client& client, const std::chrono::duration<double>& timeout) override;
+  TransactionResponse execute(const Client& client, const std::chrono::system_clock::duration& timeout) override;
 
   /**
    * Execute all chunks of this ChunkedTransaction.
@@ -98,7 +98,7 @@ public:
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  std::vector<TransactionResponse> executeAll(const Client& client, const std::chrono::duration<double>& timeout);
+  std::vector<TransactionResponse> executeAll(const Client& client, const std::chrono::system_clock::duration& timeout);
 
   /**
    * Derived from Transaction. Add a signature to this ChunkedTransaction.

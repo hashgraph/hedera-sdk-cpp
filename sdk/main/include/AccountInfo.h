@@ -101,7 +101,7 @@ public:
    * The duration of time the queried account uses to automatically extend its expiration period. It it doesn't have
    * enough balance, it extends as long as possible. If it is empty when it expires, then it is deleted.
    */
-  std::chrono::duration<double> mAutoRenewPeriod;
+  std::chrono::system_clock::duration mAutoRenewPeriod;
 
   /**
    * The queried account's memo.

@@ -129,7 +129,7 @@ public:
    * @return A reference to this AccountCreateTransaction object with the newly-set auto renew period.
    * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
-  AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
+  AccountCreateTransaction& setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenewPeriod);
 
   /**
    * Set a memo for the new account.
@@ -217,7 +217,7 @@ public:
    *
    * @return The auto renew period for the new account.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Get the desired memo for the new account.
@@ -333,7 +333,7 @@ private:
    * extends as long as possible. If the balance is zero when it expires, then the account is deleted. Defaults to 90
    * days (2160 hours).
    */
-  std::chrono::duration<double> mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
+  std::chrono::system_clock::duration mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The memo to be associated with the account (UTF-8 encoding max 100 bytes).

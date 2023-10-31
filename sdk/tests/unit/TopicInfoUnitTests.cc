@@ -42,7 +42,7 @@ protected:
   }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestAdminKey() const { return mTestAdminKey; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestSubmitKey() const { return mTestSubmitKey; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
   {
     return mTestAutoRenewPeriod;
   }
@@ -57,7 +57,7 @@ private:
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const std::shared_ptr<PublicKey> mTestAdminKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const std::shared_ptr<PublicKey> mTestSubmitKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
-  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(8);
+  const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(8);
   const AccountId mTestAutoRenewAccountId = AccountId(9ULL, 10ULL, 11ULL);
   const LedgerId mTestLedgerId = LedgerId({ std::byte(0x0C), std::byte(0x0D) });
 };

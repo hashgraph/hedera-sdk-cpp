@@ -84,7 +84,7 @@ AccountCreateTransaction& AccountCreateTransaction::setReceiverSignatureRequired
 
 //-----
 AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
-  const std::chrono::duration<double>& autoRenewPeriod)
+  const std::chrono::system_clock::duration& autoRenewPeriod)
 {
   requireNotFrozen();
 
@@ -240,8 +240,7 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
 
   body->set_initialbalance(mInitialBalance.toTinybars());
   body->set_receiversigrequired(mReceiverSignatureRequired);
-  body->set_allocated_autorenewperiod(
-    internal::DurationConverter::toProtobuf(std::chrono::duration_cast<std::chrono::seconds>(mAutoRenewPeriod)));
+  body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
   body->set_memo(mAccountMemo);
   body->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
 

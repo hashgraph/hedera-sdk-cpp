@@ -190,6 +190,7 @@ std::vector<std::byte> PrivateKey::signTransaction(WrappedTransaction& transacti
     case TRANSFER_TRANSACTION:
       return signTransaction(*transaction.getTransaction<TransferTransaction>());
     case UNKNOWN_TRANSACTION:
+    default:
     {
       throw std::invalid_argument("Unrecognized TransactionType");
     }

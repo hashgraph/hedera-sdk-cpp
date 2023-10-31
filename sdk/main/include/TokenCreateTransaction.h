@@ -191,7 +191,7 @@ public:
    * @param period The desired auto-renew period for the new token.
    * @return A reference to this TokenCreateTransaction with the newly-set auto-renew period.
    */
-  TokenCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& period);
+  TokenCreateTransaction& setAutoRenewPeriod(const std::chrono::system_clock::duration& period);
 
   /**
    * Set the desired memo for the new token.
@@ -348,7 +348,7 @@ public:
    *
    * @return The desired auto-renew period for the new token.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Get the desired memo for the new token.
@@ -529,7 +529,7 @@ private:
   /**
    * The interval at which the auto-renew account will be charged to extend the token's expiry.
    */
-  std::chrono::duration<double> mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
+  std::chrono::system_clock::duration mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The memo associated with the token (UTF-8 encoding max 100 bytes).

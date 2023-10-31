@@ -44,7 +44,7 @@ TEST_F(TopicUpdateTransactionIntegrationTest, ExecuteTopicUpdateTransaction)
 {
   // Given
   const std::string newMemo = "new topic create test memo";
-  const std::chrono::duration<double> newAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD + std::chrono::hours(10);
+  const std::chrono::system_clock::duration newAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD + std::chrono::hours(10);
 
   std::shared_ptr<PrivateKey> operatorKey;
   std::shared_ptr<PrivateKey> newKey;

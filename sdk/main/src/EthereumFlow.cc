@@ -35,7 +35,7 @@ TransactionResponse EthereumFlow::execute(const Client& client)
 }
 
 //-----
-TransactionResponse EthereumFlow::execute(const Client& client, const std::chrono::duration<double>& timeout)
+TransactionResponse EthereumFlow::execute(const Client& client, const std::chrono::system_clock::duration& timeout)
 {
   // Make sure the ethereum data has been set. There is nothing to do if there is no ethereum data.
   if (!mEthereumData)

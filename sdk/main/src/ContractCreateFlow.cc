@@ -39,7 +39,8 @@ TransactionResponse ContractCreateFlow::execute(const Client& client)
 }
 
 //-----
-TransactionResponse ContractCreateFlow::execute(const Client& client, const std::chrono::duration<double>& timeout)
+TransactionResponse ContractCreateFlow::execute(const Client& client,
+                                                const std::chrono::system_clock::duration& timeout)
 {
   // First determine if the input bytecode needs to be split.
   std::vector<std::byte> appendedByteCode;
@@ -176,7 +177,7 @@ ContractCreateFlow& ContractCreateFlow::setInitialBalance(const Hbar& initialBal
 }
 
 //-----
-ContractCreateFlow& ContractCreateFlow::setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod)
+ContractCreateFlow& ContractCreateFlow::setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenewPeriod)
 {
   mAutoRenewPeriod = autoRenewPeriod;
   return *this;

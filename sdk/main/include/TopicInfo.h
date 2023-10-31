@@ -115,7 +115,7 @@ public:
   /**
    * The amount of time by which to attempt to extend the topic's lifetime automatically at its expiration time.
    */
-  std::optional<std::chrono::duration<double>> mAutoRenewPeriod;
+  std::optional<std::chrono::system_clock::duration> mAutoRenewPeriod;
 
   /**
    * The ID of the account that should be charged to extend the lifetime of the new topic at its expiration time.

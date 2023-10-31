@@ -56,7 +56,7 @@ TEST_F(AccountCreateTransactionIntegrationTest, ExecuteAccountCreateTransaction)
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
   const EvmAddress testEvmAddress = testPublicKey->toEvmAddress();
   const Hbar testInitialBalance(1000LL, HbarUnit::TINYBAR());
-  const std::chrono::duration<double> testAutoRenewPeriod = std::chrono::seconds(2592000);
+  const std::chrono::system_clock::duration testAutoRenewPeriod = std::chrono::seconds(2592000);
   const std::string testMemo = "test account memo";
   const uint32_t testMaxAutomaticTokenAssociations = 4U;
 

@@ -38,10 +38,9 @@ NodeAddressBook AddressBookQuery::execute(const Client& client)
 }
 
 //-----
-NodeAddressBook AddressBookQuery::execute(const Client& client, const std::chrono::duration<double>& timeout)
+NodeAddressBook AddressBookQuery::execute(const Client& client, const std::chrono::system_clock::duration& timeout)
 {
-  const std::chrono::system_clock::time_point timeoutTime =
-    std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(timeout);
+  const std::chrono::system_clock::time_point timeoutTime = std::chrono::system_clock::now() + timeout;
 
   for (unsigned int attempt = 0U;; ++attempt)
   {
@@ -81,10 +80,9 @@ NodeAddressBook AddressBookQuery::execute(const Client& client, const std::chron
                                                                 errorCode == grpc::StatusCode::INTERNAL)
     {
       // Sleep and retry.
-      std::this_thread::sleep_for(
-        std::min(std::chrono::duration_cast<std::chrono::system_clock::duration>(
-                   DEFAULT_MIN_BACKOFF * pow(static_cast<double>(attempt), 2.0)),
-                 std::chrono::duration_cast<std::chrono::system_clock::duration>(mMaxBackoff)));
+      std::this_thread::sleep_for(std::min(std::chrono::duration_cast<std::chrono::system_clock::duration>(
+                                             DEFAULT_MIN_BACKOFF * pow(static_cast<double>(attempt), 2.0)),
+                                           mMaxBackoff));
       continue;
     }
 
@@ -114,7 +112,7 @@ AddressBookQuery& AddressBookQuery::setMaxAttempts(unsigned int attempts)
 }
 
 //-----
-AddressBookQuery& AddressBookQuery::setMaxBackoff(const std::chrono::duration<double>& backoff)
+AddressBookQuery& AddressBookQuery::setMaxBackoff(const std::chrono::system_clock::duration& backoff)
 {
   mMaxBackoff = backoff;
   return *this;

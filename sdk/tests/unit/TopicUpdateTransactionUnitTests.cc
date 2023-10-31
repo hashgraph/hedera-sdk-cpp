@@ -42,7 +42,7 @@ protected:
   }
   [[nodiscard]] inline const std::shared_ptr<ED25519PrivateKey>& getTestAdminKey() const { return mTestAdminKey; }
   [[nodiscard]] inline const std::shared_ptr<ED25519PrivateKey>& getTestSubmitKey() const { return mTestSubmitKey; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
   {
     return mTestAutoRenewPeriod;
   }
@@ -54,7 +54,7 @@ private:
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const std::shared_ptr<ED25519PrivateKey> mTestAdminKey = ED25519PrivateKey::generatePrivateKey();
   const std::shared_ptr<ED25519PrivateKey> mTestSubmitKey = ED25519PrivateKey::generatePrivateKey();
-  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(4);
+  const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(4);
   const AccountId mTestAutoRenewAccountId = AccountId(5ULL, 6ULL, 7ULL);
 };
 

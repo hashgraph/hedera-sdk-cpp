@@ -84,7 +84,7 @@ public:
   /**
    * The duration of time the queried contract uses to automatically extend its expiration period.
    */
-  std::chrono::duration<double> mAutoRenewPeriod;
+  std::chrono::system_clock::duration mAutoRenewPeriod;
 
   /**
    * Get the number of bytes of storage the queried contract is using (which affects the cost to extend the expiration
