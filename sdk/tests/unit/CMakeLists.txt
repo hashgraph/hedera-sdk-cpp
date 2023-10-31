@@ -61,6 +61,7 @@ add_executable(${TEST_PROJECT_NAME}
         HbarTransferTest.cc
         KeyListTest.cc
         LedgerIdTest.cc
+        NetworkUnitTests.cc
         NetworkVersionInfoUnitTests.cc
         NftIdTest.cc
         NodeAddressTest.cc
@@ -133,8 +134,8 @@ gtest_discover_tests(${TEST_PROJECT_NAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINA
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/previewnet.pb
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/addressbook)
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/testnet.pb
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/addressbook)
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/mainnet.pb
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/addressbook)
