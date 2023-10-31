@@ -174,7 +174,7 @@ TYPED_TEST(ExecutableIntegrationTests, ExecuteAsync)
   std::future<ResponseType> response;
 
   // When
-  EXPECT_NO_THROW(response = executable.executeAsync(ExecutableIntegrationTests<ExecutableType>::getTestClient()));
+  EXPECT_NO_THROW(response = executable.executeAsync(BaseIntegrationTest::getTestClient()));
 
   // Then
   try
@@ -210,7 +210,7 @@ TYPED_TEST(ExecutableIntegrationTests, ExecuteAsyncWithSingleCallback)
   ExecutableType executable;
 
   // When
-  EXPECT_NO_THROW(executable.executeAsync(ExecutableIntegrationTests<ExecutableType>::getTestClient(), callback));
+  EXPECT_NO_THROW(executable.executeAsync(BaseIntegrationTest::getTestClient(), callback));
 
   // Then
   const std::chrono::system_clock::time_point timeout = std::chrono::system_clock::now() + std::chrono::seconds(10);
@@ -238,8 +238,7 @@ TYPED_TEST(ExecutableIntegrationTests, ExecuteAsyncWithCallbacks)
   ExecutableType executable;
 
   // When
-  EXPECT_NO_THROW(executable.executeAsync(
-    ExecutableIntegrationTests<ExecutableType>::getTestClient(), responseCallback, exceptionCallback));
+  EXPECT_NO_THROW(executable.executeAsync(BaseIntegrationTest::getTestClient(), responseCallback, exceptionCallback));
 
   // Then
   const std::chrono::system_clock::time_point timeout = std::chrono::system_clock::now() + std::chrono::seconds(10);
