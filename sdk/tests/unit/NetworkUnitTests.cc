@@ -74,10 +74,11 @@ TEST_F(NetworkUnitTests, ConstructForPreviewnet)
 {
   // Given / When
   Hedera::internal::Network previewnetNetwork = Hedera::internal::Network::forPreviewnet();
-  std::vector<AccountId> nodeAccountIds;
 
   // Then
   std::unordered_map<std::string, AccountId> networkMap;
+  std::vector<AccountId> nodeAccountIds;
+
   EXPECT_NO_THROW(networkMap = previewnetNetwork.getNetwork());
   EXPECT_NO_THROW(nodeAccountIds = previewnetNetwork.getNodeAccountIdsForExecute());
 
@@ -111,4 +112,64 @@ TEST_F(NetworkUnitTests, ConstructCustomNetwork)
 
   // Clean up
   customNetwork.close();
+}
+
+TEST_F(NetworkUnitTests, GetSetLedgerIdForMainnet)
+{
+  // Given
+  Hedera::internal::Network mainnetNetwork = Hedera::internal::Network::forMainnet();
+
+  // When
+  mainnetNetwork.setLedgerId(LedgerId::TESTNET);
+
+  // Then
+  EXPECT_EQ(mainnetNetwork.getLedgerId(), LedgerId::TESTNET);
+
+  // Clean up
+  mainnetNetwork.close();
+}
+
+TEST_F(NetworkUnitTests, GetSetTransportSecurity)
+{
+  // Given
+  Hedera::internal::Network testnetNetwork = Hedera::internal::Network::forTestnet();
+
+  // When
+  testnetNetwork.setTransportSecurity(Hedera::internal::TLSBehavior::DISABLE);
+
+  // Then
+  EXPECT_EQ(testnetNetwork.isTransportSecurity(), Hedera::internal::TLSBehavior::DISABLE);
+
+  // Clean up
+  testnetNetwork.close();
+}
+
+TEST_F(NetworkUnitTests, GetSetGetMaxNodesPerRequest)
+{
+  // Given
+  Hedera::internal::Network testnetNetwork = Hedera::internal::Network::forTestnet();
+
+  // When
+  testnetNetwork.setMaxNodesPerRequest(10);
+
+  // Then
+  EXPECT_EQ(testnetNetwork.getNumberOfNodesForRequest(), 10);
+
+  // Clean up
+  testnetNetwork.close();
+}
+
+TEST_F(NetworkUnitTests, VerifyCertificates)
+{
+  // Given
+  Hedera::internal::Network testnetNetwork = Hedera::internal::Network::forTestnet();
+
+  // When
+  testnetNetwork.setVerifyCertificates(false);
+
+  // Then
+  EXPECT_EQ(testnetNetwork.isVerifyCertificates(), false);
+
+  // Clean up
+  testnetNetwork.close();
 }

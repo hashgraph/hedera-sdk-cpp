@@ -26,8 +26,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 
 namespace Hedera::internal
 {
@@ -100,6 +100,17 @@ Network& Network::setMaxNodesPerRequest(unsigned int max)
   std::unique_lock lock(*getLock());
   mMaxNodesPerRequest = max;
   return *this;
+}
+
+//-----
+unsigned int Network::getNumberOfNodesForRequest() const
+{
+  if (mMaxNodesPerRequest > 0)
+  {
+    return mMaxNodesPerRequest;
+  }
+
+  return (getNetworkInternal().size() + 3 - 1) / 3;
 }
 
 //-----
@@ -190,7 +201,7 @@ NodeAddressBook Network::getAddressBookForLedgerId(const LedgerId& ledgerId)
     return {};
   }
 
-  std::string buildPath = std::filesystem::current_path().string() + "/addressbook/" + ledgerId.toString()+".pb";
+  std::string buildPath = std::filesystem::current_path().string() + "/addressbook/" + ledgerId.toString() + ".pb";
   std::ifstream infile(buildPath, std::ios_base::binary);
   return NodeAddressBook::fromBytes({ std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() });
 }
