@@ -23,7 +23,11 @@
 #include "Executable.h"
 
 #include <chrono>
+#include <functional>
+#include <future>
 #include <memory>
+#include <optional>
+#include <stdexcept>
 
 namespace proto
 {
@@ -36,7 +40,6 @@ class Transaction;
 
 namespace Hedera
 {
-class AccountId;
 class Client;
 class Hbar;
 class TransactionId;
@@ -54,6 +57,87 @@ template<typename SdkRequestType, typename SdkResponseType>
 class Query : public Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>
 {
 public:
+  /**
+   * Get the expected cost of this Query.
+   *
+   * @param client The Client to use to fetch the cost.
+   * @return The expected cost of this Query.
+   */
+  [[nodiscard]] Hbar getCost(const Client& client);
+
+  /**
+   * Get the expected cost of this Query with a specific timeout.
+   *
+   * @param client  The Client to use to fetch the cost.
+   * @param timeout The timeout to use to get the cost.
+   * @return The expected cost of this Query.
+   */
+  [[nodiscard]] Hbar getCost(const Client& client, const std::chrono::system_clock::duration& timeout);
+
+  /**
+   * Get the expected cost of this Query asynchronously.
+   *
+   * @param client The Client to use to fetch the cost.
+   * @return The expected cost of this Query.
+   */
+  [[nodiscard]] std::future<Hbar> getCostAsync(const Client& client);
+
+  /**
+   * Get the expected cost of this Query asynchronously with a specific timeout.
+   *
+   * @param client  The Client to use to fetch the cost.
+   * @param timeout The timeout to use to get the cost.
+   * @return The expected cost of this Query.
+   */
+  [[nodiscard]] std::future<Hbar> getCostAsync(const Client& client,
+                                               const std::chrono::system_clock::duration& timeout);
+
+  /**
+   * Get the expected cost of this Query asynchronously and consume the response and/or exception with a callback.
+   *
+   * @param client   The Client to use to fetch the cost.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void getCostAsync(const Client& client, const std::function<void(const Hbar&, const std::exception&)>& callback);
+
+  /**
+   * Get the expected cost of this Query asynchronously with a specific timeout and consume the response and/or
+   * exception with a callback.
+   *
+   * @param client   The Client to use to fetch the cost.
+   * @param timeout  The timeout to use to get the cost.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void getCostAsync(const Client& client,
+                    const std::chrono::system_clock::duration& timeout,
+                    const std::function<void(const Hbar&, const std::exception&)>& callback);
+
+  /**
+   * Get the expected cost of this Query asynchronously and consume the response and/or exception with separate
+   * callbacks.
+   *
+   * @param client            The Client to use to fetch the cost.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void getCostAsync(const Client& client,
+                    const std::function<void(const Hbar&)>& responseCallback,
+                    const std::function<void(const std::exception&)>& exceptionCallback);
+
+  /**
+   * Get the expected cost of this Query asynchronously with a specific timeout and consume the response and/or
+   * exception with separate callbacks.
+   *
+   * @param client            The Client to use to fetch the cost.
+   * @param timeout           The timeout to use to get the cost.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void getCostAsync(const Client& client,
+                    const std::chrono::system_clock::duration& timeout,
+                    const std::function<void(const Hbar&)>& responseCallback,
+                    const std::function<void(const std::exception&)>& exceptionCallback);
+
   /**
    * Set an amount to pay for this Query. The Client will submit exactly this amount and no remainder will be returned.
    *
@@ -73,21 +157,20 @@ public:
   SdkRequestType& setMaxQueryPayment(const Hbar& maxAmount);
 
   /**
-   * Get the expected cost of this Query.
+   * Set the TransactionId of the payment Transaction for this Query.
    *
-   * @param client The Client to use to fetch the cost.
-   * @return The expected cost of this Query.
+   * @param transactionId The TransactionId to set.
+   * @return A reference to this derived Query with the newly-set payment transaction ID.
    */
-  [[nodiscard]] Hbar getCost(const Client& client);
+  SdkRequestType& setPaymentTransactionId(const TransactionId& transactionId);
 
   /**
-   * Get the expected cost of this Query with a specific timeout.
+   * Get the TransactionId of the payment Transaction for this Query.
    *
-   * @param client  The Client to use to fetch the cost.
-   * @param timeout The timeout to use to get the cost.
-   * @return The expected cost of this Query.
+   * @return The TransactionId of the payment Transaction for this Query. Uninitialized if no payment transaction ID has
+   *         been set.
    */
-  [[nodiscard]] Hbar getCost(const Client& client, const std::chrono::system_clock::duration& timeout);
+  [[nodiscard]] std::optional<TransactionId> getPaymentTransactionId() const;
 
 protected:
   /**
