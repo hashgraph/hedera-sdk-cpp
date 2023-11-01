@@ -40,7 +40,6 @@
 #include "ContractInfoQuery.h"
 #include "ContractUpdateTransaction.h"
 #include "EthereumTransaction.h"
-#include "FileAppendTransaction.h"
 #include "FileContentsQuery.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
@@ -81,7 +80,6 @@
 #include "TopicDeleteTransaction.h"
 #include "TopicInfo.h"
 #include "TopicInfoQuery.h"
-#include "TopicMessageSubmitTransaction.h"
 #include "TopicUpdateTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
@@ -121,7 +119,6 @@ using ExecutableTypes = ::testing::Types<std::tuple<AccountAllowanceApproveTrans
                                          std::tuple<ContractInfoQuery, ContractInfo>,
                                          std::tuple<ContractUpdateTransaction, TransactionResponse>,
                                          std::tuple<EthereumTransaction, TransactionResponse>,
-                                         // std::tuple<FileAppendTransaction, TransactionResponse>,
                                          std::tuple<FileContentsQuery, FileContents>,
                                          std::tuple<FileCreateTransaction, TransactionResponse>,
                                          std::tuple<FileDeleteTransaction, TransactionResponse>,
@@ -156,7 +153,6 @@ using ExecutableTypes = ::testing::Types<std::tuple<AccountAllowanceApproveTrans
                                          std::tuple<TopicCreateTransaction, TransactionResponse>,
                                          std::tuple<TopicDeleteTransaction, TransactionResponse>,
                                          std::tuple<TopicInfoQuery, TopicInfo>,
-                                         // std::tuple<TopicMessageSubmitTransaction, TransactionResponse>,
                                          std::tuple<TopicUpdateTransaction, TransactionResponse>,
                                          std::tuple<TransactionReceiptQuery, TransactionReceipt>,
                                          std::tuple<TransactionRecordQuery, TransactionRecord>,
