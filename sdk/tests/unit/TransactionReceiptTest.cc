@@ -105,12 +105,11 @@ TEST_F(TransactionReceiptTest, ProtobufTransactionReceipt)
   EXPECT_EQ(txRx.mFileId, getTestFileId());
   ASSERT_TRUE(txRx.mContractId.has_value());
   EXPECT_EQ(txRx.mContractId, getTestContractId());
-  ASSERT_TRUE(txRx.mExchangeRates.has_value());
-  EXPECT_EQ(txRx.mExchangeRates->mCurrentRate.mExchangeRateInCents, value / value);
-  EXPECT_EQ(txRx.mExchangeRates->mCurrentRate.mExpirationTime,
+  EXPECT_EQ(txRx.mExchangeRates.mCurrentRate.mExchangeRateInCents, value / value);
+  EXPECT_EQ(txRx.mExchangeRates.mCurrentRate.mExpirationTime,
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
-  EXPECT_EQ(txRx.mExchangeRates->mNextRate.mExchangeRateInCents, value / value);
-  EXPECT_EQ(txRx.mExchangeRates->mNextRate.mExpirationTime,
+  EXPECT_EQ(txRx.mExchangeRates.mNextRate.mExchangeRateInCents, value / value);
+  EXPECT_EQ(txRx.mExchangeRates.mNextRate.mExpirationTime,
             std::chrono::system_clock::time_point(std::chrono::seconds(secs)));
   ASSERT_TRUE(txRx.mTopicId.has_value());
   EXPECT_EQ(txRx.mTopicId, getTestTopicId());
