@@ -25,6 +25,7 @@
 #include "TransactionRecordQuery.h"
 #include "impl/EntityIdHelper.h"
 #include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <proto/basic_types.pb.h>
 
@@ -34,19 +35,13 @@ namespace Hedera
 TransactionId TransactionId::withValidStart(const AccountId& accountId,
                                             const std::chrono::system_clock::time_point& start)
 {
-  TransactionId transactionId;
-  transactionId.mAccountId = accountId;
-  transactionId.mValidTransactionTime = start;
-  return transactionId;
+  return TransactionId(accountId, start);
 }
 
 //-----
 TransactionId TransactionId::generate(const AccountId& accountId)
 {
-  TransactionId transactionId;
-  transactionId.mAccountId = accountId;
-  transactionId.mValidTransactionTime = std::chrono::system_clock::now();
-  return transactionId;
+  return TransactionId(accountId, std::chrono::system_clock::now());
 }
 
 //-----
@@ -64,6 +59,9 @@ TransactionId TransactionId::fromProtobuf(const proto::TransactionID& proto)
     id.mAccountId = AccountId::fromProtobuf(proto.accountid());
   }
 
+  id.mScheduled = proto.scheduled();
+  id.mNonce = proto.nonce();
+
   return id;
 }
 
@@ -73,7 +71,7 @@ TransactionId TransactionId::fromString(std::string_view id)
   TransactionId transactionId;
 
   // First, determine if there is a nonce. If there is, get it.
-  if (const size_t slash = id.find('/'); slash != std::string::npos)
+  if (const size_t slash = id.find_last_of('/'); slash != std::string::npos)
   {
     const std::string_view nonce = id.substr(slash + 1, id.size() - slash - 1);
     id.remove_suffix(nonce.size() + 1);
@@ -81,7 +79,7 @@ TransactionId TransactionId::fromString(std::string_view id)
   }
 
   // Second, determine if it's scheduled.
-  if (const size_t questionMark = id.find('?'); questionMark != std::string::npos)
+  if (const size_t questionMark = id.find_last_of('?'); questionMark != std::string::npos)
   {
     const std::string_view scheduled = id.substr(questionMark + 1, id.size() - questionMark - 1);
     id.remove_suffix(scheduled.size() + 1);
@@ -92,12 +90,12 @@ TransactionId TransactionId::fromString(std::string_view id)
   try
   {
     // Get the nanoseconds string.
-    const size_t decimal = id.find('.');
+    const size_t decimal = id.find_last_of('.');
     const std::string_view nanosecondsStr = id.substr(decimal + 1, id.size() - decimal - 1);
     id.remove_suffix(nanosecondsStr.size() + 1);
 
     // Get the seconds string.
-    const size_t atSign = id.find('@');
+    const size_t atSign = id.find_last_of('@');
     const std::string_view secondsStr = id.substr(atSign + 1, id.size() - atSign - 1);
     id.remove_suffix(secondsStr.size() + 1);
 
@@ -312,7 +310,8 @@ void TransactionId::getRecordAsync(const Client& client,
 //-----
 bool TransactionId::operator==(const TransactionId& other) const
 {
-  return (mValidTransactionTime == other.mValidTransactionTime) && (mAccountId == other.mAccountId);
+  return (mValidTransactionTime == other.mValidTransactionTime) && (mAccountId == other.mAccountId) &&
+         (mScheduled == other.mScheduled) && (mNonce == other.mNonce);
 }
 
 //-----
@@ -345,6 +344,12 @@ std::string TransactionId::toStringWithChecksum(const Client& client) const
 }
 
 //-----
+std::vector<std::byte> TransactionId::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
 TransactionId& TransactionId::setScheduled(bool scheduled)
 {
   mScheduled = scheduled;
@@ -356,6 +361,13 @@ TransactionId& TransactionId::setNonce(int nonce)
 {
   mNonce = nonce;
   return *this;
+}
+
+//-----
+TransactionId::TransactionId(Hedera::AccountId accountId, const std::chrono::system_clock::time_point& validStartTime)
+  : mAccountId(std::move(accountId))
+  , mValidTransactionTime(validStartTime)
+{
 }
 
 //-----

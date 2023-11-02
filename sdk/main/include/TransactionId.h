@@ -63,6 +63,8 @@ namespace Hedera
 class TransactionId
 {
 public:
+  TransactionId() = default;
+
   /**
    * Generate a new TransactionId.
    *
@@ -345,6 +347,13 @@ public:
   [[nodiscard]] std::string toStringWithChecksum(const Client& client) const;
 
   /**
+   * Get a byte array representation of this TransactionId object.
+   *
+   * @return A byte array representation of this TransactionId object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
    * Set if this ID represents a scheduled transaction.
    *
    * @param scheduled \c TRUE if this ID represents a scheduled transaction, otherwise \c FALSE.
@@ -388,6 +397,14 @@ public:
   AccountId mAccountId;
 
 private:
+  /**
+   * Construct with an AccountId and a valid transaction start time.
+   *
+   * @param accountId      The AccountId with which to construct the TransactionId.
+   * @param validStartTime The valid start time with which to construct the Transactionid.
+   */
+  TransactionId(AccountId accountId, const std::chrono::system_clock::time_point& validStartTime);
+
   /**
    * Get the string with the timestamp, scheduled, and nonce.
    *
