@@ -41,11 +41,11 @@ TEST_F(TransactionIdTest, GenerateTransactionId)
   const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
   const TransactionId transactionId = TransactionId::generate(getTestAccountId());
 
-  EXPECT_EQ(transactionId.getAccountId(), getTestAccountId());
+  EXPECT_EQ(transactionId.mAccountId, getTestAccountId());
 
   // No real good way to verify here, just checking that the TransactionId validTransactionTime was made after the time
   // taken above.
-  EXPECT_GE(transactionId.getValidTransactionTime().time_since_epoch().count(), now.time_since_epoch().count());
+  EXPECT_GE(transactionId.mValidTransactionTime.time_since_epoch().count(), now.time_since_epoch().count());
 }
 
 // Tests serialization of Hedera::TransactionId -> proto::TransactionID.
@@ -83,8 +83,8 @@ TEST_F(TransactionIdTest, DeserializeTransactionIdFromProtobuf)
   const TransactionId transactionId = TransactionId::fromProtobuf(testProtoTransactionId);
 
   // Then
-  EXPECT_EQ(transactionId.getAccountId(), testAccountId);
-  EXPECT_EQ(transactionId.getValidTransactionTime(), now);
+  EXPECT_EQ(transactionId.mAccountId, testAccountId);
+  EXPECT_EQ(transactionId.mValidTransactionTime, now);
 }
 
 // Tests serialization of Hedera::TransactionId -> proto::TransactionID -> Hedera::TransactionId.
@@ -97,8 +97,8 @@ TEST_F(TransactionIdTest, ProtobufTransactionId)
   protoTransactionId.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(now));
 
   const TransactionId transactionId = TransactionId::fromProtobuf(protoTransactionId);
-  EXPECT_EQ(transactionId.getAccountId(), getTestAccountId());
-  EXPECT_EQ(transactionId.getValidTransactionTime(), now);
+  EXPECT_EQ(transactionId.mAccountId, getTestAccountId());
+  EXPECT_EQ(transactionId.mValidTransactionTime, now);
 
   const auto protoTransactionIdPtr = std::unique_ptr<proto::TransactionID>(transactionId.toProtobuf());
   const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(internal::TimestampConverter::toProtobuf(now));

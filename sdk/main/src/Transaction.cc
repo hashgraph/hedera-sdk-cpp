@@ -1010,7 +1010,7 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
   {
     // If transaction IDs are allowed to be regenerated, regenerate the transaction ID and the Transaction protobuf
     // objects.
-    mImpl->mTransactionId = TransactionId::generate(mImpl->mTransactionId.getAccountId());
+    mImpl->mTransactionId = TransactionId::generate(mImpl->mTransactionId.mAccountId);
 
     // Regenerate the SignedTransaction protobuf objects.
     clearTransactions();
@@ -1045,7 +1045,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
 
   // Sign with the operator if the operator's present, and if it's paying for the Transaction.
   if (client.getOperatorAccountId().has_value() &&
-      client.getOperatorAccountId().value() == mImpl->mTransactionId.getAccountId())
+      client.getOperatorAccountId().value() == mImpl->mTransactionId.mAccountId)
   {
     signWithOperator(client);
   }

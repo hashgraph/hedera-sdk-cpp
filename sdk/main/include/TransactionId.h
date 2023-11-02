@@ -23,11 +23,23 @@
 #include "AccountId.h"
 
 #include <chrono>
+#include <cstddef>
+#include <functional>
+#include <future>
 #include <string>
+#include <string_view>
+#include <vector>
 
 namespace proto
 {
 class TransactionID;
+}
+
+namespace Hedera
+{
+class Client;
+class TransactionReceipt;
+class TransactionRecord;
 }
 
 namespace Hedera
@@ -80,6 +92,221 @@ public:
   [[nodiscard]] static TransactionId fromProtobuf(const proto::TransactionID& proto);
 
   /**
+   * Construct a TransactionId object from a string of the form "<account>@<seconds>.<nanos>[?scheduled][/nonce]".
+   *
+   * @param id The transaction ID string from which to construct.
+   * @return The constructed TransactionId object.
+   * @throws std::invalid_argument If the input string is malformed.
+   */
+  [[nodiscard]] static TransactionId fromString(std::string_view id);
+
+  /**
+   * Construct a TransactionId object from a byte array.
+   *
+   * @param bytes The byte array from which to construct a TransactionId object.
+   * @return The constructed TransactionId object.
+   */
+  [[nodiscard]] static TransactionId fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Fetch the TransactionReceipt of the transaction this ID represents.
+   *
+   * @param client The Client to use to fetch the TransactionReceipt.
+   * @return The fetched TransactionReceipt.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If the TransactionReceiptQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  TransactionReceipt getReceipt(const Client& client) const;
+
+  /**
+   * Fetch the TransactionReceipt of the transaction this ID represents with a specified timeout.
+   *
+   * @param client  The Client to use to fetch the TransactionReceipt.
+   * @param timeout The desired timeout for the execution of the TransactionReceiptQuery.
+   * @return The fetched TransactionReceipt.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If the TransactionReceiptQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  TransactionReceipt getReceipt(const Client& client, const std::chrono::system_clock::duration& timeout) const;
+
+  /**
+   * Fetch the TransactionReceipt of the transaction this ID represents asynchronously.
+   *
+   * @param client The Client to use to fetch the TransactionReceipt.
+   * @return The future of the fetched TransactionReceipt.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If the TransactionReceiptQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionReceipt> getReceiptAsync(const Client& client) const;
+
+  /**
+   * Fetch the TransactionReceipt of the transaction this ID represents asynchronously with a specified timeout.
+   *
+   * @param client  The Client to use to fetch the TransactionReceipt.
+   * @param timeout The desired timeout for the execution of the TransactionReceiptQuery.
+   * @return The future of the fetched TransactionReceipt.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If the TransactionReceiptQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionReceipt> getReceiptAsync(const Client& client,
+                                                  const std::chrono::system_clock::duration& timeout) const;
+
+  /**
+   * Fetch the TransactionReceipt of the transaction this ID represents asynchronously and consume the response and/or
+   * exception with a callback.
+   *
+   * @param client   The Client to use to fetch the TransactionReceipt.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void getReceiptAsync(const Client& client,
+                       const std::function<void(const TransactionReceipt&, const std::exception&)>& callback) const;
+
+  /**
+   * Fetch the TransactionReceipt of the transaction this ID represents asynchronously with a specific timeout and
+   * consume the response and/or exception with a callback.
+   *
+   * @param client   The Client to use to fetch the TransactionReceipt.
+   * @param timeout  The desired timeout for the execution of the TransactionReceiptQuery.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void getReceiptAsync(const Client& client,
+                       const std::chrono::system_clock::duration& timeout,
+                       const std::function<void(const TransactionReceipt&, const std::exception&)>& callback) const;
+
+  /**
+   * Fetch the TransactionReceipt of the transaction this ID represents asynchronously and consume the response and/or
+   * exception with separate callbacks.
+   *
+   * @param client            The Client to use to fetch the TransactionReceipt.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void getReceiptAsync(const Client& client,
+                       const std::function<void(const TransactionReceipt&)>& responseCallback,
+                       const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
+   * Fetch the TransactionReceipt of the transaction this ID represents asynchronously with a specific timeout and
+   * consume the response and/or exception with separate callbacks.
+   *
+   * @param client            The Client to use to fetch the TransactionReceipt.
+   * @param timeout           The desired timeout for the execution of the TransactionReceiptQuery.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void getReceiptAsync(const Client& client,
+                       const std::chrono::system_clock::duration& timeout,
+                       const std::function<void(const TransactionReceipt&)>& responseCallback,
+                       const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
+   * Fetch the TransactionRecord of the transaction this ID represents.
+   *
+   * @param client The Client to use to fetch the TransactionRecord.
+   * @return The fetched TransactionRecord.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If the TransactionRecordQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  TransactionRecord getRecord(const Client& client) const;
+
+  /**
+   * Fetch the TransactionRecord of the transaction this ID represents with a specified timeout.
+   *
+   * @param client  The Client to use to fetch the TransactionRecord.
+   * @param timeout The desired timeout for the execution of the TransactionRecordQuery.
+   * @return The fetched TransactionRecord.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If the TransactionReceiptQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  TransactionRecord getRecord(const Client& client, const std::chrono::system_clock::duration& timeout) const;
+
+  /**
+   * Fetch the TransactionRecord of the transaction this ID represents asynchronously.
+   *
+   * @param client The Client to use to fetch the TransactionRecord.
+   * @return The future of the fetched TransactionRecord.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If the TransactionRecordQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionRecord> getRecordAsync(const Client& client) const;
+
+  /**
+   * Fetch the TransactionRecord of the transaction this ID represents asynchronously with a specified timeout.
+   *
+   * @param client  The Client to use to fetch the TransactionRecord.
+   * @param timeout The desired timeout for the execution of the TransactionRecordQuery.
+   * @return The future of the fetched TransactionRecord.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If the TransactionRecordQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionRecord> getRecordAsync(const Client& client,
+                                                const std::chrono::system_clock::duration& timeout) const;
+
+  /**
+   * Fetch the TransactionRecord of the transaction this ID represents asynchronously and consume the response and/or
+   * exception with a callback.
+   *
+   * @param client   The Client to use to fetch the TransactionRecord.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void getRecordAsync(const Client& client,
+                      const std::function<void(const TransactionRecord&, const std::exception&)>& callback) const;
+
+  /**
+   * Fetch the TransactionRecord of the transaction this ID represents asynchronously with a specific timeout and
+   * consume the response and/or exception with a callback.
+   *
+   * @param client   The Client to use to fetch the TransactionRecord.
+   * @param timeout  The desired timeout for the execution of the TransactionRecordQuery.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void getRecordAsync(const Client& client,
+                      const std::chrono::system_clock::duration& timeout,
+                      const std::function<void(const TransactionRecord&, const std::exception&)>& callback) const;
+
+  /**
+   * Fetch the TransactionRecord of the transaction this ID represents asynchronously and consume the response and/or
+   * exception with separate callbacks.
+   *
+   * @param client            The Client to use to fetch the TransactionRecord.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void getRecordAsync(const Client& client,
+                      const std::function<void(const TransactionRecord&)>& responseCallback,
+                      const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
+   * Fetch the TransactionRecord of the transaction this ID represents asynchronously with a specific timeout and
+   * consume the response and/or exception with separate callbacks.
+   *
+   * @param client            The Client to use to fetch the TransactionRecord.
+   * @param timeout           The desired timeout for the execution of the TransactionRecordQuery.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void getRecordAsync(const Client& client,
+                      const std::chrono::system_clock::duration& timeout,
+                      const std::function<void(const TransactionRecord&)>& responseCallback,
+                      const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
    * Compare this TransactionId to another TransactionId and determine if they represent the same Transaction.
    *
    * @param other The other TransactionId with which to compare this TransactionId.
@@ -110,23 +337,43 @@ public:
   [[nodiscard]] std::string toString() const;
 
   /**
-   * Get the point in time when the transaction represented by this TransactionId becomes (or became) valid.
+   * Get a string representation of this TransactionId object with the account ID checksum.
    *
-   * @return The valid start time of the transaction.
+   * @param client The Client with which to generate the checksum.
+   * @return A string representation of this TransactionId with the account ID checksum.
    */
-  [[nodiscard]] inline std::chrono::system_clock::time_point getValidTransactionTime() const
-  {
-    return mValidTransactionTime;
-  }
+  [[nodiscard]] std::string toStringWithChecksum(const Client& client) const;
 
   /**
-   * Get the ID of the account submitting the transaction represented by this TransactionId.
+   * Set if this ID represents a scheduled transaction.
    *
-   * @return A pointer to the account ID associated with this TransactionId.
+   * @param scheduled \c TRUE if this ID represents a scheduled transaction, otherwise \c FALSE.
+   * @return A reference to this TransactionId with the newly-set scheduled.
    */
-  [[nodiscard]] inline AccountId getAccountId() const { return mAccountId; }
+  TransactionId& setScheduled(bool scheduled);
 
-private:
+  /**
+   * Set this TransactionId's nonce value.
+   *
+   * @param nonce The desired nonce value for this TransactionId.
+   * @return A reference to this TransactionId with the newly-set nonce.
+   */
+  TransactionId& setNonce(int nonce);
+
+  /**
+   * Get if this ID represents a scheduled transaction.
+   *
+   * @return \c TRUE if this ID represents a scheduled transaction, otherwise \c FALSE.
+   */
+  [[nodiscard]] inline bool getScheduled() const { return mScheduled; }
+
+  /**
+   * Get this TransactionId's nonce value.
+   *
+   * @return The nonce value for of TransactionId.
+   */
+  [[nodiscard]] inline int getNonce() const { return mNonce; }
+
   /**
    * The time at which the transaction associated with this TransactionId is considered "valid".
    *
@@ -139,6 +386,24 @@ private:
    * The ID of the account that is paying for this transaction associated with this TransactionId.
    */
   AccountId mAccountId;
+
+private:
+  /**
+   * Get the string with the timestamp, scheduled, and nonce.
+   *
+   * @return The string with this TransactionId's timestamp, scheduled, and nonce.
+   */
+  [[nodiscard]] std::string getTimestampScheduleNonceString() const;
+
+  /**
+   * Is this the ID of a scheduled transaction?
+   */
+  bool mScheduled = false;
+
+  /**
+   * The nonce value of this child transaction (0 if not a child transaction).
+   */
+  int mNonce = 0;
 };
 
 } // namespace Hedera

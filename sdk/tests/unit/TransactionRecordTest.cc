@@ -122,8 +122,8 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   EXPECT_EQ(txRecord.mConsensusTimestamp->time_since_epoch().count(), now.time_since_epoch().count());
 
   ASSERT_TRUE(txRecord.mTransactionID.has_value());
-  EXPECT_EQ(txRecord.mTransactionID->getAccountId(), accountIdFrom);
-  EXPECT_GE(txRecord.mTransactionID->getValidTransactionTime(), now);
+  EXPECT_EQ(txRecord.mTransactionID->mAccountId, accountIdFrom);
+  EXPECT_GE(txRecord.mTransactionID->mValidTransactionTime, now);
 
   EXPECT_EQ(txRecord.mMemo, txMemo);
 
