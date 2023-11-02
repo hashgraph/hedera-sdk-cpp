@@ -19,6 +19,7 @@
  */
 #include "TransactionReceipt.h"
 #include "exceptions/ReceiptStatusException.h"
+#include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
 #include <proto/transaction_get_receipt.pb.h>
@@ -117,6 +118,88 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
   }
 
   return receipt;
+}
+
+//-----
+TransactionReceipt TransactionReceipt::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::TransactionReceipt proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
+std::unique_ptr<proto::TransactionReceipt> TransactionReceipt::toProtobuf() const
+{
+  auto proto = std::make_unique<proto::TransactionReceipt>();
+  proto->set_status(gStatusToProtobufResponseCode.at(mStatus));
+
+  if (mAccountId.has_value())
+  {
+    proto->set_allocated_accountid(mAccountId->toProtobuf().release());
+  }
+
+  if (mFileId.has_value())
+  {
+    proto->set_allocated_fileid(mFileId->toProtobuf().release());
+  }
+
+  if (mContractId.has_value())
+  {
+    proto->set_allocated_contractid(mContractId->toProtobuf().release());
+  }
+
+  proto->mutable_exchangerate()->mutable_currentrate()->set_hbarequiv(mExchangeRates.mCurrentRate.mHbars);
+  proto->mutable_exchangerate()->mutable_currentrate()->set_centequiv(mExchangeRates.mCurrentRate.mCents);
+  proto->mutable_exchangerate()->mutable_currentrate()->set_allocated_expirationtime(
+    internal::TimestampConverter::toSecondsProtobuf(mExchangeRates.mCurrentRate.mExpirationTime));
+
+  if (mTopicId.has_value())
+  {
+    proto->set_allocated_topicid(mTopicId->toProtobuf().release());
+  }
+
+  if (mTopicSequenceNumber.has_value())
+  {
+    proto->set_topicsequencenumber(mTopicSequenceNumber.value());
+  }
+
+  if (mTopicRunningHash.has_value())
+  {
+    proto->set_topicrunninghash(internal::Utilities::byteVectorToString(mTopicRunningHash.value()));
+  }
+
+  if (mTopicRunningHashVersion.has_value())
+  {
+    proto->set_topicrunninghashversion(mTopicRunningHashVersion.value());
+  }
+
+  if (mNewTotalSupply.has_value())
+  {
+    proto->set_newtotalsupply(mNewTotalSupply.value());
+  }
+
+  if (mScheduleId.has_value())
+  {
+    proto->set_allocated_scheduleid(mScheduleId->toProtobuf().release());
+  }
+
+  if (mScheduledTransactionId.has_value())
+  {
+    proto->set_allocated_scheduledtransactionid(mScheduledTransactionId->toProtobuf().release());
+  }
+
+  std::for_each(mSerialNumbers.cbegin(),
+                mSerialNumbers.cend(),
+                [&proto](uint64_t num) { proto->add_serialnumbers(static_cast<int64_t>(num)); });
+
+  return proto;
+}
+
+//-----
+std::vector<std::byte> TransactionReceipt::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
 //-----
