@@ -32,6 +32,7 @@ add_executable(${TEST_PROJECT_NAME}
         JSONIntegrationTest.cc
         NetworkVersionInfoQueryIntegrationTests.cc
         PrngTransactionIntegrationTests.cc
+        QueryIntegrationTests.cc
         ScheduleCreateTransactionIntegrationTests.cc
         ScheduleDeleteTransactionIntegrationTests.cc
         ScheduleInfoQueryIntegrationTests.cc

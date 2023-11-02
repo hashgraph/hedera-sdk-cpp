@@ -134,7 +134,7 @@ public:
    * callbacks.
    *
    * @param client            The Client to use to submit this Executable.
-   * @param responseCallback  The callback that should consume the response/exception.
+   * @param responseCallback  The callback that should consume the response.
    * @param exceptionCallback The callback that should consume the exception.
    */
   void executeAsync(const Client& client,
@@ -147,7 +147,7 @@ public:
    *
    * @param client            The Client to use to submit this Executable.
    * @param timeout           The desired timeout for the execution of this Executable.
-   * @param responseCallback  The callback that should consume the response/exception.
+   * @param responseCallback  The callback that should consume the response.
    * @param exceptionCallback The callback that should consume the exception.
    */
   void executeAsync(const Client& client,
