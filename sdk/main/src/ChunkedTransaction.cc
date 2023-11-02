@@ -77,6 +77,16 @@ TransactionResponse ChunkedTransaction<SdkRequestType>::execute(const Client& cl
 
 //-----
 template<typename SdkRequestType>
+std::future<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout)
+{
+  return std::async(std::launch::async,
+                    [this, &client, &timeout]() { return this->executeAll(client, timeout).at(0); });
+}
+
+//-----
+template<typename SdkRequestType>
 std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(const Client& client)
 {
   return executeAll(client, client.getRequestTimeout());
@@ -109,7 +119,7 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
 
     if (mImpl->mShouldGetReceipt)
     {
-      const TransactionReceipt txReceipt = responses.back().getReceipt(client, timeout);
+      responses.back().getReceipt(client, timeout);
     }
   }
 
@@ -117,6 +127,82 @@ std::vector<TransactionResponse> ChunkedTransaction<SdkRequestType>::executeAll(
   mImpl->mCurrentChunk = 0U;
 
   return responses;
+}
+
+//-----
+template<typename SdkRequestType>
+std::future<std::vector<TransactionResponse>> ChunkedTransaction<SdkRequestType>::executeAllAsync(const Client& client)
+{
+  return executeAllAsync(client, client.getRequestTimeout());
+}
+
+//-----
+template<typename SdkRequestType>
+std::future<std::vector<TransactionResponse>> ChunkedTransaction<SdkRequestType>::executeAllAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout)
+{
+  return std::async(std::launch::async, [this, &client, &timeout]() { return this->executeAll(client, timeout); });
+}
+
+//-----
+template<typename SdkRequestType>
+void ChunkedTransaction<SdkRequestType>::executeAllAsync(
+  const Client& client,
+  const std::function<void(const std::vector<TransactionResponse>&, const std::exception&)>& callback)
+{
+  return executeAllAsync(client, client.getRequestTimeout(), callback);
+}
+
+//-----
+template<typename SdkRequestType>
+void ChunkedTransaction<SdkRequestType>::executeAllAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout,
+  const std::function<void(const std::vector<TransactionResponse>&, const std::exception&)>& callback)
+{
+  std::future<std::vector<TransactionResponse>> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->executeAll(client, timeout); });
+
+  try
+  {
+    callback(future.get(), std::exception());
+  }
+  catch (const std::exception& exception)
+  {
+    callback({}, exception);
+  }
+}
+
+//-----
+template<typename SdkRequestType>
+void ChunkedTransaction<SdkRequestType>::executeAllAsync(
+  const Client& client,
+  const std::function<void(const std::vector<TransactionResponse>&)>& responseCallback,
+  const std::function<void(const std::exception&)>& exceptionCallback)
+{
+  return executeAllAsync(client, client.getRequestTimeout(), responseCallback, exceptionCallback);
+}
+
+//-----
+template<typename SdkRequestType>
+void ChunkedTransaction<SdkRequestType>::executeAllAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout,
+  const std::function<void(const std::vector<TransactionResponse>&)>& responseCallback,
+  const std::function<void(const std::exception&)>& exceptionCallback)
+{
+  std::future<std::vector<TransactionResponse>> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->executeAll(client, timeout); });
+
+  try
+  {
+    responseCallback(future.get());
+  }
+  catch (const std::exception& exception)
+  {
+    exceptionCallback(exception);
+  }
 }
 
 //-----
