@@ -58,7 +58,7 @@ void TransactionRecordQuery::validateChecksums(const Client& client) const
 {
   if (mTransactionId.has_value())
   {
-    mTransactionId->getAccountId().validateChecksum(client);
+    mTransactionId->mAccountId.validateChecksum(client);
   }
 }
 

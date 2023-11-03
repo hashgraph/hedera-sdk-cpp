@@ -195,14 +195,13 @@ TEST_F(ScheduleInfoTest, ToProtobuf)
   EXPECT_EQ(protoScheduleInfo->payeraccountid().realmnum(), getTestPayerAccountId().mRealmNum);
   EXPECT_EQ(protoScheduleInfo->payeraccountid().accountnum(), getTestPayerAccountId().mAccountNum);
   EXPECT_EQ(protoScheduleInfo->scheduledtransactionid().accountid().shardnum(),
-            getTestScheduledTransactionId().getAccountId().mShardNum);
+            getTestScheduledTransactionId().mAccountId.mShardNum);
   EXPECT_EQ(protoScheduleInfo->scheduledtransactionid().accountid().realmnum(),
-            getTestScheduledTransactionId().getAccountId().mRealmNum);
+            getTestScheduledTransactionId().mAccountId.mRealmNum);
   EXPECT_EQ(protoScheduleInfo->scheduledtransactionid().accountid().accountnum(),
-            getTestScheduledTransactionId().getAccountId().mAccountNum);
-  EXPECT_EQ(
-    protoScheduleInfo->scheduledtransactionid().transactionvalidstart().seconds(),
-    internal::TimestampConverter::toProtobuf(getTestScheduledTransactionId().getValidTransactionTime())->seconds());
+            getTestScheduledTransactionId().mAccountId.mAccountNum);
+  EXPECT_EQ(protoScheduleInfo->scheduledtransactionid().transactionvalidstart().seconds(),
+            internal::TimestampConverter::toProtobuf(getTestScheduledTransactionId().mValidTransactionTime)->seconds());
   EXPECT_EQ(protoScheduleInfo->ledger_id(), internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
   EXPECT_EQ(protoScheduleInfo->wait_for_expiry(), getTestWaitForExpiry());
 }
