@@ -56,7 +56,6 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/Network.h"
 
-#include <optional>
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/transaction.pb.h>
@@ -74,6 +73,9 @@ struct Query<SdkRequestType, SdkResponseType>::QueryImpl
   // The maximum amount to pay for this Query.
   std::optional<Hbar> mMaxPayment;
 
+  // The transaction ID to use for the payment transaction for this Query.
+  std::optional<TransactionId> mPaymentTransactionId;
+
   // Is this Query meant to get the cost?
   bool mGetCost = false;
 
@@ -83,22 +85,6 @@ struct Query<SdkRequestType, SdkResponseType>::QueryImpl
   // The Client that should be used to pay for the payment transaction of this Query.
   const Client* mClient = nullptr;
 };
-
-//-----
-template<typename SdkRequestType, typename SdkResponseType>
-SdkRequestType& Query<SdkRequestType, SdkResponseType>::setQueryPayment(const Hbar& amount)
-{
-  mImpl->mPayment = amount;
-  return static_cast<SdkRequestType&>(*this);
-}
-
-//-----
-template<typename SdkRequestType, typename SdkResponseType>
-SdkRequestType& Query<SdkRequestType, SdkResponseType>::setMaxQueryPayment(const Hbar& maxAmount)
-{
-  mImpl->mMaxPayment = maxAmount;
-  return static_cast<SdkRequestType&>(*this);
-}
 
 //-----
 template<typename SdkRequestType, typename SdkResponseType>
@@ -120,6 +106,113 @@ Hbar Query<SdkRequestType, SdkResponseType>::getCost(const Client& client,
   mImpl->mGetCost = false;
 
   return mImpl->mCost;
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+std::future<Hbar> Query<SdkRequestType, SdkResponseType>::getCostAsync(const Client& client)
+{
+  return getCostAsync(client, client.getRequestTimeout());
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+std::future<Hbar> Query<SdkRequestType, SdkResponseType>::getCostAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout)
+{
+  return std::async(std::launch::async, [this, &client, &timeout]() { return this->getCost(client, timeout); });
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+void Query<SdkRequestType, SdkResponseType>::getCostAsync(
+  const Client& client,
+  const std::function<void(const Hbar&, const std::exception&)>& callback)
+{
+  return getCostAsync(client, client.getRequestTimeout(), callback);
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+void Query<SdkRequestType, SdkResponseType>::getCostAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout,
+  const std::function<void(const Hbar&, const std::exception&)>& callback)
+{
+  std::future<Hbar> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->getCost(client, timeout); });
+
+  try
+  {
+    callback(future.get(), std::exception());
+  }
+  catch (const std::exception& exception)
+  {
+    callback(Hbar(), exception);
+  }
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+void Query<SdkRequestType, SdkResponseType>::getCostAsync(
+  const Client& client,
+  const std::function<void(const Hbar&)>& responseCallback,
+  const std::function<void(const std::exception&)>& exceptionCallback)
+{
+  return getCostAsync(client, client.getRequestTimeout(), responseCallback, exceptionCallback);
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+void Query<SdkRequestType, SdkResponseType>::getCostAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout,
+  const std::function<void(const Hbar&)>& responseCallback,
+  const std::function<void(const std::exception&)>& exceptionCallback)
+{
+  std::future<Hbar> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->getCost(client, timeout); });
+
+  try
+  {
+    responseCallback(future.get());
+  }
+  catch (const std::exception& exception)
+  {
+    exceptionCallback(exception);
+  }
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+SdkRequestType& Query<SdkRequestType, SdkResponseType>::setQueryPayment(const Hbar& amount)
+{
+  mImpl->mPayment = amount;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+SdkRequestType& Query<SdkRequestType, SdkResponseType>::setMaxQueryPayment(const Hbar& maxAmount)
+{
+  mImpl->mMaxPayment = maxAmount;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+SdkRequestType& Query<SdkRequestType, SdkResponseType>::setPaymentTransactionId(const TransactionId& transactionId)
+{
+  mImpl->mPaymentTransactionId = transactionId;
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+std::optional<TransactionId> Query<SdkRequestType, SdkResponseType>::getPaymentTransactionId() const
+{
+  return mImpl->mPaymentTransactionId;
 }
 
 //-----
@@ -210,12 +303,14 @@ proto::Query Query<SdkRequestType, SdkResponseType>::makeRequest(unsigned int in
     header->set_allocated_payment(
       std::make_unique<proto::Transaction>(
         TransferTransaction()
-          .setTransactionId(TransactionId::generate(mImpl->mClient->getOperatorAccountId().value()))
+          .setTransactionId(mImpl->mPaymentTransactionId.has_value()
+                              ? mImpl->mPaymentTransactionId.value()
+                              : TransactionId::generate(mImpl->mClient->getOperatorAccountId().value()))
           .setNodeAccountIds({ accountId })
           .addHbarTransfer(mImpl->mClient->getOperatorAccountId().value(), mImpl->mCost.negated())
           .addHbarTransfer(accountId, mImpl->mCost)
           .freeze()
-          .signWith(mImpl->mClient->getOperatorPublicKey(), mImpl->mClient->getOperatorSigner())
+          .signWithOperator(*mImpl->mClient)
           // There's only one node account ID, therefore only one Transaction protobuf object will be created, and that
           // will be put in the 0th index.
           .makeRequest(0U))

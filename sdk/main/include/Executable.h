@@ -105,7 +105,8 @@ public:
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  std::future<SdkResponseType> executeAsync(const Client& client, const std::chrono::system_clock::duration& timeout);
+  virtual std::future<SdkResponseType> executeAsync(const Client& client,
+                                                    const std::chrono::system_clock::duration& timeout);
 
   /**
    * Submit this Executable to a Hedera network asynchronously and consume the response and/or exception with a
@@ -134,7 +135,7 @@ public:
    * callbacks.
    *
    * @param client            The Client to use to submit this Executable.
-   * @param responseCallback  The callback that should consume the response/exception.
+   * @param responseCallback  The callback that should consume the response.
    * @param exceptionCallback The callback that should consume the exception.
    */
   void executeAsync(const Client& client,
@@ -147,7 +148,7 @@ public:
    *
    * @param client            The Client to use to submit this Executable.
    * @param timeout           The desired timeout for the execution of this Executable.
-   * @param responseCallback  The callback that should consume the response/exception.
+   * @param responseCallback  The callback that should consume the response.
    * @param exceptionCallback The callback that should consume the exception.
    */
   void executeAsync(const Client& client,

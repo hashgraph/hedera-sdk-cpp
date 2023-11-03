@@ -27,6 +27,9 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <future>
+#include <stdexcept>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
@@ -76,6 +79,20 @@ public:
   TransactionResponse execute(const Client& client, const std::chrono::system_clock::duration& timeout) override;
 
   /**
+   * Derived from Executable. Execute this ChunkedTransaction asynchronously with a specific timeout.
+   *
+   * @param client  The Client to use to submit this ChunkedTransaction.
+   * @param timeout The desired timeout for the execution of this ChunkedTransaction.
+   * @return The future TransactionResponse object sent from the Hedera network that contains the result of the request.
+   * @throws MaxAttemptsExceededException If this ChunkedTransaction attempts to execute past the number of allowable
+   *                                      attempts.
+   * @throws PrecheckStatusException      If this ChunkedTransaction fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionResponse> executeAsync(const Client& client,
+                                                const std::chrono::system_clock::duration& timeout) override;
+
+  /**
    * Execute all chunks of this ChunkedTransaction.
    *
    * @param client The Client to use to submit this ChunkedTransaction.
@@ -99,6 +116,82 @@ public:
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   std::vector<TransactionResponse> executeAll(const Client& client, const std::chrono::system_clock::duration& timeout);
+
+  /**
+   * Execute all chunks of this ChunkedTransaction asynchronously.
+   *
+   * @param client The Client to use to submit this ChunkedTransaction.
+   * @return The future list of TransactionResponse objects sent from the Hedera network that contains the result of the
+   *         requests.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<std::vector<TransactionResponse>> executeAllAsync(const Client& client);
+
+  /**
+   * Execute all chunks of this ChunkedTransaction asynchronously with a specified timeout.
+   *
+   * @param client  The Client to use to submit this ChunkedTransaction.
+   * @param timeout The desired timeout for the execution of this ChunkedTransaction.
+   * @return The future list of TransactionResponse objects sent from the Hedera network that contains the result of the
+   *         requests.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<std::vector<TransactionResponse>> executeAllAsync(const Client& client,
+                                                                const std::chrono::system_clock::duration& timeout);
+
+  /**
+   * Execute all chunks of this ChunkedTransaction asynchronously and consume the response and/or exception with a
+   * callback.
+   *
+   * @param client   The Client to use to submit this ChunkedTransaction.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void executeAllAsync(
+    const Client& client,
+    const std::function<void(const std::vector<TransactionResponse>&, const std::exception&)>& callback);
+
+  /**
+   * Execute all chunks of this ChunkedTransaction asynchronously with a specified timeout and consume the response
+   * and/or exception with a callback.
+   *
+   * @param client   The Client to use to submit this ChunkedTransaction.
+   * @param timeout  The desired timeout for the execution of this ChunkedTransaction.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void executeAllAsync(
+    const Client& client,
+    const std::chrono::system_clock::duration& timeout,
+    const std::function<void(const std::vector<TransactionResponse>&, const std::exception&)>& callback);
+
+  /**
+   * Execute all chunks of this ChunkedTransaction asynchronously and consume the response and/or exception with
+   * separate callbacks.
+   *
+   * @param client            The Client to use to submit this Executable.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void executeAllAsync(const Client& client,
+                       const std::function<void(const std::vector<TransactionResponse>&)>& responseCallback,
+                       const std::function<void(const std::exception&)>& exceptionCallback);
+
+  /**
+   * Execute all chunks of this ChunkedTransaction asynchronously with a specific timeout and consume the response
+   * and/or exception with separate callbacks.
+   *
+   * @param client            The Client to use to submit this Executable.
+   * @param timeout           The desired timeout for the execution of this Executable.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void executeAllAsync(const Client& client,
+                       const std::chrono::system_clock::duration& timeout,
+                       const std::function<void(const std::vector<TransactionResponse>&)>& responseCallback,
+                       const std::function<void(const std::exception&)>& exceptionCallback);
 
   /**
    * Derived from Transaction. Add a signature to this ChunkedTransaction.
