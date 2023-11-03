@@ -39,6 +39,20 @@ TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const Transacti
 }
 
 //-----
+TransactionRecordQuery& TransactionRecordQuery::setIncludeChildren(bool children)
+{
+  mIncludeChildren = children;
+  return *this;
+}
+
+//-----
+TransactionRecordQuery& TransactionRecordQuery::setIncludeDuplicates(bool duplicates)
+{
+  mIncludeDuplicates = duplicates;
+  return *this;
+}
+
+//-----
 TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& response) const
 {
   return TransactionRecord::fromProtobuf(response.transactiongetrecord().transactionrecord());

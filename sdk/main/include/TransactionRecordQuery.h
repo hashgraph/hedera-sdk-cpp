@@ -52,12 +52,47 @@ public:
   TransactionRecordQuery& setTransactionId(const TransactionId& transactionId);
 
   /**
+   * Set the child transaction retrieval policy for this TransactionRecordQuery.
+   *
+   * @param children \c TRUE if this TransactionRecordQuery should get the receipts of any child transactions,
+   *                 otherwise \c FALSE.
+   * @return A reference to this TransactionRecordQuery object with the newly-set child transaction retrieval policy.
+   */
+  TransactionRecordQuery& setIncludeChildren(bool children);
+
+  /**
+   * Set the duplicate transaction retrieval policy for this TransactionRecordQuery.
+   *
+   * @param duplicates \c TRUE if this TransactionRecordQuery should get the receipts of any duplicate transactions,
+   *                   otherwise \c FALSE.
+   * @return A reference to this TransactionRecordQuery object with the newly-set duplicate transaction retrieval
+   *         policy.
+   */
+  TransactionRecordQuery& setIncludeDuplicates(bool duplicates);
+
+  /**
    * Get the ID of the transaction of which this query is currently configured to get the record.
    *
    * @return The ID of the transaction for which this query is meant. Returns uninitialized if a value has not yet been
    *         set.
    */
   [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionId; }
+
+  /**
+   * Get the child transaction retrieval policy for this TransactionRecordQuery.
+   *
+   * @return \c TRUE if this TransactionRecordQuery is currently configured to get the records of any child
+   *         transactions, otherwise \c FALSE.
+   */
+  [[nodiscard]] inline bool getIncludeChildren() const { return mIncludeChildren; }
+
+  /**
+   * Get the duplicate transaction retrieval policy for this TransactionRecordQuery.
+   *
+   * @return \c TRUE if this TransactionRecordQuery is currently configured to get the records of any duplicate
+   *         transactions, otherwise \c FALSE.
+   */
+  [[nodiscard]] inline bool getIncludeDuplicates() const { return mIncludeDuplicates; }
 
 private:
   /**
@@ -126,6 +161,16 @@ private:
    * The ID of the transaction of which this query should get the record.
    */
   std::optional<TransactionId> mTransactionId;
+
+  /**
+   * Should the records of any children transactions be retrieved as well?
+   */
+  bool mIncludeChildren = false;
+
+  /**
+   * Should the records of any duplicates transactions be retrieved as well?
+   */
+  bool mIncludeDuplicates = false;
 };
 
 } // namespace Hedera
