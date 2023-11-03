@@ -26,6 +26,7 @@
 #include "EvmAddress.h"
 #include "Hbar.h"
 #include "HbarTransfer.h"
+#include "PublicKey.h"
 #include "TokenAssociation.h"
 #include "TokenNftTransfer.h"
 #include "TokenTransfer.h"
@@ -33,6 +34,7 @@
 #include "TransactionReceipt.h"
 
 #include <cstddef>
+#include <memory>
 #include <optional>
 #include <string>
 #include <utility>
@@ -40,6 +42,7 @@
 
 namespace proto
 {
+class TransactionGetRecordResponse;
 class TransactionRecord;
 }
 
@@ -54,9 +57,17 @@ class TransactionRecord
 {
 public:
   /**
+   * Construct a TransactionRecord object from a TransactionGetRecordResponse protobuf object.
+   *
+   * @param proto The TransactionGetRecordResponse protobuf object from which to construct a TransactionRecord object.
+   * @return The constructed TransactionRecord object.
+   */
+  [[nodiscard]] static TransactionRecord fromProtobuf(const proto::TransactionGetRecordResponse& proto);
+
+  /**
    * Construct a TransactionRecord object from a TransactionRecord protobuf object.
    *
-   * @param proto The TransactionRecord protobuf object from which to construct an TransactionRecord object.
+   * @param proto The TransactionRecord protobuf object from which to construct a TransactionRecord object.
    * @return The constructed TransactionRecord object.
    */
   [[nodiscard]] static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
@@ -130,6 +141,27 @@ public:
   std::vector<TokenAssociation> mAutomaticTokenAssociations;
 
   /**
+   * In the record of an internal transaction, the consensus timestamp of the user transaction that spawned it.
+   */
+  std::optional<std::chrono::system_clock::time_point> mParentConsensusTimestamp;
+
+  /**
+   * In the record of an AccountCreateTransaction triggered by a user transaction with a (previously unused) alias, the
+   * new account's alias.
+   */
+  std::shared_ptr<PublicKey> mAlias;
+
+  /**
+   * In the record of an EthereumTransaction, the KECCAK-256 hash of the ethereumData.
+   */
+  std::optional<std::vector<std::byte>> mEthereumHash;
+
+  /**
+   * The list of accounts with the corresponding staking rewards paid as a result of a transaction.
+   */
+  std::vector<HbarTransfer> mPaidStakingRewards;
+
+  /**
    * In the record of a PrngTransaction with no range, a pseudorandom 384-bit string.
    */
   std::vector<std::byte> mPrngBytes;
@@ -144,6 +176,18 @@ public:
    * associated. This field is populated only when the EVM address is not specified in the related transaction body.
    */
   std::optional<EvmAddress> mEvmAddress;
+
+  /**
+   * The records of processing all child transactions spawned by the transaction with the given top-level ID, in
+   * consensus order. Always empty if the top-level status is UNKNOWN.
+   */
+  std::vector<TransactionRecord> mChildren;
+
+  /**
+   * The records of processing all consensus transaction with the same ID as the distinguished record, in chronological
+   * order.
+   */
+  std::vector<TransactionRecord> mDuplicates;
 };
 
 } // namespace Hedera
