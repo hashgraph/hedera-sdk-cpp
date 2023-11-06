@@ -21,10 +21,29 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <proto/transaction_get_record.pb.h>
 #include <proto/transaction_record.pb.h>
 
 namespace Hedera
 {
+//-----
+TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionGetRecordResponse& proto)
+{
+  TransactionRecord record = TransactionRecord::fromProtobuf(proto.transactionrecord());
+
+  for (int i = 0; i < proto.duplicatetransactionrecords_size(); ++i)
+  {
+    record.mDuplicates.push_back(TransactionRecord::fromProtobuf(proto.duplicatetransactionrecords(i)));
+  }
+
+  for (int i = 0; i < proto.child_transaction_records_size(); ++i)
+  {
+    record.mChildren.push_back(TransactionRecord::fromProtobuf(proto.child_transaction_records(i)));
+  }
+
+  return record;
+}
+
 //-----
 TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord& proto)
 {
@@ -105,6 +124,27 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   {
     transactionRecord.mAutomaticTokenAssociations.push_back(
       TokenAssociation::fromProtobuf(proto.automatic_token_associations(i)));
+  }
+
+  if (proto.has_parent_consensus_timestamp())
+  {
+    transactionRecord.mParentConsensusTimestamp =
+      internal::TimestampConverter::fromProtobuf(proto.parent_consensus_timestamp());
+  }
+
+  if (!proto.alias().empty())
+  {
+    transactionRecord.mAlias = PublicKey::fromAliasBytes(internal::Utilities::stringToByteVector(proto.alias()));
+  }
+
+  if (!proto.ethereum_hash().empty())
+  {
+    transactionRecord.mEthereumHash = internal::Utilities::stringToByteVector(proto.ethereum_hash());
+  }
+
+  for (int i = 0; i < proto.paid_staking_rewards_size(); ++i)
+  {
+    transactionRecord.mPaidStakingRewards.push_back(HbarTransfer::fromProtobuf(proto.paid_staking_rewards(i)));
   }
 
   if (proto.has_prng_bytes())
