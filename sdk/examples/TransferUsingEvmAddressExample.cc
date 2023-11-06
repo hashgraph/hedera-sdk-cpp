@@ -105,7 +105,7 @@ int main(int argc, char** argv)
    * Step 5: Get the child receipt or child record to get the ID of the new account that was created.
    */
   const AccountId accountId = TransactionReceiptQuery()
-                                .setTransactionId(txResponse.getTransactionId())
+                                .setTransactionId(txResponse.mTransactionId)
                                 .setIncludeChildren(true)
                                 .execute(client)
                                 .mChildren.cbegin()
