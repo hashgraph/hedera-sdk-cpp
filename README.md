@@ -7,14 +7,14 @@
 
 [Hedera Hashgraph]: https://hedera.com
 
-## SDK IS NOT READY FOR PRODUCTION USE. IT IS CURRENTLY STILL UNDER DEVELOPMENT.
-
 ## Prerequisites
 
 For MacOS and Linux users (these can be installed with `brew install` or `apt-get install`, respectively):
 
 - ninja
+    - MacOS: `brew install ninja`
 - pkg-config
+    - MacOs: `brew install pkg-config`
 
 For Windows users:
 
