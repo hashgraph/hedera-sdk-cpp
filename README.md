@@ -15,6 +15,9 @@ For MacOS and Linux users (these can be installed with `brew install` or `apt-ge
     - MacOS: `brew install ninja`
 - pkg-config
     - MacOs: `brew install pkg-config`
+- cmake
+    - MacOS: `brew install cmake`
+
 
 For Windows users:
 
