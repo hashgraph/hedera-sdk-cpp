@@ -33,6 +33,20 @@ the [Readme.md](https://github.com/hashgraph/hedera-local-node#readme).
 This project features CMake Presets which simplify the setup of vcpkg based dependencies. The below commands are
 typically all that is required.
 
+1. Clone the project
+
+```
+git clone https://github.com/hashgraph/hedera-sdk-cpp.git`
+```
+
+2. CD to your project directory
+
+```
+cd hedera-sdk-cpp
+```
+
+3. Complete the following tasks within your project directory 
+
 ```sh
 # Ensure the VCPkg Submodule is initialized
 git submodule update --init
