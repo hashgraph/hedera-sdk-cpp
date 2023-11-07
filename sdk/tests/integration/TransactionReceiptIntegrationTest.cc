@@ -162,7 +162,7 @@ TEST_F(TransactionReceiptIntegrationTest, ExecuteTokenCreateTransactionAndCheckT
   // When
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt =
-                    TransactionReceiptQuery().setTransactionId(txResponse.getTransactionId()).execute(getTestClient()));
+                    TransactionReceiptQuery().setTransactionId(txResponse.mTransactionId).execute(getTestClient()));
 
   // Then
   EXPECT_EQ(txReceipt.mStatus, Status::SUCCESS);

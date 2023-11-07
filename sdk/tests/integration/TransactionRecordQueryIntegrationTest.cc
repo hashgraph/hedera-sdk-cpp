@@ -49,8 +49,8 @@ TEST_F(TransactionRecordQueryIntegrationTest, CanGetTransactionRecord)
 
   // When / Then
   TransactionRecord txRecord;
-  EXPECT_NO_THROW(
-    txRecord = TransactionRecordQuery().setTransactionId(testTxResponse.getTransactionId()).execute(getTestClient()));
+  EXPECT_NO_THROW(txRecord =
+                    TransactionRecordQuery().setTransactionId(testTxResponse.mTransactionId).execute(getTestClient()));
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
