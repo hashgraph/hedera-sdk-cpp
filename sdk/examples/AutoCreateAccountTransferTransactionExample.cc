@@ -118,7 +118,7 @@ int main(int argc, char** argv)
    *         `TransferTransaction`).
    */
   const TransactionReceipt receipt =
-    TransactionReceiptQuery().setTransactionId(response.getTransactionId()).setIncludeChildren(true).execute(client);
+    TransactionReceiptQuery().setTransactionId(response.mTransactionId).setIncludeChildren(true).execute(client);
 
   const AccountId newAccountId = receipt.mChildren.at(0).mAccountId.value();
 

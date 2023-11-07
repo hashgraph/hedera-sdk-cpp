@@ -361,10 +361,12 @@ private:
    * Derived from Executable. Construct a Transaction protobuf object from this ChunkedTransaction, based on the attempt
    * number. This will take into account the current chunk of this ChunkedTransaction trying to be sent.
    *
-   * @param attempt The attempt number of trying to execute this ChunkedTransaction.
-   * @return A Transaction protobuf object filled with this ChunkedTransaction's data, based on the attempt number.
+   * @param index The index of the node account ID that's associated with the Node being used to execute this
+   *              ChunkedTransaction.
+   * @return A Transaction protobuf object filled with this ChunkedTransaction's data, based on the node account ID at
+   *         the given index.
    */
-  [[nodiscard]] proto::Transaction makeRequest(unsigned int attempt) const override;
+  [[nodiscard]] proto::Transaction makeRequest(unsigned int index) const override;
 
   /**
    * Derived from Transaction. Generate the SignedTransaction protobuf objects for this ChunkedTransaction.

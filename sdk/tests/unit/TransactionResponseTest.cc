@@ -28,24 +28,20 @@ class TransactionResponseTest : public ::testing::Test
 {
 };
 
-// Tests deserialization of Hedera::TransactionResponse -> proto::TransactionResponse.
-TEST_F(TransactionResponseTest, ProtobufTransactionResponse)
+//-----
+TEST_F(TransactionResponseTest, ContructTransactionResponse)
 {
   // Given
-  const uint64_t cost = 10ULL;
-  const proto::ResponseCodeEnum response = proto::ResponseCodeEnum::AUTHORIZATION_FAILED;
-  proto::TransactionResponse protoTransactionResponse;
-  protoTransactionResponse.set_cost(cost);
-  protoTransactionResponse.set_nodetransactionprecheckcode(response);
+  const AccountId accountId(1ULL);
+  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+  const TransactionId transactionId = TransactionId::withValidStart(accountId, now);
+  const std::vector<std::byte> hash = { std::byte(0x00), std::byte(0x01), std::byte(0x02) };
 
   // When
-  TransactionResponse txResponse = TransactionResponse::fromProtobuf(protoTransactionResponse);
+  const TransactionResponse transactionResponse(accountId, transactionId, hash);
 
   // Then
-  EXPECT_EQ(txResponse.getCost(), cost);
-  EXPECT_FALSE(txResponse.getValidateStatus());
-
-  protoTransactionResponse.set_nodetransactionprecheckcode(proto::ResponseCodeEnum::OK);
-  txResponse = TransactionResponse::fromProtobuf(protoTransactionResponse);
-  EXPECT_TRUE(txResponse.getValidateStatus());
+  EXPECT_EQ(transactionResponse.mNodeId, accountId);
+  EXPECT_EQ(transactionResponse.mTransactionHash, hash);
+  EXPECT_EQ(transactionResponse.mTransactionId, transactionId);
 }
