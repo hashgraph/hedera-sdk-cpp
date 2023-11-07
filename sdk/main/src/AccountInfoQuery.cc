@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,9 +18,8 @@
  *
  */
 #include "AccountInfoQuery.h"
-
-#include "AccountId.h"
 #include "AccountInfo.h"
+#include "impl/Node.h"
 
 #include <proto/crypto_get_info.pb.h>
 #include <proto/query.pb.h>
@@ -30,65 +29,50 @@
 namespace Hedera
 {
 //-----
-AccountInfoQuery::AccountInfoQuery()
-  : mAccountId()
+AccountInfoQuery& AccountInfoQuery::setAccountId(const AccountId& accountId)
 {
+  mAccountId = accountId;
+  return *this;
 }
 
 //-----
-void
-AccountInfoQuery::validateChecksums(const Client& client) const
-{
-  if (mAccountId.isValid())
-  {
-    mAccountId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void
-AccountInfoQuery::onMakeRequest(proto::Query* query,
-                                proto::QueryHeader* header) const
-{
-  proto::CryptoGetInfoQuery* getInfoQuery = query->mutable_cryptogetinfo();
-
-  if (mAccountId.isValid())
-  {
-    getInfoQuery->set_allocated_accountid(mAccountId.getValue().toProtobuf());
-  }
-
-  getInfoQuery->set_allocated_header(header);
-}
-
-//-----
-proto::ResponseHeader
-AccountInfoQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->cryptogetinfo().header();
-}
-
-//-----
-proto::QueryHeader
-AccountInfoQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.cryptogetinfo().header();
-}
-
-//-----
-AccountInfo
-AccountInfoQuery::mapResponse(const proto::Response& response,
-                              const AccountId& accountId,
-                              const proto::Query& query) const
+AccountInfo AccountInfoQuery::mapResponse(const proto::Response& response) const
 {
   return AccountInfo::fromProtobuf(response.cryptogetinfo().accountinfo());
 }
 
 //-----
-AccountInfoQuery&
-AccountInfoQuery::setAccountId(const AccountId& accountId)
+grpc::Status AccountInfoQuery::submitRequest(const proto::Query& request,
+                                             const std::shared_ptr<internal::Node>& node,
+                                             const std::chrono::system_clock::time_point& deadline,
+                                             proto::Response* response) const
 {
-  mAccountId.setValue(accountId);
-  return *this;
+  return node->submitQuery(proto::Query::QueryCase::kCryptoGetInfo, request, deadline, response);
+}
+
+//-----
+void AccountInfoQuery::validateChecksums(const Client& client) const
+{
+  mAccountId.validateChecksum(client);
+}
+
+//-----
+proto::Query AccountInfoQuery::buildRequest(proto::QueryHeader* header) const
+{
+  auto accountInfoQuery = std::make_unique<proto::CryptoGetInfoQuery>();
+  accountInfoQuery->set_allocated_header(header);
+  accountInfoQuery->set_allocated_accountid(mAccountId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_cryptogetinfo(accountInfoQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader AccountInfoQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.cryptogetinfo().header());
+  return response.cryptogetinfo().header();
 }
 
 } // namespace Hedera

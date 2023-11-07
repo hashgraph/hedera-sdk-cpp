@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -36,13 +36,13 @@ public:
    *
    * @param certificateHash The claimed hash of the node certificate chain.
    */
-  explicit HederaCertificateVerifier(std::string certificateHash);
+  explicit HederaCertificateVerifier(std::vector<std::byte> certificateHash);
 
 private:
   /**
    * The hash of the certificate chain for the node, from the address book.
    */
-  std::string mExpectedHash;
+  std::vector<std::byte> mExpectedHash;
 
   /**
    * The verification logic that will be performed after the TLS handshake completes.
@@ -55,7 +55,7 @@ private:
    * @return \c TRUE because all checks are done synchronously.
    */
   bool Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
-              std::function<void(grpc::Status)> /*callback*/,
+              std::function<void(grpc::Status)> callback,
               grpc::Status* sync_status) override;
 
   /**

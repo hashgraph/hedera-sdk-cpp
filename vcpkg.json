@@ -4,9 +4,10 @@
   "dependencies": [
     "pthreads",
     "zlib",
-    "openssl",
     "protobuf",
     "grpc",
-    "upb"
+    "upb",
+    "nlohmann-json",
+    "curl"
   ]
 }

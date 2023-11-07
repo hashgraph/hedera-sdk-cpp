@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,6 @@
 namespace Hedera
 {
 //-----
-std::unique_ptr<Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>>
-TransactionReceiptQuery::clone() const
-{
-  return std::make_unique<TransactionReceiptQuery>(*this);
-}
-
-//-----
 TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const TransactionId& transactionId)
 {
   mTransactionId = transactionId;
@@ -44,30 +37,41 @@ TransactionReceiptQuery& TransactionReceiptQuery::setTransactionId(const Transac
 }
 
 //-----
-proto::Query TransactionReceiptQuery::makeRequest(const Client&, const std::shared_ptr<internal::Node>&) const
+TransactionReceiptQuery& TransactionReceiptQuery::setIncludeChildren(bool children)
 {
-  proto::Query query;
-  proto::TransactionGetReceiptQuery* getTransactionReceiptQuery = query.mutable_transactiongetreceipt();
+  mIncludeChildren = children;
+  return *this;
+}
 
-  proto::QueryHeader* header = getTransactionReceiptQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-
-  // This is a free query, so no payment required
-  getTransactionReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
-
-  return query;
+//-----
+TransactionReceiptQuery& TransactionReceiptQuery::setIncludeDuplicates(bool duplicates)
+{
+  mIncludeDuplicates = duplicates;
+  return *this;
 }
 
 //-----
 TransactionReceipt TransactionReceiptQuery::mapResponse(const proto::Response& response) const
 {
-  return TransactionReceipt::fromProtobuf(response.transactiongetreceipt().receipt());
+  return TransactionReceipt::fromProtobuf(response.transactiongetreceipt(), mTransactionId.value());
 }
 
 //-----
-Status TransactionReceiptQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status TransactionReceiptQuery::submitRequest(const proto::Query& request,
+                                                    const std::shared_ptr<internal::Node>& node,
+                                                    const std::chrono::system_clock::time_point& deadline,
+                                                    proto::Response* response) const
 {
-  return STATUS_MAP.at(response.transactiongetreceipt().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kTransactionGetReceipt, request, deadline, response);
+}
+
+//-----
+void TransactionReceiptQuery::validateChecksums(const Client& client) const
+{
+  if (mTransactionId.has_value())
+  {
+    mTransactionId->mAccountId.validateChecksum(client);
+  }
 }
 
 //-----
@@ -78,44 +82,63 @@ TransactionReceiptQuery::determineStatus(Status status, const Client& client, co
         baseStatus =
           Executable<TransactionReceiptQuery, proto::Query, proto::Response, TransactionReceipt>::determineStatus(
             status, client, response);
-      baseStatus != ExecutionStatus::UNKNOWN)
+      baseStatus == ExecutionStatus::SERVER_ERROR)
   {
     return baseStatus;
   }
 
   switch (status)
   {
-    case Status::UNKNOWN:
-    case Status::RECEIPT_NOT_FOUND:
-      return ExecutionStatus::RETRY;
-    case Status::OK:
-      break;
-    default:
-      return ExecutionStatus::REQUEST_ERROR;
-  }
-
-  // Check the actual receipt status value to ensure the receipt actually holds correct data.
-  switch (STATUS_MAP.at(response.transactiongetreceipt().receipt().status()))
-  {
     case Status::BUSY:
     case Status::UNKNOWN:
     case Status::RECEIPT_NOT_FOUND:
     case Status::RECORD_NOT_FOUND:
-    case Status::OK:
       return ExecutionStatus::RETRY;
+
+    case Status::OK:
+    {
+      switch (gProtobufResponseCodeToStatus.at(response.transactiongetreceipt().receipt().status()))
+      {
+        case Status::BUSY:
+        case Status::UNKNOWN:
+        case Status::OK:
+        case Status::RECEIPT_NOT_FOUND:
+        case Status::RECORD_NOT_FOUND:
+          return ExecutionStatus::RETRY;
+        default:
+          return ExecutionStatus::SUCCESS;
+      }
+    }
+
     default:
-      return ExecutionStatus::SUCCESS;
+      return ExecutionStatus::REQUEST_ERROR;
   }
 }
 
 //-----
-grpc::Status TransactionReceiptQuery::submitRequest(const Client& client,
-                                                    const std::chrono::system_clock::time_point& deadline,
-                                                    const std::shared_ptr<internal::Node>& node,
-                                                    proto::Response* response) const
+proto::Query TransactionReceiptQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kTransactionGetReceipt, makeRequest(client, node), deadline, response);
+  auto transactionGetReceiptQuery = std::make_unique<proto::TransactionGetReceiptQuery>();
+  transactionGetReceiptQuery->set_allocated_header(header);
+
+  if (mTransactionId.has_value())
+  {
+    transactionGetReceiptQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
+  }
+
+  transactionGetReceiptQuery->set_includeduplicates(mIncludeDuplicates);
+  transactionGetReceiptQuery->set_include_child_receipts(mIncludeChildren);
+
+  proto::Query query;
+  query.set_allocated_transactiongetreceipt(transactionGetReceiptQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader TransactionReceiptQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.transactiongetreceipt().header());
+  return response.transactiongetreceipt().header();
 }
 
 } // namespace Hedera

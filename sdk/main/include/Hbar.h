@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HBAR_H_
-#define HBAR_H_
+#ifndef HEDERA_SDK_CPP_HBAR_H_
+#define HEDERA_SDK_CPP_HBAR_H_
 
 #include "HbarUnit.h"
 
@@ -62,9 +62,32 @@ public:
   }
 
   /**
-   * Define a default comparator operator so that Hbar object's can be compared.
+   * Compare this Hbar to another Hbar and determine if they represent the same amount.
+   *
+   * @param other The other Hbar with which to compare this Hbar.
+   * @return \c TRUE if this Hbar is the same amount as the input Hbar, otherwise \c FALSE.
    */
-  bool operator==(const Hbar&) const = default;
+  bool operator==(const Hbar& other) const { return mValueInTinybar == other.mValueInTinybar; }
+
+  /**
+   * Add another Hbar to this Hbar.
+   *
+   * @param other THe other Hbar to add to this Hbar.
+   * @return A new Hbar object with the new value.
+   */
+  Hbar operator+(const Hbar& other) const { return Hbar(mValueInTinybar + other.mValueInTinybar, HbarUnit::TINYBAR()); }
+
+  /**
+   * Add another Hbar to this Hbar and save the value.
+   *
+   * @param other The other Hbar to add to this Hbar.
+   * @return A reference to this Hbar with the new value.
+   */
+  Hbar& operator+=(const Hbar& other)
+  {
+    mValueInTinybar += other.mValueInTinybar;
+    return *this;
+  }
 
   /**
    * Convert this Hbar value to tinybars.
@@ -89,4 +112,4 @@ private:
 
 } // namespace Hedera
 
-#endif // HBAR_H_
+#endif // HEDERA_SDK_CPP_HBAR_H_

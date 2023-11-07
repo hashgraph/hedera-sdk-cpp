@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,13 @@
  * limitations under the License.
  *
  */
-#ifndef PROXY_STAKER_H_
-#define PROXY_STAKER_H_
+#ifndef HEDERA_SDK_CPP_PROXY_STAKER_H_
+#define HEDERA_SDK_CPP_PROXY_STAKER_H_
+
+#include "AccountId.h"
+#include "Hbar.h"
+
+#include <cstdint>
 
 namespace proto
 {
@@ -27,15 +32,41 @@ class ProxyStaker;
 
 namespace Hedera
 {
+/**
+ * Information about a single account that is proxy staking.
+ */
 class ProxyStaker
 {
 public:
-  static ProxyStaker fromProtobuf(const proto::ProxyStaker& proto)
-  {
-    return ProxyStaker();
-  }
+  ProxyStaker() = default;
+
+  /**
+   * Construct with an account ID and an amount.
+   *
+   * @param accountID The account ID that is staking.
+   * @param amount    The amount the account is staking.
+   */
+  ProxyStaker(AccountId accountId, int64_t amount);
+
+  /**
+   * Construct a ProxyStaker object from a ProxyStaker protobuf object.
+   *
+   * @param proto The ProxyStaker protobuf object from which to construct a ProxyStaker object.
+   * @return The constructed ProxyStaker object.
+   */
+  [[nodiscard]] static ProxyStaker fromProtobuf(const proto::ProxyStaker& proto);
+
+  /**
+   * The ID of the account that is proxy staking.
+   */
+  AccountId mAccountId;
+
+  /**
+   * The number of Hbars that are currently proxy staked.
+   */
+  Hbar mAmount;
 };
 
 } // namespace Hedera
 
-#endif // PROXY_STAKER_H_
+#endif // HEDERA_SDK_CPP_PROXY_STAKER_H_

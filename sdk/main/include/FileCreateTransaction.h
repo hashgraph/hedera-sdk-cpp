@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,236 +17,202 @@
  * limitations under the License.
  *
  */
-#ifndef FILE_CREATE_TRANSACTION_H_
-#define FILE_CREATE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_
 
-#include "PublicKey.h"
+#include "Defaults.h"
+#include "Key.h"
 #include "KeyList.h"
 #include "Transaction.h"
 
-#include "helper/InitType.h"
-
-#include <proto/file_create.pb.h>
-
 #include <chrono>
-#include <unordered_map>
-
-namespace Hedera
-{
-class AccountId;
-class FileId;
-class TransactionId;
-}
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace proto
 {
+class FileCreateTransactionBody;
 class TransactionBody;
 }
 
 namespace Hedera
 {
 /**
- * Create a new file, containing the given contents.
- * After the file is created, the FileID for it can be found in the receipt, or
- * record, or retrieved with a GetByKey query.
+ * A transaction that creates a new file on a Hedera network. The file is referenced by its file ID which can be
+ * obtained from the receipt or record once the transaction reaches consensus on a Hedera network. The file does not
+ * have a file name. If the file is too big to create with a single FileCreateTransaction(), the file can be appended
+ * with the remaining content multiple times using the FileAppendTransaction().
  *
- * The file contains the specified contents (possibly empty). The file will
- * automatically disappear at the expirationTime, unless its expiration is
- * extended by another transaction before that time. If the file is deleted,
- * then its contents will become empty and it will be marked as deleted until it
- * expires, and then it will cease to exist.
- *
- * The keys field is a list of keys. All keys within the top-level key list must
- * sign (M-M) to create or modify a file. However, to delete the file, only one
- * key (1-M) is required to sign from the top-level key list.  Each of those
- * "keys" may itself be threshold key containing other keys (including other
- * threshold keys). In other words, the behavior is an AND for create/modify, OR
- * for delete. This is useful for acting as a revocation server. If it is
- * desired to have the behavior be AND for all 3 operations (or OR for all 3),
- * then the list should have only a single Key, which is a threshold key, with
- * N=1 for OR, N=M for AND.
- *
- * If a file is created without ANY keys in the keys field, the file is
- * immutable and ONLY the expirationTime of the file can be changed with a
- * FileUpdate transaction. The file contents or its keys cannot be changed.
- *
- * An entity (account, file, or smart contract instance) must be created in a
- * particular realm. If the realmID is left null, then a new realm will be
- * created with the given admin key. If a new realm has a null adminKey, then
- * anyone can create/modify/delete entities in that realm. But if an admin key
- * is given, then any transaction to create/modify/delete an entity in that
- * realm must be signed by that key, though anyone can still call functions on
- * smart contract instances that exist in that realm. A realm ceases to exist
- * when everything within it has expired and no longer exists.
- *
- * The current API ignores shardID, realmID, and newRealmAdminKey, and creates
- * everything in shard 0 and realm 0, with a null key. Future versions of the
- * API will support multiple realms and multiple shards.
+ * Transaction Signing Requirements:
+ *  - The key on the file is required to sign the transaction if different than the client operator account key.
  */
 class FileCreateTransaction : public Transaction<FileCreateTransaction>
 {
 public:
   /**
-   * Constructor.
+   * Default constructor. Sets the maximum transaction fee to 5 Hbars.
    */
   FileCreateTransaction();
 
   /**
-   * Construct from a map of transaction ID's to their corresponding account
-   * ID's and protobuf transactions.
+   * Construct from a TransactionBody protobuf object.
    *
-   * @param transactions Map of transaction IDs to their corresponding account
-   *                     ID's and protobuf transactions.
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a FileCreate transaction.
    */
-  explicit FileCreateTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+  explicit FileCreateTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Construct from a protobuf transaction object.
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
    *
-   * @param transaction The protobuf transaction object from which to construct
-   *                    this transaction.
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
    */
-  explicit FileCreateTransaction(const proto::TransactionBody& transaction);
+  explicit FileCreateTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
   /**
-   * Derived from Transaction. Validate the checksums.
+   * Set the time at which the new file will expire. When the file expires, it will be deleted. To prevent the file from
+   * being deleted, use a FileUpdateTransaction to update with the new expiration time.
    *
-   * @param client The client with which to validate the checksums.
+   * @param expirationTime The time at which the new file will expire.
+   * @return A reference to this FileCreateTransaction object with the newly-set expiration time.
+   * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
-  virtual void validateChecksums(const Client& client) const override;
+  FileCreateTransaction& setExpirationTime(const std::chrono::system_clock::time_point& expirationTime);
 
   /**
-   * Build an ethereum transaction protobuf message based on the data in
-   * this class.
+   * Set the Keys that must sign when mutating the new file via FileAppendTransactions or FileUpdateTransactions. If no
+   * keys are provided, then the file is immutable and any of the aforementioned transactions will fail.
    *
-   * @return An ethereum transaction protobuf message.
+   * @param keys The keys that must sign any Transaction that edits the created file.
+   * @return A reference to this FileCreateTransaction object with the newly-set keys.
+   * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
-  proto::FileCreateTransactionBody build() const;
-
-  /**
-   * Set the instant at which this file will expire, after which its contents
-   * will no longer be available.
-   *
-   * Defaults to 1/4 of a Julian year from the instant FileCreateTransaction()
-   * was invoked.
-   *
-   * May be extended using setExpirationTime(Instant).
-   *
-   * @param expirationTime The nanoseconds from the epoch that the file will
-   *                       expire.
-   * @return Reference to this FileCreateTransaction object.
-   */
-  FileCreateTransaction& setExpirationTime(
-    const std::chrono::nanoseconds& expirationTime);
-
-  /**
-   * Set the keys which must sign any transactions modifying this file.
-   *
-   * All keys must sign to modify the file's contents or keys. No key is
-   * required to sign for extending the expiration time (except the one for the
-   * operator account paying for the transaction). Only one key must sign to
-   * delete the file, however.
-   *
-   * To require more than one key to sign to delete a file, add them to a
-   * KeyList and pass that here.
-   *
-   * The network currently requires a file to have at least one key (or key
-   * list or threshold key) but this requirement may be lifted in the future.
-   *
-   * @param keys The keys to be set.
-   * @return Reference to this FileCreateTransaction object.
-   */
+  FileCreateTransaction& setKeys(const std::vector<std::shared_ptr<Key>>& keys);
   FileCreateTransaction& setKeys(const KeyList& keys);
 
   /**
-   * Set the given byte array as the file's contents.
+   * Set the contents of the new file. The contents cannot exceed 4096 bytes. A FileAppendTransaction must be used to
+   * set larger contents.
    *
-   * This may be omitted to create an empty file.
-   *
-   * Note that total size for a given transaction is limited to 6KiB (as of
-   * March 2020) by the network; if you exceed this you may receive a
-   * PrecheckStatusException with TRANSACTION_OVERSIZE.
-   *
-   * In this case, you can use FileAppendTransaction, which automatically breaks
-   * the contents into chunks for you, to append contents of arbitrary size.
-   *
-   * @param bytes The contents of the file.
-   * @return Reference to this FileCreateTransaction object.
+   * @param contents The contents of the new file.
+   * @return A reference to this FileCreateTransaction object with the newly-set contents.
+   * @throws std::invalid_argument If the number of bytes exceeds 4096.
+   * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
-  FileCreateTransaction& setContents(const std::string& contents);
+  FileCreateTransaction& setContents(const std::vector<std::byte>& contents);
+  FileCreateTransaction& setContents(std::string_view contents);
 
   /**
-   * Assign a memo to the file (100 bytes max).
+   * Set the memo for the new file. The memo cannot exceed 100 bytes.
    *
-   * @param memo The memo string to set.
-   * @return Reference to this FileCreateTransaction object.
+   * @param contents The contents of the new file.
+   * @return A reference to this FileCreateTransaction object with the newly-set contents.
+   * @throws std::invalid_argument If the number of bytes exceeds 4096.
+   * @throws IllegalStateException If this FileCreateTransaction is frozen.
    */
-  FileCreateTransaction& setFileMemo(const std::string& memo);
+  FileCreateTransaction& setFileMemo(std::string_view memo);
 
   /**
-   * Extract the expiration time.
+   * Get the time at which the new file will expire.
    *
-   * @return The expiration time.
+   * @return The time at which the new file will expire
    */
-  inline InitType<std::chrono::nanoseconds> getExpirationTime() const
-  {
-    return mExpirationTime;
-  }
+  [[nodiscard]] inline std::chrono::system_clock::time_point getExpirationTime() const { return mExpirationTime; }
 
   /**
-   * Extract the list of keys.
+   * Get the Keys that must sign Transactions to mutate the new file.
    *
-   * @return The list of keys.
+   * @return The Keys that must sign Transactions to mutate the new file.
    */
-  inline InitType<KeyList> getKeys() const { return mKeys; }
+  [[nodiscard]] inline KeyList getKeys() const { return mKeys; }
 
   /**
-   * Extract the file contents.
+   * Get the contents of the new file.
    *
-   * @return The file contents.
+   * @return The contents of the new file
    */
-  inline std::string getContents() const { return mContents; }
+  [[nodiscard]] inline std::vector<std::byte> getContents() const { return mContents; }
 
   /**
-   * Extract the file's memo.
+   * Get the memo for the new file.
    *
-   * @return The file's memo.
+   * @return The memo for the new file.
    */
-  inline std::string getFileMemo() const { return mMemo; }
+  [[nodiscard]] inline std::string getFileMemo() const { return mFileMemo; }
 
 private:
-  /**
-   * Initialize from the transaction body.
-   */
-  void initFromTransactionBody();
+  friend class WrappedTransaction;
 
   /**
-   * The time at which this file should expire (unless FileUpdateTransaction is
-   * used before then to extend its life)
+   * Derived from Executable. Submit a Transaction protobuf object which contains this FileCreateTransaction's data to a
+   * Node.
+   *
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
    */
-  InitType<std::chrono::nanoseconds> mExpirationTime;
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::TransactionResponse* response) const override;
 
   /**
-   * All keys at the top level of a key list must sign to create or modify the
-   * file. Any one of the keys at the top level key list can sign to delete the
-   * file.
+   * Derived from Transaction. Verify that all the checksums in this FileCreateTransaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This FileCreateTransaction's checksums are not valid.
    */
-  InitType<KeyList> mKeys;
+  void validateChecksums(const Client& client) const override;
 
   /**
-   * The bytes that are the contents of the file.
+   * Derived from Transaction. Build and add the FileCreateTransaction protobuf representation to the Transaction
+   * protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
    */
-  std::string mContents;
+  void addToBody(proto::TransactionBody& body) const override;
 
   /**
-   * The memo associated with the file (UTF-8 encoding max 100 bytes).
+   * Initialize this FileCreateTransaction from its source TransactionBody protobuf object.
    */
-  std::string mMemo;
+  void initFromSourceTransactionBody();
+
+  /**
+   * Build a FileCreateTransactionBody protobuf object from this FileCreateTransaction object.
+   *
+   * @return A pointer to a FileCreateTransactionBody protobuf object filled with this FileCreateTransaction object's
+   *         data.
+   */
+  [[nodiscard]] proto::FileCreateTransactionBody* build() const;
+
+  /**
+   * The time at which the new file will expire.
+   */
+  std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now() + DEFAULT_AUTO_RENEW_PERIOD;
+
+  /**
+   * The keys that must sign Transactions to mutate the new file.
+   */
+  KeyList mKeys;
+
+  /**
+   * The contents of the new file.
+   */
+  std::vector<std::byte> mContents;
+
+  /**
+   * The memo for the new file.
+   */
+  std::string mFileMemo;
 };
 
 } // namespace Hedera
 
-#endif // FILE_CREATE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_

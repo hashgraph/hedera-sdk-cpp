@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,178 +17,180 @@
  * limitations under the License.
  *
  */
-#ifndef ETHEREUM_TRANSACTION_H_
-#define ETHEREUM_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_H_
+#define HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_H_
 
 #include "FileId.h"
 #include "Hbar.h"
 #include "Transaction.h"
 
-#include "helper/InitType.h"
-
-#include <proto/ethereum_transaction.pb.h>
-
-#include <string>
-#include <unordered_map>
-
-namespace Hedera
-{
-class AccountId;
-class Client;
-class TransactionId;
-}
+#include <cstddef>
+#include <optional>
+#include <vector>
 
 namespace proto
 {
+class EthereumTransactionBody;
 class TransactionBody;
 }
 
 namespace Hedera
 {
+/**
+ * The raw Ethereum transaction (RLP encoded type 0, 1, and 2) will hold signed Ethereum transactions and execute them
+ * as Hedera transactions in a prescribed manner.
+ *
+ * Transaction Signing Requirements:
+ *  - The key of the transaction fee-paying account.
+ */
 class EthereumTransaction : public Transaction<EthereumTransaction>
 {
 public:
-  /**
-   * Constructor.
-   */
-  EthereumTransaction();
+  EthereumTransaction() = default;
 
   /**
-   * Construct from a map of transaction ID's to their corresponding account
-   * ID's and protobuf transactions.
+   * Construct from a TransactionBody protobuf object.
    *
-   * @param transactions Map of transaction IDs to their corresponding account
-   *                     ID's and protobuf transactions.
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent an EthereumTransaction transaction.
    */
-  explicit EthereumTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+  explicit EthereumTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Construct from a protobuf transaction object.
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
    *
-   * @param transaction The protobuf transaction object from which to construct
-   *                    this transaction.
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
    */
-  explicit EthereumTransaction(const proto::TransactionBody& transaction);
+  explicit EthereumTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
   /**
-   * Derived from Transaction. Validate the checksums.
+   * Set the raw Ethereum transaction (RLP encoded type 0, 1, and 2).
    *
-   * @param client The client with which to validate the checksums.
+   * @param ethereumData The raw Ethereum transaction.
+   * @return A reference to this EthereumTransaction object with the newly-set ethereum data.
+   * @throws IllegalStateException If this EthereumTransaction is frozen.
    */
-  virtual void validateChecksums(const Client& client) const override;
+  EthereumTransaction& setEthereumData(const std::vector<std::byte>& ethereumData);
 
   /**
-   * Build an ethereum transaction protobuf message based on the data in
-   * this class.
+   * Set the ID of the file that contains the call data.
    *
-   * @return An ethereum transaction protobuf message.
-   */
-  proto::EthereumTransactionBody build() const;
-
-  /**
-   * Sets the raw Ethereum transaction (RLP encoded type 0, 1, and 2). Complete
-   * unless the callDataFileId is set.
-   *
-   * @param ethereumData The raw ethereum transaction bytes.
-   * @return Reference to this EthereumTransaction object.
-   */
-  EthereumTransaction& setEthereumData(const std::string& ethereumData);
-
-  /**
-   * For large transactions (for example contract create) this should be used to
-   * set the FileId of an HFS file containing the callData of the ethereumData.
-   * The data in the ethereumData will be re-written with the callData element
-   * as a zero length string with the original contents in the referenced file
-   * at time of execution. The ethereumData will need to be "rehydrated" with
-   * the callData for signature validation to pass.
-   *
-   * @param fileId File ID of an HFS file containing the callData.
-   * @return Reference to this EthereumTransaction object.
+   * @param fileId The ID of the file that contains the call data.
+   * @return A reference to this EthereumTransaction object with the newly-set call data file ID.
+   * @throws IllegalStateException If this EthereumTransaction is frozen.
    */
   EthereumTransaction& setCallDataFileId(const FileId& fileId);
 
   /**
-   * Sets the maximum amount that the payer of the hedera transaction
-   * is willing to pay to complete the transaction.
+   * Set the maximum amount that the payer of the Hedera transaction is willing to pay to complete this
+   * EthereumTransaction.
    *
-   * Ordinarily the account with the ECDSA alias corresponding to the public
-   * key that is extracted from the ethereum_data signature is responsible for
-   * fees that result from the execution of the transaction. If that amount of
-   * authorized fees is not sufficient then the payer of the transaction can be
-   * charged, up to but not exceeding this amount. If the ethereum_data
-   * transaction authorized an amount that was insufficient then the payer will
-   * only be charged the amount needed to make up the difference. If the gas
-   * price in the transaction was set to zero then the payer will be assessed
-   * the entire fee.
-   *
-   * @param maxGasAllowanceHbar The maximum gas allowance.
-   * @return Reference to this EthereumTransaction object.
+   * @param maxGasAllowance The maximum amount that the payer of the Hedera transaction is willing to pay to complete
+   *                        this EthereumTransaction.
+   * @return A reference to this EthereumTransaction object with the newly-set transfer maximum gas allowance.
+   * @throws IllegalStateException If this EthereumTransaction is frozen.
    */
-  EthereumTransaction& setMaxGasAllowanceHbar(const Hbar& maxGasAllowance);
+  EthereumTransaction& setMaxGasAllowance(const Hbar& maxGasAllowance);
 
   /**
-   * Extract the raw ethereum transaction.
+   * Get the raw Ethereum transaction.
    *
-   * @return The raw ethereum transaction.
+   * @return The raw Ethereum transaction.
    */
-  inline std::string getEthereumData() const { return mEthereumData; }
+  [[nodiscard]] inline std::vector<std::byte> getEthereumData() const { return mEthereumData; }
 
   /**
-   * Extract the file ID of the call data.
+   * Get the ID of the file that contains the call data.
    *
-   * @return The file ID of the call data.
+   * @return The ID of the file that contains the call data. Returns uninitialized if a value has not been set.
    */
-  inline InitType<FileId> getCallDataFileId() const { return mCallData; }
+  [[nodiscard]] inline std::optional<FileId> getCallDataFileId() const { return mCallDataFileId; }
 
   /**
-   * Gets the maximum amount that the payer of the hedera transaction
-   * is willing to pay to complete the transaction.
+   * Get the maximum amount that the payer of the Hedera transaction is willing to pay to complete this
+   * EthereumTransaction.
    *
-   * @return The max gas allowance.
+   * @return The maximum amount that the payer of the Hedera transaction is willing to pay to complete this
+   *         EthereumTransaction.
    */
-  inline Hbar getMaxGasAllowanceHbar() const { return mMaxGasAllowance; }
+  [[nodiscard]] inline Hbar getMaxGasAllowance() const { return mMaxGasAllowance; }
 
 private:
-  /**
-   * Initialize from the transaction body.
-   */
-  void initFromTransactionBody();
+  friend class WrappedTransaction;
 
   /**
-   * The raw Ethereum transaction (RLP encoded type 0, 1, and 2). Complete
-   * unless the callData field is set.
-   */
-  std::string mEthereumData;
-
-  /**
-   * For large transactions (for example contract create) this is the callData
-   * of the ethereumData. The data in the ethereumData will be re-written with
-   * the callData element as a zero length string with the original contents in
-   * the referenced file at time of execution. The ethereumData will need to be
-   * "rehydrated" with the callData for signature validation to pass.
-   */
-  InitType<FileId> mCallData;
-
-  /**
-   * The maximum amount that the payer of the hedera transaction is willing to
-   * pay to complete the transaction.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this EthereumTransaction's data to a
+   * Node.
    *
-   * Ordinarily the account with the ECDSA alias corresponding to the public
-   * key that is extracted from the ethereum_data signature is responsible for
-   * fees that result from the execution of the transaction. If that amount of
-   * authorized fees is not sufficient then the payer of the transaction can be
-   * charged, up to but not exceeding this amount. If the ethereum_data
-   * transaction authorized an amount that was insufficient then the payer will
-   * only be charged the amount needed to make up the difference. If the gas
-   * price in the transaction was set to zero then the payer will be assessed
-   * the entire fee.
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
    */
-  Hbar mMaxGasAllowance;
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::TransactionResponse* response) const override;
+
+  /**
+   * Derived from Transaction. Verify that all the checksums in this EthereumTransaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This EthereumTransaction's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
+  /**
+   * Derived from Transaction. Build and add the EthereumTransaction protobuf representation to the Transaction protobuf
+   * object.
+   *
+   * @param body The TransactionBody protobuf object being built.
+   */
+  void addToBody(proto::TransactionBody& body) const override;
+
+  /**
+   * Initialize this EthereumTransaction from its source TransactionBody protobuf object.
+   */
+  void initFromSourceTransactionBody();
+
+  /**
+   * Build a EthereumTransactionBody protobuf object from this EthereumTransaction object.
+   *
+   * @return A pointer to a EthereumTransactionBody protobuf object filled with this EthereumTransaction object's data.
+   */
+  [[nodiscard]] proto::EthereumTransactionBody* build() const;
+
+  /**
+   * The raw Ethereum transaction (RLP encoded type 0, 1, and 2).
+   */
+  std::vector<std::byte> mEthereumData;
+
+  /**
+   * The ID of the file that contains the call data.
+   *
+   * For large transactions (for example contract creation) this should be used to set the FileId of an HFS file
+   * containing the call data of the ethereum data. The data in the ethereum will be re-written with the call data
+   * element as a zero-length string with the original contents in the referenced file at the time of execution. The
+   * ethereum data will need to be "rehydrated" with the call data for signature validation to pass.
+   */
+  std::optional<FileId> mCallDataFileId;
+
+  /**
+   * The maximum amount that the payer of the Hedera transaction is willing to pay to complete the transaction.
+   *
+   * Ordinarily the account with the ECDSA alias corresponding to the public key that is extracted from the
+   * ethereum data signature is responsible for fees that result from the execution of the transaction. If that amount
+   * of authorized fees is not sufficient then the payer of the transaction can be charged, up to but not exceeding this
+   * amount. If the ethereum data transaction authorized an amount that was insufficient then the payer will only be
+   * charged the amount needed to make up the difference. If the gas price in the transaction was set to zero then the
+   * payer will be assessed the entire fee.
+   */
+  Hbar mMaxGasAllowance = Hbar(0LL);
 };
 
 } // namespace Hedera
 
-#endif // ETHEREUM_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_H_

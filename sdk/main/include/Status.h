@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_STATUS_H_
 #define HEDERA_SDK_CPP_STATUS_H_
 
+#include <string_view>
 #include <unordered_map>
 
 namespace proto
@@ -613,7 +614,8 @@ enum class Status
   INVALID_TOPIC_ID,
 
   /**
-   * A provided admin key was invalid.
+   * A provided admin key was invalid. Verify the bytes for an ED25519PublicKey are exactly 32 bytes; and the bytes for
+   * a compressed ECDSA(secp256k1) key are exactly 33 bytes, with the first byte either 0x02 or 0x03.
    */
   INVALID_ADMIN_KEY,
 
@@ -1483,13 +1485,39 @@ enum class Status
    * The combined balances of a contract and its auto-renew account (if any) or balance of an account did not cover
    * the auto-renewal fees in a transaction.
    */
-  INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES
+  INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,
+
+  /**
+   * A transaction's protobuf message includes unknown fields; could mean that a client expects not-yet-released
+   * functionality to be available.
+   */
+  TRANSACTION_HAS_UNKNOWN_FIELDS,
+
+  /**
+   * The account cannot be modified. Account's key is not set
+   */
+  ACCOUNT_IS_IMMUTABLE,
+
+  /**
+   * An alias that is assigned to an account or contract cannot be assigned to another account or contract.
+   */
+  ALIAS_ALREADY_ASSIGNED
 };
 
 /**
  * Map of protobuf ResponseCodeEnums to the corresponding Status.
  */
-extern const std::unordered_map<proto::ResponseCodeEnum, Status> STATUS_MAP;
+extern const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeToStatus;
+
+/**
+ * Map of Status to its corresponding ResponseCodeEnum protobuf.
+ */
+extern const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufResponseCode;
+
+/**
+ * Map of Status to its corresponding string.
+ */
+[[maybe_unused]] extern const std::unordered_map<Status, std::string_view> gStatusToString;
 
 } // namespace Hedera
 

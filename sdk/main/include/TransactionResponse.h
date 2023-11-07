@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,23 @@
 #ifndef HEDERA_SDK_CPP_TRANSACTION_RESPONSE_H_
 #define HEDERA_SDK_CPP_TRANSACTION_RESPONSE_H_
 
+#include "AccountId.h"
 #include "TransactionId.h"
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <future>
+#include <vector>
 
 namespace Hedera
 {
-template<typename SdkRequestType>
-class Transaction;
-
 class Client;
 class TransactionReceipt;
+class TransactionReceiptQuery;
 class TransactionRecord;
-}
-
-namespace proto
-{
-class TransactionResponse;
+class TransactionRecordQuery;
 }
 
 namespace Hedera
@@ -50,89 +49,336 @@ namespace Hedera
 class TransactionResponse
 {
 public:
+  TransactionResponse() = default;
+
   /**
-   * Create a TransactionResponse object from a TransactionResponse protobuf object.
+   * Construct with a node account ID, transaction ID, and transaction hash.
    *
-   * @param proto The TransactionResponse protobuf object from which to create a TransactionResponse object.
-   * @return The created TransactionResponse object.
+   * @param nodeId The ID of the node account to which this TransactionResponse's corresponding Transaction was sent.
+   * @param transactionId The ID of this TransactionResponse's corresponding Transaction.
+   * @param hash The hash of this TransactionResponse's corresponding Transaction.
    */
-  static TransactionResponse fromProtobuf(const proto::TransactionResponse& proto);
+  TransactionResponse(AccountId nodeId, TransactionId transactionId, std::vector<std::byte> hash);
 
   /**
    * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction.
    *
    * @param client The Client to use to submit a TransactionReceiptQuery.
    * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws std::runtime_error If unable to communicate with client network.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  [[nodiscard]] TransactionReceipt getReceipt(const Client& client) const;
+  TransactionReceipt getReceipt(const Client& client) const;
 
   /**
-   * Get a TransactionReceipt for the Transaction to which this TransactionResponse is responding.
+   * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction with a specified timeout.
    *
    * @param client  The Client to use to submit a TransactionReceiptQuery.
    * @param timeout The desired timeout for the execution of the TransactionReceiptQuery.
    * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws std::runtime_error If unable to communicate with client network.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  [[nodiscard]] TransactionReceipt getReceipt(const Client& client, const std::chrono::duration<double>& timeout) const;
+  TransactionReceipt getReceipt(const Client& client, const std::chrono::system_clock::duration& timeout) const;
 
   /**
-   * Get a TransactionRecord for the Transaction to which this TransactionResponse is responding.
+   * Construct a TransactionReceiptQuery for this TransactionResponse's corresponding Transaction.
+   *
+   * @return The constructed TransactionReceiptQuery.
+   */
+  [[nodiscard]] TransactionReceiptQuery getReceiptQuery() const;
+
+  /**
+   * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction asynchronously.
+   *
+   * @param client The Client to use to submit a TransactionReceiptQuery.
+   * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionReceipt> getReceiptAsync(const Client& client) const;
+
+  /**
+   * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction asynchronously with a specified
+   * timeout.
+   *
+   * @param client  The Client to use to submit a TransactionReceiptQuery.
+   * @param timeout The desired timeout for the execution of the TransactionReceiptQuery.
+   * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionReceipt> getReceiptAsync(const Client& client,
+                                                  const std::chrono::system_clock::duration& timeout) const;
+
+  /**
+   * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction asynchronously and consume the
+   * response and/or exception with a callback.
+   *
+   * @param client   The Client to use to submit a TransactionReceiptQuery.
+   * @param callback The callback that should consume the response/exception.
+   * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  void getReceiptAsync(const Client& client,
+                       const std::function<void(const TransactionReceipt&, const std::exception&)>& callback) const;
+
+  /**
+   * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction asynchronously with a specified
+   * timeout and consume the response and/or exception with a callback.
+   *
+   * @param client   The Client to use to submit a TransactionReceiptQuery.
+   * @param timeout  The desired timeout for the execution of the TransactionReceiptQuery.
+   * @param callback The callback that should consume the response/exception.
+   * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  void getReceiptAsync(const Client& client,
+                       const std::chrono::system_clock::duration& timeout,
+                       const std::function<void(const TransactionReceipt&, const std::exception&)>& callback) const;
+
+  /**
+   * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction asynchronously and consume the
+   * response and/or exception with a callback.
+   *
+   * @param client            The Client to use to submit a TransactionReceiptQuery.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  void getReceiptAsync(const Client& client,
+                       const std::function<void(const TransactionReceipt&)>& responseCallback,
+                       const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
+   * Get a TransactionReceipt for this TransactionResponse's corresponding Transaction asynchronously with a specified
+   * timeout and consume the response and/or exception with a callback.
+   *
+   * @param client            The Client to use to submit a TransactionReceiptQuery.
+   * @param timeout           The desired timeout for the execution of the TransactionReceiptQuery.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   * @return A TransactionReceipt object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionReceiptQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionReceiptQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionReceipt is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  void getReceiptAsync(const Client& client,
+                       const std::chrono::system_clock::duration& timeout,
+                       const std::function<void(const TransactionReceipt&)>& responseCallback,
+                       const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
+   * Get a TransactionRecord for this TransactionResponse's corresponding Transaction.
    *
    * @param client The Client to use to submit a TransactionRecordQuery.
    * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws std::runtime_error If unable to communicate with client network.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
   [[nodiscard]] TransactionRecord getRecord(const Client& client) const;
 
   /**
-   * Get a TransactionRecord for the Transaction to which this TransactionResponse is responding.
+   * Get a TransactionRecord for this TransactionResponse's corresponding Transaction with a specified timeout.
    *
    * @param client  The Client to use to submit a TransactionRecordQuery.
    * @param timeout The desired timeout for the execution of the TransactionRecordQuery.
    * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
-   * @throws std::runtime_error If unable to communicate with client network.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  [[nodiscard]] TransactionRecord getRecord(const Client& client, const std::chrono::duration<double>& timeout) const;
+  [[nodiscard]] TransactionRecord getRecord(const Client& client,
+                                            const std::chrono::system_clock::duration& timeout) const;
 
   /**
-   * Get the cost to execute this TransactionResponse's corresponding Transaction if the Transaction's max transaction
-   * fee wasn't enough, unspecified otherwise.
+   * Construct a TransactionRecordQuery for this TransactionResponse's corresponding Transaction.
    *
-   * @return The cost to execute this TransactionResponse's corresponding Transaction.
+   * @return The constructed TransactionRecordQuery.
    */
-  [[nodiscard]] inline uint64_t getCost() const { return mCost; }
+  [[nodiscard]] TransactionRecordQuery getRecordQuery() const;
 
   /**
-   * Determine if this TransactionResponse's corresponding Transaction pre-checks were a success.
+   * Get a TransactionRecord for this TransactionResponse's corresponding Transaction asynchronously.
    *
-   * @return \c TRUE if this TransactionResponse's corresponding Transaction pre-checks were a success, otherwise \c
-   *         FALSE.
+   * @param client The Client to use to submit a TransactionRecordQuery.
+   * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionRecord is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionRecord> getRecordAsync(const Client& client) const;
+
+  /**
+   * Get a TransactionRecord for this TransactionResponse's corresponding Transaction asynchronously with a specified
+   * timeout.
+   *
+   * @param client  The Client to use to submit a TransactionRecordQuery.
+   * @param timeout The desired timeout for the execution of the TransactionRecordQuery.
+   * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionRecord is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<TransactionRecord> getRecordAsync(const Client& client,
+                                                const std::chrono::system_clock::duration& timeout) const;
+
+  /**
+   * Get a TransactionRecord for this TransactionResponse's corresponding Transaction asynchronously and consume the
+   * response and/or exception with a callback.
+   *
+   * @param client   The Client to use to submit a TransactionRecordQuery.
+   * @param callback The callback that should consume the response/exception.
+   * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionRecord is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  void getRecordAsync(const Client& client,
+                      const std::function<void(const TransactionRecord&, const std::exception&)>& callback) const;
+
+  /**
+   * Get a TransactionRecord for this TransactionResponse's corresponding Transaction asynchronously with a specified
+   * timeout and consume the response and/or exception with a callback.
+   *
+   * @param client   The Client to use to submit a TransactionRecordQuery.
+   * @param timeout  The desired timeout for the execution of the TransactionRecordQuery.
+   * @param callback The callback that should consume the response/exception.
+   * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionRecord is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  void getRecordAsync(const Client& client,
+                      const std::chrono::system_clock::duration& timeout,
+                      const std::function<void(const TransactionRecord&, const std::exception&)>& callback) const;
+
+  /**
+   * Get a TransactionRecord for this TransactionResponse's corresponding Transaction asynchronously and consume the
+   * response and/or exception with a callback.
+   *
+   * @param client            The Client to use to submit a TransactionRecordQuery.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionRecord is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  void getRecordAsync(const Client& client,
+                      const std::function<void(const TransactionRecord&)>& responseCallback,
+                      const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
+   * Get a TransactionRecord for this TransactionResponse's corresponding Transaction asynchronously with a specified
+   * timeout and consume the response and/or exception with a callback.
+   *
+   * @param client            The Client to use to submit a TransactionRecordQuery.
+   * @param timeout           The desired timeout for the execution of the TransactionRecordQuery.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   * @return A TransactionRecord object containing data about this TransactionResponse's corresponding Transaction.
+   * @throws MaxAttemptsExceededException If the TransactionRecordQuery attempts to execute past the number of
+   *                                      allowable attempts.
+   * @throws PrecheckStatusException      If this TransactionRecordQuery fails its pre-check.
+   * @throws ReceiptStatusException       If the retrieved TransactionRecord is not successful, and this
+   *                                      TransactionResponse is configured to throw.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  void getRecordAsync(const Client& client,
+                      const std::chrono::system_clock::duration& timeout,
+                      const std::function<void(const TransactionRecord&)>& responseCallback,
+                      const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
+   * Set this TransactionResponse's TransactionReceipt validation policy.
+   *
+   * @param validate \c TRUE if this TransactionResponse should throw if it retrieves a TransactionReceipt that does not
+   *                 have a successful status (i.e. Status::SUCCESS), otherwise \c FALSE.
+   */
+  TransactionResponse& setValidateStatus(bool validate);
+
+  /**
+   * Get this TransactionResponse's TransactionReceipt validation policy.
+   *
+   * @return \c TRUE if this TransactionResponse should throw if it retrieves a TransactionReceipt that does not have a
+   *         successful status (i.e. Status::SUCCESS), otherwise \c FALSE.
    */
   [[nodiscard]] inline bool getValidateStatus() const { return mValidateStatus; }
 
-private:
   /**
-   * Allow Transactions to adjust this TransactionResponse's mTransactionId.
+   * The ID of node to which this TransactionResponse's corresponding Transaction was sent.
    */
-  template<typename SdkRequestType>
-  friend class Transaction;
+  AccountId mNodeId;
 
   /**
-   * The cost to execute this TransactionResponse's corresponding Transaction.
+   * The hash of this TransactionResponse's corresponding Transaction.
    */
-  uint64_t mCost = 0ULL;
-
-  /**
-   * Did this TransactionResponse's corresponding Transaction have a successful pre-check?
-   */
-  bool mValidateStatus = false;
+  std::vector<std::byte> mTransactionHash;
 
   /**
    * The ID of this TransactionResponse's corresponding Transaction.
    */
   TransactionId mTransactionId;
+
+private:
+  /**
+   * Did this TransactionResponse's corresponding Transaction have a successful pre-check?
+   */
+  bool mValidateStatus = true;
 };
 
 } // namespace Hedera

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 #include "impl/DerivationPathUtils.h"
 
+#include <iostream>
 #include <stdexcept>
 
 namespace Hedera::internal::DerivationPathUtils
@@ -41,11 +42,12 @@ uint32_t getHardenedIndex(uint32_t index)
 }
 
 //-----
-std::vector<unsigned char> indexToBigEndianArray(const uint32_t childIndex) {
-  std::vector<unsigned char> indexVector = {};
+std::vector<std::byte> indexToBigEndianArray(uint32_t childIndex)
+{
+  std::vector<std::byte> indexVector;
   for (int byteIndex = 3; byteIndex >= 0; --byteIndex)
   {
-    indexVector.push_back((childIndex >> (byteIndex << 3)) & 0xFF);
+    indexVector.push_back(std::byte((childIndex >> (byteIndex << 3)) & 0xFF));
   }
 
   return indexVector;

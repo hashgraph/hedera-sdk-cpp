@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,11 @@
 
 namespace Hedera
 {
+class TransactionRecord;
+}
+
+namespace Hedera
+{
 /**
  * Get the record for a transaction. If the transaction requested a record, then the record lasts for one hour, and a
  * state proof is available for it. If the transaction created an account, file, or smart contract instance, then the
@@ -38,15 +43,6 @@ namespace Hedera
 class TransactionRecordQuery : public Query<TransactionRecordQuery, TransactionRecord>
 {
 public:
-  ~TransactionRecordQuery() override = default;
-
-  /**
-   * Derived from Executable. Create a clone of this TransactionRecordQuery.
-   *
-   * @return A pointer to the created clone.
-   */
-  [[nodiscard]] std::unique_ptr<Executable> clone() const override;
-
   /**
    * Set the ID of the transaction of which to request the record.
    *
@@ -56,6 +52,25 @@ public:
   TransactionRecordQuery& setTransactionId(const TransactionId& transactionId);
 
   /**
+   * Set the child transaction retrieval policy for this TransactionRecordQuery.
+   *
+   * @param children \c TRUE if this TransactionRecordQuery should get the receipts of any child transactions,
+   *                 otherwise \c FALSE.
+   * @return A reference to this TransactionRecordQuery object with the newly-set child transaction retrieval policy.
+   */
+  TransactionRecordQuery& setIncludeChildren(bool children);
+
+  /**
+   * Set the duplicate transaction retrieval policy for this TransactionRecordQuery.
+   *
+   * @param duplicates \c TRUE if this TransactionRecordQuery should get the receipts of any duplicate transactions,
+   *                   otherwise \c FALSE.
+   * @return A reference to this TransactionRecordQuery object with the newly-set duplicate transaction retrieval
+   *         policy.
+   */
+  TransactionRecordQuery& setIncludeDuplicates(bool duplicates);
+
+  /**
    * Get the ID of the transaction of which this query is currently configured to get the record.
    *
    * @return The ID of the transaction for which this query is meant. Returns uninitialized if a value has not yet been
@@ -63,33 +78,54 @@ public:
    */
   [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionId; }
 
-private:
   /**
-   * Derived from Executable. Construct a Query protobuf object from this TransactionRecordQuery object.
+   * Get the child transaction retrieval policy for this TransactionRecordQuery.
    *
-   * @param client The Client trying to construct this TransactionRecordQuery.
-   * @param node   The Node to which this TransactionRecordQuery will be sent.
-   * @return A Query protobuf object filled with this TransactionRecordQuery object's data.
+   * @return \c TRUE if this TransactionRecordQuery is currently configured to get the records of any child
+   *         transactions, otherwise \c FALSE.
    */
-  [[nodiscard]] proto::Query makeRequest(const Client& client,
-                                         const std::shared_ptr<internal::Node>& node) const override;
+  [[nodiscard]] inline bool getIncludeChildren() const { return mIncludeChildren; }
 
+  /**
+   * Get the duplicate transaction retrieval policy for this TransactionRecordQuery.
+   *
+   * @return \c TRUE if this TransactionRecordQuery is currently configured to get the records of any duplicate
+   *         transactions, otherwise \c FALSE.
+   */
+  [[nodiscard]] inline bool getIncludeDuplicates() const { return mIncludeDuplicates; }
+
+private:
   /**
    * Derived from Executable. Construct a TransactionRecord object from a Response protobuf object.
    *
    * @param response The Response protobuf object from which to construct a TransactionRecord object.
-   * @return An TransactionRecord object filled with the Response protobuf object's data
+   * @return A TransactionRecord object filled with the Response protobuf object's data
    */
   [[nodiscard]] TransactionRecord mapResponse(const proto::Response& response) const override;
 
   /**
-   * Derived from Executable. Get the status response code for a submitted TransactionRecordQuery from a Response
-   * protobuf object.
+   * Derived from Executable. Submit a Query protobuf object which contains this TransactionRecordQuery's data to a
+   * Node.
    *
-   * @param response The Response protobuf object from which to grab the TransactionRecordQuery status response code.
-   * @return The TransactionRecordQuery status response code of the input Response protobuf object.
+   * @param request  The Query protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
    */
-  [[nodiscard]] Status mapResponseStatus(const proto::Response& response) const override;
+  [[nodiscard]] grpc::Status submitRequest(const proto::Query& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::Response* response) const override;
+
+  /**
+   * Derived from Query. Verify that all the checksums in this TransactionRecordQuery are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This TransactionRecordQuery's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
 
   /**
    * Derived from Executable. Determine the ExecutionStatus of this TransactionRecordQuery after being submitted.
@@ -104,26 +140,37 @@ private:
   determineStatus(Status status,
                   [[maybe_unused]] const Client& client,
                   [[maybe_unused]] const proto::Response& response) override;
+  /**
+   * Derived from Query. Build a Query protobuf object with this TransactionRecordQuery's data, with the input
+   * QueryHeader protobuf object.
+   *
+   * @param header A pointer to the QueryHeader protobuf object to add to the Query protobuf object.
+   * @return The constructed Query protobuf object.
+   */
+  [[nodiscard]] proto::Query buildRequest(proto::QueryHeader* header) const override;
 
   /**
-   * Derived from Executable. Submit this TransactionRecordQuery to a Node.
+   * Derived from Query. Get the ResponseHeader protobuf object from the input Response protobuf object.
    *
-   * @param client   The Client submitting this TransactionRecordQuery.
-   * @param deadline The deadline for submitting this TransactionRecordQuery.
-   * @param node     Pointer to the Node to which this TransactionRecordQuery should be submitted.
-   * @param response Pointer to the Response protobuf object that gRPC should populate with the response information
-   *                 from the gRPC server.
-   * @return The gRPC status of the submission.
+   * @param response The Response protobuf object from which to get the ResponseHeader protobuf object.
+   * @return The ResponseHeader protobuf object of the input Response protobuf object for this derived Query.
    */
-  [[nodiscard]] grpc::Status submitRequest(const Client& client,
-                                           const std::chrono::system_clock::time_point& deadline,
-                                           const std::shared_ptr<internal::Node>& node,
-                                           proto::Response* response) const override;
+  [[nodiscard]] proto::ResponseHeader mapResponseHeader(const proto::Response& response) const override;
 
   /**
    * The ID of the transaction of which this query should get the record.
    */
   std::optional<TransactionId> mTransactionId;
+
+  /**
+   * Should the records of any children transactions be retrieved as well?
+   */
+  bool mIncludeChildren = false;
+
+  /**
+   * Should the records of any duplicates transactions be retrieved as well?
+   */
+  bool mIncludeDuplicates = false;
 };
 
 } // namespace Hedera

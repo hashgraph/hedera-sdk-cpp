@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,144 +18,73 @@
  *
  */
 #include "AccountInfo.h"
-#include "PublicKey.h"
-
-#include "LiveHash.h"
-
-#include "helper/DurationConverter.h"
-#include "helper/TimestampConverter.h"
+#include "impl/DurationConverter.h"
+#include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <proto/crypto_get_info.pb.h>
 
 namespace Hedera
 {
 //-----
-AccountInfo::AccountInfo()
-  : mAccountId()
-  , mContractAccountId()
-  , mIsDeleted(false)
-  , mProxyReceived(0LL)
-  , mKey()
-  , mBalance(0LL)
-  , mIsReceiverSignatureRequired(false)
-  , mExpirationTime()
-  , mAutoRenewPeriod()
-  , mAccountMemo()
-  , mOwnedNfts(0ULL)
-  , mMaxAutomaticTokenAssociations(0UL)
-  , mAliasKey()
-  , mLedgerId()
-  , mEthereumNonce(0LL)
-  , mStakingInfo()
+AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& proto)
 {
-}
+  AccountInfo accountInfo;
 
-//-----
-AccountInfo::AccountInfo(const AccountId& accountId,
-                         const std::string& contractAccountId,
-                         bool isDeleted,
-                         const long long& proxyReceived,
-                         const std::shared_ptr<PublicKey> key,
-                         const long long& balance,
-                         bool receiverSignatureRequired,
-                         const std::chrono::nanoseconds& expirationTime,
-                         const std::chrono::seconds& autoRenewPeriod,
-                         const std::vector<LiveHash>& liveHashes,
-                         const std::string& accountMemo,
-                         const unsigned long long& ownedNfts,
-                         unsigned int maxAutomaticTokenAssociations,
-                         const std::shared_ptr<PublicKey> aliasKey,
-                         const LedgerId& ledgerId,
-                         const long long& ethereumNonce,
-                         const InitType<StakingInfo> stakingInfo)
-  : mAccountId(accountId)
-  , mContractAccountId(contractAccountId)
-  , mIsDeleted(isDeleted)
-  , mProxyReceived(Hbar::fromTinybars(proxyReceived))
-  , mKey(key)
-  , mBalance(Hbar::fromTinybars(balance))
-  , mIsReceiverSignatureRequired(false)
-  , mExpirationTime(expirationTime)
-  , mAutoRenewPeriod(autoRenewPeriod)
-  , mLiveHashes(liveHashes)
-  , mAccountMemo(accountMemo)
-  , mOwnedNfts(ownedNfts)
-  , mMaxAutomaticTokenAssociations(maxAutomaticTokenAssociations)
-  , mAliasKey(aliasKey)
-  , mLedgerId(ledgerId)
-  , mEthereumNonce(ethereumNonce)
-  , mStakingInfo(stakingInfo)
-{
-}
-
-//-----
-AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& accountInfo)
-{
-  std::vector<LiveHash> liveHashes;
-  for (size_t i = 0; i < accountInfo.livehashes_size(); ++i)
+  if (proto.has_accountid())
   {
-    liveHashes.push_back(LiveHash::fromProtobuf(accountInfo.livehashes(i)));
+    accountInfo.mAccountId = AccountId::fromProtobuf(proto.accountid());
   }
 
-  return AccountInfo(AccountId::fromProtobuf(accountInfo.accountid()),
-                     accountInfo.contractaccountid(),
-                     accountInfo.deleted(),
-                     accountInfo.proxyreceived(),
-                     PublicKey::fromProtobuf(accountInfo.key()),
-                     accountInfo.balance(),
-                     accountInfo.receiversigrequired(),
-                     InstantConverter::fromProtobuf(accountInfo.expirationtime()),
-                     DurationConverter::fromProtobuf(accountInfo.autorenewperiod()),
-                     liveHashes,
-                     accountInfo.memo(),
-                     accountInfo.ownednfts(),
-                     accountInfo.max_automatic_token_associations(),
-                     PublicKey::fromAliasBytes(accountInfo.alias()),
-                     LedgerId::fromByteString(accountInfo.ledger_id()),
-                     accountInfo.ethereum_nonce(),
-                     (accountInfo.has_staking_info())
-                       ? InitType<StakingInfo>(StakingInfo::fromProtobuf(accountInfo.staking_info()))
-                       : InitType<StakingInfo>());
-}
+  accountInfo.mContractAccountId = proto.contractaccountid();
+  accountInfo.mIsDeleted = proto.deleted();
+  accountInfo.mProxyReceived = Hbar(proto.proxyreceived(), HbarUnit::TINYBAR());
 
-//-----
-proto::CryptoGetInfoResponse_AccountInfo AccountInfo::toProtobuf() const
-{
-  proto::CryptoGetInfoResponse_AccountInfo proto;
-  proto.set_allocated_accountid(mAccountId.toProtobuf());
-  proto.set_allocated_contractaccountid(new std::string(mContractAccountId));
-  proto.set_deleted(mIsDeleted);
-  proto.set_proxyreceived(mProxyReceived.toTinybars());
-  proto.set_allocated_key(mKey->toProtobuf());
-  proto.set_balance(static_cast<unsigned long long>(mBalance.toTinybars()));
-  proto.set_receiversigrequired(mIsReceiverSignatureRequired);
-  proto.set_allocated_expirationtime(InstantConverter::toProtobuf(mExpirationTime));
-  proto.set_allocated_autorenewperiod(DurationConverter::toProtobuf(mAutoRenewPeriod));
-
-  for (size_t i = 0; i < mLiveHashes.size(); ++i)
+  if (proto.has_key())
   {
-    proto::LiveHash* protoLiveHash = proto.add_livehashes();
-    // TODO: fill in with live hash fields
+    accountInfo.mKey = Key::fromProtobuf(proto.key());
   }
 
-  proto.set_allocated_memo(new std::string(mAccountMemo));
-  proto.set_ownednfts(mOwnedNfts);
-  proto.set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
+  accountInfo.mBalance = Hbar(static_cast<int64_t>(proto.balance()), HbarUnit::TINYBAR());
+  accountInfo.mReceiverSignatureRequired = proto.receiversigrequired();
 
-  if (mAliasKey.get() != nullptr)
+  if (proto.has_expirationtime())
   {
-    proto.set_allocated_alias(new std::string(mAliasKey->toString()));
+    accountInfo.mExpirationTime = internal::TimestampConverter::fromProtobuf(proto.expirationtime());
   }
 
-  proto.set_ledger_id(mLedgerId.toByteString());
-  proto.set_ethereum_nonce(mEthereumNonce);
-
-  if (mStakingInfo.isValid())
+  if (proto.has_autorenewperiod())
   {
-    proto.set_allocated_staking_info(mStakingInfo.getValue().toProtobuf());
+    accountInfo.mAutoRenewPeriod = internal::DurationConverter::fromProtobuf(proto.autorenewperiod());
   }
 
-  return proto;
+  accountInfo.mMemo = proto.memo();
+  accountInfo.mOwnedNfts = static_cast<uint64_t>(proto.ownednfts());
+  accountInfo.mMaxAutomaticTokenAssociations = static_cast<uint32_t>(proto.max_automatic_token_associations());
+
+  if (!proto.alias().empty())
+  {
+    if (proto.alias().size() == EvmAddress::NUM_BYTES)
+    {
+      accountInfo.mEvmAddressAlias = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.alias()));
+    }
+    else
+    {
+      accountInfo.mPublicKeyAlias = PublicKey::fromAliasBytes(internal::Utilities::stringToByteVector(proto.alias()));
+    }
+  }
+
+  if (!proto.ledger_id().empty())
+  {
+    accountInfo.mLedgerId = LedgerId(internal::Utilities::stringToByteVector(proto.ledger_id()));
+  }
+
+  if (proto.has_staking_info())
+  {
+    accountInfo.mStakingInfo = StakingInfo::fromProtobuf(proto.staking_info());
+  }
+
+  return accountInfo;
 }
 
 } // namespace Hedera

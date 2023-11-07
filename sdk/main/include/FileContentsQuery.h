@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,112 +17,99 @@
  * limitations under the License.
  *
  */
-#ifndef FILE_CONTENTS_QUERY_H_
-#define FILE_CONTENTS_QUERY_H_
+#ifndef HEDERA_SDK_CPP_FILE_CONTENTS_QUERY_H_
+#define HEDERA_SDK_CPP_FILE_CONTENTS_QUERY_H_
 
 #include "FileId.h"
 #include "Query.h"
 
-#include "helper/InitType.h"
-
-#include <string>
-
-namespace proto
-{
-class Query;
-class QueryHeader;
-class Response;
-class ResponseHeader;
-}
-
-namespace Hedera
-{
-class Client;
-}
+#include <cstddef>
+#include <optional>
+#include <vector>
 
 namespace Hedera
 {
 /**
- * Get the contents of a file. The content field is empty (no bytes) if the file
- * is empty.
+ * A query to get the contents of a file. Queries do not change the state of the file or require network consensus. The
+ * information is returned from a single node processing the query.
+ *
+ * Query Signing Requirements:
+ *  - The client operator private key is required to sign the query request.
  */
-class FileContentsQuery : public Query<std::string, FileContentsQuery>
+using FileContents = std::vector<std::byte>;
+class FileContentsQuery : public Query<FileContentsQuery, FileContents>
 {
 public:
   /**
-   * Constructor
-   */
-  FileContentsQuery();
-
-  /**
-   * Derived from Query. Validate the checksums of the account ID.
+   * Set the ID of the file of which to request the contents.
    *
-   * @param client The client with which to validate the checksums
-   */
-  virtual void validateChecksums(const Client& client) const override;
-
-  /**
-   * Derived from Query. Fills query with this class's data and attaches the
-   * header.
-   *
-   * @param query  The query object to fill out.
-   * @param header The header for the query.
-   */
-  virtual void onMakeRequest(proto::Query* query,
-                             proto::QueryHeader* header) const override;
-
-  /**
-   * Derived from Query. Get the file contents header from the response.
-   *
-   * @param response The associated response to this query.
-   * @return The response header for the file content's query.
-   */
-  virtual proto::ResponseHeader mapResponseHeader(
-    proto::Response* response) const override;
-
-  /**
-   * Derived from Query. Grab the file contents query header.
-   *
-   * @param query The query of which to extract the header.
-   * @return The file contents query header.
-   */
-  virtual proto::QueryHeader mapRequestHeader(
-    const proto::Query& query) const override;
-
-  /**
-   * Derived from Query. Extract the file contents from the response object.
-   *
-   * @param response  The received response from Hedera.
-   * @param accountId The account ID that made the request.
-   * @param query     The original query.
-   * @return The file contents.
-   */
-  virtual std::string mapResponse(const proto::Response& response,
-                                  const AccountId& accountId,
-                                  const proto::Query& query) const override;
-
-  /**
-   * Sets the ID of the file whose contents are requested.
-   *
-   * @param fileId The file ID to be set.
-   * @return Reference to this FileContentsQuery object.
+   * @param fileId The ID of the file of which to request the contents.
+   * @return A reference to this FileContentsQuery object with the newly-set file ID.
    */
   FileContentsQuery& setFileId(const FileId& fileId);
 
   /**
-   * Extract the file ID.
+   * Get the ID of the file of which this query is currently configured to get the contents.
    *
-   * @return The file ID.
+   * @return The ID of the file for which this query is meant.
    */
-  inline InitType<FileId> getFileId() const { return mFileId; }
+  [[nodiscard]] inline FileId getFileId() const { return mFileId; }
 
 private:
   /**
-   * The ID of the file whose contents are requested.
+   * Derived from Executable. Construct a FileContents object from a Response protobuf object.
+   *
+   * @param response The Response protobuf object from which to construct a FileContents object.
+   * @return A FileContents object filled with the Response protobuf object's data
    */
-  InitType<FileId> mFileId;
+  [[nodiscard]] FileContents mapResponse(const proto::Response& response) const override;
+
+  /**
+   * Derived from Executable. Submit a Query protobuf object which contains this FileContentsQuery's data to a Node.
+   *
+   * @param request  The Query protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const proto::Query& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::Response* response) const override;
+
+  /**
+   * Derived from Query. Verify that all the checksums in this FileContentsQuery are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This FileContentsQuery's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
+  /**
+   * Derived from Query. Build a Query protobuf object with this FileContentsQuery's data, with the input QueryHeader
+   * protobuf object.
+   *
+   * @param header A pointer to the QueryHeader protobuf object to add to the Query protobuf object.
+   * @return The constructed Query protobuf object.
+   */
+  [[nodiscard]] proto::Query buildRequest(proto::QueryHeader* header) const override;
+
+  /**
+   * Derived from Query. Get the ResponseHeader protobuf object from the input Response protobuf object.
+   *
+   * @param response The Response protobuf object from which to get the ResponseHeader protobuf object.
+   * @return The ResponseHeader protobuf object of the input Response protobuf object for this derived Query.
+   */
+  [[nodiscard]] proto::ResponseHeader mapResponseHeader(const proto::Response& response) const override;
+
+  /**
+   * The ID of the file of which this query should get the contents.
+   */
+  FileId mFileId;
 };
 
 } // namespace Hedera
 
-#endif // FILE_CONTENTS_QUERY_H_
+#endif // HEDERA_SDK_CPP_FILE_CONTENTS_QUERY_H_

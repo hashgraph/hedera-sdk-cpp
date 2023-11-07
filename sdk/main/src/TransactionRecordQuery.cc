@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@
  *
  */
 #include "TransactionRecordQuery.h"
-#include "Client.h"
 #include "Status.h"
 #include "TransactionRecord.h"
-#include "TransferTransaction.h"
 #include "impl/Node.h"
 
 #include <proto/query.pb.h>
@@ -34,13 +32,6 @@
 namespace Hedera
 {
 //-----
-std::unique_ptr<Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>>
-TransactionRecordQuery::clone() const
-{
-  return std::make_unique<TransactionRecordQuery>(*this);
-}
-
-//-----
 TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const TransactionId& transactionId)
 {
   mTransactionId = transactionId;
@@ -48,27 +39,17 @@ TransactionRecordQuery& TransactionRecordQuery::setTransactionId(const Transacti
 }
 
 //-----
-proto::Query TransactionRecordQuery::makeRequest(const Client& client,
-                                                 const std::shared_ptr<internal::Node>& node) const
+TransactionRecordQuery& TransactionRecordQuery::setIncludeChildren(bool children)
 {
-  proto::Query query;
-  proto::TransactionGetRecordQuery* getTransactionRecordQuery = query.mutable_transactiongetrecord();
+  mIncludeChildren = children;
+  return *this;
+}
 
-  proto::QueryHeader* header = getTransactionRecordQuery->mutable_header();
-  header->set_responsetype(proto::ResponseType::ANSWER_ONLY);
-
-  TransferTransaction tx = TransferTransaction()
-                             .setTransactionId(TransactionId::generate(*client.getOperatorAccountId()))
-                             .setNodeAccountIds({ node->getAccountId() })
-                             .setMaxTransactionFee(Hbar(1ULL))
-                             .addUnapprovedHbarTransfer(*client.getOperatorAccountId(), Hbar(-1ULL))
-                             .addUnapprovedHbarTransfer(node->getAccountId(), Hbar(1ULL));
-  tx.onSelectNode(node);
-  header->set_allocated_payment(new proto::Transaction(tx.makeRequest(client, node)));
-
-  getTransactionRecordQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
-
-  return query;
+//-----
+TransactionRecordQuery& TransactionRecordQuery::setIncludeDuplicates(bool duplicates)
+{
+  mIncludeDuplicates = duplicates;
+  return *this;
 }
 
 //-----
@@ -78,9 +59,21 @@ TransactionRecord TransactionRecordQuery::mapResponse(const proto::Response& res
 }
 
 //-----
-Status TransactionRecordQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status TransactionRecordQuery::submitRequest(const proto::Query& request,
+                                                   const std::shared_ptr<internal::Node>& node,
+                                                   const std::chrono::system_clock::time_point& deadline,
+                                                   proto::Response* response) const
 {
-  return STATUS_MAP.at(response.transactiongetrecord().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kTransactionGetRecord, request, deadline, response);
+}
+
+//-----
+void TransactionRecordQuery::validateChecksums(const Client& client) const
+{
+  if (mTransactionId.has_value())
+  {
+    mTransactionId->mAccountId.validateChecksum(client);
+  }
 }
 
 //-----
@@ -91,42 +84,65 @@ TransactionRecordQuery::determineStatus(Status status, const Client& client, con
         baseStatus =
           Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>::determineStatus(
             status, client, response);
-      baseStatus != ExecutionStatus::UNKNOWN)
+      baseStatus == ExecutionStatus::SERVER_ERROR)
   {
     return baseStatus;
   }
 
   switch (status)
   {
+    case Status::BUSY:
     case Status::UNKNOWN:
+    case Status::RECEIPT_NOT_FOUND:
     case Status::RECORD_NOT_FOUND:
       return ExecutionStatus::RETRY;
+
     case Status::OK:
-      break;
+    {
+      if (isCostQuery())
+      {
+        return ExecutionStatus::SUCCESS;
+      }
+
+      switch (gProtobufResponseCodeToStatus.at(response.transactiongetrecord().transactionrecord().receipt().status()))
+      {
+        case Status::BUSY:
+        case Status::UNKNOWN:
+        case Status::OK:
+        case Status::RECEIPT_NOT_FOUND:
+        case Status::RECORD_NOT_FOUND:
+          return ExecutionStatus::RETRY;
+        default:
+          return ExecutionStatus::SUCCESS;
+      }
+    }
+
     default:
       return ExecutionStatus::REQUEST_ERROR;
-  }
-
-  // Check the actual receipt status value to ensure the record actually holds correct data.
-  switch (STATUS_MAP.at(response.transactiongetrecord().transactionrecord().receipt().status()))
-  {
-    case Status::OK:
-    case Status::RECORD_NOT_FOUND:
-    case Status::UNKNOWN:
-      return ExecutionStatus::RETRY;
-    default:
-      return ExecutionStatus::SUCCESS;
   }
 }
 
 //-----
-grpc::Status TransactionRecordQuery::submitRequest(const Client& client,
-                                                   const std::chrono::system_clock::time_point& deadline,
-                                                   const std::shared_ptr<internal::Node>& node,
-                                                   proto::Response* response) const
+proto::Query TransactionRecordQuery::buildRequest(proto::QueryHeader* header) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kTransactionGetRecord, makeRequest(client, node), deadline, response);
+  auto transactionGetRecordQuery = std::make_unique<proto::TransactionGetRecordQuery>();
+  transactionGetRecordQuery->set_allocated_header(header);
+
+  if (mTransactionId.has_value())
+  {
+    transactionGetRecordQuery->set_allocated_transactionid(mTransactionId->toProtobuf().release());
+  }
+
+  proto::Query query;
+  query.set_allocated_transactiongetrecord(transactionGetRecordQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader TransactionRecordQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.transactiongetrecord().header());
+  return response.transactiongetrecord().header();
 }
 
 } // namespace Hedera

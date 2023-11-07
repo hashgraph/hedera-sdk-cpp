@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 #define HEDERA_SDK_CPP_EXCHANGE_RATE_H_
 
 #include <chrono>
-#include <optional>
 
 namespace proto
 {
@@ -37,49 +36,44 @@ namespace Hedera
 class ExchangeRate
 {
 public:
-  /**
-   * Create an ExchangeRate object from a ExchangeRate protobuf object.
-   *
-   * @param proto The ExchangeRate protobuf object from which to create an ExchangeRate object.
-   * @return The created ExchangeRate object.
-   */
-  static ExchangeRate fromProtobuf(const proto::ExchangeRate& proto);
+  ExchangeRate() = default;
 
   /**
-   * Get the amount an Hbar is worth in cents (USD).
+   * Construct from an Hbar amount, cents amount, and an expiration time.
    *
-   * @return The amount an Hbar is currently worth.
+   * @param hbar  The amount of Hbar.
+   * @param cents The amount of USD (in cents).
+   * @param expirationTime The time this ExchangeRate expires.
    */
-  [[nodiscard]] inline double getCurrentExchangeRate() const
-  {
-    return static_cast<double>(mCents) / static_cast<double>(mHbars);
-  }
+  ExchangeRate(int hbar, int cents, const std::chrono::system_clock::time_point& expirationTime);
 
   /**
-   * Get the time this ExchangeRate will expire.
+   * Construct an ExchangeRate object from a ExchangeRate protobuf object.
    *
-   * @return The expiration time of this ExchangeRate.
+   * @param proto The ExchangeRate protobuf object from which to construct an ExchangeRate object.
+   * @return The constructed ExchangeRate object.
    */
-  [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getExpirationTime() const
-  {
-    return mExpirationTime;
-  }
+  [[nodiscard]] static ExchangeRate fromProtobuf(const proto::ExchangeRate& proto);
 
-private:
   /**
    * Denotes Hbar equivalent to cents.
    */
-  int32_t mHbars = 0;
+  int mHbars = 0;
 
   /**
    * Denotes cents equivalent to Hbar.
    */
-  int32_t mCents = 0;
+  int mCents = 0;
 
   /**
-   * Expiration time of this exchange rate.
+   * Expiration time of this ExchangeRate.
    */
-  std::optional<std::chrono::system_clock::time_point> mExpirationTime;
+  std::chrono::system_clock::time_point mExpirationTime;
+
+  /**
+   * Calculated exchange rate.
+   */
+  double mExchangeRateInCents = 0.0;
 };
 
 } // namespace Hedera

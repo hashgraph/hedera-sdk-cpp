@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -30,18 +30,18 @@ class CryptoGetAccountBalanceResponse;
 namespace Hedera
 {
 /**
- * Response when the client sends a node an AccountBalanceQuery.
+ * Response from a Hedera network when the client sends an AccountBalanceQuery.
  */
 class AccountBalance
 {
 public:
   /**
-   * Create an AccountBalance object from a CryptoGetAccountBalanceResponse protobuf object.
+   * Construct an AccountBalance object from a CryptoGetAccountBalanceResponse protobuf object.
    *
-   * @param proto The CryptoGetAccountBalance protobuf object from which to create an AccountBalance object.
-   * @return The created AccountBalance object.
+   * @param proto The CryptoGetAccountBalance protobuf object from which to construct an AccountBalance object.
+   * @return The constructed AccountBalance object.
    */
-  static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
+  [[nodiscard]] static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
 
   /**
    * Get the balance of the queried account or contract.

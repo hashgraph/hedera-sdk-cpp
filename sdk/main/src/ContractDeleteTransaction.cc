@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,147 +18,134 @@
  *
  */
 #include "ContractDeleteTransaction.h"
+#include "impl/Node.h"
 
+#include <grpcpp/client_context.h>
 #include <proto/contract_delete.pb.h>
+#include <proto/transaction.pb.h>
+#include <proto/transaction_body.pb.h>
 
 namespace Hedera
 {
 //-----
-ContractDeleteTransaction::ContractDeleteTransaction()
-  : Transaction()
-  , mContractId()
-  , mTransferAccountId()
-  , mTransferContractId()
-  , mPermanentRemoval(false)
+ContractDeleteTransaction::ContractDeleteTransaction(const proto::TransactionBody& transactionBody)
+  : Transaction<ContractDeleteTransaction>(transactionBody)
 {
+  initFromSourceTransactionBody();
 }
 
 //-----
 ContractDeleteTransaction::ContractDeleteTransaction(
-  const std::unordered_map<
-    TransactionId,
-    std::unordered_map<AccountId, proto::TransactionBody>>& transactions)
-  : Transaction(transactions)
+  const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
+  : Transaction<ContractDeleteTransaction>(transactions)
 {
-  initFromTransactionBody();
+  initFromSourceTransactionBody();
 }
 
 //-----
-ContractDeleteTransaction::ContractDeleteTransaction(
-  const proto::TransactionBody& transaction)
-  : Transaction(transaction)
-{
-  initFromTransactionBody();
-}
-
-//-----
-void
-ContractDeleteTransaction::validateChecksums(const Client& client) const
-{
-  if (mContractId.isValid())
-  {
-    mContractId.getValue().validateChecksum(client);
-  }
-
-  if (mTransferAccountId.isValid())
-  {
-    mTransferAccountId.getValue().validateChecksum(client);
-  }
-
-  if (mTransferContractId.isValid())
-  {
-    mTransferContractId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-proto::ContractDeleteTransactionBody
-ContractDeleteTransaction::build() const
-{
-  proto::ContractDeleteTransactionBody body;
-
-  if (mContractId.isValid())
-  {
-    body.set_allocated_contractid(mContractId.getValue().toProtobuf());
-  }
-
-  if (mTransferAccountId.isValid())
-  {
-    body.set_allocated_transferaccountid(
-      mTransferAccountId.getValue().toProtobuf());
-  }
-
-  if (mTransferContractId.isValid())
-  {
-    body.set_allocated_transfercontractid(
-      mTransferContractId.getValue().toProtobuf());
-  }
-
-  body.set_permanent_removal(mPermanentRemoval);
-
-  return body;
-}
-
-//-----
-ContractDeleteTransaction&
-ContractDeleteTransaction::setContractId(const ContractId& contractId)
+ContractDeleteTransaction& ContractDeleteTransaction::setContractId(const ContractId& contractId)
 {
   requireNotFrozen();
-
-  mContractId.setValue(contractId);
+  mContractId = contractId;
   return *this;
 }
 
 //-----
-ContractDeleteTransaction&
-ContractDeleteTransaction::setTransferAccountId(
-  const AccountId& transferAccountId)
+ContractDeleteTransaction& ContractDeleteTransaction::setTransferAccountId(const AccountId& accountId)
 {
   requireNotFrozen();
-
-  mTransferAccountId.setValue(transferAccountId);
+  mTransferAccountId = accountId;
+  mTransferContractId.reset();
   return *this;
 }
 
 //-----
-ContractDeleteTransaction&
-ContractDeleteTransaction::setTransferContractId(
-  const ContractId& transferContractId)
+ContractDeleteTransaction& ContractDeleteTransaction::setTransferContractId(const ContractId& contractId)
 {
   requireNotFrozen();
-
-  mTransferContractId.setValue(transferContractId);
+  mTransferContractId = contractId;
+  mTransferAccountId.reset();
   return *this;
 }
 
 //-----
-void
-ContractDeleteTransaction::initFromTransactionBody()
+grpc::Status ContractDeleteTransaction::submitRequest(const proto::Transaction& request,
+                                                      const std::shared_ptr<internal::Node>& node,
+                                                      const std::chrono::system_clock::time_point& deadline,
+                                                      proto::TransactionResponse* response) const
 {
-  if (mSourceTransactionBody.has_contractdeleteinstance())
+  return node->submitTransaction(
+    proto::TransactionBody::DataCase::kContractDeleteInstance, request, deadline, response);
+}
+
+//-----
+void ContractDeleteTransaction::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+
+  if (mTransferContractId.has_value())
   {
-    const proto::ContractDeleteTransactionBody& body =
-      mSourceTransactionBody.contractdeleteinstance();
-
-    if (body.has_contractid())
-    {
-      mContractId.setValue(ContractId::fromProtobuf(body.contractid()));
-    }
-
-    if (body.has_transferaccountid())
-    {
-      mTransferAccountId.setValue(
-        AccountId::fromProtobuf(body.transferaccountid()));
-    }
-
-    if (body.has_transfercontractid())
-    {
-      mTransferContractId.setValue(
-        ContractId::fromProtobuf(body.transfercontractid()));
-    }
-
-    mPermanentRemoval = body.permanent_removal();
+    mTransferContractId->validateChecksum(client);
   }
+
+  if (mTransferAccountId.has_value())
+  {
+    mTransferAccountId->validateChecksum(client);
+  }
+}
+
+//-----
+void ContractDeleteTransaction::addToBody(proto::TransactionBody& body) const
+{
+  body.set_allocated_contractdeleteinstance(build());
+}
+
+//-----
+void ContractDeleteTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_contractdeleteinstance())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain ContractDeleteInstance data");
+  }
+
+  const proto::ContractDeleteTransactionBody& body = transactionBody.contractdeleteinstance();
+
+  if (body.has_contractid())
+  {
+    mContractId = ContractId::fromProtobuf(body.contractid());
+  }
+
+  if (body.has_transferaccountid())
+  {
+    mTransferAccountId = AccountId::fromProtobuf(body.transferaccountid());
+  }
+
+  else if (body.has_transfercontractid())
+  {
+    mTransferContractId = ContractId::fromProtobuf(body.transfercontractid());
+  }
+}
+
+//-----
+proto::ContractDeleteTransactionBody* ContractDeleteTransaction::build() const
+{
+  auto body = std::make_unique<proto::ContractDeleteTransactionBody>();
+
+  body->set_allocated_contractid(mContractId.toProtobuf().release());
+
+  if (mTransferAccountId.has_value())
+  {
+    body->set_allocated_transferaccountid(mTransferAccountId->toProtobuf().release());
+  }
+
+  else if (mTransferContractId.has_value())
+  {
+    body->set_allocated_transfercontractid(mTransferContractId->toProtobuf().release());
+  }
+
+  return body.release();
 }
 
 } // namespace Hedera

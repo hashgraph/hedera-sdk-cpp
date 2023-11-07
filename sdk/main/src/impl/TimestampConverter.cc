@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,14 @@ proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time)
   const std::chrono::nanoseconds nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(time.time_since_epoch());
   timestamp->set_seconds(nanos.count() / 1000000000);
   timestamp->set_nanos(nanos.count() % 1000000000);
+  return timestamp.release();
+}
+
+//-----
+proto::TimestampSeconds* toSecondsProtobuf(const std::chrono::system_clock::time_point& time)
+{
+  auto timestamp = std::make_unique<proto::TimestampSeconds>();
+  timestamp->set_seconds(std::chrono::duration_cast<std::chrono::seconds>(time.time_since_epoch()).count());
   return timestamp.release();
 }
 

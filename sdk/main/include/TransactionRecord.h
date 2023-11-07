@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,20 @@
 #define HEDERA_SDK_CPP_TRANSACTION_RECORD_H_
 
 #include "AccountId.h"
+#include "AssessedCustomFee.h"
+#include "ContractFunctionResult.h"
+#include "EvmAddress.h"
 #include "Hbar.h"
+#include "HbarTransfer.h"
+#include "PublicKey.h"
+#include "TokenAssociation.h"
+#include "TokenNftTransfer.h"
+#include "TokenTransfer.h"
 #include "TransactionId.h"
 #include "TransactionReceipt.h"
-#include "Transfer.h"
 
+#include <cstddef>
+#include <memory>
 #include <optional>
 #include <string>
 #include <utility>
@@ -33,6 +42,7 @@
 
 namespace proto
 {
+class TransactionGetRecordResponse;
 class TransactionRecord;
 }
 
@@ -47,68 +57,21 @@ class TransactionRecord
 {
 public:
   /**
-   * Create a TransactionRecord object from a TransactionRecord protobuf object.
+   * Construct a TransactionRecord object from a TransactionGetRecordResponse protobuf object.
    *
-   * @param proto The TransactionRecord protobuf object from which to create an TransactionRecord object.
-   * @return The created TransactionRecord object.
+   * @param proto The TransactionGetRecordResponse protobuf object from which to construct a TransactionRecord object.
+   * @return The constructed TransactionRecord object.
    */
-  static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
+  [[nodiscard]] static TransactionRecord fromProtobuf(const proto::TransactionGetRecordResponse& proto);
 
   /**
-   * Get the receipt of the transaction with which this TransactionRecord is associated.
+   * Construct a TransactionRecord object from a TransactionRecord protobuf object.
    *
-   * @return The transaction receipt.
+   * @param proto The TransactionRecord protobuf object from which to construct a TransactionRecord object.
+   * @return The constructed TransactionRecord object.
    */
-  [[nodiscard]] inline std::optional<TransactionReceipt> getReceipt() const { return mReceipt; }
+  [[nodiscard]] static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
 
-  /**
-   * Get the hash of the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction hash.
-   */
-  [[nodiscard]] inline std::string getTransactionHash() const { return mTransactionHash; }
-
-  /**
-   * Get the timestamp of when the transaction with which this TransactionRecord is associated reached consensus.
-   *
-   * @return The consensus timestamp.
-   */
-  [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getConsensusTimestamp() const
-  {
-    return mConsensusTimestamp;
-  }
-
-  /**
-   * Get the ID of the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction ID.
-   */
-  [[nodiscard]] inline std::optional<TransactionId> getTransactionId() const { return mTransactionID; }
-
-  /**
-   * Get the memo of the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction memo.
-   */
-  [[nodiscard]] inline std::string getTransactionMemo() const { return mMemo; }
-
-  /**
-   * Get the fee that was paid to execute the transaction with which this TransactionRecord is associated.
-   *
-   * @return The transaction fee.
-   */
-  [[nodiscard]] inline uint64_t getTransactionFee() const { return mTransactionFee; }
-
-  /**
-   * Get the list of all crypto transfers that occurred during the execution of the transaction with which this
-   * TransactionRecord is associated.
-   *
-   * @return A list of IDs for accounts that sent/received a crypto transfer, as well as the amount that was
-   *         transferred.
-   */
-  [[nodiscard]] inline std::vector<Transfer> getTransferList() const { return mTransferList; }
-
-private:
   /**
    * The status (reach consensus, or failed, or is unknown) and the ID of any new account/file/instance created.
    */
@@ -141,10 +104,90 @@ private:
   uint64_t mTransactionFee;
 
   /**
+   * The result of the executed smart contract function or the result of the executed smart contract constructor.
+   */
+  std::optional<ContractFunctionResult> mContractFunctionResult;
+
+  /**
    * All Hbar transfers as a result of this transaction, such as fees, or transfers performed by the transaction, or by
    * a smart contract it calls, or by the creation of threshold records that it triggers.
    */
-  std::vector<Transfer> mTransferList;
+  std::vector<HbarTransfer> mHbarTransferList;
+
+  /**
+   * All fungible token transfers as a result of this transaction.
+   */
+  std::vector<TokenTransfer> mTokenTransferList;
+
+  /**
+   * All NFT transfers as a result of this transaction.
+   */
+  std::vector<TokenNftTransfer> mNftTransferList;
+
+  /**
+   * The reference to the scheduled transaction ID that this TransactionRecord represents.
+   */
+  std::optional<ScheduleId> mScheduleRef;
+
+  /**
+   * All custom fees that were assessed during a CryptoTransfer, and must be paid if the transaction status resolved to
+   * SUCCESS.
+   */
+  std::vector<AssessedCustomFee> mAssessedCustomFees;
+
+  /**
+   * All token associations implicitly created while handling this transaction.
+   */
+  std::vector<TokenAssociation> mAutomaticTokenAssociations;
+
+  /**
+   * In the record of an internal transaction, the consensus timestamp of the user transaction that spawned it.
+   */
+  std::optional<std::chrono::system_clock::time_point> mParentConsensusTimestamp;
+
+  /**
+   * In the record of an AccountCreateTransaction triggered by a user transaction with a (previously unused) alias, the
+   * new account's alias.
+   */
+  std::shared_ptr<PublicKey> mAlias;
+
+  /**
+   * In the record of an EthereumTransaction, the KECCAK-256 hash of the ethereumData.
+   */
+  std::optional<std::vector<std::byte>> mEthereumHash;
+
+  /**
+   * The list of accounts with the corresponding staking rewards paid as a result of a transaction.
+   */
+  std::vector<HbarTransfer> mPaidStakingRewards;
+
+  /**
+   * In the record of a PrngTransaction with no range, a pseudorandom 384-bit string.
+   */
+  std::vector<std::byte> mPrngBytes;
+
+  /**
+   * In the record of a PrngTransaction with a range, the pseudorandom 32-bit number.
+   */
+  std::optional<int> mPrngNumber;
+
+  /**
+   * The new default EVM address of the account created by transaction with which this TransactionRecord is
+   * associated. This field is populated only when the EVM address is not specified in the related transaction body.
+   */
+  std::optional<EvmAddress> mEvmAddress;
+
+  /**
+   * The records of processing all child transactions spawned by the transaction with the given top-level ID, in
+   * consensus order. Always empty if the top-level status is UNKNOWN.
+   */
+  std::vector<TransactionRecord> mChildren;
+
+  /**
+   * The records of processing all consensus transaction with the same ID as the distinguished record, in chronological
+   * order.
+   */
+  std::vector<TransactionRecord> mDuplicates;
 };
 
 } // namespace Hedera

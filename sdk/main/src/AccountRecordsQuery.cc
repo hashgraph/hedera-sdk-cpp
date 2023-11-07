@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,10 +18,8 @@
  *
  */
 #include "AccountRecordsQuery.h"
-
-#include "AccountId.h"
-#include "AccountInfo.h"
-#include "TransactionRecord.h"
+#include "AccountRecords.h"
+#include "impl/Node.h"
 
 #include <proto/crypto_get_account_records.pb.h>
 #include <proto/query.pb.h>
@@ -31,74 +29,50 @@
 namespace Hedera
 {
 //-----
-AccountRecordsQuery::AccountRecordsQuery()
-  : mAccountId()
+AccountRecordsQuery& AccountRecordsQuery::setAccountId(const AccountId& accountId)
 {
-}
-
-//-----
-void
-AccountRecordsQuery::validateChecksums(const Client& client) const
-{
-  if (mAccountId.isValid())
-  {
-    mAccountId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void
-AccountRecordsQuery::onMakeRequest(proto::Query* query,
-                                   proto::QueryHeader* header) const
-{
-  proto::CryptoGetAccountRecordsQuery* getRecordsQuery =
-    query->mutable_cryptogetaccountrecords();
-
-  if (mAccountId.isValid())
-  {
-    getRecordsQuery->set_allocated_accountid(
-      mAccountId.getValue().toProtobuf());
-  }
-
-  getRecordsQuery->set_allocated_header(header);
-}
-
-//-----
-proto::ResponseHeader
-AccountRecordsQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->cryptogetaccountrecords().header();
-}
-
-//-----
-proto::QueryHeader
-AccountRecordsQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.cryptogetaccountrecords().header();
-}
-
-//-----
-std::vector<TransactionRecord>
-AccountRecordsQuery::mapResponse(const proto::Response& response,
-                                 const AccountId& accountId,
-                                 const proto::Query& query) const
-{
-  std::vector<TransactionRecord> records;
-  for (size_t i = 0; i < response.cryptogetaccountrecords().records_size(); ++i)
-  {
-    records.push_back(TransactionRecord::fromProtobuf(
-      response.cryptogetaccountrecords().records(i)));
-  }
-
-  return records;
-}
-
-//-----
-AccountRecordsQuery&
-AccountRecordsQuery::setAccountId(const AccountId& accountId)
-{
-  mAccountId.setValue(accountId);
+  mAccountId = accountId;
   return *this;
+}
+
+//-----
+AccountRecords AccountRecordsQuery::mapResponse(const proto::Response& response) const
+{
+  return AccountRecords::fromProtobuf(response.cryptogetaccountrecords());
+}
+
+//-----
+grpc::Status AccountRecordsQuery::submitRequest(const proto::Query& request,
+                                                const std::shared_ptr<internal::Node>& node,
+                                                const std::chrono::system_clock::time_point& deadline,
+                                                proto::Response* response) const
+{
+  return node->submitQuery(proto::Query::QueryCase::kCryptoGetAccountRecords, request, deadline, response);
+}
+
+//-----
+void AccountRecordsQuery::validateChecksums(const Client& client) const
+{
+  mAccountId.validateChecksum(client);
+}
+
+//-----
+proto::Query AccountRecordsQuery::buildRequest(proto::QueryHeader* header) const
+{
+  auto accountRecordsQuery = std::make_unique<proto::CryptoGetAccountRecordsQuery>();
+  accountRecordsQuery->set_allocated_header(header);
+  accountRecordsQuery->set_allocated_accountid(mAccountId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_cryptogetaccountrecords(accountRecordsQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader AccountRecordsQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.cryptogetaccountrecords().header());
+  return response.cryptogetaccountrecords().header();
 }
 
 } // namespace Hedera

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -21,33 +21,29 @@
 #define HEDERA_SDK_CPP_IMPL_HEX_CONVERTER_H_
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Hedera::internal::HexConverter
 {
 /**
- * Convert an array of base64 bytes to their hex values and put them in a string.
+ * Convert an array of bytes to a hex string.
  *
  * @param bytes The bytes from which to get the hex string.
  * @return A string containing the hex values of the input byte array.
+ * @throws OpenSSLException If OpenSSL is unable to convert the input bytes to hex.
  */
-std::string base64ToHex(const std::vector<unsigned char>& bytes);
+std::string bytesToHex(const std::vector<std::byte>& bytes);
 
 /**
- * Convert a hex string to the array of base64 bytes it represents.
+ * Convert a hex string to the array of bytes it represents.
  *
- * @param inputString The hex string to convert to a byte array.
+ * @param hex The hex string to convert to a byte array.
  * @return The byte array containing the values of the input hex string.
+ * @throws OpenSSLException If OpenSSL is unable to convert the input string to a byte array.
  */
-std::vector<unsigned char> hexToBase64(const std::string& inputString);
+std::vector<std::byte> hexToBytes(std::string_view hex);
 
-/**
- * Convert an array of bytes to their hex values and put them in a string.
- *
- * @param bytes The bytes from which to get the hex string.
- * @return A string containing the hex values of the input byte array.
- */
-std::string bytesToHex(const std::vector<unsigned char>& bytes);
 } // namespace Hedera::internal::HexConverter
 
 #endif // HEDERA_SDK_CPP_IMPL_HEX_CONVERTER_H_

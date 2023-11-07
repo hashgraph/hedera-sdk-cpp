@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,25 +17,19 @@
  * limitations under the License.
  *
  */
-#ifndef CONTRACT_UPDATE_TRANSACTION_H_
-#define CONTRACT_UPDATE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_CONTRACT_UPDATE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_CONTRACT_UPDATE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "ContractId.h"
-#include "PublicKey.h"
+#include "Key.h"
 #include "Transaction.h"
 
-#include "helper/InitType.h"
-
 #include <chrono>
-#include <unordered_map>
-
-namespace Hedera
-{
-class AccountId;
-class Client;
-class TransactionId;
-}
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
 
 namespace proto
 {
@@ -46,286 +40,322 @@ class TransactionBody;
 namespace Hedera
 {
 /**
- * At consensus, updates the fields of a smart contract to the given values.
+ * A transaction that allows you to modify the smart contract entity state like admin keys, proxy account, auto-renew
+ * period, and memo. This transaction does not update the contract that is tied to the smart contract entity. The
+ * contract tied to the entity is immutable. The contract entity is immutable if an admin key is not specified. Once the
+ * transaction has been successfully executed on a Hedera network the previous field values will be updated with the new
+ * ones. To get a previous state of a smart contract instance, you can query a mirror node for that data. Any null field
+ * is ignored (left unchanged).
  *
- * If no value is given for a field, that field is left unchanged on the
- * contract. For an immutable smart contract (that is, a contract created
- * without an adminKey), only the expirationTime may be updated; setting any
- * other field in this case will cause the transaction status to resolve to
- * MODIFYING_IMMUTABLE_CONTRACT.
- *
- * --- Signing Requirements ---
- * 1. Whether or not a contract has an admin key, its expiry can be extended
- *    with only the transaction payer's signature.
- * 2. Updating any other field of a mutable contract requires the admin key's
- *    signature.
- * 3. If the update transaction includes a new admin key, this new key must also
- *    sign unless it is exactly an empty KeyList. This special sentinel key
- *    removes the existing admin key and causes the contract to become
- *    immutable. (Other Key structures without a constituent Ed25519 key will be
- *    rejected with INVALID_ADMIN_KEY)
- * 4. If the update transaction sets the AccountID auto_renew_account_id wrapper
- *    field to anything other than the sentinel 0.0.0 value, then the key of the
- *    referenced account must sign.
+ * Transaction Signing Requirements:
+ *  - If only the expiration time is being modified, then no signature is needed on this transaction other than for the
+ *    account paying for the transaction itself.
+ *  - If any other smart contract entity property is being modified, the transaction must be signed by the admin key.
+ *  - If the admin key is being updated, the new key must sign.
  */
 class ContractUpdateTransaction : public Transaction<ContractUpdateTransaction>
 {
-  /**
-   * Constructor.
-   */
-  ContractUpdateTransaction();
+public:
+  ContractUpdateTransaction() = default;
 
   /**
-   * Construct from a map of transaction ID's to their corresponding account
-   * ID's and protobuf transactions.
+   * Construct from a TransactionBody protobuf object.
    *
-   * @param transactions Map of transaction IDs to their corresponding account
-   *                     ID's and protobuf transactions.
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a ContractUpdateInstance transaction.
+   */
+  explicit ContractUpdateTransaction(const proto::TransactionBody& transactionBody);
+
+  /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
    */
   explicit ContractUpdateTransaction(
-    const std::unordered_map<TransactionId, std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+    const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
   /**
-   * Construct from a protobuf transaction object.
+   * Set the ID of the contract to update.
    *
-   * @param transaction The protobuf transaction object from which to construct
-   *                    this transaction.
-   */
-  explicit ContractUpdateTransaction(const proto::TransactionBody& transaction);
-
-  /**
-   * Derived from Transaction. Validate the checksums.
-   *
-   * @param client The client with which to validate the checksums.
-   */
-  virtual void validateChecksums(const Client& client) const override;
-
-  /**
-   * Build a contract update transaction protobuf message based on the data in
-   * this class.
-   *
-   * @return A contract update transaction protobuf message.
-   */
-  proto::ContractUpdateTransactionBody build() const;
-
-  /**
-   * Sets the contract ID instance to update.
-   *
-   * @param contractId The contract ID to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param contractId The ID of the contract to update.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set contract ID.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
   ContractUpdateTransaction& setContractId(const ContractId& contractId);
 
   /**
-   * Sets the expiration time.
+   * Set a new expiration time for the contract.
    *
-   * @param expirationTime The expiration time to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param expiration The desired new expiration time for the contract.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set expiration time.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setExpirationTime(const std::chrono::nanoseconds& expirationTime);
+  ContractUpdateTransaction& setExpirationTime(const std::chrono::system_clock::time_point& expiration);
 
   /**
-   * Sets the admin key.
+   * Set a new admin key for the contract.
    *
-   * @param adminKey The admin key to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param adminKey The desired new admin key for the contract.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set admin key.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setAdminKey(const PublicKey& adminKey);
+  ContractUpdateTransaction& setAdminKey(const std::shared_ptr<Key>& adminKey);
 
   /**
-   * Sets the auto-renew period.
+   * Set a new auto renew period for the contract.
    *
-   * @param autoRenewPeriod The auto-renew period to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param autoRenewPeriod The desired new auto renew period for the contract.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set auto renew period.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setAutoRenewPeriod(const std::chrono::seconds& autoRenewPeriod);
+  ContractUpdateTransaction& setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenewPeriod);
 
   /**
-   * Sets the memo.
+   * Set a new memo for the contract.
    *
-   * @param memo The memo to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param memo The desired new memo for the contract.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set memo.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
+   * @throws std::length_error If the memo is more than 100 characters.
    */
-  ContractUpdateTransaction& setMemo(const std::string& memo);
+  ContractUpdateTransaction& setContractMemo(std::string_view memo);
 
   /**
-   * Sets the max automatic token associations.
+   * Set the new maximum automatic token associations the contract can have.
    *
-   * @param maxAutomaticTokenAssociations The max automatic token associations
-   *                                      to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param associations The desired new maximum amount of token associations for the contract.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set maximum automatic token
+   *         associations.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
+   * @throws std::invalid_argument If the desired maximum number of associations is over 5000.
    */
-  ContractUpdateTransaction& setMaxAutomaticTokenAssociations(int32_t maxAutomaticTokenAssociations);
+  ContractUpdateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
 
   /**
-   * Sets the auto-renew account ID.
+   * Set the ID of the account that will auto-renew this contract.
    *
-   * @param autoRenewAccountId The auto-renew account ID to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param autoRenewAccountId The ID of the desired new account that will auto-renew this contract.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set auto-renew account ID.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
   ContractUpdateTransaction& setAutoRenewAccountId(const AccountId& autoRenewAccountId);
 
   /**
-   * Sets the staked account ID.
+   * Set the new account to which the contract should stake. This is mutually exclusive with mStakedNodeId, and will
+   * reset the value of the mStakedNodeId if it is set.
    *
-   * @param stakedAccountId The staked account ID to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param stakedAccountId The ID of the desired new account to which the contract will stake.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set staked account ID.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
   ContractUpdateTransaction& setStakedAccountId(const AccountId& stakedAccountId);
 
   /**
-   * Sets the staked node ID.
+   * Set the new node to which the contract should stake. This is mutually exclusive with mStakedAccountId, and will
+   * reset the value of the mStakedAccountId if it is set.
    *
-   * @param stakedNodeId The staked node ID to be set.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param stakedNodeId The ID of the desired new node to which the contract will stake.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set staked node ID.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setStakedNodeId(const int64_t& stakedNodeId);
+  ContractUpdateTransaction& setStakedNodeId(const uint64_t& stakedNodeId);
 
   /**
-   * Sets the staking rewards policy.
+   * Set a new staking reward reception policy for the contract.
    *
-   * @param declineRewards \c TRUE to decline rewards, otherwise \c FALSE.
-   * @return Reference to this ContractUpdateTransaction.
+   * @param declineReward \c TRUE if the contract should decline receiving staking rewards, otherwise \c FALSE.
+   * @return A reference to this ContractUpdateTransaction object with the newly-set staking rewards reception policy.
+   * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setDeclineRewards(bool declineRewards);
+  ContractUpdateTransaction& setDeclineStakingReward(bool declineReward);
 
   /**
-   * Extract the contract ID.
+   * Get the ID of the contract to update.
    *
-   * @return The contract ID.
+   * @return The ID of the contract to update.
    */
-  inline InitType<ContractId> getContractId() { return mContractId; }
+  [[nodiscard]] inline ContractId getContractId() const { return mContractId; }
 
   /**
-   * Extract the expiration time.
+   * Get the new expiration time for the contract.
    *
-   * @return The expiration time.
+   * @return The new expiration time for the contract. Returns uninitialized if a new expiration time has not yet been
+   *         set.
    */
-  inline InitType<std::chrono::nanoseconds> getExpirationTime() { return mExpirationTime; }
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getExpirationTime() const
+  {
+    return mExpirationTime;
+  }
 
   /**
-   * Extract the admin key.
+   * Get the new admin key to be used for the contract.
    *
-   * @return The admin key.
+   * @return A pointer to the new admin key to be used for the contract. Returns nullptr if the key has not yet been
+   *         set.
    */
-  inline std::shared_ptr<PublicKey> getAdminKey() { return mAdminKey; }
+  [[nodiscard]] inline std::shared_ptr<Key> getAdminKey() const { return mAdminKey; }
 
   /**
-   * Extract the auto-renew period.
+   * Get the new auto renew period for the contract.
    *
-   * @return The auto-renew period.
+   * @return The new auto renew period for the new contract. Returns uninitialized if a new auto-renew period has not
+   *         yet been set.
    */
-  inline InitType<std::chrono::seconds> getAutoRenewPeriod() { return mAutoRenewPeriod; }
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getAutoRenewPeriod() const
+  {
+    return mAutoRenewPeriod;
+  }
 
   /**
-   * Extract the memo.
+   * Get the new memo for the contract.
    *
-   * @return The memo.
+   * @return The new memo for the contract. Returns uninitialized if a new memo has not yet been set.
    */
-  inline InitType<std::string> getMemo() { return mMemo; }
+  [[nodiscard]] inline std::optional<std::string> getContractMemo() const { return mContractMemo; }
 
   /**
-   * Extract the max automatic token associations.
+   * Get the new maximum automatic token associations for the contract.
    *
-   * @return The max automatic token associations.
+   * @return The new maximum automatic token associations for the contract. Returns uninitialized if a new maximum
+   *         automatic token associations amount has not yet been set.
    */
-  inline InitType<int32_t> getMaxAutomaticTokenAssociations() { return mMaxAutomaticTokenAssociations; }
+  [[nodiscard]] inline std::optional<uint32_t> getMaxAutomaticTokenAssociations() const
+  {
+    return mMaxAutomaticTokenAssociations;
+  }
 
   /**
-   * Extract the auto-renew account ID.
+   * Get the ID of the account that will auto-renew this contract.
    *
-   * @return The auto-renew account ID.
+   * @return The ID of the account that will auto-renew this contract. Returns uninitialized if a new auto-renew account
+   *         ID has not yet been set.
    */
-  inline InitType<AccountId> getAutoRenewAccountId() { return mAutoRenewAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getAutoRenewAccountId() const { return mAutoRenewAccountId; };
 
   /**
-   * Extract the staked account ID.
+   * Get the ID of the account to which the contract will stake.
    *
-   * @return The staked account ID.
+   * @return The ID of the desired new account to which the account will stake. Returns uninitialized if a new staked
+   *         account ID has not yet been set, or if a staked node ID has been set most recently.
    */
-  inline InitType<AccountId> getStakedAccountId() { return mStakedAccountId; }
+  [[nodiscard]] inline std::optional<AccountId> getStakedAccountId() const { return mStakedAccountId; }
 
   /**
-   * Extract the staked node ID.
+   * Get the ID of the desired new node to which the contract will stake.
    *
-   * @return The staked node ID.
+   * @return The ID of the desired new node to which the contract will stake. Returns uninitialized if a new staked node
+   *         ID has not yet been set, or if a staked account ID has been set most recently.
    */
-  inline InitType<int64_t> getStakedNodeId() { return mStakedNodeId; }
+  [[nodiscard]] inline std::optional<uint64_t> getStakedNodeId() const { return mStakedNodeId; }
 
   /**
-   * Extract the staking rewards policy.
+   * Get the new staking rewards reception policy for the contract.
    *
-   * @return \c TRUE if this update is set to decline rewards, otherwise
-   *         \c FALSE.
+   * @return \c TRUE if the contract should decline from receiving staking rewards, otherwise \c FALSE. Returns
+   *         uninitialized if a new staking rewards reception policy has not yet been set.
    */
-  inline InitType<bool> getDeclineRewards() { return mDeclineReward; }
+  [[nodiscard]] inline std::optional<bool> getDeclineStakingReward() const { return mDeclineStakingReward; }
 
 private:
-  /**
-   * Initialize from the transaction body.
-   */
-  void initFromTransactionBody();
+  friend class WrappedTransaction;
 
   /**
-   * The ID of the contract to be updated.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this ContractUpdateTransaction's data
+   * to a Node.
+   *
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
    */
-  InitType<ContractId> mContractId;
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::TransactionResponse* response) const override;
 
   /**
-   * The new expiry of the contract, no earlier than the current expiry
-   * (resolves to EXPIRATION_REDUCTION_NOT_ALLOWED otherwise).
+   * Derived from Transaction. Verify that all the checksums in this ContractUpdateTransaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This ContractUpdateTransaction's checksums are not valid.
    */
-  InitType<std::chrono::nanoseconds> mExpirationTime;
+  void validateChecksums(const Client& client) const override;
 
   /**
-   * The new key to control updates to the contract.
+   * Derived from Transaction. Build and add the ContractUpdateTransaction protobuf representation to the Transaction
+   * protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
    */
-  std::shared_ptr<PublicKey> mAdminKey;
+  void addToBody(proto::TransactionBody& body) const override;
 
   /**
-   * (NOT YET IMPLEMENTED) The new interval at which the contract will pay to
-   * extend its expiry (by the same interval).
+   * Initialize this ContractUpdateTransaction from its source TransactionBody protobuf object.
    */
-  InitType<std::chrono::seconds> mAutoRenewPeriod;
+  void initFromSourceTransactionBody();
 
   /**
-   * The new contract memo, assumed to be Unicode encoded with UTF-8 (at most
-   * 100 bytes)
+   * Build a ContractUpdateTransactionBody protobuf object from this ContractUpdateTransaction object.
+   *
+   * @return A pointer to a ContractUpdateTransactionBody protobuf object filled with this ContractUpdateTransaction
+   *         object's data.
    */
-  InitType<std::string> mMemo;
+  [[nodiscard]] proto::ContractUpdateTransactionBody* build() const;
 
   /**
-   * If set, the new maximum number of tokens that this contract can be
-   * automatically associated with (i.e., receive air-drops from).
+   * The ID of the contract to update.
    */
-  InitType<int32_t> mMaxAutomaticTokenAssociations;
+  ContractId mContractId;
 
   /**
-   * If set to the sentinel 0.0.0 account ID, this field removes the contract's
-   * auto-renew account. Otherwise it updates the contract's auto-renew account
-   * to the referenced account.
+   * The new expiration time for the contract.
    */
-  InitType<AccountId> mAutoRenewAccountId;
+  std::optional<std::chrono::system_clock::time_point> mExpirationTime;
 
   /**
-   * The ID of the new account to which this contract is staking. If set to the
-   * sentinel 0.0.0 account ID, this field removes the contract's staked account
-   * ID. Mutually exclusive from mStakedNodeId.
+   * The new admin key to be used for the contract.
    */
-  InitType<AccountId> mStakedAccountId;
+  std::shared_ptr<Key> mAdminKey = nullptr;
 
   /**
-   * The ID of the new node this contract is staked to. If set to the sentinel
-   * -1, this field removes the contract's staked node ID.
+   * The new auto renew period for the contract.
    */
-  InitType<int64_t> mStakedNodeId;
+  std::optional<std::chrono::system_clock::duration> mAutoRenewPeriod;
 
   /**
-   * If true, the contract declines receiving a staking reward.
+   * The new memo for the contract (UTF-8 encoding max 100 bytes).
    */
-  InitType<bool> mDeclineReward;
+  std::optional<std::string> mContractMemo;
+
+  /**
+   * The new maximum automatic token associations for the contract. Only allows values up to a maximum value of 5000.
+   */
+  std::optional<uint32_t> mMaxAutomaticTokenAssociations;
+
+  /**
+   * The ID of the account that will auto-renew this contract.
+   */
+  std::optional<AccountId> mAutoRenewAccountId;
+
+  /**
+   * The ID of the new account to which this contract will be staked. Mutually exclusive with mStakedNodeId.
+   */
+  std::optional<AccountId> mStakedAccountId;
+
+  /**
+   * The ID of the new node to which this contract will be staked. Mutually exclusive with mStakedAccountId.
+   */
+  std::optional<uint64_t> mStakedNodeId;
+
+  /**
+   * If \c TRUE, the contract will now decline receiving staking rewards.
+   */
+  std::optional<bool> mDeclineStakingReward;
 };
 
 } // namespace Hedera
 
-#endif // CONTRACT_UPDATE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_CONTRACT_UPDATE_TRANSACTION_H_

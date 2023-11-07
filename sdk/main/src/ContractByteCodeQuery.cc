@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  *
  */
 #include "ContractByteCodeQuery.h"
-
-#include "ContractId.h"
+#include "impl/Node.h"
+#include "impl/Utilities.h"
 
 #include <proto/contract_get_bytecode.pb.h>
 #include <proto/query.pb.h>
@@ -29,67 +29,50 @@
 namespace Hedera
 {
 //-----
-ContractByteCodeQuery::ContractByteCodeQuery()
-  : mContractId()
+ContractByteCodeQuery& ContractByteCodeQuery::setContractId(const ContractId& contractId)
 {
-}
-
-//-----
-void
-ContractByteCodeQuery::validateChecksums(const Client& client) const
-{
-  if (mContractId.isValid())
-  {
-    mContractId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void
-ContractByteCodeQuery::onMakeRequest(proto::Query* query,
-                                     proto::QueryHeader* header) const
-{
-  proto::ContractGetBytecodeQuery* getByteCodeQuery =
-    query->mutable_contractgetbytecode();
-
-  if (mContractId.isValid())
-  {
-    getByteCodeQuery->set_allocated_contractid(
-      mContractId.getValue().toProtobuf());
-  }
-
-  getByteCodeQuery->set_allocated_header(header);
-}
-
-//-----
-proto::ResponseHeader
-ContractByteCodeQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->contractgetbytecoderesponse().header();
-}
-
-//-----
-proto::QueryHeader
-ContractByteCodeQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.contractgetbytecode().header();
-}
-
-//-----
-std::string
-ContractByteCodeQuery::mapResponse(const proto::Response& response,
-                                   const AccountId& accountId,
-                                   const proto::Query& query) const
-{
-  return response.contractgetbytecoderesponse().bytecode();
-}
-
-//-----
-ContractByteCodeQuery&
-ContractByteCodeQuery::setContractId(const ContractId& contractId)
-{
-  mContractId.setValue(contractId);
+  mContractId = contractId;
   return *this;
+}
+
+//-----
+ContractByteCode ContractByteCodeQuery::mapResponse(const proto::Response& response) const
+{
+  return internal::Utilities::stringToByteVector(response.contractgetbytecoderesponse().bytecode());
+}
+
+//-----
+grpc::Status ContractByteCodeQuery::submitRequest(const proto::Query& request,
+                                                  const std::shared_ptr<internal::Node>& node,
+                                                  const std::chrono::system_clock::time_point& deadline,
+                                                  proto::Response* response) const
+{
+  return node->submitQuery(proto::Query::QueryCase::kContractGetBytecode, request, deadline, response);
+}
+
+//-----
+void ContractByteCodeQuery::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+}
+
+//-----
+proto::Query ContractByteCodeQuery::buildRequest(proto::QueryHeader* header) const
+{
+  auto contractByteCodeQuery = std::make_unique<proto::ContractGetBytecodeQuery>();
+  contractByteCodeQuery->set_allocated_header(header);
+  contractByteCodeQuery->set_allocated_contractid(mContractId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_contractgetbytecode(contractByteCodeQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader ContractByteCodeQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.contractgetbytecoderesponse().header());
+  return response.contractgetbytecoderesponse().header();
 }
 
 } // namespace Hedera

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,12 @@
 #include "Defaults.h"
 
 #include <chrono>
+#include <functional>
+#include <future>
 #include <memory>
+#include <mutex>
+#include <optional>
+#include <stdexcept>
 #include <vector>
 
 namespace Hedera
@@ -56,24 +61,16 @@ template<typename SdkRequestType, typename ProtoRequestType, typename ProtoRespo
 class Executable
 {
 public:
-  virtual ~Executable() = default;
-
-  /**
-   * Create a clone of this Executable object.
-   *
-   * @return A pointer to the created clone of this Executable.
-   */
-  virtual std::unique_ptr<Executable> clone() const = 0;
-
   /**
    * Submit this Executable to a Hedera network.
    *
    * @param client The Client to use to submit this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
-   * @throws std::invalid_argument If the there was a network issue processing this Executable.
-   * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  SdkResponseType execute(const Client& client);
+  virtual SdkResponseType execute(const Client& client);
 
   /**
    * Submit this Executable to a Hedera network with a specific timeout.
@@ -81,18 +78,111 @@ public:
    * @param client  The Client to use to submit this Executable.
    * @param timeout The desired timeout for the execution of this Executable.
    * @return The SdkResponseType object sent from the Hedera network that contains the result of the request.
-   * @throws std::invalid_argument If the there was a network issue processing this Executable.
-   * @throws std::runtime_error If unable to communicate with client network or if operator is needed and not set.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  SdkResponseType execute(const Client& client, const std::chrono::duration<double>& timeout);
+  virtual SdkResponseType execute(const Client& client, const std::chrono::system_clock::duration& timeout);
 
   /**
-   * Set the desired account IDs of nodes to which this transaction will be submitted.
+   * Submit this Executable to a Hedera network asynchronously.
+   *
+   * @param client The Client to use to submit this Executable.
+   * @return The future SdkResponseType object sent from the Hedera network that contains the result of the request.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  std::future<SdkResponseType> executeAsync(const Client& client);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously with a specific timeout.
+   *
+   * @param client  The Client to use to submit this Executable.
+   * @param timeout The desired timeout for the execution of this Executable.
+   * @return The future SdkResponseType object sent from the Hedera network that contains the result of the request.
+   * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
+   * @throws PrecheckStatusException      If this Executable fails its pre-check.
+   * @throws UninitializedException       If the input Client has not yet been initialized.
+   */
+  virtual std::future<SdkResponseType> executeAsync(const Client& client,
+                                                    const std::chrono::system_clock::duration& timeout);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously and consume the response and/or exception with a
+   * callback.
+   *
+   * @param client   The Client to use to submit this Executable.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void executeAsync(const Client& client,
+                    const std::function<void(const SdkResponseType&, const std::exception&)>& callback);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously with a specific timeout and consume the response and/or
+   * exception with a callback.
+   *
+   * @param client   The Client to use to submit this Executable.
+   * @param timeout  The desired timeout for the execution of this Executable.
+   * @param callback The callback that should consume the response/exception.
+   */
+  void executeAsync(const Client& client,
+                    const std::chrono::system_clock::duration& timeout,
+                    const std::function<void(const SdkResponseType&, const std::exception&)>& callback);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously and consume the response and/or exception with separate
+   * callbacks.
+   *
+   * @param client            The Client to use to submit this Executable.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void executeAsync(const Client& client,
+                    const std::function<void(const SdkResponseType&)>& responseCallback,
+                    const std::function<void(const std::exception&)>& exceptionCallback);
+
+  /**
+   * Submit this Executable to a Hedera network asynchronously with a specific timeout and consume the response and/or
+   * exception with separate callbacks.
+   *
+   * @param client            The Client to use to submit this Executable.
+   * @param timeout           The desired timeout for the execution of this Executable.
+   * @param responseCallback  The callback that should consume the response.
+   * @param exceptionCallback The callback that should consume the exception.
+   */
+  void executeAsync(const Client& client,
+                    const std::chrono::system_clock::duration& timeout,
+                    const std::function<void(const SdkResponseType&)>& responseCallback,
+                    const std::function<void(const std::exception&)>& exceptionCallback);
+
+  /**
+   * Set the desired account IDs of nodes to which this request will be submitted.
    *
    * @param nodeAccountIds The desired list of account IDs of nodes to submit this request.
    * @return A reference to this Executable derived class with the newly-set node account IDs.
    */
-  SdkRequestType& setNodeAccountIds(const std::vector<AccountId>& nodeAccountIds);
+  virtual SdkRequestType& setNodeAccountIds(std::vector<AccountId> nodeAccountIds);
+
+  /**
+   * Set a callback to be called right before a request is sent. The callback will receive the request protobuf and the
+   * callback should return the same request protobuf. The callback has an opportunity to read, copy, or modify the
+   * request that will be sent.
+   *
+   * @param listener The request listener.
+   * @return A reference to this Executable derived class with the newly-set request listener.
+   */
+  SdkRequestType& setRequestListener(const std::function<ProtoRequestType(ProtoRequestType&)>& listener);
+
+  /**
+   * Set a callback to be called right before a response is returned. The callback will receive the response protobuf
+   * and the callback should return the same response protobuf. The callback has an opportunity to read, copy, or modify
+   * the response that will be used.
+   *
+   * @param listener The response listener.
+   * @return A reference to this Executable derived class with the newly-set response listener.
+   */
+  SdkRequestType& setResponseListener(const std::function<ProtoResponseType(ProtoResponseType&)>& listener);
 
   /**
    * Set the maximum number of times this Executable should try to resubmit itself after a failed attempt before it
@@ -114,7 +204,7 @@ public:
    * @throws std::invalid_argument If the desired minimum backoff duration is longer than the set maximum backoff time
    *                               (DEFAULT_MAX_BACKOFF if the maximum backoff time has not been set).
    */
-  SdkRequestType& setMinBackoff(const std::chrono::duration<double>& backoff);
+  SdkRequestType& setMinBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the maximum amount of time a Node should wait after this Executable failed to execute before being willing to
@@ -123,8 +213,19 @@ public:
    *
    * @param backoff The desired maximum amount of time this Executable should wait between retries.
    * @return A reference to this Executable derived class with the newly-set maximum backoff time.
+   * @throws std::invalid_argument If the desired maximum backoff duration is shorter than the set minimum backoff time
+   *                               (DEFAULT_MIN_BACKOFF if the minimum backoff time has not been set).
    */
-  SdkRequestType& setMaxBackoff(const std::chrono::duration<double>& backoff);
+  SdkRequestType& setMaxBackoff(const std::chrono::system_clock::duration& backoff);
+
+  /**
+   * Set the maximum amount of time this Executable should spend trying to execute a request before giving up on that
+   * request attempt. This will override the gRPC deadline of the Client used to submit this Executable.
+   *
+   * @param deadline The desired maximum amount of time this Executable should spend trying to execute one request.
+   * @return A reference to this Executable derived class with the newly-set gRPC deadline time.
+   */
+  SdkRequestType& setGrpcDeadline(const std::chrono::system_clock::duration& deadline);
 
   /**
    * Get the list of account IDs for nodes with which execution will be attempted.
@@ -146,24 +247,34 @@ public:
    * submit this Executable again.
    *
    * @return The minimum backoff time for Nodes for execution attempts of this Executable. Uninitialized value if not
-   * previously set.
+   *         previously set.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMinBackoff() const { return mMinBackoff; }
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getMinBackoff() const { return mMinBackoff; }
 
   /**
    * Get the maximum amount of time a Node should wait after this Executable failed to execute before being willing to
    * submit this Executable again.
    *
    * @return The maximum backoff time for Nodes for execution attempts of this Executable. Uninitialized value if not
-   * previously set.
+   *         previously set.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getMaxBackoff() const { return mMaxBackoff; }
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getMaxBackoff() const { return mMaxBackoff; }
+
+  /**
+   * Set the maximum amount of time this Executable should spend trying to execute a request before giving up on that
+   * request attempt.
+   *
+   * @return The maximum backoff time this Executable should spend on one submission attempt. Uninitialized value if not
+   *         previously set.
+   */
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getGrpcDeadline() const
+  {
+    return mGrpcDeadline;
+  }
 
 protected:
-  /**
-   * Prevent public copying and moving to prevent slicing. Use the 'clone()' virtual method instead.
-   */
   Executable() = default;
+  ~Executable() = default;
   Executable(const Executable&) = default;
   Executable& operator=(const Executable&) = default;
   Executable(Executable&&) noexcept = default;
@@ -189,19 +300,8 @@ protected:
     /**
      * The call was successful but an operation did not complete.
      */
-    RETRY,
-    /**
-     * The status of the request could not be determined, requires further processing.
-     */
-    UNKNOWN
+    RETRY
   };
-
-  /**
-   * Perform any needed actions for this Executable when a Node has been selected to which to submit this Executable.
-   *
-   * @param node The Node to which this Executable is being submitted.
-   */
-  virtual void onSelectNode([[maybe_unused]] const std::shared_ptr<internal::Node>& node);
 
   /**
    * Determine the ExecutionStatus of this Executable after being submitted.
@@ -217,15 +317,14 @@ protected:
 
 private:
   /**
-   * Construct a ProtoRequestType object from this Executable object.
+   * Construct a ProtoRequestType object from this Executable, based on the node account ID at the given index.
    *
-   * @param client The Client being used to submit this Executable.
-   * @param node   The Node to which this Executable will be sent.
-   * @return A ProtoRequestType object filled with this Executable object's data.
+   * @param index The index of the node account ID that's associated with the Node being used to execute this
+   *              Executable.
+   * @return A ProtoRequestType object filled with this Executable's data, based on the node account ID at the given
+   *         index.
    */
-  [[nodiscard]] virtual ProtoRequestType makeRequest(
-    [[maybe_unused]] const Client& client,
-    [[maybe_unused]] const std::shared_ptr<internal::Node>& node) const = 0;
+  [[nodiscard]] virtual ProtoRequestType makeRequest(unsigned int index) const = 0;
 
   /**
    * Construct an SdkResponseType from a ProtoResponseType object.
@@ -244,18 +343,18 @@ private:
   [[nodiscard]] virtual Status mapResponseStatus(const ProtoResponseType& response) const = 0;
 
   /**
-   * Submit this Executable to a Node.
+   * Submit a ProtoRequestType object which contains this Executable's data to a Node.
    *
-   * @param client   The Client submitting this Executable.
-   * @param deadline The deadline for submitting this Executable.
-   * @param node     Pointer to the Node to which this Executable should be submitted.
+   * @param request  The ProtoRequestType object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
    * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
    *                 from the gRPC server.
    * @return The gRPC status of the submission.
    */
-  [[nodiscard]] virtual grpc::Status submitRequest(const Client& client,
-                                                   const std::chrono::system_clock::time_point& deadline,
+  [[nodiscard]] virtual grpc::Status submitRequest(const ProtoRequestType& request,
                                                    const std::shared_ptr<internal::Node>& node,
+                                                   const std::chrono::system_clock::time_point& deadline,
                                                    ProtoResponseType* response) const = 0;
 
   /**
@@ -277,19 +376,43 @@ private:
   void setExecutionParameters(const Client& client);
 
   /**
-   * Get a Node from a list of Nodes to which to try and send this Executable. This will prioritize getting "healthy"
-   * Nodes first in order to ensure as little wait time to submit as possible.
+   * Get a list of Nodes that are on the input Client's Network that are being run by this Executable's node account
+   * IDs.
    *
-   * @param nodes The list of Nodes from which to select a Node.
+   * @param client The Client from which to get the list of Nodes.
+   * @return A list of Nodes that are being run by this Executable's node account IDs.
+   */
+  [[nodiscard]] std::vector<std::shared_ptr<internal::Node>> getNodesFromNodeAccountIds(const Client& client) const;
+
+  /**
+   * Get the index of a Node from a list of Nodes to which to try and send this Executable. This will prioritize getting
+   * "healthy" Nodes first in order to ensure as little wait time to submit as possible.
+   *
+   * @param nodes   The list of Nodes from which to select a Node.
+   * @param attempt The attempt number of trying to submit this Executable.
    * @return A pointer to a Node to which to try and send this Executable.
    */
-  [[nodiscard]] std::shared_ptr<internal::Node> getNodeForExecute(
-    const std::vector<std::shared_ptr<internal::Node>>& nodes) const;
+  [[nodiscard]] unsigned int getNodeIndexForExecute(const std::vector<std::shared_ptr<internal::Node>>& nodes,
+                                                    unsigned int attempt) const;
 
   /**
    * The list of account IDs of the nodes with which execution should be attempted.
    */
   std::vector<AccountId> mNodeAccountIds;
+
+  /**
+   * The callback to be called before a request is sent. The callback will receive the protobuf of the request and
+   * return the protobuf of the request. This allows the callback to read, copy, and/or modify the request that will be
+   * sent.
+   */
+  std::function<ProtoRequestType(ProtoRequestType&)> mRequestListener;
+
+  /**
+   * The callback to be called before a response is returned. The callback will receive the protobuf of the response and
+   * return the protobuf of the response. This allows the callback to read, copy, and/or modify the response that will
+   * be used.
+   */
+  std::function<ProtoResponseType(ProtoResponseType&)> mResponseListener;
 
   /**
    * The maximum number of attempts that will be made to submit this Executable. If not set, a submission will use the
@@ -301,38 +424,50 @@ private:
    * The minimum amount of time to wait between submission attempts. If not set, a submission will use the Client's set
    * minimum backoff. If that's not set, DEFAULT_MIN_BACKOFF will be used.
    */
-  std::optional<std::chrono::duration<double>> mMinBackoff;
+  std::optional<std::chrono::system_clock::duration> mMinBackoff;
 
   /**
    * The maximum amount of time to wait between submission attempts. If not set, a submission will use the Client's set
    * maximum backoff. If that's not set, DEFAULT_MAX_BACKOFF will be used.
    */
-  std::optional<std::chrono::duration<double>> mMaxBackoff;
+  std::optional<std::chrono::system_clock::duration> mMaxBackoff;
+
+  /**
+   * The timeout for one single execution attempt. If not set, a submission will use the Client's set gRPC deadline. If
+   * that's not set, DEFAULT_GRPC_DEADLINE will be used.
+   */
+  std::optional<std::chrono::system_clock::duration> mGrpcDeadline;
 
   /**
    * The maximum number of attempts to be used for an execution. This may be this Executable's mMaxAttempts, the
    * Client's max attempts, or DEFAULT_MAX_ATTEMPTS.
    */
-  uint32_t mCurrentMaxAttempts;
+  uint32_t mCurrentMaxAttempts = 0;
 
   /**
    * The minimum backoff to be used for an execution. This may be this Executable's mMinBackoff, the Client's set
    * minimum backoff, or DEFAULT_MIN_BACKOFF.
    */
-  std::chrono::duration<double> mCurrentMinBackoff;
+  std::chrono::system_clock::duration mCurrentMinBackoff = DEFAULT_MIN_BACKOFF;
 
   /**
    * The maximum backoff to be used for an execution. This may be this Executable's mMaxBackoff, the Client's set
    * maximum backoff, or DEFAULT_MAX_BACKOFF.
    */
-  std::chrono::duration<double> mCurrentMaxBackoff;
+  std::chrono::system_clock::duration mCurrentMaxBackoff = DEFAULT_MAX_BACKOFF;
 
   /**
    * The current backoff time being used during the current execution. Every failed submission attempt waits a certain
    * amount of time that is double the previous amount of time this Executable waited for its previous submission
    * attempt, up to the specified maximum backoff time, at which point the execution is considered a failure.
    */
-  std::chrono::duration<double> mCurrentBackoff;
+  std::chrono::system_clock::duration mCurrentBackoff = DEFAULT_MIN_BACKOFF;
+
+  /**
+   * The current gRPC deadline being used for the current execution. This may be the Executable's mGrpcDeadline, the
+   * Client's set gRPC deadline, or DEFAULT_GRPC_DEADLINE.
+   */
+  std::chrono::system_clock::duration mCurrentGrpcDeadline = DEFAULT_GRPC_DEADLINE;
 };
 
 } // namespace Hedera

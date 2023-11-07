@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -18,27 +18,144 @@
  *
  */
 #include "PublicKey.h"
-#include "ECDSAPublicKey.h"
+#include "AccountId.h"
+#include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
+#include "exceptions/BadKeyException.h"
+#include "impl/PublicKeyImpl.h"
+#include "impl/Utilities.h"
 
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
 {
-std::shared_ptr<PublicKey> PublicKey::fromProtobuf(const proto::Key& key)
+//-----
+PublicKey::~PublicKey() = default;
+
+//-----
+std::unique_ptr<PublicKey> PublicKey::fromStringDer(std::string_view key)
 {
-  if (key.key_case() == proto::Key::KeyCase::kEd25519)
+  if (key.find(ED25519PublicKey::DER_ENCODED_PREFIX_HEX) == 0UL)
   {
-    return ED25519PublicKey::fromBytes({ key.ed25519().cbegin(), key.ed25519().cend() });
+    return ED25519PublicKey::fromString(key);
   }
-  else if (key.key_case() == proto::Key::KeyCase::kECDSASecp256K1)
+
+  else if (key.find(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX) == 0UL)
   {
-    return ECDSAPublicKey::fromBytes({ key.ecdsa_secp256k1().cbegin(), key.ecdsa_secp256k1().cend() });
+    return ECDSAsecp256k1PublicKey::fromString(key);
+  }
+
+  throw BadKeyException("Key type cannot be determined from input DER-encoded hex string");
+}
+
+//-----
+std::unique_ptr<PublicKey> PublicKey::fromBytes(const std::vector<std::byte>& bytes)
+{
+  if (bytes.size() == ED25519PublicKey::KEY_SIZE)
+  {
+    return ED25519PublicKey::fromBytes(bytes);
+  }
+  else if (bytes.size() == ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE ||
+           bytes.size() == ECDSAsecp256k1PublicKey::UNCOMPRESSED_KEY_SIZE)
+  {
+    return ECDSAsecp256k1PublicKey::fromBytes(bytes);
+  }
+  else
+  {
+    return PublicKey::fromBytesDer(bytes);
+  }
+}
+
+//-----
+std::unique_ptr<PublicKey> PublicKey::fromBytesDer(const std::vector<std::byte>& bytes)
+{
+  if (internal::Utilities::isPrefixOf(bytes, ED25519PublicKey::DER_ENCODED_PREFIX_BYTES))
+  {
+    return ED25519PublicKey::fromBytes(bytes);
+  }
+
+  else if (internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES) ||
+           internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES))
+  {
+    return ECDSAsecp256k1PublicKey::fromBytes(bytes);
+  }
+
+  throw BadKeyException("Key type cannot be determined from input DER-encoded byte array");
+}
+
+//-----
+std::unique_ptr<PublicKey> PublicKey::fromAliasBytes(const std::vector<std::byte>& bytes)
+{
+  proto::Key protoKey;
+  protoKey.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+
+  if (std::unique_ptr<Key> key = Key::fromProtobuf(protoKey); auto* publicKey = dynamic_cast<PublicKey*>(key.get()))
+  {
+    key.release(); // NOLINT
+    return std::unique_ptr<PublicKey>(publicKey);
   }
   else
   {
     return nullptr;
   }
+}
+
+//-----
+AccountId PublicKey::toAccountId(uint64_t shard, uint64_t realm) const
+{
+  return AccountId(shard, realm, getShared());
+}
+
+//-----
+PublicKey::PublicKey(const PublicKey& other)
+  : mImpl(std::make_unique<PublicKeyImpl>(*other.mImpl))
+{
+}
+
+//-----
+PublicKey& PublicKey::operator=(const PublicKey& other)
+{
+  if (this != &other)
+  {
+    mImpl = std::make_unique<PublicKeyImpl>(*other.mImpl);
+  }
+
+  return *this;
+}
+
+//-----
+PublicKey::PublicKey(PublicKey&& other) noexcept
+  : mImpl(std::move(other.mImpl))
+{
+  // Leave the moved-from PublicKey in a valid state.
+  other.mImpl = std::make_unique<PublicKeyImpl>();
+}
+
+//-----
+PublicKey& PublicKey::operator=(PublicKey&& other) noexcept
+{
+  if (this != &other)
+  {
+    mImpl = std::move(other.mImpl);
+
+    // Leave the moved-from PublicKey in a valid state.
+    other.mImpl = std::make_unique<PublicKeyImpl>();
+  }
+
+  return *this;
+}
+
+//-----
+PublicKey::PublicKey(internal::OpenSSLUtils::EVP_PKEY&& key)
+  : mImpl(std::make_unique<PublicKeyImpl>())
+{
+  mImpl->mKey = std::move(key);
+}
+
+//-----
+internal::OpenSSLUtils::EVP_PKEY PublicKey::getInternalKey() const
+{
+  return mImpl->mKey;
 }
 
 } // namespace Hedera

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,15 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_DERIVATION_IMPL_PATH_UTILS_H_
-#define HEDERA_SDK_CPP_DERIVATION_IMPL_PATH_UTILS_H_
+#ifndef HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
+#define HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
 /**
- * Utility functions dealing with wallet derivation paths, as described in BIP32, BIP44, and SLIP10
+ * Utility functions dealing with wallet derivation paths, as described in BIP32, BIP44, and SLIP10.
  */
 namespace Hedera::internal::DerivationPathUtils
 {
@@ -47,13 +48,13 @@ bool isHardenedChildIndex(uint32_t index);
 uint32_t getHardenedIndex(uint32_t index);
 
 /**
- * Converts unsigned 32 bit int index into big endian byte array (direct implementation of ser32 function from BIP 32)
+ * Converts a uint32_t index into a big endian byte array (direct implementation of ser32 function from BIP 32)
  *
  * @param childIndex The index to convert to a big endian byte array.
  * @return The big endian byte array representing the child index.
  */
-std::vector<unsigned char> indexToBigEndianArray(uint32_t childIndex);
+std::vector<std::byte> indexToBigEndianArray(uint32_t childIndex);
 
 }; // namespace Hedera::internal::DerivationPathUtils
 
-#endif // HEDERA_SDK_CPP_DERIVATION_IMPL_PATH_UTILS_H_
+#endif // HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_

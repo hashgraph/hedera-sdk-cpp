@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,11 @@
 #include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "Hbar.h"
-#include "PrivateKey.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
 #include <iostream>
-#include <memory>
 
 using namespace Hedera;
 
@@ -44,7 +42,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  const auto operatorId = AccountId(argv[1]);
+  const AccountId operatorId = AccountId::fromString(argv[1]);
   client.setOperator(operatorId, ED25519PrivateKey::fromString(argv[2]));
 
   const auto recipientId = AccountId(3ULL);
@@ -59,8 +57,8 @@ int main(int argc, char** argv)
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
 
   TransactionResponse txResponse = TransferTransaction()
-                                     .addUnapprovedHbarTransfer(operatorId, amount.negated())
-                                     .addUnapprovedHbarTransfer(recipientId, amount)
+                                     .addHbarTransfer(operatorId, amount.negated())
+                                     .addHbarTransfer(recipientId, amount)
                                      .setTransactionMemo("transfer test")
                                      .execute(client);
 
@@ -75,7 +73,7 @@ int main(int argc, char** argv)
             << std::endl;
   std::cout << "Recipient balance after transfer: " << recipientBalanceAfter.toTinybars()
             << HbarUnit::TINYBAR().getSymbol() << std::endl;
-  std::cout << "Transfer memo: " << txRecord.getTransactionMemo() << std::endl;
+  std::cout << "HbarTransfer memo: " << txRecord.mMemo << std::endl;
 
   return 0;
 }

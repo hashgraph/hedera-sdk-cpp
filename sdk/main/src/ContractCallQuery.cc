@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@
  *
  */
 #include "ContractCallQuery.h"
-
 #include "ContractFunctionResult.h"
+#include "impl/Node.h"
+#include "impl/Utilities.h"
 
-#include <proto/contract_call.pb.h>
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
@@ -29,118 +29,85 @@
 namespace Hedera
 {
 //-----
-ContractCallQuery::ContractCallQuery()
-  : mContractId()
-  , mGas(0)
-  , mFunctionParameters()
-  , mSenderAccountId()
+ContractCallQuery& ContractCallQuery::setFunction(std::string_view name, const ContractFunctionParameters& parameters)
 {
-}
-
-//-----
-void
-ContractCallQuery::validateChecksums(const Client& client) const
-{
-  if (mContractId.isValid())
-  {
-    mContractId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void
-ContractCallQuery::onMakeRequest(proto::Query* query,
-                                 proto::QueryHeader* header) const
-{
-  proto::ContractCallLocalQuery* contractQuery =
-    query->mutable_contractcalllocal();
-
-  if (mContractId.isValid())
-  {
-    contractQuery->set_allocated_contractid(
-      mContractId.getValue().toProtobuf());
-  }
-
-  contractQuery->set_gas(mGas);
-  contractQuery->set_functionparameters(mFunctionParameters);
-
-  if (mSenderAccountId.isValid())
-  {
-    contractQuery->set_allocated_sender_id(
-      mSenderAccountId.getValue().toProtobuf());
-  }
-}
-
-//-----
-proto::ResponseHeader
-ContractCallQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->contractcalllocal().header();
-}
-
-//-----
-proto::QueryHeader
-ContractCallQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.contractcalllocal().header();
-}
-
-//-----
-ContractFunctionResult
-ContractCallQuery::mapResponse(const proto::Response& response,
-                               const AccountId& accountId,
-                               const proto::Query& query) const
-{
-  return ContractFunctionResult::fromProtobuf(
-    response.contractcalllocal().functionresult());
-}
-
-//-----
-ContractCallQuery&
-ContractCallQuery::setContractId(const ContractId& contractId)
-{
-  mContractId.setValue(contractId);
+  setFunctionParameters(parameters.toBytes(name));
   return *this;
 }
 
 //-----
-ContractCallQuery&
-ContractCallQuery::setGas(const int64_t& gas)
+ContractCallQuery& ContractCallQuery::setContractId(const ContractId& contractId)
+{
+  mContractId = contractId;
+  return *this;
+}
+
+//-----
+ContractCallQuery& ContractCallQuery::setGas(const uint64_t& gas)
 {
   mGas = gas;
   return *this;
 }
 
 //-----
-ContractCallQuery&
-ContractCallQuery::setFunctionParameters(const std::string& functionParameters)
+ContractCallQuery& ContractCallQuery::setFunctionParameters(const std::vector<std::byte>& functionParameters)
 {
   mFunctionParameters = functionParameters;
   return *this;
 }
 
 //-----
-ContractCallQuery&
-ContractCallQuery::setFunction(const std::string& name)
+ContractCallQuery& ContractCallQuery::setSenderAccountId(const AccountId& accountId)
 {
-  return setFunction(name, ContractFunctionParameters());
-}
-
-//-----
-ContractCallQuery&
-ContractCallQuery::setFunction(const std::string& name,
-                               const ContractFunctionParameters& params)
-{
-  setFunctionParameters(params.toByteArray(name));
+  mSenderAccountId = accountId;
   return *this;
 }
 
 //-----
-ContractCallQuery&
-ContractCallQuery::setSenderAccountId(const AccountId& senderAccountId)
+ContractFunctionResult ContractCallQuery::mapResponse(const proto::Response& response) const
 {
-  mSenderAccountId.setValue(senderAccountId);
-  return *this;
+  return ContractFunctionResult::fromProtobuf(response.contractcalllocal().functionresult());
+}
+
+//-----
+grpc::Status ContractCallQuery::submitRequest(const proto::Query& request,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              proto::Response* response) const
+{
+  return node->submitQuery(proto::Query::QueryCase::kContractCallLocal, request, deadline, response);
+}
+
+//-----
+void ContractCallQuery::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+}
+
+//-----
+proto::Query ContractCallQuery::buildRequest(proto::QueryHeader* header) const
+{
+  auto contractCallQuery = std::make_unique<proto::ContractCallLocalQuery>();
+  contractCallQuery->set_allocated_header(header);
+  contractCallQuery->set_allocated_contractid(mContractId.toProtobuf().release());
+  contractCallQuery->set_gas(static_cast<int64_t>(mGas));
+  contractCallQuery->set_functionparameters(internal::Utilities::byteVectorToString(mFunctionParameters));
+
+  if (mSenderAccountId.has_value())
+  {
+    contractCallQuery->set_allocated_sender_id(mSenderAccountId->toProtobuf().release());
+  }
+
+  proto::Query query;
+  query.set_allocated_contractcalllocal(contractCallQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader ContractCallQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.contractcalllocal().header());
+  return response.contractcalllocal().header();
 }
 
 } // namespace Hedera

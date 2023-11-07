@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,111 +17,96 @@
  * limitations under the License.
  *
  */
-#ifndef CONTRACT_BYTE_CODE_QUERY_H_
-#define CONTRACT_BYTE_CODE_QUERY_H_
+#ifndef HEDERA_SDK_CPP_CONTRACT_BYTE_CODE_QUERY_H_
+#define HEDERA_SDK_CPP_CONTRACT_BYTE_CODE_QUERY_H_
 
 #include "ContractId.h"
 #include "Query.h"
 
-#include "helper/InitType.h"
-
-#include <string>
-
-namespace Hedera
-{
-class Client;
-}
-
-namespace proto
-{
-class Query;
-class QueryHeader;
-class Response;
-class ResponseHeader;
-}
+#include <cstddef>
+#include <vector>
 
 namespace Hedera
 {
 /**
- * Get the bytecode for a smart contract instance.
+ * A query that returns the bytecode for a smart contract instance. Anyone can request the byte code of a smart contract
+ * instance on the network. Queries do not change the state of the smart contract or require network consensus. The
+ * information is returned from a single node processing the query.
  */
-class ContractByteCodeQuery : public Query<std::string, ContractByteCodeQuery>
+using ContractByteCode = std::vector<std::byte>;
+class ContractByteCodeQuery : public Query<ContractByteCodeQuery, ContractByteCode>
 {
 public:
   /**
-   * Constructor.
-   */
-  ContractByteCodeQuery();
-
-  /**
-   * Derived from Query. Validate the checksums.
+   * Set the ID of the contract of which to request the byte code.
    *
-   * @param client The client with which to validate the checksums.
-   */
-  virtual void validateChecksums(const Client& client) const override;
-
-  /**
-   * Derived from Query. Fills query with this class's data and attaches the
-   * header.
-   *
-   * @param query  The query object to fill out.
-   * @param header The header for the query.
-   */
-  virtual void onMakeRequest(proto::Query* query,
-                             proto::QueryHeader* header) const override;
-
-  /**
-   * Derived from Query. Get the contract byte code header from the response.
-   *
-   * @param response The associated response to this query.
-   * @return         The response header for the contract byte code query.
-   */
-  virtual proto::ResponseHeader mapResponseHeader(
-    proto::Response* response) const override;
-
-  /**
-   * Derived from Query. Grab the contract byte code query header.
-   *
-   * @param query  The query of which to extract the header.
-   * @return       The account info query header.
-   */
-  virtual proto::QueryHeader mapRequestHeader(
-    const proto::Query& query) const override;
-
-  /**
-   * Derived from Query. Extract the contract byte code data from the response
-   * object.
-   *
-   * @param response  The received response from Hedera.
-   * @param accountId The account ID that made the request.
-   * @param query     The original query.
-   * @return          The contract byte code data.
-   */
-  virtual std::string mapResponse(const proto::Response& response,
-                                  const AccountId& accountId,
-                                  const proto::Query& query) const override;
-
-  /**
-   * Sets the contract ID for which information is requested.
-   *
-   * @param contractId The contract ID to be set.
-   * @return           Reference to this ContractByteCodeQuery object.
+   * @param contractId The ID of the contract of which to request the byte code.
+   * @return A reference to this ContractByteCodeQuery object with the newly-set contract ID.
    */
   ContractByteCodeQuery& setContractId(const ContractId& contractId);
 
   /**
-   * Extract the contract ID.
+   * Get the ID of the contract of which this query is currently configured to get the byte code.
    *
-   * @return The contract ID. Can be invalid if not set.
+   * @return The ID of the contract for which this query is meant.
    */
-  inline InitType<ContractId> getContractId() { return mContractId; }
+  [[nodiscard]] inline ContractId getContractId() const { return mContractId; }
 
 private:
   /**
-   * The contract ID of the contract for which information is requested.
+   * Derived from Executable. Construct a ContractByteCode object from a Response protobuf object.
+   *
+   * @param response The Response protobuf object from which to construct a ContractByteCode object.
+   * @return A ContractByteCode object filled with the Response protobuf object's data
    */
-  InitType<ContractId> mContractId;
+  [[nodiscard]] ContractByteCode mapResponse(const proto::Response& response) const override;
+
+  /**
+   * Derived from Executable. Submit a Query protobuf object which contains this ContractByteCodeQuery's data to a Node.
+   *
+   * @param request  The Query protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const proto::Query& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::Response* response) const override;
+
+  /**
+   * Derived from Query. Verify that all the checksums in this ContractByteCodeQuery are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This ContractByteCodeQuery's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
+  /**
+   * Derived from Query. Build a Query protobuf object with this ContractByteCodeQuery's data, with the input
+   * QueryHeader protobuf object.
+   *
+   * @param header A pointer to the QueryHeader protobuf object to add to the Query protobuf object.
+   * @return The constructed Query protobuf object.
+   */
+  [[nodiscard]] proto::Query buildRequest(proto::QueryHeader* header) const override;
+
+  /**
+   * Derived from Query. Get the ResponseHeader protobuf object from the input Response protobuf object.
+   *
+   * @param response The Response protobuf object from which to get the ResponseHeader protobuf object.
+   * @return The ResponseHeader protobuf object of the input Response protobuf object for this derived Query.
+   */
+  [[nodiscard]] proto::ResponseHeader mapResponseHeader(const proto::Response& response) const override;
+
+  /**
+   * The ID of the contract of which this query should get the byte code.
+   */
+  ContractId mContractId;
 };
+
 } // namespace Hedera
 
-#endif // CONTRACT_BYTE_CODE_QUERY_H_
+#endif // HEDERA_SDK_CPP_CONTRACT_BYTE_CODE_QUERY_H_

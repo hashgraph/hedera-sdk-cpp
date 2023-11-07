@@ -1,0 +1,126 @@
+/*-
+ *
+ * Hedera C++ SDK
+ *
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#include "AccountId.h"
+#include "Client.h"
+#include "ECDSAsecp256k1PrivateKey.h"
+#include "ECDSAsecp256k1PublicKey.h"
+#include "ED25519PrivateKey.h"
+#include "EvmAddress.h"
+#include "Hbar.h"
+#include "TransactionReceipt.h"
+#include "TransactionReceiptQuery.h"
+#include "TransactionResponse.h"
+#include "TransferTransaction.h"
+
+#include <iostream>
+#include <memory>
+
+using namespace Hedera;
+
+int main(int argc, char** argv)
+{
+  if (argc < 3)
+  {
+    std::cout << "Please input account ID and private key" << std::endl;
+    return 1;
+  }
+
+  const AccountId operatorAccountId = AccountId::fromString(argv[1]);
+  const std::shared_ptr<ED25519PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(argv[2]);
+
+  /**
+   * Auto-create a new account using a public-address via a `TransferTransaction`. Reference: [HIP-583 Expand alias
+   * support in CryptoCreate & CryptoTransfer Transactions](https://hips.hedera.com/hip/hip-583)
+   *
+   * - Create an ECSDA private key.
+   * - Extract the ECDSA public key.
+   * - Extract the Ethereum public address.
+   * - Use the `TransferTransaction`.
+   *    - Populate the `FromAddress` with the sender Hedera account ID.
+   *    - Populate the `ToAddress` with Ethereum public address.
+   *    - Note: Can transfer from public address to public address in the `TransferTransaction` for complete accounts.
+   *            Transfers from hollow accounts will not work because the hollow account does not have a public key
+   *            assigned to authorize transfers out of the account.
+   * - Sign the `TransferTransaction` transaction using an existing Hedera account and key paying for the transaction
+   *   fee.
+   * - The `AccountCreateTransaction` is executed as a child transaction triggered by the `TransferTransaction`.
+   * - The Hedera account that was created has a public address the user specified in the TransferTransaction ToAddress.
+   *    - Will not have a public key at this stage.
+   *    - Cannot do anything besides receive tokens or hbars.
+   *    - The alias property of the account does not have the public address.
+   *    - Referred to as a hollow account.
+   * - To get the new account ID ask for the child receipts or child records for the parent transaction ID of the
+   *   `TransferTransaction`.
+   * - Get the `AccountInfo` and verify the account is a hollow account with the supplied public address (may need to
+   *   verify with mirror node API).
+   * - To enhance the hollow account to have a public key the hollow account needs to be specified as a transaction fee
+   *   payer in a HAPI transaction.
+   * - Create a HAPI transaction and assign the new hollow account as the transaction fee payer.
+   * - Sign with the private key that corresponds to the public key on the hollow account.
+   * - Get the `AccountInfo` for the account and return the public key on the account to show it is a complete account.
+   */
+
+  // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
+  // will be paid for by this account and be signed by this key.
+  Client client = Client::forTestnet();
+  client.setOperator(operatorAccountId, operatorPrivateKey);
+
+  /**
+   * Step 1: Create an ECSDA private key.
+   */
+  const std::unique_ptr<ECDSAsecp256k1PrivateKey> privateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+
+  /**
+   * Step 2: Extract the ECDSA public key.
+   */
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKey =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(privateKey->getPublicKey());
+
+  /**
+   * Step 3: Extract the Ethereum public address.
+   */
+  const EvmAddress evmAddress = publicKey->toEvmAddress();
+
+  /**
+   * Step 4: Use the `TransferTransaction` and set the EVM address field to the Ethereum public address
+   */
+  TransferTransaction transferTransaction = TransferTransaction()
+                                              .addHbarTransfer(operatorAccountId, Hbar(10LL).negated())
+                                              .addHbarTransfer(AccountId::fromEvmAddress(evmAddress), Hbar(10LL))
+                                              .freezeWith(&client);
+
+  /**
+   * Step 5: Sign the `TransferTransaction` transaction using an existing Hedera account and key paying for the
+   *         transaction fee.
+   */
+  const TransactionResponse response = transferTransaction.execute(client);
+
+  /**
+   * Step 6: To get the new account ID, ask for the child receipts or child records for the parent transaction ID of the
+   *         `TransferTransaction` (the `AccountCreateTransaction` is executed as a child transaction triggered by the
+   *         `TransferTransaction`).
+   */
+  const TransactionReceipt receipt =
+    TransactionReceiptQuery().setTransactionId(response.mTransactionId).setIncludeChildren(true).execute(client);
+
+  const AccountId newAccountId = receipt.mChildren.at(0).mAccountId.value();
+
+  return 0;
+}

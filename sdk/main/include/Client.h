@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,26 @@
 #define HEDERA_SDK_CPP_CLIENT_H_
 
 #include <chrono>
+#include <filesystem>
+#include <functional>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <optional>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace Hedera
 {
 namespace internal
 {
-class Node;
+class MirrorNetwork;
+class Network;
 }
 class AccountId;
 class Hbar;
+class LedgerId;
 class PrivateKey;
 class PublicKey;
 }
@@ -62,11 +70,74 @@ public:
   Client& operator=(Client&& other) noexcept;
 
   /**
+   * Construct a Client pre-configured for a specific Hedera network.
+   *
+   * @param networkMap The map with string representation of node addresses with their corresponding accountId.
+   * @return A reference to this Client object with the newly-set operator account ID from the map.
+   */
+  [[nodiscard]] static Client forNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
+
+  /**
+   * Construct a Client by a name. The name must be one of "mainnet", "testnet", or "previewnet", otherwise this will
+   * throw std::invalid_argument.
+   *
+   * @param name The name of the Client to construct.
+   * @return A Client object that is set-up to communicate with the input network name.
+   */
+  [[nodiscard]] static Client forName(std::string_view name);
+
+  /**
+   * Construct a Client pre-configured for Hedera Mainnet access.
+   *
+   * @return A Client object that is set-up to communicate with the Hedera Mainnet.
+   */
+  [[nodiscard]] static Client forMainnet();
+
+  /**
    * Construct a Client pre-configured for Hedera Testnet access.
    *
    * @return A Client object that is set-up to communicate with the Hedera Testnet.
    */
-  static Client forTestnet();
+  [[nodiscard]] static Client forTestnet();
+
+  /**
+   * Construct a Client pre-configured for Hedera Previewnet access.
+   *
+   * @return A Client object that is set-up to communicate with the Hedera Previewnet.
+   */
+  [[nodiscard]] static Client forPreviewnet();
+
+  /**
+   * Construct a Client from a JSON configuration string.
+   *
+   * @param json The JSON configuration string.
+   * @return A Client object initialized with the properties specified in the JSON configuration string.
+   */
+  [[nodiscard]] static Client fromConfig(std::string_view json);
+
+  /**
+   * Construct a Client from a JSON configuration object.
+   *
+   * @param json The JSON configuration object.
+   * @return A Client object initialized with the properties specified in the JSON configuration object.
+   */
+  [[nodiscard]] static Client fromConfig(const nlohmann::json& json);
+
+  /**
+   * Construct a Client from a JSON configuration file.
+   *
+   * @param path The filepath to the JSON configuration file.
+   * @return A Client object initialized with the properties specified in the JSON configuration file.
+   */
+  [[nodiscard]] static Client fromConfigFile(std::string_view path);
+
+  /**
+   * Set the mirror network with which this Client should communicate.
+   *
+   * @param network The list of IPs and ports of the mirror nodes with which this Client should communicate.
+   * @return A reference to this Client object with the newly-set mirror network.
+   */
+  Client& setMirrorNetwork(const std::vector<std::string>& network);
 
   /**
    * Set the account that will, by default, be paying for requests submitted by this Client. The operator account ID is
@@ -74,40 +145,26 @@ public:
    * key is used to sign all transactions executed by this Client.
    *
    * @param accountId  The account ID of the operator.
-   * @param privateKey Pointer to the private key of the operator. This transfers ownership of the pointed-to PrivateKey
-   *                   to this Client.
+   * @param privateKey Pointer to the private key of the operator.
    * @return A reference to this Client object with the newly-set operator account ID and private key.
    */
-  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>& privateKey);
-  Client& setOperator(const AccountId& accountId, std::unique_ptr<PrivateKey>&& privateKey);
+  Client& setOperator(const AccountId& accountId, const std::shared_ptr<PrivateKey>& privateKey);
 
   /**
-   * Sign an arbitrary array of bytes with this Client's operator.
-   *
-   * @param bytes The bytes for this Client's operator to sign.
-   * @return The bytes with the signature of this Client's operator appended.
-   * @throws std::runtime_error If no client operator has been set.
-   */
-  [[nodiscard]] std::vector<unsigned char> sign(const std::vector<unsigned char>& bytes) const;
-
-  /**
-   * Get a list of pointers to Nodes on this Client's network that are associated with the input account IDs. If no
-   * account IDs are specified, this returns the list a list of pointers to all nodes in this Client's network.
-   *
-   * @param accountIds The account IDs of the requested nodes. This can be empty to get all Nodes.
-   * @return A list of pointers to Nodes that are associated with the requested account IDs.
-   * @throws std::runtime_error If no client network has been initialized.
-   */
-  [[nodiscard]] std::vector<std::shared_ptr<internal::Node>> getNodesWithAccountIds(
-    const std::vector<AccountId>& accountIds) const;
-
-  /**
-   * Initiate an orderly shutdown of communications with the network with which this Client was configured to
+   * Initiate an orderly close of communications with the network with which this Client was configured to
    * communicate. Preexisting transactions or queries continue but subsequent calls would be immediately cancelled.
    *
    * After this method returns, this Client can be re-used. All network communication can be re-established as needed.
    */
-  void close() const;
+  void close();
+
+  /**
+   * Replace all nodes in this Client with a new set of nodes from the Hedera network.
+   *
+   * @param networkMap The map with string representation of node addresses with their corresponding accountId.
+   * @return A reference to this Client object with the newly-set operator account ID from the map.
+   */
+  Client& setNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
 
   /**
    * Set the length of time a request sent by this Client can be processed before it times out.
@@ -115,7 +172,7 @@ public:
    * @param timeout The desired timeout for requests submitted by this Client.
    * @return A reference to this Client object with the newly-set request timeout.
    */
-  Client& setRequestTimeout(const std::chrono::duration<double>& timeout);
+  Client& setRequestTimeout(const std::chrono::system_clock::duration& timeout);
 
   /**
    * Set the maximum transaction fee willing to be paid for transactions executed by this Client. Every request
@@ -127,6 +184,17 @@ public:
    * @throws std::invalid_argument If the transaction fee is negative.
    */
   Client& setMaxTransactionFee(const Hbar& fee);
+
+  /**
+   * Set the maximum query payment willing to be paid for transactions executed by this Client. Every request submitted
+   * with this Client will have its maximum query payment overwritten by this Client's maximum query payment if and only
+   * if it has not been set manually in the request itself.
+   *
+   * @param payment The desired maximum query payment willing to be paid for queries submitted by this Client.
+   * @return A reference to this Client object with the newly-set maximum query payment.
+   * @throws std::invalid_argument If the query payment is negative.
+   */
+  Client& setMaxQueryPayment(const Hbar& payment);
 
   /**
    * Set the transaction ID regeneration policy for transactions executed by this Client. Every transaction submitted
@@ -160,7 +228,7 @@ public:
    * @throws std::invalid_argument If the desired minimum backoff duration is longer than the set maximum backoff time
    *                               (DEFAULT_MAX_BACKOFF if the maximum backoff time has not been set).
    */
-  Client& setMinBackoff(const std::chrono::duration<double>& backoff);
+  Client& setMinBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the maximum amount of time this Client should wait before attempting to resubmit a previously failed request to
@@ -173,12 +241,57 @@ public:
    * @throws std::invalid_argument If the desired maximum backoff duration is shorter than the set minimum backoff time
    *                               (DEFAULT_MIN_BACKOFF if the minimum backoff time has not been set).
    */
-  Client& setMaxBackoff(const std::chrono::duration<double>& backoff);
+  Client& setMaxBackoff(const std::chrono::system_clock::duration& backoff);
+
+  /**
+   * Set the maximum amount of time this Client should spend trying to execute a request before giving up on that
+   * request attempt. Every request submitted with this Client will have its gRPC deadline overwritten by this Client's
+   * gRPC deadline if and only if it has not been set manually in the request itself.
+   *
+   * @param deadline The desired maximum amount of time this requests submitted by this Client should spend trying to
+   *                 execute.
+   * @return A reference to this Client with the newly-set gRPC deadline.
+   */
+  Client& setGrpcDeadline(const std::chrono::system_clock::duration& deadline);
+
+  /**
+   * Set the period of time this Client wait between updating its network. This will immediately cancel any scheduled
+   * network updates and start a new waiting period.
+   *
+   * @param update The period of time this Client wait between updating its network.
+   * @return A reference to this Client with the newly-set network update period.
+   */
+  Client& setNetworkUpdatePeriod(const std::chrono::system_clock::duration& update);
+
+  /**
+   * Set the automatic entity checksum validation policy.
+   *
+   * @param validate \c TRUE if this Client should validate entity checksums when submitting Executables, otherwise \c
+   *                 FALSE.
+   * @return A reference to this Client with the newly-set automatic entity checksum validation policy.
+   */
+  Client& setAutoValidateChecksums(bool validate);
+
+  /**
+   * Set the ID of the ledger of this Client's Network. Useful when constructing a Network which is a subset of an
+   * existing known network. Does nothing if the Client's Network is not yet initialized.
+   *
+   * @param ledgerId The LedgerId to set.
+   * @return A reference to this Client with the newly-set ledger ID.
+   */
+  Client& setLedgerId(const LedgerId& ledgerId);
+
+  /**
+   * Get a pointer to the Network this Client is using to communicate with consensus nodes.
+   *
+   * @return A pointer to the Network this Client is using to communicate with consensus nodes.
+   */
+  [[nodiscard]] std::shared_ptr<internal::Network> getNetwork() const;
 
   /**
    * Get the account ID of this Client's operator.
    *
-   * @return The set account ID of this Client's operator. Uninitialized if the operator has not yet been set.
+   * @return The account ID of this Client's operator. Uninitialized if the operator has not yet been set.
    */
   [[nodiscard]] std::optional<AccountId> getOperatorAccountId() const;
 
@@ -187,7 +300,14 @@ public:
    *
    * @return A pointer to the public key of this Client's operator. Nullptr if the operator has not yet been set.
    */
-  [[nodiscard]] std::unique_ptr<PublicKey> getOperatorPublicKey() const;
+  [[nodiscard]] std::shared_ptr<PublicKey> getOperatorPublicKey() const;
+
+  /**
+   * Get the signer function of this Client's operator.
+   *
+   * @return The signer function of this Client's operator.
+   */
+  [[nodiscard]] std::function<std::vector<std::byte>(const std::vector<std::byte>&)> getOperatorSigner() const;
 
   /**
    * Get the length of time a request sent by this Client can be processed before it times out.
@@ -195,7 +315,7 @@ public:
    * @return The request timeout duration. Defaults to 2 minutes if this value has not been set with
    *         setRequestTimeout().
    */
-  [[nodiscard]] std::chrono::duration<double> getRequestTimeout() const;
+  [[nodiscard]] std::chrono::system_clock::duration getRequestTimeout() const;
 
   /**
    * Get the maximum transaction fee willing to be paid for transactions submitted by this Client.
@@ -204,6 +324,13 @@ public:
    *         set.
    */
   [[nodiscard]] std::optional<Hbar> getMaxTransactionFee() const;
+
+  /**
+   * Get the maximum payment willing to be paid for queries submitted by this Client.
+   *
+   * @return The maximum query payment willing to be paid by this Client. Uninitialized if the fee has not yet been set.
+   */
+  [[nodiscard]] std::optional<Hbar> getMaxQueryPayment() const;
 
   /**
    * Get the transaction ID regeneration policy for transactions submitted by this Client.
@@ -226,9 +353,9 @@ public:
    * the same node.
    *
    * @return The minimum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
-   * not previously set.
+   *         not previously set.
    */
-  [[nodiscard]] std::optional<std::chrono::duration<double>> getMinBackoff() const;
+  [[nodiscard]] std::optional<std::chrono::system_clock::duration> getMinBackoff() const;
 
   /**
    * Get the maximum amount of time this Client should wait before attempting to resubmit a previously failed request to
@@ -237,9 +364,72 @@ public:
    * @return The maximum backoff time for Nodes for unsuccessful requests sent by this Client. Uninitialized value if
    *         not previously set.
    */
-  [[nodiscard]] std::optional<std::chrono::duration<double>> getMaxBackoff() const;
+  [[nodiscard]] std::optional<std::chrono::system_clock::duration> getMaxBackoff() const;
+
+  /**
+   * Get the maximum amount of time this Client should spend trying to execute a request before giving up on that
+   * request attempt.
+   *
+   * @return  The maximum amount of time this requests submitted by this Client should spend trying to execute.
+   *          Uninitialized value if not previously set.
+   */
+  [[nodiscard]] std::optional<std::chrono::system_clock::duration> getGrpcDeadline() const;
+
+  /**
+   * Get the period of time this Client wait between updating its network.
+   *
+   * @return The period of time this Client wait between updating its network.
+   */
+  [[nodiscard]] std::chrono::system_clock::duration getNetworkUpdatePeriod() const;
+
+  /**
+   * Is automatic entity checksum validation turned on for this Client?
+   *
+   * @return \c TRUE if automatic entity checksum validation is turned on, otherwise \c FALSE.
+   */
+  [[nodiscard]] bool isAutoValidateChecksumsEnabled() const;
+
+  /**
+   * Get the ID of the ledger on which this Client's Network is running.
+   *
+   * @returns The ID of the ledger on which this Client's Network is running.
+   * @throws UninitializedException If this Client does not have a Network initialized.
+   */
+  [[nodiscard]] LedgerId getLedgerId() const;
+
+  /**
+   * Get a pointer to the MirrorNetwork being used by this client.
+   *
+   * @return A pointer to the MirrorNetwork being used by this client.
+   */
+  [[nodiscard]] std::shared_ptr<internal::MirrorNetwork> getMirrorNetwork() const;
 
 private:
+  /**
+   * Start the network update thread.
+   *
+   * @param period The period of time to wait before a network update is performed.
+   */
+  void startNetworkUpdateThread(const std::chrono::system_clock::duration& period);
+
+  /**
+   * Schedule a network update.
+   */
+  void scheduleNetworkUpdate();
+
+  /**
+   * Cancel any scheduled network updates.
+   */
+  void cancelScheduledNetworkUpdate();
+
+  /**
+   * Helper function used for moving a Client implementation into this Client, as well as doing network update thread
+   * handling.
+   *
+   * @param other The Client to move into this Client.
+   */
+  void moveClient(Client&& other);
+
   /**
    * Implementation object used to hide implementation details and internal headers.
    */

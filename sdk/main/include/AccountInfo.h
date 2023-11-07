@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,22 +17,20 @@
  * limitations under the License.
  *
  */
-#ifndef ACCOUNT_INFO_H_
-#define ACCOUNT_INFO_H_
+#ifndef HEDERA_SDK_CPP_ACCOUNT_INFO_H_
+#define HEDERA_SDK_CPP_ACCOUNT_INFO_H_
 
 #include "AccountId.h"
+#include "EvmAddress.h"
 #include "Hbar.h"
+#include "Key.h"
 #include "LedgerId.h"
-#include "LiveHash.h"
-#include "PublicKey.h"
 #include "StakingInfo.h"
 
-#include "helper/InitType.h"
-
 #include <chrono>
+#include <memory>
+#include <optional>
 #include <string>
-#include <vector>
-#include <memory.h>
 
 namespace proto
 {
@@ -42,169 +40,105 @@ class CryptoGetInfoResponse_AccountInfo;
 namespace Hedera
 {
 /**
- * Current information about an account, including the balance.
+ * Response from a Hedera network when the client sends an AccountInfoQuery.
  */
 class AccountInfo
 {
 public:
   /**
-   * Constructor
-   */
-  AccountInfo();
-
-  /**
-   * Construct with initialization values.
+   * Construct an AccountInfo object from a CryptoGetInfoResponse_AccountInfo protobuf object.
    *
-   * @param accountId         The account ID of the account.
-   * @param contractAccountId The account ID and the contract instance.
-   * @param isDeleted         \c TRUE if this account is deleted, otherwise
-   *                          \c FALSE
-   * @param proxyReceived     The proxy staked to this account.
-   * @param key               The key for this account.
-   * @param balance           The balance for this account.
-   * @param receiverSignatureRequired \c TRUE if a signature is required to
-   *                                  receive, otherwise \c FALSE
-   * @param expirationTime  The nanoseconds from the epoch at which this account
-   *                        will expire.
-   * @param autoRenewPeriod The duration with which this account tries to renew.
-   * @param liveHashes      The livehashes for this account.
-   * @param accountMemo     The memorandum for this account.
-   * @param ownedNfts       The number of NFTs owned by this account.
-   * @param maxAutomaticTokenAssociations The max number of token associations.
-   * @param aliasKey      The public key which aliases to this account.
-   * @param ledgerId      The ledger ID from which the response is generated.
-   * @param ethereumNonce The etheruem nonce associated with this account.
-   * @param stakingInfo   The staking metadata for this account.
+   * @param proto The CryptoGetInfoResponse_AccountInfo protobuf object from which to construct an AccountInfo object.
+   * @return The constructed AccountInfo object.
    */
-  AccountInfo(const AccountId& accountId,
-              const std::string& contractAccountId,
-              bool isDeleted,
-              const long long& proxyReceived,
-              const std::shared_ptr<PublicKey> key,
-              const long long& balance,
-              bool receiverSignatureRequired,
-              const std::chrono::nanoseconds& expirationTime,
-              const std::chrono::seconds& autoRenewPeriod,
-              const std::vector<LiveHash>& liveHashes,
-              const std::string& accountMemo,
-              const unsigned long long& ownedNfts,
-              unsigned int maxAutomaticTokenAssociations,
-              const std::shared_ptr<PublicKey> aliasKey,
-              const LedgerId& ledgerId,
-              const long long& ethereumNonce,
-              const InitType<StakingInfo> stakingInfo);
+  [[nodiscard]] static AccountInfo fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& proto);
 
   /**
-   * Retrieve the account info from an account info protobuf object.
-   *
-   * @param accountInfo The account info protobuf object.
-   * @return            An account info object.
-   */
-  static AccountInfo fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& accountInfo);
-
-  /**
-   * Convert this account info object into a protobuf.
-   *
-   * @return The account info protobuf object.
-   */
-  proto::CryptoGetInfoResponse_AccountInfo toProtobuf() const;
-
-  /**
-   * The account ID of the account for which this information applies.
+   * The ID of the queried account.
    */
   AccountId mAccountId;
 
   /**
-   * The contract account ID comprising of both the contract instance and the
-   * cryptocurrency account owned by the contract instance, in the format used
-   * by Solidity.
+   * The contract account ID comprising of both the contract instance and the cryptocurrency account owned by the
+   * contract instance, in the format used by Solidity.
    */
   std::string mContractAccountId;
 
   /**
-   * If true, then this account has been deleted, it will disappear when it
-   * expires, and all transactions for it will fail except the transaction to
-   * extend its expiration date.
+   * Is the queried account deleted or not? If \c TRUE, then the account has been deleted, it will disappear when it
+   * expires, and all transactions for it will fail except the transaction to extend its expiration date.
    */
-  bool mIsDeleted;
+  bool mIsDeleted = false;
 
   /**
-   * The total proxy staked to this account.
+   * The total amount of Hbar proxy staked to the queried account.
    */
-  Hbar mProxyReceived;
+  Hbar mProxyReceived = Hbar(0LL);
 
   /**
-   * The key for the account, which must sign in order to transfer out, or to
-   * modify the account in any way other than extending its expiration date.
+   * The key for the account, which must sign in order to transfer out, or to modify the account in any way other than
+   * extending its expiration date.
    */
-  std::shared_ptr<PublicKey> mKey;
+  std::shared_ptr<Key> mKey = nullptr;
 
   /**
-   * The current balance of account.
+   * The current balance of the queried account.
    */
-  Hbar mBalance;
+  Hbar mBalance = Hbar(0LL);
 
   /**
-   * If true, no transaction can transfer to this account unless signed by this
-   * account's key.
+   * If \c TRUE, the queried account's key must sign any transaction being deposited into it (in addition to all
+   * withdrawals).
    */
-  bool mIsReceiverSignatureRequired;
+  bool mReceiverSignatureRequired = false;
 
   /**
-   * The time at which this account is set to expire. This is held as
-   * nanoseconds from the epoch.
+   * The time at which the queried account will expire.
    */
-  std::chrono::nanoseconds mExpirationTime;
+  std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now();
 
   /**
-   * The duration for expiration time will extend every this many seconds. If
-   * there are insufficient funds, then it extends as long as possible. If it is
-   * empty when it expires, then it is deleted.
+   * The duration of time the queried account uses to automatically extend its expiration period. It it doesn't have
+   * enough balance, it extends as long as possible. If it is empty when it expires, then it is deleted.
    */
-  std::chrono::seconds mAutoRenewPeriod;
+  std::chrono::system_clock::duration mAutoRenewPeriod;
 
   /**
-   * The list of live hashes for this account.
+   * The queried account's memo.
    */
-  std::vector<LiveHash> mLiveHashes;
+  std::string mMemo;
 
   /**
-   * The memo associated with this account.
+   * The number of NFTs owned by the queried account.
    */
-  std::string mAccountMemo;
+  uint64_t mOwnedNfts = 0ULL;
 
   /**
-   * The number of NFTs owned by this account.
+   * The maximum number of tokens with which the queried account can be associated.
    */
-  unsigned long long mOwnedNfts;
+  uint32_t mMaxAutomaticTokenAssociations = 0U;
 
   /**
-   * The maximum number of tokens with which an account can be implicitly
-   * associated.
+   * The PublicKey alias of the queried account.
    */
-  unsigned int mMaxAutomaticTokenAssociations;
+  std::shared_ptr<PublicKey> mPublicKeyAlias = nullptr;
 
   /**
-   * The public key which aliases to this account.
+   * The EVM address alias of the queried account.
    */
-  std::shared_ptr<PublicKey> mAliasKey;
+  std::optional<EvmAddress> mEvmAddressAlias;
 
   /**
-   * The ledger ID from which the response was returned.
+   * The ID of the ledger from which this AccountInfo was received.
    */
   LedgerId mLedgerId;
 
   /**
-   * The ethereum nonce associated with this account.
+   * The staking metadata for the queried account.
    */
-  long long mEthereumNonce;
-
-  /**
-   * Staking metadata for this account.
-   */
-  InitType<StakingInfo> mStakingInfo;
+  StakingInfo mStakingInfo;
 };
 
 } // namespace Hedera
 
-#endif // ACCOUNT_INFO_H_
+#endif // HEDERA_SDK_CPP_ACCOUNT_INFO_H_

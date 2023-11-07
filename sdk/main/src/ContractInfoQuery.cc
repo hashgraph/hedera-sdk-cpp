@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,8 +18,8 @@
  *
  */
 #include "ContractInfoQuery.h"
-
 #include "ContractInfo.h"
+#include "impl/Node.h"
 
 #include <proto/contract_get_info.pb.h>
 #include <proto/query.pb.h>
@@ -29,65 +29,50 @@
 namespace Hedera
 {
 //-----
-ContractInfoQuery::ContractInfoQuery()
-  : mContractId()
+ContractInfoQuery& ContractInfoQuery::setContractId(const ContractId& contractId)
 {
+  mContractId = contractId;
+  return *this;
 }
 
 //-----
-void
-ContractInfoQuery::validateChecksums(const Client& client) const
-{
-  if (mContractId.isValid())
-  {
-    mContractId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void
-ContractInfoQuery::onMakeRequest(proto::Query* query,
-                                 proto::QueryHeader* header) const
-{
-  proto::ContractGetInfoQuery* getInfoQuery = query->mutable_contractgetinfo();
-
-  if (mContractId.isValid())
-  {
-    getInfoQuery->set_allocated_contractid(mContractId.getValue().toProtobuf());
-  }
-
-  getInfoQuery->set_allocated_header(header);
-}
-
-//-----
-proto::ResponseHeader
-ContractInfoQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->contractgetinfo().header();
-}
-
-//-----
-proto::QueryHeader
-ContractInfoQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.contractgetinfo().header();
-}
-
-//-----
-ContractInfo
-ContractInfoQuery::mapResponse(const proto::Response& response,
-                               const AccountId& accountId,
-                               const proto::Query& query) const
+ContractInfo ContractInfoQuery::mapResponse(const proto::Response& response) const
 {
   return ContractInfo::fromProtobuf(response.contractgetinfo().contractinfo());
 }
 
 //-----
-ContractInfoQuery&
-ContractInfoQuery::setContractId(const ContractId& contractId)
+grpc::Status ContractInfoQuery::submitRequest(const proto::Query& request,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              proto::Response* response) const
 {
-  mContractId.setValue(contractId);
-  return *this;
+  return node->submitQuery(proto::Query::QueryCase::kContractGetInfo, request, deadline, response);
+}
+
+//-----
+void ContractInfoQuery::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+}
+
+//-----
+proto::Query ContractInfoQuery::buildRequest(proto::QueryHeader* header) const
+{
+  auto contractGetInfoQuery = std::make_unique<proto::ContractGetInfoQuery>();
+  contractGetInfoQuery->set_allocated_header(header);
+  contractGetInfoQuery->set_allocated_contractid(mContractId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_contractgetinfo(contractGetInfoQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader ContractInfoQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.contractgetinfo().header());
+  return response.contractgetinfo().header();
 }
 
 } // namespace Hedera

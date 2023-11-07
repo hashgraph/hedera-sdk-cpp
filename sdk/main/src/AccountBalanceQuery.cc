@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
  */
 #include "AccountBalanceQuery.h"
 #include "AccountBalance.h"
-#include "Status.h"
 #include "impl/Node.h"
 
 #include <proto/crypto_get_account_balance.pb.h>
@@ -29,13 +28,6 @@
 
 namespace Hedera
 {
-//-----
-std::unique_ptr<Executable<AccountBalanceQuery, proto::Query, proto::Response, AccountBalance>>
-AccountBalanceQuery::clone() const
-{
-  return std::make_unique<AccountBalanceQuery>(*this);
-}
-
 //-----
 AccountBalanceQuery& AccountBalanceQuery::setAccountId(const AccountId& accountId)
 {
@@ -55,48 +47,60 @@ AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contra
 }
 
 //-----
-proto::Query AccountBalanceQuery::makeRequest(const Client&, const std::shared_ptr<internal::Node>&) const
-{
-  proto::Query query;
-  proto::CryptoGetAccountBalanceQuery* getAccountBalanceQuery = query.mutable_cryptogetaccountbalance();
-
-  proto::QueryHeader* header = getAccountBalanceQuery->mutable_header();
-  header->set_responsetype(proto::ANSWER_ONLY);
-  // This is a free query, so no payment required
-
-  if (mAccountId)
-  {
-    getAccountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf().release());
-  }
-
-  if (mContractId)
-  {
-    getAccountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf().release());
-  }
-
-  return query;
-}
-
-//-----
 AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response) const
 {
   return AccountBalance::fromProtobuf(response.cryptogetaccountbalance());
 }
 
 //-----
-Status AccountBalanceQuery::mapResponseStatus(const proto::Response& response) const
+grpc::Status AccountBalanceQuery::submitRequest(const proto::Query& request,
+                                                const std::shared_ptr<internal::Node>& node,
+                                                const std::chrono::system_clock::time_point& deadline,
+                                                proto::Response* response) const
 {
-  return STATUS_MAP.at(response.cryptogetaccountbalance().header().nodetransactionprecheckcode());
+  return node->submitQuery(proto::Query::QueryCase::kCryptogetAccountBalance, request, deadline, response);
 }
 
 //-----
-grpc::Status AccountBalanceQuery::submitRequest(const Client& client,
-                                                const std::chrono::system_clock::time_point& deadline,
-                                                const std::shared_ptr<internal::Node>& node,
-                                                proto::Response* response) const
+void AccountBalanceQuery::validateChecksums(const Client& client) const
 {
-  return node->submitQuery(
-    proto::Query::QueryCase::kCryptogetAccountBalance, makeRequest(client, node), deadline, response);
+  if (mAccountId.has_value())
+  {
+    mAccountId->validateChecksum(client);
+  }
+
+  if (mContractId.has_value())
+  {
+    mContractId->validateChecksum(client);
+  }
+}
+
+//-----
+proto::Query AccountBalanceQuery::buildRequest(proto::QueryHeader* header) const
+{
+  auto accountBalanceQuery = std::make_unique<proto::CryptoGetAccountBalanceQuery>();
+  accountBalanceQuery->set_allocated_header(header);
+
+  if (mAccountId)
+  {
+    accountBalanceQuery->set_allocated_accountid(mAccountId->toProtobuf().release());
+  }
+
+  if (mContractId)
+  {
+    accountBalanceQuery->set_allocated_contractid(mContractId->toProtobuf().release());
+  }
+
+  proto::Query query;
+  query.set_allocated_cryptogetaccountbalance(accountBalanceQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader AccountBalanceQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.cryptogetaccountbalance().header());
+  return response.cryptogetaccountbalance().header();
 }
 
 } // namespace Hedera

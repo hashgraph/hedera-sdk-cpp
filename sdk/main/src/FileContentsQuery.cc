@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,77 +18,61 @@
  *
  */
 #include "FileContentsQuery.h"
+#include "impl/Node.h"
+#include "impl/Utilities.h"
 
 #include <proto/file_get_contents.pb.h>
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
-#include <proto/response_header.pb.h>
 
 namespace Hedera
 {
 //-----
-FileContentsQuery::FileContentsQuery()
-  : Query()
-  , mFileId()
+FileContentsQuery& FileContentsQuery::setFileId(const FileId& fileId)
 {
-}
-
-//-----
-void
-FileContentsQuery::validateChecksums(const Client& client) const
-{
-  if (mFileId.isValid())
-  {
-    mFileId.getValue().validateChecksum(client);
-  }
-}
-
-//-----
-void
-FileContentsQuery::onMakeRequest(proto::Query* query,
-                                 proto::QueryHeader* header) const
-{
-  proto::FileGetContentsQuery* getContentsQuery =
-    query->mutable_filegetcontents();
-
-  if (mFileId.isValid())
-  {
-    getContentsQuery->set_allocated_fileid(mFileId.getValue().toProtobuf());
-  }
-
-  getContentsQuery->set_allocated_header(header);
-}
-
-//-----
-proto::ResponseHeader
-FileContentsQuery::mapResponseHeader(proto::Response* response) const
-{
-  return response->filegetcontents().header();
-}
-
-//-----
-proto::QueryHeader
-FileContentsQuery::mapRequestHeader(const proto::Query& query) const
-{
-  return query.filegetcontents().header();
-}
-
-//-----
-std::string
-FileContentsQuery::mapResponse(const proto::Response& response,
-                               const AccountId& accountId,
-                               const proto::Query& query) const
-{
-  return response.filegetcontents().filecontents().contents();
-}
-
-//----
-FileContentsQuery&
-FileContentsQuery::setFileId(const FileId& fileId)
-{
-  mFileId.setValue(fileId);
+  mFileId = fileId;
   return *this;
+}
+
+//-----
+FileContents FileContentsQuery::mapResponse(const proto::Response& response) const
+{
+  return internal::Utilities::stringToByteVector(response.filegetcontents().filecontents().contents());
+}
+
+//-----
+grpc::Status FileContentsQuery::submitRequest(const proto::Query& request,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              proto::Response* response) const
+{
+  return node->submitQuery(proto::Query::QueryCase::kFileGetContents, request, deadline, response);
+}
+
+//-----
+void FileContentsQuery::validateChecksums(const Client& client) const
+{
+  mFileId.validateChecksum(client);
+}
+
+//-----
+proto::Query FileContentsQuery::buildRequest(proto::QueryHeader* header) const
+{
+  auto fileGetContentsQuery = std::make_unique<proto::FileGetContentsQuery>();
+  fileGetContentsQuery->set_allocated_header(header);
+  fileGetContentsQuery->set_allocated_fileid(mFileId.toProtobuf().release());
+
+  proto::Query query;
+  query.set_allocated_filegetcontents(fileGetContentsQuery.release());
+  return query;
+}
+
+//-----
+proto::ResponseHeader FileContentsQuery::mapResponseHeader(const proto::Response& response) const
+{
+  saveCostFromHeader(response.filegetcontents().header());
+  return response.filegetcontents().header();
 }
 
 } // namespace Hedera

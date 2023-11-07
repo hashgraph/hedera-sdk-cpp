@@ -2,9 +2,9 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,24 +17,17 @@
  * limitations under the License.
  *
  */
-#ifndef CONTRACT_EXECUTE_TRANSACTION_H_
-#define CONTRACT_EXECUTE_TRANSACTION_H_
+#ifndef HEDERA_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_
 
+#include "ContractFunctionParameters.h"
 #include "ContractId.h"
 #include "Hbar.h"
 #include "Transaction.h"
 
-#include "helper/InitType.h"
-
-#include <string>
-#include <unordered_map>
-
-namespace Hedera
-{
-class AccountId;
-class ContractFunctionParameters;
-class TransactionId;
-}
+#include <cstddef>
+#include <string_view>
+#include <vector>
 
 namespace proto
 {
@@ -45,180 +38,181 @@ class TransactionBody;
 namespace Hedera
 {
 /**
- * Call a function of the given smart contract instance, giving it
- * functionParameters as its inputs. The call can use at maximum the given
- * amount of gas – the paying account will not be charged for any unspent gas.
+ * The transaction calls a function of the given smart contract instance, giving it functionParameters as its input. The
+ * call can use at maximum the given amount of gas – the paying account will not be charged for any unspent gas. If this
+ * function results in data being stored, an amount of gas is calculated that reflects this storage burden. The amount
+ * of gas used, as well as other attributes of the transaction, e.g. size, and number of signatures to be verified,
+ * determine the fee for the transaction – which is charged to the paying account.
  *
- * If this function results in data being stored, an amount of gas is calculated
- * that reflects this storage burden.
- *
- * The amount of gas used, as well as other attributes of the transaction, e.g.
- * size, number of signatures to be verified, determine the fee for the
- * transaction – which is charged to the paying account.
+ * Transaction Signing Requirements:
+ *  - The key of the transaction fee-paying account.
  */
-class ContractExecuteTransaction
-  : public Transaction<ContractExecuteTransaction>
+class ContractExecuteTransaction : public Transaction<ContractExecuteTransaction>
 {
 public:
-  /**
-   * Constructor.
-   */
-  ContractExecuteTransaction();
+  ContractExecuteTransaction() = default;
 
   /**
-   * Construct from a map of transaction ID's to their corresponding account
-   * ID's and protobuf transactions.
+   * Construct from a TransactionBody protobuf object.
    *
-   * @param transactions Map of transaction IDs to their corresponding account
-   *                     ID's and protobuf transactions.
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a ContractCall transaction.
    */
-  explicit ContractExecuteTransaction(
-    const std::unordered_map<
-      TransactionId,
-      std::unordered_map<AccountId, proto::TransactionBody>>& transactions);
+  explicit ContractExecuteTransaction(const proto::TransactionBody& transactionBody);
 
   /**
-   * Construct from a protobuf transaction object.
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
    *
-   * @param transaction The protobuf transaction object from which to construct
-   *                    this transaction.
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
    */
   explicit ContractExecuteTransaction(
-    const proto::TransactionBody& transaction);
+    const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
   /**
-   * Derived from Transaction. Validate the checksums.
+   * Set the ID of the contract to call.
    *
-   * @param client The client with which to validate the checksums.
-   */
-  virtual void validateChecksums(const Client& client) const override;
-
-  /**
-   * Build a contract call transaction protobuf message based on the data in
-   * this class.
-   *
-   * @return A contract call transaction protobuf message.
-   */
-  proto::ContractCallTransactionBody build() const;
-
-  /**
-   * Sets the contract instance to call.
-   *
-   * @param contractId The contract ID to be set.
-   * @return Reference to this ContractExecuteTransaction object.
+   * @param fileId The ID of the contract to call.
+   * @return A reference to this ContractExecuteTransaction object with the newly-set contract ID.
+   * @throws IllegalStateException If this ContractExecuteTransaction is frozen.
    */
   ContractExecuteTransaction& setContractId(const ContractId& contractId);
 
   /**
-   * Sets the maximum amount of gas to use for the call.
+   * Set the maximum amount of gas to use for the function call.
    *
-   * @param gas The gas to be set.
-   * @return Reference to this ContractExecuteTransaction object.
+   * @param gas The maximum amount of gas to use for the function call.
+   * @return A reference to this ContractExecuteTransaction object with the newly-set amount of gas.
+   * @throws IllegalStateException If this ContractExecuteTransaction is frozen.
    */
-  ContractExecuteTransaction& setGas(const int64_t& gas);
+  ContractExecuteTransaction& setGas(const uint64_t& gas);
 
   /**
-   * Sets the number of Hbars sent with this function call.
+   * Set the amount to pay for the function call.
    *
-   * @param amount The amount of Hbars to be set.
-   * @return Reference to this ContractExecuteTransaction object.
+   * @param amount The amount to pay for the function call.
+   * @return A reference to this ContractExecuteTransaction object with the newly-set payable amount.
+   * @throws IllegalStateException If this ContractExecuteTransaction is frozen.
    */
   ContractExecuteTransaction& setPayableAmount(const Hbar& amount);
 
   /**
-   * Sets the function parameters as their raw bytes.
+   * Set the function parameters for the function call.
    *
-   * Use this instead of setFunction(std::string, ContractFunctionParameters) if
-   * you have already pre-encoded a solidity function call.
-   *
-   * @param functionParameters The function parameters to be set.
-   * @return Reference to this ContractExecuteTransaction object.
+   * @param parameters The parameters to pass to function call.
+   * @return A reference to this ContractExecuteTransaction object with the newly-set function parameters.
+   * @throws IllegalStateException If this ContractExecuteTransaction is frozen.
    */
-  ContractExecuteTransaction& setFunctionParameters(
-    const std::string& functionParameters);
+  ContractExecuteTransaction& setFunctionParameters(const std::vector<std::byte>& parameters);
 
   /**
-   * Sets the function name to call.
+   * Set the function to call, optionally with its parameters.
    *
-   * The function will be called with no parameters. Use
-   * setFunction(std::string, ContractFunctionParameters) to call a function
-   * with parameters.
-   *
-   * @param name The string to be set as the function name.
-   * @return Reference to this ContractExecuteTransaction object.
+   * @param name       The name of the function to call.
+   * @param parameters The function parameters to pass to the function call.
+   * @return A reference to this ContractExecuteTransaction object with the newly-set function name and parameters.
+   * @throws IllegalStateException If this ContractExecuteTransaction is frozen.
    */
-  ContractExecuteTransaction& setFunction(const std::string name);
+  ContractExecuteTransaction& setFunction(std::string_view name,
+                                          const ContractFunctionParameters& parameters = ContractFunctionParameters());
 
   /**
-   * Sets the function to call, and the parameters to pass to the function.
+   * Get the ID of the contract to call.
    *
-   * @param name   The string to be set as the function name.
-   * @param params The function parameters to be set.
-   * @return Reference to this ContractExecuteTransaction object.
+   * @return The ID of the contract to call
    */
-  ContractExecuteTransaction& setFunction(
-    const std::string& name,
-    const ContractFunctionParameters& params);
+  [[nodiscard]] inline ContractId getContractId() const { return mContractId; }
 
   /**
-   * Extract the contract ID.
+   * Get the maximum amount of gas to use for the function call.
    *
-   * @return The contract ID.
+   * @return The maximum amount of gas to use for the function call.
    */
-  inline InitType<ContractId> getContractId() const { return mContractId; }
+  [[nodiscard]] inline uint64_t getGas() const { return mGas; }
 
   /**
-   * Extract the gas.
+   * Get the amount to pay for the function call.
    *
-   * @return The gas.
+   * @return The amount to pay for the function call.
    */
-  inline int64_t getGas() const { return mGas; }
+  [[nodiscard]] inline Hbar getPayableAmount() const { return mPayableAmount; }
 
   /**
-   * Extract the payable amount.
+   * Get the function parameters for the function call.
    *
-   * @return The payable amount in Hbar.
+   * @return The function parameters for the function call.
    */
-  inline Hbar getPayableAmount() const { return mPayableAmount; }
-
-  /**
-   * Extract the function parameters.
-   *
-   * @return The function parameters.
-   */
-  inline std::string getFunctionParameters() const
-  {
-    return mFunctionParameters;
-  }
+  [[nodiscard]] inline std::vector<std::byte> getFunctionParameters() const { return mFunctionParameters; }
 
 private:
-  /**
-   * Initialize from the transaction body.
-   */
-  void initFromTransactionBody();
+  friend class WrappedTransaction;
 
   /**
-   * The contract ID of the contract to call.
+   * Derived from Executable. Submit a Transaction protobuf object which contains this ContractExecuteTransaction's data
+   * to a Node.
+   *
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
    */
-  InitType<ContractId> mContractId;
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::TransactionResponse* response) const override;
 
   /**
-   * The maximum amount of gas to use for the call.
+   * Derived from Transaction. Verify that all the checksums in this ContractExecuteTransaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This ContractExecuteTransaction's checksums are not valid.
    */
-  int64_t mGas;
+  void validateChecksums(const Client& client) const override;
 
   /**
-   * The number of tinybars sent (the function must be payable if this is
-   * non-zero).
+   * Derived from Transaction. Build and add the ContractExecuteTransaction protobuf representation to the Transaction
+   * protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
    */
-  Hbar mPayableAmount;
+  void addToBody(proto::TransactionBody& body) const override;
 
   /**
-   * Which function to call, and the parameters to pass to the function.
+   * Initialize this ContractExecuteTransaction from its source TransactionBody protobuf object.
    */
-  std::string mFunctionParameters;
+  void initFromSourceTransactionBody();
+
+  /**
+   * Build a ContractCallTransactionBody protobuf object from this ContractExecuteTransaction object.
+   *
+   * @return A pointer to a ContractCallTransactionBody protobuf object filled with this ContractExecuteTransaction
+   *         object's data.
+   */
+  [[nodiscard]] proto::ContractCallTransactionBody* build() const;
+
+  /**
+   * The ID of the contract to call.
+   */
+  ContractId mContractId;
+
+  /**
+   * The maximum amount of gas to use for the function call.
+   */
+  uint64_t mGas = 0ULL;
+
+  /**
+   * The amount to pay for the function call
+   */
+  Hbar mPayableAmount = Hbar(0LL);
+
+  /**
+   * The function parameters for the function call.
+   */
+  std::vector<std::byte> mFunctionParameters;
 };
 
 } // namespace Hedera
 
-#endif // CONTRACT_EXECUTE_TRANSACTION_H_
+#endif // HEDERA_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_
