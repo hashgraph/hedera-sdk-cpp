@@ -62,6 +62,22 @@ public:
   }
 
   /**
+   * Static function to create an Hbar instance from the specified number of tinybars.
+   *
+   * @param tinybars The amount of tinybars to convert to Hbar.
+   * @return A new Hbar instance representing the specified number of tinybars.
+   */
+  static Hbar fromTinybars(int64_t tinybars) { return Hbar(tinybars, HbarUnit::TINYBAR()); }
+
+  /**
+   * Convert this Hbar value to a different unit and return it as an int64_t.
+   *
+   * @param unit The unit to convert to from Hbar.
+   * @return An int64_t representing the converted value.
+   */
+  inline int64_t to(const HbarUnit& unit) const { return mValueInTinybar / unit.getTinybars(); }
+
+  /**
    * Compare this Hbar to another Hbar and determine if they represent the same amount.
    *
    * @param other The other Hbar with which to compare this Hbar.
@@ -95,6 +111,13 @@ public:
    * @return The amount this Hbar object represents in tinybars.
    */
   [[nodiscard]] inline int64_t toTinybars() const { return mValueInTinybar; }
+
+  /**
+   * Convert this Hbar value to a string representation.
+   *
+   * @return A string representing the Hbar value.
+   */
+  std::string toString() const;
 
   /**
    * Returns an Hbar whose value is negative this Hbar.

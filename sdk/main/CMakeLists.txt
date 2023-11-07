@@ -66,6 +66,7 @@ add_library(${PROJECT_NAME} STATIC
         src/FileUpdateTransaction.cc
         src/FreezeTransaction.cc
         src/FreezeType.cc
+        src/Hbar.cc
         src/HbarAllowance.cc
         src/HbarTransfer.cc
         src/IPv4Address.cc
