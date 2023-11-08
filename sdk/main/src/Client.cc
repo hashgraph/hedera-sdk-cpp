@@ -18,6 +18,8 @@
  *
  */
 #include "Client.h"
+#include "AccountBalance.h"
+#include "AccountBalanceQuery.h"
 #include "AccountId.h"
 #include "AddressBookQuery.h"
 #include "Defaults.h"
@@ -25,6 +27,7 @@
 #include "NodeAddressBook.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
+#include "SubscriptionHandle.h"
 #include "exceptions/UninitializedException.h"
 #include "impl/BaseNodeAddress.h"
 #include "impl/MirrorNetwork.h"
@@ -49,11 +52,20 @@ struct Client::ClientImpl
   // Hedera mirror node.
   std::shared_ptr<internal::MirrorNetwork> mMirrorNetwork = nullptr;
 
+  // Subscriptions this Client is tracking.
+  std::vector<std::shared_ptr<SubscriptionHandle>> mSubscriptions;
+
   // The ID of the account that will pay for requests using this Client.
   std::optional<AccountId> mOperatorAccountId;
 
   // Pointer to the private key this Client should use to sign transactions.
   std::shared_ptr<PrivateKey> mOperatorPrivateKey = nullptr;
+
+  // Pointer to the public key associated with the private key that this Client should use to sign transactions.
+  std::shared_ptr<PublicKey> mOperatorPublicKey = nullptr;
+
+  // The signing function this Client should use to sign transactions.
+  std::optional<std::function<std::vector<std::byte>(const std::vector<std::byte>&)>> mOperatorSigner;
 
   // The maximum fee this Client is willing to pay for transactions.
   std::optional<Hbar> mMaxTransactionFee;
@@ -66,11 +78,11 @@ struct Client::ClientImpl
   std::optional<bool> mTransactionIdRegenerationPolicy;
 
   // The maximum length of time this Client should wait to get a response after sending a request to the network.
-  std::chrono::system_clock::duration mRequestTimeout = std::chrono::minutes(2);
+  std::chrono::system_clock::duration mRequestTimeout = DEFAULT_REQUEST_TIMEOUT;
 
   // The maximum number of attempts a request sent by this Client will attempt to send a request. A manually-set
   // maximum number of attempts in the request will override this.
-  std::optional<uint32_t> mMaxAttempts;
+  std::optional<unsigned int> mMaxAttempts;
 
   // The minimum length of time a request sent to a Node by this Client will wait before attempting to send a request
   // again after a failure to the same Node. A manually-set minimum backoff in the request will override this.
@@ -258,7 +270,7 @@ Client Client::fromConfig(const nlohmann::json& json)
     }
     catch (const std::exception&)
     {
-      throw std::invalid_argument("Invalid argument for network tag ");
+      throw std::invalid_argument("Invalid argument for network tag");
     }
   }
 
@@ -391,24 +403,181 @@ Client Client::fromConfigFile(std::string_view path)
 }
 
 //-----
-Client& Client::setMirrorNetwork(const std::vector<std::string>& network)
+void Client::ping(const AccountId& nodeAccountId) const
 {
-  mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forNetwork(network));
-  return *this;
+  return ping(nodeAccountId, mImpl->mRequestTimeout);
+}
+
+//-----
+void Client::ping(const AccountId& nodeAccountId, const std::chrono::system_clock::duration& timeout) const
+{
+  AccountBalanceQuery().setAccountId(nodeAccountId).execute(*this, timeout);
+}
+
+//-----
+std::future<void> Client::pingAsync(const AccountId& nodeAccountId) const
+{
+  return pingAsync(nodeAccountId, mImpl->mRequestTimeout);
+}
+
+//-----
+std::future<void> Client::pingAsync(const AccountId& nodeAccountId,
+                                    const std::chrono::system_clock::duration& timeout) const
+{
+  return std::async(std::launch::async, [this, &nodeAccountId, &timeout]() { this->ping(nodeAccountId, timeout); });
+}
+
+//-----
+void Client::pingAsync(const AccountId& nodeAccountId, const std::function<void(const std::exception&)>& callback) const
+{
+  return pingAsync(nodeAccountId, mImpl->mRequestTimeout, callback);
+}
+
+//-----
+void Client::pingAsync(const AccountId& nodeAccountId,
+                       const std::chrono::system_clock::duration& timeout,
+                       const std::function<void(const std::exception&)>& callback) const
+{
+  std::future<void> future = pingAsync(nodeAccountId, timeout);
+
+  try
+  {
+    future.get();
+  }
+  catch (const std::exception& exception)
+  {
+    callback(exception);
+  }
+}
+
+//-----
+void Client::pingAll() const
+{
+  pingAll(mImpl->mRequestTimeout);
+}
+
+//-----
+void Client::pingAll(const std::chrono::system_clock::duration& timeout) const
+{
+  if (mImpl->mNetwork)
+  {
+    const std::unordered_map<std::string, AccountId> networkMap = mImpl->mNetwork->getNetwork();
+    std::for_each(
+      networkMap.cbegin(), networkMap.cend(), [this, &timeout](const auto& node) { this->ping(node.second, timeout); });
+  }
+}
+
+//-----
+std::future<void> Client::pingAllAsync() const
+{
+  return pingAllAsync(mImpl->mRequestTimeout);
+}
+
+//-----
+std::future<void> Client::pingAllAsync(const std::chrono::system_clock::duration& timeout) const
+{
+  return std::async(std::launch::async,
+                    [this, &timeout]()
+                    {
+                      const std::unordered_map<std::string, AccountId> networkMap = mImpl->mNetwork->getNetwork();
+                      std::vector<std::future<void>> futures;
+                      std::for_each(networkMap.cbegin(),
+                                    networkMap.cend(),
+                                    [this, &timeout, &futures](const auto& node)
+                                    { futures.push_back(this->pingAsync(node.second, timeout)); });
+
+                      std::for_each(
+                        futures.begin(), futures.end(), [&futures](std::future<void>& future) { future.get(); });
+                    });
+}
+
+//-----
+void Client::pingAllAsync(const std::function<void(const std::exception&)>& callback) const
+{
+  return pingAllAsync(mImpl->mRequestTimeout, callback);
+}
+
+//-----
+void Client::pingAllAsync(const std::chrono::system_clock::duration& timeout,
+                          const std::function<void(const std::exception&)>& callback) const
+{
+  std::future<void> future = pingAllAsync(timeout);
+
+  try
+  {
+    future.get();
+  }
+  catch (const std::exception& exception)
+  {
+    callback(exception);
+  }
 }
 
 //-----
 Client& Client::setOperator(const AccountId& accountId, const std::shared_ptr<PrivateKey>& privateKey)
 {
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork && mImpl->mNetwork->getLedgerId().isKnownNetwork())
+  {
+    accountId.validateChecksum(*this);
+  }
+
   mImpl->mOperatorAccountId = accountId;
   mImpl->mOperatorPrivateKey = privateKey;
 
   return *this;
 }
 
+//-----
+Client& Client::setOperatorWith(const AccountId& accountId,
+                                const std::shared_ptr<PublicKey>& publicKey,
+                                const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork && mImpl->mNetwork->getLedgerId().isKnownNetwork())
+  {
+    accountId.validateChecksum(*this);
+  }
+
+  mImpl->mOperatorAccountId = accountId;
+  mImpl->mOperatorPublicKey = publicKey;
+  mImpl->mOperatorSigner = signer;
+
+  return *this;
+}
+
+//-----
+std::optional<AccountId> Client::getOperatorAccountId() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mOperatorAccountId;
+}
+
+//-----
+std::shared_ptr<PublicKey> Client::getOperatorPublicKey() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mOperatorPublicKey || !mImpl->mOperatorPrivateKey ? mImpl->mOperatorPublicKey
+                                                                  : mImpl->mOperatorPrivateKey->getPublicKey();
+}
+
+//-----
+std::optional<std::function<std::vector<std::byte>(const std::vector<std::byte>&)>> Client::getOperatorSigner() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mOperatorSigner.has_value() || !mImpl->mOperatorPrivateKey ? mImpl->mOperatorSigner
+                                                                           : [this](const std::vector<std::byte>& bytes)
+  { return this->mImpl->mOperatorPrivateKey->sign(bytes); };
+}
+
 void Client::close()
 {
+  std::unique_lock lock(mImpl->mMutex);
   cancelScheduledNetworkUpdate();
+
+  std::for_each(mImpl->mSubscriptions.begin(),
+                mImpl->mSubscriptions.end(),
+                [](const std::shared_ptr<SubscriptionHandle>& handle) { handle->unsubscribe(); });
 
   if (mImpl->mNetwork)
   {
@@ -422,23 +591,9 @@ void Client::close()
 }
 
 //-----
-Client& Client::setNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
-{
-  mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
-  mImpl->mMirrorNetwork = nullptr;
-  return *this;
-}
-
-//-----
-Client& Client::setRequestTimeout(const std::chrono::system_clock::duration& timeout)
-{
-  mImpl->mRequestTimeout = timeout;
-  return *this;
-}
-
-//-----
 Client& Client::setMaxTransactionFee(const Hbar& fee)
 {
+  std::unique_lock lock(mImpl->mMutex);
   if (fee.toTinybars() < 0)
   {
     throw std::invalid_argument("Transaction fee cannot be negative");
@@ -449,8 +604,16 @@ Client& Client::setMaxTransactionFee(const Hbar& fee)
 }
 
 //-----
+std::optional<Hbar> Client::getMaxTransactionFee() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mMaxTransactionFee;
+}
+
+//-----
 Client& Client::setMaxQueryPayment(const Hbar& payment)
 {
+  std::unique_lock lock(mImpl->mMutex);
   if (payment.toTinybars() < 0)
   {
     throw std::invalid_argument("Query payment cannot be negative");
@@ -461,55 +624,85 @@ Client& Client::setMaxQueryPayment(const Hbar& payment)
 }
 
 //-----
+std::optional<Hbar> Client::getMaxQueryPayment() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mMaxQueryPayment;
+}
+
+//-----
 Client& Client::setTransactionIdRegenerationPolicy(bool regenerate)
 {
+  std::unique_lock lock(mImpl->mMutex);
   mImpl->mTransactionIdRegenerationPolicy = regenerate;
   return *this;
 }
 
 //-----
-Client& Client::setMaxAttempts(uint32_t attempts)
+std::optional<bool> Client::getTransactionIdRegenerationPolicy() const
 {
-  mImpl->mMaxAttempts = attempts;
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mTransactionIdRegenerationPolicy;
+}
+
+//-----
+Client& Client::setAutoValidateChecksums(bool validate)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mAutoValidateChecksums = validate;
   return *this;
 }
 
 //-----
-Client& Client::setMinBackoff(const std::chrono::system_clock::duration& backoff)
+bool Client::isAutoValidateChecksumsEnabled() const
 {
-  if ((mImpl->mMaxBackoff && backoff > *mImpl->mMaxBackoff) || (!mImpl->mMaxBackoff && backoff > DEFAULT_MAX_BACKOFF) ||
-      (!mImpl->mMaxBackoff && backoff < std::chrono::milliseconds(0)))
-  {
-    throw std::invalid_argument("Minimum backoff would be larger than maximum backoff");
-  }
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mAutoValidateChecksums;
+}
 
-  mImpl->mMinBackoff = backoff;
+//-----
+Client& Client::setNetworkFromAddressBook(const NodeAddressBook& addressBook)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  setNetworkFromAddressBookInternal(addressBook);
   return *this;
 }
 
 //-----
-Client& Client::setMaxBackoff(const std::chrono::system_clock::duration& backoff)
+Client& Client::setNetwork(const std::unordered_map<std::string, AccountId>& networkMap)
 {
-  if ((mImpl->mMinBackoff && backoff < *mImpl->mMinBackoff) || (!mImpl->mMinBackoff && backoff < DEFAULT_MIN_BACKOFF) ||
-      (!mImpl->mMinBackoff && backoff > DEFAULT_MAX_BACKOFF))
-  {
-    throw std::invalid_argument("Maximum backoff would be smaller than minimum backoff");
-  }
-
-  mImpl->mMaxBackoff = backoff;
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
   return *this;
 }
 
 //-----
-Client& Client::setGrpcDeadline(const std::chrono::system_clock::duration& deadline)
+std::unordered_map<std::string, AccountId> Client::getNetwork() const
 {
-  mImpl->mGrpcDeadline = deadline;
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork ? mImpl->mNetwork->getNetwork() : std::unordered_map<std::string, AccountId>();
+}
+
+//-----
+Client& Client::setMirrorNetwork(const std::vector<std::string>& network)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forNetwork(network));
   return *this;
+}
+
+//-----
+std::vector<std::string> Client::getMirrorNetwork() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mMirrorNetwork ? mImpl->mMirrorNetwork->getNetwork() : std::vector<std::string>();
 }
 
 //-----
 Client& Client::setNetworkUpdatePeriod(const std::chrono::system_clock::duration& update)
 {
+  std::unique_lock lock(mImpl->mMutex);
+
   // Cancel any previous network updates and wait for the thread to complete.
   cancelScheduledNetworkUpdate();
 
@@ -525,15 +718,16 @@ Client& Client::setNetworkUpdatePeriod(const std::chrono::system_clock::duration
 }
 
 //-----
-Client& Client::setAutoValidateChecksums(bool validate)
+std::chrono::system_clock::duration Client::getNetworkUpdatePeriod() const
 {
-  mImpl->mAutoValidateChecksums = validate;
-  return *this;
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetworkUpdatePeriod;
 }
 
 //-----
 Client& Client::setLedgerId(const LedgerId& ledgerId)
 {
+  std::unique_lock lock(mImpl->mMutex);
   if (mImpl->mNetwork)
   {
     mImpl->mNetwork->setLedgerId(ledgerId);
@@ -543,95 +737,9 @@ Client& Client::setLedgerId(const LedgerId& ledgerId)
 }
 
 //-----
-std::shared_ptr<internal::Network> Client::getNetwork() const
-{
-  return mImpl->mNetwork;
-}
-
-//-----
-std::optional<AccountId> Client::getOperatorAccountId() const
-{
-  return mImpl->mOperatorAccountId;
-}
-
-//-----
-std::shared_ptr<PublicKey> Client::getOperatorPublicKey() const
-{
-  return mImpl->mOperatorPrivateKey ? mImpl->mOperatorPrivateKey->getPublicKey() : nullptr;
-}
-
-//-----
-std::function<std::vector<std::byte>(const std::vector<std::byte>&)> Client::getOperatorSigner() const
-{
-  return mImpl->mOperatorPrivateKey ? [this](const std::vector<std::byte>& vec)
-  { return this->mImpl->mOperatorPrivateKey->sign(vec); }
-                                    : std::function<std::vector<std::byte>(const std::vector<std::byte>&)>();
-}
-
-//-----
-std::chrono::system_clock::duration Client::getRequestTimeout() const
-{
-  return mImpl->mRequestTimeout;
-}
-
-//-----
-std::optional<Hbar> Client::getMaxTransactionFee() const
-{
-  return mImpl->mMaxTransactionFee;
-}
-
-//-----
-std::optional<Hbar> Client::getMaxQueryPayment() const
-{
-  return mImpl->mMaxQueryPayment;
-}
-
-//-----
-std::optional<bool> Client::getTransactionIdRegenerationPolicy() const
-{
-  return mImpl->mTransactionIdRegenerationPolicy;
-}
-
-//-----
-std::optional<uint32_t> Client::getMaxAttempts() const
-{
-  return mImpl->mMaxAttempts;
-}
-
-//-----
-std::optional<std::chrono::system_clock::duration> Client::getMinBackoff() const
-{
-  return mImpl->mMinBackoff;
-}
-
-//-----
-std::optional<std::chrono::system_clock::duration> Client::getMaxBackoff() const
-{
-  return mImpl->mMaxBackoff;
-}
-
-//-----
-std::optional<std::chrono::system_clock::duration> Client::getGrpcDeadline() const
-{
-  return mImpl->mGrpcDeadline;
-}
-
-//-----
-std::chrono::system_clock::duration Client::getNetworkUpdatePeriod() const
-{
-  std::unique_lock lock(mImpl->mMutex);
-  return mImpl->mNetworkUpdatePeriod;
-}
-
-//-----
-bool Client::isAutoValidateChecksumsEnabled() const
-{
-  return mImpl->mAutoValidateChecksums;
-}
-
-//-----
 LedgerId Client::getLedgerId() const
 {
+  std::unique_lock lock(mImpl->mMutex);
   if (!mImpl->mNetwork)
   {
     throw UninitializedException("Client does not have a Network from which to grab the ledger ID");
@@ -641,15 +749,292 @@ LedgerId Client::getLedgerId() const
 }
 
 //-----
-std::shared_ptr<internal::MirrorNetwork> Client::getMirrorNetwork() const
+Client& Client::setTransportSecurity(bool enable)
 {
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setTransportSecurity(enable ? internal::TLSBehavior::REQUIRE : internal::TLSBehavior::DISABLE);
+  }
+
+  return *this;
+}
+
+//-----
+bool Client::isTransportSecurity() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork && mImpl->mNetwork->isTransportSecurity() == internal::TLSBehavior::REQUIRE;
+}
+
+//-----
+Client& Client::setVerifyCertificates(bool verify)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setVerifyCertificates(verify);
+  }
+
+  return *this;
+}
+
+//-----
+bool Client::isVerifyCertificates() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork && mImpl->mNetwork->isVerifyCertificates();
+}
+
+//-----
+Client& Client::setRequestTimeout(const std::chrono::system_clock::duration& timeout)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mRequestTimeout = timeout;
+  return *this;
+}
+
+//-----
+std::chrono::system_clock::duration Client::getRequestTimeout() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mRequestTimeout;
+}
+
+//-----
+Client& Client::setMaxAttempts(uint32_t attempts)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mMaxAttempts = attempts;
+  return *this;
+}
+
+//-----
+std::optional<uint32_t> Client::getMaxAttempts() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mMaxAttempts;
+}
+
+//-----
+Client& Client::setMinBackoff(const std::chrono::system_clock::duration& backoff)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if ((mImpl->mMaxBackoff && backoff > *mImpl->mMaxBackoff) || (!mImpl->mMaxBackoff && backoff > DEFAULT_MAX_BACKOFF) ||
+      (!mImpl->mMaxBackoff && backoff < std::chrono::milliseconds(0)))
+  {
+    throw std::invalid_argument("Minimum backoff would be larger than maximum backoff");
+  }
+
+  mImpl->mMinBackoff = backoff;
+  return *this;
+}
+
+//-----
+std::optional<std::chrono::system_clock::duration> Client::getMinBackoff() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mMinBackoff;
+}
+
+//-----
+Client& Client::setMaxBackoff(const std::chrono::system_clock::duration& backoff)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if ((mImpl->mMinBackoff && backoff < *mImpl->mMinBackoff) || (!mImpl->mMinBackoff && backoff < DEFAULT_MIN_BACKOFF) ||
+      (!mImpl->mMinBackoff && backoff > DEFAULT_MAX_BACKOFF))
+  {
+    throw std::invalid_argument("Maximum backoff would be smaller than minimum backoff");
+  }
+
+  mImpl->mMaxBackoff = backoff;
+  return *this;
+}
+
+//-----
+std::optional<std::chrono::system_clock::duration> Client::getMaxBackoff() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mMaxBackoff;
+}
+
+//-----
+Client& Client::setGrpcDeadline(const std::chrono::system_clock::duration& deadline)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mGrpcDeadline = deadline;
+  return *this;
+}
+
+//-----
+std::optional<std::chrono::system_clock::duration> Client::getGrpcDeadline() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mGrpcDeadline;
+}
+
+//-----
+Client& Client::setMaxNodeAttempts(unsigned int attempts)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setMaxNodeAttempts(attempts);
+  }
+
+  return *this;
+}
+
+//-----
+unsigned int Client::getMaxNodeAttempts() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork ? mImpl->mNetwork->getMaxNodeAttempts() : 0U;
+}
+
+//-----
+Client& Client::setNodeMinBackoff(const std::chrono::system_clock::duration& backoff)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setMinNodeBackoff(backoff);
+  }
+
+  return *this;
+}
+
+//-----
+std::chrono::system_clock::duration Client::getNodeMinBackoff() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork ? mImpl->mNetwork->getMinNodeBackoff() : std::chrono::system_clock::duration();
+}
+
+//-----
+Client& Client::setNodeMaxBackoff(const std::chrono::system_clock::duration& backoff)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setMaxNodeBackoff(backoff);
+  }
+
+  return *this;
+}
+
+//-----
+std::chrono::system_clock::duration Client::getNodeMaxBackoff() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork ? mImpl->mNetwork->getMaxNodeBackoff() : std::chrono::system_clock::duration();
+}
+
+//-----
+Client& Client::setMinNodeReadmitTime(const std::chrono::system_clock::duration& time)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setMinNodeReadmitTime(time);
+  }
+
+  return *this;
+}
+
+//-----
+std::chrono::system_clock::duration Client::getMinNodeReadmitTime() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork ? mImpl->mNetwork->getMinNodeReadmitTime() : std::chrono::system_clock::duration();
+}
+
+//-----
+Client& Client::setMaxNodeReadmitTime(const std::chrono::system_clock::duration& time)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setMaxNodeReadmitTime(time);
+  }
+
+  return *this;
+}
+
+//-----
+std::chrono::system_clock::duration Client::getMaxNodeReadmitTime() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork ? mImpl->mNetwork->getMaxNodeReadmitTime() : std::chrono::system_clock::duration();
+}
+
+//-----
+Client& Client::setMaxNodesPerTransaction(unsigned int maxNodes)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  if (mImpl->mNetwork)
+  {
+    mImpl->mNetwork->setMaxNodesPerRequest(maxNodes);
+  }
+
+  return *this;
+}
+
+//-----
+unsigned int Client::getMaxNodesPerTransaction() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork ? mImpl->mNetwork->getMaxNodeAttempts() : 0U;
+}
+
+//-----
+void Client::trackSubscription(const std::shared_ptr<SubscriptionHandle>& subscription) const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mSubscriptions.push_back(subscription);
+}
+
+//-----
+void Client::untrackSubscription(const std::shared_ptr<SubscriptionHandle>& subscription) const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  for (auto iter = mImpl->mSubscriptions.cbegin(); iter != mImpl->mSubscriptions.cend(); ++iter)
+  {
+    if (subscription == *iter)
+    {
+      mImpl->mSubscriptions.erase(iter);
+      return;
+    }
+  }
+}
+
+//-----
+std::shared_ptr<internal::Network> Client::getClientNetwork() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mNetwork;
+}
+
+//-----
+std::shared_ptr<internal::MirrorNetwork> Client::getClientMirrorNetwork() const
+{
+  std::unique_lock lock(mImpl->mMutex);
   return mImpl->mMirrorNetwork;
+}
+
+//-----
+void Client::setNetworkFromAddressBookInternal(const NodeAddressBook& addressBook)
+{
+  mImpl->mNetwork->setNetwork(internal::Network::getNetworkFromAddressBook(
+    addressBook,
+    mImpl->mNetwork->isTransportSecurity() == internal::TLSBehavior::REQUIRE
+      ? internal::BaseNodeAddress::PORT_NODE_TLS
+      : internal::BaseNodeAddress::PORT_NODE_PLAIN));
 }
 
 //-----
 void Client::startNetworkUpdateThread(const std::chrono::system_clock::duration& period)
 {
-  std::unique_lock lock(mImpl->mMutex);
   mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
   mImpl->mNetworkUpdatePeriod = period;
   // mImpl->mNetworkUpdateThread = std::make_unique<std::thread>(&Client::scheduleNetworkUpdate, this);
@@ -665,11 +1050,7 @@ void Client::scheduleNetworkUpdate()
           lock, mImpl->mNetworkUpdatePeriod, [this]() { return mImpl->mCancelUpdate; }))
     {
       // Get the address book and set the network based on the address book.
-      mImpl->mNetwork->setNetwork(internal::Network::getNetworkFromAddressBook(
-        AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this),
-        mImpl->mNetwork->isTransportSecurity() == internal::TLSBehavior::REQUIRE
-          ? internal::BaseNodeAddress::PORT_NODE_TLS
-          : internal::BaseNodeAddress::PORT_NODE_PLAIN));
+      setNetworkFromAddressBookInternal(AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this));
 
       // Adjust the network update period if this is the initial update.
       if (!mImpl->mMadeInitialNetworkUpdate)

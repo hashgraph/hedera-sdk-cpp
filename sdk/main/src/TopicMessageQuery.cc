@@ -71,15 +71,13 @@ void startSubscription(
   std::function<void(void)> completionHandler,
   std::function<void(const TopicMessage&)> onNext,
   uint32_t maxAttempts,
-  std::chrono::system_clock::duration maxBackoff,
-  SubscriptionHandle* handle)
+  std::chrono::system_clock::duration maxBackoff)
 {
   // Grab moved objects.
   std::vector<std::unique_ptr<grpc::ClientContext>> contexts;
   std::vector<std::unique_ptr<grpc::CompletionQueue>> queues;
   contexts.push_back(std::move(context));
   queues.push_back(std::move(queue));
-  handle->setOnUnsubscribe([&contexts]() { contexts.back()->TryCancel(); });
 
   // Declare needed variables.
   com::hedera::mirror::api::proto::ConsensusTopicResponse response;
@@ -335,23 +333,29 @@ TopicMessageQuery& TopicMessageQuery::operator=(TopicMessageQuery&& other) noexc
 }
 
 //-----
-SubscriptionHandle TopicMessageQuery::subscribe(const Client& client,
-                                                const std::function<void(const TopicMessage&)>& onNext)
+std::shared_ptr<SubscriptionHandle> TopicMessageQuery::subscribe(const Client& client,
+                                                                 const std::function<void(const TopicMessage&)>& onNext)
 {
   // Create the subscription handle and assign its unsubscribe function to cancel this TopicMessageQuery's context
   // (which will cancel the gRPC call).
-  SubscriptionHandle handle;
+  std::shared_ptr<SubscriptionHandle> handle;
 
   // Set up the subscription before passing it to the listening thread.
   auto context = std::make_unique<grpc::ClientContext>();
   auto queue = std::make_unique<grpc::CompletionQueue>();
   auto callStatus = std::make_unique<CallStatus>();
-  handle.setOnUnsubscribe([&context]() { context->TryCancel(); });
+  client.trackSubscription(handle);
+  handle->setOnUnsubscribe(
+    [&context, &handle, &client]()
+    {
+      context->TryCancel();
+      client.untrackSubscription(handle);
+    });
 
   // Send the query and initiate the subscription.
   std::thread(&startSubscription,
-              client.getMirrorNetwork(),
-              getConnectedMirrorNode(client.getMirrorNetwork())
+              client.getClientMirrorNetwork(),
+              getConnectedMirrorNode(client.getClientMirrorNetwork())
                 ->getConsensusServiceStub()
                 ->AsyncsubscribeTopic(context.get(), mImpl->mQuery, queue.get(), callStatus.get()),
               std::move(context),
@@ -363,8 +367,7 @@ SubscriptionHandle TopicMessageQuery::subscribe(const Client& client,
               mImpl->mCompletionHandler,
               onNext,
               mImpl->mMaxAttempts,
-              mImpl->mMaxBackoff,
-              &handle)
+              mImpl->mMaxBackoff)
     .detach();
 
   return handle;

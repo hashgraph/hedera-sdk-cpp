@@ -336,7 +336,7 @@ SdkRequestType& Transaction<SdkRequestType>::signWithOperator(const Client& clie
 
   freezeWith(&client);
 
-  return signInternal(client.getOperatorPublicKey(), client.getOperatorSigner());
+  return signInternal(client.getOperatorPublicKey(), client.getOperatorSigner().value());
 }
 
 //-----
@@ -431,14 +431,14 @@ SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client* client)
     }
 
     // Make sure the client has a valid network.
-    if (!client->getNetwork())
+    if (!client->getClientNetwork())
     {
       throw UninitializedException("Client has not been initialized with a valid network");
     }
 
     // Have the Client's network generate the node account IDs to which to send this Transaction.
     Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::setNodeAccountIds(
-      client->getNetwork()->getNodeAccountIdsForExecute());
+      client->getClientNetwork()->getNodeAccountIdsForExecute());
   }
 
   // Generate the SignedTransaction protobuf objects.
@@ -1037,10 +1037,6 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
     return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
       ExecutionStatus::REQUEST_ERROR;
   }
-
-  // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated.
-  return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
-    ExecutionStatus::REQUEST_ERROR;
 }
 
 //-----
