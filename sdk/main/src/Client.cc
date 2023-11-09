@@ -990,14 +990,12 @@ unsigned int Client::getMaxNodesPerTransaction() const
 //-----
 void Client::trackSubscription(const std::shared_ptr<SubscriptionHandle>& subscription) const
 {
-  std::unique_lock lock(mImpl->mMutex);
   mImpl->mSubscriptions.push_back(subscription);
 }
 
 //-----
 void Client::untrackSubscription(const std::shared_ptr<SubscriptionHandle>& subscription) const
 {
-  std::unique_lock lock(mImpl->mMutex);
   for (auto iter = mImpl->mSubscriptions.cbegin(); iter != mImpl->mSubscriptions.cend(); ++iter)
   {
     if (subscription == *iter)
