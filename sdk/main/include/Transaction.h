@@ -84,7 +84,7 @@ public:
    *    }
    *    case TransactionType::TRANSFER_TRANSACTION:
    *    {
-   *        TransferTransaction transferTransaction = tx.getTransaction<TransferTransaction>();
+   *        TransferTransaction* transferTransaction = tx.getTransaction<TransferTransaction>();
    *        ** do stuff with tx here **
    *        break;
    *    }

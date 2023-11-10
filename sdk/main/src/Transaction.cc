@@ -102,6 +102,10 @@ struct Transaction<SdkRequestType>::TransactionImpl
   // Transaction protobuf object in mTransactions.
   std::vector<proto::SignedTransaction> mSignedTransactions;
 
+  // When submitting a Transaction, the index into mSignedTransactions and mTransactions must be tracked so that a
+  // proper TransactionResponse can be generated (which must grab the transaction hash and node account ID).
+  unsigned int mTransactionIndex = 0U;
+
   // A list of PublicKeys with their signer functions that should sign the TransactionBody protobuf objects this
   // Transaction creates. If the signer function associated with a public key is empty, that means that the private key
   // associated with that public key has already contributed a signature, but the signer is not available (probably
@@ -768,6 +772,7 @@ Transaction<SdkRequestType>::Transaction(
 template<typename SdkRequestType>
 proto::Transaction Transaction<SdkRequestType>::makeRequest(unsigned int index) const
 {
+  mImpl->mTransactionIndex = index;
   buildTransaction(index);
   return getTransactionProtobufObject(index);
 }
@@ -962,11 +967,17 @@ TransactionId Transaction<SdkRequestType>::getCurrentTransactionId() const
 
 //-----
 template<typename SdkRequestType>
-TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
+TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse&) const
 {
-  TransactionResponse txResp = TransactionResponse::fromProtobuf(response);
-  txResp.mTransactionId = getCurrentTransactionId();
-  return txResp;
+  return TransactionResponse(
+    Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::getNodeAccountIds()
+      .at(mImpl->mTransactionIndex %
+          Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+            getNodeAccountIds()
+              .size()),
+    getCurrentTransactionId(),
+    internal::OpenSSLUtils::computeSHA384(internal::Utilities::stringToByteVector(
+      getTransactionProtobufObject(mImpl->mTransactionIndex).signedtransactionbytes())));
 }
 
 //-----

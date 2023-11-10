@@ -499,7 +499,7 @@ bool ChunkedTransaction<SdkRequestType>::getShouldGetReceipt() const
 
 //-----
 template<typename SdkRequestType>
-proto::Transaction ChunkedTransaction<SdkRequestType>::makeRequest(unsigned int attempt) const
+proto::Transaction ChunkedTransaction<SdkRequestType>::makeRequest(unsigned int index) const
 {
   // Adjust the index to account for the current chunk.
   return Transaction<SdkRequestType>::makeRequest(
@@ -508,7 +508,7 @@ proto::Transaction ChunkedTransaction<SdkRequestType>::makeRequest(unsigned int 
       Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
         getNodeAccountIds()
           .size()) +
-    attempt);
+    index);
 }
 
 //-----
