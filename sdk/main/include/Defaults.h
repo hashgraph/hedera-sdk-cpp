@@ -27,6 +27,10 @@
 namespace Hedera
 {
 /**
+ * The default duration of time to try and submit a request.
+ */
+constexpr auto DEFAULT_REQUEST_TIMEOUT = std::chrono::minutes(2);
+/**
  * The default maximum number of times a request will attempt to be submitted before considering the execution failed.
  */
 constexpr auto DEFAULT_MAX_ATTEMPTS = 10U;

@@ -64,7 +64,8 @@ public:
    * @param onNext The function to call when a message is received.
    * @return The SubscriptionHandle for this TopicMessageQuery.
    */
-  SubscriptionHandle subscribe(const Client& client, const std::function<void(const TopicMessage&)>& onNext);
+  std::shared_ptr<SubscriptionHandle> subscribe(const Client& client,
+                                                const std::function<void(const TopicMessage&)>& onNext);
 
   /**
    * Set the ID of the topic from which to get messages.

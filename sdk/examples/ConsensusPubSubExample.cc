@@ -51,7 +51,7 @@ int main(int argc, char** argv)
   const TopicId topicId = TopicCreateTransaction().execute(client).getReceipt(client).mTopicId.value();
 
   TopicMessageQuery query = TopicMessageQuery().setTopicId(topicId);
-  SubscriptionHandle handle = query.subscribe(
+  std::shared_ptr<SubscriptionHandle> handle = query.subscribe(
     client,
     [](const TopicMessage& message)
     { std::cout << "Received message: " << internal::Utilities::byteVectorToString(message.mContents) << std::endl; });

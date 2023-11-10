@@ -336,14 +336,14 @@ void Query<SdkRequestType, SdkResponseType>::onExecute(const Client& client)
   if (Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::getNodeAccountIds().empty())
   {
     // Make sure the client has a valid network.
-    if (!client.getNetwork())
+    if (!client.getClientNetwork())
     {
       throw UninitializedException("Client has not been initialized with a valid network");
     }
 
     // Have the Client's network generate the node account IDs to which to send this Query.
     Executable<SdkRequestType, proto::Query, proto::Response, SdkResponseType>::setNodeAccountIds(
-      client.getNetwork()->getNodeAccountIdsForExecute());
+      client.getClientNetwork()->getNodeAccountIdsForExecute());
   }
 
   // Validate checksums if that option is enabled.

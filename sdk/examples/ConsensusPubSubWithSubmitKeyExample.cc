@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 
   // Subscribe to the topic.
   TopicMessageQuery query = TopicMessageQuery().setTopicId(topicId);
-  SubscriptionHandle handle = query.subscribe(
+  std::shared_ptr<SubscriptionHandle> handle = query.subscribe(
     client,
     [](const TopicMessage& message)
     { std::cout << "Received message: " << internal::Utilities::byteVectorToString(message.mContents) << std::endl; });
