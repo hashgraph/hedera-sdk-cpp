@@ -273,7 +273,7 @@ AccountId& AccountId::populateAccountEvmAddress(const Client& client)
     throw new IllegalStateException("member `mAccountNum` should not be empty");
   }
 
-  std::vector<std::string> mirrorNetworks = client.getMirrorNetwork()->getNetwork();
+  std::vector<std::string> mirrorNetworks = client.getClientMirrorNetwork()->getNetwork();
   if (mirrorNetworks.empty())
   {
     throw new UninitializedException("mirrorNetworks vector not populated!");

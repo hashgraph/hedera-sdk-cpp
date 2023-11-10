@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 
   // Get the contract's bytecode
   const std::vector<std::byte> byteCode = internal::Utilities::stringToByteVector(
-    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
+    json::parse(std::ifstream(std::filesystem::current_path() / "config/hello_world.json", std::ios::in))["object"]
       .get<std::string>());
 
   // Create the contract's bytecode file

@@ -51,12 +51,12 @@ NodeAddressBook AddressBookQuery::execute(const Client& client, const std::chron
     }
 
     // Grab the MirrorNode to use to send this AddressBookQuery and make sure its connected.
-    std::shared_ptr<internal::MirrorNode> node = client.getMirrorNetwork()->getNextMirrorNode();
+    std::shared_ptr<internal::MirrorNode> node = client.getClientMirrorNetwork()->getNextMirrorNode();
     while (node->channelFailedToConnect())
     {
       std::cout << "Failed to connect to node " << node->getAddress().toString() << " on attempt " << attempt
                 << std::endl;
-      node = client.getMirrorNetwork()->getNextMirrorNode();
+      node = client.getClientMirrorNetwork()->getNextMirrorNode();
     }
 
     // Send this AddressBookQuery.

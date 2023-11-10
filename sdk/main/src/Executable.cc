@@ -451,7 +451,7 @@ Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>
   // still works but something could be wrong with the proxy, in which case trying a different proxy would work.
   if (mNodeAccountIds.size() == 1)
   {
-    nodes = client.getNetwork()->getNodeProxies(*mNodeAccountIds.cbegin());
+    nodes = client.getClientNetwork()->getNodeProxies(*mNodeAccountIds.cbegin());
 
     // Still verify the node account ID mapped to a valid Node.
     if (nodes.empty())
@@ -467,7 +467,8 @@ Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>
   // same node.
   for (const AccountId& accountId : mNodeAccountIds)
   {
-    const std::vector<std::shared_ptr<internal::Node>> nodeProxies = client.getNetwork()->getNodeProxies(accountId);
+    const std::vector<std::shared_ptr<internal::Node>> nodeProxies =
+      client.getClientNetwork()->getNodeProxies(accountId);
 
     // Verify the node account ID mapped to a valid Node.
     if (nodeProxies.empty())
