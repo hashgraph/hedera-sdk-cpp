@@ -18,6 +18,11 @@
  *
  */
 #include "Hbar.h"
+#include "HbarUnit.h"
+
+#include <regex>
+#include <sstream>
+#include <stdexcept>
 
 namespace Hedera
 {
@@ -32,6 +37,31 @@ std::string Hbar::toString() const
 
   // Convert to Hbar and return the value in Hbar unit
   return std::to_string(to(HbarUnit::HBAR())) + " " + HbarUnit::HBAR().getSymbol();
+}
+
+//-----
+Hbar Hbar::fromString(const std::string& text)
+{
+  std::smatch match;
+  if (!std::regex_match(text, match, FROM_STRING_PATTERN))
+  {
+    throw std::invalid_argument("Attempted to convert string to Hbar, but \"" + text +
+                                "\" was not correctly formatted");
+  }
+
+  // Extract parts from the match
+  std::string amountStr = match[1].str();
+  std::string unitStr = match[3].str();
+
+  // Convert amount string to BigDecimal
+  std::istringstream amountStream(amountStr);
+  int64_t amount;
+  amountStream >> amount;
+
+  // Determine the unit
+  HbarUnit unit = (unitStr.empty()) ? HbarUnit::HBAR() : HbarUnit::TINYBAR(); // getUnit(unitStr);
+
+  return Hbar(amount, unit);
 }
 
 } // namespace Hedera

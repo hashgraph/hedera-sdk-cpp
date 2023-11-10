@@ -23,6 +23,7 @@
 #include "HbarUnit.h"
 
 #include <cmath>
+#include <regex>
 
 namespace Hedera
 {
@@ -32,6 +33,10 @@ namespace Hedera
  * Implemented as a wrapper class to force handling of units. Direct interfacing with Hedera accepts amounts in tinybars
  * however the nominal unit is hbar.
  */
+
+// Define the pattern
+const std::regex FROM_STRING_PATTERN("^((?:\\+|\\-)?\\d+(?:\\.\\d+)?)(\\ (tℏ|μℏ|mℏ|ℏ|kℏ|Mℏ|Gℏ))?$");
+
 class Hbar
 {
 public:
@@ -104,6 +109,15 @@ public:
     mValueInTinybar += other.mValueInTinybar;
     return *this;
   }
+
+  /**
+   * Converts the provided string into an amount of Hbars.
+   *
+   * @param text The string representing the amount of Hbar.
+   * @throws std::invalid_argument If the input string can not be converted to Hbar unit.
+   * @return An Hbar instance.
+   */
+  [[nodiscard]] static Hbar fromString(const std::string& text);
 
   /**
    * Convert this Hbar value to tinybars.
