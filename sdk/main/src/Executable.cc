@@ -123,6 +123,11 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::system_clock::duration& timeout)
 {
+  if (mLogger.getLogger()->getName() == DEFAULT_LOGGER_NAME)
+  {
+    mLogger = client.getLogger();
+  }
+
   setExecutionParameters(client);
   onExecute(client);
 
@@ -163,8 +168,14 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     // Make sure the Node is connected. If it can't connect, mark this Node as unhealthy and try another Node.
     if (node->channelFailedToConnect())
     {
-      std::cout << "Failed to connect to node " << node->getAccountId().toString() << " at address "
-                << node->getAddress().toString() << " on attempt " << attempt << std::endl;
+      mLogger.trace("Failed to connect to node " + node->getAccountId().toString() + " at address " +
+                    node->getAddress().toString() + " on attempt " + std::to_string(attempt));
+      mLogger.warn(
+        "Retrying in " +
+        std::to_string(
+          std::chrono::duration_cast<std::chrono::milliseconds>(node->getRemainingTimeForBackoff()).count()) +
+        " ms after channel connection failure with node " + node->getAccountId().toString() + " during attempt #" +
+        std::to_string(attempt));
       node->increaseBackoff();
       continue;
     }
@@ -179,6 +190,9 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     // Submit the request and get the response.
     ProtoResponseType response;
     const grpc::Status status = submitRequest(request, node, attemptTimeout, &response);
+
+    mLogger.trace("Execute request submitted to node " + node->getAccountId().toString() +
+                  " attempt: " + std::to_string(attempt));
 
     // Increase backoff for this node but try submitting again for UNAVAILABLE, RESOURCE_EXHAUSTED, and INTERNAL
     // responses.
@@ -202,10 +216,17 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     // Grab and save the response status, and determine what to do next.
     const Status responseStatus = mapResponseStatus(response);
     nodeResponses[node] = responseStatus;
+
+    mLogger.trace(std::string("Received ") + gStatusToString.at(responseStatus) + " response from node " +
+                  node->getAccountId().toString() + " during attempt #" + std::to_string(attempt));
+
     switch (determineStatus(responseStatus, client, response))
     {
       case ExecutionStatus::SERVER_ERROR:
       {
+        mLogger.warn("Problem submitting request to node " + node->getAccountId().toString() + " for attempt #" +
+                     std::to_string(attempt) + ", retry with new node: " + gStatusToString.at(responseStatus));
+
         // If all nodes have returned a BUSY signal, backoff (just fallthrough to ExecutionStatus::RETRY case).
         // Otherwise, try the next node.
         if (nodeResponses.size() != nodes.size() ||
@@ -223,6 +244,11 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
       // Response isn't ready yet from the network
       case ExecutionStatus::RETRY:
       {
+        mLogger.warn("Retrying in " +
+                     std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(mCurrentBackoff).count()) +
+                     " ms after failure with node " + node->getAccountId().toString() + " during attempt #" +
+                     std::to_string(attempt));
+
         std::this_thread::sleep_for(mCurrentBackoff);
         mCurrentBackoff *= 2.0;
         if (mCurrentBackoff > mCurrentMaxBackoff)
@@ -328,6 +354,15 @@ SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   std::vector<AccountId> nodeAccountIds)
 {
   mNodeAccountIds = std::move(nodeAccountIds);
+  return static_cast<SdkRequestType&>(*this);
+}
+
+//-----
+template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
+SdkRequestType& Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::setLogger(
+  const Logger& logger)
+{
+  mLogger = logger;
   return static_cast<SdkRequestType&>(*this);
 }
 
@@ -514,11 +549,14 @@ unsigned int Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, Sdk
     // If this node is healthy, then its usable.
     else
     {
+      mLogger.trace("Using node " + node->getAccountId().toString() + " for request #" + std::to_string(attempt));
       return i;
     }
   }
 
   // No nodes are healthy, return the index of the one with the smallest delay.
+  mLogger.trace("Using node " + nodes.at(candidateNodeIndex)->getAccountId().toString() + " for request #" +
+                std::to_string(attempt));
   return candidateNodeIndex;
 }
 

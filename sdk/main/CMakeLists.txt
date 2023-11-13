@@ -1,3 +1,10 @@
+FetchContent_Declare(
+        log4cxx
+        GIT_REPOSITORY https://github.com/apache/logging-log4cxx.git
+        GIT_TAG rel/v1.1.0
+)
+FetchContent_MakeAvailable(log4cxx)
+
 add_library(${PROJECT_NAME} STATIC
         src/AccountAllowanceApproveTransaction.cc
         src/AccountAllowanceDeleteTransaction.cc
@@ -67,6 +74,7 @@ add_library(${PROJECT_NAME} STATIC
         src/Key.cc
         src/KeyList.cc
         src/LedgerId.cc
+        src/Logger.cc
         src/Mnemonic.cc
         src/MnemonicBIP39.cc
         src/NetworkVersionInfo.cc
@@ -161,6 +169,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR}/proto)
 target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${log4cxx_SOURCE_DIR}/src/main/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${log4cxx_BINARY_DIR}/src/main/include)
 
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
@@ -168,6 +178,7 @@ if (APPLE)
 endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
+target_link_libraries(${PROJECT_NAME} PRIVATE log4cxx)
 
 if (NOT WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
