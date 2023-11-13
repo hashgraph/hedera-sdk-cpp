@@ -85,6 +85,27 @@ Logger& Logger::setLevel(Logger::LoggingLevel level)
 {
   mPreviousLevel = mCurrentLevel;
   mCurrentLevel = level;
+  switch (mCurrentLevel)
+  {
+    case LoggingLevel::TRACE:
+      mLogger->setLevel(log4cxx::Level::getTrace());
+      break;
+    case LoggingLevel::DEBUG:
+      mLogger->setLevel(log4cxx::Level::getDebug());
+      break;
+    case LoggingLevel::INFO:
+      mLogger->setLevel(log4cxx::Level::getInfo());
+      break;
+    case LoggingLevel::WARN:
+      mLogger->setLevel(log4cxx::Level::getWarn());
+      break;
+    case LoggingLevel::ERROR:
+      mLogger->setLevel(log4cxx::Level::getError());
+      break;
+    case LoggingLevel::SILENT:
+      mLogger->setLevel(log4cxx::Level::getOff());
+      break;
+  }
   return *this;
 }
 
