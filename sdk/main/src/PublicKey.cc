@@ -107,6 +107,13 @@ AccountId PublicKey::toAccountId(uint64_t shard, uint64_t realm) const
 }
 
 //-----
+std::ostream& operator<<(std::ostream& os, const PublicKey& key)
+{
+  os << key.toStringDer();
+  return os;
+}
+
+//-----
 PublicKey::PublicKey(const PublicKey& other)
   : mImpl(std::make_unique<PublicKeyImpl>(*other.mImpl))
 {

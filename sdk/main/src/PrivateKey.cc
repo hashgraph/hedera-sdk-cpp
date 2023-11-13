@@ -210,6 +210,13 @@ std::shared_ptr<PublicKey> PrivateKey::getPublicKey() const
 }
 
 //-----
+std::ostream& operator<<(std::ostream& os, const PrivateKey& key)
+{
+  os << key.toStringDer();
+  return os;
+}
+
+//-----
 PrivateKey::PrivateKey(const PrivateKey& other)
   : mImpl(std::make_unique<PrivateKeyImpl>(*other.mImpl))
 {

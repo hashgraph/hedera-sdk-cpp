@@ -23,6 +23,7 @@
 #include "Key.h"
 
 #include <memory>
+#include <ostream>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -152,6 +153,15 @@ public:
    * @return The constructed AccountId.
    */
   [[nodiscard]] AccountId toAccountId(uint64_t shard = 0ULL, uint64_t realm = 0ULL) const;
+
+  /**
+   * Write this PublicKey in DER-encoded hex to an output stream.
+   *
+   * @param os  The output stream.
+   * @param key The PublicKey to print.
+   * @return The output stream with this PublicKey written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const PublicKey& key);
 
 protected:
   /**
