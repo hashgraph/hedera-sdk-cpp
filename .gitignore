@@ -885,3 +885,6 @@ package
 
 ### Ignore IDEA files completely
 .idea
+
+### Ignore environment file
+.env

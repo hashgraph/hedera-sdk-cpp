@@ -29,6 +29,7 @@
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 
+#include <dotenv.h>
 #include <iostream>
 #include <memory>
 
@@ -36,14 +37,14 @@ using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  if (argc < 3)
-  {
-    std::cout << "Please input account ID and private key" << std::endl;
-    return 1;
-  }
+  dotenv::init();
+  const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
+  const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
 
-  const AccountId operatorAccountId = AccountId::fromString(argv[1]);
-  const std::shared_ptr<ED25519PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(argv[2]);
+  // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
+  // will be paid for by this account and be signed by this key.
+  Client client = Client::forTestnet();
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   /**
    * Auto-create a new account using a public-address via a `TransferTransaction`. Reference: [HIP-583 Expand alias
@@ -76,11 +77,6 @@ int main(int argc, char** argv)
    * - Sign with the private key that corresponds to the public key on the hollow account.
    * - Get the `AccountInfo` for the account and return the public key on the account to show it is a complete account.
    */
-
-  // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
-  // will be paid for by this account and be signed by this key.
-  Client client = Client::forTestnet();
-  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   /**
    * Step 1: Create an ECSDA private key.

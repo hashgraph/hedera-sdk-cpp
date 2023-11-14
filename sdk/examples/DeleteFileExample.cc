@@ -27,22 +27,21 @@
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
 
+#include <dotenv.h>
 #include <iostream>
 
 using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  if (argc < 3)
-  {
-    std::cout << "Please input account ID and private key" << std::endl;
-    return 1;
-  }
+  dotenv::init();
+  const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
+  const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
 
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  client.setOperator(AccountId::fromString(argv[1]), ED25519PrivateKey::fromString(argv[2]));
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   // Create a new file.
   const FileId fileId = FileCreateTransaction()
