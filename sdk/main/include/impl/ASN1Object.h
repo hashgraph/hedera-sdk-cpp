@@ -22,8 +22,9 @@
 #ifndef HEDERA_SDK_CPP_IMPL_ASN1_OBJECT_H_
 #define HEDERA_SDK_CPP_IMPL_ASN1_OBJECT_H_
 
-#include <unordered_map>
 #include <iostream>
+#include <unordered_map>
+#include <vector>
 
 namespace Hedera::internal::asn1
 {
