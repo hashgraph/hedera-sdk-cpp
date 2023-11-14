@@ -7,14 +7,17 @@
 
 [Hedera Hashgraph]: https://hedera.com
 
-## SDK IS NOT READY FOR PRODUCTION USE. IT IS CURRENTLY STILL UNDER DEVELOPMENT.
-
 ## Prerequisites
 
 For MacOS and Linux users (these can be installed with `brew install` or `apt-get install`, respectively):
 
 - ninja
+    - MacOS: `brew install ninja`
 - pkg-config
+    - MacOs: `brew install pkg-config`
+- cmake
+    - MacOS: `brew install cmake`
+
 
 For Windows users:
 
@@ -32,6 +35,20 @@ the [Readme.md](https://github.com/hashgraph/hedera-local-node#readme).
 
 This project features CMake Presets which simplify the setup of vcpkg based dependencies. The below commands are
 typically all that is required.
+
+1. Clone the project
+
+```
+git clone https://github.com/hashgraph/hedera-sdk-cpp.git`
+```
+
+2. CD to your project directory
+
+```
+cd hedera-sdk-cpp
+```
+
+3. Complete the following tasks within your project directory 
 
 ```sh
 # Ensure the VCPkg Submodule is initialized
