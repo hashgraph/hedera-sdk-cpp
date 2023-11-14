@@ -22,6 +22,7 @@
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "exceptions/UninitializedException.h"
+#include "impl/ASN1ECKey.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 #include "impl/PrivateKeyImpl.h"
@@ -45,16 +46,15 @@ namespace
 const std::vector<std::byte> BIP32_SEED = { std::byte('B'), std::byte('i'), std::byte('t'), std::byte('c'),
                                             std::byte('o'), std::byte('i'), std::byte('n'), std::byte(' '),
                                             std::byte('s'), std::byte('e'), std::byte('e'), std::byte('d') };
-// The ASN.1 algorithm identifier prefix bytes for an ECDSAsecp256k1PrivateKey.
-const std::vector<std::byte> ASN1_PREFIX_BYTES = { std::byte(0x30), std::byte(0x2E), std::byte(0x02), std::byte(0x01),
-                                                   std::byte(0x01), std::byte(0x04), std::byte(0x20) };
-// The ASN.1 algorithm identifier suffix bytes for an ECDSAsecp256k1PrivateKey.
-const std::vector<std::byte> ASN1_SUFFIX_BYTES = { std::byte(0xA0), std::byte(0x07), std::byte(0x06),
-                                                   std::byte(0x05), std::byte(0x2B), std::byte(0x81),
-                                                   std::byte(0x04), std::byte(0x00), std::byte(0x0A) };
 // The order of the secp256k1 curve.
 const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
   internal::OpenSSLUtils::BIGNUM::fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
+
+// PEM Format prefix/suffix string
+constexpr std::string_view PEM_ECPRK_PREFIX_STRING = "-----BEGIN EC PRIVATE KEY-----";
+constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY-----";
+
+// PEM Format suffix string
 
 /**
  * Create a wrapped OpenSSL key object from a byte vector (raw or DER-encoded) representing an ECDSAsecp256k1PrivateKey.
@@ -65,19 +65,13 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<std::byte>& bytes)
 {
-  const std::vector<std::byte> formattedBytes = internal::Utilities::concatenateVectors(
-    { ASN1_PREFIX_BYTES,
-      // Remove the DER-encoding header if need be
-      (bytes.size() == ECDSAsecp256k1PrivateKey::KEY_SIZE + ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size() &&
-       internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES))
-        ? internal::Utilities::removePrefix(
-            bytes, static_cast<long>(ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_BYTES.size()))
-        : bytes,
-      ASN1_SUFFIX_BYTES });
-
-  auto rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(formattedBytes.data());
+  internal::asn1::ASN1ECKey asn1key(bytes);
+  const std::vector<std::byte> privateKeyBytes = internal::Utilities::concatenateVectors
+  ({ internal::asn1::ASN1_PRK_PREFIX_BYTES, asn1key.getPrivateKey(),  internal::asn1::ASN1_PRK_SUFFIX_BYTES });
+  
+  auto rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(privateKeyBytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(
-    d2i_PrivateKey(EVP_PKEY_EC, nullptr, &rawKeyBytes, static_cast<long>(formattedBytes.size())));
+    d2i_PrivateKey(EVP_PKEY_EC, nullptr, &rawKeyBytes, static_cast<long>(privateKeyBytes.size())));
   if (!key)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PrivateKey"));
@@ -103,17 +97,23 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::generatePriv
 //-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(std::string_view key)
 {
-  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != KEY_SIZE * 2)
+  std::string formattedKey = key.data();
+  // Remove PEM prefix/suffix if is present and hex the base64 val
+  if(formattedKey.compare(0, PEM_ECPRK_PREFIX_STRING.size(), PEM_ECPRK_PREFIX_STRING) == 0)
   {
-    throw BadKeyException(
-      "ECDSAsecp256k1PrivateKey cannot be realized from input string: input string size should be " +
-      std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " + std::to_string(KEY_SIZE * 2));
+    formattedKey = formattedKey.substr(PEM_ECPRK_PREFIX_STRING.size(), formattedKey.size());
+
+    if(formattedKey.compare(formattedKey.size()- PEM_ECPRK_SUFFIX_STRING.size(),
+        formattedKey.size(), PEM_ECPRK_SUFFIX_STRING) == 0)
+          formattedKey = formattedKey.substr(0, formattedKey.size() - PEM_ECPRK_SUFFIX_STRING.size());
+    
+    formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }
 
   try
   {
     return std::make_unique<ECDSAsecp256k1PrivateKey>(
-      ECDSAsecp256k1PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
+      ECDSAsecp256k1PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(formattedKey))));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -125,13 +125,6 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(s
 //-----
 std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromBytes(const std::vector<std::byte>& bytes)
 {
-  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != KEY_SIZE)
-  {
-    throw BadKeyException(
-      "ECDSAsecp256k1PrivateKey cannot be realized from input bytes: input byte array size should be " +
-      std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " + std::to_string(KEY_SIZE));
-  }
-
   try
   {
     return std::make_unique<ECDSAsecp256k1PrivateKey>(ECDSAsecp256k1PrivateKey(bytesToPKEY(bytes)));
@@ -314,8 +307,8 @@ std::vector<std::byte> ECDSAsecp256k1PrivateKey::toBytesRaw() const
   // The return value of i2d_PrivateKey can be either 48 or 118 bytes, depending on how the private key was constructed.
   // This difference doesn't change anything with the return here: the first 7 bytes of each are algorithm identifiers,
   // the next 32 are private key bytes, and the rest are for other purposes.
-  return { outputBytes.cbegin() + static_cast<long>(ASN1_PREFIX_BYTES.size()),
-           outputBytes.cbegin() + static_cast<long>(ASN1_PREFIX_BYTES.size()) + KEY_SIZE };
+  return { outputBytes.cbegin() + static_cast<long>(internal::asn1::ASN1_PRK_PREFIX_BYTES.size()),
+           outputBytes.cbegin() + static_cast<long>(internal::asn1::ASN1_PRK_PREFIX_BYTES.size()) + KEY_SIZE };
 }
 
 //-----
