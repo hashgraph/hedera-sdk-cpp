@@ -92,7 +92,7 @@ public:
    * @param backoff The minimum backoff time to use for a NodeType after a bad gRPC status is received.
    * @return A reference to this derived BaseNetwork object with the newly-set minimum backoff.
    */
-  NetworkType& setMinNodeBackoff(const std::chrono::duration<double>& backoff);
+  NetworkType& setMinNodeBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the maximum amount of time to backoff from a NodeType after a bad gRPC status is received.
@@ -100,7 +100,7 @@ public:
    * @param backoff The maximum backoff time to use for a NodeType after a bad gRPC status is received.
    * @return A reference to this derived BaseNetwork object with the newly-set maximum backoff.
    */
-  NetworkType& setMaxNodeBackoff(const std::chrono::duration<double>& backoff);
+  NetworkType& setMaxNodeBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the minimum amount of time to wait before readmitting NodeTypes as "healthy".
@@ -108,7 +108,7 @@ public:
    * @param time The minimum amount of time to wait before readmitting NodeTypes as "healthy".
    * @return A reference to this derived BaseNetwork object with the newly-set minimum node readmit time.
    */
-  NetworkType& setMinNodeReadmitTime(const std::chrono::duration<double>& time);
+  NetworkType& setMinNodeReadmitTime(const std::chrono::system_clock::duration& time);
 
   /**
    * Set the maximum amount of time to wait before readmitting NodeTypes as "healthy".
@@ -116,7 +116,7 @@ public:
    * @param time The maximum amount of time to wait before readmitting NodeTypes as "healthy".
    * @return A reference to this derived BaseNetwork object with the newly-set maximum node readmit time.
    */
-  NetworkType& setMaxNodeReadmitTime(const std::chrono::duration<double>& time);
+  NetworkType& setMaxNodeReadmitTime(const std::chrono::system_clock::duration& time);
 
   /**
    * Set the amount of time to allow gRPC connections on this BaseNetwork to close gracefully before forcibly
@@ -125,7 +125,7 @@ public:
    * @param timeout The amount of time to allow gRPC connections on this BaseNetwork to close gracefully.
    * @return A reference to this derived BaseNetwork object with the newly-set close timeout.
    */
-  NetworkType& setCloseTimeout(const std::chrono::duration<double>& timeout);
+  NetworkType& setCloseTimeout(const std::chrono::system_clock::duration& timeout);
 
   /**
    * Set the ledger ID of this BaseNetwork.
@@ -154,28 +154,28 @@ public:
    *
    * @return The minimum amount of time to backoff from a NodeType after a bad gRPC status is received.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMinNodeBackoff() const { return mMinNodeBackoff; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getMinNodeBackoff() const { return mMinNodeBackoff; }
 
   /**
    * Get the maximum amount of time to backoff from a NodeType after a bad gRPC status is received.
    *
    * @return The maximum amount of time to backoff from a NodeType after a bad gRPC status is received.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMaxNodeBackoff() const { return mMaxNodeBackoff; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getMaxNodeBackoff() const { return mMaxNodeBackoff; }
 
   /**
    * Get the minimum amount of time to wait before readmitting NodeTypes as "healthy".
    *
    * @return The minimum amount of time to wait before readmitting NodeTypes as "healthy".
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMinNodeReadmitTime() const { return mMinNodeReadmitTime; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getMinNodeReadmitTime() const { return mMinNodeReadmitTime; }
 
   /**
    * Get the maximum amount of time to wait before readmitting NodeTypes as "healthy".
    *
    * @return The maximum amount of time to wait before readmitting NodeTypes as "healthy".
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMaxNodeReadmitTime() const { return mMaxNodeReadmitTime; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getMaxNodeReadmitTime() const { return mMaxNodeReadmitTime; }
 
   /**
    * Get the amount of time to allow gRPC connections on this BaseNetwork to close gracefully before forcibly
@@ -184,7 +184,7 @@ public:
    * @return The amount of time to allow gRPC connections on this BaseNetwork to close gracefully before forcibly
    *         terminating them.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getCloseTimeout() const { return mCloseTimeout; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getCloseTimeout() const { return mCloseTimeout; }
 
   /**
    * Get the ledger ID of this Network.
@@ -300,22 +300,22 @@ private:
   /**
    * The minimum amount of time to wait to use a NodeType after it has received a bad gRPC status.
    */
-  std::chrono::duration<double> mMinNodeBackoff = DEFAULT_MIN_NODE_BACKOFF;
+  std::chrono::system_clock::duration mMinNodeBackoff = DEFAULT_MIN_NODE_BACKOFF;
 
   /**
    * The maximum amount of time to wait to use a NodeType after it has received a bad gRPC status.
    */
-  std::chrono::duration<double> mMaxNodeBackoff = DEFAULT_MAX_NODE_BACKOFF;
+  std::chrono::system_clock::duration mMaxNodeBackoff = DEFAULT_MAX_NODE_BACKOFF;
 
   /**
    * The minimum time to wait before attempting to readmit nodes.
    */
-  std::chrono::duration<double> mMinNodeReadmitTime = DEFAULT_MIN_NODE_BACKOFF;
+  std::chrono::system_clock::duration mMinNodeReadmitTime = DEFAULT_MIN_NODE_BACKOFF;
 
   /**
    * The maximum time to wait before attempting to readmit nodes.
    */
-  std::chrono::duration<double> mMaxNodeReadmitTime = DEFAULT_MAX_NODE_BACKOFF;
+  std::chrono::system_clock::duration mMaxNodeReadmitTime = DEFAULT_MAX_NODE_BACKOFF;
 
   /**
    * The earliest time that a node should be readmitted.
@@ -325,7 +325,7 @@ private:
   /**
    * The timeout for closing either a single node when setting a new network, or closing the entire network.
    */
-  std::chrono::duration<double> mCloseTimeout = DEFAULT_CLOSE_TIMEOUT;
+  std::chrono::system_clock::duration mCloseTimeout = DEFAULT_CLOSE_TIMEOUT;
 
   /**
    * The ledger ID of the network.

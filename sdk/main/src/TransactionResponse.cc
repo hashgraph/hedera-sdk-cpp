@@ -25,17 +25,14 @@
 #include "TransactionRecord.h"
 #include "TransactionRecordQuery.h"
 
-#include <proto/transaction_response.pb.h>
-
 namespace Hedera
 {
 //-----
-TransactionResponse TransactionResponse::fromProtobuf(const proto::TransactionResponse& proto)
+TransactionResponse::TransactionResponse(AccountId nodeId, TransactionId transactionId, std::vector<std::byte> hash)
+  : mNodeId(std::move(nodeId))
+  , mTransactionHash(std::move(hash))
+  , mTransactionId(std::move(transactionId))
 {
-  TransactionResponse response;
-  response.mCost = proto.cost();
-  response.mValidateStatus = proto.nodetransactionprecheckcode() == proto::OK;
-  return response;
 }
 
 //-----
@@ -46,9 +43,9 @@ TransactionReceipt TransactionResponse::getReceipt(const Client& client) const
 
 //-----
 TransactionReceipt TransactionResponse::getReceipt(const Client& client,
-                                                   const std::chrono::duration<double>& timeout) const
+                                                   const std::chrono::system_clock::duration& timeout) const
 {
-  TransactionReceipt txReceipt = TransactionReceiptQuery().setTransactionId(mTransactionId).execute(client, timeout);
+  TransactionReceipt txReceipt = getReceiptQuery().execute(client, timeout);
 
   if (mValidateStatus)
   {
@@ -59,6 +56,80 @@ TransactionReceipt TransactionResponse::getReceipt(const Client& client,
 }
 
 //-----
+TransactionReceiptQuery TransactionResponse::getReceiptQuery() const
+{
+  return TransactionReceiptQuery().setTransactionId(mTransactionId).setNodeAccountIds({ mNodeId });
+}
+
+//-----
+std::future<TransactionReceipt> TransactionResponse::getReceiptAsync(const Client& client) const
+{
+  return getReceiptAsync(client, client.getRequestTimeout());
+}
+
+//-----
+std::future<TransactionReceipt> TransactionResponse::getReceiptAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout) const
+{
+  return std::async(std::launch::async, [this, &client, &timeout]() { return this->getReceipt(client, timeout); });
+}
+
+//-----
+void TransactionResponse::getReceiptAsync(
+  const Client& client,
+  const std::function<void(const TransactionReceipt&, const std::exception&)>& callback) const
+{
+  return getReceiptAsync(client, client.getRequestTimeout(), callback);
+}
+
+//-----
+void TransactionResponse::getReceiptAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout,
+  const std::function<void(const TransactionReceipt&, const std::exception&)>& callback) const
+{
+  std::future<TransactionReceipt> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->getReceipt(client, timeout); });
+
+  try
+  {
+    callback(future.get(), std::exception());
+  }
+  catch (const std::exception& exception)
+  {
+    callback(TransactionReceipt(), exception);
+  }
+}
+
+//-----
+void TransactionResponse::getReceiptAsync(const Client& client,
+                                          const std::function<void(const TransactionReceipt&)>& responseCallback,
+                                          const std::function<void(const std::exception&)>& exceptionCallback) const
+{
+  return getReceiptAsync(client, client.getRequestTimeout(), responseCallback, exceptionCallback);
+}
+
+//-----
+void TransactionResponse::getReceiptAsync(const Client& client,
+                                          const std::chrono::system_clock::duration& timeout,
+                                          const std::function<void(const TransactionReceipt&)>& responseCallback,
+                                          const std::function<void(const std::exception&)>& exceptionCallback) const
+{
+  std::future<TransactionReceipt> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->getReceipt(client, timeout); });
+
+  try
+  {
+    responseCallback(future.get());
+  }
+  catch (const std::exception& exception)
+  {
+    exceptionCallback(exception);
+  }
+}
+
+//-----
 TransactionRecord TransactionResponse::getRecord(const Client& client) const
 {
   return getRecord(client, client.getRequestTimeout());
@@ -66,9 +137,83 @@ TransactionRecord TransactionResponse::getRecord(const Client& client) const
 
 //-----
 TransactionRecord TransactionResponse::getRecord(const Client& client,
-                                                 const std::chrono::duration<double>& timeout) const
+                                                 const std::chrono::system_clock::duration& timeout) const
 {
   return TransactionRecordQuery().setTransactionId(mTransactionId).execute(client, timeout);
+}
+
+//-----
+TransactionRecordQuery TransactionResponse::getRecordQuery() const
+{
+  return TransactionRecordQuery().setTransactionId(mTransactionId).setNodeAccountIds({ mNodeId });
+}
+
+//-----
+std::future<TransactionRecord> TransactionResponse::getRecordAsync(const Client& client) const
+{
+  return getRecordAsync(client, client.getRequestTimeout());
+}
+
+//-----
+std::future<TransactionRecord> TransactionResponse::getRecordAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout) const
+{
+  return std::async(std::launch::async, [this, &client, &timeout]() { return this->getRecord(client, timeout); });
+}
+
+//-----
+void TransactionResponse::getRecordAsync(
+  const Client& client,
+  const std::function<void(const TransactionRecord&, const std::exception&)>& callback) const
+{
+  return getRecordAsync(client, client.getRequestTimeout(), callback);
+}
+
+//-----
+void TransactionResponse::getRecordAsync(
+  const Client& client,
+  const std::chrono::system_clock::duration& timeout,
+  const std::function<void(const TransactionRecord&, const std::exception&)>& callback) const
+{
+  std::future<TransactionRecord> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->getRecord(client, timeout); });
+
+  try
+  {
+    callback(future.get(), std::exception());
+  }
+  catch (const std::exception& exception)
+  {
+    callback(TransactionRecord(), exception);
+  }
+}
+
+//-----
+void TransactionResponse::getRecordAsync(const Client& client,
+                                         const std::function<void(const TransactionRecord&)>& responseCallback,
+                                         const std::function<void(const std::exception&)>& exceptionCallback) const
+{
+  return getRecordAsync(client, client.getRequestTimeout(), responseCallback, exceptionCallback);
+}
+
+//-----
+void TransactionResponse::getRecordAsync(const Client& client,
+                                         const std::chrono::system_clock::duration& timeout,
+                                         const std::function<void(const TransactionRecord&)>& responseCallback,
+                                         const std::function<void(const std::exception&)>& exceptionCallback) const
+{
+  std::future<TransactionRecord> future =
+    std::async(std::launch::async, [this, &client, &timeout]() { return this->getRecord(client, timeout); });
+
+  try
+  {
+    responseCallback(future.get());
+  }
+  catch (const std::exception& exception)
+  {
+    exceptionCallback(exception);
+  }
 }
 
 //-----

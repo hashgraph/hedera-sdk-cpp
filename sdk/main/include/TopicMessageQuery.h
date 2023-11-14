@@ -64,7 +64,8 @@ public:
    * @param onNext The function to call when a message is received.
    * @return The SubscriptionHandle for this TopicMessageQuery.
    */
-  SubscriptionHandle subscribe(const Client& client, const std::function<void(const TopicMessage&)>& onNext);
+  std::shared_ptr<SubscriptionHandle> subscribe(const Client& client,
+                                                const std::function<void(const TopicMessage&)>& onNext);
 
   /**
    * Set the ID of the topic from which to get messages.
@@ -112,7 +113,7 @@ public:
    * @param backoff The maximum amount of time to wait between submission attempts.
    * @return A reference to this TopicMessageQuery object with the newly-set maximum backoff.
    */
-  TopicMessageQuery& setMaxBackoff(const std::chrono::duration<double>& backoff);
+  TopicMessageQuery& setMaxBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the function to run if there's an error with gRPC communication.
@@ -178,7 +179,7 @@ public:
    *
    * @return The maximum amount of time to wait between submission attempts.
    */
-  [[nodiscard]] std::chrono::duration<double> getMaxBackoff() const;
+  [[nodiscard]] std::chrono::system_clock::duration getMaxBackoff() const;
 
 private:
   /**

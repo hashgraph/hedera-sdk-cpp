@@ -1510,6 +1510,11 @@ enum class Status
 extern const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeToStatus;
 
 /**
+ * Map of Status to its corresponding ResponseCodeEnum protobuf.
+ */
+extern const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufResponseCode;
+
+/**
  * Map of Status to its corresponding string.
  */
 [[maybe_unused]] extern const std::unordered_map<Status, std::string_view> gStatusToString;

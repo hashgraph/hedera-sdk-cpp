@@ -52,7 +52,7 @@ protected:
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestWipeKey() const { return mTestWipeKey; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestSupplyKey() const { return mTestSupplyKey; }
   [[nodiscard]] inline const AccountId& getTestAutoRenewAccountId() const { return mTestAutoRenewAccountId; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
   {
     return mTestAutoRenewPeriod;
   }
@@ -75,7 +75,7 @@ private:
   const std::shared_ptr<PublicKey> mTestWipeKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const std::shared_ptr<PublicKey> mTestSupplyKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const AccountId mTestAutoRenewAccountId = AccountId(7ULL, 8ULL, 9ULL);
-  const std::chrono::duration<double> mTestAutoRenewPeriod = std::chrono::hours(10);
+  const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(10);
   const std::chrono::system_clock::time_point mTestExpirationTime = std::chrono::system_clock::now();
   const std::string mTestTokenMemo = "test memo";
   const std::shared_ptr<PublicKey> mTestFeeScheduleKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();

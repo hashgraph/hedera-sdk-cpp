@@ -20,6 +20,7 @@
 #include "TransactionId.h"
 #include "AccountId.h"
 #include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <chrono>
 #include <gtest/gtest.h>
@@ -30,81 +31,197 @@ using namespace Hedera;
 class TransactionIdTest : public ::testing::Test
 {
 protected:
-  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
+  [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
+  [[nodiscard]] inline const std::chrono::system_clock::time_point& getTestValidStartTime() const
+  {
+    return mTestValidStartTime;
+  }
+  [[nodiscard]] inline bool getTestScheduled() const { return mTestScheduled; }
+  [[nodiscard]] inline int getTestNonce() const { return mTestNonce; }
 
 private:
-  const AccountId mAccountId = AccountId(10ULL);
+  const AccountId mTestAccountId = AccountId(1ULL);
+  const std::chrono::system_clock::time_point mTestValidStartTime = std::chrono::system_clock::now();
+  const bool mTestScheduled = true;
+  const int mTestNonce = 2;
 };
 
+//-----
+TEST_F(TransactionIdTest, WithValidStart)
+{
+  // Given / When
+  const TransactionId transactionId = TransactionId::withValidStart(getTestAccountId(), getTestValidStartTime());
+
+  // Then
+  EXPECT_EQ(transactionId.mAccountId, getTestAccountId());
+  EXPECT_EQ(transactionId.mValidTransactionTime, getTestValidStartTime());
+}
+
+//-----
 TEST_F(TransactionIdTest, GenerateTransactionId)
 {
+  // Given
   const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+  // When
   const TransactionId transactionId = TransactionId::generate(getTestAccountId());
 
-  EXPECT_EQ(transactionId.getAccountId(), getTestAccountId());
-
+  // Then
+  EXPECT_EQ(transactionId.mAccountId, getTestAccountId());
   // No real good way to verify here, just checking that the TransactionId validTransactionTime was made after the time
   // taken above.
-  EXPECT_GE(transactionId.getValidTransactionTime().time_since_epoch().count(), now.time_since_epoch().count());
+  EXPECT_GE(transactionId.mValidTransactionTime.time_since_epoch().count(), now.time_since_epoch().count());
 }
 
-// Tests serialization of Hedera::TransactionId -> proto::TransactionID.
-TEST_F(TransactionIdTest, SerializeTransactionIdToProtobuf)
+//-----
+TEST_F(TransactionIdTest, FromProtobuf)
 {
   // Given
-  const std::string testAccountIdStr = "111.222.333";
-  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  AccountId testAccountId = AccountId::fromString(testAccountIdStr);
-  TransactionId testTransactionId = TransactionId::generate(testAccountId);
+  proto::TransactionID proto;
+  proto.set_allocated_accountid(getTestAccountId().toProtobuf().release());
+  proto.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(getTestValidStartTime()));
+  proto.set_scheduled(getTestScheduled());
+  proto.set_nonce(getTestNonce());
 
   // When
-  const auto protoTransactionIdPtr = std::unique_ptr<proto::TransactionID>(testTransactionId.toProtobuf());
-  const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(internal::TimestampConverter::toProtobuf(now));
+  const TransactionId transactionId = TransactionId::fromProtobuf(proto);
 
   // Then
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), testAccountId.mShardNum);
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), testAccountId.mRealmNum);
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), testAccountId.mAccountNum);
-  EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
+  EXPECT_EQ(transactionId.mAccountId, getTestAccountId());
+  EXPECT_EQ(transactionId.mValidTransactionTime, getTestValidStartTime());
+  EXPECT_EQ(transactionId.getScheduled(), getTestScheduled());
+  EXPECT_EQ(transactionId.getNonce(), getTestNonce());
 }
 
-// Tests deserialization of proto::TransactionID -> Hedera::TransactionId.
-TEST_F(TransactionIdTest, DeserializeTransactionIdFromProtobuf)
+//-----
+TEST_F(TransactionIdTest, FromString)
 {
   // Given
-  const std::string testAccountIdStr = "123.456.789";
-  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  AccountId testAccountId = AccountId::fromString(testAccountIdStr);
-  proto::TransactionID testProtoTransactionId;
-  testProtoTransactionId.set_allocated_accountid(testAccountId.toProtobuf().release());
-  testProtoTransactionId.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(now));
+  const std::chrono::system_clock::duration durationSinceEpoch = getTestValidStartTime().time_since_epoch();
+  const std::chrono::seconds secondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(durationSinceEpoch);
+  const std::string validStartTimeStr =
+    std::to_string(secondsSinceEpoch.count()) + '.' +
+    std::to_string(
+      std::chrono::duration_cast<std::chrono::nanoseconds>(durationSinceEpoch - secondsSinceEpoch).count());
 
   // When
-  const TransactionId transactionId = TransactionId::fromProtobuf(testProtoTransactionId);
+  const TransactionId transactionId = TransactionId::fromString(
+    getTestAccountId().toString() + '@' + validStartTimeStr + (getTestScheduled() ? "?scheduled" : "") +
+    (getTestNonce() != 0 ? ('/' + std::to_string(getTestNonce())) : ""));
 
   // Then
-  EXPECT_EQ(transactionId.getAccountId(), testAccountId);
-  EXPECT_EQ(transactionId.getValidTransactionTime(), now);
+  EXPECT_EQ(transactionId.mAccountId, getTestAccountId());
+  EXPECT_EQ(transactionId.mValidTransactionTime, getTestValidStartTime());
+  EXPECT_EQ(transactionId.getScheduled(), getTestScheduled());
+  EXPECT_EQ(transactionId.getNonce(), getTestNonce());
 }
 
-// Tests serialization of Hedera::TransactionId -> proto::TransactionID -> Hedera::TransactionId.
-TEST_F(TransactionIdTest, ProtobufTransactionId)
+//-----
+TEST_F(TransactionIdTest, FromBytes)
 {
-  const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+  // Given
+  proto::TransactionID proto;
+  proto.set_allocated_accountid(getTestAccountId().toProtobuf().release());
+  proto.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(getTestValidStartTime()));
+  proto.set_scheduled(getTestScheduled());
+  proto.set_nonce(getTestNonce());
 
-  proto::TransactionID protoTransactionId;
-  protoTransactionId.set_allocated_accountid(getTestAccountId().toProtobuf().release());
-  protoTransactionId.set_allocated_transactionvalidstart(internal::TimestampConverter::toProtobuf(now));
+  // When
+  const TransactionId transactionId =
+    TransactionId::fromBytes(internal::Utilities::stringToByteVector(proto.SerializeAsString()));
 
-  const TransactionId transactionId = TransactionId::fromProtobuf(protoTransactionId);
-  EXPECT_EQ(transactionId.getAccountId(), getTestAccountId());
-  EXPECT_EQ(transactionId.getValidTransactionTime(), now);
+  // Then
+  EXPECT_EQ(transactionId.mAccountId, getTestAccountId());
+  EXPECT_EQ(transactionId.mValidTransactionTime, getTestValidStartTime());
+  EXPECT_EQ(transactionId.getScheduled(), getTestScheduled());
+  EXPECT_EQ(transactionId.getNonce(), getTestNonce());
+}
 
-  const auto protoTransactionIdPtr = std::unique_ptr<proto::TransactionID>(transactionId.toProtobuf());
-  const auto protoTimestampPtr = std::unique_ptr<proto::Timestamp>(internal::TimestampConverter::toProtobuf(now));
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().shardnum()), getTestAccountId().mShardNum);
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().realmnum()), getTestAccountId().mRealmNum);
-  EXPECT_EQ(static_cast<uint64_t>(protoTransactionIdPtr->accountid().accountnum()), getTestAccountId().mAccountNum);
-  EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().seconds(), protoTimestampPtr->seconds());
-  EXPECT_EQ(protoTransactionIdPtr->transactionvalidstart().nanos(), protoTimestampPtr->nanos());
+//-----
+TEST_F(TransactionIdTest, ToProtobuf)
+{
+  // Given
+  TransactionId transactionId;
+  transactionId.mAccountId = getTestAccountId();
+  transactionId.mValidTransactionTime = getTestValidStartTime();
+  transactionId.setScheduled(getTestScheduled());
+  transactionId.setNonce(getTestNonce());
+
+  // When
+  const std::unique_ptr<proto::TransactionID> proto = transactionId.toProtobuf();
+
+  // Then
+  EXPECT_EQ(AccountId::fromProtobuf(proto->accountid()), getTestAccountId());
+  EXPECT_EQ(internal::TimestampConverter::fromProtobuf(proto->transactionvalidstart()), getTestValidStartTime());
+  EXPECT_EQ(proto->scheduled(), getTestScheduled());
+  EXPECT_EQ(proto->nonce(), getTestNonce());
+}
+
+//-----
+TEST_F(TransactionIdTest, ToString)
+{
+  // Given
+  const std::chrono::system_clock::duration durationSinceEpoch = getTestValidStartTime().time_since_epoch();
+  const std::chrono::seconds secondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(durationSinceEpoch);
+  const std::string validStartTimeStr =
+    std::to_string(secondsSinceEpoch.count()) + '.' +
+    std::to_string(
+      std::chrono::duration_cast<std::chrono::nanoseconds>(durationSinceEpoch - secondsSinceEpoch).count());
+
+  TransactionId transactionId;
+  transactionId.mAccountId = getTestAccountId();
+  transactionId.mValidTransactionTime = getTestValidStartTime();
+  transactionId.setScheduled(getTestScheduled());
+  transactionId.setNonce(getTestNonce());
+
+  // When
+  const std::string str = transactionId.toString();
+
+  // Then
+  EXPECT_EQ(str,
+            getTestAccountId().toString() + '@' + validStartTimeStr + (getTestScheduled() ? "?scheduled" : "") +
+              (getTestNonce() != 0 ? ('/' + std::to_string(getTestNonce())) : ""));
+}
+
+//-----
+TEST_F(TransactionIdTest, ToBytes)
+{
+  // Given
+  TransactionId transactionId;
+  transactionId.mAccountId = getTestAccountId();
+  transactionId.mValidTransactionTime = getTestValidStartTime();
+  transactionId.setScheduled(getTestScheduled());
+  transactionId.setNonce(getTestNonce());
+
+  // When
+  const std::vector<std::byte> bytes = transactionId.toBytes();
+
+  // Then
+  EXPECT_EQ(bytes, internal::Utilities::stringToByteVector(transactionId.toProtobuf()->SerializeAsString()));
+}
+
+//-----
+TEST_F(TransactionIdTest, SetGetScheduled)
+{
+  // Given
+  TransactionId transactionId;
+
+  // When
+  transactionId.setScheduled(getTestScheduled());
+
+  // Then
+  EXPECT_EQ(transactionId.getScheduled(), getTestScheduled());
+}
+
+//-----
+TEST_F(TransactionIdTest, SetGetNonce)
+{
+  // Given
+  TransactionId transactionId;
+
+  // When
+  transactionId.setNonce(getTestNonce());
+
+  // Then
+  EXPECT_EQ(transactionId.getNonce(), getTestNonce());
 }

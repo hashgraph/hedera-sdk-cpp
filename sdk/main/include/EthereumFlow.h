@@ -66,7 +66,7 @@ public:
    * @throws PrecheckStatusException      If any Transaction fails its pre-check.
    * @throws UninitializedException       If the input Client has not yet been initialized.
    */
-  TransactionResponse execute(const Client& client, const std::chrono::duration<double>& timeout);
+  TransactionResponse execute(const Client& client, const std::chrono::system_clock::duration& timeout);
 
   /**
    * Set the bytes of the raw EthereumTransaction (RLP encoded type 0, 1, or 2).

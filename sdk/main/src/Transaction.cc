@@ -102,6 +102,10 @@ struct Transaction<SdkRequestType>::TransactionImpl
   // Transaction protobuf object in mTransactions.
   std::vector<proto::SignedTransaction> mSignedTransactions;
 
+  // When submitting a Transaction, the index into mSignedTransactions and mTransactions must be tracked so that a
+  // proper TransactionResponse can be generated (which must grab the transaction hash and node account ID).
+  unsigned int mTransactionIndex = 0U;
+
   // A list of PublicKeys with their signer functions that should sign the TransactionBody protobuf objects this
   // Transaction creates. If the signer function associated with a public key is empty, that means that the private key
   // associated with that public key has already contributed a signature, but the signer is not available (probably
@@ -129,7 +133,7 @@ struct Transaction<SdkRequestType>::TransactionImpl
   Hbar mDefaultMaxTransactionFee = DEFAULT_MAX_TRANSACTION_FEE;
 
   // The length of time this Transaction will remain valid.
-  std::chrono::duration<double> mTransactionValidDuration = DEFAULT_TRANSACTION_VALID_DURATION;
+  std::chrono::system_clock::duration mTransactionValidDuration = DEFAULT_TRANSACTION_VALID_DURATION;
 
   // The memo to be associated with this Transaction.
   std::string mTransactionMemo;
@@ -332,7 +336,7 @@ SdkRequestType& Transaction<SdkRequestType>::signWithOperator(const Client& clie
 
   freezeWith(&client);
 
-  return signInternal(client.getOperatorPublicKey(), client.getOperatorSigner());
+  return signInternal(client.getOperatorPublicKey(), client.getOperatorSigner().value());
 }
 
 //-----
@@ -427,14 +431,14 @@ SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client* client)
     }
 
     // Make sure the client has a valid network.
-    if (!client->getNetwork())
+    if (!client->getClientNetwork())
     {
       throw UninitializedException("Client has not been initialized with a valid network");
     }
 
     // Have the Client's network generate the node account IDs to which to send this Transaction.
     Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::setNodeAccountIds(
-      client->getNetwork()->getNodeAccountIdsForExecute());
+      client->getClientNetwork()->getNodeAccountIdsForExecute());
   }
 
   // Generate the SignedTransaction protobuf objects.
@@ -542,7 +546,8 @@ SdkRequestType& Transaction<SdkRequestType>::setMaxTransactionFee(const Hbar& fe
 
 //-----
 template<typename SdkRequestType>
-SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(const std::chrono::duration<double>& duration)
+SdkRequestType& Transaction<SdkRequestType>::setValidTransactionDuration(
+  const std::chrono::system_clock::duration& duration)
 {
   requireNotFrozen();
   mImpl->mTransactionValidDuration = duration;
@@ -595,7 +600,7 @@ Hbar Transaction<SdkRequestType>::getDefaultMaxTransactionFee() const
 
 //-----
 template<typename SdkRequestType>
-std::chrono::duration<double> Transaction<SdkRequestType>::getValidTransactionDuration() const
+std::chrono::system_clock::duration Transaction<SdkRequestType>::getValidTransactionDuration() const
 {
   return mImpl->mTransactionValidDuration;
 }
@@ -767,6 +772,7 @@ Transaction<SdkRequestType>::Transaction(
 template<typename SdkRequestType>
 proto::Transaction Transaction<SdkRequestType>::makeRequest(unsigned int index) const
 {
+  mImpl->mTransactionIndex = index;
   buildTransaction(index);
   return getTransactionProtobufObject(index);
 }
@@ -961,11 +967,17 @@ TransactionId Transaction<SdkRequestType>::getCurrentTransactionId() const
 
 //-----
 template<typename SdkRequestType>
-TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse& response) const
+TransactionResponse Transaction<SdkRequestType>::mapResponse(const proto::TransactionResponse&) const
 {
-  TransactionResponse txResp = TransactionResponse::fromProtobuf(response);
-  txResp.mTransactionId = getCurrentTransactionId();
-  return txResp;
+  return TransactionResponse(
+    Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::getNodeAccountIds()
+      .at(mImpl->mTransactionIndex %
+          Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+            getNodeAccountIds()
+              .size()),
+    getCurrentTransactionId(),
+    internal::OpenSSLUtils::computeSHA384(internal::Utilities::stringToByteVector(
+      getTransactionProtobufObject(mImpl->mTransactionIndex).signedtransactionbytes())));
 }
 
 //-----
@@ -1009,7 +1021,7 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
   {
     // If transaction IDs are allowed to be regenerated, regenerate the transaction ID and the Transaction protobuf
     // objects.
-    mImpl->mTransactionId = TransactionId::generate(mImpl->mTransactionId.getAccountId());
+    mImpl->mTransactionId = TransactionId::generate(mImpl->mTransactionId.mAccountId);
 
     // Regenerate the SignedTransaction protobuf objects.
     clearTransactions();
@@ -1044,7 +1056,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
 
   // Sign with the operator if the operator's present, and if it's paying for the Transaction.
   if (client.getOperatorAccountId().has_value() &&
-      client.getOperatorAccountId().value() == mImpl->mTransactionId.getAccountId())
+      client.getOperatorAccountId().value() == mImpl->mTransactionId.mAccountId)
   {
     signWithOperator(client);
   }

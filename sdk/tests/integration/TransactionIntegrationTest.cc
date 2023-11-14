@@ -44,7 +44,10 @@ protected:
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey() const { return mPublicKey; }
   [[nodiscard]] inline const Hbar& getTestInitialBalance() const { return mInitialBalance; }
   [[nodiscard]] inline bool getTestReceiverSignatureRequired() const { return mReceiverSignatureRequired; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestAutoRenewPeriod() const
+  {
+    return mAutoRenewPeriod;
+  }
   [[nodiscard]] inline const std::string& getTestAccountMemo() const { return mAccountMemo; }
   [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
   [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
@@ -54,7 +57,7 @@ private:
   const std::shared_ptr<PublicKey> mPublicKey = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
   const Hbar mInitialBalance = Hbar(1000ULL, HbarUnit::TINYBAR());
   const bool mReceiverSignatureRequired = true;
-  const std::chrono::duration<double> mAutoRenewPeriod = std::chrono::hours(3);
+  const std::chrono::system_clock::duration mAutoRenewPeriod = std::chrono::hours(3);
   const std::string mAccountMemo = "Test Account Memo";
   const uint32_t mMaxTokenAssociations = 3U;
 

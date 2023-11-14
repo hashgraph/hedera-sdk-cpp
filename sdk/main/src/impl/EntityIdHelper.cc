@@ -268,7 +268,7 @@ std::string toSolidityAddress(uint64_t shard, uint64_t realm, uint64_t num)
 void validate(uint64_t shard, uint64_t realm, uint64_t num, const Client& client, std::string_view expectedChecksum)
 {
   // Make sure the Client's network is initialized.
-  if (!client.getNetwork())
+  if (!client.getClientNetwork())
   {
     throw UninitializedException("Client has no network with which to validate checksum");
   }

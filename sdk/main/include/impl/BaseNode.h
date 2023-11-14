@@ -77,7 +77,7 @@ public:
    *
    * @return The remaining amount of time this BaseNode has in its backoff.
    */
-  [[nodiscard]] std::chrono::duration<double> getRemainingTimeForBackoff() const;
+  [[nodiscard]] std::chrono::system_clock::duration getRemainingTimeForBackoff() const;
 
   /**
    * Set the minimum amount of time for this BaseNode to backoff after a bad gRPC status is received.
@@ -85,7 +85,7 @@ public:
    * @param backoff The minimum backoff time for this BaseNode after a bad gRPC status is received.
    * @return A reference to this derived BaseNode object with the newly-set minimum backoff.
    */
-  NodeType& setMinNodeBackoff(const std::chrono::duration<double>& backoff);
+  NodeType& setMinNodeBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Set the maximum amount of time for this BaseNode to backoff after a bad gRPC status is received.
@@ -93,7 +93,7 @@ public:
    * @param backoff The maximum backoff time for this BaseNode after a bad gRPC status is received.
    * @return A reference to this derived BaseNode object with the newly-set minimum backoff.
    */
-  NodeType& setMaxNodeBackoff(const std::chrono::duration<double>& backoff);
+  NodeType& setMaxNodeBackoff(const std::chrono::system_clock::duration& backoff);
 
   /**
    * Get this BaseNode's BaseNodeAddress.
@@ -111,7 +111,7 @@ public:
    *
    * @return The minimum amount of time for this BaseNode to backoff after a bad gRPC status is received.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMinNodeBackoff() const
+  [[nodiscard]] inline std::chrono::system_clock::duration getMinNodeBackoff() const
   {
     std::unique_lock lock(*mMutex);
     return mMinNodeBackoff;
@@ -122,7 +122,7 @@ public:
    *
    * @return The maximum amount of time for this BaseNode to backoff after a bad gRPC status is received.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getMaxNodeBackoff() const
+  [[nodiscard]] inline std::chrono::system_clock::duration getMaxNodeBackoff() const
   {
     std::unique_lock lock(*mMutex);
     return mMaxNodeBackoff;
@@ -238,18 +238,18 @@ private:
   /**
    * The minimum amount of time to wait to use this BaseNode after it has received a bad gRPC status.
    */
-  std::chrono::duration<double> mMinNodeBackoff = DEFAULT_MIN_NODE_BACKOFF;
+  std::chrono::system_clock::duration mMinNodeBackoff = DEFAULT_MIN_NODE_BACKOFF;
 
   /**
    * The maximum amount of time to wait to use this BaseNode after it has received a bad gRPC status.
    */
-  std::chrono::duration<double> mMaxNodeBackoff = DEFAULT_MAX_NODE_BACKOFF;
+  std::chrono::system_clock::duration mMaxNodeBackoff = DEFAULT_MAX_NODE_BACKOFF;
 
   /**
    * The current amount of time to wait to use this BaseNode after it has received a bad gRPC status. This will increase
    * exponentially until mMaxNodeBackoff is reached.
    */
-  std::chrono::duration<double> mCurrentBackoff = DEFAULT_MIN_NODE_BACKOFF;
+  std::chrono::system_clock::duration mCurrentBackoff = DEFAULT_MIN_NODE_BACKOFF;
 
   /**
    * The time at which this BaseNode will be considered "healthy".

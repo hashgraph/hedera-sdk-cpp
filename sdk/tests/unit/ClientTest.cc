@@ -32,7 +32,7 @@ class ClientTest : public ::testing::Test
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const std::shared_ptr<ED25519PrivateKey>& getTestPrivateKey() const { return mPrivateKey; }
-  [[nodiscard]] inline const std::chrono::duration<double>& getTestNetworkUpdatePeriod() const
+  [[nodiscard]] inline const std::chrono::system_clock::duration& getTestNetworkUpdatePeriod() const
   {
     return mTestNetworkUpdatePeriod;
   }
@@ -45,7 +45,7 @@ protected:
 private:
   const AccountId mAccountId = AccountId(10ULL);
   const std::shared_ptr<ED25519PrivateKey> mPrivateKey = ED25519PrivateKey::generatePrivateKey();
-  const std::chrono::duration<double> mTestNetworkUpdatePeriod = std::chrono::seconds(2);
+  const std::chrono::system_clock::duration mTestNetworkUpdatePeriod = std::chrono::seconds(2);
 
   const std::chrono::milliseconds mNegativeBackoffTime = std::chrono::milliseconds(-1);
   const std::chrono::milliseconds mZeroBackoffTime = std::chrono::milliseconds(0);

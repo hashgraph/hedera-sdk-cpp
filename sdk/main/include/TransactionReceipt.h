@@ -31,6 +31,7 @@
 #include "TransactionId.h"
 
 #include <cstddef>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -71,6 +72,28 @@ public:
                                                        const TransactionId& transactionId = TransactionId());
 
   /**
+   * Construct a TransactionReceipt object from a byte array.
+   *
+   * @param bytes The byte array from which to construct a TransactionReceipt object.
+   * @return The constructed TransactionReceipt object.
+   */
+  [[nodiscard]] static TransactionReceipt fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Construct a TransactionReceipt protobuf object from this TransactionReceipt object.
+   *
+   * @return A pointer to the created TransactionReceipt protobuf object.
+   */
+  [[nodiscard]] std::unique_ptr<proto::TransactionReceipt> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this TransactionReceipt object.
+   *
+   * @return The byte array representing this TransactionReceipt object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
    * Validate the status and throw if it is not a Status::SUCCESS.
    *
    * @throws ReceiptStatusException If the status is not a Status::SUCCESS.
@@ -106,7 +129,7 @@ public:
   /**
    * The exchange rates in effect when the transaction reached consensus.
    */
-  std::optional<ExchangeRates> mExchangeRates;
+  ExchangeRates mExchangeRates;
 
   /**
    * In the receipt of a ConsensusCreateTopic, the ID of the newly created topic.

@@ -71,21 +71,22 @@ void startSubscription(
   std::function<void(void)> completionHandler,
   std::function<void(const TopicMessage&)> onNext,
   uint32_t maxAttempts,
-  std::chrono::duration<double> maxBackoff,
-  SubscriptionHandle* handle)
+  std::chrono::system_clock::duration maxBackoff,
+  std::shared_ptr<SubscriptionHandle> handle)
 {
   // Grab moved objects.
   std::vector<std::unique_ptr<grpc::ClientContext>> contexts;
   std::vector<std::unique_ptr<grpc::CompletionQueue>> queues;
   contexts.push_back(std::move(context));
   queues.push_back(std::move(queue));
+
   handle->setOnUnsubscribe([&contexts]() { contexts.back()->TryCancel(); });
 
   // Declare needed variables.
   com::hedera::mirror::api::proto::ConsensusTopicResponse response;
   std::unordered_map<TransactionId, std::vector<com::hedera::mirror::api::proto::ConsensusTopicResponse>>
     pendingMessages;
-  std::chrono::duration<double> backoff = DEFAULT_MIN_BACKOFF;
+  std::chrono::system_clock::duration backoff = DEFAULT_MIN_BACKOFF;
   grpc::Status grpcStatus;
   uint64_t attempt = 0ULL;
   bool complete = false;
@@ -262,7 +263,7 @@ struct TopicMessageQuery::TopicMessageQueryImpl
   uint32_t mMaxAttempts = DEFAULT_MAX_ATTEMPTS;
 
   // The maximum amount of time to wait between submission attempts.
-  std::chrono::duration<double> mMaxBackoff = DEFAULT_MAX_BACKOFF;
+  std::chrono::system_clock::duration mMaxBackoff = DEFAULT_MAX_BACKOFF;
 
   // The function to run when there's an error.
   std::function<void(grpc::Status)> mErrorHandler = [](const grpc::Status& status)
@@ -335,23 +336,22 @@ TopicMessageQuery& TopicMessageQuery::operator=(TopicMessageQuery&& other) noexc
 }
 
 //-----
-SubscriptionHandle TopicMessageQuery::subscribe(const Client& client,
-                                                const std::function<void(const TopicMessage&)>& onNext)
+std::shared_ptr<SubscriptionHandle> TopicMessageQuery::subscribe(const Client& client,
+                                                                 const std::function<void(const TopicMessage&)>& onNext)
 {
   // Create the subscription handle and assign its unsubscribe function to cancel this TopicMessageQuery's context
   // (which will cancel the gRPC call).
-  SubscriptionHandle handle;
+  auto handle = std::make_shared<SubscriptionHandle>();
 
   // Set up the subscription before passing it to the listening thread.
   auto context = std::make_unique<grpc::ClientContext>();
   auto queue = std::make_unique<grpc::CompletionQueue>();
   auto callStatus = std::make_unique<CallStatus>();
-  handle.setOnUnsubscribe([&context]() { context->TryCancel(); });
 
   // Send the query and initiate the subscription.
   std::thread(&startSubscription,
-              client.getMirrorNetwork(),
-              getConnectedMirrorNode(client.getMirrorNetwork())
+              client.getClientMirrorNetwork(),
+              getConnectedMirrorNode(client.getClientMirrorNetwork())
                 ->getConsensusServiceStub()
                 ->AsyncsubscribeTopic(context.get(), mImpl->mQuery, queue.get(), callStatus.get()),
               std::move(context),
@@ -364,7 +364,7 @@ SubscriptionHandle TopicMessageQuery::subscribe(const Client& client,
               onNext,
               mImpl->mMaxAttempts,
               mImpl->mMaxBackoff,
-              &handle)
+              handle)
     .detach();
 
   return handle;
@@ -406,7 +406,7 @@ TopicMessageQuery& TopicMessageQuery::setMaxAttempts(uint32_t attempts)
 }
 
 //-----
-TopicMessageQuery& TopicMessageQuery::setMaxBackoff(const std::chrono::duration<double>& backoff)
+TopicMessageQuery& TopicMessageQuery::setMaxBackoff(const std::chrono::system_clock::duration& backoff)
 {
   mImpl->mMaxBackoff = backoff;
   return *this;
@@ -464,7 +464,7 @@ uint32_t TopicMessageQuery::getMaxAttempts() const
 }
 
 //-----
-std::chrono::duration<double> TopicMessageQuery::getMaxBackoff() const
+std::chrono::system_clock::duration TopicMessageQuery::getMaxBackoff() const
 {
   return mImpl->mMaxBackoff;
 }

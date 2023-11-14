@@ -44,8 +44,7 @@ void BaseNode<NodeType, KeyType>::increaseBackoff()
 {
   std::unique_lock lock(*mMutex);
   ++mBadGrpcStatusCount;
-  mReadmitTime =
-    std::chrono::system_clock::now() + std::chrono::duration_cast<std::chrono::system_clock::duration>(mCurrentBackoff);
+  mReadmitTime = std::chrono::system_clock::now() + mCurrentBackoff;
   mCurrentBackoff *= 2.0;
 
   // Make sure the current backoff doesn't go over the max backoff.
@@ -95,7 +94,7 @@ bool BaseNode<NodeType, KeyType>::channelFailedToConnect()
 
 //-----
 template<typename NodeType, typename KeyType>
-std::chrono::duration<double> BaseNode<NodeType, KeyType>::getRemainingTimeForBackoff() const
+std::chrono::system_clock::duration BaseNode<NodeType, KeyType>::getRemainingTimeForBackoff() const
 {
   std::unique_lock lock(*mMutex);
   return mReadmitTime - std::chrono::system_clock::now();
@@ -103,7 +102,7 @@ std::chrono::duration<double> BaseNode<NodeType, KeyType>::getRemainingTimeForBa
 
 //-----
 template<typename NodeType, typename KeyType>
-NodeType& BaseNode<NodeType, KeyType>::setMinNodeBackoff(const std::chrono::duration<double>& backoff)
+NodeType& BaseNode<NodeType, KeyType>::setMinNodeBackoff(const std::chrono::system_clock::duration& backoff)
 {
   std::unique_lock lock(*mMutex);
   if (mCurrentBackoff == mMinNodeBackoff)
@@ -117,7 +116,7 @@ NodeType& BaseNode<NodeType, KeyType>::setMinNodeBackoff(const std::chrono::dura
 
 //-----
 template<typename NodeType, typename KeyType>
-NodeType& BaseNode<NodeType, KeyType>::setMaxNodeBackoff(const std::chrono::duration<double>& backoff)
+NodeType& BaseNode<NodeType, KeyType>::setMaxNodeBackoff(const std::chrono::system_clock::duration& backoff)
 {
   std::unique_lock lock(*mMutex);
   mMaxNodeBackoff = backoff;

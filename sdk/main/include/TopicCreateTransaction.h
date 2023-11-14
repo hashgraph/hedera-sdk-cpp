@@ -109,7 +109,7 @@ public:
    * @return A reference to this TopicCreateTransaction object with the newly-set auto-renew period.
    * @throws IllegalStateException If this TopicCreateTransaction is frozen.
    */
-  TopicCreateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenew);
+  TopicCreateTransaction& setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenew);
 
   /**
    * Set the ID of the desired auto-renew account for the new topic.
@@ -146,7 +146,7 @@ public:
    *
    * @return The desired auto-renew period for the new topic.
    */
-  [[nodiscard]] inline std::chrono::duration<double> getAutoRenewPeriod() const { return mAutoRenewPeriod; }
+  [[nodiscard]] inline std::chrono::system_clock::duration getAutoRenewPeriod() const { return mAutoRenewPeriod; }
 
   /**
    * Get the ID of the desired auto-renew account for the new topic.
@@ -225,7 +225,7 @@ private:
   /**
    * The amount of time by which to attempt to extend the new topic's lifetime automatically at its expiration time.
    */
-  std::chrono::duration<double> mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
+  std::chrono::system_clock::duration mAutoRenewPeriod = DEFAULT_AUTO_RENEW_PERIOD;
 
   /**
    * The account that should be charged to extend the lifetime of the new topic at its expiration time.

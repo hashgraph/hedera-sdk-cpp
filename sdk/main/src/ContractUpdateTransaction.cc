@@ -71,7 +71,7 @@ ContractUpdateTransaction& ContractUpdateTransaction::setAdminKey(const std::sha
 
 //-----
 ContractUpdateTransaction& ContractUpdateTransaction::setAutoRenewPeriod(
-  const std::chrono::duration<double>& autoRenewPeriod)
+  const std::chrono::system_clock::duration& autoRenewPeriod)
 {
   requireNotFrozen();
   mAutoRenewPeriod = autoRenewPeriod;

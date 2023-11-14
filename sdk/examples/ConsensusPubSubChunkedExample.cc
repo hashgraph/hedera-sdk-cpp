@@ -75,7 +75,7 @@ int main(int argc, char** argv)
   std::cout << std::endl;
 
   // Set up a mirror client to print out messages as they are received.
-  SubscriptionHandle handle = TopicMessageQuery().setTopicId(topicId).subscribe(
+  std::shared_ptr<SubscriptionHandle> handle = TopicMessageQuery().setTopicId(topicId).subscribe(
     client,
     [](const TopicMessage& message)
     {

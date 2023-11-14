@@ -95,8 +95,8 @@ int main(int argc, char** argv)
             << std::endl;
 
   std::cout << "The following link should query the mirror node for the scheduled transaction:" << std::endl;
-  std::cout << txResponse.getTransactionId().getAccountId().toString() << '-'
-            << txResponse.getTransactionId().getValidTransactionTime().time_since_epoch().count() << std::endl;
+  std::cout << txResponse.mTransactionId.mAccountId.toString() << '-'
+            << txResponse.mTransactionId.mValidTransactionTime.time_since_epoch().count() << std::endl;
 
   // Delete the created account.
   std::cout << "Deleting created account: "

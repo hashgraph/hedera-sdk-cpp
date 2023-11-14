@@ -190,6 +190,7 @@ std::vector<std::byte> PrivateKey::signTransaction(WrappedTransaction& transacti
     case TRANSFER_TRANSACTION:
       return signTransaction(*transaction.getTransaction<TransferTransaction>());
     case UNKNOWN_TRANSACTION:
+    default:
     {
       throw std::invalid_argument("Unrecognized TransactionType");
     }
@@ -206,6 +207,13 @@ std::vector<std::byte> PrivateKey::getChainCode() const
 std::shared_ptr<PublicKey> PrivateKey::getPublicKey() const
 {
   return mImpl->mPublicKey;
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const PrivateKey& key)
+{
+  os << key.toStringDer();
+  return os;
 }
 
 //-----

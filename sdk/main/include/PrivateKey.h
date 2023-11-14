@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -149,6 +150,15 @@ public:
    * @return A pointer to the PublicKey that corresponds to this PrivateKey.
    */
   [[nodiscard]] std::shared_ptr<PublicKey> getPublicKey() const;
+
+  /**
+   * Write this PrivateKey in DER-encoded hex to an output stream.
+   *
+   * @param os  The output stream.
+   * @param key The PrivateKey to print.
+   * @return The output stream with this PrivateKey written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const PrivateKey& key);
 
 protected:
   /**

@@ -27,6 +27,10 @@
 namespace Hedera
 {
 /**
+ * The default duration of time to try and submit a request.
+ */
+constexpr auto DEFAULT_REQUEST_TIMEOUT = std::chrono::minutes(2);
+/**
  * The default maximum number of times a request will attempt to be submitted before considering the execution failed.
  */
 constexpr auto DEFAULT_MAX_ATTEMPTS = 10U;
@@ -38,6 +42,10 @@ constexpr auto DEFAULT_MIN_BACKOFF = std::chrono::milliseconds(250);
  * The default maximum duration of time to wait before retrying to submit a previously-failed request.
  */
 constexpr auto DEFAULT_MAX_BACKOFF = std::chrono::seconds(8);
+/**
+ * The default maximum amount of time to spend on one execution attempt
+ */
+constexpr auto DEFAULT_GRPC_DEADLINE = std::chrono::seconds(10);
 /**
  * The default maximum number of times a node is allowed to return a bad gRPC status before it is permanently removed
  * from a network. 0 indicates there's no maximum.

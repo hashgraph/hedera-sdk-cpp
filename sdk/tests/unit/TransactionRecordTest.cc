@@ -19,6 +19,7 @@
  */
 #include "TransactionRecord.h"
 #include "AccountId.h"
+#include "ED25519PrivateKey.h"
 #include "EvmAddress.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
@@ -54,6 +55,9 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   const auto contractId = ContractId(5ULL);
   const std::vector<std::byte> contractCallResult = { std::byte(0x06), std::byte(0x07), std::byte(0x08) };
   const auto scheduleId = ScheduleId(9ULL);
+  const std::shared_ptr<PublicKey> alias = ED25519PrivateKey::generatePrivateKey()->getPublicKey();
+  const std::vector<std::byte> ethereumHash = { std::byte(0x00), std::byte(0x01), std::byte(0x02) };
+  const std::vector<std::byte> prngBytes = { std::byte(0x03), std::byte(0x04), std::byte(0x05) };
 
   proto::TransactionRecord protoTransactionRecord;
   protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf().release());
@@ -62,6 +66,10 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   protoTransactionRecord.set_allocated_transactionid(TransactionId::generate(accountIdFrom).toProtobuf().release());
   protoTransactionRecord.set_memo(txMemo);
   protoTransactionRecord.set_transactionfee(txFee);
+  protoTransactionRecord.set_allocated_parent_consensus_timestamp(internal::TimestampConverter::toProtobuf(now));
+  protoTransactionRecord.set_alias(alias->toProtobufKey()->SerializeAsString());
+  protoTransactionRecord.set_ethereum_hash(internal::Utilities::byteVectorToString(ethereumHash));
+  protoTransactionRecord.set_prng_bytes(internal::Utilities::byteVectorToString(prngBytes));
   protoTransactionRecord.set_evm_address(internal::Utilities::byteVectorToString(testEvmAddressBytes));
 
   proto::ContractFunctionResult* contractFunctionResult = protoTransactionRecord.mutable_contractcallresult();
@@ -108,6 +116,10 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   tokenAssociation->set_allocated_account_id(accountIdFrom.toProtobuf().release());
   tokenAssociation->set_allocated_token_id(tokenId.toProtobuf().release());
 
+  aa = protoTransactionRecord.add_paid_staking_rewards();
+  aa->set_allocated_accountid(accountIdFrom.toProtobuf().release());
+  aa->set_amount(amount);
+
   // When
   const TransactionRecord txRecord = TransactionRecord::fromProtobuf(protoTransactionRecord);
 
@@ -122,8 +134,8 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   EXPECT_EQ(txRecord.mConsensusTimestamp->time_since_epoch().count(), now.time_since_epoch().count());
 
   ASSERT_TRUE(txRecord.mTransactionID.has_value());
-  EXPECT_EQ(txRecord.mTransactionID->getAccountId(), accountIdFrom);
-  EXPECT_GE(txRecord.mTransactionID->getValidTransactionTime(), now);
+  EXPECT_EQ(txRecord.mTransactionID->mAccountId, accountIdFrom);
+  EXPECT_GE(txRecord.mTransactionID->mValidTransactionTime, now);
 
   EXPECT_EQ(txRecord.mMemo, txMemo);
 
@@ -165,6 +177,21 @@ TEST_F(TransactionRecordTest, FromProtobuf)
   ASSERT_EQ(txRecord.mAutomaticTokenAssociations.size(), 1);
   EXPECT_EQ(txRecord.mAutomaticTokenAssociations.at(0).mAccountId, accountIdFrom);
   EXPECT_EQ(txRecord.mAutomaticTokenAssociations.at(0).mTokenId, tokenId);
+
+  ASSERT_TRUE(txRecord.mParentConsensusTimestamp.has_value());
+  EXPECT_EQ(txRecord.mParentConsensusTimestamp.value(), now);
+
+  ASSERT_NE(txRecord.mAlias, nullptr);
+  EXPECT_EQ(txRecord.mAlias->toBytesDer(), alias->toBytesDer());
+
+  ASSERT_TRUE(txRecord.mEthereumHash.has_value());
+  EXPECT_EQ(txRecord.mEthereumHash.value(), ethereumHash);
+
+  ASSERT_EQ(txRecord.mPaidStakingRewards.size(), 1);
+  EXPECT_EQ(txRecord.mPaidStakingRewards.at(0).mAccountId, accountIdFrom);
+  EXPECT_EQ(txRecord.mPaidStakingRewards.at(0).mAmount.toTinybars(), amount);
+
+  EXPECT_EQ(txRecord.mPrngBytes, prngBytes);
 
   ASSERT_TRUE(txRecord.mEvmAddress.has_value());
   EXPECT_EQ(txRecord.mEvmAddress->toBytes(), testEvmAddressBytes);

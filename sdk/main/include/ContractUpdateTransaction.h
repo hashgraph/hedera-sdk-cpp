@@ -109,7 +109,7 @@ public:
    * @return A reference to this ContractUpdateTransaction object with the newly-set auto renew period.
    * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setAutoRenewPeriod(const std::chrono::duration<double>& autoRenewPeriod);
+  ContractUpdateTransaction& setAutoRenewPeriod(const std::chrono::system_clock::duration& autoRenewPeriod);
 
   /**
    * Set a new memo for the contract.
@@ -202,7 +202,7 @@ public:
    * @return The new auto renew period for the new contract. Returns uninitialized if a new auto-renew period has not
    *         yet been set.
    */
-  [[nodiscard]] inline std::optional<std::chrono::duration<double>> getAutoRenewPeriod() const
+  [[nodiscard]] inline std::optional<std::chrono::system_clock::duration> getAutoRenewPeriod() const
   {
     return mAutoRenewPeriod;
   }
@@ -323,7 +323,7 @@ private:
   /**
    * The new auto renew period for the contract.
    */
-  std::optional<std::chrono::duration<double>> mAutoRenewPeriod;
+  std::optional<std::chrono::system_clock::duration> mAutoRenewPeriod;
 
   /**
    * The new memo for the contract (UTF-8 encoding max 100 bytes).

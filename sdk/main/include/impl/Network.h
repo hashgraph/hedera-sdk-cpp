@@ -121,6 +121,21 @@ public:
   Network& setMaxNodesPerRequest(unsigned int max);
 
   /**
+   * Are certificates being verified?
+   *
+   * @return A boolean value indicating if the certificates are being verified.
+   */
+  [[nodiscard]] bool isVerifyCertificates() const { return mVerifyCertificates; }
+
+  /**
+   * Get a list of node account IDs on which to execute. This will pick 1/3 of the available nodes sorted by health and
+   * expected delay from the network.
+   *
+   * @return A list of AccountIds that are running nodes on which should be executed.
+   */
+  [[nodiscard]] unsigned int getNumberOfNodesForRequest() const;
+
+  /**
    * Get a list of node account IDs on which to execute. This will pick 1/3 of the available nodes sorted by health and
    * expected delay from the network.
    *
