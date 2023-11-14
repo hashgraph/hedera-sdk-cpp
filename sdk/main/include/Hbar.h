@@ -120,6 +120,15 @@ public:
   [[nodiscard]] static Hbar fromString(const std::string& text);
 
   /**
+   * Helper function to get the HbarUnit from the given symbol string.
+   *
+   * @param symbolString The symbol string representing the HbarUnit.
+   * @return The corresponding HbarUnit.
+   * @throws std::invalid_argument if the symbol is not recognized.
+   */
+  [[nodiscard]] static HbarUnit getUnit(const std::string& symbolString);
+
+  /**
    * Convert this Hbar value to tinybars.
    *
    * @return The amount this Hbar object represents in tinybars.

@@ -59,9 +59,45 @@ Hbar Hbar::fromString(const std::string& text)
   amountStream >> amount;
 
   // Determine the unit
-  HbarUnit unit = (unitStr.empty()) ? HbarUnit::HBAR() : HbarUnit::TINYBAR(); // getUnit(unitStr);
+  HbarUnit unit = (unitStr.empty()) ? HbarUnit::HBAR() : Hbar::getUnit(unitStr);
 
   return Hbar(amount, unit);
+}
+
+//-----
+HbarUnit Hbar::getUnit(const std::string& symbolString)
+{
+  if (symbolString == HbarUnit::TINYBAR().getSymbol())
+  {
+    return HbarUnit::TINYBAR();
+  }
+  else if (symbolString == HbarUnit::MICROBAR().getSymbol())
+  {
+    return HbarUnit::MICROBAR();
+  }
+  else if (symbolString == HbarUnit::MILLIBAR().getSymbol())
+  {
+    return HbarUnit::MILLIBAR();
+  }
+  else if (symbolString == HbarUnit::HBAR().getSymbol())
+  {
+    return HbarUnit::HBAR();
+  }
+  else if (symbolString == HbarUnit::KILOBAR().getSymbol())
+  {
+    return HbarUnit::KILOBAR();
+  }
+  else if (symbolString == HbarUnit::MEGABAR().getSymbol())
+  {
+    return HbarUnit::MEGABAR();
+  }
+  else if (symbolString == HbarUnit::GIGABAR().getSymbol())
+  {
+    return HbarUnit::GIGABAR();
+  }
+
+  throw std::invalid_argument("Attempted to convert string to Hbar, but unit symbol \"" + symbolString +
+                              "\" was not recognized");
 }
 
 } // namespace Hedera
