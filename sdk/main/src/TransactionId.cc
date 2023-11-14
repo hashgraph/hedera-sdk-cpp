@@ -373,13 +373,8 @@ TransactionId::TransactionId(Hedera::AccountId accountId, const std::chrono::sys
 //-----
 std::string TransactionId::getTimestampScheduleNonceString() const
 {
-  const std::chrono::system_clock::duration durationSinceEpoch = mValidTransactionTime.time_since_epoch();
-  const std::chrono::seconds secondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(durationSinceEpoch);
-
-  return '@' + std::to_string(secondsSinceEpoch.count()) + '.' +
-         std::to_string(
-           std::chrono::duration_cast<std::chrono::nanoseconds>(durationSinceEpoch - secondsSinceEpoch).count()) +
-         (mScheduled ? "?scheduled" : "") + (mNonce != 0 ? ('/' + std::to_string(mNonce)) : "");
+  return '@' + internal::TimestampConverter::toString(mValidTransactionTime) + (mScheduled ? "?scheduled" : "") +
+         (mNonce != 0 ? ('/' + std::to_string(mNonce)) : "");
 }
 
 } // namespace Hedera

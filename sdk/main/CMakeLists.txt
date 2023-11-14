@@ -51,6 +51,11 @@ add_library(${PROJECT_NAME} STATIC
         src/ExchangeRate.cc
         src/ExchangeRates.cc
         src/Executable.cc
+        src/FeeComponents.cc
+        src/FeeData.cc
+        src/FeeDataType.cc
+        src/FeeSchedule.cc
+        src/FeeSchedules.cc
         src/FileAppendTransaction.cc
         src/FileContentsQuery.cc
         src/FileCreateTransaction.cc
@@ -79,6 +84,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ProxyStaker.cc
         src/PublicKey.cc
         src/Query.cc
+        src/RequestType.cc
         src/ScheduleCreateTransaction.cc
         src/ScheduleDeleteTransaction.cc
         src/ScheduleId.cc
@@ -129,6 +135,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TopicMessageSubmitTransaction.cc
         src/TopicUpdateTransaction.cc
         src/Transaction.cc
+        src/TransactionFeeSchedule.cc
         src/TransactionId.cc
         src/TransactionReceipt.cc
         src/TransactionReceiptQuery.cc

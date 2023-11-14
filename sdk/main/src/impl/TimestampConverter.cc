@@ -55,4 +55,15 @@ proto::TimestampSeconds* toSecondsProtobuf(const std::chrono::system_clock::time
   return timestamp.release();
 }
 
+//-----
+std::string toString(const std::chrono::system_clock::time_point& timestamp)
+{
+  const std::chrono::system_clock::duration durationSinceEpoch = timestamp.time_since_epoch();
+  const std::chrono::seconds secondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(durationSinceEpoch);
+
+  return std::to_string(secondsSinceEpoch.count()) + '.' +
+         std::to_string(
+           std::chrono::duration_cast<std::chrono::nanoseconds>(durationSinceEpoch - secondsSinceEpoch).count());
+}
+
 } // namespace Hedera::internal::TimestampConverter

@@ -22,6 +22,7 @@
 
 #include <chrono>
 #include <memory>
+#include <string>
 
 namespace proto
 {
@@ -62,6 +63,14 @@ proto::Timestamp* toProtobuf(const std::chrono::system_clock::time_point& time);
  * @return A pointer to the created TimestampSeconds protobuf object.
  */
 proto::TimestampSeconds* toSecondsProtobuf(const std::chrono::system_clock::time_point& time);
+
+/**
+ * Convert an epoch timestamp to a string representation of the form "<seconds>.<nanoseconds>".
+ *
+ * @param timestamp The timestamp of which to get the the string representation.
+ * @return The string representation of the input timestamp.
+ */
+[[nodiscard]] std::string toString(const std::chrono::system_clock::time_point& timestamp);
 
 } // namespace Hedera::internal::TimestampConverter
 
