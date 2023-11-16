@@ -38,6 +38,12 @@
     {
       "name": "apr",
       "version>=": "1.7.4"
+    },
+    {
+      "name": "apr-util"
+    },
+    {
+      "name": "expat"
     }
   ]
 }
