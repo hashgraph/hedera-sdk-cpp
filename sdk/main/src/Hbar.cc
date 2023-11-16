@@ -59,7 +59,7 @@ Hbar Hbar::fromString(const std::string& text)
   std::string amountStr = match[1].str();
   std::string unitStr = match[3].str();
 
-  // Convert amount string to BigDecimal
+  // Convert amount string to int64_t
   std::istringstream amountStream(amountStr);
   int64_t amount;
   amountStream >> amount;
