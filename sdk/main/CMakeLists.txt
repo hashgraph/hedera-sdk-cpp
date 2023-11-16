@@ -173,6 +173,12 @@ endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
 target_link_libraries(${PROJECT_NAME} PRIVATE log4cxx)
 
+if (LINUX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE vcpkg_installed/x64-linux/lib/libapr-1.a)
+    target_link_libraries(${PROJECT_NAME} PRIVATE vcpkg_installed/x64-linux/lib/libaprutil-1.a)
+    target_link_libraries(${PROJECT_NAME} PRIVATE vcpkg_installed/x64-linux/lib/libexpat.a)
+endif ()
+
 if (NOT WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
 endif ()
