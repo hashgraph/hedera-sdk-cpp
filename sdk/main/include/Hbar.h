@@ -34,9 +34,6 @@ namespace Hedera
  * however the nominal unit is hbar.
  */
 
-// Define the pattern
-const std::regex FROM_STRING_PATTERN("^((?:\\+|\\-)?\\d+(?:\\.\\d+)?)(\\ (tℏ|μℏ|mℏ|ℏ|kℏ|Mℏ|Gℏ))?$");
-
 class Hbar
 {
 public:

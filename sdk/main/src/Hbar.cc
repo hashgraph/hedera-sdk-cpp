@@ -24,6 +24,12 @@
 #include <sstream>
 #include <stdexcept>
 
+// Define the pattern
+namespace Const
+{
+const std::regex FROM_STRING_PATTERN("^((?:\\+|\\-)?\\d+(?:\\.\\d+)?)(\\ (tℏ|μℏ|mℏ|ℏ|kℏ|Mℏ|Gℏ))?$");
+}
+
 namespace Hedera
 {
 //-----
@@ -43,7 +49,7 @@ std::string Hbar::toString() const
 Hbar Hbar::fromString(const std::string& text)
 {
   std::smatch match;
-  if (!std::regex_match(text, match, FROM_STRING_PATTERN))
+  if (!std::regex_match(text, match, Const::FROM_STRING_PATTERN))
   {
     throw std::invalid_argument("Attempted to convert string to Hbar, but \"" + text +
                                 "\" was not correctly formatted");
