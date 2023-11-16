@@ -77,11 +77,10 @@ jobs:
         with:
           binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
-      - name: Bootstrap VCPKg
-        if: ${{ runner.os == 'Linux' }}
+      - name: Git Fetch VCPkg
         run: |
           cd vcpkg
-          ./bootstrap-vcpkg.sh
+          git fetch 
 
       - name: CMake Build (Debug)
         uses: lukka/run-cmake@v10
