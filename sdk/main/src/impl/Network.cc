@@ -156,6 +156,11 @@ std::vector<AccountId> Network::getNodeAccountIdsForExecute()
     mMaxNodesPerRequest > 0U ? std::min(mMaxNodesPerRequest, static_cast<unsigned int>(getNodes().size()))
                              : static_cast<unsigned int>(std::ceil(static_cast<double>(getNodes().size()) / 3.0)));
 
+  // See the actual nodes picked.
+  std::for_each(nodes.cbegin(),
+                nodes.cend(),
+                [](const std::shared_ptr<Node>& node){std::cout<<node->getAddress().toString()<<std::endl;});
+
   std::vector<AccountId> accountIds;
   accountIds.reserve(nodes.size());
   std::for_each(nodes.cbegin(),
