@@ -76,7 +76,11 @@ jobs:
         uses: lukka/run-vcpkg@v11
         with:
           binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
-          runVcpkgInstall: true
+
+      - name: Convert VCPkg to Full Clone
+        run: |
+          cd vcpkg
+          git fetch --unshallow
 
       - name: CMake Build (Debug)
         uses: lukka/run-cmake@v10

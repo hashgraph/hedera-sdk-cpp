@@ -1,7 +1,7 @@
 {
   "name": "hedera-sdk-cpp",
   "version-string": "0.1.0",
-  "builtin-baseline": "8eb57355a4ffb410a2e94c07b4dca2dffbee8e50",
+  "builtin-baseline": "680071397677bb123b2f2b0ebe73905feae4a955",
   "dependencies": [
     {
       "name": "pthreads",
