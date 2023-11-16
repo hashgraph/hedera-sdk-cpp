@@ -66,6 +66,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
 
+      - name: Clear Vcpkg Cache
+        run: rm -rf "${{ github.workspace }}/b/vcpkg_cache/*"
+
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
