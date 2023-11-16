@@ -80,7 +80,7 @@ jobs:
       - name: Convert VCPkg to Full Clone
         run: |
           cd vcpkg
-          git fetch --unshallow
+          git fetch --unshallow --prune
 
       - name: CMake Build (Debug)
         uses: lukka/run-cmake@v10
