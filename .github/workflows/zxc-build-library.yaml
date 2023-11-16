@@ -66,9 +66,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
 
-      - name: Clear Vcpkg Cache
-        run: rm -rf "${{ github.workspace }}/b/vcpkg_cache/*"
-
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
@@ -76,9 +73,15 @@ jobs:
         uses: lukka/get-cmake@latest
 
       - name: Setup VCPkg
-        uses: lukka/run-vcpkg@v11
+        uses: lukka/run-vcpkg@v10
         with:
           binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
+
+      - name: Bootstrap VCPKg
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          cd vcpkg
+          ./bootstrap-vcpkg.sh
 
       - name: CMake Build (Debug)
         uses: lukka/run-cmake@v10
