@@ -73,7 +73,7 @@ jobs:
         uses: lukka/get-cmake@latest
 
       - name: Setup VCPkg
-        uses: lukka/run-vcpkg@v10
+        uses: lukka/run-vcpkg@v11
         with:
           binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
