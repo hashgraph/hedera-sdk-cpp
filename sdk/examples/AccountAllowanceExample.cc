@@ -31,23 +31,21 @@
 #include "TransferTransaction.h"
 #include "exceptions/ReceiptStatusException.h"
 
+#include <dotenv.h>
 #include <iostream>
 
 using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  if (argc < 3)
-  {
-    std::cout << "Please input account ID and private key" << std::endl;
-    return 1;
-  }
+  dotenv::init();
+  const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
+  const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
 
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  const AccountId operatorAccountId = AccountId::fromString(argv[1]);
-  client.setOperator(operatorAccountId, ED25519PrivateKey::fromString(argv[2]));
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   // Generate ECDSAsecp256k1 key combinations for Alice, Bob, and Charlie.
   const std::shared_ptr<PrivateKey> alicePrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();

@@ -1,3 +1,11 @@
+FetchContent_Declare(
+        dotenv-cpp
+        GIT_REPOSITORY https://github.com/laserpants/dotenv-cpp.git
+        GIT_TAG master
+)
+FetchContent_MakeAvailable(dotenv-cpp)
+include_directories(${dotenv-cpp_SOURCE_DIR}/include/laserpants/dotenv)
+
 set(ACCOUNT_ALIAS_EXAMPLE_NAME ${PROJECT_NAME}-account-alias-example)
 set(ACCOUNT_ALLOWANCE_EXAMPLE_NAME ${PROJECT_NAME}-account-allowance-example)
 set(ACCOUNT_CREATE_WITH_HTS_EXAMPLE_NAME ${PROJECT_NAME}-account-create-with-hts-example)

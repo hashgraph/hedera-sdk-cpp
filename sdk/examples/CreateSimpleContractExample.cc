@@ -31,6 +31,7 @@
 #include "TransactionResponse.h"
 #include "impl/Utilities.h"
 
+#include <dotenv.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -41,19 +42,15 @@ using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  if (argc < 3)
-  {
-    std::cout << "Please input account ID and private key" << std::endl;
-    return 1;
-  }
+  dotenv::init();
+  const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
+  const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
+  const std::shared_ptr<PublicKey> operatorPublicKey = operatorPrivateKey->getPublicKey();
 
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
-  const AccountId operatorId = AccountId::fromString(argv[1]);
-  const std::shared_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(argv[2]);
-  const std::shared_ptr<PublicKey> operatorPublicKey = operatorKey->getPublicKey();
-  client.setOperator(operatorId, operatorKey);
+  client.setOperator(operatorAccountId, operatorPrivateKey);
 
   // Get the contract's bytecode
   const std::vector<std::byte> byteCode = internal::Utilities::stringToByteVector(
@@ -112,7 +109,7 @@ int main(int argc, char** argv)
   // Now delete the contract
   txReceipt = ContractDeleteTransaction()
                 .setContractId(contractId)
-                .setTransferAccountId(operatorId)
+                .setTransferAccountId(operatorAccountId)
                 .setMaxTransactionFee(Hbar(1LL))
                 .execute(client)
                 .getReceipt(client);
