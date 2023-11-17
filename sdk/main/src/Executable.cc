@@ -180,13 +180,17 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
     // Submit the request and get the response.
     ProtoResponseType response;
 
+    // Measure the response time of the network which
+    // turns out to be on ~ 1/4 of the cumilative time for
+    // the data to be sent to the user. Most of the overhead
+    // is produced by the attempts to fetch a healthy node 
     auto start = std::chrono::system_clock::now();
 
     const grpc::Status status = submitRequest(request, node, attemptTimeout, &response);
 
     auto end = std::chrono::system_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << elapsed.count() <<std::endl;
+    std::cout << "Network returned response for: " << elapsed.count() << " ms." <<std::endl;
 
     // Increase backoff for this node but try submitting again for UNAVAILABLE, RESOURCE_EXHAUSTED, and INTERNAL
     // responses.

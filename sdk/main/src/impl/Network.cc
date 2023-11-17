@@ -159,7 +159,7 @@ std::vector<AccountId> Network::getNodeAccountIdsForExecute()
   // See the actual nodes picked.
   std::for_each(nodes.cbegin(),
                 nodes.cend(),
-                [](const std::shared_ptr<Node>& node){std::cout<<node->getAddress().toString()<<std::endl;});
+                [](const std::shared_ptr<Node>& node){std::cout<<"Potentioal node for execute: "<<node->getAddress().toString()<<std::endl;});
 
   std::vector<AccountId> accountIds;
   accountIds.reserve(nodes.size());
