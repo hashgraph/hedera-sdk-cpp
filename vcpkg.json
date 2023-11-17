@@ -35,10 +35,12 @@
       "name": "expat"
     },
     {
-      "name": "apr"
+      "name": "apr",
+      "version>=": "1.7.4"
     },
     {
-      "name": "apr-util"
+      "name": "apr-util",
+      "version>=": "1.6.1#8"
     }
   ]
 }
