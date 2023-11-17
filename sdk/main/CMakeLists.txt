@@ -3,9 +3,19 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/apache/logging-log4cxx.git
         GIT_TAG rel/v1.1.0
 )
+
 set(BUILD_SHARED_LIBS OFF)
+set(BUILD_TESTING OFF)
 set(APR_STATIC ON)
 set(APU_STATIC ON)
+
+if (WIN32)
+    set(APR_INCLUDE_DIR ${CMAKE_BINARY_DIR}/vcpkg-installed/x64-windows/include/)
+    set(APR_UTIL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/vcpkg-installed/x64-windows/include/)
+    set(APR_LIBRARIES ${CMAKE_BINARY_DIR}/vcpkg-installed/x64-windows/lib/libapr-1.lib)
+    set(APR_UTIL_LIBRARIES ${CMAKE_BINARY_DIR}/vcpkg-installed/x64-windows/lib/libaprutil-1.lib)
+endif ()
+
 FetchContent_MakeAvailable(log4cxx)
 
 add_library(${PROJECT_NAME} STATIC
