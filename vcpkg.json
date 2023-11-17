@@ -33,6 +33,12 @@
     },
     {
       "name": "expat"
+    },
+    {
+      "name": "apr"
+    },
+    {
+      "name": "apr-util"
     }
   ]
 }
