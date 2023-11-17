@@ -171,7 +171,7 @@ if (APPLE)
 endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
-#target_link_libraries(${PROJECT_NAME} PRIVATE log4cxx)
+target_link_libraries(${PROJECT_NAME} PRIVATE log4cxx)
 
 if (NOT WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
