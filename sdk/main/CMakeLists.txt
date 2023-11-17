@@ -188,6 +188,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${log4cxx_BINARY_DIR}/src/main
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CF_NETWORK})
+    target_link_libraries(${PROJECT_NAME} PRIVATE aprutil-1 apr-1)
 endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
