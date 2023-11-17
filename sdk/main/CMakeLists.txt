@@ -1,3 +1,13 @@
+FetchContent_Declare(
+        log4cxx
+        GIT_REPOSITORY https://github.com/apache/logging-log4cxx.git
+        GIT_TAG rel/v1.1.0
+)
+set(BUILD_SHARED_LIBS OFF)
+set(APR_STATIC ON)
+set(APU_STATIC ON)
+FetchContent_MakeAvailable(log4cxx)
+
 add_library(${PROJECT_NAME} STATIC
         src/AccountAllowanceApproveTransaction.cc
         src/AccountAllowanceDeleteTransaction.cc
