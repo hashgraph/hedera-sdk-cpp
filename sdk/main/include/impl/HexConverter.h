@@ -44,6 +44,17 @@ std::string bytesToHex(const std::vector<std::byte>& bytes);
  */
 std::vector<std::byte> hexToBytes(std::string_view hex);
 
+/**
+ * @brief Convert a Base64-encoded string to a hexadecimal string.
+ *
+ * This function takes a Base64-encoded string as input and returns a hexadecimal
+ * string.
+ *
+ * @param base64 The Base64-encoded string to convert.
+ * @return The hexadecimal representation of the input.
+ */
+std::string base64ToHex(std::string_view base64);
+
 } // namespace Hedera::internal::HexConverter
 
 #endif // HEDERA_SDK_CPP_IMPL_HEX_CONVERTER_H_
