@@ -39,15 +39,6 @@ namespace Hedera::internal::asn1
         return privateKey;
     }
 
-    void ASN1ECPrivateKey::print() const
-    {
-        for(auto entry : asn1KeyData)
-        {
-            std::cout<<internal::HexConverter::bytesToHex({entry.first}) 
-                << " : " << internal::HexConverter::bytesToHex(entry.second)<<std::endl;
-        }
-    }
-
     void ASN1ECPrivateKey::decode(const std::vector<std::byte>& bytes)
     {
         int currentByteIndex = 0;
