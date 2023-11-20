@@ -19,36 +19,53 @@
  * @brief This file defines the Hedera C++ SDK's ASN1Key class, derived from ASN1Object.
  */
 
-#ifndef HEDERA_SDK_CPP_IMPL_ASN1_EC_KEY_H_
-#define HEDERA_SDK_CPP_IMPL_ASN1_EC_KEY_H_
+#ifndef HEDERA_SDK_CPP_IMPL_ASN1_EC_PRIVATE_KEY_H_
+#define HEDERA_SDK_CPP_IMPL_ASN1_EC_PRIVATE_KEY_H_
 
-#include "ASN1Object.h"
+#include "ASN1ECKey.h"
 
 namespace Hedera::internal::asn1
 {
-constexpr size_t ECDSA_KEY_LENGTH = 32; // bytes
-
+// The ASN.1 algorithm identifier prefix bytes for an ECDSAsecp256k1PrKeyKey.
+const std::vector<std::byte> ASN1_PRK_PREFIX_BYTES = { std::byte(0x30), std::byte(0x2E), std::byte(0x02), std::byte(0x01),
+                                                       std::byte(0x01), std::byte(0x04), std::byte(0x20) };
+                                       
+// The ASN.1 algorithm identifier suffix bytes for an ECDSAsecp256k1Key.
+const std::vector<std::byte> ASN1_PRK_SUFFIX_BYTES = { std::byte(0xA0), std::byte(0x07), std::byte(0x06),
+                                                   std::byte(0x05), std::byte(0x2B), std::byte(0x81),
+                                                   std::byte(0x04), std::byte(0x00), std::byte(0x0A) };
 /**
  * @class ASN1Key
  * @brief ASN.1 key object.
  */
-class ASN1ECKey : public ASN1Object
+class ASN1ECPrivateKey : public ASN1ECKey
 {
 public:
+
+  /**
+   * @brief Constructor for ASN.1 key from a vector of bytes.
+   *
+   * @param bytes The vector of bytes containing the ASN.1 key data.
+   */
+  ASN1ECPrivateKey(const std::vector<std::byte>& bytes);
 
   /**
    * @brief Get the key value associated with the ASN.1 key.
    *
    * @return The key as a vector of bytes.
    */
-  virtual const std::vector<std::byte> getKey() const = 0;
+  const std::vector<std::byte> getKey() const override;
 
   /**
    * @brief Print information about the ASN.1 key.
    */
-  virtual void print() const = 0;
+  void print() const override;
 
 private:
+  /**
+   * @brief Constructor for ASN.1 key.
+   */
+  ASN1ECPrivateKey(){};
 
   /**
    * @brief Decode ASN.1 data representing an Elliptic Curve Key.
@@ -56,16 +73,16 @@ private:
    * This method decodes basic ASN.1 data, extracting key data and storing it in the `asn1KeyData` map.
    * EC Keys in ASN1 format always follow a common structure:
    * 
-   *   ECKey ::= SEQUENCE {
-   *   version INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1) OPTIONAL,
-   *   key STRING_DATA,
+   *   ECPrivateKey ::= SEQUENCE {
+   *   version INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
+   *   privateKey OCTET STRING,
    *   parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
-   *   otherKey [1] STRING_DATA OPTIONAL
+   *   publicKey [1] BIT STRING OPTIONAL
    *   }
    *
    * @param bytes The ASN.1-encoded data representing the Elliptic Curve Key.
    */
-  virtual void decode(const std::vector<std::byte>& bytes) = 0;
+void decode(const std::vector<std::byte>& bytes) override;
 
   /**
    * @brief Get the value associated with the given ASN.1 tag.
@@ -73,16 +90,11 @@ private:
    * @param tag The ASN.1 tag.
    * @return The value associated with the tag as a vector of bytes.
    */
-  virtual const std::vector<std::byte> get(const std::byte tag) const = 0;
+const std::vector<std::byte> get(const std::byte tag) const override;
 
-protected:
-  /**
-   * @brief A map to store ASN.1 key data with their associated tags.
-   */
-  std::unordered_map<std::byte, std::vector<std::byte>> asn1KeyData;
 
 };
 
 } // namespace Hedera::internal:asn1
 
-#endif // HEDERA_SDK_CPP_IMPL_ASN1_EC_KEY_H_
+#endif // HEDERA_SDK_CPP_IMPL_ASN1_EC_PRIVATE_KEY_H_

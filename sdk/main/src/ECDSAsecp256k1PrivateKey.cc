@@ -22,7 +22,7 @@
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "exceptions/UninitializedException.h"
-#include "impl/ASN1ECKey.h"
+#include "impl/ASN1ECPrivateKey.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 #include "impl/PrivateKeyImpl.h"
@@ -65,9 +65,22 @@ constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY---
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<std::byte>& bytes)
 {
-  internal::asn1::ASN1ECKey asn1key(bytes);
-  const std::vector<std::byte> privateKeyBytes = internal::Utilities::concatenateVectors
-  ({ internal::asn1::ASN1_PRK_PREFIX_BYTES, asn1key.getPrivateKey(),  internal::asn1::ASN1_PRK_SUFFIX_BYTES });
+  std::vector<std::byte> buildPrivateKeyBytes; 
+  // This means potentially only the key bytes will be in the input
+  // not standard for ASN1 encodings but the SDK needs to be able to
+  // process them
+  if(bytes.size() == internal::asn1::ECDSA_KEY_LENGTH){
+    buildPrivateKeyBytes = internal::Utilities::concatenateVectors
+    ({ internal::asn1::ASN1_PRK_PREFIX_BYTES, bytes,  internal::asn1::ASN1_PRK_SUFFIX_BYTES });
+  }
+  else
+  {
+    internal::asn1::ASN1ECPrivateKey asn1key(bytes);
+    buildPrivateKeyBytes = internal::Utilities::concatenateVectors
+    ({ internal::asn1::ASN1_PRK_PREFIX_BYTES, asn1key.getKey(),  internal::asn1::ASN1_PRK_SUFFIX_BYTES });
+  }
+
+  const std::vector<std::byte> privateKeyBytes = buildPrivateKeyBytes;
   
   auto rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(privateKeyBytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(

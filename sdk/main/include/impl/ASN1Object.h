@@ -44,12 +44,6 @@ constexpr std::byte SEQUENCE = std::byte(0x30);
  */
 class ASN1Object
 {
-public:
-  /**
-   * @brief Print information about the ASN.1 object.
-   */
-  virtual void print() const = 0;
-
 private:
   /**
    * @brief Get the ASN.1 object's value in bytes.

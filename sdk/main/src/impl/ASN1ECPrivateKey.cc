@@ -18,19 +18,19 @@
  *
  */
 
-#include "exceptions/IllegalStateException.h"
+#include "exceptions/BadKeyException.h"
 
-#include "impl/ASN1ECKey.h"
+#include "impl/ASN1ECPrivateKey.h"
 #include "impl/HexConverter.h"
 
 namespace Hedera::internal::asn1
 {
-    ASN1ECKey::ASN1ECKey(const std::vector<std::byte>& bytes)
+    ASN1ECPrivateKey::ASN1ECPrivateKey(const std::vector<std::byte>& bytes)
     {
         decode(bytes);
     }
 
-    const std::vector<std::byte> ASN1ECKey::getPrivateKey() const
+    const std::vector<std::byte> ASN1ECPrivateKey::getKey() const
     {   
         std::vector<std::byte> privateKey = get(OCTET_STRING);
         if(privateKey.size() > ECDSA_KEY_LENGTH) // remove redundant padded bytes if any
@@ -39,21 +39,7 @@ namespace Hedera::internal::asn1
         return privateKey;
     }
 
-    const std::vector<std::byte> ASN1ECKey::getPublicKey() const
-    {
-        std::vector<std::byte> publicKey = get(BIT_STRING);
-        if(publicKey.size() >= ECDSA_KEY_LENGTH * 2){ // this means that the BIT_STRING contains both x and y coords,
-                                                      // of the epillipctic curve, but we only need the x coordinate 
-                                                      // to build the public key
-            publicKey = std::vector<std::byte>(publicKey.begin(), publicKey.end() - ECDSA_KEY_LENGTH); // trim y
-        }
-        if(publicKey.size() > ECDSA_KEY_LENGTH) // remove redundant padded bytes if any
-            publicKey = std::vector<std::byte>(publicKey.end() - ECDSA_KEY_LENGTH, publicKey.end());
-
-        return publicKey;
-    }
-
-    void ASN1ECKey::print() const
+    void ASN1ECPrivateKey::print() const
     {
         for(auto entry : asn1KeyData)
         {
@@ -62,7 +48,7 @@ namespace Hedera::internal::asn1
         }
     }
 
-    void ASN1ECKey::decode(const std::vector<std::byte>& bytes)
+    void ASN1ECPrivateKey::decode(const std::vector<std::byte>& bytes)
     {
         int currentByteIndex = 0;
         while(currentByteIndex < bytes.size() - 1)
@@ -70,9 +56,10 @@ namespace Hedera::internal::asn1
             std::byte asn1Tag = bytes[currentByteIndex++];
             int asn1TagSize = static_cast<int>(bytes[currentByteIndex++]);
 
-            if(asn1Tag == SEQUENCE) continue; // Ignore sequence as ASN1 for EC Key is in basic format
-                                              // TODO: Add further ignores for ASN1 tags so that we don`t
-                                              // populate the map data with useless values
+            // Ignore sequence as ASN1 for EC Key is in basic format
+            // TODO: Add further ignores for ASN1 tags so that we don`t
+            // populate the map data with useless values
+            if(asn1Tag == SEQUENCE) continue; 
 
             std::vector<std::byte> asn1DataAtTag(bytes.begin() + currentByteIndex, bytes.begin() + currentByteIndex + asn1TagSize);
             currentByteIndex += asn1TagSize;
@@ -81,12 +68,12 @@ namespace Hedera::internal::asn1
         }
     }
 
-    const std::vector<std::byte> ASN1ECKey::get(const std::byte tag) const
+    const std::vector<std::byte> ASN1ECPrivateKey::get(const std::byte tag) const
     {
         auto entry = asn1KeyData.find(tag);
         if(entry != asn1KeyData.end())
             return entry->second;
-        else throw new IllegalStateException("Data not decoded properly for input PEM/DER EC KEY bytes!");
+        else throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");
     }
 
 } // namespace Hedera::internal:asn1
