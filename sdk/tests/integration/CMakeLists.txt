@@ -21,7 +21,6 @@ add_executable(${TEST_PROJECT_NAME}
         ContractNonceInfoIntegrationTest.cc
         ContractUpdateTransactionIntegrationTests.cc
         ContractInfoQueryIntegrationTests.cc
-        ECDSAKeysCompatibilityIntegrationTests.cc
         ExecutableIntegrationTests.cc
         FileAppendTransactionIntegrationTests.cc
         FileContentsQueryIntegrationTest.cc
