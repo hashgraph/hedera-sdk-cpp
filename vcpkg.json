@@ -1,13 +1,46 @@
 {
   "name": "hedera-sdk-cpp",
   "version-string": "0.1.0",
+  "builtin-baseline": "680071397677bb123b2f2b0ebe73905feae4a955",
   "dependencies": [
-    "pthreads",
-    "zlib",
-    "protobuf",
-    "grpc",
-    "upb",
-    "nlohmann-json",
-    "curl"
+    {
+      "name": "pthreads",
+      "version>=": "3.0.0#11"
+    },
+    {
+      "name": "zlib",
+      "version>=": "1.2.12"
+    },
+    {
+      "name": "protobuf",
+      "version>=": "3.21.6"
+    },
+    {
+      "name": "grpc",
+      "version>=": "1.49.0"
+    },
+    {
+      "name": "upb",
+      "version>=": "2022-06-21"
+    },
+    {
+      "name": "nlohmann-json",
+      "version>=": "3.11.2"
+    },
+    {
+      "name": "curl",
+      "version>=": "7.84.0"
+    },
+    {
+      "name": "expat"
+    },
+    {
+      "name": "apr",
+      "version>=": "1.7.4"
+    },
+    {
+      "name": "apr-util",
+      "version>=": "1.6.1#8"
+    }
   ]
 }

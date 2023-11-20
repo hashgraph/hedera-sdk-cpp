@@ -24,6 +24,7 @@
 #include "AddressBookQuery.h"
 #include "Defaults.h"
 #include "Hbar.h"
+#include "Logger.h"
 #include "NodeAddressBook.h"
 #include "PrivateKey.h"
 #include "PublicKey.h"
@@ -51,6 +52,9 @@ struct Client::ClientImpl
   // Pointer to the MirrorNetwork object that contains the mirror nodes for sending/receiving information to/from a
   // Hedera mirror node.
   std::shared_ptr<internal::MirrorNetwork> mMirrorNetwork = nullptr;
+
+  // The Logger used by this Client.
+  Logger mLogger = Logger(Logger::LoggingLevel::SILENT);
 
   // Subscriptions this Client is tracking.
   std::vector<std::shared_ptr<SubscriptionHandle>> mSubscriptions;
@@ -699,6 +703,21 @@ std::vector<std::string> Client::getMirrorNetwork() const
 }
 
 //-----
+Client& Client::setLogger(const Logger& logger)
+{
+  std::unique_lock lock(mImpl->mMutex);
+  mImpl->mLogger = logger;
+  return *this;
+}
+
+//-----
+Logger Client::getLogger() const
+{
+  std::unique_lock lock(mImpl->mMutex);
+  return mImpl->mLogger;
+}
+
+//-----
 Client& Client::setNetworkUpdatePeriod(const std::chrono::system_clock::duration& update)
 {
   std::unique_lock lock(mImpl->mMutex);
@@ -1047,18 +1066,26 @@ void Client::scheduleNetworkUpdate()
     if (std::unique_lock lock(mImpl->mMutex); !mImpl->mConditionVariable.wait_for(
           lock, mImpl->mNetworkUpdatePeriod, [this]() { return mImpl->mCancelUpdate; }))
     {
-      // Get the address book and set the network based on the address book.
-      setNetworkFromAddressBookInternal(AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this));
-
-      // Adjust the network update period if this is the initial update.
-      if (!mImpl->mMadeInitialNetworkUpdate)
+      try
       {
-        mImpl->mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
-        mImpl->mMadeInitialNetworkUpdate = true;
-      }
+        // Get the address book and set the network based on the address book.
+        setNetworkFromAddressBookInternal(AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this));
 
-      // Schedule the next network update.
-      mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
+        // Adjust the network update period if this is the initial update.
+        if (!mImpl->mMadeInitialNetworkUpdate)
+        {
+          mImpl->mNetworkUpdatePeriod = DEFAULT_NETWORK_UPDATE_PERIOD;
+          mImpl->mMadeInitialNetworkUpdate = true;
+        }
+
+        // Schedule the next network update.
+        mImpl->mStartNetworkUpdateWaitTime = std::chrono::system_clock::now();
+      }
+      catch (const std::exception& exception)
+      {
+        mImpl->mLogger.warn(std::string("Failed to update address book via mirror node query ") + exception.what());
+        break;
+      }
     }
 
     // The network update was cancelled, stop looping.

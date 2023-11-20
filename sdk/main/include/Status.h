@@ -1517,7 +1517,7 @@ extern const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtob
 /**
  * Map of Status to its corresponding string.
  */
-[[maybe_unused]] extern const std::unordered_map<Status, std::string_view> gStatusToString;
+[[maybe_unused]] extern const std::unordered_map<Status, std::string> gStatusToString;
 
 } // namespace Hedera
 

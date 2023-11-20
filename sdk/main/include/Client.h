@@ -41,6 +41,7 @@ class Network;
 class AccountId;
 class Hbar;
 class LedgerId;
+class Logger;
 class NodeAddressBook;
 class PrivateKey;
 class PublicKey;
@@ -390,6 +391,21 @@ public:
    * @return The list of mirror nodes on this Client's network.
    */
   [[nodiscard]] std::vector<std::string> getMirrorNetwork() const;
+
+  /**
+   * Set the Logger to be used by this Client.
+   *
+   * @param logger The Logger to be used by this Client.
+   * @return A reference to this Client with the newly-set logger.
+   */
+  Client& setLogger(const Logger& logger);
+
+  /**
+   * Get the Logger used by this Client.
+   *
+   * @return The Logger used by this Client.
+   */
+  [[nodiscard]] Logger getLogger() const;
 
   /**
    * Set the period of time this Client wait between updating its network. This will immediately cancel any scheduled

@@ -22,6 +22,7 @@
 
 #include "AccountId.h"
 #include "Defaults.h"
+#include "Logger.h"
 
 #include <chrono>
 #include <functional>
@@ -163,6 +164,14 @@ public:
    * @return A reference to this Executable derived class with the newly-set node account IDs.
    */
   virtual SdkRequestType& setNodeAccountIds(std::vector<AccountId> nodeAccountIds);
+
+  /**
+   * Set the Logger to be used by this Executable.
+   *
+   * @param logger The Logger to be used by this Executable.
+   * @return A reference to this Executable derived class with the newly-set logger.
+   */
+  SdkRequestType& setLogger(const Logger& logger);
 
   /**
    * Set a callback to be called right before a request is sent. The callback will receive the request protobuf and the
@@ -394,6 +403,11 @@ private:
    */
   [[nodiscard]] unsigned int getNodeIndexForExecute(const std::vector<std::shared_ptr<internal::Node>>& nodes,
                                                     unsigned int attempt) const;
+
+  /**
+   * The Logger to be used by this Executable.
+   */
+  Logger mLogger;
 
   /**
    * The list of account IDs of the nodes with which execution should be attempted.
