@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class TopicCreateTransactionIntegrationTest : public BaseIntegrationTest
+class TopicCreateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TopicCreateTransactionIntegrationTest, ExecuteTopicCreateTransaction)
+TEST_F(TopicCreateTransactionIntegrationTests, ExecuteTopicCreateTransaction)
 {
   // Given
   const std::string memo = "topic create test memo";
@@ -85,7 +85,7 @@ TEST_F(TopicCreateTransactionIntegrationTest, ExecuteTopicCreateTransaction)
 }
 
 //-----
-TEST_F(TopicCreateTransactionIntegrationTest, CanCreateTopicWithNoFieldsSet)
+TEST_F(TopicCreateTransactionIntegrationTests, CanCreateTopicWithNoFieldsSet)
 {
   // Given / When
   TransactionReceipt txReceipt;

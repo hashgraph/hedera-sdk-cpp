@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class ContractDeleteTransactionIntegrationTest : public BaseIntegrationTest
+class ContractDeleteTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ContractDeleteTransactionIntegrationTest, DeleteContractWithAdminKey)
+TEST_F(ContractDeleteTransactionIntegrationTests, DeleteContractWithAdminKey)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -65,7 +65,7 @@ TEST_F(ContractDeleteTransactionIntegrationTest, DeleteContractWithAdminKey)
 }
 
 //-----
-TEST_F(ContractDeleteTransactionIntegrationTest, CannotDeleteContractWithNoAdminKey)
+TEST_F(ContractDeleteTransactionIntegrationTests, CannotDeleteContractWithNoAdminKey)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -90,7 +90,7 @@ TEST_F(ContractDeleteTransactionIntegrationTest, CannotDeleteContractWithNoAdmin
 }
 
 //-----
-TEST_F(ContractDeleteTransactionIntegrationTest, CannotDeleteContractWithNoContractId)
+TEST_F(ContractDeleteTransactionIntegrationTests, CannotDeleteContractWithNoContractId)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionResponse txResponse = ContractDeleteTransaction().execute(getTestClient()),

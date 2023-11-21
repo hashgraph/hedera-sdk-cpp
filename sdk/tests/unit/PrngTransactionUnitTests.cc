@@ -25,7 +25,7 @@
 
 using namespace Hedera;
 
-class PrngTransactionTest : public ::testing::Test
+class PrngTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline int getTestRange() const { return mTestRange; }
@@ -35,7 +35,7 @@ private:
 };
 
 //-----
-TEST_F(PrngTransactionTest, ConstructPrngTransactionFromTransactionBodyProtobuf)
+TEST_F(PrngTransactionUnitTests, ConstructPrngTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::UtilPrngTransactionBody>();
@@ -52,7 +52,7 @@ TEST_F(PrngTransactionTest, ConstructPrngTransactionFromTransactionBodyProtobuf)
 }
 
 //-----
-TEST_F(PrngTransactionTest, GetSetRange)
+TEST_F(PrngTransactionUnitTests, GetSetRange)
 {
   // Given
   PrngTransaction transaction;
@@ -65,7 +65,7 @@ TEST_F(PrngTransactionTest, GetSetRange)
 }
 
 //-----
-TEST_F(PrngTransactionTest, GetSetRangeFrozen)
+TEST_F(PrngTransactionUnitTests, GetSetRangeFrozen)
 {
   // Given
   PrngTransaction transaction =

@@ -26,7 +26,7 @@
 
 using namespace Hedera;
 
-class NetworkVersionInfoTest : public ::testing::Test
+class NetworkVersionInfoUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const SemanticVersion& getTestHapiVersion() const { return mTestHapiVersion; }
@@ -38,7 +38,7 @@ private:
 };
 
 //-----
-TEST_F(NetworkVersionInfoTest, ConstructWithValues)
+TEST_F(NetworkVersionInfoUnitTests, ConstructWithValues)
 {
   // Given / When
   const NetworkVersionInfo networkVersionInfo(getTestHapiVersion(), getTestServicesVersion());
@@ -49,7 +49,7 @@ TEST_F(NetworkVersionInfoTest, ConstructWithValues)
 }
 
 //-----
-TEST_F(NetworkVersionInfoTest, FromProtobuf)
+TEST_F(NetworkVersionInfoUnitTests, FromProtobuf)
 {
   // Given
   proto::NetworkGetVersionInfoResponse networkGetVersionInfoResponse;
@@ -65,7 +65,7 @@ TEST_F(NetworkVersionInfoTest, FromProtobuf)
 }
 
 //-----
-TEST_F(NetworkVersionInfoTest, FromBytes)
+TEST_F(NetworkVersionInfoUnitTests, FromBytes)
 {
   // Given
   proto::NetworkGetVersionInfoResponse networkGetVersionInfoResponse;
@@ -82,7 +82,7 @@ TEST_F(NetworkVersionInfoTest, FromBytes)
 }
 
 //-----
-TEST_F(NetworkVersionInfoTest, ToProtobuf)
+TEST_F(NetworkVersionInfoUnitTests, ToProtobuf)
 {
   // Given
   const NetworkVersionInfo networkVersionInfo(getTestHapiVersion(), getTestServicesVersion());
@@ -105,7 +105,7 @@ TEST_F(NetworkVersionInfoTest, ToProtobuf)
 }
 
 //-----
-TEST_F(NetworkVersionInfoTest, ToBytes)
+TEST_F(NetworkVersionInfoUnitTests, ToBytes)
 {
   // Given
   const NetworkVersionInfo networkVersionInfo(getTestHapiVersion(), getTestServicesVersion());

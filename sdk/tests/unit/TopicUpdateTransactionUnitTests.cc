@@ -31,7 +31,7 @@
 
 using namespace Hedera;
 
-class TopicUpdateTransactionTest : public ::testing::Test
+class TopicUpdateTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
@@ -59,7 +59,7 @@ private:
 };
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromTransactionBodyProtobuf)
+TEST_F(TopicUpdateTransactionUnitTests, ConstructTopicUpdateTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::ConsensusUpdateTopicTransactionBody>();
@@ -88,7 +88,7 @@ TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromTransactio
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromWrongTransactionBodyProtobuf)
+TEST_F(TopicUpdateTransactionUnitTests, ConstructTopicUpdateTransactionFromWrongTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::CryptoDeleteTransactionBody>();
@@ -100,7 +100,7 @@ TEST_F(TopicUpdateTransactionTest, ConstructTopicUpdateTransactionFromWrongTrans
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetTopicId)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetTopicId)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -113,7 +113,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetTopicId)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetTopicIdFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetTopicIdFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -126,7 +126,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetTopicIdFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetMemo)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetMemo)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -139,7 +139,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetMemo)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetMemoFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetMemoFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -152,7 +152,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetMemoFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ClearMemo)
+TEST_F(TopicUpdateTransactionUnitTests, ClearMemo)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -166,7 +166,7 @@ TEST_F(TopicUpdateTransactionTest, ClearMemo)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ClearMemoFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, ClearMemoFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -179,7 +179,7 @@ TEST_F(TopicUpdateTransactionTest, ClearMemoFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetExpirationTime)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetExpirationTime)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -192,7 +192,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetExpirationTime)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetExpirationTimeFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetExpirationTimeFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -205,7 +205,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetExpirationTimeFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetAdminKey)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetAdminKey)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -218,7 +218,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAdminKey)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetAdminKeyFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetAdminKeyFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -231,7 +231,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAdminKeyFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ClearAdminKey)
+TEST_F(TopicUpdateTransactionUnitTests, ClearAdminKey)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -244,7 +244,7 @@ TEST_F(TopicUpdateTransactionTest, ClearAdminKey)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ClearAdminKeyFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, ClearAdminKeyFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -257,7 +257,7 @@ TEST_F(TopicUpdateTransactionTest, ClearAdminKeyFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetSubmitKey)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetSubmitKey)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -270,7 +270,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetSubmitKey)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetSubmitKeyFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetSubmitKeyFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -283,7 +283,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetSubmitKeyFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ClearSubmitKey)
+TEST_F(TopicUpdateTransactionUnitTests, ClearSubmitKey)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -296,7 +296,7 @@ TEST_F(TopicUpdateTransactionTest, ClearSubmitKey)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ClearSubmitKeyFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, ClearSubmitKeyFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -309,7 +309,7 @@ TEST_F(TopicUpdateTransactionTest, ClearSubmitKeyFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewPeriod)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetAutoRenewPeriod)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -322,7 +322,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewPeriod)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewPeriodFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetAutoRenewPeriodFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -335,7 +335,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewPeriodFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewAccountId)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetAutoRenewAccountId)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -348,7 +348,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewAccountId)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewAccountIdFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, GetSetAutoRenewAccountIdFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()
@@ -361,7 +361,7 @@ TEST_F(TopicUpdateTransactionTest, GetSetAutoRenewAccountIdFrozen)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ClearAutoRenewAccountId)
+TEST_F(TopicUpdateTransactionUnitTests, ClearAutoRenewAccountId)
 {
   // Given
   TopicUpdateTransaction transaction;
@@ -375,7 +375,7 @@ TEST_F(TopicUpdateTransactionTest, ClearAutoRenewAccountId)
 }
 
 //-----
-TEST_F(TopicUpdateTransactionTest, ClearAutoRenewAccountIdFrozen)
+TEST_F(TopicUpdateTransactionUnitTests, ClearAutoRenewAccountIdFrozen)
 {
   // Given
   TopicUpdateTransaction transaction = TopicUpdateTransaction()

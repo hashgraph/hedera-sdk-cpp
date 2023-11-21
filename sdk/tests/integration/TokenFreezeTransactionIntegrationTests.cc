@@ -39,12 +39,12 @@
 
 using namespace Hedera;
 
-class TokenFreezeTransactionIntegrationTest : public BaseIntegrationTest
+class TokenFreezeTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenFreezeTransactionIntegrationTest, ExecuteTokenFreezeTransaction)
+TEST_F(TokenFreezeTransactionIntegrationTests, ExecuteTokenFreezeTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -113,7 +113,7 @@ TEST_F(TokenFreezeTransactionIntegrationTest, ExecuteTokenFreezeTransaction)
 }
 
 //-----
-TEST_F(TokenFreezeTransactionIntegrationTest, CannotFreezeWithNoTokenId)
+TEST_F(TokenFreezeTransactionIntegrationTests, CannotFreezeWithNoTokenId)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -152,7 +152,7 @@ TEST_F(TokenFreezeTransactionIntegrationTest, CannotFreezeWithNoTokenId)
 }
 
 //-----
-TEST_F(TokenFreezeTransactionIntegrationTest, CannotFreezeWithNoAccountId)
+TEST_F(TokenFreezeTransactionIntegrationTests, CannotFreezeWithNoAccountId)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -184,7 +184,7 @@ TEST_F(TokenFreezeTransactionIntegrationTest, CannotFreezeWithNoAccountId)
 }
 
 //-----
-TEST_F(TokenFreezeTransactionIntegrationTest, CannotFreezeTokenOnAccountWithNoAssociation)
+TEST_F(TokenFreezeTransactionIntegrationTests, CannotFreezeTokenOnAccountWithNoAssociation)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

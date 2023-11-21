@@ -39,12 +39,12 @@
 
 using namespace Hedera;
 
-class ContractInfoQueryIntegrationTest : public BaseIntegrationTest
+class ContractInfoQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
+TEST_F(ContractInfoQueryIntegrationTests, ExecuteContractInfoQuery)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -94,7 +94,7 @@ TEST_F(ContractInfoQueryIntegrationTest, ExecuteContractInfoQuery)
 }
 
 //-----
-TEST_F(ContractInfoQueryIntegrationTest, CanQueryContractInfoWhenAdminKeyIsNull)
+TEST_F(ContractInfoQueryIntegrationTests, CanQueryContractInfoWhenAdminKeyIsNull)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -136,7 +136,7 @@ TEST_F(ContractInfoQueryIntegrationTest, CanQueryContractInfoWhenAdminKeyIsNull)
 }
 
 //-----
-TEST_F(ContractInfoQueryIntegrationTest, CannotQueryContractInfoWhenContractIDIsNotSet)
+TEST_F(ContractInfoQueryIntegrationTests, CannotQueryContractInfoWhenContractIDIsNotSet)
 {
   // Given / When / Then
   EXPECT_THROW(const ContractInfo contractInfo = ContractInfoQuery().execute(getTestClient()),

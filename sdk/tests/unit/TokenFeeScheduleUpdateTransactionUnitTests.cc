@@ -31,7 +31,7 @@
 
 using namespace Hedera;
 
-class TokenFeeScheduleUpdateTransactionTest : public ::testing::Test
+class TokenFeeScheduleUpdateTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
@@ -48,7 +48,8 @@ private:
 };
 
 //-----
-TEST_F(TokenFeeScheduleUpdateTransactionTest, ConstructTokenFeeScheduleUpdateTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenFeeScheduleUpdateTransactionUnitTests,
+       ConstructTokenFeeScheduleUpdateTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenFeeScheduleUpdateTransactionBody>();
@@ -71,7 +72,7 @@ TEST_F(TokenFeeScheduleUpdateTransactionTest, ConstructTokenFeeScheduleUpdateTra
 }
 
 //-----
-TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetTokenId)
+TEST_F(TokenFeeScheduleUpdateTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenFeeScheduleUpdateTransaction transaction;
@@ -84,7 +85,7 @@ TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenFeeScheduleUpdateTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenFeeScheduleUpdateTransaction transaction = TokenFeeScheduleUpdateTransaction()
@@ -97,7 +98,7 @@ TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetTokenIdFrozen)
 }
 
 //-----
-TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetCustomFees)
+TEST_F(TokenFeeScheduleUpdateTransactionUnitTests, GetSetCustomFees)
 {
   // Given
   TokenFeeScheduleUpdateTransaction transaction;
@@ -110,7 +111,7 @@ TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetCustomFees)
 }
 
 //-----
-TEST_F(TokenFeeScheduleUpdateTransactionTest, GetSetCustomFeesFrozen)
+TEST_F(TokenFeeScheduleUpdateTransactionUnitTests, GetSetCustomFeesFrozen)
 {
   // Given
   TokenFeeScheduleUpdateTransaction transaction = TokenFeeScheduleUpdateTransaction()

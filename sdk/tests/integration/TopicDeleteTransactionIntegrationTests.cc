@@ -34,12 +34,12 @@
 
 using namespace Hedera;
 
-class TopicDeleteTransactionIntegrationTest : public BaseIntegrationTest
+class TopicDeleteTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TopicDeleteTransactionIntegrationTest, ExecuteTopicDeleteTransaction)
+TEST_F(TopicDeleteTransactionIntegrationTests, ExecuteTopicDeleteTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -60,7 +60,7 @@ TEST_F(TopicDeleteTransactionIntegrationTest, ExecuteTopicDeleteTransaction)
 }
 
 //-----
-TEST_F(TopicDeleteTransactionIntegrationTest, CannotDeleteImmutableTopic)
+TEST_F(TopicDeleteTransactionIntegrationTests, CannotDeleteImmutableTopic)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

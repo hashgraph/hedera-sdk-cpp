@@ -23,7 +23,7 @@
 
 using namespace Hedera;
 
-class AccountStakersQueryTest : public ::testing::Test
+class AccountStakersQueryUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
@@ -33,7 +33,7 @@ private:
 };
 
 //-----
-TEST_F(AccountStakersQueryTest, SetAccountId)
+TEST_F(AccountStakersQueryUnitTests, SetAccountId)
 {
   // Given
   AccountStakersQuery query;

@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class TokenNftInfoQueryIntegrationTest : public BaseIntegrationTest
+class TokenNftInfoQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenNftInfoQueryIntegrationTest, ExecuteTokenNftInfoQuery)
+TEST_F(TokenNftInfoQueryIntegrationTests, ExecuteTokenNftInfoQuery)
 {
   // Given
   const std::vector<std::byte> metadata = { std::byte(0x01), std::byte(0x02), std::byte(0x03) };
@@ -88,7 +88,7 @@ TEST_F(TokenNftInfoQueryIntegrationTest, ExecuteTokenNftInfoQuery)
 }
 
 //-----
-TEST_F(TokenNftInfoQueryIntegrationTest, CannotQueryWithInvalidNftId)
+TEST_F(TokenNftInfoQueryIntegrationTests, CannotQueryWithInvalidNftId)
 {
   // Given
   const std::vector<std::byte> metadata = { std::byte(0x01), std::byte(0x02), std::byte(0x03) };

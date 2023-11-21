@@ -27,7 +27,7 @@
 
 using namespace Hedera;
 
-class TokenWipeTransactionTest : public ::testing::Test
+class TokenWipeTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
@@ -43,7 +43,7 @@ private:
 };
 
 //-----
-TEST_F(TokenWipeTransactionTest, ConstructTokenWipeTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenWipeTransactionUnitTests, ConstructTokenWipeTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenWipeAccountTransactionBody>();
@@ -70,7 +70,7 @@ TEST_F(TokenWipeTransactionTest, ConstructTokenWipeTransactionFromTransactionBod
 }
 
 //-----
-TEST_F(TokenWipeTransactionTest, GetSetTokenId)
+TEST_F(TokenWipeTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenWipeTransaction transaction;
@@ -83,7 +83,7 @@ TEST_F(TokenWipeTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenWipeTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenWipeTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenWipeTransaction transaction = TokenWipeTransaction()
@@ -96,7 +96,7 @@ TEST_F(TokenWipeTransactionTest, GetSetTokenIdFrozen)
 }
 
 //-----
-TEST_F(TokenWipeTransactionTest, GetSetAccountId)
+TEST_F(TokenWipeTransactionUnitTests, GetSetAccountId)
 {
   // Given
   TokenWipeTransaction transaction;
@@ -109,7 +109,7 @@ TEST_F(TokenWipeTransactionTest, GetSetAccountId)
 }
 
 //-----
-TEST_F(TokenWipeTransactionTest, GetSetAccountIdFrozen)
+TEST_F(TokenWipeTransactionUnitTests, GetSetAccountIdFrozen)
 {
   // Given
   TokenWipeTransaction transaction = TokenWipeTransaction()
@@ -122,7 +122,7 @@ TEST_F(TokenWipeTransactionTest, GetSetAccountIdFrozen)
 }
 
 //-----
-TEST_F(TokenWipeTransactionTest, GetSetAmount)
+TEST_F(TokenWipeTransactionUnitTests, GetSetAmount)
 {
   // Given
   TokenWipeTransaction transaction;
@@ -135,7 +135,7 @@ TEST_F(TokenWipeTransactionTest, GetSetAmount)
 }
 
 //-----
-TEST_F(TokenWipeTransactionTest, GetSetAmountFrozen)
+TEST_F(TokenWipeTransactionUnitTests, GetSetAmountFrozen)
 {
   // Given
   TokenWipeTransaction transaction = TokenWipeTransaction()
@@ -148,7 +148,7 @@ TEST_F(TokenWipeTransactionTest, GetSetAmountFrozen)
 }
 
 //-----
-TEST_F(TokenWipeTransactionTest, GetSetSerialNumbers)
+TEST_F(TokenWipeTransactionUnitTests, GetSetSerialNumbers)
 {
   // Given
   TokenWipeTransaction transaction;
@@ -161,7 +161,7 @@ TEST_F(TokenWipeTransactionTest, GetSetSerialNumbers)
 }
 
 //-----
-TEST_F(TokenWipeTransactionTest, GetSetSerialNumbersFrozen)
+TEST_F(TokenWipeTransactionUnitTests, GetSetSerialNumbersFrozen)
 {
   // Given
   TokenWipeTransaction transaction = TokenWipeTransaction()

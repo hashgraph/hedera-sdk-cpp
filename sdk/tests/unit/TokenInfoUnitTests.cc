@@ -31,7 +31,7 @@
 
 using namespace Hedera;
 
-class TokenInfoTest : public ::testing::Test
+class TokenInfoUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
@@ -105,7 +105,7 @@ private:
 };
 
 //-----
-TEST_F(TokenInfoTest, FromProtobuf)
+TEST_F(TokenInfoUnitTests, FromProtobuf)
 {
   // Given
   proto::TokenInfo protoTokenInfo;
@@ -203,7 +203,7 @@ TEST_F(TokenInfoTest, FromProtobuf)
 }
 
 //-----
-TEST_F(TokenInfoTest, FromBytes)
+TEST_F(TokenInfoUnitTests, FromBytes)
 {
   // Given
   proto::TokenInfo protoTokenInfo;
@@ -302,7 +302,7 @@ TEST_F(TokenInfoTest, FromBytes)
 }
 
 //-----
-TEST_F(TokenInfoTest, ToProtobuf)
+TEST_F(TokenInfoUnitTests, ToProtobuf)
 {
   // Given
   TokenInfo tokenInfo;
@@ -392,7 +392,7 @@ TEST_F(TokenInfoTest, ToProtobuf)
 }
 
 //-----
-TEST_F(TokenInfoTest, ToBytes)
+TEST_F(TokenInfoUnitTests, ToBytes)
 {
   // Given
   TokenInfo tokenInfo;

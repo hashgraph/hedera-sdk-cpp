@@ -39,12 +39,12 @@
 
 using namespace Hedera;
 
-class ScheduleSignTransactionIntegrationTest : public BaseIntegrationTest
+class ScheduleSignTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ScheduleSignTransactionIntegrationTest, ExecuteScheduleSignTransaction)
+TEST_F(ScheduleSignTransactionIntegrationTests, ExecuteScheduleSignTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

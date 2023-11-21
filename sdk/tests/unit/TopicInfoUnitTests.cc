@@ -29,7 +29,7 @@
 
 using namespace Hedera;
 
-class TopicInfoTest : public ::testing::Test
+class TopicInfoUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
@@ -63,7 +63,7 @@ private:
 };
 
 //-----
-TEST_F(TopicInfoTest, FromProtobuf)
+TEST_F(TopicInfoUnitTests, FromProtobuf)
 {
   // Given
   proto::ConsensusGetTopicInfoResponse protoTopicInfo;
@@ -99,7 +99,7 @@ TEST_F(TopicInfoTest, FromProtobuf)
 }
 
 //-----
-TEST_F(TopicInfoTest, FromBytes)
+TEST_F(TopicInfoUnitTests, FromBytes)
 {
   // Given
   proto::ConsensusGetTopicInfoResponse protoTopicInfo;
@@ -136,7 +136,7 @@ TEST_F(TopicInfoTest, FromBytes)
 }
 
 //-----
-TEST_F(TopicInfoTest, ToProtobuf)
+TEST_F(TopicInfoUnitTests, ToProtobuf)
 {
   // Given
   TopicInfo topicInfo;
@@ -180,7 +180,7 @@ TEST_F(TopicInfoTest, ToProtobuf)
 }
 
 //-----
-TEST_F(TopicInfoTest, ToBytes)
+TEST_F(TopicInfoUnitTests, ToBytes)
 {
   // Given
   TopicInfo topicInfo;

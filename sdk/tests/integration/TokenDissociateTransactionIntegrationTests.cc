@@ -38,12 +38,12 @@
 
 using namespace Hedera;
 
-class TokenDissociateTransactionIntegrationTest : public BaseIntegrationTest
+class TokenDissociateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransaction)
+TEST_F(TokenDissociateTransactionIntegrationTests, ExecuteTokenDissociateTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -110,7 +110,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, ExecuteTokenDissociateTransact
 }
 
 //-----
-TEST_F(TokenDissociateTransactionIntegrationTest, CanDissociateNoTokens)
+TEST_F(TokenDissociateTransactionIntegrationTests, CanDissociateNoTokens)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -149,7 +149,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CanDissociateNoTokens)
 }
 
 //-----
-TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateWithNoAccountIdSet)
+TEST_F(TokenDissociateTransactionIntegrationTests, CannotDissociateWithNoAccountIdSet)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -188,7 +188,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateWithNoAccountI
 }
 
 //-----
-TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfDissociatingAccountDoesNotSign)
+TEST_F(TokenDissociateTransactionIntegrationTests, CannotDissociateIfDissociatingAccountDoesNotSign)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -254,7 +254,7 @@ TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfDissociating
 }
 
 //-----
-TEST_F(TokenDissociateTransactionIntegrationTest, CannotDissociateIfNotAssociated)
+TEST_F(TokenDissociateTransactionIntegrationTests, CannotDissociateIfNotAssociated)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

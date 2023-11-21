@@ -37,12 +37,12 @@
 
 using namespace Hedera;
 
-class SystemDeleteTransactionIntegrationTest : public BaseIntegrationTest
+class SystemDeleteTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(SystemDeleteTransactionIntegrationTest, DeleteFile)
+TEST_F(SystemDeleteTransactionIntegrationTests, DeleteFile)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -67,7 +67,7 @@ TEST_F(SystemDeleteTransactionIntegrationTest, DeleteFile)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionIntegrationTest, DeleteContract)
+TEST_F(SystemDeleteTransactionIntegrationTests, DeleteContract)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

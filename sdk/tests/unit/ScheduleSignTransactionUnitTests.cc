@@ -27,7 +27,7 @@
 
 using namespace Hedera;
 
-class ScheduleSignTransactionTest : public ::testing::Test
+class ScheduleSignTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const ScheduleId& getTestScheduleId() const { return mTestScheduleId; }
@@ -37,7 +37,7 @@ private:
 };
 
 //-----
-TEST_F(ScheduleSignTransactionTest, ConstructScheduleSignTransaction)
+TEST_F(ScheduleSignTransactionUnitTests, ConstructScheduleSignTransaction)
 {
   // Given / When
   ScheduleSignTransaction transaction;
@@ -47,7 +47,7 @@ TEST_F(ScheduleSignTransactionTest, ConstructScheduleSignTransaction)
 }
 
 //-----
-TEST_F(ScheduleSignTransactionTest, ConstructScheduleSignTransactionFromTransactionBodyProtobuf)
+TEST_F(ScheduleSignTransactionUnitTests, ConstructScheduleSignTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::ScheduleSignTransactionBody>();
@@ -64,7 +64,7 @@ TEST_F(ScheduleSignTransactionTest, ConstructScheduleSignTransactionFromTransact
 }
 
 //-----
-TEST_F(ScheduleSignTransactionTest, GetSetScheduleId)
+TEST_F(ScheduleSignTransactionUnitTests, GetSetScheduleId)
 {
   // Given
   ScheduleSignTransaction transaction;
@@ -77,7 +77,7 @@ TEST_F(ScheduleSignTransactionTest, GetSetScheduleId)
 }
 
 //-----
-TEST_F(ScheduleSignTransactionTest, GetSetScheduleIdFrozen)
+TEST_F(ScheduleSignTransactionUnitTests, GetSetScheduleIdFrozen)
 {
   // Given
   ScheduleSignTransaction transaction = ScheduleSignTransaction()
@@ -90,7 +90,7 @@ TEST_F(ScheduleSignTransactionTest, GetSetScheduleIdFrozen)
 }
 
 //-----
-TEST_F(ScheduleSignTransactionTest, ClearScheduleId)
+TEST_F(ScheduleSignTransactionUnitTests, ClearScheduleId)
 {
   // Given
   ScheduleSignTransaction transaction;
@@ -104,7 +104,7 @@ TEST_F(ScheduleSignTransactionTest, ClearScheduleId)
 }
 
 //-----
-TEST_F(ScheduleSignTransactionTest, ClearScheduleIdFrozen)
+TEST_F(ScheduleSignTransactionUnitTests, ClearScheduleIdFrozen)
 {
   // Given
   ScheduleSignTransaction transaction = ScheduleSignTransaction()

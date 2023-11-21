@@ -23,7 +23,7 @@
 
 using namespace Hedera;
 
-class TokenNftInfoQueryTest : public ::testing::Test
+class TokenNftInfoQueryUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const NftId& getTestNftId() const { return mTestNftId; }
@@ -33,7 +33,7 @@ private:
 };
 
 //-----
-TEST_F(TokenNftInfoQueryTest, GetSetNftId)
+TEST_F(TokenNftInfoQueryUnitTests, GetSetNftId)
 {
   // Given
   TokenNftInfoQuery query;

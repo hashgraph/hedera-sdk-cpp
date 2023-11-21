@@ -37,12 +37,12 @@
 
 using namespace Hedera;
 
-class ScheduleDeleteTransactionIntegrationTest : public BaseIntegrationTest
+class ScheduleDeleteTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ScheduleDeleteTransactionIntegrationTest, ExecuteScheduleDeleteTransaction)
+TEST_F(ScheduleDeleteTransactionIntegrationTests, ExecuteScheduleDeleteTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -87,7 +87,7 @@ TEST_F(ScheduleDeleteTransactionIntegrationTest, ExecuteScheduleDeleteTransactio
 }
 
 //-----
-TEST_F(ScheduleDeleteTransactionIntegrationTest, CannotDeleteImmutableSchedule)
+TEST_F(ScheduleDeleteTransactionIntegrationTests, CannotDeleteImmutableSchedule)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

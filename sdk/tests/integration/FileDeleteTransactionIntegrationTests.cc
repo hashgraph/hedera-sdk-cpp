@@ -33,12 +33,12 @@
 
 using namespace Hedera;
 
-class FileDeleteTransactionIntegrationTest : public BaseIntegrationTest
+class FileDeleteTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(FileDeleteTransactionIntegrationTest, ExecuteFileDeleteTransaction)
+TEST_F(FileDeleteTransactionIntegrationTests, ExecuteFileDeleteTransaction)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -62,7 +62,7 @@ TEST_F(FileDeleteTransactionIntegrationTest, ExecuteFileDeleteTransaction)
 }
 
 //-----
-TEST_F(FileDeleteTransactionIntegrationTest, CannotDeleteFileWithNoAdminKey)
+TEST_F(FileDeleteTransactionIntegrationTests, CannotDeleteFileWithNoAdminKey)
 {
   // Given
   FileId fileId;
@@ -77,7 +77,7 @@ TEST_F(FileDeleteTransactionIntegrationTest, CannotDeleteFileWithNoAdminKey)
 }
 
 //-----
-TEST_F(FileDeleteTransactionIntegrationTest, CannotDeleteFileWithoutFileId)
+TEST_F(FileDeleteTransactionIntegrationTests, CannotDeleteFileWithoutFileId)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =

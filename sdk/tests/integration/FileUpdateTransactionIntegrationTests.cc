@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class FileUpdateTransactionIntegrationTest : public BaseIntegrationTest
+class FileUpdateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(FileUpdateTransactionIntegrationTest, ExecuteFileUpdateTransaction)
+TEST_F(FileUpdateTransactionIntegrationTests, ExecuteFileUpdateTransaction)
 {
   // Given
   const std::string memo = "file create memo";
@@ -99,7 +99,7 @@ TEST_F(FileUpdateTransactionIntegrationTest, ExecuteFileUpdateTransaction)
 }
 
 //-----
-TEST_F(FileUpdateTransactionIntegrationTest, CannotUpdateImmutableFile)
+TEST_F(FileUpdateTransactionIntegrationTests, CannotUpdateImmutableFile)
 {
   // Given
   FileId fileId;
@@ -119,7 +119,7 @@ TEST_F(FileUpdateTransactionIntegrationTest, CannotUpdateImmutableFile)
 }
 
 //-----
-TEST_F(FileUpdateTransactionIntegrationTest, CannotUpdateWithNoFileId)
+TEST_F(FileUpdateTransactionIntegrationTests, CannotUpdateWithNoFileId)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = FileUpdateTransaction()

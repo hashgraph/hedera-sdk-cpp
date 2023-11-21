@@ -33,12 +33,12 @@
 
 using namespace Hedera;
 
-class TokenDeleteTransactionIntegrationTest : public BaseIntegrationTest
+class TokenDeleteTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenDeleteTransactionIntegrationTest, ExecuteTokenDeleteTransaction)
+TEST_F(TokenDeleteTransactionIntegrationTests, ExecuteTokenDeleteTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -74,7 +74,7 @@ TEST_F(TokenDeleteTransactionIntegrationTest, ExecuteTokenDeleteTransaction)
 }
 
 //-----
-TEST_F(TokenDeleteTransactionIntegrationTest, CannotDeleteTokenWithNoAdminKeySignature)
+TEST_F(TokenDeleteTransactionIntegrationTests, CannotDeleteTokenWithNoAdminKeySignature)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -114,7 +114,7 @@ TEST_F(TokenDeleteTransactionIntegrationTest, CannotDeleteTokenWithNoAdminKeySig
 }
 
 //-----
-TEST_F(TokenDeleteTransactionIntegrationTest, CannotDeleteTokenWithNoTokenId)
+TEST_F(TokenDeleteTransactionIntegrationTests, CannotDeleteTokenWithNoTokenId)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =

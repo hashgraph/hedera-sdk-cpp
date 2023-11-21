@@ -23,7 +23,7 @@
 
 using namespace Hedera;
 
-class TokenInfoQueryTest : public ::testing::Test
+class TokenInfoQueryUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
@@ -33,7 +33,7 @@ private:
 };
 
 //-----
-TEST_F(TokenInfoQueryTest, GetSetTokenId)
+TEST_F(TokenInfoQueryUnitTests, GetSetTokenId)
 {
   // Given
   TokenInfoQuery query;

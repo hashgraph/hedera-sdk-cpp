@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class TokenGrantKycTransactionTest : public ::testing::Test
+class TokenGrantKycTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
@@ -40,7 +40,7 @@ private:
 };
 
 //-----
-TEST_F(TokenGrantKycTransactionTest, ConstructTokenGrantKycTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenGrantKycTransactionUnitTests, ConstructTokenGrantKycTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenGrantKycTransactionBody>();
@@ -59,7 +59,7 @@ TEST_F(TokenGrantKycTransactionTest, ConstructTokenGrantKycTransactionFromTransa
 }
 
 //-----
-TEST_F(TokenGrantKycTransactionTest, GetSetAccountId)
+TEST_F(TokenGrantKycTransactionUnitTests, GetSetAccountId)
 {
   // Given
   TokenGrantKycTransaction transaction;
@@ -72,7 +72,7 @@ TEST_F(TokenGrantKycTransactionTest, GetSetAccountId)
 }
 
 //-----
-TEST_F(TokenGrantKycTransactionTest, GetSetAccountIdFrozen)
+TEST_F(TokenGrantKycTransactionUnitTests, GetSetAccountIdFrozen)
 {
   // Given
   TokenGrantKycTransaction transaction = TokenGrantKycTransaction()
@@ -85,7 +85,7 @@ TEST_F(TokenGrantKycTransactionTest, GetSetAccountIdFrozen)
 }
 
 //-----
-TEST_F(TokenGrantKycTransactionTest, GetSetTokenId)
+TEST_F(TokenGrantKycTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenGrantKycTransaction transaction;
@@ -98,7 +98,7 @@ TEST_F(TokenGrantKycTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenGrantKycTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenGrantKycTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenGrantKycTransaction transaction = TokenGrantKycTransaction()

@@ -38,12 +38,12 @@
 
 using namespace Hedera;
 
-class TokenUnpauseTransactionIntegrationTest : public BaseIntegrationTest
+class TokenUnpauseTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenUnpauseTransactionIntegrationTest, ExecuteTokenUnpauseTransaction)
+TEST_F(TokenUnpauseTransactionIntegrationTests, ExecuteTokenUnpauseTransaction)
 {
   // Given
   const int64_t amount = 10LL;
@@ -117,7 +117,7 @@ TEST_F(TokenUnpauseTransactionIntegrationTest, ExecuteTokenUnpauseTransaction)
 }
 
 //-----
-TEST_F(TokenUnpauseTransactionIntegrationTest, CannotUnpauseWithNoTokenId)
+TEST_F(TokenUnpauseTransactionIntegrationTests, CannotUnpauseWithNoTokenId)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =

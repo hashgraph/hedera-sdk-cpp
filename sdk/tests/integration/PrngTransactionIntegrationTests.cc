@@ -26,12 +26,12 @@
 
 using namespace Hedera;
 
-class PrngTransactionIntegrationTest : public BaseIntegrationTest
+class PrngTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(PrngTransactionIntegrationTest, ExecutePrngTransactionNoRange)
+TEST_F(PrngTransactionIntegrationTests, ExecutePrngTransactionNoRange)
 {
   // Given / When
   TransactionResponse txResponse;
@@ -46,7 +46,7 @@ TEST_F(PrngTransactionIntegrationTest, ExecutePrngTransactionNoRange)
 }
 
 //-----
-TEST_F(PrngTransactionIntegrationTest, ExecutePrngTransactionRange)
+TEST_F(PrngTransactionIntegrationTests, ExecutePrngTransactionRange)
 {
   // Given
   const int range = 100;

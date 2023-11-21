@@ -27,7 +27,7 @@
 
 using namespace Hedera;
 
-class TopicDeleteTransactionTest : public ::testing::Test
+class TopicDeleteTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
@@ -37,7 +37,7 @@ private:
 };
 
 //-----
-TEST_F(TopicDeleteTransactionTest, ConstructTopicDeleteTransaction)
+TEST_F(TopicDeleteTransactionUnitTests, ConstructTopicDeleteTransaction)
 {
   // Given / When
   TopicDeleteTransaction transaction;
@@ -47,7 +47,7 @@ TEST_F(TopicDeleteTransactionTest, ConstructTopicDeleteTransaction)
 }
 
 //-----
-TEST_F(TopicDeleteTransactionTest, ConstructTopicDeleteTransactionFromTransactionBodyProtobuf)
+TEST_F(TopicDeleteTransactionUnitTests, ConstructTopicDeleteTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::ConsensusDeleteTopicTransactionBody>();
@@ -64,7 +64,7 @@ TEST_F(TopicDeleteTransactionTest, ConstructTopicDeleteTransactionFromTransactio
 }
 
 //-----
-TEST_F(TopicDeleteTransactionTest, GetSetTopicId)
+TEST_F(TopicDeleteTransactionUnitTests, GetSetTopicId)
 {
   // Given
   TopicDeleteTransaction transaction;
@@ -77,7 +77,7 @@ TEST_F(TopicDeleteTransactionTest, GetSetTopicId)
 }
 
 //-----
-TEST_F(TopicDeleteTransactionTest, GetSetTopicIdFrozen)
+TEST_F(TopicDeleteTransactionUnitTests, GetSetTopicIdFrozen)
 {
   // Given
   TopicDeleteTransaction transaction = TopicDeleteTransaction()

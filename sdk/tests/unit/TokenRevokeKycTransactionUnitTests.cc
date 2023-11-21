@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class TokenRevokeKycTransactionTest : public ::testing::Test
+class TokenRevokeKycTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
@@ -40,7 +40,7 @@ private:
 };
 
 //-----
-TEST_F(TokenRevokeKycTransactionTest, ConstructTokenRevokeKycTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenRevokeKycTransactionUnitTests, ConstructTokenRevokeKycTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenRevokeKycTransactionBody>();
@@ -59,7 +59,7 @@ TEST_F(TokenRevokeKycTransactionTest, ConstructTokenRevokeKycTransactionFromTran
 }
 
 //-----
-TEST_F(TokenRevokeKycTransactionTest, GetSetAccountId)
+TEST_F(TokenRevokeKycTransactionUnitTests, GetSetAccountId)
 {
   // Given
   TokenRevokeKycTransaction transaction;
@@ -72,7 +72,7 @@ TEST_F(TokenRevokeKycTransactionTest, GetSetAccountId)
 }
 
 //-----
-TEST_F(TokenRevokeKycTransactionTest, GetSetAccountIdFrozen)
+TEST_F(TokenRevokeKycTransactionUnitTests, GetSetAccountIdFrozen)
 {
   // Given
   TokenRevokeKycTransaction transaction = TokenRevokeKycTransaction()
@@ -85,7 +85,7 @@ TEST_F(TokenRevokeKycTransactionTest, GetSetAccountIdFrozen)
 }
 
 //-----
-TEST_F(TokenRevokeKycTransactionTest, GetSetTokenId)
+TEST_F(TokenRevokeKycTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenRevokeKycTransaction transaction;
@@ -98,7 +98,7 @@ TEST_F(TokenRevokeKycTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenRevokeKycTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenRevokeKycTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenRevokeKycTransaction transaction = TokenRevokeKycTransaction()

@@ -23,7 +23,7 @@
 
 using namespace Hedera;
 
-class AddressBookQueryTest : public ::testing::Test
+class AddressBookQueryUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
@@ -39,7 +39,7 @@ private:
 };
 
 //-----
-TEST_F(AddressBookQueryTest, GetSetAccountId)
+TEST_F(AddressBookQueryUnitTests, GetSetAccountId)
 {
   // Given
   AddressBookQuery query;
@@ -52,7 +52,7 @@ TEST_F(AddressBookQueryTest, GetSetAccountId)
 }
 
 //-----
-TEST_F(AddressBookQueryTest, GetSetLimit)
+TEST_F(AddressBookQueryUnitTests, GetSetLimit)
 {
   // Given
   AddressBookQuery query;
@@ -65,7 +65,7 @@ TEST_F(AddressBookQueryTest, GetSetLimit)
 }
 
 //-----
-TEST_F(AddressBookQueryTest, GetSetMaxAttempts)
+TEST_F(AddressBookQueryUnitTests, GetSetMaxAttempts)
 {
   // Given
   AddressBookQuery query;
@@ -78,7 +78,7 @@ TEST_F(AddressBookQueryTest, GetSetMaxAttempts)
 }
 
 //-----
-TEST_F(AddressBookQueryTest, GetSetMaxBackoff)
+TEST_F(AddressBookQueryUnitTests, GetSetMaxBackoff)
 {
   // Given
   AddressBookQuery query;

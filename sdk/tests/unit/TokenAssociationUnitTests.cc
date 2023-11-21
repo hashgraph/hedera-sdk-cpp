@@ -25,7 +25,7 @@
 
 using namespace Hedera;
 
-class TokenAssociationTest : public ::testing::Test
+class TokenAssociationUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
@@ -37,7 +37,7 @@ private:
 };
 
 //-----
-TEST_F(TokenAssociationTest, FromProtobuf)
+TEST_F(TokenAssociationUnitTests, FromProtobuf)
 {
   // Given
   proto::TokenAssociation protoTokenAssociation;
@@ -53,7 +53,7 @@ TEST_F(TokenAssociationTest, FromProtobuf)
 }
 
 //-----
-TEST_F(TokenAssociationTest, ToProtobuf)
+TEST_F(TokenAssociationUnitTests, ToProtobuf)
 {
   // Given
   TokenAssociation tokenAssociation;
@@ -75,7 +75,7 @@ TEST_F(TokenAssociationTest, ToProtobuf)
 }
 
 //-----
-TEST_F(TokenAssociationTest, FromBytes)
+TEST_F(TokenAssociationUnitTests, FromBytes)
 {
   // Given
   proto::TokenAssociation protoTokenAssociation;
@@ -92,7 +92,7 @@ TEST_F(TokenAssociationTest, FromBytes)
 }
 
 //-----
-TEST_F(TokenAssociationTest, ToBytes)
+TEST_F(TokenAssociationUnitTests, ToBytes)
 {
   // Given
   TokenAssociation tokenAssociation;

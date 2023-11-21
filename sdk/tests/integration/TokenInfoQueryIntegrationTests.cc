@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class TokenInfoQueryIntegrationTest : public BaseIntegrationTest
+class TokenInfoQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenInfoQueryIntegrationTest, ExecuteTokenInfoQuery)
+TEST_F(TokenInfoQueryIntegrationTests, ExecuteTokenInfoQuery)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -137,7 +137,7 @@ TEST_F(TokenInfoQueryIntegrationTest, ExecuteTokenInfoQuery)
 }
 
 //-----
-TEST_F(TokenInfoQueryIntegrationTest, CanQueryTokenWithMinimalProperties)
+TEST_F(TokenInfoQueryIntegrationTests, CanQueryTokenWithMinimalProperties)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -185,7 +185,7 @@ TEST_F(TokenInfoQueryIntegrationTest, CanQueryTokenWithMinimalProperties)
 }
 
 //-----
-TEST_F(TokenInfoQueryIntegrationTest, CanQueryNft)
+TEST_F(TokenInfoQueryIntegrationTests, CanQueryNft)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

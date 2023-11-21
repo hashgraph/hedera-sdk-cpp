@@ -34,12 +34,12 @@
 
 using namespace Hedera;
 
-class TopicInfoQueryIntegrationTest : public BaseIntegrationTest
+class TopicInfoQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TopicInfoQueryIntegrationTest, ExecuteTopicInfoQuery)
+TEST_F(TopicInfoQueryIntegrationTests, ExecuteTopicInfoQuery)
 {
   // Given
   const std::string memo = "test memo";

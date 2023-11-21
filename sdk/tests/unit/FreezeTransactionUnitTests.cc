@@ -36,7 +36,7 @@
 
 using namespace Hedera;
 
-class FreezeTransactionTest : public ::testing::Test
+class FreezeTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
@@ -52,7 +52,7 @@ private:
 };
 
 //-----
-TEST_F(FreezeTransactionTest, ConstructFreezeTransactionFromTransactionBodyProtobuf)
+TEST_F(FreezeTransactionUnitTests, ConstructFreezeTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::FreezeTransactionBody>();
@@ -77,7 +77,7 @@ TEST_F(FreezeTransactionTest, ConstructFreezeTransactionFromTransactionBodyProto
 }
 
 //-----
-TEST_F(FreezeTransactionTest, GetSetFileId)
+TEST_F(FreezeTransactionUnitTests, GetSetFileId)
 {
   // Given
   FreezeTransaction transaction;
@@ -91,7 +91,7 @@ TEST_F(FreezeTransactionTest, GetSetFileId)
 }
 
 //-----
-TEST_F(FreezeTransactionTest, GetSetFileIdFrozen)
+TEST_F(FreezeTransactionUnitTests, GetSetFileIdFrozen)
 {
   // Given
   FreezeTransaction transaction = FreezeTransaction()
@@ -104,7 +104,7 @@ TEST_F(FreezeTransactionTest, GetSetFileIdFrozen)
 }
 
 //-----
-TEST_F(FreezeTransactionTest, GetSetFileHash)
+TEST_F(FreezeTransactionUnitTests, GetSetFileHash)
 {
   // Given
   FreezeTransaction transaction;
@@ -117,7 +117,7 @@ TEST_F(FreezeTransactionTest, GetSetFileHash)
 }
 
 //-----
-TEST_F(FreezeTransactionTest, GetSetFileHashFrozen)
+TEST_F(FreezeTransactionUnitTests, GetSetFileHashFrozen)
 {
   // Given
   FreezeTransaction transaction = FreezeTransaction()
@@ -130,7 +130,7 @@ TEST_F(FreezeTransactionTest, GetSetFileHashFrozen)
 }
 
 //-----
-TEST_F(FreezeTransactionTest, GetSetStartTime)
+TEST_F(FreezeTransactionUnitTests, GetSetStartTime)
 {
   // Given
   FreezeTransaction transaction;
@@ -144,7 +144,7 @@ TEST_F(FreezeTransactionTest, GetSetStartTime)
 }
 
 //-----
-TEST_F(FreezeTransactionTest, GetSetStartTimeFrozen)
+TEST_F(FreezeTransactionUnitTests, GetSetStartTimeFrozen)
 {
   // Given
   FreezeTransaction transaction = FreezeTransaction()
@@ -157,7 +157,7 @@ TEST_F(FreezeTransactionTest, GetSetStartTimeFrozen)
 }
 
 //-----
-TEST_F(FreezeTransactionTest, GetSetFreezeType)
+TEST_F(FreezeTransactionUnitTests, GetSetFreezeType)
 {
   // Given
   FreezeTransaction transaction;
@@ -170,7 +170,7 @@ TEST_F(FreezeTransactionTest, GetSetFreezeType)
 }
 
 //-----
-TEST_F(FreezeTransactionTest, GetSetFreezeTypeFrozen)
+TEST_F(FreezeTransactionUnitTests, GetSetFreezeTypeFrozen)
 {
   // Given
   FreezeTransaction transaction = FreezeTransaction()

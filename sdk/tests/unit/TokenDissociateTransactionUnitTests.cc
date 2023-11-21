@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class TokenDissociateTransactionTest : public ::testing::Test
+class TokenDissociateTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
@@ -42,7 +42,7 @@ private:
 };
 
 //-----
-TEST_F(TokenDissociateTransactionTest, ConstructTokenDissociateTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenDissociateTransactionUnitTests, ConstructTokenDissociateTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenDissociateTransactionBody>();
@@ -65,7 +65,7 @@ TEST_F(TokenDissociateTransactionTest, ConstructTokenDissociateTransactionFromTr
 }
 
 //-----
-TEST_F(TokenDissociateTransactionTest, GetSetAccountId)
+TEST_F(TokenDissociateTransactionUnitTests, GetSetAccountId)
 {
   // Given
   TokenDissociateTransaction transaction;
@@ -78,7 +78,7 @@ TEST_F(TokenDissociateTransactionTest, GetSetAccountId)
 }
 
 //-----
-TEST_F(TokenDissociateTransactionTest, GetSetAccountIdFrozen)
+TEST_F(TokenDissociateTransactionUnitTests, GetSetAccountIdFrozen)
 {
   // Given
   TokenDissociateTransaction transaction = TokenDissociateTransaction()
@@ -91,7 +91,7 @@ TEST_F(TokenDissociateTransactionTest, GetSetAccountIdFrozen)
 }
 
 //-----
-TEST_F(TokenDissociateTransactionTest, GetSetTokenIds)
+TEST_F(TokenDissociateTransactionUnitTests, GetSetTokenIds)
 {
   // Given
   TokenDissociateTransaction transaction;
@@ -104,7 +104,7 @@ TEST_F(TokenDissociateTransactionTest, GetSetTokenIds)
 }
 
 //-----
-TEST_F(TokenDissociateTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenDissociateTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenDissociateTransaction transaction = TokenDissociateTransaction()

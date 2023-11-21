@@ -31,7 +31,7 @@
 
 using namespace Hedera;
 
-class TokenMintTransactionTest : public ::testing::Test
+class TokenMintTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
@@ -52,7 +52,7 @@ private:
 };
 
 //-----
-TEST_F(TokenMintTransactionTest, ConstructTokenMintTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenMintTransactionUnitTests, ConstructTokenMintTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenMintTransactionBody>();
@@ -77,7 +77,7 @@ TEST_F(TokenMintTransactionTest, ConstructTokenMintTransactionFromTransactionBod
 }
 
 //-----
-TEST_F(TokenMintTransactionTest, GetSetTokenId)
+TEST_F(TokenMintTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenMintTransaction transaction;
@@ -90,7 +90,7 @@ TEST_F(TokenMintTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenMintTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenMintTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenMintTransaction transaction = TokenMintTransaction()
@@ -103,7 +103,7 @@ TEST_F(TokenMintTransactionTest, GetSetTokenIdFrozen)
 }
 
 //-----
-TEST_F(TokenMintTransactionTest, GetSetAmount)
+TEST_F(TokenMintTransactionUnitTests, GetSetAmount)
 {
   // Given
   TokenMintTransaction transaction;
@@ -116,7 +116,7 @@ TEST_F(TokenMintTransactionTest, GetSetAmount)
 }
 
 //-----
-TEST_F(TokenMintTransactionTest, GetSetAmountFrozen)
+TEST_F(TokenMintTransactionUnitTests, GetSetAmountFrozen)
 {
   // Given
   TokenMintTransaction transaction = TokenMintTransaction()
@@ -129,7 +129,7 @@ TEST_F(TokenMintTransactionTest, GetSetAmountFrozen)
 }
 
 //-----
-TEST_F(TokenMintTransactionTest, GetSetMetadata)
+TEST_F(TokenMintTransactionUnitTests, GetSetMetadata)
 {
   // Given
   TokenMintTransaction transaction;
@@ -142,7 +142,7 @@ TEST_F(TokenMintTransactionTest, GetSetMetadata)
 }
 
 //-----
-TEST_F(TokenMintTransactionTest, GetSetMetadataFrozen)
+TEST_F(TokenMintTransactionUnitTests, GetSetMetadataFrozen)
 {
   // Given
   TokenMintTransaction transaction = TokenMintTransaction()
@@ -155,7 +155,7 @@ TEST_F(TokenMintTransactionTest, GetSetMetadataFrozen)
 }
 
 //-----
-TEST_F(TokenMintTransactionTest, AddMetadata)
+TEST_F(TokenMintTransactionUnitTests, AddMetadata)
 {
   // Given
   TokenMintTransaction tokenMintTransaction;
@@ -169,7 +169,7 @@ TEST_F(TokenMintTransactionTest, AddMetadata)
 }
 
 //-----
-TEST_F(TokenMintTransactionTest, AddMetadataFrozen)
+TEST_F(TokenMintTransactionUnitTests, AddMetadataFrozen)
 {
   // Given
   TokenMintTransaction transaction = TokenMintTransaction()

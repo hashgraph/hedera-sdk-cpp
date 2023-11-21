@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class TopicMessageSubmitTransactionTest : public ::testing::Test
+class TopicMessageSubmitTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
@@ -40,7 +40,7 @@ private:
 };
 
 //-----
-TEST_F(TopicMessageSubmitTransactionTest, ConstructTopicMessageSubmitTransactionFromTransactionBodyProtobuf)
+TEST_F(TopicMessageSubmitTransactionUnitTests, ConstructTopicMessageSubmitTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::ConsensusSubmitMessageTransactionBody>();
@@ -58,7 +58,7 @@ TEST_F(TopicMessageSubmitTransactionTest, ConstructTopicMessageSubmitTransaction
 }
 
 //-----
-TEST_F(TopicMessageSubmitTransactionTest, GetSetTopicId)
+TEST_F(TopicMessageSubmitTransactionUnitTests, GetSetTopicId)
 {
   // Given
   TopicMessageSubmitTransaction transaction;
@@ -71,7 +71,7 @@ TEST_F(TopicMessageSubmitTransactionTest, GetSetTopicId)
 }
 
 //-----
-TEST_F(TopicMessageSubmitTransactionTest, GetSetTopicIdFrozen)
+TEST_F(TopicMessageSubmitTransactionUnitTests, GetSetTopicIdFrozen)
 {
   // Given
   TopicMessageSubmitTransaction transaction = TopicMessageSubmitTransaction()
@@ -84,7 +84,7 @@ TEST_F(TopicMessageSubmitTransactionTest, GetSetTopicIdFrozen)
 }
 
 //-----
-TEST_F(TopicMessageSubmitTransactionTest, GetSetMessage)
+TEST_F(TopicMessageSubmitTransactionUnitTests, GetSetMessage)
 {
   // Given
   TopicMessageSubmitTransaction transactionWithBytes;
@@ -100,7 +100,7 @@ TEST_F(TopicMessageSubmitTransactionTest, GetSetMessage)
 }
 
 //-----
-TEST_F(TopicMessageSubmitTransactionTest, GetSetMessageFrozen)
+TEST_F(TopicMessageSubmitTransactionUnitTests, GetSetMessageFrozen)
 {
   // Given
   TopicMessageSubmitTransaction transactionWithBytes = TopicMessageSubmitTransaction()

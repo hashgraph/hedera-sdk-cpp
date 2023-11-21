@@ -29,7 +29,7 @@
 
 using namespace Hedera;
 
-class TopicIdTest : public ::testing::Test
+class TopicIdUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const uint64_t& getTestShardNum() const { return mTestShardNum; }
@@ -43,7 +43,7 @@ private:
 };
 
 //-----
-TEST_F(TopicIdTest, ConstructWithTopicNum)
+TEST_F(TopicIdUnitTests, ConstructWithTopicNum)
 {
   // Given / When
   const TopicId topicId(getTestTopicNum());
@@ -55,7 +55,7 @@ TEST_F(TopicIdTest, ConstructWithTopicNum)
 }
 
 //-----
-TEST_F(TopicIdTest, ConstructWithShardRealmTopicNum)
+TEST_F(TopicIdUnitTests, ConstructWithShardRealmTopicNum)
 {
   // Given / When
   const TopicId topicId(getTestShardNum(), getTestRealmNum(), getTestTopicNum());
@@ -67,7 +67,7 @@ TEST_F(TopicIdTest, ConstructWithShardRealmTopicNum)
 }
 
 //-----
-TEST_F(TopicIdTest, CompareTopicIds)
+TEST_F(TopicIdUnitTests, CompareTopicIds)
 {
   EXPECT_TRUE(TopicId() == TopicId());
   EXPECT_TRUE(TopicId(getTestTopicNum()) == TopicId(getTestTopicNum()));
@@ -82,7 +82,7 @@ TEST_F(TopicIdTest, CompareTopicIds)
 }
 
 //-----
-TEST_F(TopicIdTest, FromString)
+TEST_F(TopicIdUnitTests, FromString)
 {
   // Given
   const std::string testShardNumStr = std::to_string(getTestShardNum());
@@ -134,7 +134,7 @@ TEST_F(TopicIdTest, FromString)
 }
 
 //-----
-TEST_F(TopicIdTest, FromSolidityAddress)
+TEST_F(TopicIdUnitTests, FromSolidityAddress)
 {
   // Given
   const std::string goodAddr = "0123456789ABCDEF0123456789ABCDEF01234567";
@@ -171,7 +171,7 @@ TEST_F(TopicIdTest, FromSolidityAddress)
 }
 
 //-----
-TEST_F(TopicIdTest, FromProtobuf)
+TEST_F(TopicIdUnitTests, FromProtobuf)
 {
   // Given
   proto::TopicID protoTopicId;
@@ -189,7 +189,7 @@ TEST_F(TopicIdTest, FromProtobuf)
 }
 
 //-----
-TEST_F(TopicIdTest, FromBytes)
+TEST_F(TopicIdUnitTests, FromBytes)
 {
   // Given
   proto::TopicID protoTopicId;
@@ -207,7 +207,7 @@ TEST_F(TopicIdTest, FromBytes)
 }
 
 //-----
-TEST_F(TopicIdTest, ToProtobuf)
+TEST_F(TopicIdUnitTests, ToProtobuf)
 {
   // Given
   const TopicId topicId(getTestShardNum(), getTestRealmNum(), getTestTopicNum());
@@ -222,7 +222,7 @@ TEST_F(TopicIdTest, ToProtobuf)
 }
 
 //-----
-TEST_F(TopicIdTest, ToBytes)
+TEST_F(TopicIdUnitTests, ToBytes)
 {
   // Given
   proto::TopicID protoTopicId;
@@ -241,7 +241,7 @@ TEST_F(TopicIdTest, ToBytes)
 }
 
 //-----
-TEST_F(TopicIdTest, ToString)
+TEST_F(TopicIdUnitTests, ToString)
 {
   // Given
   const TopicId topicId(getTestShardNum(), getTestRealmNum(), getTestTopicNum());

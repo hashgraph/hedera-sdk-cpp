@@ -34,12 +34,12 @@
 
 using namespace Hedera;
 
-class SystemUndeleteTransactionIntegrationTest : public BaseIntegrationTest
+class SystemUndeleteTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(SystemUndeleteTransactionIntegrationTest, UndeleteFile)
+TEST_F(SystemUndeleteTransactionIntegrationTests, UndeleteFile)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

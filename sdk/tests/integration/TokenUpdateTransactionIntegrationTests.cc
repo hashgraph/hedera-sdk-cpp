@@ -37,12 +37,12 @@
 
 using namespace Hedera;
 
-class TokenUpdateTransactionIntegrationTest : public BaseIntegrationTest
+class TokenUpdateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenUpdateTransactionIntegrationTest, ExecuteTokenUpdateTransaction)
+TEST_F(TokenUpdateTransactionIntegrationTests, ExecuteTokenUpdateTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -85,7 +85,7 @@ TEST_F(TokenUpdateTransactionIntegrationTest, ExecuteTokenUpdateTransaction)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionIntegrationTest, CannotUpdateImmutableKey)
+TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateImmutableKey)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

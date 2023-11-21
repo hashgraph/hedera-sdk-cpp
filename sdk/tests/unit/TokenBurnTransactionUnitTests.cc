@@ -27,7 +27,7 @@
 
 using namespace Hedera;
 
-class TokenBurnTransactionTest : public ::testing::Test
+class TokenBurnTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
@@ -41,7 +41,7 @@ private:
 };
 
 //-----
-TEST_F(TokenBurnTransactionTest, ConstructTokenBurnTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenBurnTransactionUnitTests, ConstructTokenBurnTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenBurnTransactionBody>();
@@ -66,7 +66,7 @@ TEST_F(TokenBurnTransactionTest, ConstructTokenBurnTransactionFromTransactionBod
 }
 
 //-----
-TEST_F(TokenBurnTransactionTest, GetSetTokenId)
+TEST_F(TokenBurnTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenBurnTransaction transaction;
@@ -79,7 +79,7 @@ TEST_F(TokenBurnTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenBurnTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenBurnTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenBurnTransaction transaction = TokenBurnTransaction()
@@ -92,7 +92,7 @@ TEST_F(TokenBurnTransactionTest, GetSetTokenIdFrozen)
 }
 
 //-----
-TEST_F(TokenBurnTransactionTest, GetSetAmount)
+TEST_F(TokenBurnTransactionUnitTests, GetSetAmount)
 {
   // Given
   TokenBurnTransaction transaction;
@@ -105,7 +105,7 @@ TEST_F(TokenBurnTransactionTest, GetSetAmount)
 }
 
 //-----
-TEST_F(TokenBurnTransactionTest, GetSetAmountFrozen)
+TEST_F(TokenBurnTransactionUnitTests, GetSetAmountFrozen)
 {
   // Given
   TokenBurnTransaction transaction = TokenBurnTransaction()
@@ -118,7 +118,7 @@ TEST_F(TokenBurnTransactionTest, GetSetAmountFrozen)
 }
 
 //-----
-TEST_F(TokenBurnTransactionTest, GetSetSerialNumbers)
+TEST_F(TokenBurnTransactionUnitTests, GetSetSerialNumbers)
 {
   // Given
   TokenBurnTransaction transaction;
@@ -131,7 +131,7 @@ TEST_F(TokenBurnTransactionTest, GetSetSerialNumbers)
 }
 
 //-----
-TEST_F(TokenBurnTransactionTest, GetSetSerialNumbersFrozen)
+TEST_F(TokenBurnTransactionUnitTests, GetSetSerialNumbersFrozen)
 {
   // Given
   TokenBurnTransaction transaction = TokenBurnTransaction()

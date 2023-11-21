@@ -38,12 +38,12 @@
 
 using namespace Hedera;
 
-class TokenFeeScheduleUpdateTransactionIntegrationTest : public BaseIntegrationTest
+class TokenFeeScheduleUpdateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenFeeScheduleUpdateTransactionIntegrationTest, ExecuteTokenFeeScheduleUpdateTransaction)
+TEST_F(TokenFeeScheduleUpdateTransactionIntegrationTests, ExecuteTokenFeeScheduleUpdateTransaction)
 {
   // Given
   const std::vector<std::shared_ptr<CustomFee>> customFees = {
@@ -98,7 +98,7 @@ TEST_F(TokenFeeScheduleUpdateTransactionIntegrationTest, ExecuteTokenFeeSchedule
 }
 
 //-----
-TEST_F(TokenFeeScheduleUpdateTransactionIntegrationTest, CannotUpdateFeeScheduleIfFeeScheduleKeyDoesNotSign)
+TEST_F(TokenFeeScheduleUpdateTransactionIntegrationTests, CannotUpdateFeeScheduleIfFeeScheduleKeyDoesNotSign)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

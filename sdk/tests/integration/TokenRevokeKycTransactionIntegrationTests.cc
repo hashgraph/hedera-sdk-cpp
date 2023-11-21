@@ -36,12 +36,12 @@
 
 using namespace Hedera;
 
-class TokenRevokeKycTransactionIntegrationTest : public BaseIntegrationTest
+class TokenRevokeKycTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenRevokeKycTransactionIntegrationTest, ExecuteTokenRevokeKycTransaction)
+TEST_F(TokenRevokeKycTransactionIntegrationTests, ExecuteTokenRevokeKycTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -101,7 +101,7 @@ TEST_F(TokenRevokeKycTransactionIntegrationTest, ExecuteTokenRevokeKycTransactio
 }
 
 //-----
-TEST_F(TokenRevokeKycTransactionIntegrationTest, CannotRevokeKycToAccountWithNoTokenId)
+TEST_F(TokenRevokeKycTransactionIntegrationTests, CannotRevokeKycToAccountWithNoTokenId)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -140,7 +140,7 @@ TEST_F(TokenRevokeKycTransactionIntegrationTest, CannotRevokeKycToAccountWithNoT
 }
 
 //-----
-TEST_F(TokenRevokeKycTransactionIntegrationTest, CannotRevokeKycOnNoAccount)
+TEST_F(TokenRevokeKycTransactionIntegrationTests, CannotRevokeKycOnNoAccount)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -171,7 +171,7 @@ TEST_F(TokenRevokeKycTransactionIntegrationTest, CannotRevokeKycOnNoAccount)
 }
 
 //-----
-TEST_F(TokenRevokeKycTransactionIntegrationTest, CannotRevokeKycToAccountOnTokenIfNotAssociated)
+TEST_F(TokenRevokeKycTransactionIntegrationTests, CannotRevokeKycToAccountOnTokenIfNotAssociated)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class TopicMessageQueryIntegrationTest : public BaseIntegrationTest
+class TopicMessageQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TopicMessageQueryIntegrationTest, ExecuteTopicMessageQuery)
+TEST_F(TopicMessageQueryIntegrationTests, ExecuteTopicMessageQuery)
 {
   // Given
   const std::string topicMessage = "Hello from HCS!";
@@ -97,7 +97,7 @@ TEST_F(TopicMessageQueryIntegrationTest, ExecuteTopicMessageQuery)
 }
 
 //-----
-TEST_F(TopicMessageQueryIntegrationTest, CanReceiveLargeTopicMessage)
+TEST_F(TopicMessageQueryIntegrationTests, CanReceiveLargeTopicMessage)
 {
   // Given
   const std::string topicMessage =

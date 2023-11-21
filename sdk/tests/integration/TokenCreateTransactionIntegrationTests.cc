@@ -39,12 +39,12 @@
 
 using namespace Hedera;
 
-class TokenCreateTransactionIntegrationTest : public BaseIntegrationTest
+class TokenCreateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, ExecuteTokenCreateTransaction)
+TEST_F(TokenCreateTransactionIntegrationTests, ExecuteTokenCreateTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -81,7 +81,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, ExecuteTokenCreateTransaction)
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithMinimalPropertiesSet)
+TEST_F(TokenCreateTransactionIntegrationTests, CanCreateTokenWithMinimalPropertiesSet)
 {
   // Given / When
   TransactionReceipt txReceipt;
@@ -98,7 +98,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithMinimalPropertie
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoName)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithNoName)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
@@ -110,7 +110,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoName)
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoSymbol)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithNoSymbol)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
@@ -122,7 +122,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoSymbol)
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoTreasuryAccount)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithNoTreasuryAccount)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = TokenCreateTransaction()
@@ -134,7 +134,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNoTreasuryAcc
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutTreasuryAccountSignature)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithoutTreasuryAccountSignature)
 {
   // Given
   std::shared_ptr<PrivateKey> accountKey;
@@ -167,7 +167,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutTreasuryAc
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutAdminKeySignature)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithoutAdminKeySignature)
 {
   // Given
   std::shared_ptr<PrivateKey> adminKey;
@@ -185,7 +185,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithoutAdminKeySi
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithCustomFees)
+TEST_F(TokenCreateTransactionIntegrationTests, CanCreateTokenWithCustomFees)
 {
   // Given
   const std::vector<std::shared_ptr<CustomFee>> fees = {
@@ -214,7 +214,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithCustomFees)
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithMoreThanTenCustomFees)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithMoreThanTenCustomFees)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -240,7 +240,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithMoreThanTenCu
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomFixedFees)
+TEST_F(TokenCreateTransactionIntegrationTests, CanCreateTokenWithListOfTenCustomFixedFees)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -274,7 +274,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomF
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomFractionalFees)
+TEST_F(TokenCreateTransactionIntegrationTests, CanCreateTokenWithListOfTenCustomFractionalFees)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -314,7 +314,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateTokenWithListOfTenCustomF
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithCustomFractionalFeeWithHigherMaxThanMin)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithCustomFractionalFeeWithHigherMaxThanMin)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -344,7 +344,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithCustomFractio
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithInvalidFeeCollectorAccountId)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithInvalidFeeCollectorAccountId)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -368,7 +368,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithInvalidFeeCol
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNegativeCustomFee)
+TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithNegativeCustomFee)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -393,7 +393,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CannotCreateTokenWithNegativeCusto
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNft)
+TEST_F(TokenCreateTransactionIntegrationTests, CanCreateNft)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -428,7 +428,7 @@ TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNft)
 }
 
 //-----
-TEST_F(TokenCreateTransactionIntegrationTest, CanCreateNftWithRoyaltyFee)
+TEST_F(TokenCreateTransactionIntegrationTests, CanCreateNftWithRoyaltyFee)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

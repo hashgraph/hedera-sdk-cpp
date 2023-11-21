@@ -1,36 +1,36 @@
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-integration-tests)
 add_executable(${TEST_PROJECT_NAME}
         AccountAllowanceApproveTransactionIntegrationTests.cc
-        AccountBalanceQueryIntegrationTest.cc
-        AccountCreateTransactionIntegrationTest.cc
-        AccountDeleteTransactionIntegrationTest.cc
+        AccountBalanceQueryIntegrationTests.cc
+        AccountCreateTransactionIntegrationTests.cc
+        AccountDeleteTransactionIntegrationTests.cc
         AccountInfoQueryIntegrationTests.cc
         AccountRecordsQueryIntegrationTests.cc
         AccountStakersQueryIntegrationTests.cc
-        AccountUpdateTransactionIntegrationTest.cc
+        AccountUpdateTransactionIntegrationTests.cc
         AddressBookQueryIntegrationTests.cc
         BaseIntegrationTest.cc
         ChunkedTransactionIntegrationTests.cc
-        ClientIntegrationTest.cc
+        ClientIntegrationTests.cc
         ContractBytecodeQueryIntegrationTests.cc
         ContractCallQueryIntegrationTests.cc
-        ContractCreateFlowIntegrationTest.cc
+        ContractCreateFlowIntegrationTests.cc
         ContractCreateTransactionIntegrationTests.cc
         ContractDeleteTransactionIntegrationTests.cc
         ContractExecuteTransactionIntegrationTests.cc
-        ContractNonceInfoIntegrationTest.cc
+        ContractNonceInfoIntegrationTests.cc
         ContractUpdateTransactionIntegrationTests.cc
         ContractInfoQueryIntegrationTests.cc
         ExecutableIntegrationTests.cc
         FileAppendTransactionIntegrationTests.cc
-        FileContentsQueryIntegrationTest.cc
+        FileContentsQueryIntegrationTests.cc
         FileCreateTransactionIntegrationTests.cc
         FileDeleteTransactionIntegrationTests.cc
         FileInfoQueryIntegrationTests.cc
         FileUpdateTransactionIntegrationTests.cc
-        FreezeTransactionIntegrationTest.cc
+        FreezeTransactionIntegrationTests.cc
         HttpClientIntegrationTests.cc
-        JSONIntegrationTest.cc
+        JSONIntegrationTests.cc
         NetworkVersionInfoQueryIntegrationTests.cc
         PrngTransactionIntegrationTests.cc
         QueryIntegrationTests.cc
@@ -63,12 +63,12 @@ add_executable(${TEST_PROJECT_NAME}
         TopicMessageQueryIntegrationTests.cc
         TopicMessageSubmitTransactionIntegrationTests.cc
         TopicUpdateTransactionIntegrationTests.cc
-        TransactionIntegrationTest.cc
-        TransactionReceiptIntegrationTest.cc
-        TransactionReceiptQueryIntegrationTest.cc
-        TransactionRecordIntegrationTest.cc
-        TransactionRecordQueryIntegrationTest.cc
-        TransferTransactionIntegrationTest.cc)
+        TransactionIntegrationTests.cc
+        TransactionReceiptIntegrationTests.cc
+        TransactionReceiptQueryIntegrationTests.cc
+        TransactionRecordIntegrationTests.cc
+        TransactionRecordQueryIntegrationTests.cc
+        TransferTransactionIntegrationTests.cc)
 
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE CURL::libcurl)
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE gtest_main gtest ${PROJECT_NAME})

@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class ScheduleCreateTransactionIntegrationTest : public BaseIntegrationTest
+class ScheduleCreateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ScheduleCreateTransactionIntegrationTest, ExecuteScheduleCreateTransaction)
+TEST_F(ScheduleCreateTransactionIntegrationTests, ExecuteScheduleCreateTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -88,7 +88,7 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, ExecuteScheduleCreateTransactio
 }
 
 //-----
-TEST_F(ScheduleCreateTransactionIntegrationTest, CanCreateScheduleCreateTransactionWithScheduleFunction)
+TEST_F(ScheduleCreateTransactionIntegrationTests, CanCreateScheduleCreateTransactionWithScheduleFunction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -133,7 +133,7 @@ TEST_F(ScheduleCreateTransactionIntegrationTest, CanCreateScheduleCreateTransact
 }
 
 //-----
-TEST_F(ScheduleCreateTransactionIntegrationTest, CannotScheduleTwoIdenticalTransactions)
+TEST_F(ScheduleCreateTransactionIntegrationTests, CannotScheduleTwoIdenticalTransactions)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
