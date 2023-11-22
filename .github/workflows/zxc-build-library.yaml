@@ -34,6 +34,14 @@ jobs:
         with:
           submodules: true
 
+      - name: Run Clang-Format
+        uses: SymbiFlow/clang-format@v1
+        with:
+          style: file
+          paths: |
+            **/*.cc
+            **/*.h
+
       - name: Setup Docker Compose
         run: |
           sudo apt-get update
