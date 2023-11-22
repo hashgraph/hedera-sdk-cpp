@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class TopicUpdateTransactionIntegrationTest : public BaseIntegrationTest
+class TopicUpdateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TopicUpdateTransactionIntegrationTest, ExecuteTopicUpdateTransaction)
+TEST_F(TopicUpdateTransactionIntegrationTests, ExecuteTopicUpdateTransaction)
 {
   // Given
   const std::string newMemo = "new topic create test memo";

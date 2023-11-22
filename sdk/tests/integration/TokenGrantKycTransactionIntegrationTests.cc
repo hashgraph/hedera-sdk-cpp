@@ -36,12 +36,12 @@
 
 using namespace Hedera;
 
-class TokenGrantKycTransactionIntegrationTest : public BaseIntegrationTest
+class TokenGrantKycTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenGrantKycTransactionIntegrationTest, ExecuteTokenGrantKycTransaction)
+TEST_F(TokenGrantKycTransactionIntegrationTests, ExecuteTokenGrantKycTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -101,7 +101,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, ExecuteTokenGrantKycTransaction)
 }
 
 //-----
-TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycToAccountWithNoTokenId)
+TEST_F(TokenGrantKycTransactionIntegrationTests, CannotGrantKycToAccountWithNoTokenId)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -140,7 +140,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycToAccountWithNoTok
 }
 
 //-----
-TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycOnNoAccount)
+TEST_F(TokenGrantKycTransactionIntegrationTests, CannotGrantKycOnNoAccount)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -171,7 +171,7 @@ TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycOnNoAccount)
 }
 
 //-----
-TEST_F(TokenGrantKycTransactionIntegrationTest, CannotGrantKycToAccountOnTokenIfNotAssociated)
+TEST_F(TokenGrantKycTransactionIntegrationTests, CannotGrantKycToAccountOnTokenIfNotAssociated)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

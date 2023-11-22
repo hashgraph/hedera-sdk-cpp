@@ -37,12 +37,12 @@
 
 using namespace Hedera;
 
-class TokenAssociateTransactionIntegrationTest : public BaseIntegrationTest
+class TokenAssociateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenAssociateTransactionIntegrationTest, ExecuteTokenAssociateTransaction)
+TEST_F(TokenAssociateTransactionIntegrationTests, ExecuteTokenAssociateTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -103,7 +103,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, ExecuteTokenAssociateTransactio
 }
 
 //-----
-TEST_F(TokenAssociateTransactionIntegrationTest, CanAssociateAccountWithNoTokens)
+TEST_F(TokenAssociateTransactionIntegrationTests, CanAssociateAccountWithNoTokens)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -143,7 +143,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CanAssociateAccountWithNoTokens
 }
 
 //-----
-TEST_F(TokenAssociateTransactionIntegrationTest, CannotAssociateTokensWithNoAccountId)
+TEST_F(TokenAssociateTransactionIntegrationTests, CannotAssociateTokensWithNoAccountId)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
@@ -152,7 +152,7 @@ TEST_F(TokenAssociateTransactionIntegrationTest, CannotAssociateTokensWithNoAcco
 }
 
 //-----
-TEST_F(TokenAssociateTransactionIntegrationTest, CannotAssociateTokensWhenAccountDoesNotSign)
+TEST_F(TokenAssociateTransactionIntegrationTests, CannotAssociateTokensWhenAccountDoesNotSign)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

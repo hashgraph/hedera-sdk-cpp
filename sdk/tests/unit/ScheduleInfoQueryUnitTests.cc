@@ -23,7 +23,7 @@
 
 using namespace Hedera;
 
-class ScheduleInfoQueryTest : public ::testing::Test
+class ScheduleInfoQueryUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const ScheduleId& getTestScheduleId() const { return mTestScheduleId; }
@@ -33,7 +33,7 @@ private:
 };
 
 //-----
-TEST_F(ScheduleInfoQueryTest, GetSetScheduleId)
+TEST_F(ScheduleInfoQueryUnitTests, GetSetScheduleId)
 {
   // Given
   ScheduleInfoQuery query;

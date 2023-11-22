@@ -27,7 +27,7 @@
 
 using namespace Hedera;
 
-class TokenPauseTransactionTest : public ::testing::Test
+class TokenPauseTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
@@ -37,7 +37,7 @@ private:
 };
 
 //-----
-TEST_F(TokenPauseTransactionTest, ConstructTokenPauseTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenPauseTransactionUnitTests, ConstructTokenPauseTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenPauseTransactionBody>();
@@ -54,7 +54,7 @@ TEST_F(TokenPauseTransactionTest, ConstructTokenPauseTransactionFromTransactionB
 }
 
 //-----
-TEST_F(TokenPauseTransactionTest, GetSetTokenId)
+TEST_F(TokenPauseTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenPauseTransaction transaction;
@@ -67,7 +67,7 @@ TEST_F(TokenPauseTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenPauseTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenPauseTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenPauseTransaction transaction = TokenPauseTransaction()

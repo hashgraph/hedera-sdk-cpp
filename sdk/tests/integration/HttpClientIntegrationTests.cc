@@ -31,7 +31,7 @@
 using json = nlohmann::json;
 using namespace Hedera;
 
-class HttpClientIntegrationTest : public BaseIntegrationTest
+class HttpClientIntegrationTests : public BaseIntegrationTest
 {
 protected:
   [[nodiscard]] inline const std::string& getURL() const { return mUrl; }
@@ -45,7 +45,7 @@ private:
 };
 
 //-----
-TEST_F(HttpClientIntegrationTest, GETAccountFromLocalMirrorNode)
+TEST_F(HttpClientIntegrationTests, GETAccountFromLocalMirrorNode)
 {
   // Given
   const std::string& mirrorNetworkTag = getJsonMirrorNetworkTag();

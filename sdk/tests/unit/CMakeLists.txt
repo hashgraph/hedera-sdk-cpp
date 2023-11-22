@@ -1,70 +1,70 @@
 set(TEST_PROJECT_NAME ${PROJECT_NAME}-unit-tests)
 add_executable(${TEST_PROJECT_NAME}
-        AccountAllowanceApproveTransactionTest.cc
-        AccountAllowanceDeleteTransactionTest.cc
-        AccountBalanceQueryTest.cc
-        AccountBalanceTest.cc
-        AccountCreateTransactionTest.cc
-        AccountDeleteTransactionTest.cc
-        AccountIdTest.cc
-        AccountInfoQueryTest.cc
-        AccountInfoTest.cc
-        AccountRecordsQueryTest.cc
-        AccountRecordsTest.cc
+        AccountAllowanceApproveTransactionUnitTests.cc
+        AccountAllowanceDeleteTransactionUnitTests.cc
+        AccountBalanceQueryUnitTests.cc
+        AccountBalanceUnitTests.cc
+        AccountCreateTransactionUnitTests.cc
+        AccountDeleteTransactionUnitTests.cc
+        AccountIdUnitTests.cc
+        AccountInfoQueryUnitTests.cc
+        AccountInfoUnitTests.cc
+        AccountRecordsQueryUnitTests.cc
+        AccountRecordsUnitTests.cc
         AccountStakersQueryUnitTests.cc
-        AccountUpdateTransactionTest.cc
+        AccountUpdateTransactionUnitTests.cc
         AddressBookQueryUnitTests.cc
-        AssessedCustomFeesTest.cc
-        ChunkedTransactionTest.cc
-        ClientTest.cc
-        ContractByteCodeQueryTest.cc
-        ContractCallQueryTest.cc
-        ContractCreateFlowTest.cc
-        ContractCreateTransactionTest.cc
-        ContractDeleteTransactionTest.cc
-        ContractExecuteTransactionTest.cc
-        ContractFunctionParametersTest.cc
-        ContractFunctionResultTest.cc
-        ContractFunctionSelectorTest.cc
-        ContractIdTest.cc
-        ContractInfoQueryTest.cc
-        ContractInfoTest.cc
-        ContractLogInfoTest.cc
+        AssessedCustomFeesUnitTests.cc
+        ChunkedTransactionUnitTests.cc
+        ClientUnitTests.cc
+        ContractByteCodeQueryUnitTests.cc
+        ContractCallQueryUnitTests.cc
+        ContractCreateFlowUnitTests.cc
+        ContractCreateTransactionUnitTests.cc
+        ContractDeleteTransactionUnitTests.cc
+        ContractExecuteTransactionUnitTests.cc
+        ContractFunctionParametersUnitTests.cc
+        ContractFunctionResultUnitTests.cc
+        ContractFunctionSelectorUnitTests.cc
+        ContractIdUnitTests.cc
+        ContractInfoQueryUnitTests.cc
+        ContractInfoUnitTests.cc
+        ContractLogInfoUnitTests.cc
         ContractNonceInfoUnitTests.cc
-        ContractUpdateTransactionTest.cc
-        CustomFixedFeeTest.cc
-        CustomFractionalFeeTest.cc
-        CustomRoyaltyFeeTest.cc
-        DelegateContractIdTest.cc
-        ECDSAsecp256k1PrivateKeyTest.cc
-        ECDSAsecp256k1PublicKeyTest.cc
-        ED25519PrivateKeyTest.cc
-        ED25519PublicKeyTest.cc
-        EthereumFlowTest.cc
-        EthereumTransactionTest.cc
-        EthereumTransactionDataEip1559Test.cc
-        EthereumTransactionDataLegacyTest.cc
-        EvmAddressTest.cc
-        ExchangeRateTest.cc
-        FeeAssessmentMethodTest.cc
-        FileAppendTransactionTest.cc
-        FileContentsQueryTest.cc
-        FileCreateTransactionTest.cc
-        FileDeleteTransactionTest.cc
-        FileIdTest.cc
-        FileInfoQueryTest.cc
-        FileInfoTest.cc
-        FileUpdateTransactionTest.cc
+        ContractUpdateTransactionUnitTests.cc
+        CustomFixedFeeUnitTests.cc
+        CustomFractionalFeeUnitTests.cc
+        CustomRoyaltyFeeUnitTests.cc
+        DelegateContractIdUnitTests.cc
+        ECDSAsecp256k1PrivateKeyUnitTests.cc
+        ECDSAsecp256k1PublicKeyUnitTests.cc
+        ED25519PrivateKeyUnitTests.cc
+        ED25519PublicKeyUnitTests.cc
+        EthereumFlowUnitTests.cc
+        EthereumTransactionUnitTests.cc
+        EthereumTransactionDataEip1559UnitTests.cc
+        EthereumTransactionDataLegacyUnitTests.cc
+        EvmAddressUnitTests.cc
+        ExchangeRateUnitTests.cc
+        FeeAssessmentMethodUnitTests.cc
+        FileAppendTransactionUnitTests.cc
+        FileContentsQueryUnitTests.cc
+        FileCreateTransactionUnitTests.cc
+        FileDeleteTransactionUnitTests.cc
+        FileIdUnitTests.cc
+        FileInfoQueryUnitTests.cc
+        FileInfoUnitTests.cc
+        FileUpdateTransactionUnitTests.cc
         FreezeTransactionUnitTests.cc
-        HbarAllowanceTest.cc
-        HbarTest.cc
-        HbarTransferTest.cc
-        KeyListTest.cc
-        LedgerIdTest.cc
+        HbarAllowanceUnitTests.cc
+        HbarUnitTests.cc
+        HbarTransferUnitTests.cc
+        KeyListUnitTests.cc
+        LedgerIdUnitTests.cc
         NetworkUnitTests.cc
         NetworkVersionInfoUnitTests.cc
-        NftIdTest.cc
-        NodeAddressTest.cc
+        NftIdUnitTests.cc
+        NodeAddressUnitTests.cc
         PrngTransactionUnitTests.cc
         ProxyStakerUnitTests.cc
         ScheduleCreateTransactionUnitTests.cc
@@ -74,31 +74,31 @@ add_executable(${TEST_PROJECT_NAME}
         ScheduleInfoUnitTests.cc
         ScheduleSignTransactionUnitTests.cc
         SemanticVersionUnitTests.cc
-        StakingInfoTest.cc
+        StakingInfoUnitTests.cc
         SystemDeleteTransactionUnitTests.cc
         SystemUndeleteTransactionUnitTests.cc
-        TokenAllowanceTest.cc
+        TokenAllowanceUnitTests.cc
         TokenAssociateTransactionUnitTests.cc
         TokenAssociationUnitTests.cc
         TokenBurnTransactionUnitTests.cc
-        TokenCreateTransactionTest.cc
-        TokenDeleteTransactionTest.cc
+        TokenCreateTransactionUnitTests.cc
+        TokenDeleteTransactionUnitTests.cc
         TokenDissociateTransactionUnitTests.cc
         TokenFeeScheduleUpdateTransactionUnitTests.cc
         TokenFreezeTransactionUnitTests.cc
         TokenGrantKycTransactionUnitTests.cc
-        TokenIdTest.cc
+        TokenIdUnitTests.cc
         TokenInfoQueryUnitTests.cc
         TokenInfoUnitTests.cc
         TokenMintTransactionUnitTests.cc
-        TokenNftAllowanceTest.cc
+        TokenNftAllowanceUnitTests.cc
         TokenNftInfoQueryUnitTests.cc
-        TokenNftTransferTest.cc
+        TokenNftTransferUnitTests.cc
         TokenPauseTransactionUnitTests.cc
         TokenRevokeKycTransactionUnitTests.cc
-        TokenSupplyTypeTest.cc
-        TokenTransferTest.cc
-        TokenTypeTest.cc
+        TokenSupplyTypeUnitTests.cc
+        TokenTransferUnitTests.cc
+        TokenTypeUnitTests.cc
         TokenUnfreezeTransactionUnitTests.cc
         TokenUnpauseTransactionUnitTests.cc
         TokenUpdateTransactionUnitTests.cc
@@ -113,14 +113,14 @@ add_executable(${TEST_PROJECT_NAME}
         TopicMessageSubmitTransactionUnitTests.cc
         TopicMessageUnitTests.cc
         TopicUpdateTransactionUnitTests.cc
-        TransactionIdTest.cc
-        TransactionReceiptQueryTest.cc
-        TransactionReceiptTest.cc
-        TransactionRecordQueryTest.cc
-        TransactionRecordTest.cc
-        TransactionResponseTest.cc
-        TransactionTest.cc
-        TransferTransactionTest.cc
+        TransactionIdUnitTests.cc
+        TransactionReceiptQueryUnitTests.cc
+        TransactionReceiptUnitTests.cc
+        TransactionRecordQueryUnitTests.cc
+        TransactionRecordUnitTests.cc
+        TransactionResponseUnitTests.cc
+        TransactionUnitTests.cc
+        TransferTransactionUnitTests.cc
 
         vectors/BIP39TestVectors.cc
         vectors/Hedera12WordMnemonicBIP39TestVectors.cc

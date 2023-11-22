@@ -33,12 +33,12 @@
 
 using namespace Hedera;
 
-class FileAppendTransactionIntegrationTest : public BaseIntegrationTest
+class FileAppendTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(FileAppendTransactionIntegrationTest, ExecuteFileAppendTransaction)
+TEST_F(FileAppendTransactionIntegrationTests, ExecuteFileAppendTransaction)
 {
   // Given
   std::unique_ptr<PrivateKey> operatorKey;
@@ -76,7 +76,7 @@ TEST_F(FileAppendTransactionIntegrationTest, ExecuteFileAppendTransaction)
 }
 
 //-----
-TEST_F(FileAppendTransactionIntegrationTest, CanAppendLargeContents)
+TEST_F(FileAppendTransactionIntegrationTests, CanAppendLargeContents)
 {
   // Given
   std::unique_ptr<PrivateKey> operatorKey;

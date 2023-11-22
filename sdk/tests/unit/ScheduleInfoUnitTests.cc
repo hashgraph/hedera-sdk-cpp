@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class ScheduleInfoTest : public ::testing::Test
+class ScheduleInfoUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const ScheduleId& getTestScheduleId() const { return mTestScheduleId; }
@@ -78,7 +78,7 @@ private:
 };
 
 //-----
-TEST_F(ScheduleInfoTest, FromProtobuf)
+TEST_F(ScheduleInfoUnitTests, FromProtobuf)
 {
   // Given
   proto::ScheduleInfo protoScheduleInfo;
@@ -116,7 +116,7 @@ TEST_F(ScheduleInfoTest, FromProtobuf)
 }
 
 //-----
-TEST_F(ScheduleInfoTest, FromBytes)
+TEST_F(ScheduleInfoUnitTests, FromBytes)
 {
   // Given
   proto::ScheduleInfo protoScheduleInfo;
@@ -155,7 +155,7 @@ TEST_F(ScheduleInfoTest, FromBytes)
 }
 
 //-----
-TEST_F(ScheduleInfoTest, ToProtobuf)
+TEST_F(ScheduleInfoUnitTests, ToProtobuf)
 {
   // Given
   ScheduleInfo scheduleInfo;
@@ -207,7 +207,7 @@ TEST_F(ScheduleInfoTest, ToProtobuf)
 }
 
 //-----
-TEST_F(ScheduleInfoTest, ToBytes)
+TEST_F(ScheduleInfoUnitTests, ToBytes)
 {
   // Given
   ScheduleInfo scheduleInfo;

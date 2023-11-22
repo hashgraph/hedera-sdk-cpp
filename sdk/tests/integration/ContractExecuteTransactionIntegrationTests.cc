@@ -42,12 +42,12 @@
 
 using namespace Hedera;
 
-class ContractExecuteTransactionIntegrationTest : public BaseIntegrationTest
+class ContractExecuteTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ContractExecuteTransactionIntegrationTest, ExecuteContractExecuteTransaction)
+TEST_F(ContractExecuteTransactionIntegrationTests, ExecuteContractExecuteTransaction)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -100,7 +100,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, ExecuteContractExecuteTransact
 }
 
 //-----
-TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithoutContractId)
+TEST_F(ContractExecuteTransactionIntegrationTests, CannotExecuteContractWithoutContractId)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
@@ -113,7 +113,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithoutCo
 }
 
 //-----
-TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoFunctionParameters)
+TEST_F(ContractExecuteTransactionIntegrationTests, CannotExecuteContractWithNoFunctionParameters)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -156,7 +156,7 @@ TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoFun
 }
 
 //-----
-TEST_F(ContractExecuteTransactionIntegrationTest, CannotExecuteContractWithNoGas)
+TEST_F(ContractExecuteTransactionIntegrationTests, CannotExecuteContractWithNoGas)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(

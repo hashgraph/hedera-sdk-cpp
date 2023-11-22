@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class ScheduleIdTest : public ::testing::Test
+class ScheduleIdUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const uint64_t& getTestShardNum() const { return mTestShardNum; }
@@ -42,7 +42,7 @@ private:
 };
 
 //-----
-TEST_F(ScheduleIdTest, ConstructWithScheduleNum)
+TEST_F(ScheduleIdUnitTests, ConstructWithScheduleNum)
 {
   // Given / When
   const ScheduleId topicId(getTestScheduleNum());
@@ -54,7 +54,7 @@ TEST_F(ScheduleIdTest, ConstructWithScheduleNum)
 }
 
 //-----
-TEST_F(ScheduleIdTest, ConstructWithShardRealmScheduleNum)
+TEST_F(ScheduleIdUnitTests, ConstructWithShardRealmScheduleNum)
 {
   // Given / When
   const ScheduleId topicId(getTestShardNum(), getTestRealmNum(), getTestScheduleNum());
@@ -66,7 +66,7 @@ TEST_F(ScheduleIdTest, ConstructWithShardRealmScheduleNum)
 }
 
 //-----
-TEST_F(ScheduleIdTest, CompareScheduleIds)
+TEST_F(ScheduleIdUnitTests, CompareScheduleIds)
 {
   EXPECT_TRUE(ScheduleId() == ScheduleId());
   EXPECT_TRUE(ScheduleId(getTestScheduleNum()) == ScheduleId(getTestScheduleNum()));
@@ -81,7 +81,7 @@ TEST_F(ScheduleIdTest, CompareScheduleIds)
 }
 
 //-----
-TEST_F(ScheduleIdTest, FromString)
+TEST_F(ScheduleIdUnitTests, FromString)
 {
   // Given
   const std::string testShardNumStr = std::to_string(getTestShardNum());
@@ -133,7 +133,7 @@ TEST_F(ScheduleIdTest, FromString)
 }
 
 //-----
-TEST_F(ScheduleIdTest, FromProtobuf)
+TEST_F(ScheduleIdUnitTests, FromProtobuf)
 {
   // Given
   proto::ScheduleID protoScheduleId;
@@ -151,7 +151,7 @@ TEST_F(ScheduleIdTest, FromProtobuf)
 }
 
 //-----
-TEST_F(ScheduleIdTest, FromBytes)
+TEST_F(ScheduleIdUnitTests, FromBytes)
 {
   // Given
   proto::ScheduleID protoScheduleId;
@@ -170,7 +170,7 @@ TEST_F(ScheduleIdTest, FromBytes)
 }
 
 //-----
-TEST_F(ScheduleIdTest, ToProtobuf)
+TEST_F(ScheduleIdUnitTests, ToProtobuf)
 {
   // Given
   const ScheduleId topicId(getTestShardNum(), getTestRealmNum(), getTestScheduleNum());
@@ -185,7 +185,7 @@ TEST_F(ScheduleIdTest, ToProtobuf)
 }
 
 //-----
-TEST_F(ScheduleIdTest, ToBytes)
+TEST_F(ScheduleIdUnitTests, ToBytes)
 {
   // Given
   proto::ScheduleID protoScheduleId;
@@ -205,7 +205,7 @@ TEST_F(ScheduleIdTest, ToBytes)
 }
 
 //-----
-TEST_F(ScheduleIdTest, ToString)
+TEST_F(ScheduleIdUnitTests, ToString)
 {
   // Given
   const ScheduleId topicId(getTestShardNum(), getTestRealmNum(), getTestScheduleNum());

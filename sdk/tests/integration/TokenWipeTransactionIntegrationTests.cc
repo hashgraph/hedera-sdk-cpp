@@ -40,12 +40,12 @@
 
 using namespace Hedera;
 
-class TokenWipeTransactionIntegrationTest : public BaseIntegrationTest
+class TokenWipeTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenWipeTransactionIntegrationTest, ExecuteTokenWipeTransaction)
+TEST_F(TokenWipeTransactionIntegrationTests, ExecuteTokenWipeTransaction)
 {
   // Given
   const int64_t amount = 10LL;
@@ -114,7 +114,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, ExecuteTokenWipeTransaction)
 }
 
 //-----
-TEST_F(TokenWipeTransactionIntegrationTest, CanWipeNfts)
+TEST_F(TokenWipeTransactionIntegrationTests, CanWipeNfts)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -189,7 +189,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CanWipeNfts)
 }
 
 //-----
-TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeNftsIfTheAccountDoesNotOwnThem)
+TEST_F(TokenWipeTransactionIntegrationTests, CannotWipeNftsIfTheAccountDoesNotOwnThem)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -260,7 +260,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeNftsIfTheAccountDoesNotOwn
 }
 
 //-----
-TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeTokensIfNoAccountId)
+TEST_F(TokenWipeTransactionIntegrationTests, CannotWipeTokensIfNoAccountId)
 {
   // Given
   const int64_t amount = 10LL;
@@ -327,7 +327,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeTokensIfNoAccountId)
 }
 
 //-----
-TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeAccountIfNoTokenId)
+TEST_F(TokenWipeTransactionIntegrationTests, CannotWipeAccountIfNoTokenId)
 {
   // Given
   const int64_t amount = 10LL;
@@ -396,7 +396,7 @@ TEST_F(TokenWipeTransactionIntegrationTest, CannotWipeAccountIfNoTokenId)
 }
 
 //-----
-TEST_F(TokenWipeTransactionIntegrationTest, CanWipeAccountWithNoBalance)
+TEST_F(TokenWipeTransactionIntegrationTests, CanWipeAccountWithNoBalance)
 {
   // Given
   const int64_t amount = 10LL;

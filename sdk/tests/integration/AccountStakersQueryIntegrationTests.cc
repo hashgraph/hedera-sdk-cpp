@@ -26,12 +26,12 @@
 
 using namespace Hedera;
 
-class AccountStakersQueryIntegrationTest : public BaseIntegrationTest
+class AccountStakersQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(AccountStakersQueryIntegrationTest, ExecuteAccountStakersQuery)
+TEST_F(AccountStakersQueryIntegrationTests, ExecuteAccountStakersQuery)
 {
   // Given / When / Then
   EXPECT_THROW(const AccountStakers accountStakers =

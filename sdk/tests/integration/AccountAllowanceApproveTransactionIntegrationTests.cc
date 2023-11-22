@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class AccountAllowanceApproveTransactionIntegrationTest : public BaseIntegrationTest
+class AccountAllowanceApproveTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanceApproveTransaction)
+TEST_F(AccountAllowanceApproveTransactionIntegrationTests, ExecuteAccountAllowanceApproveTransaction)
 {
   // Given
   const Hbar amount(5LL);
@@ -88,7 +88,7 @@ TEST_F(AccountAllowanceApproveTransactionIntegrationTest, ExecuteAccountAllowanc
 }
 
 //-----
-TEST_F(AccountAllowanceApproveTransactionIntegrationTest, CannotAllowAllowanceWithoutAllowerSignature)
+TEST_F(AccountAllowanceApproveTransactionIntegrationTests, CannotAllowAllowanceWithoutAllowerSignature)
 {
   // Given
   const Hbar amount(5LL);

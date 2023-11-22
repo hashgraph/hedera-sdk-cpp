@@ -33,12 +33,12 @@
 
 using namespace Hedera;
 
-class TokenMintTransactionIntegrationTest : public BaseIntegrationTest
+class TokenMintTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenMintTransactionIntegrationTest, ExecuteTokenMintTransaction)
+TEST_F(TokenMintTransactionIntegrationTests, ExecuteTokenMintTransaction)
 {
   // Given
   const uint64_t initialAmount = 100000ULL;
@@ -82,7 +82,7 @@ TEST_F(TokenMintTransactionIntegrationTest, ExecuteTokenMintTransaction)
 }
 
 //-----
-TEST_F(TokenMintTransactionIntegrationTest, CannotMintMoreTokensThanMaxSupply)
+TEST_F(TokenMintTransactionIntegrationTests, CannotMintMoreTokensThanMaxSupply)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -115,7 +115,7 @@ TEST_F(TokenMintTransactionIntegrationTest, CannotMintMoreTokensThanMaxSupply)
 }
 
 //-----
-TEST_F(TokenMintTransactionIntegrationTest, CannotMintTokensWhenTokenIdIsNotSet)
+TEST_F(TokenMintTransactionIntegrationTests, CannotMintTokensWhenTokenIdIsNotSet)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
@@ -124,7 +124,7 @@ TEST_F(TokenMintTransactionIntegrationTest, CannotMintTokensWhenTokenIdIsNotSet)
 }
 
 //-----
-TEST_F(TokenMintTransactionIntegrationTest, CanMintTokensWhenAmountIsNotSet)
+TEST_F(TokenMintTransactionIntegrationTests, CanMintTokensWhenAmountIsNotSet)
 {
   // Given
   const uint64_t initialAmount = 100000ULL;
@@ -164,7 +164,7 @@ TEST_F(TokenMintTransactionIntegrationTest, CanMintTokensWhenAmountIsNotSet)
 }
 
 //-----
-TEST_F(TokenMintTransactionIntegrationTest, CannotMintTokensWhenSupplyKeyDoesNotSignTransaction)
+TEST_F(TokenMintTransactionIntegrationTests, CannotMintTokensWhenSupplyKeyDoesNotSignTransaction)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -203,7 +203,7 @@ TEST_F(TokenMintTransactionIntegrationTest, CannotMintTokensWhenSupplyKeyDoesNot
 }
 
 //-----
-TEST_F(TokenMintTransactionIntegrationTest, CanMintNfts)
+TEST_F(TokenMintTransactionIntegrationTests, CanMintNfts)
 {
   // Given
   const std::vector<std::vector<std::byte>> nftsMetadata = {
@@ -248,7 +248,7 @@ TEST_F(TokenMintTransactionIntegrationTest, CanMintNfts)
 }
 
 //-----
-TEST_F(TokenMintTransactionIntegrationTest, CannotMintNftsIfMetadataIsTooBig)
+TEST_F(TokenMintTransactionIntegrationTests, CannotMintNftsIfMetadataIsTooBig)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

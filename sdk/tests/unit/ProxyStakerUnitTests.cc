@@ -24,7 +24,7 @@
 
 using namespace Hedera;
 
-class ProxyStakerTest : public ::testing::Test
+class ProxyStakerUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
@@ -36,7 +36,7 @@ private:
 };
 
 //-----
-TEST_F(ProxyStakerTest, ConstructWithValues)
+TEST_F(ProxyStakerUnitTests, ConstructWithValues)
 {
   // Given / When
   const ProxyStaker proxyStaker(getTestAccountId(), getTestAmount().toTinybars());
@@ -47,7 +47,7 @@ TEST_F(ProxyStakerTest, ConstructWithValues)
 }
 
 //-----
-TEST_F(ProxyStakerTest, FromProtobuf)
+TEST_F(ProxyStakerUnitTests, FromProtobuf)
 {
   // Given
   proto::ProxyStaker protoProxyStaker;

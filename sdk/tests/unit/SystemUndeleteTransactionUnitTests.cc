@@ -27,7 +27,7 @@
 
 using namespace Hedera;
 
-class SystemUndeleteTransactionTest : public ::testing::Test
+class SystemUndeleteTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
@@ -39,7 +39,7 @@ private:
 };
 
 //-----
-TEST_F(SystemUndeleteTransactionTest, ConstructSystemUndeleteTransactionFromTransactionBodyProtobuf)
+TEST_F(SystemUndeleteTransactionUnitTests, ConstructSystemUndeleteTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto bodyWithFileId = std::make_unique<proto::SystemUndeleteTransactionBody>();
@@ -69,7 +69,7 @@ TEST_F(SystemUndeleteTransactionTest, ConstructSystemUndeleteTransactionFromTran
 }
 
 //-----
-TEST_F(SystemUndeleteTransactionTest, GetSetFileId)
+TEST_F(SystemUndeleteTransactionUnitTests, GetSetFileId)
 {
   // Given
   SystemUndeleteTransaction transaction;
@@ -83,7 +83,7 @@ TEST_F(SystemUndeleteTransactionTest, GetSetFileId)
 }
 
 //-----
-TEST_F(SystemUndeleteTransactionTest, GetSetFileIdFrozen)
+TEST_F(SystemUndeleteTransactionUnitTests, GetSetFileIdFrozen)
 {
   // Given
   SystemUndeleteTransaction transaction = SystemUndeleteTransaction()
@@ -96,7 +96,7 @@ TEST_F(SystemUndeleteTransactionTest, GetSetFileIdFrozen)
 }
 
 //-----
-TEST_F(SystemUndeleteTransactionTest, GetSetContractId)
+TEST_F(SystemUndeleteTransactionUnitTests, GetSetContractId)
 {
   // Given
   SystemUndeleteTransaction transaction;
@@ -110,7 +110,7 @@ TEST_F(SystemUndeleteTransactionTest, GetSetContractId)
 }
 
 //-----
-TEST_F(SystemUndeleteTransactionTest, GetSetContractIdFrozen)
+TEST_F(SystemUndeleteTransactionUnitTests, GetSetContractIdFrozen)
 {
   // Given
   SystemUndeleteTransaction transaction = SystemUndeleteTransaction()
@@ -123,7 +123,7 @@ TEST_F(SystemUndeleteTransactionTest, GetSetContractIdFrozen)
 }
 
 //-----
-TEST_F(SystemUndeleteTransactionTest, ResetFileId)
+TEST_F(SystemUndeleteTransactionUnitTests, ResetFileId)
 {
   // Given
   SystemUndeleteTransaction transaction;
@@ -138,7 +138,7 @@ TEST_F(SystemUndeleteTransactionTest, ResetFileId)
 }
 
 //-----
-TEST_F(SystemUndeleteTransactionTest, ResetContractId)
+TEST_F(SystemUndeleteTransactionUnitTests, ResetContractId)
 {
   // Given
   SystemUndeleteTransaction transaction;

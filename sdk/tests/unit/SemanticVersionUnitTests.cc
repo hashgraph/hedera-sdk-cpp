@@ -26,7 +26,7 @@
 
 using namespace Hedera;
 
-class SemanticVersionTest : public ::testing::Test
+class SemanticVersionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const int& getTestMajor() const { return mTestMajor; }
@@ -44,7 +44,7 @@ private:
 };
 
 //-----
-TEST_F(SemanticVersionTest, ConstructWithValues)
+TEST_F(SemanticVersionUnitTests, ConstructWithValues)
 {
   // Given / When
   const SemanticVersion semanticVersion(
@@ -59,7 +59,7 @@ TEST_F(SemanticVersionTest, ConstructWithValues)
 }
 
 //-----
-TEST_F(SemanticVersionTest, FromProtobuf)
+TEST_F(SemanticVersionUnitTests, FromProtobuf)
 {
   // Given
   proto::SemanticVersion protoSemanticVersion;
@@ -81,7 +81,7 @@ TEST_F(SemanticVersionTest, FromProtobuf)
 }
 
 //-----
-TEST_F(SemanticVersionTest, FromBytes)
+TEST_F(SemanticVersionUnitTests, FromBytes)
 {
   // Given
   proto::SemanticVersion protoSemanticVersion;
@@ -104,7 +104,7 @@ TEST_F(SemanticVersionTest, FromBytes)
 }
 
 //-----
-TEST_F(SemanticVersionTest, ToProtobuf)
+TEST_F(SemanticVersionUnitTests, ToProtobuf)
 {
   // Given
   const SemanticVersion semanticVersion(
@@ -122,7 +122,7 @@ TEST_F(SemanticVersionTest, ToProtobuf)
 }
 
 //-----
-TEST_F(SemanticVersionTest, ToBytes)
+TEST_F(SemanticVersionUnitTests, ToBytes)
 {
   // Given
   const SemanticVersion semanticVersion(

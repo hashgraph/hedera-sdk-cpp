@@ -23,7 +23,7 @@
 
 using namespace Hedera;
 
-class TopicInfoQueryTest : public ::testing::Test
+class TopicInfoQueryUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TopicId& getTestTopicId() const { return mTestTopicId; }
@@ -33,7 +33,7 @@ private:
 };
 
 //-----
-TEST_F(TopicInfoQueryTest, GetSetTopicId)
+TEST_F(TopicInfoQueryUnitTests, GetSetTopicId)
 {
   // Given
   TopicInfoQuery query;

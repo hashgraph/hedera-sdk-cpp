@@ -37,12 +37,12 @@
 
 using namespace Hedera;
 
-class AccountRecordsQueryIntegrationTest : public BaseIntegrationTest
+class AccountRecordsQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
+TEST_F(AccountRecordsQueryIntegrationTests, ExecuteAccountRecordsQuery)
 {
   // Given
   const std::shared_ptr<PrivateKey> privateKey = ED25519PrivateKey::generatePrivateKey();
@@ -85,7 +85,7 @@ TEST_F(AccountRecordsQueryIntegrationTest, ExecuteAccountRecordsQuery)
 }
 
 //-----
-TEST_F(AccountRecordsQueryIntegrationTest, NoAccountId)
+TEST_F(AccountRecordsQueryIntegrationTests, NoAccountId)
 {
   // Given / When / Then
   EXPECT_THROW(AccountRecordsQuery().execute(getTestClient()), PrecheckStatusException); // INVALID_ACCOUNT_ID

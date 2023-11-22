@@ -33,12 +33,12 @@
 
 using namespace Hedera;
 
-class FileCreateTransactionIntegrationTest : public BaseIntegrationTest
+class FileCreateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(FileCreateTransactionIntegrationTest, ExecuteFileCreateTransaction)
+TEST_F(FileCreateTransactionIntegrationTests, ExecuteFileCreateTransaction)
 {
   // Given
   std::unique_ptr<PrivateKey> operatorKey;
@@ -79,7 +79,7 @@ TEST_F(FileCreateTransactionIntegrationTest, ExecuteFileCreateTransaction)
 }
 
 //-----
-TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoContents)
+TEST_F(FileCreateTransactionIntegrationTests, CanCreateFileWithNoContents)
 {
   // Given
   std::unique_ptr<PrivateKey> operatorKey;
@@ -111,7 +111,7 @@ TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoContents)
 }
 
 //-----
-TEST_F(FileCreateTransactionIntegrationTest, CanCreateFileWithNoKey)
+TEST_F(FileCreateTransactionIntegrationTests, CanCreateFileWithNoKey)
 {
   // Given / When
   TransactionReceipt txReceipt;

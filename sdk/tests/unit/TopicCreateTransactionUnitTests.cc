@@ -30,7 +30,7 @@
 
 using namespace Hedera;
 
-class TopicCreateTransactionTest : public ::testing::Test
+class TopicCreateTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const std::string& getTestTopicMemo() const { return mTestTopicMemo; }
@@ -51,7 +51,7 @@ private:
 };
 
 //-----
-TEST_F(TopicCreateTransactionTest, ConstructTopicCreateTransactionFromTransactionBodyProtobuf)
+TEST_F(TopicCreateTransactionUnitTests, ConstructTopicCreateTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::ConsensusCreateTopicTransactionBody>();
@@ -76,7 +76,7 @@ TEST_F(TopicCreateTransactionTest, ConstructTopicCreateTransactionFromTransactio
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, ConstructTopicCreateTransactionFromWrongTransactionBodyProtobuf)
+TEST_F(TopicCreateTransactionUnitTests, ConstructTopicCreateTransactionFromWrongTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::CryptoDeleteTransactionBody>();
@@ -88,7 +88,7 @@ TEST_F(TopicCreateTransactionTest, ConstructTopicCreateTransactionFromWrongTrans
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetMemo)
+TEST_F(TopicCreateTransactionUnitTests, GetSetMemo)
 {
   // Given
   TopicCreateTransaction transaction;
@@ -101,7 +101,7 @@ TEST_F(TopicCreateTransactionTest, GetSetMemo)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetMemoFrozen)
+TEST_F(TopicCreateTransactionUnitTests, GetSetMemoFrozen)
 {
   // Given
   TopicCreateTransaction transaction = TopicCreateTransaction()
@@ -114,7 +114,7 @@ TEST_F(TopicCreateTransactionTest, GetSetMemoFrozen)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetAdminKey)
+TEST_F(TopicCreateTransactionUnitTests, GetSetAdminKey)
 {
   // Given
   TopicCreateTransaction transaction;
@@ -127,7 +127,7 @@ TEST_F(TopicCreateTransactionTest, GetSetAdminKey)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetAdminKeyFrozen)
+TEST_F(TopicCreateTransactionUnitTests, GetSetAdminKeyFrozen)
 {
   // Given
   TopicCreateTransaction transaction = TopicCreateTransaction()
@@ -140,7 +140,7 @@ TEST_F(TopicCreateTransactionTest, GetSetAdminKeyFrozen)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetSubmitKey)
+TEST_F(TopicCreateTransactionUnitTests, GetSetSubmitKey)
 {
   // Given
   TopicCreateTransaction transaction;
@@ -153,7 +153,7 @@ TEST_F(TopicCreateTransactionTest, GetSetSubmitKey)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetSubmitKeyFrozen)
+TEST_F(TopicCreateTransactionUnitTests, GetSetSubmitKeyFrozen)
 {
   // Given
   TopicCreateTransaction transaction = TopicCreateTransaction()
@@ -166,7 +166,7 @@ TEST_F(TopicCreateTransactionTest, GetSetSubmitKeyFrozen)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetAutoRenewPeriod)
+TEST_F(TopicCreateTransactionUnitTests, GetSetAutoRenewPeriod)
 {
   // Given
   TopicCreateTransaction transaction;
@@ -179,7 +179,7 @@ TEST_F(TopicCreateTransactionTest, GetSetAutoRenewPeriod)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetAutoRenewPeriodFrozen)
+TEST_F(TopicCreateTransactionUnitTests, GetSetAutoRenewPeriodFrozen)
 {
   // Given
   TopicCreateTransaction transaction = TopicCreateTransaction()
@@ -192,7 +192,7 @@ TEST_F(TopicCreateTransactionTest, GetSetAutoRenewPeriodFrozen)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetAutoRenewAccountId)
+TEST_F(TopicCreateTransactionUnitTests, GetSetAutoRenewAccountId)
 {
   // Given
   TopicCreateTransaction transaction;
@@ -205,7 +205,7 @@ TEST_F(TopicCreateTransactionTest, GetSetAutoRenewAccountId)
 }
 
 //-----
-TEST_F(TopicCreateTransactionTest, GetSetAutoRenewAccountIdFrozen)
+TEST_F(TopicCreateTransactionUnitTests, GetSetAutoRenewAccountIdFrozen)
 {
   // Given
   TopicCreateTransaction transaction = TopicCreateTransaction()

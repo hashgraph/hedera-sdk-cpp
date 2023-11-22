@@ -35,12 +35,12 @@
 
 using namespace Hedera;
 
-class ScheduleInfoQueryIntegrationTest : public BaseIntegrationTest
+class ScheduleInfoQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ScheduleInfoQueryIntegrationTest, ExecuteScheduleInfoQuery)
+TEST_F(ScheduleInfoQueryIntegrationTests, ExecuteScheduleInfoQuery)
 {
   // Given
   const std::string memo = "test memo";

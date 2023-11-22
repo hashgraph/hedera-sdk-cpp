@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class SystemDeleteTransactionTest : public ::testing::Test
+class SystemDeleteTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const FileId& getTestFileId() const { return mTestFileId; }
@@ -45,7 +45,7 @@ private:
 };
 
 //-----
-TEST_F(SystemDeleteTransactionTest, ConstructSystemDeleteTransactionFromTransactionBodyProtobuf)
+TEST_F(SystemDeleteTransactionUnitTests, ConstructSystemDeleteTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto bodyWithFileId = std::make_unique<proto::SystemDeleteTransactionBody>();
@@ -81,7 +81,7 @@ TEST_F(SystemDeleteTransactionTest, ConstructSystemDeleteTransactionFromTransact
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetFileId)
+TEST_F(SystemDeleteTransactionUnitTests, GetSetFileId)
 {
   // Given
   SystemDeleteTransaction transaction;
@@ -95,7 +95,7 @@ TEST_F(SystemDeleteTransactionTest, GetSetFileId)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetFileIdFrozen)
+TEST_F(SystemDeleteTransactionUnitTests, GetSetFileIdFrozen)
 {
   // Given
   SystemDeleteTransaction transaction = SystemDeleteTransaction()
@@ -108,7 +108,7 @@ TEST_F(SystemDeleteTransactionTest, GetSetFileIdFrozen)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetContractId)
+TEST_F(SystemDeleteTransactionUnitTests, GetSetContractId)
 {
   // Given
   SystemDeleteTransaction transaction;
@@ -122,7 +122,7 @@ TEST_F(SystemDeleteTransactionTest, GetSetContractId)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetContractIdFrozen)
+TEST_F(SystemDeleteTransactionUnitTests, GetSetContractIdFrozen)
 {
   // Given
   SystemDeleteTransaction transaction = SystemDeleteTransaction()
@@ -135,7 +135,7 @@ TEST_F(SystemDeleteTransactionTest, GetSetContractIdFrozen)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetExpirationTime)
+TEST_F(SystemDeleteTransactionUnitTests, GetSetExpirationTime)
 {
   // Given
   SystemDeleteTransaction transaction;
@@ -148,7 +148,7 @@ TEST_F(SystemDeleteTransactionTest, GetSetExpirationTime)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, GetSetExpirationTimeFrozen)
+TEST_F(SystemDeleteTransactionUnitTests, GetSetExpirationTimeFrozen)
 {
   // Given
   SystemDeleteTransaction transaction = SystemDeleteTransaction()
@@ -161,7 +161,7 @@ TEST_F(SystemDeleteTransactionTest, GetSetExpirationTimeFrozen)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, ResetFileId)
+TEST_F(SystemDeleteTransactionUnitTests, ResetFileId)
 {
   // Given
   SystemDeleteTransaction transaction;
@@ -176,7 +176,7 @@ TEST_F(SystemDeleteTransactionTest, ResetFileId)
 }
 
 //-----
-TEST_F(SystemDeleteTransactionTest, ResetContractId)
+TEST_F(SystemDeleteTransactionUnitTests, ResetContractId)
 {
   // Given
   SystemDeleteTransaction transaction;

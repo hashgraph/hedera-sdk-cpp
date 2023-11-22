@@ -42,12 +42,12 @@
 
 using namespace Hedera;
 
-class ContractUpdateTransactionIntegrationTest : public BaseIntegrationTest
+class ContractUpdateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransaction)
+TEST_F(ContractUpdateTransactionIntegrationTests, ExecuteContractUpdateTransaction)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -111,7 +111,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, ExecuteContractUpdateTransactio
 }
 
 //-----
-TEST_F(ContractUpdateTransactionIntegrationTest, CannotUpdateContractWithNoContractId)
+TEST_F(ContractUpdateTransactionIntegrationTests, CannotUpdateContractWithNoContractId)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
@@ -120,7 +120,7 @@ TEST_F(ContractUpdateTransactionIntegrationTest, CannotUpdateContractWithNoContr
 }
 
 //-----
-TEST_F(ContractUpdateTransactionIntegrationTest, CannotModifyImmutableContract)
+TEST_F(ContractUpdateTransactionIntegrationTests, CannotModifyImmutableContract)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(

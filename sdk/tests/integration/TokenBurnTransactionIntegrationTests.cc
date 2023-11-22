@@ -39,12 +39,12 @@
 
 using namespace Hedera;
 
-class TokenBurnTransactionIntegrationTest : public BaseIntegrationTest
+class TokenBurnTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(TokenBurnTransactionIntegrationTest, ExecuteTokenBurnTransaction)
+TEST_F(TokenBurnTransactionIntegrationTests, ExecuteTokenBurnTransaction)
 {
   // Given
   const uint64_t initialSupply = 100000ULL;
@@ -84,7 +84,7 @@ TEST_F(TokenBurnTransactionIntegrationTest, ExecuteTokenBurnTransaction)
 }
 
 //-----
-TEST_F(TokenBurnTransactionIntegrationTest, CannotBurnTokensWhenTokenIdIsNotSet)
+TEST_F(TokenBurnTransactionIntegrationTests, CannotBurnTokensWhenTokenIdIsNotSet)
 {
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
@@ -93,7 +93,7 @@ TEST_F(TokenBurnTransactionIntegrationTest, CannotBurnTokensWhenTokenIdIsNotSet)
 }
 
 //-----
-TEST_F(TokenBurnTransactionIntegrationTest, CanBurnTokensWhenAmountIsNotSet)
+TEST_F(TokenBurnTransactionIntegrationTests, CanBurnTokensWhenAmountIsNotSet)
 {
   // Given
   const uint64_t initialSupply = 100000ULL;
@@ -129,7 +129,7 @@ TEST_F(TokenBurnTransactionIntegrationTest, CanBurnTokensWhenAmountIsNotSet)
 }
 
 //-----
-TEST_F(TokenBurnTransactionIntegrationTest, CannotBurnTokensIfSupplyKeyDoesNotSign)
+TEST_F(TokenBurnTransactionIntegrationTests, CannotBurnTokensIfSupplyKeyDoesNotSign)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -164,7 +164,7 @@ TEST_F(TokenBurnTransactionIntegrationTest, CannotBurnTokensIfSupplyKeyDoesNotSi
 }
 
 //-----
-TEST_F(TokenBurnTransactionIntegrationTest, CanBurnNfts)
+TEST_F(TokenBurnTransactionIntegrationTests, CanBurnNfts)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -210,7 +210,7 @@ TEST_F(TokenBurnTransactionIntegrationTest, CanBurnNfts)
 }
 
 //-----
-TEST_F(TokenBurnTransactionIntegrationTest, CannotBurnNftIfNftIsNotOwnedByTreasury)
+TEST_F(TokenBurnTransactionIntegrationTests, CannotBurnNftIfNftIsNotOwnedByTreasury)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;

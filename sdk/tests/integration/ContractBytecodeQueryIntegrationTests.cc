@@ -39,12 +39,12 @@
 
 using namespace Hedera;
 
-class ContractBytecodeQueryIntegrationTest : public BaseIntegrationTest
+class ContractBytecodeQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ContractBytecodeQueryIntegrationTest, ExecuteContractBytecodeQuery)
+TEST_F(ContractBytecodeQueryIntegrationTests, ExecuteContractBytecodeQuery)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -85,7 +85,7 @@ TEST_F(ContractBytecodeQueryIntegrationTest, ExecuteContractBytecodeQuery)
 }
 
 //-----
-TEST_F(ContractBytecodeQueryIntegrationTest, Blank)
+TEST_F(ContractBytecodeQueryIntegrationTests, Blank)
 {
   // Given / When / Then
   EXPECT_THROW(const ContractByteCode contractByteCode = ContractByteCodeQuery().execute(getTestClient()),
@@ -93,7 +93,7 @@ TEST_F(ContractBytecodeQueryIntegrationTest, Blank)
 }
 
 //-----
-TEST_F(ContractBytecodeQueryIntegrationTest, BadContractId)
+TEST_F(ContractBytecodeQueryIntegrationTests, BadContractId)
 {
   // Given / When / Then
   EXPECT_THROW(const ContractByteCode contractByteCode =
@@ -102,7 +102,7 @@ TEST_F(ContractBytecodeQueryIntegrationTest, BadContractId)
 }
 
 //-----
-TEST_F(ContractBytecodeQueryIntegrationTest, ValidButNonExistantContractId)
+TEST_F(ContractBytecodeQueryIntegrationTests, ValidButNonExistantContractId)
 {
   // Given / When / Then
   EXPECT_THROW(const ContractByteCode contractByteCode =

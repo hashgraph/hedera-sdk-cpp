@@ -39,7 +39,7 @@
 
 using namespace Hedera;
 
-class TokenUpdateTransactionTest : public ::testing::Test
+class TokenUpdateTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const TokenId& getTestTokenId() const { return mTestTokenId; }
@@ -83,7 +83,7 @@ private:
 };
 
 //-----
-TEST_F(TokenUpdateTransactionTest, ConstructTokenUpdateTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenUpdateTransactionUnitTests, ConstructTokenUpdateTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenUpdateTransactionBody>();
@@ -128,7 +128,7 @@ TEST_F(TokenUpdateTransactionTest, ConstructTokenUpdateTransactionFromTransactio
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, ConstructTokenUpdateTransactionFromWrongTransactionBodyProtobuf)
+TEST_F(TokenUpdateTransactionUnitTests, ConstructTokenUpdateTransactionFromWrongTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::CryptoDeleteTransactionBody>();
@@ -140,7 +140,7 @@ TEST_F(TokenUpdateTransactionTest, ConstructTokenUpdateTransactionFromWrongTrans
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetTokenId)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -153,7 +153,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -166,7 +166,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetTokenIdFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetName)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetName)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -179,7 +179,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetName)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetNameFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetNameFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -192,7 +192,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetNameFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetSymbol)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetSymbol)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -205,7 +205,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetSymbol)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetSymbolFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetSymbolFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -218,7 +218,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetSymbolFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetTreasuryAccountId)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetTreasuryAccountId)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -231,7 +231,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetTreasuryAccountId)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetTreasuryAccountIdFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetTreasuryAccountIdFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -244,7 +244,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetTreasuryAccountIdFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetAdminKey)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetAdminKey)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -257,7 +257,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAdminKey)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetAdminKeyFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetAdminKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -270,7 +270,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAdminKeyFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetKycKey)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetKycKey)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -283,7 +283,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetKycKey)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetKycKeyFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetKycKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -296,7 +296,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetKycKeyFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetFreezeKey)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetFreezeKey)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -309,7 +309,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetFreezeKey)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetFreezeKeyFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetFreezeKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -322,7 +322,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetFreezeKeyFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetWipeKey)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetWipeKey)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -335,7 +335,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetWipeKey)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetWipeKeyFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetWipeKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -348,7 +348,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetWipeKeyFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetSupplyKey)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetSupplyKey)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -361,7 +361,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetSupplyKey)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetSupplyKeyFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetSupplyKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -374,7 +374,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetSupplyKeyFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewAccountId)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetAutoRenewAccountId)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -387,7 +387,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewAccountId)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewAccountIdFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetAutoRenewAccountIdFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -400,7 +400,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewAccountIdFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewPeriod)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetAutoRenewPeriod)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -413,7 +413,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewPeriod)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewPeriodFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetAutoRenewPeriodFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -426,7 +426,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetAutoRenewPeriodFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetExpirationTime)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetExpirationTime)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -439,7 +439,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetExpirationTime)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetExpirationTimeFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetExpirationTimeFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -452,7 +452,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetExpirationTimeFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetMemo)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetMemo)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -465,7 +465,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetMemo)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetMemoFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetMemoFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -478,7 +478,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetMemoFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetFeeScheduleKey)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetFeeScheduleKey)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -491,7 +491,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetFeeScheduleKey)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetFeeScheduleKeyFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetFeeScheduleKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()
@@ -504,7 +504,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetFeeScheduleKeyFrozen)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetPauseKey)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetPauseKey)
 {
   // Given
   TokenUpdateTransaction transaction;
@@ -517,7 +517,7 @@ TEST_F(TokenUpdateTransactionTest, GetSetPauseKey)
 }
 
 //-----
-TEST_F(TokenUpdateTransactionTest, GetSetPauseKeyFrozen)
+TEST_F(TokenUpdateTransactionUnitTests, GetSetPauseKeyFrozen)
 {
   // Given
   TokenUpdateTransaction transaction = TokenUpdateTransaction()

@@ -27,7 +27,7 @@
 
 using namespace Hedera;
 
-class ScheduleDeleteTransactionTest : public ::testing::Test
+class ScheduleDeleteTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const ScheduleId& getTestScheduleId() const { return mTestScheduleId; }
@@ -37,7 +37,7 @@ private:
 };
 
 //-----
-TEST_F(ScheduleDeleteTransactionTest, ConstructScheduleDeleteTransaction)
+TEST_F(ScheduleDeleteTransactionUnitTests, ConstructScheduleDeleteTransaction)
 {
   // Given / When
   ScheduleDeleteTransaction transaction;
@@ -47,7 +47,7 @@ TEST_F(ScheduleDeleteTransactionTest, ConstructScheduleDeleteTransaction)
 }
 
 //-----
-TEST_F(ScheduleDeleteTransactionTest, ConstructScheduleDeleteTransactionFromTransactionBodyProtobuf)
+TEST_F(ScheduleDeleteTransactionUnitTests, ConstructScheduleDeleteTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::ScheduleDeleteTransactionBody>();
@@ -64,7 +64,7 @@ TEST_F(ScheduleDeleteTransactionTest, ConstructScheduleDeleteTransactionFromTran
 }
 
 //-----
-TEST_F(ScheduleDeleteTransactionTest, GetSetScheduleId)
+TEST_F(ScheduleDeleteTransactionUnitTests, GetSetScheduleId)
 {
   // Given
   ScheduleDeleteTransaction transaction;
@@ -77,7 +77,7 @@ TEST_F(ScheduleDeleteTransactionTest, GetSetScheduleId)
 }
 
 //-----
-TEST_F(ScheduleDeleteTransactionTest, GetSetScheduleIdFrozen)
+TEST_F(ScheduleDeleteTransactionUnitTests, GetSetScheduleIdFrozen)
 {
   // Given
   ScheduleDeleteTransaction transaction = ScheduleDeleteTransaction()

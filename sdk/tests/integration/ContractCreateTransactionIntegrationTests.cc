@@ -40,12 +40,12 @@
 
 using namespace Hedera;
 
-class ContractCreateTransactionIntegrationTest : public BaseIntegrationTest
+class ContractCreateTransactionIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransaction)
+TEST_F(ContractCreateTransactionIntegrationTests, ExecuteContractCreateTransaction)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -99,7 +99,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, ExecuteContractCreateTransactio
 }
 
 //-----
-TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
+TEST_F(ContractCreateTransactionIntegrationTests, CreateContractWithNoAdminKey)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -146,7 +146,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CreateContractWithNoAdminKey)
 }
 
 //-----
-TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoGas)
+TEST_F(ContractCreateTransactionIntegrationTests, CannotCreateContractWithNoGas)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -176,7 +176,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoGas)
 }
 
 //-----
-TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoConstructorParameters)
+TEST_F(ContractCreateTransactionIntegrationTests, CannotCreateContractWithNoConstructorParameters)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -205,7 +205,7 @@ TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithNoConst
 }
 
 //-----
-TEST_F(ContractCreateTransactionIntegrationTest, CannotCreateContractWithBytecodeFileId)
+TEST_F(ContractCreateTransactionIntegrationTests, CannotCreateContractWithBytecodeFileId)
 {
   // Given/ When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =

@@ -34,12 +34,12 @@
 
 using namespace Hedera;
 
-class FileInfoQueryIntegrationTest : public BaseIntegrationTest
+class FileInfoQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(FileInfoQueryIntegrationTest, ExecuteFileInfoQuery)
+TEST_F(FileInfoQueryIntegrationTests, ExecuteFileInfoQuery)
 {
   // Given
   std::unique_ptr<PrivateKey> operatorKey;
@@ -80,7 +80,7 @@ TEST_F(FileInfoQueryIntegrationTest, ExecuteFileInfoQuery)
 }
 
 //-----
-TEST_F(FileInfoQueryIntegrationTest, NoFileId)
+TEST_F(FileInfoQueryIntegrationTests, NoFileId)
 {
   // Given / When / Then
   EXPECT_THROW(const FileInfo fileInfo = FileInfoQuery().execute(getTestClient()),
@@ -88,7 +88,7 @@ TEST_F(FileInfoQueryIntegrationTest, NoFileId)
 }
 
 //-----
-TEST_F(FileInfoQueryIntegrationTest, CanQueryFileWithNoAdminKeyOrContents)
+TEST_F(FileInfoQueryIntegrationTests, CanQueryFileWithNoAdminKeyOrContents)
 {
   // Given
   FileId fileId;

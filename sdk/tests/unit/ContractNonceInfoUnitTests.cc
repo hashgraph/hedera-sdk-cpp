@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class ContractNonceInfoTest : public ::testing::Test
+class ContractNonceInfoUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const ContractId& getTestContractId() const { return mTestContractId; }
@@ -40,7 +40,7 @@ private:
 };
 
 //-----
-TEST_F(ContractNonceInfoTest, FromProtobuf)
+TEST_F(ContractNonceInfoUnitTests, FromProtobuf)
 {
   // Given
   proto::ContractNonceInfo protoContractNonceInfo;
@@ -56,7 +56,7 @@ TEST_F(ContractNonceInfoTest, FromProtobuf)
 }
 
 //-----
-TEST_F(ContractNonceInfoTest, ToProtobuf)
+TEST_F(ContractNonceInfoUnitTests, ToProtobuf)
 {
   // Given
   const ContractNonceInfo testContractNonceInfo = ContractNonceInfo(getTestContractId(), getTestNonce());
@@ -76,7 +76,7 @@ TEST_F(ContractNonceInfoTest, ToProtobuf)
 }
 
 //-----
-TEST_F(ContractNonceInfoTest, ToBytes)
+TEST_F(ContractNonceInfoUnitTests, ToBytes)
 {
   // Given
   const ContractNonceInfo testContractNonceInfo = ContractNonceInfo(getTestContractId(), getTestNonce());
@@ -89,7 +89,7 @@ TEST_F(ContractNonceInfoTest, ToBytes)
 }
 
 //-----
-TEST_F(ContractNonceInfoTest, FromBytes)
+TEST_F(ContractNonceInfoUnitTests, FromBytes)
 {
   // Given
   proto::ContractNonceInfo protoContractNonceInfo;

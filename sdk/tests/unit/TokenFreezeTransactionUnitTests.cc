@@ -28,7 +28,7 @@
 
 using namespace Hedera;
 
-class TokenFreezeTransactionTest : public ::testing::Test
+class TokenFreezeTransactionUnitTests : public ::testing::Test
 {
 protected:
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mTestAccountId; }
@@ -40,7 +40,7 @@ private:
 };
 
 //-----
-TEST_F(TokenFreezeTransactionTest, ConstructTokenFreezeTransactionFromTransactionBodyProtobuf)
+TEST_F(TokenFreezeTransactionUnitTests, ConstructTokenFreezeTransactionFromTransactionBodyProtobuf)
 {
   // Given
   auto body = std::make_unique<proto::TokenFreezeAccountTransactionBody>();
@@ -59,7 +59,7 @@ TEST_F(TokenFreezeTransactionTest, ConstructTokenFreezeTransactionFromTransactio
 }
 
 //-----
-TEST_F(TokenFreezeTransactionTest, GetSetAccountId)
+TEST_F(TokenFreezeTransactionUnitTests, GetSetAccountId)
 {
   // Given
   TokenFreezeTransaction transaction;
@@ -72,7 +72,7 @@ TEST_F(TokenFreezeTransactionTest, GetSetAccountId)
 }
 
 //-----
-TEST_F(TokenFreezeTransactionTest, GetSetAccountIdFrozen)
+TEST_F(TokenFreezeTransactionUnitTests, GetSetAccountIdFrozen)
 {
   // Given
   TokenFreezeTransaction transaction = TokenFreezeTransaction()
@@ -85,7 +85,7 @@ TEST_F(TokenFreezeTransactionTest, GetSetAccountIdFrozen)
 }
 
 //-----
-TEST_F(TokenFreezeTransactionTest, GetSetTokenId)
+TEST_F(TokenFreezeTransactionUnitTests, GetSetTokenId)
 {
   // Given
   TokenFreezeTransaction transaction;
@@ -98,7 +98,7 @@ TEST_F(TokenFreezeTransactionTest, GetSetTokenId)
 }
 
 //-----
-TEST_F(TokenFreezeTransactionTest, GetSetTokenIdFrozen)
+TEST_F(TokenFreezeTransactionUnitTests, GetSetTokenIdFrozen)
 {
   // Given
   TokenFreezeTransaction transaction = TokenFreezeTransaction()

@@ -26,12 +26,12 @@
 
 using namespace Hedera;
 
-class AddressBookQueryIntegrationTest : public BaseIntegrationTest
+class AddressBookQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(AddressBookQueryIntegrationTest, ExecuteAddressBookQuery)
+TEST_F(AddressBookQueryIntegrationTests, ExecuteAddressBookQuery)
 {
   // Given / When / Then
   EXPECT_NO_THROW(const NodeAddressBook nodeAddressBook =

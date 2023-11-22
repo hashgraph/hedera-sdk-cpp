@@ -26,12 +26,12 @@
 
 using namespace Hedera;
 
-class NetworkVersionInfoQueryIntegrationTest : public BaseIntegrationTest
+class NetworkVersionInfoQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(NetworkVersionInfoQueryIntegrationTest, ExecuteNetworkVersionInfoQuery)
+TEST_F(NetworkVersionInfoQueryIntegrationTests, ExecuteNetworkVersionInfoQuery)
 {
   // Given / When / Then
   EXPECT_NO_THROW(const NetworkVersionInfo networkVersionInfo = NetworkVersionInfoQuery().execute(getTestClient()));

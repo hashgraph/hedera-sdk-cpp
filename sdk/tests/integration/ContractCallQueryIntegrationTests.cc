@@ -40,12 +40,12 @@
 
 using namespace Hedera;
 
-class ContractCallQueryIntegrationTest : public BaseIntegrationTest
+class ContractCallQueryIntegrationTests : public BaseIntegrationTest
 {
 };
 
 //-----
-TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
+TEST_F(ContractCallQueryIntegrationTests, ExecuteContractCallQuery)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -90,7 +90,7 @@ TEST_F(ContractCallQueryIntegrationTest, ExecuteContractCallQuery)
 }
 
 //-----
-TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractFunctionIsNotSet)
+TEST_F(ContractCallQueryIntegrationTests, CannotCallContractFunctionWhenContractFunctionIsNotSet)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -129,7 +129,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractF
 }
 
 //-----
-TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotSet)
+TEST_F(ContractCallQueryIntegrationTests, CannotCallContractFunctionWhenGasIsNotSet)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
@@ -168,7 +168,7 @@ TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenGasIsNotS
 }
 
 //-----
-TEST_F(ContractCallQueryIntegrationTest, CannotCallContractFunctionWhenContractIdIsNotSet)
+TEST_F(ContractCallQueryIntegrationTests, CannotCallContractFunctionWhenContractIdIsNotSet)
 {
   // Given
   const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
