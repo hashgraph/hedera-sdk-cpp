@@ -134,7 +134,6 @@ PPIndentWidth: -1
 ReferenceAlignment: Pointer
 ReflowComments: true
 RemoveBracesLLVM: false
-SeparateDefinitionBlocks: Leave
 ShortNamespaceLines: 1
 SortIncludes: CaseSensitive
 SortJavaStaticImport: Before
