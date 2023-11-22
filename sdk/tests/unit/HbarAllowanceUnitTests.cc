@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "HbarAllowance.h"
 #include "AccountId.h"
 #include "Hbar.h"
+#include "HbarAllowance.h"
 
 #include <gtest/gtest.h>
 #include <proto/crypto_approve_allowance.pb.h>

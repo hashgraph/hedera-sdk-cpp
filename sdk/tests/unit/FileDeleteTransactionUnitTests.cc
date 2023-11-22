@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "FileDeleteTransaction.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
+#include "FileDeleteTransaction.h"
 #include "exceptions/IllegalStateException.h"
 
 #include <gtest/gtest.h>

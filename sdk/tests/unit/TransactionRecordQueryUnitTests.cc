@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "TransactionRecordQuery.h"
 #include "TransactionId.h"
+#include "TransactionRecordQuery.h"
 
 #include <gtest/gtest.h>
 

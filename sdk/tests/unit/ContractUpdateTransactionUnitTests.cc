@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "ContractUpdateTransaction.h"
 #include "Client.h"
 #include "ContractId.h"
+#include "ContractUpdateTransaction.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/DurationConverter.h"

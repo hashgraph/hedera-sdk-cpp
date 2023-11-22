@@ -17,11 +17,10 @@
  * limitations under the License.
  *
  */
-#include "ContractFunctionResult.h"
 #include "AccountId.h"
+#include "ContractFunctionResult.h"
 #include "ContractId.h"
 #include "ContractLogInfo.h"
-#include "ContractNonceInfo.h"
 #include "EvmAddress.h"
 #include "Hbar.h"
 #include "impl/HexConverter.h"
@@ -57,7 +56,7 @@ protected:
   [[nodiscard]] inline const uint64_t& getTestGasUsed() const { return mTestGasUsed; }
   [[nodiscard]] inline const std::vector<ContractLogInfo>& getTestLogs() const { return mTestLogs; }
   [[nodiscard]] inline const EvmAddress& getTestEvmAddress() const { return mTestEvmAddress; }
-  [[nodiscard]] inline const uint64_t& getTestGas() const { return mTestGasUsed; }
+  [[nodiscard]] inline const uint64_t& getTestGas() const { return mTestGas; }
   [[nodiscard]] inline const Hbar& getTestAmount() const { return mTestAmount; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestFunctionParameters() const
   {
@@ -140,7 +139,6 @@ TEST_F(ContractFunctionResultUnitTests, FromProtobuf)
   protoContractFunctionResult.set_functionparameters(
     internal::Utilities::byteVectorToString(getTestFunctionParameters()));
   protoContractFunctionResult.set_allocated_sender_id(getTestSenderAccountId().toProtobuf().release());
-  // protoContractFunctionResult.add_contract_nonces(getTestContractNonceInfo().toProtobuf().release());
 
   auto protoContractNonceInfo = protoContractFunctionResult.add_contract_nonces();
   protoContractNonceInfo->set_allocated_contract_id(getTestContractId().toProtobuf().release());

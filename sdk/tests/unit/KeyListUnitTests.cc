@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "KeyList.h"
 #include "ED25519PrivateKey.h"
+#include "KeyList.h"
 #include "PublicKey.h"
 #include "impl/Utilities.h"
 

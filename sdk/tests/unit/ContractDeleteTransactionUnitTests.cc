@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "ContractDeleteTransaction.h"
 #include "AccountId.h"
 #include "Client.h"
+#include "ContractDeleteTransaction.h"
 #include "ContractId.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "exceptions/IllegalStateException.h"

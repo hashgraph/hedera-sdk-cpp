@@ -40,7 +40,7 @@ public:
    */
   HttpClient();
 
-  HttpClient(const HttpClient&) = delete; // no use case for httpClient copy
+  HttpClient(const HttpClient&) = delete;            // no use case for httpClient copy
   HttpClient& operator=(const HttpClient&) = delete; // no use case for httpClient copy
 
   /**

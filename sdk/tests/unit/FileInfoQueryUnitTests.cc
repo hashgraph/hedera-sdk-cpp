@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "FileInfoQuery.h"
 #include "FileInfo.h"
+#include "FileInfoQuery.h"
 
 #include <gtest/gtest.h>
 
