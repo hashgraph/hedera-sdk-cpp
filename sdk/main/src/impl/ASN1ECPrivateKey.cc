@@ -39,32 +39,4 @@ namespace Hedera::internal::asn1
         return privateKey;
     }
 
-    void ASN1ECPrivateKey::decode(const std::vector<std::byte>& bytes)
-    {
-        int currentByteIndex = 0;
-        while(currentByteIndex < bytes.size() - 1)
-        {
-            std::byte asn1Tag = bytes[currentByteIndex++];
-            int asn1TagSize = static_cast<int>(bytes[currentByteIndex++]);
-
-            // Ignore sequence as ASN1 for EC Key is in basic format
-            // TODO: Add further ignores for ASN1 tags so that we don`t
-            // populate the map data with useless values
-            if(asn1Tag == SEQUENCE) continue; 
-
-            std::vector<std::byte> asn1DataAtTag(bytes.begin() + currentByteIndex, bytes.begin() + currentByteIndex + asn1TagSize);
-            currentByteIndex += asn1TagSize;
-
-            asn1KeyData.insert({asn1Tag, asn1DataAtTag});
-        }
-    }
-
-    const std::vector<std::byte> ASN1ECPrivateKey::get(const std::byte tag) const
-    {
-        auto entry = asn1KeyData.find(tag);
-        if(entry != asn1KeyData.end())
-            return entry->second;
-        else throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");
-    }
-
 } // namespace Hedera::internal:asn1

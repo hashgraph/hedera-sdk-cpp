@@ -43,8 +43,7 @@ public:
    */
   virtual const std::vector<std::byte> getKey() const = 0;
 
-private:
-
+protected:
   /**
    * @brief Decode ASN.1 data representing an Elliptic Curve Key.
    *
@@ -60,7 +59,7 @@ private:
    *
    * @param bytes The ASN.1-encoded data representing the Elliptic Curve Key.
    */
-  virtual void decode(const std::vector<std::byte>& bytes) = 0;
+  virtual void decode(const std::vector<std::byte>& bytes);
 
   /**
    * @brief Get the value associated with the given ASN.1 tag.
@@ -68,14 +67,12 @@ private:
    * @param tag The ASN.1 tag.
    * @return The value associated with the tag as a vector of bytes.
    */
-  virtual const std::vector<std::byte> get(const std::byte tag) const = 0;
-
-protected:
+  virtual const std::vector<std::byte> get(const std::byte tag) const;
+  
   /**
    * @brief A map to store ASN.1 key data with their associated tags.
    */
   std::unordered_map<std::byte, std::vector<std::byte>> asn1KeyData;
-
 };
 
 } // namespace Hedera::internal:asn1

@@ -26,14 +26,20 @@
 
 namespace Hedera::internal::asn1
 {
-// The ASN.1 algorithm identifier prefix bytes for an ECDSAsecp256k1PrKeyKey.
-const std::vector<std::byte> ASN1_PRK_PREFIX_BYTES = { std::byte(0x30), std::byte(0x2E), std::byte(0x02), std::byte(0x01),
-                                                       std::byte(0x01), std::byte(0x04), std::byte(0x20) };
-                                       
+// The ASN.1 algorithm identifier prefix bytes for an ECDSAsecp256k1PrivateKey.
+const std::vector<std::byte> ASN1_PRK_PREFIX_BYTES = { std::byte(0x30), std::byte(0x2E), std::byte(0x02),
+                                                       std::byte(0x01), std::byte(0x01), std::byte(0x04),
+                                                       std::byte(0x20) };
+
 // The ASN.1 algorithm identifier suffix bytes for an ECDSAsecp256k1Key.
 const std::vector<std::byte> ASN1_PRK_SUFFIX_BYTES = { std::byte(0xA0), std::byte(0x07), std::byte(0x06),
-                                                   std::byte(0x05), std::byte(0x2B), std::byte(0x81),
-                                                   std::byte(0x04), std::byte(0x00), std::byte(0x0A) };
+                                                       std::byte(0x05), std::byte(0x2B), std::byte(0x81),
+                                                       std::byte(0x04), std::byte(0x00), std::byte(0x0A) };
+
+// PEM Format prefix/suffix string
+constexpr std::string_view PEM_ECPRK_PREFIX_STRING = "-----BEGIN EC PRIVATE KEY-----";
+constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY-----";
+
 /**
  * @class ASN1Key
  * @brief ASN.1 key object.
@@ -41,7 +47,6 @@ const std::vector<std::byte> ASN1_PRK_SUFFIX_BYTES = { std::byte(0xA0), std::byt
 class ASN1ECPrivateKey : public ASN1ECKey
 {
 public:
-
   /**
    * @brief Constructor for ASN.1 key from a vector of bytes.
    *
@@ -61,33 +66,6 @@ private:
    * @brief Constructor for ASN.1 key.
    */
   ASN1ECPrivateKey(){};
-
-  /**
-   * @brief Decode ASN.1 data representing an Elliptic Curve Key.
-   *
-   * This method decodes basic ASN.1 data, extracting key data and storing it in the `asn1KeyData` map.
-   * EC Keys in ASN1 format always follow a common structure:
-   * 
-   *   ECPrivateKey ::= SEQUENCE {
-   *   version INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
-   *   privateKey OCTET STRING,
-   *   parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
-   *   publicKey [1] BIT STRING OPTIONAL
-   *   }
-   *
-   * @param bytes The ASN.1-encoded data representing the Elliptic Curve Key.
-   */
-void decode(const std::vector<std::byte>& bytes) override;
-
-  /**
-   * @brief Get the value associated with the given ASN.1 tag.
-   *
-   * @param tag The ASN.1 tag.
-   * @return The value associated with the tag as a vector of bytes.
-   */
-const std::vector<std::byte> get(const std::byte tag) const override;
-
-
 };
 
 } // namespace Hedera::internal:asn1

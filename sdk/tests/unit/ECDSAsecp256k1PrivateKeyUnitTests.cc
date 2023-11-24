@@ -29,6 +29,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 using namespace Hedera;
@@ -46,8 +47,7 @@ protected:
 
   [[nodiscard]] inline const std::string& getTestPrivateKeyHexString() const { return mPrivateKeyHexString; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestPrivateKeyBytes() const { return mPrivateKeyBytes; }
-  [[nodiscard]] inline const std::unordered_map<std::string_view, std::pair<std::string_view, std::string_view>>
-  getExpectedPrivateKeyPairs() const
+  [[nodiscard]] inline const std::unordered_map<std::string_view, std::pair<std::string_view, std::string_view>>getExpectedPrivateKeyPairs() const
   {
     return expectedPrivateKeyPairs;
   };
@@ -302,18 +302,18 @@ TEST_F(ECDSAsecp256k1PrivateKeyUnitTests, GetChainCode)
 }
 
 //-----
-TEST_F(ECDSAsecp256k1PrivateKeyUnitTests, ECDSACompatibility)
+TEST_F(ECDSAsecp256k1PrivateKeyUnitTests, ЕCDSACompatibility)
 {
   // Given
   auto expectedKeys = getExpectedPrivateKeyPairs();
 
   // When // Then
-  for (auto key : expectedKeys)
+  for (auto pair : expectedKeys)
   {
-    auto actualKey = key.first;
+    auto actualKey = pair.first;
 
-    auto expectedPrivateKey = key.second.first;
-    auto expectedPublicKey = key.second.second;
+    auto expectedPrivateKey = pair.second.first;
+    auto expectedPublicKey = pair.second.second;
 
     auto actualResultKeyPair = ECDSAsecp256k1PrivateKey::fromString(actualKey);
     ASSERT_EQ(actualResultKeyPair->toStringRaw(), expectedPrivateKey);

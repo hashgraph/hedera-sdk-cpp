@@ -29,6 +29,7 @@
 #include <proto/basic_types.pb.h>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 using namespace Hedera;
@@ -54,6 +55,10 @@ protected:
   {
     return mCompressedPublicKeyBytes;
   }
+  [[nodiscard]] inline const std::unordered_map<std::string_view, std::string_view>getExpectedPublicKeyPairs() const
+  {
+    return expectedPublicKeyPairs;
+  };
 
 private:
   const std::string mUncompressedPublicKeyHex = "045B36E22D710E79646F1A86D633EB38343BFE9DF39185EC730B1E7DFA79EE92CFD8C9"
@@ -79,6 +84,18 @@ private:
     std::byte(0xFE), std::byte(0x9D), std::byte(0xF3), std::byte(0x91), std::byte(0x85), std::byte(0xEC),
     std::byte(0x73), std::byte(0x0B), std::byte(0x1E), std::byte(0x7D), std::byte(0xFA), std::byte(0x79),
     std::byte(0xEE), std::byte(0x92), std::byte(0xCF)
+  };
+  const std::string_view legacyDERPublicKey =
+    "302d300706052b8104000a032200028173079d2e996ef6b2d064fc82d5fc7094367211e28422bec50a2f75c365f5fd";
+  const std::string_view openSSLCompatibleCompressedDERPublicKey =
+    "3036301006072a8648ce3d020106052b8104000a032200036843f5cb338bbb4cdb21b0da4ea739d910951d6e8a5f703d313efe31afe788f4";
+  const std::string_view openSSLCompatibleUncompressedDERPublicKey =
+    "3056301006072a8648ce3d020106052b8104000a03420004aaac1c3ac1bea0245b8e00ce1e2018f9eab61b6331fbef7266f2287750a6597795f855ddcad2377e22259d1fcb4e0f1d35e8f2056300c15070bcbfce3759cc9d";
+
+  const std::unordered_map<std::string_view, std::string_view> expectedPublicKeyPairs{
+    { legacyDERPublicKey, "028173079D2E996EF6B2D064FC82D5FC7094367211E28422BEC50A2F75C365F5FD"},
+    { openSSLCompatibleCompressedDERPublicKey, "036843F5CB338BBB4CDB21B0DA4EA739D910951D6E8A5F703D313EFE31AFE788F4"},
+    { openSSLCompatibleUncompressedDERPublicKey, "03AAAC1C3AC1BEA0245B8E00CE1E2018F9EAB61B6331FBEF7266F2287750A65977"},
   };
 };
 
@@ -417,4 +434,21 @@ TEST_F(ECDSAsecp256k1PublicKeyUnitTests, ToEvmAddress)
 
   // Then
   EXPECT_EQ(evmAddress.toString(), "D8EB8DB03C699FAA3F47ADCDCD2AE91773B10F8B");
+}
+
+//-----
+TEST_F(ECDSAsecp256k1PublicKeyUnitTests, ЕCDSACompatibility)
+{
+  // Given
+  auto expectedKeys = getExpectedPublicKeyPairs();
+
+  // When // Then
+  for (auto pair : expectedKeys)
+  {
+    auto actualKey = pair.first;
+    auto expectedKey = pair.second;
+
+    auto actualResultKeyPair = ECDSAsecp256k1PublicKey::fromString(actualKey);
+    ASSERT_EQ(actualResultKeyPair->toStringRaw(), expectedKey);
+  }
 }

@@ -167,7 +167,9 @@ add_library(${PROJECT_NAME} STATIC
         src/TransferTransaction.cc
         src/WrappedTransaction.cc
 
+        src/impl/ASN1ECKey.cc
         src/impl/ASN1ECPrivateKey.cc
+        src/impl/ASN1ECPublicKey.cc
         src/impl/BaseNetwork.cc
         src/impl/BaseNode.cc
         src/impl/BaseNodeAddress.cc

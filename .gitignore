@@ -888,3 +888,6 @@ package
 
 ### Ignore environment file
 .env
+
+### VCPKG install
+vcpkg_installed/
