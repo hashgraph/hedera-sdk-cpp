@@ -26,6 +26,8 @@
 
 #include <openssl/bn.h>
 
+#include <algorithm>
+
 namespace Hedera::internal::asn1
 {
 ASN1ECPublicKey::ASN1ECPublicKey(const std::vector<std::byte>& bytes)
