@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "ECDSAsecp256k1PublicKey.h"
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "ECDSAsecp256k1PublicKey.h"
 #include "EvmAddress.h"
 #include "exceptions/BadKeyException.h"
 #include "impl/Utilities.h"
@@ -55,7 +55,7 @@ protected:
   {
     return mCompressedPublicKeyBytes;
   }
-  [[nodiscard]] inline const std::unordered_map<std::string_view, std::string_view>getExpectedPublicKeyPairs() const
+  [[nodiscard]] inline const std::unordered_map<std::string_view, std::string_view> getExpectedPublicKeyPairs() const
   {
     return expectedPublicKeyPairs;
   };
@@ -90,11 +90,12 @@ private:
   const std::string_view openSSLCompatibleCompressedDERPublicKey =
     "3036301006072a8648ce3d020106052b8104000a032200036843f5cb338bbb4cdb21b0da4ea739d910951d6e8a5f703d313efe31afe788f4";
   const std::string_view openSSLCompatibleUncompressedDERPublicKey =
-    "3056301006072a8648ce3d020106052b8104000a03420004aaac1c3ac1bea0245b8e00ce1e2018f9eab61b6331fbef7266f2287750a6597795f855ddcad2377e22259d1fcb4e0f1d35e8f2056300c15070bcbfce3759cc9d";
+    "3056301006072a8648ce3d020106052b8104000a03420004aaac1c3ac1bea0245b8e00ce1e2018f9eab61b6331fbef7266f2287750a6597795"
+    "f855ddcad2377e22259d1fcb4e0f1d35e8f2056300c15070bcbfce3759cc9d";
 
   const std::unordered_map<std::string_view, std::string_view> expectedPublicKeyPairs{
-    { legacyDERPublicKey, "028173079D2E996EF6B2D064FC82D5FC7094367211E28422BEC50A2F75C365F5FD"},
-    { openSSLCompatibleCompressedDERPublicKey, "036843F5CB338BBB4CDB21B0DA4EA739D910951D6E8A5F703D313EFE31AFE788F4"},
+    {legacyDERPublicKey,                         "028173079D2E996EF6B2D064FC82D5FC7094367211E28422BEC50A2F75C365F5FD"},
+    { openSSLCompatibleCompressedDERPublicKey,   "036843F5CB338BBB4CDB21B0DA4EA739D910951D6E8A5F703D313EFE31AFE788F4"},
     { openSSLCompatibleUncompressedDERPublicKey, "03AAAC1C3AC1BEA0245B8E00CE1E2018F9EAB61B6331FBEF7266F2287750A65977"},
   };
 };

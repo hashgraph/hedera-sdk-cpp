@@ -47,7 +47,8 @@ protected:
 
   [[nodiscard]] inline const std::string& getTestPrivateKeyHexString() const { return mPrivateKeyHexString; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestPrivateKeyBytes() const { return mPrivateKeyBytes; }
-  [[nodiscard]] inline const std::unordered_map<std::string_view, std::pair<std::string_view, std::string_view>>getExpectedPrivateKeyPairs() const
+  [[nodiscard]] inline const std::unordered_map<std::string_view, std::pair<std::string_view, std::string_view>>
+  getExpectedPrivateKeyPairs() const
   {
     return expectedPrivateKeyPairs;
   };

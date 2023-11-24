@@ -28,52 +28,45 @@
 
 namespace Hedera::internal::asn1
 {
-    ASN1ECPublicKey::ASN1ECPublicKey(const std::vector<std::byte>& bytes)
-    {
-        std::cout<< "here"<< std::endl;
-        decode(bytes);
-        std::cout<< "here"<< std::endl;
-        populateXYcoords();
-    }
+ASN1ECPublicKey::ASN1ECPublicKey(const std::vector<std::byte>& bytes)
+{
+  decode(bytes);
+  populateXYcoords();
+}
 
-    const std::vector<std::byte> ASN1ECPublicKey::getKey() const
-    {   
-        std::cout<<"----------------------------------------------------"<<std::endl;
-        if(!ecXcoord.empty())std::cout<<internal::HexConverter::bytesToHex(ecXcoord)<<std::endl;
-        if(!ecYcoord.empty())std::cout<<internal::HexConverter::bytesToHex(ecYcoord)<<std::endl;
-        std::cout<<"----------------------------------------------------"<<std::endl;
+const std::vector<std::byte> ASN1ECPublicKey::getKey() const
+{
+  if (ecXcoord.empty())
+    throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");
+  else
+    return ecXcoord;
+}
 
-        if(ecXcoord.empty()) throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");
-        else return ecXcoord;
-    }
+void ASN1ECPublicKey::populateXYcoords()
+{
+  std::vector<std::byte> publicKey = get(BIT_STRING);
+  if (publicKey[0] == std::byte(0x00) && publicKey[1] == std::byte(0x04)) // uncompressed
+  {
+    ecYcoord = std::vector<std::byte>(publicKey.rbegin(), publicKey.rbegin() + ECDSA_KEY_LENGTH); // get y coordinate
+    std::reverse(ecYcoord.begin(), ecYcoord.end());
 
-     void ASN1ECPublicKey::populateXYcoords(){
-        std::vector<std::byte> publicKey = get(BIT_STRING);
-        std::cout<< "here"<< std::endl;
-        if(publicKey.size() == ECDSA_KEY_LENGTH || publicKey.size() == ECDSA_KEY_LENGTH + 1) ecXcoord = publicKey;
-        else
-        {
-            if(publicKey[0] == std::byte(0x00) && publicKey[1] == std::byte(0x04)) // uncompressed
-            {
-                ecYcoord = std::vector<std::byte>(publicKey.rbegin(), publicKey.rbegin() + ECDSA_KEY_LENGTH); // get y coordinate
-                std::reverse(ecYcoord.begin(), ecYcoord.end());
+    BIGNUM* yCoordBN = BN_new();
+    BN_hex2bn(&yCoordBN, internal::HexConverter::bytesToHex(ecYcoord).c_str());
+    // if y even pad 0x02 byte else 0x03
+    ecXcoord = internal::Utilities::concatenateVectors({
+  // get x coordinate
+      { std::byte(0x00) },
+      { !BN_is_bit_set(yCoordBN, 0) ? std::byte(0x02) : std::byte(0x03) },
+      { publicKey.begin() + 2, publicKey.end() - ECDSA_KEY_LENGTH }
+    });
+  }
 
-                BIGNUM *yCoordBN = BN_new();
-                BN_hex2bn(&yCoordBN, internal::HexConverter::bytesToHex(ecYcoord).c_str());
-                //if y even pad 0x02 byte else 0x03
-                ecXcoord = internal::Utilities::concatenateVectors({ // get x coordinate
-                    {std::byte(0x00)},
-                    {!BN_is_bit_set(yCoordBN, 0) ? std::byte(0x02) : std::byte(0x03)},
-                    {publicKey.begin() + 2, publicKey.end() - ECDSA_KEY_LENGTH}
-                });
-            }
-
-            if(publicKey[0] == std::byte(0x00) && (publicKey[1] == std::byte(0x02) || publicKey[1] == std::byte(0x03))) // compressed
-            {
-                //Just populate x coord. Padding one to ignore the 00 starting byte.
-                ecXcoord = std::vector<std::byte>(publicKey.begin() , publicKey.begin() + ECDSA_KEY_LENGTH + 2);
-            }
-        }
-     }
+  if (publicKey[0] == std::byte(0x00) &&
+      (publicKey[1] == std::byte(0x02) || publicKey[1] == std::byte(0x03))) // compressed
+  {
+    // Just populate x coord. Padding one to ignore the 00 starting byte.
+    ecXcoord = std::vector<std::byte>(publicKey.begin(), publicKey.begin() + ECDSA_KEY_LENGTH + 2);
+  }
+}
 
 } // namespace Hedera::internal:asn1

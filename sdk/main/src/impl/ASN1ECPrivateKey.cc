@@ -25,18 +25,18 @@
 
 namespace Hedera::internal::asn1
 {
-    ASN1ECPrivateKey::ASN1ECPrivateKey(const std::vector<std::byte>& bytes)
-    {
-        decode(bytes);
-    }
+ASN1ECPrivateKey::ASN1ECPrivateKey(const std::vector<std::byte>& bytes)
+{
+  decode(bytes);
+}
 
-    const std::vector<std::byte> ASN1ECPrivateKey::getKey() const
-    {   
-        std::vector<std::byte> privateKey = get(OCTET_STRING);
-        if(privateKey.size() > ECDSA_KEY_LENGTH) // remove redundant padded bytes if any
-            privateKey = std::vector<std::byte>(privateKey.end() - ECDSA_KEY_LENGTH, privateKey.end());
+const std::vector<std::byte> ASN1ECPrivateKey::getKey() const
+{
+  std::vector<std::byte> privateKey = get(OCTET_STRING);
+  if (privateKey.size() > ECDSA_KEY_LENGTH) // remove redundant padded bytes if any
+    privateKey = std::vector<std::byte>(privateKey.end() - ECDSA_KEY_LENGTH, privateKey.end());
 
-        return privateKey;
-    }
+  return privateKey;
+}
 
 } // namespace Hedera::internal:asn1
