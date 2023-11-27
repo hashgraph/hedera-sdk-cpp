@@ -134,7 +134,7 @@ TEST_F(ContractFunctionResultUnitTests, FromProtobuf)
   bytesValue->set_value(internal::Utilities::byteVectorToString(getTestEvmAddress().toBytes()));
   protoContractFunctionResult.set_allocated_evm_address(bytesValue.release());
 
-  protoContractFunctionResult.set_gasused(getTestGas());
+  protoContractFunctionResult.set_gasused(getTestGasUsed());
   protoContractFunctionResult.set_amount(getTestAmount().toTinybars());
   protoContractFunctionResult.set_functionparameters(
     internal::Utilities::byteVectorToString(getTestFunctionParameters()));
