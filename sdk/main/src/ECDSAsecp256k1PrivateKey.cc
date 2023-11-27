@@ -66,7 +66,7 @@ constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY---
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<std::byte>& bytes)
 {
   std::vector<std::byte> buildPrivateKeyBytes;
-  
+
   // This means potentially only the key bytes will be in the input not standard for ASN1 encodings but the SDK needs to
   // be able to process them
   if (bytes.size() == internal::asn1::ECDSA_KEY_LENGTH)
