@@ -30,6 +30,7 @@ add_executable(${TEST_PROJECT_NAME}
         FileUpdateTransactionIntegrationTests.cc
         FreezeTransactionIntegrationTests.cc
         HttpClientIntegrationTests.cc
+        IntegrationClientConfig.cc
         JSONIntegrationTests.cc
         NetworkVersionInfoQueryIntegrationTests.cc
         PrngTransactionIntegrationTests.cc
@@ -40,6 +41,7 @@ add_executable(${TEST_PROJECT_NAME}
         ScheduleSignTransactionIntegrationTests.cc
         SystemDeleteTransactionIntegrationTests.cc
         SystemUndeleteTransactionIntegrationTests.cc
+        TestFixtures.cc
         TokenAssociateTransactionIntegrationTests.cc
         TokenBurnTransactionIntegrationTests.cc
         TokenCreateTransactionIntegrationTests.cc

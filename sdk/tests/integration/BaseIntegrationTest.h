@@ -22,6 +22,7 @@
 
 #include "AccountId.h"
 #include "Client.h"
+#include "TestFixtures.h"
 
 #include <gtest/gtest.h>
 #include <string>
@@ -29,10 +30,10 @@
 namespace Hedera
 {
 
-class BaseIntegrationTest : public testing::Test
+class BaseIntegrationTest : public testing::Test, public TestClientFixture
 {
 protected:
-  [[nodiscard]] inline const Client& getTestClient() const { return mClient; }
+  [[nodiscard]] inline const Client& getTestClient() const { return getClientInstance(); }
   [[nodiscard]] inline const AccountId& getDefaultTestAccountId() const { return mDefaultTestAccountId; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestFileContent() const { return mFileContent; }
   [[nodiscard]] inline const std::string& getTestSmartContractBytecode() const { return mTestContractBytecodeHex; }
