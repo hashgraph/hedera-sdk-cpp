@@ -30,7 +30,7 @@ ASN1ECPrivateKey::ASN1ECPrivateKey(const std::vector<std::byte>& bytes)
   decode(bytes);
 }
 
-const std::vector<std::byte> ASN1ECPrivateKey::getKey() const
+std::vector<std::byte> ASN1ECPrivateKey::getKey() const
 {
   std::vector<std::byte> privateKey = get(OCTET_STRING);
   if (privateKey.size() > ECDSA_KEY_LENGTH) // remove redundant padded bytes if any

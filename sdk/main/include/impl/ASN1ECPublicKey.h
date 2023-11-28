@@ -74,7 +74,7 @@ public:
    * @brief Get the key value associated with the ASN.1 elliptic curve public key.
    * @return The key as a vector of bytes.
    */
-  const std::vector<std::byte> getKey() const override;
+  std::vector<std::byte> getKey() const override;
 
 private:
   /**

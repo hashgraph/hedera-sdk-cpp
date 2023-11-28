@@ -35,13 +35,12 @@ constexpr size_t ECDSA_KEY_LENGTH = 32; // bytes
 class ASN1ECKey : public ASN1Object
 {
 public:
-
   /**
    * @brief Get the key value associated with the ASN.1 key.
    *
    * @return The key as a vector of bytes.
    */
-  virtual const std::vector<std::byte> getKey() const = 0;
+  virtual std::vector<std::byte> getKey() const = 0;
 
 protected:
   /**
@@ -49,7 +48,7 @@ protected:
    *
    * This method decodes basic ASN.1 data, extracting key data and storing it in the `asn1KeyData` map.
    * EC Keys in ASN1 format always follow a common structure:
-   * 
+   *
    *   ECKey ::= SEQUENCE {
    *   version INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1) OPTIONAL,
    *   key STRING_DATA,
@@ -68,7 +67,7 @@ protected:
    * @return The value associated with the tag as a vector of bytes.
    */
   virtual const std::vector<std::byte> get(const std::byte tag) const;
-  
+
   /**
    * @brief A map to store ASN.1 key data with their associated tags.
    */

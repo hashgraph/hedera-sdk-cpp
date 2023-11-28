@@ -30,10 +30,7 @@ namespace Hedera
 class LiveHash
 {
 public:
-  static LiveHash fromProtobuf(const proto::LiveHash& proto)
-  {
-    return LiveHash();
-  }
+  static LiveHash fromProtobuf(const proto::LiveHash& proto) { return LiveHash(); }
 };
 
 } // namespace Hedera

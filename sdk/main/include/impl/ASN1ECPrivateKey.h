@@ -59,13 +59,13 @@ public:
    *
    * @return The key as a vector of bytes.
    */
-  const std::vector<std::byte> getKey() const override;
+  std::vector<std::byte> getKey() const override;
 
 private:
   /**
    * @brief Constructor for ASN.1 key.
    */
-  ASN1ECPrivateKey(){};
+  ASN1ECPrivateKey() = default;
 };
 
 } // namespace Hedera::internal:asn1

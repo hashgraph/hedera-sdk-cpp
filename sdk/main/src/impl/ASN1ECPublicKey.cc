@@ -36,7 +36,7 @@ ASN1ECPublicKey::ASN1ECPublicKey(const std::vector<std::byte>& bytes)
   populateXYcoords();
 }
 
-const std::vector<std::byte> ASN1ECPublicKey::getKey() const
+std::vector<std::byte> ASN1ECPublicKey::getKey() const
 {
   if (ecXcoord.empty())
     throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");

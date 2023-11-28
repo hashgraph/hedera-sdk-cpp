@@ -196,11 +196,11 @@ public:
   /**
    * @brief Populates the EVM address for an Account using the Mirror Node.
    *        This function fetches the EVM address for an Account from the Mirror Node.
-   * 
+   *
    *        User Note: This Function requires a 3 second sleep if running on testnet
    *        environment as the MirrorNode does not update on time for the MirrorNode
    *        request sent to it.
-   * 
+   *
    * @param client The Client object used for network access.
    * @return A reference to the modified AccountId object.
    * @throws IllegalStateException if mAccountNum is empty or if the account does not exist in the Mirror Network.
