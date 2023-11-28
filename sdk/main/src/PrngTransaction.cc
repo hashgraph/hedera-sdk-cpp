@@ -80,9 +80,7 @@ void PrngTransaction::initFromSourceTransactionBody()
     throw std::invalid_argument("Transaction body doesn't contain UtilPrng data");
   }
 
-  const proto::UtilPrngTransactionBody& body = transactionBody.util_prng();
-  
-  mRange = body.range();
+  mRange = transactionBody.util_prng().range();
 }
 
 //-----

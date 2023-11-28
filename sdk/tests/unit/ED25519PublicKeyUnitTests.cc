@@ -17,14 +17,12 @@
  * limitations under the License.
  *
  */
-#include "ED25519PublicKey.h"
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
+#include "ED25519PublicKey.h"
 #include "exceptions/BadKeyException.h"
-#include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
-#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <proto/basic_types.pb.h>

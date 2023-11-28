@@ -35,7 +35,6 @@ constexpr size_t ECDSA_KEY_LENGTH = 32; // bytes
 class ASN1ECKey : public ASN1Object
 {
 public:
-
   /**
    * @brief Get the key value associated with the ASN.1 key.
    *
@@ -44,13 +43,12 @@ public:
   virtual const std::vector<std::byte> getKey() const = 0;
 
 private:
-
   /**
    * @brief Decode ASN.1 data representing an Elliptic Curve Key.
    *
    * This method decodes basic ASN.1 data, extracting key data and storing it in the `asn1KeyData` map.
    * EC Keys in ASN1 format always follow a common structure:
-   * 
+   *
    *   ECKey ::= SEQUENCE {
    *   version INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1) OPTIONAL,
    *   key STRING_DATA,
@@ -75,7 +73,6 @@ protected:
    * @brief A map to store ASN.1 key data with their associated tags.
    */
   std::unordered_map<std::byte, std::vector<std::byte>> asn1KeyData;
-
 };
 
 } // namespace Hedera::internal:asn1

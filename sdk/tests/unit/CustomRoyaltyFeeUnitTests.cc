@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "CustomRoyaltyFee.h"
 #include "AccountId.h"
 #include "CustomFixedFee.h"
+#include "CustomRoyaltyFee.h"
 #include "TokenId.h"
 #include "impl/Utilities.h"
 

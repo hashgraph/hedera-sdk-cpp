@@ -59,7 +59,7 @@ std::unique_ptr<proto::CustomFee> CustomRoyaltyFee::toProtobuf() const
   {
     fee->mutable_royalty_fee()->set_allocated_fallback_fee(mFallbackFee->toFixedFeeProtobuf().release());
   }
-  
+
   return fee;
 }
 

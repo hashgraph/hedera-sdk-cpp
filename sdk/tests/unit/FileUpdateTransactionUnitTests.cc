@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "FileUpdateTransaction.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
+#include "FileUpdateTransaction.h"
 #include "KeyList.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/TimestampConverter.h"

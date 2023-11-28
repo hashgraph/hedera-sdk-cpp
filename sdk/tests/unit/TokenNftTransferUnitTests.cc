@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "TokenNftTransfer.h"
 #include "AccountId.h"
+#include "TokenNftTransfer.h"
 
 #include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>

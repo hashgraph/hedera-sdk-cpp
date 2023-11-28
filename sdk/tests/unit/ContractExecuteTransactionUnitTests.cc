@@ -17,12 +17,11 @@
  * limitations under the License.
  *
  */
-#include "ContractExecuteTransaction.h"
 #include "AccountId.h"
 #include "Client.h"
+#include "ContractExecuteTransaction.h"
 #include "ContractId.h"
 #include "ED25519PrivateKey.h"
-#include "PublicKey.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/Utilities.h"
 

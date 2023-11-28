@@ -17,13 +17,12 @@
  * limitations under the License.
  *
  */
-#include "ECDSAsecp256k1PublicKey.h"
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "ECDSAsecp256k1PublicKey.h"
 #include "EvmAddress.h"
 #include "exceptions/BadKeyException.h"
 #include "impl/Utilities.h"
 
-#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <proto/basic_types.pb.h>

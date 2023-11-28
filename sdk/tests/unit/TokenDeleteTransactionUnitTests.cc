@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "TokenDeleteTransaction.h"
 #include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "TokenDeleteTransaction.h"
 #include "exceptions/IllegalStateException.h"
 
 #include <gtest/gtest.h>
