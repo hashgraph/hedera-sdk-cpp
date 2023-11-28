@@ -80,7 +80,7 @@ private:
   /**
    * @brief Constructor for ASN.1 elliptic curve public key.
    */
-  ASN1ECPublicKey(){};
+  ASN1ECPublicKey() = default;
 
   /**
    * @brief Populate X and Y coordinates from the ASN.1 key bytes.
