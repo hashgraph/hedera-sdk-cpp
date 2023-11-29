@@ -50,12 +50,6 @@ const std::vector<std::byte> BIP32_SEED = { std::byte('B'), std::byte('i'), std:
 const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
   internal::OpenSSLUtils::BIGNUM::fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141");
 
-// PEM Format prefix/suffix string
-constexpr std::string_view PEM_ECPRK_PREFIX_STRING = "-----BEGIN EC PRIVATE KEY-----";
-constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY-----";
-
-// PEM Format suffix string
-
 /**
  * Create a wrapped OpenSSL key object from a byte vector (raw or DER-encoded) representing an ECDSAsecp256k1PrivateKey.
  *
@@ -113,13 +107,15 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(s
 {
   std::string formattedKey = key.data();
   // Remove PEM prefix/suffix if is present and hex the base64 val
-  if (formattedKey.compare(0, PEM_ECPRK_PREFIX_STRING.size(), PEM_ECPRK_PREFIX_STRING) == 0)
+  if (formattedKey.compare(
+        0, internal::asn1::PEM_ECPRK_PREFIX_STRING.size(), internal::asn1::PEM_ECPRK_PREFIX_STRING) == 0)
   {
-    formattedKey = formattedKey.substr(PEM_ECPRK_PREFIX_STRING.size(), formattedKey.size());
+    formattedKey = formattedKey.substr(internal::asn1::PEM_ECPRK_PREFIX_STRING.size(), formattedKey.size());
 
-    if (formattedKey.compare(
-          formattedKey.size() - PEM_ECPRK_SUFFIX_STRING.size(), formattedKey.size(), PEM_ECPRK_SUFFIX_STRING) == 0)
-      formattedKey = formattedKey.substr(0, formattedKey.size() - PEM_ECPRK_SUFFIX_STRING.size());
+    if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size(),
+                             formattedKey.size(),
+                             internal::asn1::PEM_ECPRK_SUFFIX_STRING) == 0)
+      formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size());
 
     formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }

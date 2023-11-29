@@ -22,6 +22,8 @@
 #include "EvmAddress.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
+
+#include "impl/ASN1ECPublicKey.h"
 #include "impl/HexConverter.h"
 #include "impl/PublicKeyImpl.h"
 #include "impl/Utilities.h"
@@ -56,34 +58,24 @@ namespace
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<std::byte>& bytes)
 {
   // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN.1 prefix.
-  std::vector<std::byte> uncompressedKeyBytes;
-  if (bytes.size() == ECDSAsecp256k1PublicKey::UNCOMPRESSED_KEY_SIZE)
+  std::vector<std::byte> buildPublicKeyBytes = bytes;
+
+  if (buildPublicKeyBytes.size() == internal::asn1::ECDSA_KEY_LENGTH + 1)
   {
-    // Simply add the DER-encoding header to the bytes
-    uncompressedKeyBytes = internal::Utilities::concatenateVectors(
-      { ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES, bytes });
-  }
-  else if (bytes.size() == ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE +
-                             ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES.size() &&
-           internal::Utilities::isPrefixOf(bytes, ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES))
-  {
-    // Remove the DER-encoding header, uncompress the key bytes, then re-add the DER-encoding header
-    uncompressedKeyBytes = internal::Utilities::concatenateVectors(
-      { ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES,
-        ECDSAsecp256k1PublicKey::uncompressBytes(internal::Utilities::removePrefix(
-          bytes, static_cast<long>(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()))) });
-  }
-  else if (bytes.size() == ECDSAsecp256k1PublicKey::COMPRESSED_KEY_SIZE)
-  {
-    // Uncompress the key bytes, then add the DER-encoding header
-    uncompressedKeyBytes =
-      internal::Utilities::concatenateVectors({ ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES,
-                                                ECDSAsecp256k1PublicKey::uncompressBytes(bytes) });
+    buildPublicKeyBytes = internal::Utilities::concatenateVectors(
+      { internal::asn1::ASN1_CPUBK_PREFIX_BYTES, { std::byte(0x00) }, buildPublicKeyBytes });
   }
   else
   {
-    // Either already DER-encoded and uncompressed or malformed, which will throw
-    uncompressedKeyBytes = bytes;
+    if (buildPublicKeyBytes.size() == internal::asn1::ECDSA_KEY_LENGTH * 2 + 1)
+    {
+      buildPublicKeyBytes = internal::Utilities::concatenateVectors(
+        { internal::asn1::ASN1_UPUBK_PREFIX_BYTES, { std::byte(0x00) }, buildPublicKeyBytes });
+    }
+
+    internal::asn1::ASN1ECPublicKey asn1key(buildPublicKeyBytes);
+    buildPublicKeyBytes =
+      internal::Utilities::concatenateVectors({ internal::asn1::ASN1_CPUBK_PREFIX_BYTES, asn1key.getKey() });
   }
 
   EVP_PKEY* pkey = nullptr;
@@ -94,8 +86,8 @@ namespace
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_DECODER_CTX_new_for_pkey"));
   }
 
-  size_t dataLength = uncompressedKeyBytes.size();
-  if (const auto* rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(uncompressedKeyBytes.data());
+  size_t dataLength = buildPublicKeyBytes.size();
+  if (const auto* rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(buildPublicKeyBytes.data());
       OSSL_DECODER_from_data(context.get(), &rawKeyBytes, &dataLength) <= 0)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("OSSL_DECODER_from_data"));
@@ -109,15 +101,19 @@ namespace
 //-----
 std::unique_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std::string_view key)
 {
-  if ((key.size() != COMPRESSED_KEY_SIZE * 2) && (key.size() != UNCOMPRESSED_KEY_SIZE * 2) &&
-      (key.size() != COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size()) &&
-      (key.size() != UNCOMPRESSED_KEY_SIZE * 2 + DER_ENCODED_UNCOMPRESSED_PREFIX_HEX.size()))
+  std::string formattedKey = key.data();
+  // Remove PEM prefix/suffix if is present and hex the base64 val
+  if (formattedKey.compare(
+        0, internal::asn1::PEM_ECPUBK_PREFIX_STRING.size(), internal::asn1::PEM_ECPUBK_PREFIX_STRING) == 0)
   {
-    throw BadKeyException("ECDSAsecp256k1PublicKey cannot be realized from input string: input string size should be " +
-                          std::to_string(UNCOMPRESSED_KEY_SIZE * 2 + DER_ENCODED_UNCOMPRESSED_PREFIX_HEX.size()) +
-                          " or " + std::to_string(UNCOMPRESSED_KEY_SIZE * 2) + " for uncompressed keys, or " +
-                          std::to_string(COMPRESSED_KEY_SIZE * 2 + DER_ENCODED_COMPRESSED_PREFIX_HEX.size()) + " or " +
-                          std::to_string(COMPRESSED_KEY_SIZE * 2) + " for compressed keys");
+    formattedKey = formattedKey.substr(internal::asn1::PEM_ECPUBK_PREFIX_STRING.size(), formattedKey.size());
+
+    if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPUBK_SUFFIX_STRING.size(),
+                             formattedKey.size(),
+                             internal::asn1::PEM_ECPUBK_SUFFIX_STRING) == 0)
+      formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPUBK_SUFFIX_STRING.size());
+
+    formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }
 
   try
@@ -135,18 +131,6 @@ std::unique_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std
 //-----
 std::unique_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromBytes(const std::vector<std::byte>& bytes)
 {
-  if ((bytes.size() != COMPRESSED_KEY_SIZE) && (bytes.size() != UNCOMPRESSED_KEY_SIZE) &&
-      (bytes.size() != COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()) &&
-      (bytes.size() != UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()))
-  {
-    throw BadKeyException(
-      "ECDSAsecp256k1PublicKey cannot be realized from input bytes: input byte array size should be " +
-      std::to_string(UNCOMPRESSED_KEY_SIZE + DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()) + " or " +
-      std::to_string(UNCOMPRESSED_KEY_SIZE) + " for uncompressed keys, or " +
-      std::to_string(COMPRESSED_KEY_SIZE + DER_ENCODED_COMPRESSED_PREFIX_BYTES.size()) + " or " +
-      std::to_string(COMPRESSED_KEY_SIZE) + " for compressed keys");
-  }
-
   try
   {
     return std::make_unique<ECDSAsecp256k1PublicKey>(ECDSAsecp256k1PublicKey(bytesToPKEY(bytes)));
@@ -409,7 +393,6 @@ std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytesDer() const
 std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytesRaw() const
 {
   int bytesLength = i2d_PUBKEY(getInternalKey().get(), nullptr);
-
   std::vector<std::byte> publicKeyBytes(bytesLength);
 
   if (auto rawPublicKeyBytes = internal::Utilities::toTypePtr<unsigned char>(publicKeyBytes.data());
@@ -419,8 +402,8 @@ std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytesRaw() const
   }
 
   // Don't return the algorithm identification bytes, and compress
-  return compressBytes({ publicKeyBytes.cbegin() + static_cast<long>(DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES.size()),
-                         publicKeyBytes.cend() });
+  return { std::vector<std::byte>(publicKeyBytes.cbegin() + internal::asn1::ASN1_CPUBK_PREFIX_BYTES.size() + 1,
+                                  publicKeyBytes.cend()) };
 }
 
 //-----
