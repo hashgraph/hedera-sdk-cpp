@@ -59,23 +59,24 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<std::byte>& bytes)
 {
-  std::vector<std::byte> buildPrivateKeyBytes; 
-  // This means potentially only the key bytes will be in the input
-  // not standard for ASN1 encodings but the SDK needs to be able to
-  // process them
-  if(bytes.size() == internal::asn1::ECDSA_KEY_LENGTH){
-    buildPrivateKeyBytes = internal::Utilities::concatenateVectors
-    ({ internal::asn1::ASN1_PRK_PREFIX_BYTES, bytes,  internal::asn1::ASN1_PRK_SUFFIX_BYTES });
+  std::vector<std::byte> buildPrivateKeyBytes;
+
+  // This means potentially only the key bytes will be in the input not standard for ASN1 encodings but the SDK needs to
+  // be able to process them
+  if (bytes.size() == internal::asn1::ECDSA_KEY_LENGTH)
+  {
+    buildPrivateKeyBytes = internal::Utilities::concatenateVectors(
+      { internal::asn1::ASN1_PRK_PREFIX_BYTES, bytes, internal::asn1::ASN1_PRK_SUFFIX_BYTES });
   }
   else
   {
     internal::asn1::ASN1ECPrivateKey asn1key(bytes);
-    buildPrivateKeyBytes = internal::Utilities::concatenateVectors
-    ({ internal::asn1::ASN1_PRK_PREFIX_BYTES, asn1key.getKey(),  internal::asn1::ASN1_PRK_SUFFIX_BYTES });
+    buildPrivateKeyBytes = internal::Utilities::concatenateVectors(
+      { internal::asn1::ASN1_PRK_PREFIX_BYTES, asn1key.getKey(), internal::asn1::ASN1_PRK_SUFFIX_BYTES });
   }
 
   const std::vector<std::byte> privateKeyBytes = buildPrivateKeyBytes;
-  
+
   auto rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(privateKeyBytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(
     d2i_PrivateKey(EVP_PKEY_EC, nullptr, &rawKeyBytes, static_cast<long>(privateKeyBytes.size())));
@@ -106,14 +107,16 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(s
 {
   std::string formattedKey = key.data();
   // Remove PEM prefix/suffix if is present and hex the base64 val
-  if(formattedKey.compare(0, internal::asn1::PEM_ECPRK_PREFIX_STRING.size(), internal::asn1::PEM_ECPRK_PREFIX_STRING) == 0)
+  if (formattedKey.compare(
+        0, internal::asn1::PEM_ECPRK_PREFIX_STRING.size(), internal::asn1::PEM_ECPRK_PREFIX_STRING) == 0)
   {
     formattedKey = formattedKey.substr(internal::asn1::PEM_ECPRK_PREFIX_STRING.size(), formattedKey.size());
 
-    if(formattedKey.compare(formattedKey.size()- internal::asn1::PEM_ECPRK_SUFFIX_STRING.size(),
-        formattedKey.size(), internal::asn1::PEM_ECPRK_SUFFIX_STRING) == 0)
-          formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size());
-    
+    if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size(),
+                             formattedKey.size(),
+                             internal::asn1::PEM_ECPRK_SUFFIX_STRING) == 0)
+      formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size());
+
     formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }
 

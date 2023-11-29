@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "CustomFractionalFee.h"
 #include "AccountId.h"
+#include "CustomFractionalFee.h"
 #include "FeeAssessmentMethod.h"
 #include "impl/Utilities.h"
 

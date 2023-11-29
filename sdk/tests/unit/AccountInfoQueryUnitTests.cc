@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "AccountInfoQuery.h"
 #include "AccountId.h"
+#include "AccountInfoQuery.h"
 
 #include <gtest/gtest.h>
 

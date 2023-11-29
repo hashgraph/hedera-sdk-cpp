@@ -58,26 +58,26 @@ namespace
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<std::byte>& bytes)
 {
   // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN.1 prefix.
-  std::vector<std::byte> buildPublicKeyBytes = bytes; 
+  std::vector<std::byte> buildPublicKeyBytes = bytes;
 
-  if(buildPublicKeyBytes.size() == internal::asn1::ECDSA_KEY_LENGTH + 1)
+  if (buildPublicKeyBytes.size() == internal::asn1::ECDSA_KEY_LENGTH + 1)
   {
-    buildPublicKeyBytes = internal::Utilities::concatenateVectors
-      ({ internal::asn1::ASN1_CPUBK_PREFIX_BYTES, {std::byte(0x00)}, buildPublicKeyBytes });  
+    buildPublicKeyBytes = internal::Utilities::concatenateVectors(
+      { internal::asn1::ASN1_CPUBK_PREFIX_BYTES, { std::byte(0x00) }, buildPublicKeyBytes });
   }
   else
   {
-    if(buildPublicKeyBytes.size() == internal::asn1::ECDSA_KEY_LENGTH * 2 + 1)
+    if (buildPublicKeyBytes.size() == internal::asn1::ECDSA_KEY_LENGTH * 2 + 1)
     {
-      buildPublicKeyBytes = internal::Utilities::concatenateVectors
-      ({ internal::asn1::ASN1_UPUBK_PREFIX_BYTES, {std::byte(0x00)}, buildPublicKeyBytes });
+      buildPublicKeyBytes = internal::Utilities::concatenateVectors(
+        { internal::asn1::ASN1_UPUBK_PREFIX_BYTES, { std::byte(0x00) }, buildPublicKeyBytes });
     }
 
     internal::asn1::ASN1ECPublicKey asn1key(buildPublicKeyBytes);
-    buildPublicKeyBytes = internal::Utilities::concatenateVectors
-      ({ internal::asn1::ASN1_CPUBK_PREFIX_BYTES, asn1key.getKey()});
+    buildPublicKeyBytes =
+      internal::Utilities::concatenateVectors({ internal::asn1::ASN1_CPUBK_PREFIX_BYTES, asn1key.getKey() });
   }
-  
+
   EVP_PKEY* pkey = nullptr;
   internal::OpenSSLUtils::OSSL_DECODER_CTX context(
     OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", nullptr, "EC", EVP_PKEY_PUBLIC_KEY, nullptr, nullptr));
@@ -103,14 +103,16 @@ std::unique_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std
 {
   std::string formattedKey = key.data();
   // Remove PEM prefix/suffix if is present and hex the base64 val
-  if(formattedKey.compare(0, internal::asn1::PEM_ECPUBK_PREFIX_STRING.size(), internal::asn1::PEM_ECPUBK_PREFIX_STRING) == 0)
+  if (formattedKey.compare(
+        0, internal::asn1::PEM_ECPUBK_PREFIX_STRING.size(), internal::asn1::PEM_ECPUBK_PREFIX_STRING) == 0)
   {
     formattedKey = formattedKey.substr(internal::asn1::PEM_ECPUBK_PREFIX_STRING.size(), formattedKey.size());
 
-    if(formattedKey.compare(formattedKey.size()- internal::asn1::PEM_ECPUBK_SUFFIX_STRING.size(),
-        formattedKey.size(), internal::asn1::PEM_ECPUBK_SUFFIX_STRING) == 0)
-          formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPUBK_SUFFIX_STRING.size());
-    
+    if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPUBK_SUFFIX_STRING.size(),
+                             formattedKey.size(),
+                             internal::asn1::PEM_ECPUBK_SUFFIX_STRING) == 0)
+      formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPUBK_SUFFIX_STRING.size());
+
     formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }
 
@@ -400,7 +402,8 @@ std::vector<std::byte> ECDSAsecp256k1PublicKey::toBytesRaw() const
   }
 
   // Don't return the algorithm identification bytes, and compress
-  return { std::vector<std::byte>(publicKeyBytes.cbegin() + internal::asn1::ASN1_CPUBK_PREFIX_BYTES.size() + 1, publicKeyBytes.cend())};
+  return { std::vector<std::byte>(publicKeyBytes.cbegin() + internal::asn1::ASN1_CPUBK_PREFIX_BYTES.size() + 1,
+                                  publicKeyBytes.cend()) };
 }
 
 //-----

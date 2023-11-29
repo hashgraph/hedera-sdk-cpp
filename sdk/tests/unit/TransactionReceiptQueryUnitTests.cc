@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "TransactionReceiptQuery.h"
 #include "TransactionId.h"
+#include "TransactionReceiptQuery.h"
 
 #include <gtest/gtest.h>
 

@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "TokenNftAllowance.h"
 #include "AccountId.h"
 #include "TokenId.h"
+#include "TokenNftAllowance.h"
 
 #include <gtest/gtest.h>
 #include <proto/crypto_approve_allowance.pb.h>

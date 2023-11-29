@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "TransactionReceipt.h"
 #include "Status.h"
+#include "TransactionReceipt.h"
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>

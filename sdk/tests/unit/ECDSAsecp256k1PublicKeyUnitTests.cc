@@ -23,7 +23,6 @@
 #include "exceptions/BadKeyException.h"
 #include "impl/Utilities.h"
 
-#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <proto/basic_types.pb.h>

@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "HbarTransfer.h"
 #include "AccountId.h"
 #include "Hbar.h"
+#include "HbarTransfer.h"
 
 #include <gtest/gtest.h>
 #include <proto/basic_types.pb.h>

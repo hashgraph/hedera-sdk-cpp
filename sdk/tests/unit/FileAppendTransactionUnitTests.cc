@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "FileAppendTransaction.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
+#include "FileAppendTransaction.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/Utilities.h"
 

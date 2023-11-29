@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "TokenAllowance.h"
 #include "AccountId.h"
+#include "TokenAllowance.h"
 
 #include <gtest/gtest.h>
 #include <proto/crypto_approve_allowance.pb.h>

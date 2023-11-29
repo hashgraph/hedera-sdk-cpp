@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "ContractInfoQuery.h"
 #include "ContractId.h"
+#include "ContractInfoQuery.h"
 
 #include <gtest/gtest.h>
 
