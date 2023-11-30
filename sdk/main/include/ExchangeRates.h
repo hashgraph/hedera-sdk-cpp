@@ -51,7 +51,7 @@ public:
    * @param next    The next ExchangeRate.
    */
   ExchangeRates(const ExchangeRate& current, const ExchangeRate& next);
-  
+
   /**
    * Construct an ExchangeRates object from an ExchangeRateSet protobuf object.
    *
