@@ -79,7 +79,7 @@ std::string HbarTransfer::toString() const
   nlohmann::json json;
   json["mAccountId"] = mAccountId.toString();
   json["mAmount"] = mAmount.toString();
-  json["mIsApproved"] = (mIsApproved ? "true" : "false");
+  json["mIsApproved"] = mIsApproved;
   return json.dump();
 }
 

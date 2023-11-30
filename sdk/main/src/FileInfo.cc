@@ -91,7 +91,7 @@ std::string FileInfo::toString() const
   json["mFileId"] = mFileId.toString();
   json["mSize"] = mSize;
   json["mExpirationTime"] = internal::TimestampConverter::toString(mExpirationTime);
-  json["mIsDeleted"] = (mIsDeleted ? "true" : "false");
+  json["mIsDeleted"] = mIsDeleted;
   json["mAdminKeys"] = mAdminKeys.toString();
   json["mMemo"] = mMemo;
   json["mLedgerId"] = mLedgerId.toString();

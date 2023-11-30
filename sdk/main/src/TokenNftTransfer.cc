@@ -83,7 +83,7 @@ std::string TokenNftTransfer::toString() const
   json["mNftId"] = mNftId.toString();
   json["mSenderAccountId"] = mSenderAccountId.toString();
   json["mReceiverAccountId"] = mReceiverAccountId.toString();
-  json["mIsApproval"] = (mIsApproval ? "true" : "false");
+  json["mIsApproval"] = mIsApproval;
   return json.dump();
 }
 

@@ -97,7 +97,7 @@ std::vector<std::byte> StakingInfo::toBytes() const
 std::string StakingInfo::toString() const
 {
   nlohmann::json json;
-  json["mDeclineRewards"] = (mDeclineRewards ? "true" : "false");
+  json["mDeclineRewards"] = mDeclineRewards;
 
   if (mStakePeriodStart.has_value())
   {

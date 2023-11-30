@@ -170,7 +170,7 @@ std::string ScheduleInfo::toString() const
   json["mPayerAccountId"] = mPayerAccountId.toString();
   json["mScheduledTransactionId"] = mScheduledTransactionId.toString();
   json["mLedgerId"] = mLedgerId.toString();
-  json["mWaitForExpiry"] = (mWaitForExpiry ? "true" : "false");
+  json["mWaitForExpiry"] = mWaitForExpiry;
   return json.dump();
 }
 

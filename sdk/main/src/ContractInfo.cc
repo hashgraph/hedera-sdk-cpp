@@ -144,7 +144,7 @@ std::string ContractInfo::toString() const
   json["mStorage"] = mStorage;
   json["mMemo"] = mMemo;
   json["mBalance"] = mBalance.toString();
-  json["mIsDeleted"] = (mIsDeleted ? "true" : "false");
+  json["mIsDeleted"] = mIsDeleted;
   json["mLedgerId"] = mLedgerId.toString();
 
   if (mAutoRenewAccountId.has_value())

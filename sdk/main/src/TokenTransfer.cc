@@ -89,7 +89,7 @@ std::string TokenTransfer::toString() const
   json["mAccountId"] = mAccountId.toString();
   json["mAmount"] = mAmount;
   json["mExpectedDecimals"] = mExpectedDecimals;
-  json["mIsApproval"] = (mIsApproval ? "true" : "false");
+  json["mIsApproval"] = mIsApproval;
   return json.dump();
 }
 

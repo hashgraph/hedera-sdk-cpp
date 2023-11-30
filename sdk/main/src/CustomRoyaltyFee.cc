@@ -69,7 +69,7 @@ std::string CustomRoyaltyFee::toString() const
 {
   nlohmann::json json;
   json["mFeeCollectorAccountId"] = mFeeCollectorAccountId.toString();
-  json["mAllCollectorsAreExempt"] = (mAllCollectorsAreExempt ? "true" : "false");
+  json["mAllCollectorsAreExempt"] = mAllCollectorsAreExempt;
   json["mNumerator"] = mNumerator;
   json["mDenominator"] = mDenominator;
 

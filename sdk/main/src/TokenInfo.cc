@@ -251,15 +251,15 @@ std::string TokenInfo::toString() const
 
   if (mDefaultFreezeStatus.has_value())
   {
-    json["mDefaultFreezeStatus"] = (mDefaultFreezeStatus.value() ? "true" : "false");
+    json["mDefaultFreezeStatus"] = mDefaultFreezeStatus.value();
   }
 
   if (mDefaultKycStatus.has_value())
   {
-    json["mDefaultKycStatus"] = (mDefaultKycStatus.value() ? "true" : "false");
+    json["mDefaultKycStatus"] = mDefaultKycStatus.value();
   }
 
-  json["mIsDeleted"] = (mIsDeleted ? "true" : "false");
+  json["mIsDeleted"] = mIsDeleted;
   json["mAutoRenewAccountId"] = mAutoRenewAccountId.toString();
   json["mAutoRenewPeriod"] = std::to_string(mAutoRenewPeriod.count());
   json["mExpirationTime"] = internal::TimestampConverter::toString(mExpirationTime);
@@ -284,7 +284,7 @@ std::string TokenInfo::toString() const
 
   if (mPauseStatus.has_value())
   {
-    json["mPauseStatus"] = (mPauseStatus.value() ? "true" : "false");
+    json["mPauseStatus"] = mPauseStatus.value();
   }
 
   json["mLedgerId"] = mLedgerId.toString();

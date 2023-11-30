@@ -63,7 +63,7 @@ std::string CustomFixedFee::toString() const
 {
   nlohmann::json json;
   json["mFeeCollectorAccountId"] = mFeeCollectorAccountId.toString();
-  json["mAllCollectorsAreExempt"] = (mAllCollectorsAreExempt ? "true" : "false");
+  json["mAllCollectorsAreExempt"] = mAllCollectorsAreExempt;
   json["mAmount"] = mAmount;
 
   if (mDenominatingTokenId.has_value())

@@ -146,7 +146,7 @@ std::string AccountInfo::toString() const
   nlohmann::json json;
   json["mAccountId"] = mAccountId.toString();
   json["mContractAccountId"] = mContractAccountId;
-  json["mIsDeleted"] = (mIsDeleted ? "true" : "false");
+  json["mIsDeleted"] = mIsDeleted;
   json["mProxyReceived"] = mProxyReceived.toString();
 
   if (mKey != nullptr)
@@ -155,7 +155,7 @@ std::string AccountInfo::toString() const
   }
 
   json["mBalance"] = mBalance.toString();
-  json["mReceiverSignatureRequired"] = (mReceiverSignatureRequired ? "true" : "false");
+  json["mReceiverSignatureRequired"] = mReceiverSignatureRequired;
   json["mExpirationTime"] = internal::TimestampConverter::toString(mExpirationTime);
   json["mAutoRenewPeriod"] = std::to_string(mAutoRenewPeriod.count());
   json["mMemo"] = mMemo;
