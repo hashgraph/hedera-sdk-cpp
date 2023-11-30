@@ -62,7 +62,7 @@ public:
   /**
    * Construct a NetworkVersionInfo object from a byte array.
    *
-   * @param bytes The byte array from which to construct a TransactionRecord object.
+   * @param bytes The byte array from which to construct a NetworkVersionInfo object.
    * @return The constructed NetworkVersionInfo object.
    */
   [[nodiscard]] static NetworkVersionInfo fromBytes(const std::vector<std::byte>& bytes);
