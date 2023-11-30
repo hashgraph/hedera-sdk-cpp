@@ -50,7 +50,7 @@ public:
    * @param contractId The ID of the contract.
    * @param nonce      The nonce.
    */
-  explicit ContractNonceInfo(ContractId contractId, const int64_t& nonce);
+  ContractNonceInfo(ContractId contractId, int64_t nonce);
 
   /**
    * Compare this ContractNonceInfo to another ContractNonceInfo and determine if they represent the same nonce for a

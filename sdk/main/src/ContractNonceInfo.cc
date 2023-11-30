@@ -25,7 +25,7 @@
 namespace Hedera
 {
 //-----
-ContractNonceInfo::ContractNonceInfo(ContractId contractId, const int64_t& nonce)
+ContractNonceInfo::ContractNonceInfo(ContractId contractId, int64_t nonce)
   : mContractId(std::move(contractId))
   , mNonce(nonce)
 {
@@ -40,7 +40,7 @@ bool ContractNonceInfo::operator==(const ContractNonceInfo& other) const
 //-----
 ContractNonceInfo ContractNonceInfo::fromProtobuf(const proto::ContractNonceInfo& proto)
 {
-  return ContractNonceInfo(ContractId::fromProtobuf(proto.contract_id()), proto.nonce());
+  return { ContractId::fromProtobuf(proto.contract_id()), proto.nonce() };
 }
 
 //-----
@@ -73,7 +73,7 @@ std::string ContractNonceInfo::toString() const
 
   if (mNonce)
   {
-    str = '.' + std::to_string(mNonce);
+    str += '.' + std::to_string(mNonce);
   }
 
   return str;
