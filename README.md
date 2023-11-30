@@ -39,7 +39,7 @@ typically all that is required.
 1. Clone the project
 
 ```sh
-git clone https://github.com/hashgraph/hedera-sdk-cpp.git`
+git clone https://github.com/hashgraph/hedera-sdk-cpp.git
 ```
 
 2. CD to your project directory
