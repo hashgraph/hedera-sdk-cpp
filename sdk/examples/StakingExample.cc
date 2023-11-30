@@ -63,8 +63,8 @@ int main(int argc, char** argv)
   // Query the account info, it should show the staked account ID to be 0.0.3.
   const AccountInfo accountInfo = AccountInfoQuery().setAccountId(newAccountId).execute(client);
   std::cout << "Account ID " << newAccountId.toString() << " is staked to: "
-            << ((accountInfo.mStakingInfo.getStakedAccountId().has_value())
-                  ? accountInfo.mStakingInfo.getStakedAccountId()->toString()
+            << ((accountInfo.mStakingInfo.mStakedAccountId.has_value())
+                  ? accountInfo.mStakingInfo.mStakedAccountId->toString()
                   : "NOT STAKED")
             << std::endl;
 

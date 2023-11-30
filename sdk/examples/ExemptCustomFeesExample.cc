@@ -158,6 +158,7 @@ int main(int argc, char** argv)
                                  .sign(secondAccountPrivateKey)
                                  .execute(client)
                                  .getRecord(client);
+  std::cout << txRecord << std::endl;
   std::cout << gStatusToString.at(txRecord.mReceipt->mStatus) << std::endl;
 
   /**

@@ -27,6 +27,8 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <ostream>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -43,40 +45,55 @@ class AssessedCustomFee
 {
 public:
   /**
-   * Create an AssessedCustomFee object from a AssessedCustomFee protobuf object.
+   * Construct an AssessedCustomFee object from an AssessedCustomFee protobuf object.
    *
-   * @param proto The AssessedCustomFee protobuf object from which to create an AssessedCustomFee object.
+   * @param proto The AssessedCustomFee protobuf object from which to construct an AssessedCustomFee object.
    * @return The constructed AssessedCustomFee object.
    */
   [[nodiscard]] static AssessedCustomFee fromProtobuf(const proto::AssessedCustomFee& proto);
 
   /**
-   * Create an AssessedCustomFee object from an array of bytes.
+   * Construct an AssessedCustomFee object from a byte array.
    *
-   * @param bytes The bytes from which to create an AssessedCustomFee object.
+   * @param bytes The byte array from which to construct an AssessedCustomFee object.
    * @return The constructed AssessedCustomFee object.
    */
   [[nodiscard]] static AssessedCustomFee fromBytes(const std::vector<std::byte>& bytes);
 
   /**
-   * Construct a AssessedCustomFee protobuf object from this AssessedCustomFee object.
+   * Construct an AssessedCustomFee protobuf object from this AssessedCustomFee object.
    *
-   * @return A pointer to the created AssessedCustomFee protobuf object filled with this AssessedCustomFee object's
-   *         data.
+   * @return A pointer to the created AssessedCustomFee protobuf object.
    */
   [[nodiscard]] std::unique_ptr<proto::AssessedCustomFee> toProtobuf() const;
 
   /**
-   * Create a byte array representation of this AssessedCustomFee object.
+   * Construct a representative byte array from this AssessedCustomFee object.
    *
-   * @return A byte array representation of this AssessedCustomFee object.
+   * @return The byte array representing this AssessedCustomFee object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
 
   /**
+   * Construct a string representation of this AssessedCustomFee object.
+   *
+   * @return The string representation of this AssessedCustomFee object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this AssessedCustomFee to an output stream.
+   *
+   * @param os  The output stream.
+   * @param fee The AssessedCustomFee to print.
+   * @return The output stream with this AssessedCustomFee written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const AssessedCustomFee& fee);
+
+  /**
    * The number of units assessed for the fee.
    */
-  int64_t mAmount;
+  int64_t mAmount = 0LL;
 
   /**
    * The denomination of the fee. The denomination is Hbar if left unset.

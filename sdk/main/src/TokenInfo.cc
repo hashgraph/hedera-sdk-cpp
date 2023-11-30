@@ -19,9 +19,11 @@
  */
 #include "TokenInfo.h"
 #include "impl/DurationConverter.h"
+#include "impl/HexConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/basic_types.pb.h>
 #include <proto/token_get_info.pb.h>
 
@@ -209,6 +211,91 @@ std::unique_ptr<proto::TokenInfo> TokenInfo::toProtobuf() const
 std::vector<std::byte> TokenInfo::toBytes() const
 {
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string TokenInfo::toString() const
+{
+  nlohmann::json json;
+  json["mTokenId"] = mTokenId.toString();
+  json["mTokenName"] = mTokenName;
+  json["mTokenSymbol"] = mTokenSymbol;
+  json["mDecimals"] = mDecimals;
+  json["mTotalSupply"] = mTotalSupply;
+  json["mTreasuryAccountId"] = mTreasuryAccountId.toString();
+
+  if (mAdminKey)
+  {
+    json["mAdminKey"] = internal::HexConverter::bytesToHex(mAdminKey->toBytes());
+  }
+
+  if (mKycKey)
+  {
+    json["mKycKey"] = internal::HexConverter::bytesToHex(mKycKey->toBytes());
+  }
+
+  if (mFreezeKey)
+  {
+    json["mFreezeKey"] = internal::HexConverter::bytesToHex(mFreezeKey->toBytes());
+  }
+
+  if (mWipeKey)
+  {
+    json["mWipeKey"] = internal::HexConverter::bytesToHex(mWipeKey->toBytes());
+  }
+
+  if (mSupplyKey)
+  {
+    json["mSupplyKey"] = internal::HexConverter::bytesToHex(mSupplyKey->toBytes());
+  }
+
+  if (mDefaultFreezeStatus.has_value())
+  {
+    json["mDefaultFreezeStatus"] = (mDefaultFreezeStatus.value() ? "true" : "false");
+  }
+
+  if (mDefaultKycStatus.has_value())
+  {
+    json["mDefaultKycStatus"] = (mDefaultKycStatus.value() ? "true" : "false");
+  }
+
+  json["mIsDeleted"] = (mIsDeleted ? "true" : "false");
+  json["mAutoRenewAccountId"] = mAutoRenewAccountId.toString();
+  json["mAutoRenewPeriod"] = std::to_string(mAutoRenewPeriod.count());
+  json["mExpirationTime"] = internal::TimestampConverter::toString(mExpirationTime);
+  json["mTokenMemo"] = mTokenMemo;
+  json["mTokenType"] = gTokenTypeToString.at(mTokenType);
+  json["mSupplyType"] = gTokenSupplyTypeToString.at(mSupplyType);
+  json["mMaxSupply"] = mMaxSupply;
+
+  if (mFeeScheduleKey)
+  {
+    json["mFeeScheduleKey"] = internal::HexConverter::bytesToHex(mFeeScheduleKey->toBytes());
+  }
+
+  std::for_each(mCustomFees.cbegin(),
+                mCustomFees.cend(),
+                [&json](const std::shared_ptr<CustomFee>& fee) { json["mCustomFees"].push_back(fee->toString()); });
+
+  if (mPauseKey)
+  {
+    json["mPauseKey"] = internal::HexConverter::bytesToHex(mPauseKey->toBytes());
+  }
+
+  if (mPauseStatus.has_value())
+  {
+    json["mPauseStatus"] = (mPauseStatus.value() ? "true" : "false");
+  }
+
+  json["mLedgerId"] = mLedgerId.toString();
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const TokenInfo& info)
+{
+  os << info.toString();
+  return os;
 }
 
 } // namespace Hedera

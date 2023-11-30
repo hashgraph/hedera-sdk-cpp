@@ -73,7 +73,7 @@ TEST_F(AccountRecordsQueryIntegrationTests, ExecuteAccountRecordsQuery)
   EXPECT_NO_THROW(accountRecords = AccountRecordsQuery().setAccountId(accountId).execute(getTestClient()));
 
   // Then
-  EXPECT_TRUE(accountRecords.getRecords().empty());
+  EXPECT_TRUE(accountRecords.mRecords.empty());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()

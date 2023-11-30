@@ -22,6 +22,9 @@
 
 #include "ContractId.h"
 
+#include <cstddef>
+#include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -39,29 +42,19 @@ namespace Hedera
 class ContractNonceInfo
 {
 public:
-  /**
-   * Id of the contract
-   */
-  ContractId mContractId;
-
-  /**
-   * The current value of the contract account's nonce property
-   */
-  int64_t mNonce;
-
-  /**
-   * Default construct for empty ContractNonceInfo object.
-   */
   ContractNonceInfo() = default;
 
   /**
-   * Construct with a contract Id and nonce.
+   * Construct with a contract ID and nonce.
+   *
+   * @param contractId The ID of the contract.
+   * @param nonce      The nonce.
    */
-  explicit ContractNonceInfo(const ContractId& contractId, const int64_t& nonce);
+  explicit ContractNonceInfo(ContractId contractId, const int64_t& nonce);
 
   /**
-   * Compare this ContractNonceInfo to another ContractNonceInfo and determine if they represent
-   * the same nonce for a specific ContractId.
+   * Compare this ContractNonceInfo to another ContractNonceInfo and determine if they represent the same nonce for a
+   * specific ContractId.
    *
    * @param other The other ContractNonceInfo with which to compare this ContractNonceInfo.
    * @return \c TRUE if this ContractNonceInfo is the same as the input ContractNonceInfo, otherwise \c FALSE.
@@ -69,17 +62,17 @@ public:
   bool operator==(const ContractNonceInfo& other) const;
 
   /**
-   * Create an ContractNonceInfo object from a protobuf object.
+   * Construct a ContractNonceInfo object from a ContractNonceInfo protobuf object.
    *
-   * @param proto the protobuf object
+   * @param proto The ContractNonceInfo protobuf object from which to construct a ContractNonceInfo object.
    * @return The constructed ContractNonceInfo object.
    */
   [[nodiscard]] static ContractNonceInfo fromProtobuf(const proto::ContractNonceInfo& proto);
 
   /**
-   * Create an ContractNonceInfo object from an array of bytes.
+   * Construct a ContractNonceInfo object from a byte array.
    *
-   * @param bytes The bytes from which to create an ContractNonceInfo object.
+   * @param bytes The byte array from which to construct a TransactionRecord object.
    * @return The constructed ContractNonceInfo object.
    */
   [[nodiscard]] static ContractNonceInfo fromBytes(const std::vector<std::byte>& bytes);
@@ -87,24 +80,42 @@ public:
   /**
    * Construct a ContractNonceInfo protobuf object from this ContractNonceInfo object.
    *
-   * @return A pointer to the created ContractNonceInfo protobuf object filled with this ContractNonceInfo object's
-   *         data.
+   * @return A pointer to the created ContractNonceInfo protobuf object.
    */
   [[nodiscard]] std::unique_ptr<proto::ContractNonceInfo> toProtobuf() const;
 
   /**
-   * Create a byte array representation of this ContractNonceInfo object.
+   * Construct a representative byte array from this ContractNonceInfo object.
    *
-   * @return A byte array representation of this ContractNonceInfo object.
+   * @return The byte array representing this ContractNonceInfo object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
 
   /**
-   * Get a string representation of this ContractNonceInfo object.
+   * Construct a string representation of this ContractNonceInfo object.
    *
-   * @return A string representation of this ContractNonceInfo.
+   * @return The string representation of this ContractNonceInfo object.
    */
   [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this ContractNonceInfo to an output stream.
+   *
+   * @param os        The output stream.
+   * @param nonceInfo The ContractNonceInfo to print.
+   * @return The output stream with this ContractNonceInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const ContractNonceInfo& nonceInfo);
+
+  /**
+   * The ID of the contract.
+   */
+  ContractId mContractId;
+
+  /**
+   * The current value of the contract account's nonce property.
+   */
+  int64_t mNonce = 0LL;
 };
 
 } // namespace Hedera

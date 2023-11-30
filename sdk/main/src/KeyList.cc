@@ -18,9 +18,11 @@
  *
  */
 #include "KeyList.h"
+#include "impl/HexConverter.h"
 
 #include <algorithm>
 #include <cstddef>
+#include <nlohmann/json.hpp>
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
@@ -89,6 +91,30 @@ std::unique_ptr<proto::KeyList> KeyList::toProtobuf() const
   }
 
   return keyList;
+}
+
+//-----
+std::string KeyList::toString() const
+{
+  nlohmann::json json;
+
+  if (mThreshold > 0)
+  {
+    json["mThreshold"] = mThreshold;
+  }
+
+  std::for_each(mKeys.cbegin(),
+                mKeys.cend(),
+                [&json](const std::shared_ptr<Key>& key)
+                { json["mKeys"].push_back(internal::HexConverter::bytesToHex(key->toBytes())); });
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const KeyList& list)
+{
+  os << list.toString();
+  return os;
 }
 
 //-----

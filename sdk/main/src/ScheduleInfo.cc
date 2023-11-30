@@ -18,9 +18,11 @@
  *
  */
 #include "ScheduleInfo.h"
+#include "impl/HexConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/schedule_get_info.pb.h>
 
 namespace Hedera
@@ -137,6 +139,46 @@ std::unique_ptr<proto::ScheduleInfo> ScheduleInfo::toProtobuf() const
 std::vector<std::byte> ScheduleInfo::toBytes() const
 {
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string ScheduleInfo::toString() const
+{
+  nlohmann::json json;
+  json["mScheduleId"] = mScheduleId.toString();
+
+  if (mExecutionTime.has_value())
+  {
+    json["mExecutionTime"] = internal::TimestampConverter::toString(mExecutionTime.value());
+  }
+
+  if (mDeletionTime.has_value())
+  {
+    json["mDeletionTime"] = internal::TimestampConverter::toString(mDeletionTime.value());
+  }
+
+  json["mExpirationTime"] = internal::TimestampConverter::toString(mExpirationTime);
+  json["mMemo"] = mMemo;
+
+  if (mAdminKey)
+  {
+    json["mAdminKey"] = internal::HexConverter::bytesToHex(mAdminKey->toBytes());
+  }
+
+  json["mSignatories"] = mSignatories.toString();
+  json["mCreatorAccountId"] = mCreatorAccountId.toString();
+  json["mPayerAccountId"] = mPayerAccountId.toString();
+  json["mScheduledTransactionId"] = mScheduledTransactionId.toString();
+  json["mLedgerId"] = mLedgerId.toString();
+  json["mWaitForExpiry"] = (mWaitForExpiry ? "true" : "false");
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const ScheduleInfo& info)
+{
+  os << info.toString();
+  return os;
 }
 
 } // namespace Hedera

@@ -215,7 +215,7 @@ public:
       if (validatorFunc(result))
       {
         std::cout << "Step " << step
-                  << " completed and returned a valid result. TransactionId=" << txRecord.mTransactionID->toString()
+                  << " completed and returned a valid result. TransactionId=" << txRecord.mTransactionId->toString()
                   << std::endl;
       }
       else

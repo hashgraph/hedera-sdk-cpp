@@ -25,8 +25,8 @@
 namespace Hedera
 {
 //-----
-ContractNonceInfo::ContractNonceInfo(const ContractId& contractId, const int64_t& nonce)
-  : mContractId(contractId)
+ContractNonceInfo::ContractNonceInfo(ContractId contractId, const int64_t& nonce)
+  : mContractId(std::move(contractId))
   , mNonce(nonce)
 {
 }
@@ -40,9 +40,7 @@ bool ContractNonceInfo::operator==(const ContractNonceInfo& other) const
 //-----
 ContractNonceInfo ContractNonceInfo::fromProtobuf(const proto::ContractNonceInfo& proto)
 {
-  ContractId contractId = ContractId::fromProtobuf(proto.contract_id());
-  ContractNonceInfo contractNonceInfo = ContractNonceInfo(contractId, proto.nonce());
-  return contractNonceInfo;
+  return ContractNonceInfo(ContractId::fromProtobuf(proto.contract_id()), proto.nonce());
 }
 
 //-----
@@ -57,10 +55,8 @@ ContractNonceInfo ContractNonceInfo::fromBytes(const std::vector<std::byte>& byt
 std::unique_ptr<proto::ContractNonceInfo> ContractNonceInfo::toProtobuf() const
 {
   auto protoContractNonceInfo = std::make_unique<proto::ContractNonceInfo>();
-
   protoContractNonceInfo->set_allocated_contract_id(mContractId.toProtobuf().release());
   protoContractNonceInfo->set_nonce(mNonce);
-
   return protoContractNonceInfo;
 }
 
@@ -77,13 +73,17 @@ std::string ContractNonceInfo::toString() const
 
   if (mNonce)
   {
-    return str + '.' + std::to_string(mNonce);
+    str = '.' + std::to_string(mNonce);
   }
-  else
-  {
-    // Uninitialized case
-    return str + '0';
-  }
+
+  return str;
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const ContractNonceInfo& nonceInfo)
+{
+  os << nonceInfo.toString();
+  return os;
 }
 
 } // namespace Hedera

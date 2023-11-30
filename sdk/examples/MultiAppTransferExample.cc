@@ -110,11 +110,9 @@ int main(int argc, char** argv)
 
   // Get the balances.
   std::cout << "Balance of user account: "
-            << AccountBalanceQuery().setAccountId(userAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(userAccountId).execute(client).mBalance.toString() << std::endl;
   std::cout << "Balance of exchange account: "
-            << AccountBalanceQuery().setAccountId(exchangeAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(exchangeAccountId).execute(client).mBalance.toString() << std::endl;
 
   return 0;
 }

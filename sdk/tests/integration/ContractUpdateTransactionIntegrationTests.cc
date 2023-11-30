@@ -96,7 +96,7 @@ TEST_F(ContractUpdateTransactionIntegrationTests, ExecuteContractUpdateTransacti
   EXPECT_EQ(contractInfo.mAdminKey->toBytes(), newAdminKey->getPublicKey()->toBytes());
   EXPECT_EQ(contractInfo.mAutoRenewPeriod, newAutoRenewPeriod);
   EXPECT_EQ(contractInfo.mMemo, newMemo);
-  EXPECT_TRUE(contractInfo.mStakingInfo.getDeclineReward());
+  EXPECT_TRUE(contractInfo.mStakingInfo.mDeclineRewards);
 
   // Clean up
   ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()
