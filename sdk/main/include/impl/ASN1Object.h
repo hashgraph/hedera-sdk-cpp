@@ -44,7 +44,7 @@ constexpr std::byte SEQUENCE = std::byte(0x30);
  */
 class ASN1Object
 {
-private:
+protected:
   /**
    * @brief Get the ASN.1 object's value in bytes.
    *
