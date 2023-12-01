@@ -67,6 +67,13 @@ std::unique_ptr<CustomFee> CustomFee::fromBytes(const std::vector<std::byte>& by
 }
 
 //-----
+std::ostream& operator<<(std::ostream& os, const CustomFee& fee)
+{
+  os << fee.toString();
+  return os;
+}
+
+//-----
 void CustomFee::validateChecksums(const Client& client) const
 {
   mFeeCollectorAccountId.validateChecksum(client);

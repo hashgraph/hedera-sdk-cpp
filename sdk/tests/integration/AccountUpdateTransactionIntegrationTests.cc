@@ -98,9 +98,9 @@ TEST_F(AccountUpdateTransactionIntegrationTests, ExecuteAccountUpdateTransaction
   EXPECT_EQ(accountInfo.mAutoRenewPeriod, newAutoRenewPeriod);
   EXPECT_EQ(accountInfo.mMemo, newAccountMemo);
   EXPECT_EQ(accountInfo.mMaxAutomaticTokenAssociations, newMaxAutomaticTokenAssociations);
-  ASSERT_TRUE(accountInfo.mStakingInfo.getStakedNodeId().has_value());
-  EXPECT_EQ(accountInfo.mStakingInfo.getStakedNodeId(), newStakedNodeId);
-  EXPECT_EQ(accountInfo.mStakingInfo.getDeclineReward(), newDeclineStakingRewards);
+  ASSERT_TRUE(accountInfo.mStakingInfo.mStakedNodeId.has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.mStakedNodeId, newStakedNodeId);
+  EXPECT_EQ(accountInfo.mStakingInfo.mDeclineRewards, newDeclineStakingRewards);
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()

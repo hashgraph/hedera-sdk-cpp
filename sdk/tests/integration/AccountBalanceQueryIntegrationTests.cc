@@ -48,7 +48,7 @@ TEST_F(AccountBalanceQueryIntegrationTests, AccountId)
   EXPECT_NO_THROW(accountBalance = AccountBalanceQuery().setAccountId(AccountId(1023ULL)).execute(getTestClient()));
 
   // Then
-  EXPECT_EQ(accountBalance.getBalance(), Hbar(10000LL));
+  EXPECT_EQ(accountBalance.mBalance, Hbar(10000LL));
 }
 
 //-----
@@ -98,7 +98,7 @@ TEST_F(AccountBalanceQueryIntegrationTests, ContractId)
   EXPECT_NO_THROW(accountBalance = AccountBalanceQuery().setContractId(contractId).execute(getTestClient()));
 
   // Then
-  EXPECT_EQ(accountBalance.getBalance(), Hbar(0LL));
+  EXPECT_EQ(accountBalance.mBalance, Hbar(0LL));
 
   // Clean up
   ASSERT_NO_THROW(ContractDeleteTransaction()

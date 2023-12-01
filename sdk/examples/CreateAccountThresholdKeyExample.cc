@@ -77,8 +77,7 @@ int main(int argc, char** argv)
 
   // Get the account balance.
   std::cout << "New account balance: "
-            << AccountBalanceQuery().setAccountId(newAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(newAccountId).execute(client).mBalance.toString() << std::endl;
 
   return 0;
 }

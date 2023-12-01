@@ -127,11 +127,11 @@ TEST_F(ContractInfoUnitTests, FromProtobuf)
   EXPECT_EQ(contractInfo.mAutoRenewAccountId, getTestAutoRenewAccountId());
   EXPECT_EQ(contractInfo.mMaxAutomaticTokenAssociations, getTestMaxAutomaticTokenAssociations());
 
-  EXPECT_EQ(contractInfo.mStakingInfo.getDeclineReward(), getTestDeclineReward());
-  EXPECT_EQ(contractInfo.mStakingInfo.getStakePeriodStart(), getTestStakePeriodStart());
-  EXPECT_EQ(contractInfo.mStakingInfo.getPendingReward(), getTestPendingReward());
-  EXPECT_EQ(contractInfo.mStakingInfo.getStakedToMe(), getTestStakedToMe());
-  ASSERT_TRUE(contractInfo.mStakingInfo.getStakedAccountId().has_value());
-  EXPECT_EQ(contractInfo.mStakingInfo.getStakedAccountId(), getTestStakedAccountId());
-  EXPECT_FALSE(contractInfo.mStakingInfo.getStakedNodeId().has_value());
+  EXPECT_EQ(contractInfo.mStakingInfo.mDeclineRewards, getTestDeclineReward());
+  EXPECT_EQ(contractInfo.mStakingInfo.mStakePeriodStart, getTestStakePeriodStart());
+  EXPECT_EQ(contractInfo.mStakingInfo.mPendingReward, getTestPendingReward());
+  EXPECT_EQ(contractInfo.mStakingInfo.mStakedToMe, getTestStakedToMe());
+  ASSERT_TRUE(contractInfo.mStakingInfo.mStakedAccountId.has_value());
+  EXPECT_EQ(contractInfo.mStakingInfo.mStakedAccountId, getTestStakedAccountId());
+  EXPECT_FALSE(contractInfo.mStakingInfo.mStakedNodeId.has_value());
 }

@@ -23,6 +23,7 @@
 #include "Key.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -93,6 +94,22 @@ public:
    * @throws OpenSSLException If OpenSSL is unable to serialize any key in this KeyList.
    */
   [[nodiscard]] std::unique_ptr<proto::KeyList> toProtobuf() const;
+
+  /**
+   * Construct a string representation of this KeyList object.
+   *
+   * @return The string representation of this KeyList object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this KeyList to an output stream.
+   *
+   * @param os   The output stream.
+   * @param list The KeyList to print.
+   * @return The output stream with this KeyList written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const KeyList& list);
 
   /**
    * Set the threshold for this KeyList.

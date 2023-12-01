@@ -28,6 +28,7 @@
 #include <cstdint>
 #include <functional>
 #include <future>
+#include <string>
 #include <vector>
 
 namespace Hedera
@@ -342,6 +343,22 @@ public:
                       const std::chrono::system_clock::duration& timeout,
                       const std::function<void(const TransactionRecord&)>& responseCallback,
                       const std::function<void(const std::exception&)>& exceptionCallback) const;
+
+  /**
+   * Construct a string representation of this TransactionResponse object.
+   *
+   * @return The string representation of this TransactionResponse object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TransactionResponse to an output stream.
+   *
+   * @param os       The output stream.
+   * @param response The TransactionResponse to print.
+   * @return The output stream with this TransactionResponse written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TransactionResponse& response);
 
   /**
    * Set this TransactionResponse's TransactionReceipt validation policy.

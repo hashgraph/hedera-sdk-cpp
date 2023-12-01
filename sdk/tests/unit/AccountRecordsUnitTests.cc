@@ -46,7 +46,7 @@ TEST_F(AccountRecordsUnitTests, DeserializeAccountRecordsFromProtobuf)
   const AccountRecords accountRecords = AccountRecords::fromProtobuf(accountRecordsResponse);
 
   // Then
-  EXPECT_EQ(accountRecords.getAccountId(), getTestAccountId());
+  EXPECT_EQ(accountRecords.mAccountId, getTestAccountId());
   // Don't bother testing records data as that's already tested in TransactionRecordTest
-  EXPECT_EQ(accountRecords.getRecords().size(), 2);
+  EXPECT_EQ(accountRecords.mRecords.size(), 2);
 }

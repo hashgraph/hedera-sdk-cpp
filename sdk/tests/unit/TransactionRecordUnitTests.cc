@@ -41,7 +41,7 @@ TEST_F(TransactionRecordUnitTests, FromProtobuf)
   const auto accountIdTo = AccountId(3ULL);
   const auto accountIdFrom = AccountId(4ULL);
   const int64_t amount = 10LL;
-  const std::string txHash = "txHash";
+  const std::vector<std::byte> txHash = { std::byte(0x01), std::byte(0x02), std::byte(0x03) };
   const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
   const std::string txMemo = "txMemo";
   const uint64_t txFee = 10ULL;
@@ -61,7 +61,7 @@ TEST_F(TransactionRecordUnitTests, FromProtobuf)
 
   proto::TransactionRecord protoTransactionRecord;
   protoTransactionRecord.mutable_receipt()->set_allocated_accountid(accountIdFrom.toProtobuf().release());
-  protoTransactionRecord.set_transactionhash(txHash);
+  protoTransactionRecord.set_transactionhash(internal::Utilities::byteVectorToString(txHash));
   protoTransactionRecord.set_allocated_consensustimestamp(internal::TimestampConverter::toProtobuf(now));
   protoTransactionRecord.set_allocated_transactionid(TransactionId::generate(accountIdFrom).toProtobuf().release());
   protoTransactionRecord.set_memo(txMemo);
@@ -133,9 +133,9 @@ TEST_F(TransactionRecordUnitTests, FromProtobuf)
   ASSERT_TRUE(txRecord.mConsensusTimestamp.has_value());
   EXPECT_EQ(txRecord.mConsensusTimestamp->time_since_epoch().count(), now.time_since_epoch().count());
 
-  ASSERT_TRUE(txRecord.mTransactionID.has_value());
-  EXPECT_EQ(txRecord.mTransactionID->mAccountId, accountIdFrom);
-  EXPECT_GE(txRecord.mTransactionID->mValidTransactionTime, now);
+  ASSERT_TRUE(txRecord.mTransactionId.has_value());
+  EXPECT_EQ(txRecord.mTransactionId->mAccountId, accountIdFrom);
+  EXPECT_GE(txRecord.mTransactionId->mValidTransactionTime, now);
 
   EXPECT_EQ(txRecord.mMemo, txMemo);
 
