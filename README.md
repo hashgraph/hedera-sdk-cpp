@@ -24,6 +24,8 @@ For MacOS and Linux users:
 - cmake
     - MacOS: `brew install cmake`
     - Linux: `apt-get install cmake`
+ 
+📣 **Note**: Ensure you install all three `ninja`, `pkg-config`, and `cmake` to avoid errors in subsequent steps. The installations might take a few minutes.
 
 For Windows users:
 
@@ -39,7 +41,7 @@ typically all that is required.
 1. Clone the project
 
 ```sh
-git clone https://github.com/hashgraph/hedera-sdk-cpp.git`
+git clone https://github.com/hashgraph/hedera-sdk-cpp.git
 ```
 
 2. CD to your project directory
