@@ -19,6 +19,7 @@
  */
 #include "CustomRoyaltyFee.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/custom_fees.pb.h>
 
 namespace Hedera
@@ -61,6 +62,23 @@ std::unique_ptr<proto::CustomFee> CustomRoyaltyFee::toProtobuf() const
   }
 
   return fee;
+}
+
+//-----
+std::string CustomRoyaltyFee::toString() const
+{
+  nlohmann::json json;
+  json["mFeeCollectorAccountId"] = mFeeCollectorAccountId.toString();
+  json["mAllCollectorsAreExempt"] = mAllCollectorsAreExempt;
+  json["mNumerator"] = mNumerator;
+  json["mDenominator"] = mDenominator;
+
+  if (mFallbackFee.has_value())
+  {
+    json["mFallbackFee"] = mFallbackFee->toString();
+  }
+
+  return json.dump();
 }
 
 //-----

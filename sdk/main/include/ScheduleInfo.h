@@ -32,6 +32,8 @@
 #include <cstddef>
 #include <memory>
 #include <optional>
+#include <ostream>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -58,7 +60,7 @@ public:
   /**
    * Construct a ScheduleInfo object from a byte array.
    *
-   * @param bytes The byte array representing a ScheduleInfo object.
+   * @param bytes The byte array from which to construct a ScheduleInfo object.
    * @return The constructed ScheduleInfo object.
    */
   [[nodiscard]] static ScheduleInfo fromBytes(const std::vector<std::byte>& bytes);
@@ -76,6 +78,22 @@ public:
    * @return The byte array representing this ScheduleInfo object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this ScheduleInfo object.
+   *
+   * @return The string representation of this ScheduleInfo object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this ScheduleInfo to an output stream.
+   *
+   * @param os   The output stream.
+   * @param info The ScheduleInfo to print.
+   * @return The output stream with this ScheduleInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const ScheduleInfo& info);
 
   /**
    * The ID of the schedule.

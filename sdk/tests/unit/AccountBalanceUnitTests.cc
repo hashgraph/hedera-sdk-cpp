@@ -44,5 +44,5 @@ TEST_F(AccountBalanceUnitTests, DeserializeAccountBalanceFromProtobuf)
   const AccountBalance accountBalance = AccountBalance::fromProtobuf(testProtoAccountBalance);
 
   // Then
-  EXPECT_EQ(accountBalance.getBalance().toTinybars(), getTestBalance().toTinybars());
+  EXPECT_EQ(accountBalance.mBalance, getTestBalance());
 }

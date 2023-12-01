@@ -64,6 +64,13 @@ public:
   [[nodiscard]] std::unique_ptr<proto::CustomFee> toProtobuf() const override;
 
   /**
+   * Derived from CustomFee. Construct a string representation of this CustomRoyaltyFee object.
+   *
+   * @return The string representation of this CustomRoyaltyFee object.
+   */
+  [[nodiscard]] std::string toString() const override;
+
+  /**
    * Set the desired numerator of the fractional amount of the transferred units to assess as a part of this
    * CustomRoyaltyFee.
    *

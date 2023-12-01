@@ -64,6 +64,13 @@ public:
   [[nodiscard]] std::unique_ptr<proto::CustomFee> toProtobuf() const override;
 
   /**
+   * Derived from CustomFee. Construct a string representation of this CustomFee object.
+   *
+   * @return The string representation of this CustomFee object.
+   */
+  [[nodiscard]] std::string toString() const override;
+
+  /**
    * Derived from CustomFee. Verify the checksums of all the entities involved in this CustomFixedFee.
    *
    * @param client The Client that should be used to validate the checksums.

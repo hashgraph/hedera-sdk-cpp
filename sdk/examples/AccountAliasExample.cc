@@ -101,8 +101,7 @@ int main(int argc, char** argv)
             << std::endl;
 
   std::cout << "Balance of the created account: "
-            << AccountBalanceQuery().setAccountId(aliasAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(aliasAccountId).execute(client).mBalance.toString() << std::endl;
 
   /*
    * Note that once an account exists in the ledger, it is assigned a normal AccountId, which can be retrieved via an

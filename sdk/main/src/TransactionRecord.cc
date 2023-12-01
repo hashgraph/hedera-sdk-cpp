@@ -18,9 +18,11 @@
  *
  */
 #include "TransactionRecord.h"
+#include "impl/HexConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/transaction_get_record.pb.h>
 #include <proto/transaction_record.pb.h>
 
@@ -51,12 +53,12 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
 
   if (proto.has_transactionid())
   {
-    transactionRecord.mTransactionID = TransactionId::fromProtobuf(proto.transactionid());
+    transactionRecord.mTransactionId = TransactionId::fromProtobuf(proto.transactionid());
 
     if (proto.has_receipt())
     {
       transactionRecord.mReceipt =
-        TransactionReceipt::fromProtobuf(proto.receipt(), transactionRecord.mTransactionID.value());
+        TransactionReceipt::fromProtobuf(proto.receipt(), transactionRecord.mTransactionId.value());
     }
   }
   else
@@ -64,7 +66,7 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
     transactionRecord.mReceipt = TransactionReceipt::fromProtobuf(proto.receipt());
   }
 
-  transactionRecord.mTransactionHash = proto.transactionhash();
+  transactionRecord.mTransactionHash = internal::Utilities::stringToByteVector(proto.transactionhash());
 
   if (proto.has_consensustimestamp())
   {
@@ -162,6 +164,257 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
   }
 
   return transactionRecord;
+}
+
+//-----
+TransactionRecord TransactionRecord::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::TransactionRecord proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
+std::unique_ptr<proto::TransactionRecord> TransactionRecord::toProtobuf() const
+{
+  auto proto = std::make_unique<proto::TransactionRecord>();
+
+  if (mReceipt.has_value())
+  {
+    proto->set_allocated_receipt(mReceipt->toProtobuf().release());
+  }
+
+  proto->set_transactionhash(internal::Utilities::byteVectorToString(mTransactionHash));
+
+  if (mConsensusTimestamp.has_value())
+  {
+    proto->set_allocated_consensustimestamp(internal::TimestampConverter::toProtobuf(mConsensusTimestamp.value()));
+  }
+
+  if (mTransactionId.has_value())
+  {
+    proto->set_allocated_transactionid(mTransactionId->toProtobuf().release());
+  }
+
+  proto->set_memo(mMemo);
+  proto->set_transactionfee(mTransactionFee);
+
+  if (mContractFunctionResult.has_value())
+  {
+    proto->set_allocated_contractcallresult(mContractFunctionResult->toProtobuf().release());
+  }
+
+  std::for_each(mHbarTransferList.cbegin(),
+                mHbarTransferList.cend(),
+                [&proto](const HbarTransfer& transfer)
+                { *proto->mutable_transferlist()->add_accountamounts() = *transfer.toProtobuf(); });
+  std::for_each(mTokenTransferList.cbegin(),
+                mTokenTransferList.cend(),
+                [&proto](const TokenTransfer& transfer)
+                {
+                  // Check if this token ID already has an entry.
+                  bool found = false;
+                  for (int i = 0; i < proto->tokentransferlists_size(); ++i)
+                  {
+                    if (transfer.mTokenId == TokenId::fromProtobuf(proto->tokentransferlists(i).token()))
+                    {
+                      // Add the transfer to this transfer.
+                      *proto->mutable_tokentransferlists(i)->add_transfers() = *transfer.toProtobuf();
+                      found = true;
+                      break;
+                    }
+                  }
+
+                  if (!found)
+                  {
+                    proto::TokenTransferList* protoTokenTransferList = proto->add_tokentransferlists();
+                    protoTokenTransferList->set_allocated_token(transfer.mTokenId.toProtobuf().release());
+                    protoTokenTransferList->mutable_expected_decimals()->set_value(transfer.mExpectedDecimals);
+                    *protoTokenTransferList->add_transfers() = *transfer.toProtobuf();
+                  }
+                });
+  std::for_each(mNftTransferList.cbegin(),
+                mNftTransferList.cend(),
+                [&proto](const TokenNftTransfer& transfer)
+                {
+                  // Check if this token ID already has an entry.
+                  bool found = false;
+                  for (int i = 0; i < proto->tokentransferlists_size(); ++i)
+                  {
+                    if (transfer.mNftId.mTokenId == TokenId::fromProtobuf(proto->tokentransferlists(i).token()))
+                    {
+                      // Add the transfer to this transfer.
+                      *proto->mutable_tokentransferlists(i)->add_nfttransfers() = *transfer.toProtobuf();
+                      found = true;
+                      break;
+                    }
+                  }
+
+                  if (!found)
+                  {
+                    proto::TokenTransferList* protoTokenTransferList = proto->add_tokentransferlists();
+                    protoTokenTransferList->set_allocated_token(transfer.mNftId.mTokenId.toProtobuf().release());
+                    *protoTokenTransferList->add_nfttransfers() = *transfer.toProtobuf();
+                  }
+                });
+
+  if (mScheduleRef.has_value())
+  {
+    proto->set_allocated_scheduleref(mScheduleRef->toProtobuf().release());
+  }
+
+  std::for_each(mAssessedCustomFees.cbegin(),
+                mAssessedCustomFees.cend(),
+                [&proto](const AssessedCustomFee& fee) { *proto->add_assessed_custom_fees() = *fee.toProtobuf(); });
+  std::for_each(mAutomaticTokenAssociations.cbegin(),
+                mAutomaticTokenAssociations.cend(),
+                [&proto](const TokenAssociation& association)
+                { *proto->add_automatic_token_associations() = *association.toProtobuf(); });
+
+  if (mParentConsensusTimestamp.has_value())
+  {
+    proto->set_allocated_parent_consensus_timestamp(
+      internal::TimestampConverter::toProtobuf(mParentConsensusTimestamp.value()));
+  }
+
+  if (mAlias)
+  {
+    proto->set_alias(mAlias->toProtobufKey()->SerializeAsString());
+  }
+
+  if (mEthereumHash.has_value())
+  {
+    proto->set_ethereum_hash(internal::Utilities::byteVectorToString(mEthereumHash.value()));
+  }
+
+  std::for_each(mPaidStakingRewards.cbegin(),
+                mPaidStakingRewards.cend(),
+                [&proto](const HbarTransfer& reward) { *proto->add_paid_staking_rewards() = *reward.toProtobuf(); });
+
+  if (mPrngNumber.has_value())
+  {
+    proto->set_prng_number(mPrngNumber.value());
+  }
+  else
+  {
+    proto->set_prng_bytes(internal::Utilities::byteVectorToString(mPrngBytes));
+  }
+
+  if (mEvmAddress.has_value())
+  {
+    proto->set_evm_address(internal::Utilities::byteVectorToString(mEvmAddress->toBytes()));
+  }
+
+  return proto;
+}
+
+//-----
+std::vector<std::byte> TransactionRecord::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string TransactionRecord::toString() const
+{
+  nlohmann::json json;
+
+  if (mReceipt.has_value())
+  {
+    json["mReceipt"] = mReceipt->toString();
+  }
+
+  json["mTransactionHash"] = internal::HexConverter::bytesToHex(mTransactionHash);
+
+  if (mConsensusTimestamp.has_value())
+  {
+    json["mConsensusTimestamp"] = internal::TimestampConverter::toString(mConsensusTimestamp.value());
+  }
+
+  if (mTransactionId.has_value())
+  {
+    json["mTransactionId"] = mTransactionId->toString();
+  }
+
+  json["mMemo"] = mMemo;
+  json["mTransactionFee"] = mTransactionFee;
+
+  if (mContractFunctionResult.has_value())
+  {
+    json["mContractFunctionResult"] = mContractFunctionResult->toString();
+  }
+
+  std::for_each(mHbarTransferList.cbegin(),
+                mHbarTransferList.cend(),
+                [&json](const HbarTransfer& transfer) { json["mHbarTransferList"].push_back(transfer.toString()); });
+  std::for_each(mTokenTransferList.cbegin(),
+                mTokenTransferList.cend(),
+                [&json](const TokenTransfer& transfer) { json["mTokenTransferList"].push_back(transfer.toString()); });
+  std::for_each(mNftTransferList.cbegin(),
+                mNftTransferList.cend(),
+                [&json](const TokenNftTransfer& transfer) { json["mNftTransferList"].push_back(transfer.toString()); });
+
+  if (mScheduleRef.has_value())
+  {
+    json["mScheduleRef"] = mScheduleRef->toString();
+  }
+
+  std::for_each(mAssessedCustomFees.cbegin(),
+                mAssessedCustomFees.cend(),
+                [&json](const AssessedCustomFee& fee) { json["mAssessedCustomFees"].push_back(fee.toString()); });
+  std::for_each(mAutomaticTokenAssociations.cbegin(),
+                mAutomaticTokenAssociations.cend(),
+                [&json](const TokenAssociation& association)
+                { json["mAutomaticTokenAssociations"].push_back(association.toString()); });
+
+  if (mParentConsensusTimestamp.has_value())
+  {
+    json["mParentConsensusTimestamp"] = internal::TimestampConverter::toString(mParentConsensusTimestamp.value());
+  }
+
+  if (mAlias)
+  {
+    json["mAlias"] = mAlias->toStringDer();
+  }
+
+  if (mEthereumHash.has_value())
+  {
+    json["mEthereumHash"] = mEthereumHash.value();
+  }
+
+  std::for_each(mPaidStakingRewards.cbegin(),
+                mPaidStakingRewards.cend(),
+                [&json](const HbarTransfer& reward) { json["mPaidStakingRewards"].push_back(reward.toString()); });
+
+  if (mPrngNumber.has_value())
+  {
+    json["mPrngNumber"] = mPrngNumber.value();
+  }
+  else
+  {
+    json["mPrngBytes"] = internal::HexConverter::bytesToHex(mPrngBytes);
+  }
+
+  if (mEvmAddress.has_value())
+  {
+    json["mEvmAddress"] = mEvmAddress->toString();
+  }
+
+  std::for_each(mChildren.cbegin(),
+                mChildren.cend(),
+                [&json](const TransactionRecord& record) { json["mChildren"].push_back(record.toString()); });
+  std::for_each(mDuplicates.cbegin(),
+                mDuplicates.cend(),
+                [&json](const TransactionRecord& record) { json["mDuplicates"].push_back(record.toString()); });
+
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const TransactionRecord& record)
+{
+  os << record.toString();
+  return os;
 }
 
 } // namespace Hedera

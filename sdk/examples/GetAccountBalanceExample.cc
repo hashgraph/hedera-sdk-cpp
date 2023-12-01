@@ -41,10 +41,9 @@ int main(int argc, char** argv)
   Client client = Client::forTestnet();
 
   // Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.
-  Hbar balance = AccountBalanceQuery().setAccountId(accountId).execute(client).getBalance();
+  Hbar balance = AccountBalanceQuery().setAccountId(accountId).execute(client).mBalance;
 
-  std::cout << "Balance of account " << accountId.toString() << " is " << balance.toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+  std::cout << "Balance of account " << accountId.toString() << " is " << balance.toString() << std::endl;
 
   return 0;
 }

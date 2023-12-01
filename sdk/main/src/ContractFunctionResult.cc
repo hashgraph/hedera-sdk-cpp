@@ -21,6 +21,7 @@
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/contract_call_local.pb.h>
 
 namespace Hedera
@@ -75,6 +76,86 @@ ContractFunctionResult ContractFunctionResult::fromProtobuf(const proto::Contrac
   }
 
   return contractFunctionResult;
+}
+
+//-----
+ContractFunctionResult ContractFunctionResult::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::ContractFunctionResult proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
+std::unique_ptr<proto::ContractFunctionResult> ContractFunctionResult::toProtobuf() const
+{
+  auto proto = std::make_unique<proto::ContractFunctionResult>();
+  proto->set_allocated_contractid(mContractId.toProtobuf().release());
+  proto->set_contractcallresult(internal::Utilities::byteVectorToString(mContractCallResult));
+  proto->set_errormessage(mErrorMessage);
+  proto->set_bloom(internal::Utilities::byteVectorToString(mBloom));
+  proto->set_gasused(mGasUsed);
+  std::for_each(
+    mLogs.cbegin(), mLogs.cend(), [&proto](const ContractLogInfo& log) { *proto->add_loginfo() = *log.toProtobuf(); });
+
+  if (mEvmAddress.has_value())
+  {
+    proto->mutable_evm_address()->set_value(internal::Utilities::byteVectorToString(mEvmAddress->toBytes()));
+  }
+
+  proto->set_gas(static_cast<int64_t>(mGas));
+  proto->set_amount(mHbarAmount.toTinybars());
+  proto->set_functionparameters(internal::Utilities::byteVectorToString(mFunctionParameters));
+  proto->set_allocated_sender_id(mSenderAccountId.toProtobuf().release());
+  std::for_each(mContractNonces.cbegin(),
+                mContractNonces.cend(),
+                [&proto](const ContractNonceInfo& nonceInfo)
+                { *proto->add_contract_nonces() = *nonceInfo.toProtobuf(); });
+
+  return proto;
+}
+
+//-----
+std::vector<std::byte> ContractFunctionResult::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string ContractFunctionResult::toString() const
+{
+  nlohmann::json json;
+  json["mContractId"] = mContractId.toString();
+  json["mContractCallResult"] = internal::HexConverter::bytesToHex(mContractCallResult);
+  json["mErrorMessage"] = mErrorMessage;
+  json["mBloom"] = internal::HexConverter::bytesToHex(mBloom);
+  json["mGasUsed"] = mGasUsed;
+  std::for_each(mLogs.cbegin(),
+                mLogs.cend(),
+                [&json](const ContractLogInfo& logInfo) { json["mLogs"].push_back(logInfo.toString()); });
+
+  if (mEvmAddress.has_value())
+  {
+    json["mEvmAddress"] = mEvmAddress->toString();
+  }
+
+  json["mGas"] = mGas;
+  json["mHbarAmount"] = mHbarAmount.toString();
+  json["mFunctionParameters"] = internal::HexConverter::bytesToHex(mFunctionParameters);
+  json["mSenderAccountId"] = mSenderAccountId.toString();
+  std::for_each(mContractNonces.cbegin(),
+                mContractNonces.cend(),
+                [&json](const ContractNonceInfo& nonceInfo)
+                { json["mContractNonces"].push_back(nonceInfo.toString()); });
+
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const ContractFunctionResult& result)
+{
+  os << result.toString();
+  return os;
 }
 
 //-----

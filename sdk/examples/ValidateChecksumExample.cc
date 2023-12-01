@@ -162,7 +162,7 @@ int main(int argc, char** argv)
 
       // Get the account's balance.
       std::cout << "Balance of account: "
-                << AccountBalanceQuery().setAccountId(accountId).execute(client).getBalance().toTinybars() << std::endl;
+                << AccountBalanceQuery().setAccountId(accountId).execute(client).mBalance.toString() << std::endl;
 
       break;
     }

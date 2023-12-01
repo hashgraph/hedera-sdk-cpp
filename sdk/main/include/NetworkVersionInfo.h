@@ -24,6 +24,8 @@
 
 #include <cstddef>
 #include <memory>
+#include <ostream>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -68,7 +70,7 @@ public:
   /**
    * Construct a NetworkGetVersionInfoResponse protobuf object from this NetworkVersionInfo object.
    *
-   * @return A pointer to the created NetworkVersionInfo protobuf object.
+   * @return A pointer to the created NetworkGetVersionInfoResponse protobuf object.
    */
   [[nodiscard]] std::unique_ptr<proto::NetworkGetVersionInfoResponse> toProtobuf() const;
 
@@ -78,6 +80,22 @@ public:
    * @return The byte array representing this NetworkVersionInfo object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this NetworkVersionInfo object.
+   *
+   * @return The string representation of this NetworkVersionInfo object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this NetworkVersionInfo to an output stream.
+   *
+   * @param os   The output stream.
+   * @param info The NetworkVersionInfo to print.
+   * @return The output stream with this NetworkVersionInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const NetworkVersionInfo& info);
 
   /**
    * The version of the protobuf schema in use by the network.
