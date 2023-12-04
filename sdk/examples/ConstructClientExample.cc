@@ -87,7 +87,7 @@ int main(int argc, char** argv)
   // Let's generate a client from a config.json file. A config file may specify a network by name, or it may provide a
   // custom network in the form of a list of nodes. The config file should specify the operator, so you can use a client
   // constructed using fromConfigFile() immediately.
-  Client configClient = Client::fromConfigFile(configFile);
+  Client configClient = Client::fromConfigFile("config/local_node.json");
   configClient.close();
 
   // Always close a Client when you're done with it.
