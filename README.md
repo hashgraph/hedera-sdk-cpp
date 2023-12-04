@@ -135,8 +135,7 @@ located in the `addressbook/` and `config/` directories. Make sure your `.env` f
 - `OPERATOR_KEY`: The DER-encoded hex private key of the operator account.
 - `HEDERA_NETWORK`: The Hedera network name. Must be one of `mainnet`, `testnet`, or `previewnet`.
 - `PASSPHRASE`: Optional variable used by `hedera-sdk-cpp-generate-private-key-from-mnemonic-example` to generate a
-  private key from a
-  mnemonic with a passphrase.
+  private key from a mnemonic with a passphrase.
 
 The command to run an example looks like:
 
