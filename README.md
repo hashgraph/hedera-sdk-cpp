@@ -144,7 +144,7 @@ build/<PRESET>/sdk/examples/[Release|Debug]/<EXAMPLE_NAME>
 ```
 
 - `<PRESET>`: the preset that was used to build in Step 3 under [Build](#build).
-- `[Release|Debug]`: `Release` is you built in `Release` mode, otherwise `Debug`.
+- `[Release|Debug]`: `Release` if you built in `Release` mode, otherwise `Debug`.
 - `<EXAMPLE_NAME>`: The name of the example you are trying to run.
 
 If you're trying to run an example from the release artifacts, you must first `cd` into the architecture folder of the
