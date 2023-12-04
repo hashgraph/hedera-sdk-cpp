@@ -24,8 +24,9 @@ For MacOS and Linux users:
 - cmake
     - MacOS: `brew install cmake`
     - Linux: `apt-get install cmake`
- 
-📣 **Note**: Ensure you install all three `ninja`, `pkg-config`, and `cmake` to avoid errors in subsequent steps. The installations might take a few minutes.
+
+📣 **Note**: Ensure you install all three `ninja`, `pkg-config`, and `cmake` to avoid errors in subsequent steps. The
+installations might take a few minutes.
 
 For Windows users:
 
@@ -44,13 +45,13 @@ typically all that is required.
 git clone https://github.com/hashgraph/hedera-sdk-cpp.git
 ```
 
-2. CD to your project directory
+2. CD to the project directory
 
 ```sh
 cd hedera-sdk-cpp
 ```
 
-3. Complete the following tasks within your project directory
+3. Complete the following tasks within your project directory for the build you want
 
 ```sh
 # Ensure the VCPkg Submodule is initialized
@@ -123,16 +124,43 @@ Example config file:
 }
 ```
 
-(Source: [/config/local_node.json](https://github.com/hashgraph/hedera-sdk-cpp/blob/main/config/local_node.json))
+(Source: [config/local_node.json](https://github.com/hashgraph/hedera-sdk-cpp/blob/main/config/local_node.json))
 
 ## Examples
 
-Most examples require `OPERATOR_ID` and `OPERATOR_KEY` to be in a .env file in the directory from which the examples are
-being run. If running from the root directory:
+Examples must be run from the root directory in order to correctly access the address book and configuration files
+located in the `addressbook/` and `config/` directories. Make sure your `.env` file is populated with:
+
+- `OPERATOR_ID`: The ID of the operator account.
+- `OPERATOR_KEY`: The DER-encoded hex private key of the operator account.
+- `HEDERA_NETWORK`: The Hedera network name. Must be one of `mainnet`, `testnet`, or `previewnet`.
+- `PASSPHRASE`: Optional variable used by `hedera-sdk-cpp-generate-private-key-from-mnemonic-example` to generate a
+  private key from a mnemonic with a passphrase.
+
+The command to run an example looks like:
 
 ```shell
-build/<PRESET>/sdk/examples/[Release|Debug]/<EXAMPLE-NAME>
+build/<PRESET>/sdk/examples/[Release|Debug]/<EXAMPLE_NAME>
 ```
+
+- `<PRESET>`: the preset that was used to build in Step 3 under [Build](#build).
+- `[Release|Debug]`: `Release` if you built in `Release` mode, otherwise `Debug`.
+- `<EXAMPLE_NAME>`: The name of the example you are trying to run.
+
+If you're trying to run an example from the release artifacts, you must first `cd` into the architecture folder of the
+OS on which you are trying to run the example. For example, if you are running an `x86_64` architecture on `Linux`:
+
+```shell
+cd [Release|Debug]/Linux/x86_64
+```
+
+From there, you can run:
+
+```shell
+examples/<EXAMPLE_NAME>
+```
+
+__NOTE:__ Make sure you copy your `.env` file with your environment variables into this folder as well.
 
 ## Contributing to this Project
 
