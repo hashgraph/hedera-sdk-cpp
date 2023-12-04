@@ -1,7 +1,8 @@
 #!/bin/bash
 
+# Script should be executed from project root
 # Directory containing executable files
-EXECUTABLES_DIRECTORY="../../../build/macos-arm64-debug/sdk/examples/Debug"
+EXECUTABLES_DIRECTORY="build_folder_with_exec_binaries"
 
 if [ -d "$EXECUTABLES_DIRECTORY" ]; then
   echo "$EXECUTABLES_DIRECTORY does exist."
