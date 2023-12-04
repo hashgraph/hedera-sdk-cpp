@@ -21,29 +21,24 @@
 #include "AccountBalanceQuery.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
-#include "PublicKey.h"
 
+#include <dotenv.h>
 #include <iostream>
 
 using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  if (argc < 2)
-  {
-    std::cout << "Please input client account ID" << std::endl;
-    return 1;
-  }
-
-  const AccountId accountId = AccountId::fromString(argv[1]);
+  dotenv::init();
+  const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
 
   // Get a client for the Hedera testnet
   Client client = Client::forTestnet();
 
   // Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.
-  Hbar balance = AccountBalanceQuery().setAccountId(accountId).execute(client).mBalance;
+  Hbar balance = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).mBalance;
 
-  std::cout << "Balance of account " << accountId.toString() << " is " << balance.toString() << std::endl;
+  std::cout << "Balance of account " << operatorAccountId.toString() << " is " << balance.toString() << std::endl;
 
   return 0;
 }
