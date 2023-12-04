@@ -33,7 +33,6 @@ int main(int argc, char** argv)
 {
   dotenv::init();
   const std::string networkName = std::getenv("HEDERA_NETWORK");
-  const std::string configFile = std::getenv("CONFIG_FILE");
 
   /*
    * Here are some ways you can construct and configure a client. A client has a network and an operator.
