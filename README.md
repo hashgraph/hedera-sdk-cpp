@@ -162,7 +162,7 @@ examples/<EXAMPLE_NAME>
 
 **NOTE:** Make sure you copy your `.env` file with your environment variables into this folder as well.
 
-Additionally, the examples can be run using the `run_examples` scirpts(`.sh` for macOS, Linux/ `.bat` for Windows systems) from the project root directory. In the scripts you will find an `EXECUTABLES_DIRECTORY` variable.
+Additionally, the examples can be run using the `run_examples` scripts(`.sh` for macOS, Linux/ `.bat` for Windows systems) from the project root directory. In the scripts you will find an `EXECUTABLES_DIRECTORY` variable.
 
 ```
 EXECUTABLES_DIRECTORY = <build_folder_with_exec_binaries>
