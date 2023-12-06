@@ -26,6 +26,10 @@
 #include <string_view>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 namespace Hedera::internal::Utilities
 {
 /**
@@ -159,6 +163,8 @@ template<typename T>
  * @throws std::invalid_argument If lowerBound is greater than or equal to upperBound.
  */
 [[nodiscard]] unsigned int getRandomNumber(unsigned int lowerBound, unsigned int upperBound);
+
+[[nodiscard]] json fromConfigFile(std::string_view path);
 
 } // namespace Hedera::internal::Utilities
 

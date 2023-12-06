@@ -181,6 +181,7 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/HttpClient.cc
         src/impl/MirrorNetwork.cc
         src/impl/MirrorNode.cc
+        src/impl/MirrorNodeGateway.cc
         src/impl/Network.cc
         src/impl/Node.cc
         src/impl/OpenSSLUtils.cc
