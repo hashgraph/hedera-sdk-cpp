@@ -28,9 +28,11 @@
 #include "StakingInfo.h"
 
 #include <chrono>
+#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace proto
 {
@@ -52,6 +54,44 @@ public:
    * @return The constructed AccountInfo object.
    */
   [[nodiscard]] static AccountInfo fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& proto);
+
+  /**
+   * Construct an AccountInfo object from a byte array.
+   *
+   * @param bytes The byte array from which to construct an AccountInfo object.
+   * @return The constructed AccountInfo object.
+   */
+  [[nodiscard]] static AccountInfo fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Construct a CryptoGetInfoResponse_AccountInfo protobuf object from this AccountInfo object.
+   *
+   * @return A pointer to the created CryptoGetInfoResponse_AccountInfo protobuf object.
+   */
+  [[nodiscard]] std::unique_ptr<proto::CryptoGetInfoResponse_AccountInfo> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this AccountInfo object.
+   *
+   * @return The byte array representing this AccountInfo object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this AccountInfo object.
+   *
+   * @return The string representation of this AccountInfo object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this AccountInfo to an output stream.
+   *
+   * @param os   The output stream.
+   * @param info The AccountInfo to print.
+   * @return The output stream with this AccountInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const AccountInfo& info);
 
   /**
    * The ID of the queried account.

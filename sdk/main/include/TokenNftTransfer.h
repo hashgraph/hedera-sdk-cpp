@@ -23,7 +23,11 @@
 #include "AccountId.h"
 #include "NftId.h"
 
+#include <cstddef>
 #include <memory>
+#include <ostream>
+#include <string>
+#include <vector>
 
 namespace proto
 {
@@ -62,6 +66,14 @@ public:
   [[nodiscard]] static TokenNftTransfer fromProtobuf(const proto::NftTransfer& proto, const TokenId& tokenId);
 
   /**
+   * Construct a TokenNftTransfer object from a byte array.
+   *
+   * @param bytes The byte array from which to construct a TokenNftTransfer object.
+   * @return The constructed TokenNftTransfer object.
+   */
+  [[nodiscard]] static TokenNftTransfer fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
    * Validate the checksums of the entities associated with this TokenNftTransfer.
    *
    * @param client The Client to use to validate the checksums.
@@ -70,11 +82,34 @@ public:
   void validateChecksums(const Client& client) const;
 
   /**
-   * Construct an NftTransfer protobuf object from this TokenNftTransfer object.
+   * Construct a NftTransfer protobuf object from this TokenNftTransfer object.
    *
-   * @return A pointer to a created NftTransfer protobuf object filled with this TokenNftTransfer object's data.
+   * @return A pointer to the created NftTransfer protobuf object.
    */
   [[nodiscard]] std::unique_ptr<proto::NftTransfer> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this TokenNftTransfer object.
+   *
+   * @return The byte array representing this TokenNftTransfer object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this TokenNftTransfer object.
+   *
+   * @return The string representation of this TokenNftTransfer object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TokenNftTransfer to an output stream.
+   *
+   * @param os       The output stream.
+   * @param transfer The TokenNftTransfer to print.
+   * @return The output stream with this TokenNftTransfer written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TokenNftTransfer& transfer);
 
   /**
    * The ID of the NFT.

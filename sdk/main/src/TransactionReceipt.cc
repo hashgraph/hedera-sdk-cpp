@@ -19,9 +19,11 @@
  */
 #include "TransactionReceipt.h"
 #include "exceptions/ReceiptStatusException.h"
+#include "impl/HexConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/transaction_get_receipt.pb.h>
 #include <proto/transaction_receipt.pb.h>
 
@@ -200,6 +202,90 @@ std::unique_ptr<proto::TransactionReceipt> TransactionReceipt::toProtobuf() cons
 std::vector<std::byte> TransactionReceipt::toBytes() const
 {
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string TransactionReceipt::toString() const
+{
+  nlohmann::json json;
+  json["mTransactionId"] = mTransactionId.toString();
+  json["mStatus"] = gStatusToString.at(mStatus);
+
+  if (mAccountId.has_value())
+  {
+    json["mAccountId"] = mAccountId->toString();
+  }
+
+  if (mFileId.has_value())
+  {
+    json["mFileId"] = mFileId->toString();
+  }
+
+  if (mContractId.has_value())
+  {
+    json["mContractId"] = mContractId->toString();
+  }
+
+  json["mExchangeRates"] = mExchangeRates.toString();
+
+  if (mTopicId.has_value())
+  {
+    json["mTopicId"] = mTopicId->toString();
+  }
+
+  if (mTopicSequenceNumber.has_value())
+  {
+    json["mTopicSequenceNumber"] = mTopicSequenceNumber.value();
+  }
+
+  if (mTopicRunningHash.has_value())
+  {
+    json["mTopicRunningHash"] = internal::HexConverter::bytesToHex(mTopicRunningHash.value());
+  }
+
+  if (mTopicRunningHashVersion.has_value())
+  {
+    json["mTopicRunningHashVersion"] = mTopicRunningHashVersion.value();
+  }
+
+  if (mTokenId.has_value())
+  {
+    json["mTokenId"] = mTokenId->toString();
+  }
+
+  if (mNewTotalSupply.has_value())
+  {
+    json["mNewTotalSupply"] = mNewTotalSupply.value();
+  }
+
+  if (mScheduleId.has_value())
+  {
+    json["mScheduleId"] = mScheduleId->toString();
+  }
+
+  if (mScheduledTransactionId.has_value())
+  {
+    json["mScheduledTransactionId"] = mScheduledTransactionId->toString();
+  }
+
+  std::for_each(mSerialNumbers.cbegin(),
+                mSerialNumbers.cend(),
+                [&json](uint64_t serialNumber) { json["mSerialNumbers"].push_back(serialNumber); });
+  std::for_each(mDuplicates.cbegin(),
+                mDuplicates.cend(),
+                [&json](const TransactionReceipt& receipt) { json["mDuplicates"].push_back(receipt.toString()); });
+  std::for_each(mChildren.cbegin(),
+                mChildren.cend(),
+                [&json](const TransactionReceipt& receipt) { json["mChildren"].push_back(receipt.toString()); });
+
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const TransactionReceipt& receipt)
+{
+  os << receipt.toString();
+  return os;
 }
 
 //-----

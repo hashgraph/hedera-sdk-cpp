@@ -20,6 +20,7 @@
 #include "NetworkVersionInfo.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/network_get_version_info.pb.h>
 
 namespace Hedera
@@ -34,8 +35,8 @@ NetworkVersionInfo::NetworkVersionInfo(const SemanticVersion& hapi, const Semant
 //-----
 NetworkVersionInfo NetworkVersionInfo::fromProtobuf(const proto::NetworkGetVersionInfoResponse& proto)
 {
-  return NetworkVersionInfo(SemanticVersion::fromProtobuf(proto.hapiprotoversion()),
-                            SemanticVersion::fromProtobuf(proto.hederaservicesversion()));
+  return { SemanticVersion::fromProtobuf(proto.hapiprotoversion()),
+           SemanticVersion::fromProtobuf(proto.hederaservicesversion()) };
 }
 
 //-----
@@ -59,6 +60,22 @@ std::unique_ptr<proto::NetworkGetVersionInfoResponse> NetworkVersionInfo::toProt
 std::vector<std::byte> NetworkVersionInfo::toBytes() const
 {
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string NetworkVersionInfo::toString() const
+{
+  nlohmann::json json;
+  json["mProtobufVersion"] = mProtobufVersion.toString();
+  json["mServicesVersion"] = mServicesVersion.toString();
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const NetworkVersionInfo& info)
+{
+  os << info.toString();
+  return os;
 }
 
 } // namespace Hedera

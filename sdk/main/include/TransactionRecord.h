@@ -36,6 +36,7 @@
 #include <cstddef>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -73,6 +74,44 @@ public:
   [[nodiscard]] static TransactionRecord fromProtobuf(const proto::TransactionRecord& proto);
 
   /**
+   * Construct a TransactionRecord object from a byte array.
+   *
+   * @param bytes The byte array from which to construct a TransactionRecord object.
+   * @return The constructed TransactionRecord object.
+   */
+  [[nodiscard]] static TransactionRecord fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Construct a TransactionRecord protobuf object from this TransactionRecord object.
+   *
+   * @return A pointer to the created TransactionRecord protobuf object.
+   */
+  [[nodiscard]] std::unique_ptr<proto::TransactionRecord> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this TransactionRecord object.
+   *
+   * @return The byte array representing this TransactionRecord object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this TransactionRecord object.
+   *
+   * @return The string representation of this TransactionRecord object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TransactionRecord to an output stream.
+   *
+   * @param os     The output stream.
+   * @param record The TransactionRecord to print.
+   * @return The output stream with this TransactionRecord written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TransactionRecord& record);
+
+  /**
    * The status (reach consensus, or failed, or is unknown) and the ID of any new account/file/instance created.
    */
   std::optional<TransactionReceipt> mReceipt;
@@ -81,7 +120,7 @@ public:
    * The hash of the transaction that executed (not the hash of any transaction that failed for having a duplicate
    * transaction ID).
    */
-  std::string mTransactionHash;
+  std::vector<std::byte> mTransactionHash;
 
   /**
    * The consensus timestamp (or uninitialized if the transaction hasn't reached consensus yet).
@@ -91,7 +130,7 @@ public:
   /**
    * The ID of the transaction this record represents.
    */
-  std::optional<TransactionId> mTransactionID;
+  std::optional<TransactionId> mTransactionId;
 
   /**
    * The memo that was submitted as part of the transaction (max 100 bytes).

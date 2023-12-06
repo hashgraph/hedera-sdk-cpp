@@ -24,7 +24,11 @@
 #include "Hbar.h"
 
 #include <chrono>
+#include <cstddef>
+#include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
 namespace proto
 {
@@ -40,59 +44,51 @@ class StakingInfo
 {
 public:
   /**
-   * Construct an StakingInfo object from a StakingInfo protobuf object.
+   * Construct a StakingInfo object from a StakingInfo protobuf object.
    *
-   * @param proto The StakingInfo protobuf object from which to construct an StakingInfo object.
+   * @param proto The StakingInfo protobuf object from which to construct a StakingInfo object.
    * @return The constructed StakingInfo object.
    */
   [[nodiscard]] static StakingInfo fromProtobuf(const proto::StakingInfo& proto);
 
   /**
-   * Get the decline reward policy of the account/contract.
+   * Construct a StakingInfo object from a byte array.
    *
-   * @return \c TRUE if the account/contract is declining to receive staking rewards, otherwise \c FALSE.
+   * @param bytes The byte array from which to construct a StakingInfo object.
+   * @return The constructed StakingInfo object.
    */
-  [[nodiscard]] inline bool getDeclineReward() const { return mDeclineRewards; }
+  [[nodiscard]] static StakingInfo fromBytes(const std::vector<std::byte>& bytes);
 
   /**
-   * Get the current staking period start time.
+   * Construct a StakingInfo protobuf object from this StakingInfo object.
    *
-   * @return The current staking period start time. Uninitialized if not staked to a node.
+   * @return A pointer to the created StakingInfo protobuf object.
    */
-  [[nodiscard]] inline std::optional<std::chrono::system_clock::time_point> getStakePeriodStart() const
-  {
-    return mStakePeriodStart;
-  }
+  [[nodiscard]] std::unique_ptr<proto::StakingInfo> toProtobuf() const;
 
   /**
-   * Get the amount of Hbar that the account/contract will receive in the next reward situation.
+   * Construct a representative byte array from this StakingInfo object.
    *
-   * @return The amount of Hbar that the account/contract will receive in the next reward situation.
+   * @return The byte array representing this StakingInfo object.
    */
-  [[nodiscard]] inline Hbar getPendingReward() const { return mPendingReward; }
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
 
   /**
-   * Get the total balance of all accounts staked to the account/contract.
+   * Construct a string representation of this StakingInfo object.
    *
-   * @return The total balance of all accounts staked to the account/contract.
+   * @return The string representation of this StakingInfo object.
    */
-  [[nodiscard]] inline Hbar getStakedToMe() const { return mStakedToMe; }
+  [[nodiscard]] std::string toString() const;
 
   /**
-   * Get the ID of the account to which the account/contract is staking.
+   * Write this StakingInfo to an output stream.
    *
-   * @return The ID of the account to which the account/contract is staking. Uninitialized if not staking to an account.
+   * @param os   The output stream.
+   * @param info The StakingInfo to print.
+   * @return The output stream with this StakingInfo written to it.
    */
-  [[nodiscard]] inline std::optional<AccountId> getStakedAccountId() const { return mStakedAccountId; }
+  friend std::ostream& operator<<(std::ostream& os, const StakingInfo& info);
 
-  /**
-   * Get the ID of the node to which the account/contract is staking.
-   *
-   * @return The ID of the node to which the account/contract is staking. Uninitialized if not staking to a node.
-   */
-  [[nodiscard]] inline std::optional<uint64_t> getStakedNodeId() const { return mStakedNodeId; }
-
-private:
   /**
    * Is this account/contract declining to receive staking rewards?
    */

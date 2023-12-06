@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -60,7 +61,7 @@ public:
   /**
    * Construct a TokenInfo object from a byte array.
    *
-   * @param bytes The byte array representing a TokenInfo object.
+   * @param bytes The byte array from which to construct a TokenInfo object.
    * @return The constructed TokenInfo object.
    */
   [[nodiscard]] static TokenInfo fromBytes(const std::vector<std::byte>& bytes);
@@ -78,6 +79,22 @@ public:
    * @return The byte array representing this TokenInfo object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this TokenInfo object.
+   *
+   * @return The string representation of this TokenInfo object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TokenInfo to an output stream.
+   *
+   * @param os   The output stream.
+   * @param info The TokenInfo to print.
+   * @return The output stream with this TokenInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TokenInfo& info);
 
   /**
    * The ID of the token.

@@ -17,10 +17,10 @@
  * limitations under the License.
  *
  */
-#include "ECDSAsecp256k1PrivateKey.h"
-#include "ED25519PrivateKey.h"
 #include "MnemonicBIP39.h"
+#include "PrivateKey.h"
 
+#include <dotenv.h>
 #include <iostream>
 #include <string>
 
@@ -28,12 +28,8 @@ using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  // Grab the passphrase from the command line if input
-  std::string passphrase = "passphrase";
-  if (argc > 1)
-  {
-    passphrase = argv[1];
-  }
+  dotenv::init();
+  const std::string passphrase = std::getenv("PASSPHRASE") != nullptr ? std::getenv("PASSPHRASE") : "passphrase";
 
   // Generate and print a 12-word BIP39 mnemonic
   MnemonicBIP39 mnemonicBip39 = MnemonicBIP39::generate12WordBIP39Mnemonic();

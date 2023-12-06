@@ -33,6 +33,8 @@
 #include <cstddef>
 #include <memory>
 #include <optional>
+#include <ostream>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -92,6 +94,22 @@ public:
    * @return The byte array representing this TransactionReceipt object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this TransactionReceipt object.
+   *
+   * @return The string representation of this TransactionReceipt object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TransactionReceipt to an output stream.
+   *
+   * @param os      The output stream.
+   * @param receipt The TransactionReceipt to print.
+   * @return The output stream with this TransactionReceipt written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TransactionReceipt& receipt);
 
   /**
    * Validate the status and throw if it is not a Status::SUCCESS.

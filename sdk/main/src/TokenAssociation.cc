@@ -20,6 +20,7 @@
 #include "TokenAssociation.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/custom_fees.pb.h>
 
 namespace Hedera
@@ -63,6 +64,15 @@ std::unique_ptr<proto::TokenAssociation> TokenAssociation::toProtobuf() const
 std::vector<std::byte> TokenAssociation::toBytes() const
 {
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string TokenAssociation::toString() const
+{
+  nlohmann::json json;
+  json["mAccountId"] = mAccountId.toString();
+  json["mTokenId"] = mTokenId.toString();
+  return json.dump();
 }
 
 } // namespace Hedera

@@ -19,6 +19,7 @@
  */
 #include "CustomFractionalFee.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/custom_fees.pb.h>
 #include <stdexcept>
 
@@ -59,6 +60,21 @@ std::unique_ptr<proto::CustomFee> CustomFractionalFee::toProtobuf() const
   fee->mutable_fractional_fee()->set_maximum_amount(static_cast<int64_t>(mMaxAmount));
   fee->mutable_fractional_fee()->set_net_of_transfers(mAssessmentMethod == FeeAssessmentMethod::EXCLUSIVE);
   return fee;
+}
+
+//-----
+std::string CustomFractionalFee::toString() const
+{
+  nlohmann::json json;
+  json["mFeeCollectorAccountId"] = mFeeCollectorAccountId.toString();
+  json["mAllCollectorsAreExempt"] = mAllCollectorsAreExempt;
+  json["mNumerator"] = mNumerator;
+  json["mDenominator"] = mDenominator;
+  json["mMinAmount"] = mMinAmount;
+  json["mMaxAmount"] = mMaxAmount;
+  json["mMaxAmount"] = mMaxAmount;
+  json["mAssessmentMethod"] = gFeeAssessmentMethodToString.at(mAssessmentMethod);
+  return json.dump();
 }
 
 //-----
