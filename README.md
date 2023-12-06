@@ -16,14 +16,14 @@
 For MacOS and Linux users:
 
 - ninja
-    - MacOS: `brew install ninja`
-    - Linux: `apt-get install ninja`
+  - MacOS: `brew install ninja`
+  - Linux: `apt-get install ninja`
 - pkg-config
-    - MacOS: `brew install pkg-config`
-    - Linux: `apt-get install pkg-config`
+  - MacOS: `brew install pkg-config`
+  - Linux: `apt-get install pkg-config`
 - cmake
-    - MacOS: `brew install cmake`
-    - Linux: `apt-get install cmake`
+  - MacOS: `brew install cmake`
+  - Linux: `apt-get install cmake`
 
 For Windows users:
 
@@ -131,6 +131,14 @@ being run. If running from the root directory:
 ```shell
 build/<PRESET>/sdk/examples/[Release|Debug]/<EXAMPLE-NAME>
 ```
+
+Additionally, the examples can be run using the `run_examples` scirpts(`.sh` for macOS, Linux/ `.bat` for Windows systems) from the project root directory. In the scripts you will find an `EXECUTABLES_DIRECTORY` variable.
+
+```
+EXECUTABLES_DIRECTORY = <build_folder_with_exec_binaries>
+```
+
+Make sure to set it to the proper build folder of the binaries after building the project.
 
 ## Contributing to this Project
 
