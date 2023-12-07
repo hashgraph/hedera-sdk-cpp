@@ -251,6 +251,30 @@ public:
   TokenCreateTransaction& setPauseKey(const std::shared_ptr<Key>& key);
 
   /**
+   * Set the desired lock key for the new token.
+   *
+   * @param key The desired lock key for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set lock key.
+   */
+  TokenCreateTransaction& setLockKey(const std::shared_ptr<Key>& key);
+
+  /**
+   * Set the desired partition key for the new token.
+   *
+   * @param key The desired partition key for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set partition key.
+   */
+  TokenCreateTransaction& setPartitionKey(const std::shared_ptr<Key>& key);
+
+  /**
+   * Set the desired partition move key for the new token.
+   *
+   * @param key The desired partition move key for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set partition move key.
+   */
+  TokenCreateTransaction& setPartitionMoveKey(const std::shared_ptr<Key>& key);
+
+  /**
    * Get the desired name for the new token.
    *
    * @return The desired name for the new token.
@@ -398,6 +422,27 @@ public:
    * @return The desired pause key for the new token.
    */
   [[nodiscard]] inline std::shared_ptr<Key> getPauseKey() const { return mPauseKey; }
+
+  /**
+   * Get the desired lock key for the new token.
+   *
+   * @return The desired lock key for the new token.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getLockKey() const { return mLockKey; }
+
+  /**
+   * Get the desired partition key for the new token.
+   *
+   * @return The desired partition key for the new token.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getPartitionKey() const { return mPartitionKey; }
+
+  /**
+   * Get the desired partition move key for the new token.
+   *
+   * @return The desired partition move key for the new token.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getPartitionMoveKey() const { return mPartitionMoveKey; }
 
 private:
   friend class WrappedTransaction;
@@ -568,6 +613,50 @@ private:
    * PauseNotApplicable, otherwise Unpaused.
    */
   std::shared_ptr<Key> mPauseKey = nullptr;
+
+  /**
+   * The key which can lock, unlock, or transfer locked tokens in an account. Each fungible token balance of a
+   * token-definition with a lock_key will have both a balance, and a quantity of locked tokens, where the quantity of
+   * locked tokens may be 0. If this key is desired, it must be set at the time the token-definition is created. It can
+   * only be set for token definitions with a TokenType of FUNGIBLE_COMMON and NON_FUNGIBLE_UNIQUE. If set, it may be
+   * updated, but only if the update transaction is signed both by the lock key and the new lock key. Once null, it
+   * cannot be set again.
+   *
+   * If set on a token-definition that also sets the partition_key, then the lock_key may also be used to lock balances
+   * on those partitions.
+   */
+  std::shared_ptr<Key> mLockKey = nullptr;
+
+  /**
+   * The key which can create, update, and delete partitions of this token type. If this key is desired, it must be set
+   * at the time the token-definition is created. It is applicable to both FUNGIBLE_COMMON and NON_FUNGIBLE_UNIQUE token
+   * types. If set, it may be updated, but only if the update transaction is signed both by the old partition key and
+   * the new partition key. Once null, it cannot be set again.
+   */
+  std::shared_ptr<Key> mPartitionKey = nullptr;
+
+  /**
+   * The key which can move balances from the token type's supply into any partition of any user, or move balance from
+   * one partition to another of different types, either in the same account, or in different accounts.
+   *
+   * For example, if two users both have partitions "tranche-A" and "tranche-B", then either user could move tokens from
+   * their "tranche-A" to the other user's "tranche-A", or from their "tranche-B" to the other user's "tranche-B", but
+   * they cannot transfer from their "tranche-A" to the other user's "tranche-B", or from their "tranche-A" to their own
+   * "tranche-B". That is, under normal circumstances, you can transfer funds between partitions of the same type, but
+   * not between partitions of different types.
+   *
+   * However, a transaction signed by this key *can* transfer funds between partitions of different types, either for
+   * the same user, or for different users. So user Alice can transfer balance from her "Tranche-A" to user Bob's
+   * "Tranche-B", if the transaction is signed both by Alice, and by the partition-move-key. In addition, balance may be
+   * transferred from Alice's "Tranche-A" into Alice's "Tranche-B", if the transaction is signed by the
+   * partition-move-key. Transferring balances across partitions in the user's account does not require the user to sign
+   * the transaction.
+   *
+   * If this key is desired, it must be set at the time the token-definition is created. It is applicable to both
+   * FUNGIBLE_COMMON and NON_FUNGIBLE_UNIQUE token types. If set, it may be updated, but only if the update transaction
+   * is signed both by the old partition move key and the new partition move key. Once null, it cannot be set again.
+   */
+  std::shared_ptr<Key> mPartitionMoveKey = nullptr;
 };
 
 } // namespace Hedera

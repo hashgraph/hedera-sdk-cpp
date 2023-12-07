@@ -43,17 +43,22 @@
 #include "SystemUndeleteTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
+#include "TokenCreatePartitionTransaction.h"
 #include "TokenCreateTransaction.h"
+#include "TokenDeletePartitionTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
 #include "TokenFeeScheduleUpdateTransaction.h"
 #include "TokenFreezeTransaction.h"
 #include "TokenGrantKycTransaction.h"
+#include "TokenLockTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TokenPauseTransaction.h"
 #include "TokenRevokeKycTransaction.h"
 #include "TokenUnfreezeTransaction.h"
+#include "TokenUnlockTransaction.h"
 #include "TokenUnpauseTransaction.h"
+#include "TokenUpdatePartitionTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
@@ -105,17 +110,22 @@ public:
                                               SystemUndeleteTransaction,
                                               TokenAssociateTransaction,
                                               TokenBurnTransaction,
+                                              TokenCreatePartitionTransaction,
                                               TokenCreateTransaction,
+                                              TokenDeletePartitionTransaction,
                                               TokenDeleteTransaction,
                                               TokenDissociateTransaction,
                                               TokenFeeScheduleUpdateTransaction,
                                               TokenFreezeTransaction,
                                               TokenGrantKycTransaction,
+                                              TokenLockTransaction,
                                               TokenMintTransaction,
                                               TokenPauseTransaction,
                                               TokenRevokeKycTransaction,
                                               TokenUnfreezeTransaction,
+                                              TokenUnlockTransaction,
                                               TokenUnpauseTransaction,
+                                              TokenUpdatePartitionTransaction,
                                               TokenUpdateTransaction,
                                               TokenWipeTransaction,
                                               TopicCreateTransaction,

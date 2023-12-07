@@ -224,6 +224,30 @@ TokenCreateTransaction& TokenCreateTransaction::setPauseKey(const std::shared_pt
 }
 
 //-----
+TokenCreateTransaction& TokenCreateTransaction::setLockKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mLockKey = key;
+  return *this;
+}
+
+//-----
+TokenCreateTransaction& TokenCreateTransaction::setPartitionKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mPartitionKey = key;
+  return *this;
+}
+
+//-----
+TokenCreateTransaction& TokenCreateTransaction::setPartitionMoveKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mPartitionMoveKey = key;
+  return *this;
+}
+
+//-----
 grpc::Status TokenCreateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
                                                    const std::chrono::system_clock::time_point& deadline,
@@ -339,6 +363,21 @@ void TokenCreateTransaction::initFromSourceTransactionBody()
   {
     mPauseKey = Key::fromProtobuf(body.pause_key());
   }
+
+  if (body.has_lock_key())
+  {
+    mLockKey = Key::fromProtobuf(body.lock_key());
+  }
+
+  if (body.has_partition_key())
+  {
+    mPartitionKey = Key::fromProtobuf(body.partition_key());
+  }
+
+  if (body.has_partition_move_key())
+  {
+    mPartitionMoveKey = Key::fromProtobuf(body.partition_move_key());
+  }
 }
 
 //-----
@@ -407,6 +446,21 @@ proto::TokenCreateTransactionBody* TokenCreateTransaction::build() const
   if (mPauseKey)
   {
     body->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
+  }
+
+  if (mLockKey)
+  {
+    body->set_allocated_lock_key(mLockKey->toProtobufKey().release());
+  }
+
+  if (mPartitionKey)
+  {
+    body->set_allocated_partition_key(mPartitionKey->toProtobufKey().release());
+  }
+
+  if (mPartitionMoveKey)
+  {
+    body->set_allocated_partition_move_key(mPartitionMoveKey->toProtobufKey().release());
   }
 
   return body.release();

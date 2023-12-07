@@ -126,9 +126,17 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(TokenBurnTransaction(proto));
   }
+  else if (proto.has_tokencreatepartition())
+  {
+    return WrappedTransaction(TokenCreatePartitionTransaction(proto));
+  }
   else if (proto.has_tokencreation())
   {
     return WrappedTransaction(TokenCreateTransaction(proto));
+  }
+  else if (proto.has_tokendeletepartition())
+  {
+    return WrappedTransaction(TokenDeletePartitionTransaction(proto));
   }
   else if (proto.has_tokendeletion())
   {
@@ -150,6 +158,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(TokenGrantKycTransaction(proto));
   }
+  else if (proto.has_tokenlock())
+  {
+    return WrappedTransaction(TokenLockTransaction(proto));
+  }
   else if (proto.has_tokenmint())
   {
     return WrappedTransaction(TokenMintTransaction(proto));
@@ -166,9 +178,17 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(TokenUnfreezeTransaction(proto));
   }
+  else if (proto.has_tokenunlock())
+  {
+    return WrappedTransaction(TokenUnlockTransaction(proto));
+  }
   else if (proto.has_token_unpause())
   {
     return WrappedTransaction(TokenUnpauseTransaction(proto));
+  }
+  else if (proto.has_tokenupdatepartition())
+  {
+    return WrappedTransaction(TokenUpdatePartitionTransaction(proto));
   }
   else if (proto.has_tokenwipe())
   {
@@ -307,10 +327,20 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_tokenburn() = proto.tokenburn();
     return WrappedTransaction(TokenBurnTransaction(txBody));
   }
+  else if (proto.has_tokencreatepartition())
+  {
+    *txBody.mutable_tokencreatepartition() = proto.tokencreatepartition();
+    return WrappedTransaction(TokenCreatePartitionTransaction(txBody));
+  }
   else if (proto.has_tokencreation())
   {
     *txBody.mutable_tokencreation() = proto.tokencreation();
     return WrappedTransaction(TokenCreateTransaction(txBody));
+  }
+  else if (proto.has_tokendeletepartition())
+  {
+    *txBody.mutable_tokendeletepartition() = proto.tokendeletepartition();
+    return WrappedTransaction(TokenDeletePartitionTransaction(txBody));
   }
   else if (proto.has_tokendeletion())
   {
@@ -337,6 +367,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_tokengrantkyc() = proto.tokengrantkyc();
     return WrappedTransaction(TokenGrantKycTransaction(txBody));
   }
+  else if (proto.has_tokenlock())
+  {
+    *txBody.mutable_tokenlock() = proto.tokenlock();
+    return WrappedTransaction(TokenLockTransaction(txBody));
+  }
   else if (proto.has_tokenmint())
   {
     *txBody.mutable_tokenmint() = proto.tokenmint();
@@ -357,10 +392,20 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_tokenunfreeze() = proto.tokenunfreeze();
     return WrappedTransaction(TokenFreezeTransaction(txBody));
   }
+  else if (proto.has_tokenunlock())
+  {
+    *txBody.mutable_tokenunlock() = proto.tokenunlock();
+    return WrappedTransaction(TokenUnlockTransaction(txBody));
+  }
   else if (proto.has_token_unpause())
   {
     *txBody.mutable_token_unpause() = proto.token_unpause();
     return WrappedTransaction(TokenUnpauseTransaction(txBody));
+  }
+  else if (proto.has_tokenupdatepartition())
+  {
+    *txBody.mutable_tokenupdatepartition() = proto.tokenupdatepartition();
+    return WrappedTransaction(TokenUpdatePartitionTransaction(txBody));
   }
   else if (proto.has_tokenwipe())
   {
@@ -541,9 +586,21 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
+    case TOKEN_CREATE_PARTITION_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenCreatePartitionTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
     case TOKEN_CREATE_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenCreateTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_DELETE_PARTITION_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenDeletePartitionTransaction>();
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
@@ -577,6 +634,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
+    case TOKEN_LOCK_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenLockTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
     case TOKEN_MINT_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenMintTransaction>();
@@ -601,9 +664,21 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
+    case TOKEN_UNLOCK_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenUnlockTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
     case TOKEN_UNPAUSE_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenUnpauseTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_UPDATE_PARTITION_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenUpdatePartitionTransaction>();
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
@@ -745,9 +820,17 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   {
     schedulableTxBody->set_allocated_tokenburn(txBody.release_tokenburn());
   }
+  else if (txBody.has_tokencreatepartition())
+  {
+    schedulableTxBody->set_allocated_tokencreatepartition(txBody.release_tokencreatepartition());
+  }
   else if (txBody.has_tokencreation())
   {
     schedulableTxBody->set_allocated_tokencreation(txBody.release_tokencreation());
+  }
+  else if (txBody.has_tokendeletepartition())
+  {
+    schedulableTxBody->set_allocated_tokendeletepartition(txBody.release_tokendeletepartition());
   }
   else if (txBody.has_tokendeletion())
   {
@@ -769,6 +852,10 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   {
     schedulableTxBody->set_allocated_tokengrantkyc(txBody.release_tokengrantkyc());
   }
+  else if (txBody.has_tokenlock())
+  {
+    schedulableTxBody->set_allocated_tokenlock(txBody.release_tokenlock());
+  }
   else if (txBody.has_tokenmint())
   {
     schedulableTxBody->set_allocated_tokenmint(txBody.release_tokenmint());
@@ -785,9 +872,17 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   {
     schedulableTxBody->set_allocated_tokenunfreeze(txBody.release_tokenunfreeze());
   }
+  else if (txBody.has_tokenunlock())
+  {
+    schedulableTxBody->set_allocated_tokenunlock(txBody.release_tokenunlock());
+  }
   else if (txBody.has_token_unpause())
   {
     schedulableTxBody->set_allocated_token_unpause(txBody.release_token_unpause());
+  }
+  else if (txBody.has_tokenupdatepartition())
+  {
+    schedulableTxBody->set_allocated_tokenupdatepartition(txBody.release_tokenupdatepartition());
   }
   else if (txBody.has_tokenwipe())
   {

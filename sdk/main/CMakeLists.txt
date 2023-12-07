@@ -123,7 +123,9 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenAssociateTransaction.cc
         src/TokenAssociation.cc
         src/TokenBurnTransaction.cc
+        src/TokenCreatePartitionTransaction.cc
         src/TokenCreateTransaction.cc
+        src/TokenDeletePartitionTransaction.cc
         src/TokenDeleteTransaction.cc
         src/TokenDissociateTransaction.cc
         src/TokenFeeScheduleUpdateTransaction.cc
@@ -132,6 +134,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenId.cc
         src/TokenInfo.cc
         src/TokenInfoQuery.cc
+        src/TokenLockTransaction.cc
         src/TokenMintTransaction.cc
         src/TokenNftAllowance.cc
         src/TokenNftInfo.cc
@@ -143,7 +146,9 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenTransfer.cc
         src/TokenType.cc
         src/TokenUnfreezeTransaction.cc
+        src/TokenUnlockTransaction.cc
         src/TokenUnpauseTransaction.cc
+        src/TokenUpdatePartitionTransaction.cc
         src/TokenUpdateTransaction.cc
         src/TokenWipeTransaction.cc
         src/TopicCreateTransaction.cc

@@ -243,6 +243,12 @@ public:
   std::vector<uint64_t> mSerialNumbers;
 
   /**
+   * If during CreateToken, a partition_key is specified but no supply_key is specified, then a single initial partition
+   * is created in addition to the token definition. This is the ID of that partition definition.
+   */
+  std::optional<TokenId> mInitialPartialId;
+
+  /**
    * The receipts of processing all transactions with the given ID, in consensus time order.
    */
   std::vector<TransactionReceipt> mDuplicates;

@@ -49,7 +49,13 @@ enum class TokenType
    * Unique, not interchangeable with other tokens of the same type as they typically have different values.
    * Individually traced and can carry unique properties (e.g. serial number).
    */
-  NON_FUNGIBLE_UNIQUE
+  NON_FUNGIBLE_UNIQUE,
+  /**
+   * A special type of token that holds a subset of the supply of a FUNGIBLE_COMMON token, or a subset of the serial
+   * numbers of a NON_FUNGIBLE_UNIQUE token. Partitions are always "children" of another token such as a
+   * FUNGIBLE_COMMON or NON_FUNGIBLE_UNIQUE token.
+   */
+  PARTITION
 };
 
 /**

@@ -193,6 +193,30 @@ public:
   TokenUpdateTransaction& setPauseKey(const std::shared_ptr<Key>& key);
 
   /**
+   * Set a new lock key for the token.
+   *
+   * @param key The new lock key for the token.
+   * @return A reference to this TokenUpdateTransaction with the newly-set lock key.
+   */
+  TokenUpdateTransaction& setLockKey(const std::shared_ptr<Key>& key);
+
+  /**
+   * Set a new partition key for the token.
+   *
+   * @param key The new partition key for the token.
+   * @return A reference to this TokenUpdateTransaction with the newly-set partition key.
+   */
+  TokenUpdateTransaction& setPartitionKey(const std::shared_ptr<Key>& key);
+
+  /**
+   * Set a new partition move key for the token.
+   *
+   * @param key The new partition move key for the token.
+   * @return A reference to this TokenUpdateTransaction with the newly-set partition move key.
+   */
+  TokenUpdateTransaction& setPartitionMoveKey(const std::shared_ptr<Key>& key);
+
+  /**
    * Get the ID of the token to update.
    *
    * @return The ID of the token to update.
@@ -304,6 +328,27 @@ public:
    * @return The new pause key for the token. Returns nullptr if no new pause key has been set.
    */
   [[nodiscard]] inline std::shared_ptr<Key> getPauseKey() const { return mPauseKey; }
+
+  /**
+   * Get the new lock key for the token.
+   *
+   * @return The new lock key for the token. Returns nullptr if no new lock key has been set.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getLockKey() const { return mLockKey; }
+
+  /**
+   * Get the new partition key for the token.
+   *
+   * @return The new partition key for the token. Returns nullptr if no new partition key has been set.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getPartitionKey() const { return mPartitionKey; }
+
+  /**
+   * Get the new partition move key for the token.
+   *
+   * @return The new partition move key for the token. Returns nullptr if no new partition move key has been set.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getPartitionMoveKey() const { return mPartitionMoveKey; }
 
 private:
   friend class WrappedTransaction;
@@ -436,6 +481,21 @@ private:
    * The new pause key for the token.
    */
   std::shared_ptr<Key> mPauseKey = nullptr;
+
+  /**
+   * The new lock key for the token.
+   */
+  std::shared_ptr<Key> mLockKey = nullptr;
+
+  /**
+   * The new partition key for the token.
+   */
+  std::shared_ptr<Key> mPartitionKey = nullptr;
+
+  /**
+   * The new partition move key for the token.
+   */
+  std::shared_ptr<Key> mPartitionMoveKey = nullptr;
 };
 
 } // namespace Hedera
