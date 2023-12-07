@@ -18,29 +18,22 @@
 *
  */
 
-#include <iostream>
+#ifndef HEDERA_SDK_CPP_MIRRORNODEROUTER_H
+#define HEDERA_SDK_CPP_MIRRORNODEROUTER_H
 
-#include "impl/MirrorNodeGateway.h"
-#include "impl/MirrorNodeRouter.h"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace Hedera::internal::MirrorNodeGateway
 {
-  json AccountInfoQuery(std::string_view accountId)
-  {
-    const json routes = MirrorNodeRouter::getRoutes();
-    HttpClient httpClient;
-    //httpClient.invokeREST();
-
-    return routes;
-  }
-
-  json AccountBalanceQuery(std::string_view accountId)
-  {
-
-  }
-
-  json ContractInfoQuery(std::string_view contractId)
-  {
-
-  }
+class MirrorNodeRouter
+{
+public:
+  [[nodiscard]] static const json getRoutes();
+private:
+  [[nodiscard]] static const json readRoutesFromFile();
+};
 }
+
+#endif // HEDERA_SDK_CPP_MIRRORNODEROUTER_H

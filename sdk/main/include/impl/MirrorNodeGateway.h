@@ -24,12 +24,14 @@
 
 #include <nlohmann/json.hpp>
 
+#include <string_view>
+
 using json = nlohmann::json;
 
 namespace Hedera::internal::MirrorNodeGateway
 {
-  json AccountInfoQuery();
-  json AccountBalanceQuery();
-  json ContractInfoQuery();
+  json AccountInfoQuery(std::string_view accountId);
+  json AccountBalanceQuery(std::string_view accountId);
+  json ContractInfoQuery(std::string_view contractId);
 }
 #endif // HEDERA_SDK_CPP_MIRRORNODEGATEWAY_H

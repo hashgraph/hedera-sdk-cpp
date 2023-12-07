@@ -18,29 +18,23 @@
 *
  */
 
-#include <iostream>
-
-#include "impl/MirrorNodeGateway.h"
 #include "impl/MirrorNodeRouter.h"
+#include "impl/Utilities.h"
+
+#include <filesystem>
 
 namespace Hedera::internal::MirrorNodeGateway
 {
-  json AccountInfoQuery(std::string_view accountId)
-  {
-    const json routes = MirrorNodeRouter::getRoutes();
-    HttpClient httpClient;
-    //httpClient.invokeREST();
 
-    return routes;
-  }
+const json MirrorNodeRouter::getRoutes()
+{
+  static json routes = readRoutesFromFile();
+  return routes;
+}
 
-  json AccountBalanceQuery(std::string_view accountId)
-  {
+const json MirrorNodeRouter::readRoutesFromFile()
+{
+  return internal::Utilities::fromConfigFile((std::filesystem::current_path() / "config" / "mirror_node_routes.json").string());
+}
 
-  }
-
-  json ContractInfoQuery(std::string_view contractId)
-  {
-
-  }
 }

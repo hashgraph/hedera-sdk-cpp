@@ -1,14 +1,14 @@
 {
   "testnet": {
-    "accountInfoQuery": "https://testnet.mirrornode.hedera.com/api/v1/accounts/",
-    "contractInfoQuery": "https://testnet.mirrornode.hedera.com/api/v1/contracts/"
+    "accountInfoQuery": "/api/v1/accounts/",
+    "contractInfoQuery": "/api/v1/contracts/"
   },
   "previewnet": {
-    "accountInfoQuery": "",
-    "contractInfoQuery": ""
+    "accountInfoQuery": "/api/v1/accounts/",
+    "contractInfoQuery": "/api/v1/contracts/"
   },
   "mainnet": {
-    "accountInfoQuery": "",
-    "contractInfoQuery": ""
+    "accountInfoQuery": "/api/v1/accounts/",
+    "contractInfoQuery": "/api/v1/contracts/"
   }
 }

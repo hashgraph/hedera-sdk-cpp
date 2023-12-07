@@ -41,7 +41,7 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet
   Client client = Client::forTestnet();
 
-  json j = internal::MirrorNodeGateway::AccountInfoQuery();
+  json j = internal::MirrorNodeGateway::AccountInfoQuery(operatorAccountId.toString());
 
   // Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.
   Hbar balance = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).mBalance;
