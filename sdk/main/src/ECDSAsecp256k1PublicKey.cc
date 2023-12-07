@@ -60,14 +60,14 @@ namespace
   // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN.1 prefix.
   std::vector<std::byte> buildPublicKeyBytes = bytes;
 
-  if (buildPublicKeyBytes.size() == internal::asn1::ECDSA_KEY_LENGTH + 1)
+  if (buildPublicKeyBytes.size() == internal::asn1::EC_KEY_LENGTH + 1)
   {
     buildPublicKeyBytes = internal::Utilities::concatenateVectors(
       { internal::asn1::ASN1_CPUBK_PREFIX_BYTES, { std::byte(0x00) }, buildPublicKeyBytes });
   }
   else
   {
-    if (buildPublicKeyBytes.size() == internal::asn1::ECDSA_KEY_LENGTH * 2 + 1)
+    if (buildPublicKeyBytes.size() == internal::asn1::EC_KEY_LENGTH * 2 + 1)
     {
       buildPublicKeyBytes = internal::Utilities::concatenateVectors(
         { internal::asn1::ASN1_UPUBK_PREFIX_BYTES, { std::byte(0x00) }, buildPublicKeyBytes });

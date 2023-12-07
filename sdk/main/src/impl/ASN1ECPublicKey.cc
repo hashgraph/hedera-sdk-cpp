@@ -32,8 +32,15 @@ namespace Hedera::internal::asn1
 {
 ASN1ECPublicKey::ASN1ECPublicKey(const std::vector<std::byte>& bytes)
 {
-  decode(bytes);
-  populateXYcoords();
+  if (bytes.size() >= MAX_ENCRYPTED_KEY_LENGHT)
+  {
+    throw BadKeyException("Over maximum possible input bytes for EC Key!");
+  }
+  else
+  {
+    decode(bytes);
+    populateXYcoords();
+  }
 }
 
 std::vector<std::byte> ASN1ECPublicKey::getKey() const
@@ -49,7 +56,7 @@ void ASN1ECPublicKey::populateXYcoords()
   std::vector<std::byte> publicKey = get(BIT_STRING);
   if (publicKey[0] == std::byte(0x00) && publicKey[1] == std::byte(0x04)) // uncompressed
   {
-    ecYcoord = std::vector<std::byte>(publicKey.rbegin(), publicKey.rbegin() + ECDSA_KEY_LENGTH); // get y coordinate
+    ecYcoord = std::vector<std::byte>(publicKey.rbegin(), publicKey.rbegin() + EC_KEY_LENGTH); // get y coordinate
     std::reverse(ecYcoord.begin(), ecYcoord.end());
 
     BIGNUM* yCoordBN = BN_new();
@@ -59,7 +66,7 @@ void ASN1ECPublicKey::populateXYcoords()
   // get x coordinate
       { std::byte(0x00) },
       { !BN_is_bit_set(yCoordBN, 0) ? std::byte(0x02) : std::byte(0x03) },
-      { publicKey.begin() + 2, publicKey.end() - ECDSA_KEY_LENGTH }
+      { publicKey.begin() + 2, publicKey.end() - EC_KEY_LENGTH }
     });
   }
 
@@ -67,7 +74,7 @@ void ASN1ECPublicKey::populateXYcoords()
       (publicKey[1] == std::byte(0x02) || publicKey[1] == std::byte(0x03))) // compressed
   {
     // Just populate x coord. Padding one to ignore the 00 starting byte.
-    ecXcoord = std::vector<std::byte>(publicKey.begin(), publicKey.begin() + ECDSA_KEY_LENGTH + 2);
+    ecXcoord = std::vector<std::byte>(publicKey.begin(), publicKey.begin() + EC_KEY_LENGTH + 2);
   }
 }
 

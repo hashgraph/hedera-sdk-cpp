@@ -26,7 +26,9 @@
 
 namespace Hedera::internal::asn1
 {
-constexpr size_t ECDSA_KEY_LENGTH = 32; // bytes
+constexpr size_t EC_KEY_LENGTH = 32; // bytes
+// more than this would be a melicious attempt
+constexpr size_t MAX_ENCRYPTED_KEY_LENGHT = 160; // bytes ~ 320 charachters
 
 /**
  * @class ASN1Key
