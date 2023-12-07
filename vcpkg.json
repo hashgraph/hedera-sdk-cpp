@@ -41,6 +41,10 @@
     {
       "name": "apr-util",
       "version>=": "1.6.1#8"
+    },
+    {
+      "name": "cpp-httplib",
+      "version>=": "0.14.1"
     }
   ]
 }
