@@ -30,8 +30,37 @@ using json = nlohmann::json;
 
 namespace Hedera::internal::MirrorNodeGateway
 {
-  json AccountInfoQuery(std::string_view accountId);
-  json AccountBalanceQuery(std::string_view accountId);
-  json ContractInfoQuery(std::string_view contractId);
+/**
+   * @brief Query account information from the Mirror Node.
+   *
+   * This function queries account information from the Mirror Node based on
+   * the provided account ID.
+   *
+   * @param accountId The account ID for which to query information.
+   * @return A JSON object containing the account information.
+ */
+json AccountInfoQuery(std::string_view accountId);
+
+/**
+   * @brief Query account balance from the Mirror Node.
+   *
+   * This function queries the account balance from the Mirror Node based on
+   * the provided account ID.
+   *
+   * @param accountId The account ID for which to query the balance.
+   * @return A JSON object containing the account balance.
+ */
+json AccountBalanceQuery(std::string_view accountId);
+
+/**
+   * @brief Query contract information from the Mirror Node.
+   *
+   * This function queries contract information from the Mirror Node based on
+   * the provided contract ID.
+   *
+   * @param contractId The contract ID for which to query information.
+   * @return A JSON object containing the contract information.
+ */
+json ContractInfoQuery(std::string_view contractId);
 }
 #endif // HEDERA_SDK_CPP_MIRRORNODEGATEWAY_H

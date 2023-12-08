@@ -43,6 +43,8 @@ int main(int argc, char** argv)
 
   json j = internal::MirrorNodeGateway::AccountInfoQuery(operatorAccountId.toString());
 
+  std::cout<< j <<std::endl;
+
   // Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.
   Hbar balance = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).mBalance;
 

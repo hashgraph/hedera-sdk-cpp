@@ -15,7 +15,6 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-*
  */
 
 #ifndef HEDERA_SDK_CPP_MIRRORNODEROUTER_H
@@ -23,17 +22,31 @@
 
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
-
+/**
+ * @brief Namespace for the internal classes related to the Mirror Node Gateway.
+ */
 namespace Hedera::internal::MirrorNodeGateway
 {
+/**
+ * @brief Class responsible for routing requests to different mirror nodes.
+ */
 class MirrorNodeRouter
 {
 public:
-  [[nodiscard]] static const json getRoutes();
+  /**
+     * @brief Retrieves the routes for mirror node requests.
+     * @return A JSON object representing the mirror node routes.
+   */
+  [[nodiscard]] static const nlohmann::json getRoutes();
+
 private:
-  [[nodiscard]] static const json readRoutesFromFile();
+  /**
+     * @brief Reads mirror node routes from a file.
+     * @return A JSON object containing the mirror node routes.
+   */
+  [[nodiscard]] static const nlohmann::json readRoutesFromFile();
 };
-}
+
+} // namespace Hedera::internal::MirrorNodeGateway
 
 #endif // HEDERA_SDK_CPP_MIRRORNODEROUTER_H

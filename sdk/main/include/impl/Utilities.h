@@ -164,6 +164,17 @@ template<typename T>
  */
 [[nodiscard]] unsigned int getRandomNumber(unsigned int lowerBound, unsigned int upperBound);
 
+/**
+ * @brief Reads and parses a JSON file.
+ *
+ * This function reads the contents of a JSON file located at the specified path,
+ * parses it, and returns a JSON object.
+ *
+ * @param path The path to the JSON file.
+ * @return A JSON object representing the contents of the file.
+ * @throws std::invalid_argument if the file cannot be found or if the contents
+ *         are not valid JSON.
+ */
 [[nodiscard]] json fromConfigFile(std::string_view path);
 
 } // namespace Hedera::internal::Utilities

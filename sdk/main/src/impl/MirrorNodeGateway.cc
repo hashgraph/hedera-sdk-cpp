@@ -28,19 +28,23 @@ namespace Hedera::internal::MirrorNodeGateway
   json AccountInfoQuery(std::string_view accountId)
   {
     const json routes = MirrorNodeRouter::getRoutes();
+    const std::string url = routes["testnet"]["accountInfoQuery"];
     HttpClient httpClient;
-    //httpClient.invokeREST();
-
-    return routes;
+    std::string response = httpClient.invokeREST(url,"GET");
+    return json::parse(response);
   }
 
   json AccountBalanceQuery(std::string_view accountId)
   {
-
+    return AccountInfoQuery(accountId)["balance"];
   }
 
   json ContractInfoQuery(std::string_view contractId)
   {
-
+    const json routes = MirrorNodeRouter::getRoutes();
+    const std::string url = routes["testnet"]["contractInfoQuery"];
+    HttpClient httpClient;
+    std::string response = httpClient.invokeREST(url,"GET");
+    return json::parse(response);
   }
 }
