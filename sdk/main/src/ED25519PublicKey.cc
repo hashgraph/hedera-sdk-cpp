@@ -20,6 +20,7 @@
 #include "ED25519PublicKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
+#include "impl/ASN1ED25519PublicKey.h"
 #include "impl/HexConverter.h"
 #include "impl/PublicKeyImpl.h"
 #include "impl/Utilities.h"
@@ -42,13 +43,20 @@ namespace
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<std::byte> bytes)
 {
+  std::vector<std::byte> buildBytes = bytes;
+
   if (bytes.size() == ED25519PublicKey::KEY_SIZE)
   {
-    bytes = internal::Utilities::concatenateVectors({ ED25519PublicKey::DER_ENCODED_PREFIX_BYTES, bytes });
+    buildBytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPBK_PREFIX_BYTES, bytes });
+  }
+  else
+  {
+    internal::asn1::ASN1ED25519PublicKey asn1key(buildBytes);
+    buildBytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPBK_PREFIX_BYTES, asn1key.getKey() });
   }
 
-  const auto* bytesPtr = internal::Utilities::toTypePtr<unsigned char>(bytes.data());
-  internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &bytesPtr, static_cast<long>(bytes.size())));
+  const auto* bytesPtr = internal::Utilities::toTypePtr<unsigned char>(buildBytes.data());
+  internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &bytesPtr, static_cast<long>(buildBytes.size())));
   if (!key)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PUBKEY"));
@@ -62,16 +70,25 @@ namespace
 //-----
 std::unique_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view key)
 {
-  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != KEY_SIZE * 2)
+  std::string formattedKey = key.data();
+  // Remove PEM prefix/suffix if is present and hex the base64 val
+  if (formattedKey.compare(
+        0, internal::asn1::PEM_ECPBK_PREFIX_STRING.size(), internal::asn1::PEM_ECPBK_PREFIX_STRING) == 0)
   {
-    throw BadKeyException("ED25519PublicKey cannot be realized from input string: input string size should be " +
-                          std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
-                          std::to_string(KEY_SIZE * 2));
+    formattedKey = formattedKey.substr(internal::asn1::PEM_ECPBK_PREFIX_STRING.size(), formattedKey.size());
+
+    if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPBK_SUFFIX_STRING.size(),
+                             formattedKey.size(),
+                             internal::asn1::PEM_ECPBK_SUFFIX_STRING) == 0)
+      formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPBK_SUFFIX_STRING.size());
+
+    formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }
 
   try
   {
-    return std::make_unique<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
+    return std::make_unique<ED25519PublicKey>(
+      ED25519PublicKey(bytesToPKEY(internal::HexConverter::hexToBytes(formattedKey))));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -83,13 +100,6 @@ std::unique_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view 
 //-----
 std::unique_ptr<ED25519PublicKey> ED25519PublicKey::fromBytes(const std::vector<std::byte>& bytes)
 {
-  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != KEY_SIZE)
-  {
-    throw BadKeyException("ED25519PublicKey cannot be realized from input bytes: input byte array size should be " +
-                          std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
-                          std::to_string(KEY_SIZE));
-  }
-
   try
   {
     return std::make_unique<ED25519PublicKey>(ED25519PublicKey(bytesToPKEY(bytes)));

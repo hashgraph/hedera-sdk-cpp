@@ -36,20 +36,9 @@ const std::vector<std::byte> ASN1_PRK_SUFFIX_BYTES = { std::byte(0xA0), std::byt
                                                        std::byte(0x05), std::byte(0x2B), std::byte(0x81),
                                                        std::byte(0x04), std::byte(0x00), std::byte(0x0A) };
 
-// The ASN.1 algorithm identifier prefix bytes for an ED25519PrivateKey
-const std::vector<std::byte> ASN1_EDPRK_PREFIX_BYTES = {
-  std::byte(0x30), std::byte(0x2E), std::byte(0x02), std::byte(0x01), std::byte(0x00), std::byte(0x30),
-  std::byte(0x05), std::byte(0x06), std::byte(0x03), std::byte(0x2B), std::byte(0x65), std::byte(0x70),
-  std::byte(0x04), std::byte(0x22), std::byte(0x04), std::byte(0x20)
-};
-
 // PEM Format prefix/suffix string ECDSA
 constexpr std::string_view PEM_ECPRK_PREFIX_STRING = "-----BEGIN EC PRIVATE KEY-----";
 constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY-----";
-
-// PEM Format prefix/suffix string ED25519
-constexpr std::string_view PEM_ECPRK_PREFIX_STRING = "-----BEGIN PRIVATE KEY-----";
-constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END PRIVATE KEY-----";
 
 /**
  * @class ASN1Key
