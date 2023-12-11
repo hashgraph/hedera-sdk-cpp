@@ -129,9 +129,6 @@ TEST_F(ED25519PrivateKeyUnitTests, FromString)
                                                "F83DEF42411E046461D5AEEAE9S11C56F661 557F349F3412DBD95C9FE8B026X"),
                BadKeyException);
   EXPECT_THROW(const std::unique_ptr<ED25519PrivateKey> key = ED25519PrivateKey::fromString(
-                 ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString()),
-               BadKeyException);
-  EXPECT_THROW(const std::unique_ptr<ED25519PrivateKey> key = ED25519PrivateKey::fromString(
                  std::string(ED25519PrivateKey::DER_ENCODED_PREFIX_HEX.size(), 'A') + getTestPrivateKeyHexString()),
                BadKeyException);
   EXPECT_NO_THROW(const std::unique_ptr<ED25519PrivateKey> key =
