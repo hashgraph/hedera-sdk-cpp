@@ -63,7 +63,7 @@ const internal::OpenSSLUtils::BIGNUM CURVE_ORDER =
 
   // This means potentially only the key bytes will be in the input not standard for ASN1 encodings but the SDK needs to
   // be able to process them
-  if (bytes.size() == internal::asn1::ECDSA_KEY_LENGTH)
+  if (bytes.size() == internal::asn1::EC_KEY_LENGTH)
   {
     buildPrivateKeyBytes = internal::Utilities::concatenateVectors(
       { internal::asn1::ASN1_PRK_PREFIX_BYTES, bytes, internal::asn1::ASN1_PRK_SUFFIX_BYTES });
@@ -115,8 +115,9 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(s
     if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size(),
                              formattedKey.size(),
                              internal::asn1::PEM_ECPRK_SUFFIX_STRING) == 0)
+    {
       formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size());
-
+    }
     formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }
 

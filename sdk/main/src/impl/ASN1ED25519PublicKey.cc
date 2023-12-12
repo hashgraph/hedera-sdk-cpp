@@ -20,12 +20,12 @@
 
 #include "exceptions/BadKeyException.h"
 
-#include "impl/ASN1ECPrivateKey.h"
+#include "impl/ASN1ED25519PublicKey.h"
 #include "impl/HexConverter.h"
 
 namespace Hedera::internal::asn1
 {
-ASN1ECPrivateKey::ASN1ECPrivateKey(const std::vector<std::byte>& bytes)
+ASN1ED25519PublicKey::ASN1ED25519PublicKey(const std::vector<std::byte>& bytes)
 {
   if (bytes.size() >= MAX_ENCRYPTED_KEY_LENGHT)
   {
@@ -37,19 +37,19 @@ ASN1ECPrivateKey::ASN1ECPrivateKey(const std::vector<std::byte>& bytes)
   }
 }
 
-std::vector<std::byte> ASN1ECPrivateKey::getKey() const
+std::vector<std::byte> ASN1ED25519PublicKey::getKey() const
 {
-  std::vector<std::byte> privateKey = get(OCTET_STRING);
-  if (privateKey.size() < EC_KEY_LENGTH)
+  std::vector<std::byte> publicKey = get(BIT_STRING);
+  if (publicKey.size() < EC_KEY_LENGTH)
   {
     throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");
   }
-  if (privateKey.size() > EC_KEY_LENGTH) // remove redundant padded bytes if any
+  if (publicKey.size() > EC_KEY_LENGTH) // remove redundant padded bytes if any
   {
-    privateKey = std::vector<std::byte>(privateKey.end() - EC_KEY_LENGTH, privateKey.end());
+    publicKey = std::vector<std::byte>(publicKey.end() - EC_KEY_LENGTH, publicKey.end());
   }
 
-  return privateKey;
+  return publicKey;
 }
 
 } // namespace Hedera::internal:asn1

@@ -31,12 +31,12 @@ const std::vector<std::byte> ASN1_PRK_PREFIX_BYTES = { std::byte(0x30), std::byt
                                                        std::byte(0x01), std::byte(0x01), std::byte(0x04),
                                                        std::byte(0x20) };
 
-// The ASN.1 algorithm identifier suffix bytes for an ECDSAsecp256k1Key.
+// The ASN.1 algorithm identifier suffix bytes for an ECDSAsecp256k1KeyPrivateKey.
 const std::vector<std::byte> ASN1_PRK_SUFFIX_BYTES = { std::byte(0xA0), std::byte(0x07), std::byte(0x06),
                                                        std::byte(0x05), std::byte(0x2B), std::byte(0x81),
                                                        std::byte(0x04), std::byte(0x00), std::byte(0x0A) };
 
-// PEM Format prefix/suffix string
+// PEM Format prefix/suffix string ECDSA
 constexpr std::string_view PEM_ECPRK_PREFIX_STRING = "-----BEGIN EC PRIVATE KEY-----";
 constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY-----";
 
