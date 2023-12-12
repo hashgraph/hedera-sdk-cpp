@@ -45,7 +45,9 @@ std::vector<std::byte> ASN1ED25519PublicKey::getKey() const
     throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");
   }
   if (publicKey.size() > EC_KEY_LENGTH) // remove redundant padded bytes if any
+  {
     publicKey = std::vector<std::byte>(publicKey.end() - EC_KEY_LENGTH, publicKey.end());
+  }
 
   return publicKey;
 }

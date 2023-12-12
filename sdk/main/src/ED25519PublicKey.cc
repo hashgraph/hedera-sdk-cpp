@@ -43,20 +43,18 @@ namespace
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<std::byte> bytes)
 {
-  std::vector<std::byte> buildBytes = bytes;
-
   if (bytes.size() == ED25519PublicKey::KEY_SIZE)
   {
-    buildBytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPBK_PREFIX_BYTES, bytes });
+    bytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPBK_PREFIX_BYTES, bytes });
   }
   else
   {
-    internal::asn1::ASN1ED25519PublicKey asn1key(buildBytes);
-    buildBytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPBK_PREFIX_BYTES, asn1key.getKey() });
+    internal::asn1::ASN1ED25519PublicKey asn1key(bytes);
+    bytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPBK_PREFIX_BYTES, asn1key.getKey() });
   }
 
-  const auto* bytesPtr = internal::Utilities::toTypePtr<unsigned char>(buildBytes.data());
-  internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &bytesPtr, static_cast<long>(buildBytes.size())));
+  const auto* bytesPtr = internal::Utilities::toTypePtr<unsigned char>(bytes.data());
+  internal::OpenSSLUtils::EVP_PKEY key(d2i_PUBKEY(nullptr, &bytesPtr, static_cast<long>(bytes.size())));
   if (!key)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PUBKEY"));
@@ -80,7 +78,9 @@ std::unique_ptr<ED25519PublicKey> ED25519PublicKey::fromString(std::string_view 
     if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPBK_SUFFIX_STRING.size(),
                              formattedKey.size(),
                              internal::asn1::PEM_ECPBK_SUFFIX_STRING) == 0)
+    {
       formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPBK_SUFFIX_STRING.size());
+    }
 
     formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }

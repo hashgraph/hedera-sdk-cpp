@@ -53,21 +53,19 @@ const std::vector<std::byte> SLIP10_SEED = { std::byte('e'), std::byte('d'), std
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(std::vector<std::byte> bytes)
 {
-  std::vector<std::byte> buildBytes = bytes;
-
   if (bytes.size() == ED25519PrivateKey::KEY_SIZE)
   {
-    buildBytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPRK_PREFIX_BYTES, bytes });
+    bytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPRK_PREFIX_BYTES, bytes });
   }
   else
   {
-    internal::asn1::ASN1ED25519PrivateKey asn1key(buildBytes);
-    buildBytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPRK_PREFIX_BYTES, asn1key.getKey() });
+    internal::asn1::ASN1ED25519PrivateKey asn1key(bytes);
+    bytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPRK_PREFIX_BYTES, asn1key.getKey() });
   }
 
-  const unsigned char* rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(buildBytes.data());
+  const unsigned char* rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(bytes.data());
   internal::OpenSSLUtils::EVP_PKEY key(
-    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(buildBytes.size())));
+    d2i_PrivateKey(EVP_PKEY_ED25519, nullptr, &rawKeyBytes, static_cast<long>(bytes.size())));
   if (!key)
   {
     throw OpenSSLException(internal::OpenSSLUtils::getErrorMessage("d2i_PrivateKey"));

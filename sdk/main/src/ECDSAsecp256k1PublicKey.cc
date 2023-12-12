@@ -57,7 +57,6 @@ namespace
  */
 [[nodiscard]] internal::OpenSSLUtils::EVP_PKEY bytesToPKEY(const std::vector<std::byte>& bytes)
 {
-  // OpenSSL requires that the bytes are uncompressed and that they contain the appropriate ASN.1 prefix.
   std::vector<std::byte> buildPublicKeyBytes = bytes;
 
   if (buildPublicKeyBytes.size() == internal::asn1::EC_KEY_LENGTH + 1)
@@ -111,7 +110,9 @@ std::unique_ptr<ECDSAsecp256k1PublicKey> ECDSAsecp256k1PublicKey::fromString(std
     if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPUBK_SUFFIX_STRING.size(),
                              formattedKey.size(),
                              internal::asn1::PEM_ECPUBK_SUFFIX_STRING) == 0)
+    {
       formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPUBK_SUFFIX_STRING.size());
+    }
 
     formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }

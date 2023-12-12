@@ -115,8 +115,9 @@ std::unique_ptr<ECDSAsecp256k1PrivateKey> ECDSAsecp256k1PrivateKey::fromString(s
     if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size(),
                              formattedKey.size(),
                              internal::asn1::PEM_ECPRK_SUFFIX_STRING) == 0)
+    {
       formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_ECPRK_SUFFIX_STRING.size());
-
+    }
     formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }
 

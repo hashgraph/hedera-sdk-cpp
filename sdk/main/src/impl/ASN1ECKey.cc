@@ -30,24 +30,22 @@ void ASN1ECKey::decode(const std::vector<std::byte>& bytes)
   int currentByteIndex = 0;
   while (currentByteIndex < bytes.size() - 1)
   {
-    std::byte asn1Tag = bytes[currentByteIndex++];
-    int asn1TagSize = static_cast<int>(bytes[currentByteIndex++]);
+    const std::byte asn1Tag = bytes[currentByteIndex++];
+    const int asn1TagSize = static_cast<int>(bytes[currentByteIndex++]);
 
     if (currentByteIndex + asn1TagSize > bytes.size())
     {
       throw BadKeyException("Bad PEM/DER EC KEY bytes data!");
     }
     // Ignore sequence as ASN1 for EC Key is in basic format
-    if (asn1Tag == SEQUENCE)
+    if (asn1Tag != SEQUENCE)
     {
-      continue;
+      std::vector<std::byte> asn1DataAtTag(bytes.begin() + currentByteIndex,
+                                           bytes.begin() + currentByteIndex + asn1TagSize);
+      currentByteIndex += asn1TagSize;
+
+      asn1KeyData.insert({ asn1Tag, asn1DataAtTag });
     }
-
-    std::vector<std::byte> asn1DataAtTag(bytes.begin() + currentByteIndex,
-                                         bytes.begin() + currentByteIndex + asn1TagSize);
-    currentByteIndex += asn1TagSize;
-
-    asn1KeyData.insert({ asn1Tag, asn1DataAtTag });
   }
 }
 

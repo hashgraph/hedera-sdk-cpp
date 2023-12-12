@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @brief This file defines the Hedera C++ SDK's ED25519PrivateKey class, derived from ASN1ECKey.
+ * @brief This file defines the Hedera C++ SDK's ASN1ED25519PrivateKey class, derived from ASN1ECKey.
  */
 
 #ifndef HEDERA_SDK_CPP_IMPL_ASN1_ED25519_PRIVATE_KEY_H_
