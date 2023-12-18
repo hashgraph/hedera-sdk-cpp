@@ -888,3 +888,11 @@ package
 
 ### Ignore environment file
 .env
+
+# Ignore coverage data
+*.gcno
+*.gcda
+*.gcov
+
+# Ignore coverage directory
+coverage/

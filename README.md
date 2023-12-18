@@ -126,6 +126,84 @@ Example config file:
 
 (Source: [config/local_node.json](https://github.com/hashgraph/hedera-sdk-cpp/blob/main/config/local_node.json))
 
+### Generateing code coverage report
+
+#### Prerequisites
+
+- CMake (version 3.15 or higher)
+- Gcov (for code coverage analysis)
+- Lcov (for generating HTML reports)
+- GCC or Clang (for GCC Gcov) / MSVC (for MSVC Gcov)
+
+#### Installing Gcov and Lcov
+
+##### Windows
+
+1. For GCC Gcov:
+
+   - Install MinGW-W64 from [https://mingw-w64.org/doku.php](https://mingw-w64.org/doku.php)
+   - Add MinGW-W64 bin directory to the system PATH.
+
+2. For MSVC Gcov:
+   - Ensure Visual Studio is installed.
+
+##### Linux
+
+1. Install Gcov and Lcov using your package manager:
+
+   ```bash
+   # For GCC Gcov
+   sudo apt-get install gcov lcov
+
+   # For Clang Gcov
+   sudo apt-get install llvm llvm-dev
+   ```
+
+##### MacOS
+
+1. brew install gcov lcov
+
+#### Running the test suite
+
+After the prerequisites have been satisfied we can now build the project using the
+cmake flag `-DENABLE_CODE_COVERAGE=ON` and then run the test suite using `ctest`.
+The `-DENABLE_CODE_COVERAGE=ON` flag will instruct the compiler to generate code
+coverage data in the form of `.gcda` files that can be read from the `gcov`,`lcov`
+tools.
+
+#### Creating the coverage report
+
+1. Try to find compiler generated code coverage data in the project build directory
+
+```
+lcov --capture --directory ./build_directory/sdk/main --output-file coverage.info
+```
+
+2. Additional flags could be needed to perform the above step:
+   `--ignore-errors inconsistent,inconsistent` This is due to `gcov` having trouble with
+   `GRPC` calls. Ignoring these errors do not significantly impact the code coverage report
+   as the report still contains appropriate function coverage and line coverage data.
+   `coverage.info` will contain the code coverage processed data and will be later used
+   to create the `.html` report.
+
+3. The coverage report may have included additional included libraries in the report.
+   Useless report data can be removed by:
+
+```
+lcov --remove coverage.info '/include_dir/*' -o coverage_filtered.info
+```
+
+This is a way to filter out data to be generated from the `html` report tool
+
+4. Now we can generate an `html` report with our collected data:
+
+```
+genhtml coverage_filtered.info --output-directory coverage_report
+```
+
+Again for the same reasons as 2. we could need to add additional flags
+`--ignore-errors inconsistent --ignore-errors unmapped`
+
 ## Examples
 
 Examples must be run from the root directory in order to correctly access the address book and configuration files
