@@ -1,22 +1,24 @@
 /*-
-*
-* Hedera C++ SDK
-*
-* Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License")
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
+ *
+ * Hedera C++ SDK
+ *
+ * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
+#include "exceptions/CURLException.h"
+#include "exceptions/IllegalStateException.h"
 
 #include <iostream>
 
@@ -25,26 +27,43 @@
 
 namespace Hedera::internal::MirrorNodeGateway
 {
-  json AccountInfoQuery(std::string_view accountId)
+json AccountInfoQuery(std::string_view accountId, std::string_view networkType)
+{
+  std::string response;
+  try
   {
-    const json routes = MirrorNodeRouter::getRoutes();
-    const std::string url = routes["testnet"]["accountInfoQuery"];
+    const std::string mirrorNodeUrl =
+      MirrorNodeRouter::getRoutes()[networkType]["accountInfoQuery"].get<std::string>() + accountId.data();
     HttpClient httpClient;
-    std::string response = httpClient.invokeREST(url,"GET");
-    return json::parse(response);
+    response = httpClient.invokeREST(mirrorNodeUrl);
   }
-
-  json AccountBalanceQuery(std::string_view accountId)
+  catch (const std::exception& e)
   {
-    return AccountInfoQuery(accountId)["balance"];
+    throw IllegalStateException(std::string(e.what() + std::string(" Illegal json state!")));
   }
+  return json::parse(response);
+}
 
-  json ContractInfoQuery(std::string_view contractId)
+json AccountBalanceQuery(std::string_view accountId, std::string_view networkType)
+{
+  // the account balance is stored in a balance object
+  return AccountInfoQuery(accountId, networkType)["balance"]["balance"];
+}
+
+json ContractInfoQuery(std::string_view contractId, std::string_view networkType)
+{
+  std::string response;
+  try
   {
-    const json routes = MirrorNodeRouter::getRoutes();
-    const std::string url = routes["testnet"]["contractInfoQuery"];
+    const std::string mirrorNodeUrl =
+      MirrorNodeRouter::getRoutes()[networkType]["contractInfoQuery"].get<std::string>() + contractId.data();
     HttpClient httpClient;
-    std::string response = httpClient.invokeREST(url,"GET");
-    return json::parse(response);
+    response = httpClient.invokeREST(mirrorNodeUrl);
   }
+  catch (const std::exception& e)
+  {
+    throw IllegalStateException(std::string(e.what() + std::string(" Illegal json state!")));
+  }
+  return json::parse(response);
+}
 }

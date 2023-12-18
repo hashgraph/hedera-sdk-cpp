@@ -21,11 +21,13 @@
 #include "AccountBalanceQuery.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
+#include "HbarUnit.h"
 
 #include "impl/MirrorNodeGateway.h"
 
 #include <dotenv.h>
 #include <iostream>
+#include <string>
 
 #include <nlohmann/json.hpp>
 
@@ -41,12 +43,11 @@ int main(int argc, char** argv)
   // Get a client for the Hedera testnet
   Client client = Client::forTestnet();
 
-  json j = internal::MirrorNodeGateway::AccountInfoQuery(operatorAccountId.toString());
-
-  std::cout<< j <<std::endl;
+  json j = internal::MirrorNodeGateway::AccountBalanceQuery(operatorAccountId.toString(),
+                                                            internal::MirrorNodeGateway::forTestNet);
 
   // Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.
-  Hbar balance = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).mBalance;
+  Hbar balance = Hbar::fromTinybars(std::stoll(j.dump()));
 
   std::cout << "Balance of account " << operatorAccountId.toString() << " is " << balance.toString() << std::endl;
 
