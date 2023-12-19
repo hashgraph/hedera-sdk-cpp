@@ -22,20 +22,24 @@
 #include "impl/Utilities.h"
 
 #include <filesystem>
+#include <iostream>
 
 namespace Hedera::internal::MirrorNodeGateway
 {
 
-const json MirrorNodeRouter::getRoutes()
+const std::string_view MirrorNodeRouter::getRoute(std::string_view queryType) const
 {
-  static json routes = readRoutesFromFile();
-  return routes;
-}
-
-const json MirrorNodeRouter::readRoutesFromFile()
-{
-  return internal::Utilities::fromConfigFile(
-    (std::filesystem::current_path() / "config" / "mirror_node_routes.json").string());
+  std::string_view queryRoute;
+  auto route = routes.find(queryType);
+  if (route != routes.end())
+  {
+    queryRoute = route->second;
+  }
+  else
+  {
+    throw std::runtime_error("Route not found in the routes map");
+  }
+  return queryRoute;
 }
 
 }

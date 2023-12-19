@@ -31,6 +31,7 @@ add_executable(${TEST_PROJECT_NAME}
         FreezeTransactionIntegrationTests.cc
         HttpClientIntegrationTests.cc
         JSONIntegrationTests.cc
+        MirrorNodeGatewayIntegrationTests.cc
         NetworkVersionInfoQueryIntegrationTests.cc
         PrngTransactionIntegrationTests.cc
         QueryIntegrationTests.cc

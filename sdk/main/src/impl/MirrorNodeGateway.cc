@@ -32,8 +32,7 @@ json AccountInfoQuery(std::string_view accountId, std::string_view networkType)
   std::string response;
   try
   {
-    const std::string mirrorNodeUrl =
-      MirrorNodeRouter::getRoutes()[networkType]["accountInfoQuery"].get<std::string>() + accountId.data();
+    const std::string mirrorNodeUrl = buildUrl(accountId, networkType, "accountInfoQuery");
     HttpClient httpClient;
     response = httpClient.invokeREST(mirrorNodeUrl);
   }
@@ -55,8 +54,7 @@ json ContractInfoQuery(std::string_view contractId, std::string_view networkType
   std::string response;
   try
   {
-    const std::string mirrorNodeUrl =
-      MirrorNodeRouter::getRoutes()[networkType]["contractInfoQuery"].get<std::string>() + contractId.data();
+    const std::string mirrorNodeUrl = buildUrl(contractId, networkType, "contractInfoQuery");
     HttpClient httpClient;
     response = httpClient.invokeREST(mirrorNodeUrl);
   }
@@ -65,5 +63,16 @@ json ContractInfoQuery(std::string_view contractId, std::string_view networkType
     throw IllegalStateException(std::string(e.what() + std::string(" Illegal json state!")));
   }
   return json::parse(response);
+}
+
+std::string buildUrl(std::string_view id, std::string_view networkType, std::string_view queryType)
+{
+  std::string url = "";
+  url += (networkType != forLocalNode) ? "https://" + std::string(networkType.data()) + ".mirrornode.hedera.com"
+                                       : networkType.data();
+  MirrorNodeRouter router;
+  url += router.getRoute(queryType);
+  url += id.data();
+  return url;
 }
 }
