@@ -248,6 +248,13 @@ private:
   void onExecute(const Client& client) override;
 
   /**
+   * Derived from Executable. Get the ID of the payment transaction for this Query.
+   *
+   * @return The ID of the payment transaction of this Query.
+   */
+  [[nodiscard]] std::optional<TransactionId> getTransactionIdInternal() const override;
+
+  /**
    * Does this Query require payment? Default to \c TRUE, as most Queries do.
    *
    * @return \c TRUE if this Query requires payment, otherwise \c FALSE.

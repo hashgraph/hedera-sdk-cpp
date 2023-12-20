@@ -20,7 +20,11 @@
 #ifndef HEDERA_SDK_CPP_RECEIPT_STATUS_EXCEPTION_H_
 #define HEDERA_SDK_CPP_RECEIPT_STATUS_EXCEPTION_H_
 
+#include "Status.h"
+#include "TransactionId.h"
+
 #include <exception>
+#include <string>
 #include <string_view>
 
 namespace Hedera
@@ -33,12 +37,15 @@ class ReceiptStatusException : public std::exception
 {
 public:
   /**
-   * Construct with a message.
+   * Construct with the ID of the transaction that failed and its status.
    *
-   * @param msg The error message to further describe this exception.
+   * @param transactionId The ID of the transaction that failed.
+   * @param status        The status of the transaction.
    */
-  explicit ReceiptStatusException(std::string_view msg)
-    : mError(msg)
+  explicit ReceiptStatusException(const TransactionId& transactionId, Status status)
+    : mTransactionId(transactionId)
+    , mStatus(status)
+    , mError("receipt for transaction " + mTransactionId.toString() + " raised status " + gStatusToString.at(mStatus))
   {
   }
 
@@ -47,13 +54,22 @@ public:
    *
    * @return The descriptor message for this error.
    */
-  [[nodiscard]] const char* what() const noexcept override { return mError.data(); };
+  [[nodiscard]] const char* what() const noexcept override { return mError.c_str(); };
 
-private:
+  /**
+   * The ID of the transaction that failed.
+   */
+  TransactionId mTransactionId;
+
+  /**
+   * The status of the failed transaction.
+   */
+  Status mStatus = Status::OK;
+
   /**
    * Descriptive error message.
    */
-  std::string_view mError;
+  std::string mError;
 };
 
 } // namespace Hedera

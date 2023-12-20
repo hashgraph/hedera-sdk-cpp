@@ -17,9 +17,9 @@
  * limitations under the License.
  *
  */
-#include "ContractUpdateTransaction.h"
 #include "Client.h"
 #include "ContractId.h"
+#include "ContractUpdateTransaction.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/DurationConverter.h"
@@ -270,16 +270,6 @@ TEST_F(ContractUpdateTransactionUnitTests, GetSetMaxAutomaticTokenAssociations)
 
   // Then
   EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), getTestMaximumAutomaticTokenAssociations());
-}
-
-//-----
-TEST_F(ContractUpdateTransactionUnitTests, SetMaxAutomaticTokenAssociationsTooMany)
-{
-  // Given
-  ContractUpdateTransaction transaction;
-
-  // When / Then
-  EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(5001U), std::invalid_argument);
 }
 
 //-----

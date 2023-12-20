@@ -128,7 +128,6 @@ public:
    * @return A reference to this ContractUpdateTransaction object with the newly-set maximum automatic token
    *         associations.
    * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
-   * @throws std::invalid_argument If the desired maximum number of associations is over 5000.
    */
   ContractUpdateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
 

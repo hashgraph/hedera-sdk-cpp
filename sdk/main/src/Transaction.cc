@@ -312,8 +312,7 @@ std::vector<std::byte> Transaction<SdkRequestType>::toBytes() const
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::sign(const std::shared_ptr<PrivateKey>& key)
 {
-  return signInternal(
-    key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
+  return signInternal(key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
 }
 
 //-----
@@ -1087,6 +1086,13 @@ void Transaction<SdkRequestType>::buildTransaction(unsigned int index) const
   }
 
   mImpl->mTransactions[index].set_signedtransactionbytes(signedTransaction.SerializeAsString());
+}
+
+//-----
+template<typename SdkRequestType>
+std::optional<TransactionId> Transaction<SdkRequestType>::getTransactionIdInternal() const
+{
+  return mImpl->mTransactionId;
 }
 
 //-----

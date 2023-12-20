@@ -40,6 +40,7 @@ namespace internal
 class Node;
 }
 class Client;
+class TransactionId;
 enum class Status;
 }
 
@@ -372,6 +373,14 @@ private:
    * @param client The Client being used to submit this Executable.
    */
   virtual void onExecute([[maybe_unused]] const Client& client) = 0;
+
+  /**
+   * Get the ID of the transaction for this Executable. For Queries, this is the ID of the payment transaction. For
+   * Transactions, this is simply its own transaction ID.
+   *
+   * @return The ID of the transaction of this Executable.
+   */
+  [[nodiscard]] virtual std::optional<TransactionId> getTransactionIdInternal() const = 0;
 
   /**
    * Set the execution parameters to be used to submit this Executable. If any of mMaxAttempts, mMinBackoff, or

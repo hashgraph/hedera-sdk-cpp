@@ -140,7 +140,6 @@ public:
    * @return A reference to this AccountUpdateTransaction object with the newly-set maximum automatic token
    *         associations.
    * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
-   * @throws std::invalid_argument If the desired maximum number of associations is over 5000.
    */
   AccountUpdateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
 

@@ -111,11 +111,6 @@ AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociat
 {
   requireNotFrozen();
 
-  if (associations > 5000U)
-  {
-    throw std::invalid_argument("Too many maximum number of token associations. Maximum can't be over 5000");
-  }
-
   mMaxAutomaticTokenAssociations = associations;
   return *this;
 }

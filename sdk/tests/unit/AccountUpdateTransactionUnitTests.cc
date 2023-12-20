@@ -344,16 +344,6 @@ TEST_F(AccountUpdateTransactionUnitTests, SetMaxAutomaticTokenAssociations)
 }
 
 //-----
-TEST_F(AccountUpdateTransactionUnitTests, SetMaxAutomaticTokenAssociationsTooMany)
-{
-  // Given
-  AccountUpdateTransaction transaction;
-
-  // When / Then
-  EXPECT_THROW(transaction.setMaxAutomaticTokenAssociations(5001U), std::invalid_argument);
-}
-
-//-----
 TEST_F(AccountUpdateTransactionUnitTests, SetMaxAutomaticTokenAssociationsFrozen)
 {
   // Given

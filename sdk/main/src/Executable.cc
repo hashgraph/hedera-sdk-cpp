@@ -260,7 +260,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
       }
       case ExecutionStatus::REQUEST_ERROR:
       {
-        throw PrecheckStatusException(gStatusToString.at(responseStatus));
+        throw PrecheckStatusException(responseStatus, getTransactionIdInternal());
       }
       default:
       {

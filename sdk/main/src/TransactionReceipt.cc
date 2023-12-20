@@ -207,7 +207,7 @@ void TransactionReceipt::validateStatus() const
 {
   if (mStatus != Status::SUCCESS)
   {
-    throw ReceiptStatusException(gStatusToString.at(mStatus));
+    throw ReceiptStatusException(mTransactionId, mStatus);
   }
 }
 

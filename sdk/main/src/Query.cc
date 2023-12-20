@@ -376,6 +376,13 @@ void Query<SdkRequestType, SdkResponseType>::onExecute(const Client& client)
   }
 }
 
+//-----
+template<typename SdkRequestType, typename SdkResponseType>
+std::optional<TransactionId> Query<SdkRequestType, SdkResponseType>::getTransactionIdInternal() const
+{
+  return getPaymentTransactionId();
+}
+
 /**
  * Explicit template instantiations.
  */

@@ -24,8 +24,7 @@
       "version>=": "2022-06-21"
     },
     {
-      "name": "nlohmann-json",
-      "version>=": "3.11.2"
+      "name": "nlohmann-json"
     },
     {
       "name": "curl",

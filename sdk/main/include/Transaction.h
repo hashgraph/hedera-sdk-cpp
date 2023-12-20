@@ -499,6 +499,13 @@ private:
   void onExecute(const Client& client) override;
 
   /**
+   * Derived from Executable. Get the ID of this Transaction.
+   *
+   * @return The ID of this Transaction.
+   */
+  [[nodiscard]] std::optional<TransactionId> getTransactionIdInternal() const override;
+
+  /**
    * Build a Transaction protobuf object from the SignedTransaction protobuf object at the specified index.
    *
    * @param index The index in the Transaction's SignedTransaction list from which the Transaction protobuf object

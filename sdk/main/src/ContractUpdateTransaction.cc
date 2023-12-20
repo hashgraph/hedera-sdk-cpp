@@ -96,12 +96,6 @@ ContractUpdateTransaction& ContractUpdateTransaction::setContractMemo(std::strin
 ContractUpdateTransaction& ContractUpdateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
 {
   requireNotFrozen();
-
-  if (associations > 5000U)
-  {
-    throw std::invalid_argument("Too many maximum number of token associations. Maximum can't be over 5000");
-  }
-
   mMaxAutomaticTokenAssociations = associations;
   return *this;
 }

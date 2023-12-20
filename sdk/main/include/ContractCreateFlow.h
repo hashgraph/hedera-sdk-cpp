@@ -148,7 +148,6 @@ public:
    *
    * @param associations The maximum amount of token associations for the new smart contract instance.
    * @return A reference to this ContractCreateFlow object with the newly-set maximum automatic token associations.
-   * @throws std::invalid_argument If the desired maximum number of associations is over 5000.
    */
   ContractCreateFlow& setMaxAutomaticTokenAssociations(uint32_t associations);
 

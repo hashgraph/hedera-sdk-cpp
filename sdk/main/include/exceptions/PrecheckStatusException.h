@@ -20,7 +20,11 @@
 #ifndef HEDERA_SDK_CPP_PRECHECK_STATUS_EXCEPTION_H_
 #define HEDERA_SDK_CPP_PRECHECK_STATUS_EXCEPTION_H_
 
+#include "Status.h"
+#include "TransactionId.h"
+
 #include <exception>
+#include <optional>
 #include <string_view>
 
 namespace Hedera
@@ -32,12 +36,17 @@ class PrecheckStatusException : public std::exception
 {
 public:
   /**
-   * Construct with a message.
+   * Construct with the ID of the transaction that failed and its status.
    *
-   * @param msg The error message to further describe this exception.
+   * @param transactionId The ID of the transaction that failed.
+   * @param status        The status of the transaction.
    */
-  explicit PrecheckStatusException(std::string_view msg)
-    : mError(msg)
+  explicit PrecheckStatusException(Status status,
+                                   const std::optional<TransactionId>& transactionId = std::optional<TransactionId>())
+    : mTransactionId(transactionId)
+    , mStatus(status)
+    , mError(((transactionId.has_value()) ? "Hedera transaction " + transactionId->toString() + ' ' : "") +
+             "failed precheck with status " + gStatusToString.at(mStatus))
   {
   }
 
@@ -48,11 +57,21 @@ public:
    */
   [[nodiscard]] const char* what() const noexcept override { return mError.data(); };
 
-private:
+  /**
+   * The ID of the transaction that failed. This can be uninitialized if a query fails pre-check without an associated
+   * payment transaction.
+   */
+  std::optional<TransactionId> mTransactionId;
+
+  /**
+   * The status of the failed transaction.
+   */
+  Status mStatus = Status::OK;
+
   /**
    * Descriptive error message.
    */
-  std::string_view mError;
+  std::string mError;
 };
 
 } // namespace Hedera
