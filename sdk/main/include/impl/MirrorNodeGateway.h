@@ -67,16 +67,57 @@ json AccountBalanceQuery(std::string_view mirrorNodeUrl, std::string_view accoun
 json ContractInfoQuery(std::string_view mirrorNodeUrl, std::string_view contractId);
 
 /**
- * @brief Build a URL based on the provided parameters.
+ * @brief Query token relationship information from the Mirror Node.
  *
- * This function constructs a URL using the given components, such as an optional identifier (`id`),
- * network type, and query type.
+ * This function queries token relationship information from the Mirror Node based on
+ * the provided account ID.
  *
- * @param mirrorNodeUrl Mirror Node URL fetched from Client
- * @param id An optional identifier to be included in the URL (default is an empty string).
- * @param queryType The type of query for which the URL is constructed.
- * @return A string representing the constructed URL.
+ * @param mirrorNodeUrl Mirror Node URL fetched from Client.
+ * @param accountId The account ID for which to query token relationships.
+ * @return A JSON object containing the token relationship information.
+ * @throws IllegalStateException If an error occurs while querying the Mirror Node.
  */
-std::string buildUrl(std::string_view mirrorNodeUrl = "", std::string_view id = "", std::string_view queryType = "");
+json TokenAccountRelationshipQuery(std::string_view mirrorNodeUrl, std::string_view accountId);
+
+/**
+ * @brief Query token balances relationship information from the Mirror Node.
+ *
+ * This function queries token relationship information from the Mirror Node based on
+ * the provided account ID.
+ *
+ * @param mirrorNodeUrl Mirror Node URL fetched from Client.
+ * @param accountId The account ID for which to query token relationships.
+ * @return A JSON object containing the token relationship information.
+ * @throws IllegalStateException If an error occurs while querying the Mirror Node.
+ */
+json TokensBalancesRelationshipQuery(std::string_view mirrorNodeUrl, std::string_view accountId);
+
+/**
+ * @brief Replaces all occurrences of a substring in a string.
+ *
+ * This function replaces all occurrences of the substring specified by 'search'
+ * with the string specified by 'replace' in the original string.
+ *
+ * @param original The original string to be modified.
+ * @param search The substring to search for.
+ * @param replace The string to replace the occurrences of 'search'.
+ */
+void replaceParameters(std::string& original, const std::string& search, const std::string& replace);
+
+/**
+ * @brief Builds a URL based on a mirror node URL, query type, and parameters.
+ *
+ * This function constructs a URL by combining a mirror node URL, a query type,
+ * and a list of parameters. It replaces occurrences of "$" in the route with
+ * the provided parameters.
+ *
+ * @param mirrorNodeUrl The mirror node URL.
+ * @param queryType The type of the query.
+ * @param params A vector of strings representing parameters.
+ * @return The constructed URL.
+ */
+std::string buildUrl(std::string_view mirrorNodeUrl,
+                     std::string_view queryType,
+                     const std::vector<std::string>& params);
 } // namespace Hedera::internal::MirrorNodeGateway
 #endif // HEDERA_SDK_CPP_MIRRORNODEGATEWAY_H

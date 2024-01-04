@@ -37,7 +37,7 @@ protected:
 
 private:
   const std::string mAccountIdStr = "0.0.3";
-  const std::string mMirrorNetworkUrl = "127.0.0.1:5551";
+  const std::string mMirrorNetworkUrl = "http://127.0.0.1:5551";
 };
 
 //-----
@@ -45,7 +45,6 @@ TEST_F(MirrorNodeGatewayIntegrationTests, AccountBalanceQuery)
 {
   // Given
   const std::string& accountIdStr = getAccountIdStr();
-  std::cout << getTestClient().getMirrorNetwork()[0] << std::endl;
   // When
   json response;
   ASSERT_NO_THROW(response = internal::MirrorNodeGateway::AccountBalanceQuery(getMirrorNetworkUrl(), accountIdStr););
@@ -83,4 +82,36 @@ TEST_F(MirrorNodeGatewayIntegrationTests, ContractInfoQuery)
   // Then
   ASSERT_FALSE(response.empty());            // checks if any data
   EXPECT_FALSE(response["_status"].empty()); // no such contract exists then should have _status not found
+}
+
+//-----
+TEST_F(MirrorNodeGatewayIntegrationTests, TokenAccountRelationshipQuery)
+{
+  // Given
+  const std::string& accountIdStr = getAccountIdStr();
+
+  // When
+  json response;
+  ASSERT_NO_THROW(response =
+                    internal::MirrorNodeGateway::TokenAccountRelationshipQuery(getMirrorNetworkUrl(), accountIdStr););
+
+  // Then
+  ASSERT_FALSE(response.empty());           // checks if any data
+  EXPECT_TRUE(response["_status"].empty()); // if status is in json then not found
+}
+
+//-----
+TEST_F(MirrorNodeGatewayIntegrationTests, TokensBalancesRelationshipQuery)
+{
+  // Given
+  const std::string& accountIdStr = getAccountIdStr();
+
+  // When
+  json response;
+  ASSERT_NO_THROW(response =
+                    internal::MirrorNodeGateway::TokensBalancesRelationshipQuery(getMirrorNetworkUrl(), accountIdStr););
+
+  // Then
+  ASSERT_FALSE(response.empty());           // checks if any data
+  EXPECT_TRUE(response["_status"].empty()); // no such contract exists then should have _status not found
 }

@@ -47,8 +47,10 @@ private:
    * @brief Internal mapping of mirror node query types to their respective routes.
    */
   std::unordered_map<std::string_view, std::string_view> routes = {
-    {"accountInfoQuery",   "/api/v1/accounts/" },
-    { "contractInfoQuery", "/api/v1/contracts/"},
+    {"accountInfoQuery",                 "/api/v1/accounts/$"       },
+    { "contractInfoQuery",               "/api/v1/contracts/$"      },
+    { "tokenAccountRelationshipQuery",   "/api/v1/accounts/$/tokens"},
+    { "tokensBalancesRelationshipQuery", "/api/v1/tokens/$/balances"}
   };
 };
 
