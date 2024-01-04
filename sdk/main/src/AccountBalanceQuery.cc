@@ -19,12 +19,20 @@
  */
 #include "AccountBalanceQuery.h"
 #include "AccountBalance.h"
+#include "impl/MirrorNodeGateway.h"
 #include "impl/Node.h"
 
 #include <proto/crypto_get_account_balance.pb.h>
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
+
+#include <cstddef>
+#include <string>
+
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace Hedera
 {
@@ -49,7 +57,10 @@ AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contra
 //-----
 AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response) const
 {
-  return AccountBalance::fromProtobuf(response.cryptogetaccountbalance());
+  AccountBalance accountBalance;
+  json j = internal::MirrorNodeGateway::AccountBalanceQuery(getMirrorNodeResolution(), mAccountId.value().toString());
+  accountBalance.mBalance = Hbar::fromTinybars(std::stoll(j.dump()));
+  return accountBalance;
 }
 
 //-----

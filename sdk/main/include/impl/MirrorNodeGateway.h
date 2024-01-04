@@ -29,50 +29,29 @@ using json = nlohmann::json;
 namespace Hedera::internal::MirrorNodeGateway
 {
 /**
- * @brief String constant for the testnet network type.
- */
-constexpr std::string_view forTestNet = "testnet";
-
-/**
- * @brief String constant for the mainnet network type.
- */
-constexpr std::string_view forMainNet = "mainnet";
-
-/**
- * @brief String constant for the previewnet network type.
- */
-constexpr std::string_view forPreviewNet = "previewnet";
-
-/**
- * @brief String constant for the local network type.
- */
-constexpr std::string_view forLocalNode = "localhost:5551";
-
-/**
  * @brief Query account information from the Mirror Node.
  *
  * This function queries account information from the Mirror Node based on
  * the provided account ID.
  *
+ * @param mirrorNodeUrl Mirror Node URL fetched from Client
  * @param accountId The account ID for which to query information.
- * @param networkType The network type (e.g., testnet, mainnet, previewnet).
  * @return A JSON object containing the account information.
  * @throws IllegalStateException If an error occurs while querying the Mirror Node.
  */
-json AccountInfoQuery(std::string_view accountId, std::string_view networkType);
+json AccountInfoQuery(std::string_view mirrorNodeUrl, std::string_view accountId);
 
 /**
  * @brief Query account balance from the Mirror Node.
  *
  * This function queries the account balance from the Mirror Node based on
  * the provided account ID.
- *
+ * @param mirrorNodeUrl Mirror Node URL fetched from Client
  * @param accountId The account ID for which to query the balance.
- * @param networkType The network type (e.g., testnet, mainnet, previewnet).
  * @return A JSON object containing the account balance.
  * @throws IllegalStateException If an error occurs while querying the Mirror Node.
  */
-json AccountBalanceQuery(std::string_view accountId, std::string_view networkType);
+json AccountBalanceQuery(std::string_view mirrorNodeUrl, std::string_view accountId);
 
 /**
  * @brief Query contract information from the Mirror Node.
@@ -80,12 +59,12 @@ json AccountBalanceQuery(std::string_view accountId, std::string_view networkTyp
  * This function queries contract information from the Mirror Node based on
  * the provided contract ID.
  *
+ * @param mirrorNodeUrl Mirror Node URL fetched from Client
  * @param contractId The contract ID for which to query information.
- * @param networkType The network type (e.g., testnet, mainnet, previewnet).
  * @return A JSON object containing the contract information.
  * @throws IllegalStateException If an error occurs while querying the Mirror Node.
  */
-json ContractInfoQuery(std::string_view contractId, std::string_view networkType);
+json ContractInfoQuery(std::string_view mirrorNodeUrl, std::string_view contractId);
 
 /**
  * @brief Build a URL based on the provided parameters.
@@ -93,11 +72,11 @@ json ContractInfoQuery(std::string_view contractId, std::string_view networkType
  * This function constructs a URL using the given components, such as an optional identifier (`id`),
  * network type, and query type.
  *
+ * @param mirrorNodeUrl Mirror Node URL fetched from Client
  * @param id An optional identifier to be included in the URL (default is an empty string).
- * @param networkType The network type for which the URL is constructed.
  * @param queryType The type of query for which the URL is constructed.
  * @return A string representing the constructed URL.
  */
-std::string buildUrl(std::string_view id = "", std::string_view networkType = "", std::string_view queryType = "");
+std::string buildUrl(std::string_view mirrorNodeUrl = "", std::string_view id = "", std::string_view queryType = "");
 } // namespace Hedera::internal::MirrorNodeGateway
 #endif // HEDERA_SDK_CPP_MIRRORNODEGATEWAY_H

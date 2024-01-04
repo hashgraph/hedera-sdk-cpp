@@ -33,9 +33,11 @@ class MirrorNodeGatewayIntegrationTests : public BaseIntegrationTest
 {
 protected:
   [[nodiscard]] inline const std::string& getAccountIdStr() const { return mAccountIdStr; }
+  [[nodiscard]] inline const std::string& getMirrorNetworkUrl() const { return mMirrorNetworkUrl; }
 
 private:
   const std::string mAccountIdStr = "0.0.3";
+  const std::string mMirrorNetworkUrl = "127.0.0.1:5551";
 };
 
 //-----
@@ -43,11 +45,10 @@ TEST_F(MirrorNodeGatewayIntegrationTests, AccountBalanceQuery)
 {
   // Given
   const std::string& accountIdStr = getAccountIdStr();
-
+  std::cout << getTestClient().getMirrorNetwork()[0] << std::endl;
   // When
   json response;
-  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::AccountBalanceQuery(
-                    accountIdStr, internal::MirrorNodeGateway::forLocalNode););
+  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::AccountBalanceQuery(getMirrorNetworkUrl(), accountIdStr););
 
   // Then
   ASSERT_FALSE(response.empty());        // checks if any data
@@ -62,8 +63,7 @@ TEST_F(MirrorNodeGatewayIntegrationTests, AccountInfoQuery)
 
   // When
   json response;
-  ASSERT_NO_THROW(
-    response = internal::MirrorNodeGateway::AccountInfoQuery(accountIdStr, internal::MirrorNodeGateway::forLocalNode););
+  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::AccountInfoQuery(getMirrorNetworkUrl(), accountIdStr););
 
   // Then
   ASSERT_FALSE(response.empty());           // checks if any data
@@ -78,8 +78,7 @@ TEST_F(MirrorNodeGatewayIntegrationTests, ContractInfoQuery)
 
   // When
   json response;
-  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::ContractInfoQuery(
-                    contractIdStr, internal::MirrorNodeGateway::forLocalNode););
+  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::ContractInfoQuery(getMirrorNetworkUrl(), contractIdStr););
 
   // Then
   ASSERT_FALSE(response.empty());            // checks if any data

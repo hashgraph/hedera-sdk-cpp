@@ -27,14 +27,14 @@
 
 namespace Hedera::internal::MirrorNodeGateway
 {
-json AccountInfoQuery(std::string_view accountId, std::string_view networkType)
+json AccountInfoQuery(std::string_view mirrorNodeUrl, std::string_view accountId)
 {
   std::string response;
   try
   {
-    const std::string mirrorNodeUrl = buildUrl(accountId, networkType, "accountInfoQuery");
+    const std::string url = buildUrl(mirrorNodeUrl, accountId, "accountInfoQuery");
     HttpClient httpClient;
-    response = httpClient.invokeREST(mirrorNodeUrl);
+    response = httpClient.invokeREST(url);
   }
   catch (const std::exception& e)
   {
@@ -43,20 +43,20 @@ json AccountInfoQuery(std::string_view accountId, std::string_view networkType)
   return json::parse(response);
 }
 
-json AccountBalanceQuery(std::string_view accountId, std::string_view networkType)
+json AccountBalanceQuery(std::string_view mirrorNodeUrl, std::string_view accountId)
 {
   // the account balance is stored in a balance object
-  return AccountInfoQuery(accountId, networkType)["balance"]["balance"];
+  return AccountInfoQuery(mirrorNodeUrl, accountId)["balance"]["balance"];
 }
 
-json ContractInfoQuery(std::string_view contractId, std::string_view networkType)
+json ContractInfoQuery(std::string_view mirrorNodeUrl, std::string_view contractId)
 {
   std::string response;
   try
   {
-    const std::string mirrorNodeUrl = buildUrl(contractId, networkType, "contractInfoQuery");
+    const std::string url = buildUrl(mirrorNodeUrl, contractId, "contractInfoQuery");
     HttpClient httpClient;
-    response = httpClient.invokeREST(mirrorNodeUrl);
+    response = httpClient.invokeREST(url);
   }
   catch (const std::exception& e)
   {
@@ -65,11 +65,10 @@ json ContractInfoQuery(std::string_view contractId, std::string_view networkType
   return json::parse(response);
 }
 
-std::string buildUrl(std::string_view id, std::string_view networkType, std::string_view queryType)
+std::string buildUrl(std::string_view mirrorNodeUrl, std::string_view id, std::string_view queryType)
 {
-  std::string url = "";
-  url += (networkType != forLocalNode) ? "https://" + std::string(networkType.data()) + ".mirrornode.hedera.com"
-                                       : networkType.data();
+  std::string url = "https://";
+  url += mirrorNodeUrl.data();
   MirrorNodeRouter router;
   url += router.getRoute(queryType);
   url += id.data();

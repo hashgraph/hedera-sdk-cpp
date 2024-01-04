@@ -324,6 +324,16 @@ protected:
                                                         [[maybe_unused]] const Client& client,
                                                         [[maybe_unused]] const ProtoResponseType& response);
 
+  /**
+   * @brief Gets the mirror node resolution for the query.
+   *
+   * This function returns the mirror node resolution by accessing the first element
+   * of the vector mMirrorNodeIds.
+   *
+   * @return The mirror node resolution as a const std::string.
+   */
+  [[nodiscard]] const std::string getMirrorNodeResolution() const { return mMirrorNodeIds[0]; }
+
 private:
   /**
    * Construct a ProtoRequestType object from this Executable, based on the node account ID at the given index.
@@ -394,6 +404,15 @@ private:
   [[nodiscard]] std::vector<std::shared_ptr<internal::Node>> getNodesFromNodeAccountIds(const Client& client) const;
 
   /**
+   * Set a list of Mirror Node ids that are on the input Client's Network that are being run by this Executable's node
+   * account IDs.
+   *
+   * @param client The Client from which to get the list of Nodes.
+   * @return A list of Nodes that are being run by this Executable's node account IDs.
+   */
+  [[nodiscard]] const std::vector<std::string> getClientMirrorNodeIds(const Client& client) const;
+
+  /**
    * Get the index of a Node from a list of Nodes to which to try and send this Executable. This will prioritize getting
    * "healthy" Nodes first in order to ensure as little wait time to submit as possible.
    *
@@ -413,6 +432,11 @@ private:
    * The list of account IDs of the nodes with which execution should be attempted.
    */
   std::vector<AccountId> mNodeAccountIds;
+
+  /**
+   * The list of node IDs of the mirror nodes with which query should be attempted.
+   */
+  std::vector<std::string> mMirrorNodeIds;
 
   /**
    * The callback to be called before a request is sent. The callback will receive the protobuf of the request and
