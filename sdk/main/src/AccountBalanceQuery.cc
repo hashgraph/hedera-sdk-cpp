@@ -19,6 +19,7 @@
  */
 #include "AccountBalanceQuery.h"
 #include "AccountBalance.h"
+#include "TokenId.h"
 #include "impl/MirrorNodeGateway.h"
 #include "impl/Node.h"
 
@@ -57,9 +58,19 @@ AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contra
 //-----
 AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response) const
 {
-  AccountBalance accountBalance;
-  json j = internal::MirrorNodeGateway::AccountBalanceQuery(getMirrorNodeResolution(), mAccountId.value().toString());
-  accountBalance.mBalance = Hbar::fromTinybars(std::stoll(j.dump()));
+  AccountBalance accountBalance = AccountBalance::fromProtobuf(response.cryptogetaccountbalance());
+  json tokens =
+    internal::MirrorNodeGateway::MirrorNodeQuery(getMirrorNodeResolution(),
+                                                 { mAccountId.value().toString() },
+                                                 internal::MirrorNodeGateway::TOKEN_RELATIONSHIPS_QUERY.data());
+  for (const auto& token : tokens["tokens"])
+  {
+    std::string tokenIdStr = token["token_id"].dump();
+    uint64_t tokenBalance = token["balance"];
+    TokenId tokenId = TokenId::fromString(tokenIdStr.substr(1, tokenIdStr.length() - 2));
+    accountBalance.mTokens.insert({ tokenId, tokenBalance });
+  }
+
   return accountBalance;
 }
 

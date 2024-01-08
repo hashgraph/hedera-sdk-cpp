@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_MIRRORNODEROUTER_H
 #define HEDERA_SDK_CPP_MIRRORNODEROUTER_H
 
+#include <string>
 #include <string_view>
 #include <unordered_map>
 
@@ -28,6 +29,15 @@
  */
 namespace Hedera::internal::MirrorNodeGateway
 {
+
+/**
+ * @brief Represents different mirror node query types.
+ */
+constexpr std::string_view ACCOUNT_INFO_QUERY = "accountInfoQuery";
+constexpr std::string_view CONTRACT_INFO_QUERY = "contractInfoQuery";
+constexpr std::string_view TOKEN_RELATIONSHIPS_QUERY = "tokenRelationshipsQuery";
+constexpr std::string_view TOKEN_BALANCES_QUERY = "tokenBalancesQuery";
+
 /**
  * @brief Class responsible for routing requests to different mirror node routes.
  */
@@ -35,22 +45,22 @@ class MirrorNodeRouter
 {
 public:
   /**
-   * @brief Retrieves the routes for mirror node requests.
+   * @brief Retrieves the route for a specific mirror node query type.
    *
    * @param queryType The type of the mirror node query (e.g., "accountInfoQuery").
    * @return A string view representing the route for the specified mirror node query.
    */
-  [[nodiscard]] const std::string_view getRoute(std::string_view queryType) const;
+  [[nodiscard]] std::string getRoute(const std::string& queryType) const;
 
 private:
   /**
    * @brief Internal mapping of mirror node query types to their respective routes.
    */
-  std::unordered_map<std::string_view, std::string_view> routes = {
-    {"accountInfoQuery",                 "/api/v1/accounts/$"       },
-    { "contractInfoQuery",               "/api/v1/contracts/$"      },
-    { "tokenAccountRelationshipQuery",   "/api/v1/accounts/$/tokens"},
-    { "tokensBalancesRelationshipQuery", "/api/v1/tokens/$/balances"}
+  std::unordered_map<std::string_view, std::string> routes = {
+    {ACCOUNT_INFO_QUERY,         "/api/v1/accounts/$"       },
+    { CONTRACT_INFO_QUERY,       "/api/v1/contracts/$"      },
+    { TOKEN_RELATIONSHIPS_QUERY, "/api/v1/accounts/$/tokens"},
+    { TOKEN_BALANCES_QUERY,      "/api/v1/tokens/$/balances"}
   };
 };
 

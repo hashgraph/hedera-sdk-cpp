@@ -24,70 +24,17 @@
 #include <string>
 
 #include "impl/MirrorNodeGateway.h"
-#include "impl/MirrorNodeRouter.h"
 
 namespace Hedera::internal::MirrorNodeGateway
 {
-json AccountInfoQuery(std::string_view mirrorNodeUrl, std::string_view accountId)
+json MirrorNodeQuery(const std::string& mirrorNodeUrl,
+                     const std::vector<std::string>& params,
+                     const std::string& queryType)
 {
   std::string response;
   try
   {
-    const std::string url = buildUrl(mirrorNodeUrl, "accountInfoQuery", { accountId.data() });
-    HttpClient httpClient;
-    response = httpClient.invokeREST(url);
-  }
-  catch (const std::exception& e)
-  {
-    throw IllegalStateException(std::string(e.what() + std::string("Illegal json state!")));
-  }
-  return json::parse(response);
-}
-
-json AccountBalanceQuery(std::string_view mirrorNodeUrl, std::string_view accountId)
-{
-  // the account balance is stored in a balance object
-  return AccountInfoQuery(mirrorNodeUrl, accountId)["balance"]["balance"];
-}
-
-json ContractInfoQuery(std::string_view mirrorNodeUrl, std::string_view contractId)
-{
-  std::string response;
-  try
-  {
-    const std::string url = buildUrl(mirrorNodeUrl, "contractInfoQuery", { contractId.data() });
-    HttpClient httpClient;
-    response = httpClient.invokeREST(url);
-  }
-  catch (const std::exception& e)
-  {
-    throw IllegalStateException(std::string(e.what() + std::string("Illegal json state!")));
-  }
-  return json::parse(response);
-}
-
-json TokenAccountRelationshipQuery(std::string_view mirrorNodeUrl, std::string_view accountId)
-{
-  std::string response;
-  try
-  {
-    const std::string url = buildUrl(mirrorNodeUrl, "tokenAccountRelationshipQuery", { accountId.data() });
-    HttpClient httpClient;
-    response = httpClient.invokeREST(url);
-  }
-  catch (const std::exception& e)
-  {
-    throw IllegalStateException(std::string(e.what() + std::string("Illegal json state!")));
-  }
-  return json::parse(response);
-}
-
-json TokensBalancesRelationshipQuery(std::string_view mirrorNodeUrl, std::string_view accountId)
-{
-  std::string response;
-  try
-  {
-    const std::string url = buildUrl(mirrorNodeUrl, "tokensBalancesRelationshipQuery", { accountId.data() });
+    const std::string url = buildUrl(mirrorNodeUrl, queryType, params);
     HttpClient httpClient;
     response = httpClient.invokeREST(url);
   }
@@ -109,7 +56,9 @@ void replaceParameters(std::string& original, const std::string& search, const s
   }
 }
 
-std::string buildUrl(std::string_view mirrorNodeUrl, std::string_view queryType, const std::vector<std::string>& params)
+std::string buildUrl(const std::string& mirrorNodeUrl,
+                     const std::string& queryType,
+                     const std::vector<std::string>& params)
 {
   std::string prefix = "http://";
   std::string url = mirrorNodeUrl.data();

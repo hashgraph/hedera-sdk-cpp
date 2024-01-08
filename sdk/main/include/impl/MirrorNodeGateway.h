@@ -21,76 +21,30 @@
 #define HEDERA_SDK_CPP_MIRRORNODEGATEWAY_H
 
 #include "impl/HttpClient.h"
+#include "impl/MirrorNodeRouter.h"
 #include <nlohmann/json.hpp>
-#include <string_view>
 
 using json = nlohmann::json;
 
 namespace Hedera::internal::MirrorNodeGateway
 {
 /**
- * @brief Query account information from the Mirror Node.
+ * @brief Perform a mirror node query.
  *
- * This function queries account information from the Mirror Node based on
- * the provided account ID.
+ * This function constructs a URL based on the provided mirror node URL, query type,
+ * and parameters. It then sends a REST request to the constructed URL using an
+ * HttpClient, retrieves the response, and parses it into a JSON object.
  *
- * @param mirrorNodeUrl Mirror Node URL fetched from Client
- * @param accountId The account ID for which to query information.
- * @return A JSON object containing the account information.
- * @throws IllegalStateException If an error occurs while querying the Mirror Node.
+ * @param mirrorNodeUrl The mirror node URL.
+ * @param params A vector of strings representing parameters for the query.
+ * @param queryType The type of the query.
+ * @return A JSON object representing the response of the mirror node query.
+ *
+ * @throws IllegalStateException If an error occurs during the mirror node query or JSON parsing.
  */
-json AccountInfoQuery(std::string_view mirrorNodeUrl, std::string_view accountId);
-
-/**
- * @brief Query account balance from the Mirror Node.
- *
- * This function queries the account balance from the Mirror Node based on
- * the provided account ID.
- * @param mirrorNodeUrl Mirror Node URL fetched from Client
- * @param accountId The account ID for which to query the balance.
- * @return A JSON object containing the account balance.
- * @throws IllegalStateException If an error occurs while querying the Mirror Node.
- */
-json AccountBalanceQuery(std::string_view mirrorNodeUrl, std::string_view accountId);
-
-/**
- * @brief Query contract information from the Mirror Node.
- *
- * This function queries contract information from the Mirror Node based on
- * the provided contract ID.
- *
- * @param mirrorNodeUrl Mirror Node URL fetched from Client
- * @param contractId The contract ID for which to query information.
- * @return A JSON object containing the contract information.
- * @throws IllegalStateException If an error occurs while querying the Mirror Node.
- */
-json ContractInfoQuery(std::string_view mirrorNodeUrl, std::string_view contractId);
-
-/**
- * @brief Query token relationship information from the Mirror Node.
- *
- * This function queries token relationship information from the Mirror Node based on
- * the provided account ID.
- *
- * @param mirrorNodeUrl Mirror Node URL fetched from Client.
- * @param accountId The account ID for which to query token relationships.
- * @return A JSON object containing the token relationship information.
- * @throws IllegalStateException If an error occurs while querying the Mirror Node.
- */
-json TokenAccountRelationshipQuery(std::string_view mirrorNodeUrl, std::string_view accountId);
-
-/**
- * @brief Query token balances relationship information from the Mirror Node.
- *
- * This function queries token relationship information from the Mirror Node based on
- * the provided account ID.
- *
- * @param mirrorNodeUrl Mirror Node URL fetched from Client.
- * @param accountId The account ID for which to query token relationships.
- * @return A JSON object containing the token relationship information.
- * @throws IllegalStateException If an error occurs while querying the Mirror Node.
- */
-json TokensBalancesRelationshipQuery(std::string_view mirrorNodeUrl, std::string_view accountId);
+json MirrorNodeQuery(const std::string& mirrorNodeUrl,
+                     const std::vector<std::string>& params,
+                     const std::string& queryType);
 
 /**
  * @brief Replaces all occurrences of a substring in a string.
@@ -116,8 +70,8 @@ void replaceParameters(std::string& original, const std::string& search, const s
  * @param params A vector of strings representing parameters.
  * @return The constructed URL.
  */
-std::string buildUrl(std::string_view mirrorNodeUrl,
-                     std::string_view queryType,
+std::string buildUrl(const std::string& mirrorNodeUrl,
+                     const std::string& queryType,
                      const std::vector<std::string>& params);
 } // namespace Hedera::internal::MirrorNodeGateway
 #endif // HEDERA_SDK_CPP_MIRRORNODEGATEWAY_H

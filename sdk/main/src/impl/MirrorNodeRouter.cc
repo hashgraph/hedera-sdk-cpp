@@ -27,9 +27,9 @@
 namespace Hedera::internal::MirrorNodeGateway
 {
 
-const std::string_view MirrorNodeRouter::getRoute(std::string_view queryType) const
+std::string MirrorNodeRouter::getRoute(const std::string& queryType) const
 {
-  std::string_view queryRoute;
+  std::string queryRoute;
   auto route = routes.find(queryType);
   if (route != routes.end())
   {

@@ -24,7 +24,6 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 #include <string>
-#include <string_view>
 
 using json = nlohmann::json;
 using namespace Hedera;
@@ -41,20 +40,6 @@ private:
 };
 
 //-----
-TEST_F(MirrorNodeGatewayIntegrationTests, AccountBalanceQuery)
-{
-  // Given
-  const std::string& accountIdStr = getAccountIdStr();
-  // When
-  json response;
-  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::AccountBalanceQuery(getMirrorNetworkUrl(), accountIdStr););
-
-  // Then
-  ASSERT_FALSE(response.empty());        // checks if any data
-  EXPECT_FALSE(response.dump().empty()); // checks for balance data
-}
-
-//-----
 TEST_F(MirrorNodeGatewayIntegrationTests, AccountInfoQuery)
 {
   // Given
@@ -62,7 +47,8 @@ TEST_F(MirrorNodeGatewayIntegrationTests, AccountInfoQuery)
 
   // When
   json response;
-  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::AccountInfoQuery(getMirrorNetworkUrl(), accountIdStr););
+  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::MirrorNodeQuery(
+                    getMirrorNetworkUrl(), { accountIdStr }, internal::MirrorNodeGateway::ACCOUNT_INFO_QUERY.data()););
 
   // Then
   ASSERT_FALSE(response.empty());           // checks if any data
@@ -77,7 +63,9 @@ TEST_F(MirrorNodeGatewayIntegrationTests, ContractInfoQuery)
 
   // When
   json response;
-  ASSERT_NO_THROW(response = internal::MirrorNodeGateway::ContractInfoQuery(getMirrorNetworkUrl(), contractIdStr););
+  ASSERT_NO_THROW(
+    response = internal::MirrorNodeGateway::MirrorNodeQuery(
+      getMirrorNetworkUrl(), { contractIdStr }, internal::MirrorNodeGateway::CONTRACT_INFO_QUERY.data()););
 
   // Then
   ASSERT_FALSE(response.empty());            // checks if any data
@@ -85,15 +73,16 @@ TEST_F(MirrorNodeGatewayIntegrationTests, ContractInfoQuery)
 }
 
 //-----
-TEST_F(MirrorNodeGatewayIntegrationTests, TokenAccountRelationshipQuery)
+TEST_F(MirrorNodeGatewayIntegrationTests, TokenRelationshipQuery)
 {
   // Given
   const std::string& accountIdStr = getAccountIdStr();
 
   // When
   json response;
-  ASSERT_NO_THROW(response =
-                    internal::MirrorNodeGateway::TokenAccountRelationshipQuery(getMirrorNetworkUrl(), accountIdStr););
+  ASSERT_NO_THROW(
+    response = internal::MirrorNodeGateway::MirrorNodeQuery(
+      getMirrorNetworkUrl(), { accountIdStr }, internal::MirrorNodeGateway::TOKEN_RELATIONSHIPS_QUERY.data()););
 
   // Then
   ASSERT_FALSE(response.empty());           // checks if any data
@@ -101,15 +90,16 @@ TEST_F(MirrorNodeGatewayIntegrationTests, TokenAccountRelationshipQuery)
 }
 
 //-----
-TEST_F(MirrorNodeGatewayIntegrationTests, TokensBalancesRelationshipQuery)
+TEST_F(MirrorNodeGatewayIntegrationTests, TokensBalancesQuery)
 {
   // Given
   const std::string& accountIdStr = getAccountIdStr();
 
   // When
   json response;
-  ASSERT_NO_THROW(response =
-                    internal::MirrorNodeGateway::TokensBalancesRelationshipQuery(getMirrorNetworkUrl(), accountIdStr););
+  ASSERT_NO_THROW(
+    response = internal::MirrorNodeGateway::MirrorNodeQuery(
+      getMirrorNetworkUrl(), { accountIdStr }, internal::MirrorNodeGateway::TOKEN_BALANCES_QUERY.data()););
 
   // Then
   ASSERT_FALSE(response.empty());           // checks if any data
