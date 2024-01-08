@@ -19,6 +19,9 @@
  */
 #include "AccountInfoQuery.h"
 #include "AccountInfo.h"
+#include "TokenId.h"
+#include "TokenRelationship.h"
+#include "impl/MirrorNodeGateway.h"
 #include "impl/Node.h"
 
 #include <proto/crypto_get_info.pb.h>
@@ -38,7 +41,28 @@ AccountInfoQuery& AccountInfoQuery::setAccountId(const AccountId& accountId)
 //-----
 AccountInfo AccountInfoQuery::mapResponse(const proto::Response& response) const
 {
-  return AccountInfo::fromProtobuf(response.cryptogetinfo().accountinfo());
+  AccountInfo accountInfo = AccountInfo::fromProtobuf(response.cryptogetinfo().accountinfo());
+  json tokens =
+    internal::MirrorNodeGateway::MirrorNodeQuery(getMirrorNodeResolution(),
+                                                 { mAccountId.toString() },
+                                                 internal::MirrorNodeGateway::TOKEN_RELATIONSHIPS_QUERY.data());
+  if (!tokens["tokens"].empty())
+  {
+    for (const auto& token : tokens["tokens"])
+    {
+      bool automaticAssociation = token["automatic_association"];
+      uint64_t balance = token["balance"];
+      std::string kycStatus = token["kyc_status"].dump().substr(1, token["kyc_status"].dump().length() - 2);
+      std::string freezeStatus = token["freeze_status"].dump().substr(1, token["freeze_status"].dump().length() - 2);
+      TokenId tokenId = TokenId::fromString(token["token_id"].dump().substr(1, token["token_id"].dump().length() - 2));
+
+      TokenRelationship tokenRelationship(tokenId, "", balance, kycStatus, freezeStatus, automaticAssociation);
+
+      accountInfo.mTokenRelationships.insert({ tokenId, tokenRelationship });
+    }
+  }
+
+  return accountInfo;
 }
 
 //-----

@@ -26,6 +26,8 @@
 #include "Key.h"
 #include "LedgerId.h"
 #include "StakingInfo.h"
+#include "TokenId.h"
+#include "TokenRelationship.h"
 
 #include <chrono>
 #include <cstdint>
@@ -165,6 +167,11 @@ public:
    * The staking metadata for this contract.
    */
   StakingInfo mStakingInfo;
+
+  /**
+   * The token relationships mappings for the queried account.
+   */
+  std::unordered_map<TokenId, TokenRelationship> mTokenRelationships;
 };
 
 } // namespace Hedera

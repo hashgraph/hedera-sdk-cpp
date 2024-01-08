@@ -63,12 +63,16 @@ AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response)
     internal::MirrorNodeGateway::MirrorNodeQuery(getMirrorNodeResolution(),
                                                  { mAccountId.value().toString() },
                                                  internal::MirrorNodeGateway::TOKEN_RELATIONSHIPS_QUERY.data());
-  for (const auto& token : tokens["tokens"])
+
+  if (!tokens["tokens"].empty())
   {
-    std::string tokenIdStr = token["token_id"].dump();
-    uint64_t tokenBalance = token["balance"];
-    TokenId tokenId = TokenId::fromString(tokenIdStr.substr(1, tokenIdStr.length() - 2));
-    accountBalance.mTokens.insert({ tokenId, tokenBalance });
+    for (const auto& token : tokens["tokens"])
+    {
+      std::string tokenIdStr = token["token_id"].dump();
+      uint64_t tokenBalance = token["balance"];
+      TokenId tokenId = TokenId::fromString(tokenIdStr.substr(1, tokenIdStr.length() - 2));
+      accountBalance.mTokens.insert({ tokenId, tokenBalance });
+    }
   }
 
   return accountBalance;

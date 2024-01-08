@@ -138,6 +138,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenNftInfoQuery.cc
         src/TokenNftTransfer.cc
         src/TokenPauseTransaction.cc
+        src/TokenRelationship.cc
         src/TokenRevokeKycTransaction.cc
         src/TokenSupplyType.cc
         src/TokenTransfer.cc
