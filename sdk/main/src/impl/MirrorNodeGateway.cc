@@ -17,13 +17,13 @@
  * limitations under the License.
  *
  */
+
+#include "impl/MirrorNodeGateway.h"
 #include "exceptions/CURLException.h"
 #include "exceptions/IllegalStateException.h"
 
 #include <iostream>
 #include <string>
-
-#include "impl/MirrorNodeGateway.h"
 
 using json = nlohmann::json;
 
