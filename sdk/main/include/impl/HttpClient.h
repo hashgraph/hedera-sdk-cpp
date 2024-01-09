@@ -31,7 +31,7 @@ class HttpClient
 {
 public:
   /**
-   * @brief Constructor for HttpClient.
+   * Constructor for HttpClient.
    *
    * This constructor initializes the HttpClient and performs global libcurl initialization
    * using CURL_GLOBAL_DEFAULT.
@@ -44,21 +44,21 @@ public:
   HttpClient& operator=(const HttpClient&) = delete; // no use case for httpClient copy
 
   /**
-   * @brief Destructor for HttpClient.
+   * Destructor for HttpClient.
    *
    * This destructor cleans up global libcurl resources using curl_global_cleanup.
    * It should be called when an HttpClient instance is no longer needed to release libcurl resources.
    */
   ~HttpClient();
   /**
-   * @brief Fetches data from the specified URL using the provided RPC method.
+   * Fetches data from the specified URL using the provided RPC method.
    * @param url The URL to fetch data from.
    * @param rpcMethod The RPC method.
    * @return The fetched data as a string.
    */
   [[nodiscard]] std::string invokeRPC(const std::string& url, const std::string& rpcMethod);
   /**
-   * @brief This invokeREST function creates GET and POST requests.
+   * This invokeREST function creates GET and POST requests.
    *  Can be further extended for supporting other HTTP
    *  methods or handle more advanced scenarios as needed.
    * @param url The URL to fetch data from.
@@ -70,7 +70,7 @@ public:
                                        const std::string& httpMethod = "GET",
                                        const std::string& requestBody = "");
   /**
-   * @brief The callback function used for writing fetched data.
+   * The callback function used for writing fetched data.
    * @param contents A pointer to the fetched data.
    * @param size The size of each element.
    * @param nmemb The number of elements.

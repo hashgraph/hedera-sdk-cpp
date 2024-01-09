@@ -29,7 +29,7 @@
 namespace Hedera
 {
 /**
- * @brief Represents the relationship between an account and a token.
+ * Represents the relationship between an account and a token.
  *
  * This class encapsulates information about the account's relationship with a specific token,
  * including the token ID, symbol, balance, KYC status, freeze status, and whether the relationship is created
@@ -39,7 +39,7 @@ class TokenRelationship
 {
 public:
   /**
-   * @brief Constructor for TokenRelationship.
+   * Constructor for TokenRelationship.
    *
    * @param tokenId The unique token ID.
    * @param symbol The symbol of the token.
@@ -50,14 +50,14 @@ public:
    * @param automaticAssociation Specifies if the relationship is created implicitly.
    */
   TokenRelationship(const TokenId& tokenId,
-                    const std::string& symbol,
+                    std::string_view symbol,
                     uint64_t balance,
-                    const std::string& kycStatus,
-                    const std::string& freezeStatus,
+                    std::string_view kycStatus,
+                    std::string_view freezeStatus,
                     bool automaticAssociation);
 
   /**
-   * @brief Converts the TokenRelationship object to a string representation.
+   * Converts the TokenRelationship object to a string representation.
    *
    * @return A string representation of the TokenRelationship.
    */
@@ -65,27 +65,50 @@ public:
 
 private:
   /**
-   * @brief Sets the KYC status based on the provided string.
+   * Sets the KYC status based on the provided string.
    *
    * @param kycStatusString The string representation of KYC status ("GRANTED", "REVOKED", or "NOT_APPLICABLE").
    * @throws std::invalid_argument if the provided string is not a valid KYC status.
    */
-  void setKycStatus(const std::string& kycStatusString);
+  void setKycStatus(std::string_view kycStatusString);
 
   /**
-   * @brief Sets the freeze status based on the provided string.
+   * Sets the freeze status based on the provided string.
    *
    * @param freezeStatus The string representation of freeze status ("FROZEN", "UNFROZEN", or "NOT_APPLICABLE").
    * @throws std::invalid_argument if the provided string is not a valid freeze status.
    */
-  void setFreezeStatus(const std::string& freezeStatus);
+  void setFreezeStatus(std::string_view freezeStatus);
 
-  TokenId mTokenId;                  /**< The unique token ID. */
-  std::string mSymbol;               /**< The symbol of the token. */
-  uint64_t mBalance;                 /**< The balance of the account. */
-  std::optional<bool> mKycStatus;    /**< The KYC status of the account (optional). */
-  std::optional<bool> mFreezeStatus; /**< The freeze status of the account (optional). */
-  bool mAutomaticAssociation;        /**< Specifies if the relationship is created implicitly. */
+  /**
+   *  The unique token ID.
+   */
+  TokenId mTokenId;
+
+  /**
+   * The symbol of the token.
+   */
+  std::string_view mSymbol;
+
+  /**
+   * The balance of the account.
+   */
+  uint64_t mBalance;
+
+  /**
+   * The KYC status of the account (optional).
+   */
+  std::optional<bool> mKycStatus;
+
+  /**
+   * The freeze status of the account (optional).
+   */
+  std::optional<bool> mFreezeStatus;
+
+  /**
+   * Specifies if the relationship is created implicitly.
+   */
+  bool mAutomaticAssociation;
 };
 } // namespace Hedera
 

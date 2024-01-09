@@ -25,6 +25,8 @@
 #include <iostream>
 #include <random>
 
+using json = nlohmann::json;
+
 namespace Hedera::internal::Utilities
 {
 //-----

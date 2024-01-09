@@ -471,7 +471,7 @@ void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponse
   mCurrentGrpcDeadline = mGrpcDeadline.has_value()              ? mGrpcDeadline.value()
                          : client.getGrpcDeadline().has_value() ? client.getGrpcDeadline().value()
                                                                 : DEFAULT_GRPC_DEADLINE;
-  mMirrorNodeIds = getClientMirrorNodeIds(client);
+  mMirrorNodeIds = client.getMirrorNetwork();
 }
 
 //-----
@@ -518,14 +518,6 @@ Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>
   }
 
   return nodes;
-}
-
-template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
-const std::vector<std::string>
-Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::getClientMirrorNodeIds(
-  const Client& client) const
-{
-  return client.getMirrorNetwork();
 }
 
 //-----

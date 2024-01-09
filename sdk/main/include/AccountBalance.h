@@ -102,7 +102,7 @@ public:
   /**
    *  Map of token decimals with associated values.
    */
-  std::map<TokenId, int> mTokenDecimals;
+  std::unordered_map<TokenId, int> mTokenDecimals;
 };
 
 } // namespace Hedera

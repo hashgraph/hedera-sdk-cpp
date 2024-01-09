@@ -26,7 +26,7 @@
 namespace Hedera
 {
 /**
- * Exception that encompasses all unrecoverable OpenSSL errors.
+ * Exception that encompasses all unrecoverable CURL errors.
  */
 class CURLException : public std::exception
 {

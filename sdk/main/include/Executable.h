@@ -325,14 +325,14 @@ protected:
                                                         [[maybe_unused]] const ProtoResponseType& response);
 
   /**
-   * @brief Gets the mirror node resolution for the query.
+   * Gets the mirror node resolution for the query.
    *
    * This function returns the mirror node resolution by accessing the first element
    * of the vector mMirrorNodeIds.
    *
-   * @return The mirror node resolution as a const std::string.
+   * @return The mirror node resolution as a std::string.
    */
-  [[nodiscard]] const std::string getMirrorNodeResolution() const { return mMirrorNodeIds[0]; }
+  [[nodiscard]] std::string getMirrorNodeResolution() const { return mMirrorNodeIds[0]; }
 
 private:
   /**
@@ -402,15 +402,6 @@ private:
    * @return A list of Nodes that are being run by this Executable's node account IDs.
    */
   [[nodiscard]] std::vector<std::shared_ptr<internal::Node>> getNodesFromNodeAccountIds(const Client& client) const;
-
-  /**
-   * Set a list of Mirror Node ids that are on the input Client's Network that are being run by this Executable's node
-   * account IDs.
-   *
-   * @param client The Client from which to get the list of Nodes.
-   * @return A list of Nodes that are being run by this Executable's node account IDs.
-   */
-  [[nodiscard]] const std::vector<std::string> getClientMirrorNodeIds(const Client& client) const;
 
   /**
    * Get the index of a Node from a list of Nodes to which to try and send this Executable. This will prioritize getting

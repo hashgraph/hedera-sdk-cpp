@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  * @file
- * @brief Defines the Hedera C++ SDK's ASN1ECPublicKey class, derived from ASN1ECKey.
+ * Defines the Hedera C++ SDK's ASN1ECPublicKey class, derived from ASN1ECKey.
  */
 
 #ifndef HEDERA_SDK_CPP_IMPL_ASN1_EC_PUBLIC_KEY_H_
@@ -28,7 +28,7 @@
 namespace Hedera::internal::asn1
 {
 /**
- * @brief The ASN.1 algorithm identifier prefix bytes for a compressed
+ * The ASN.1 algorithm identifier prefix bytes for a compressed
  * ECDSA secp256k1 public key.
  * @details
  * Byte sequence: 3036301006072A8648CE3D020106052B8104000A0322
@@ -41,7 +41,7 @@ const std::vector<std::byte> ASN1_CPUBK_PREFIX_BYTES = {
 };
 
 /**
- * @brief The ASN.1 algorithm identifier prefix bytes for an uncompressed
+ * The ASN.1 algorithm identifier prefix bytes for an uncompressed
  * ECDSA secp256k1 public key.
  * @details
  * Byte sequence: 3056301006072A8648CE3D020106052B8104000A0342
@@ -59,31 +59,31 @@ constexpr std::string_view PEM_ECPUBK_SUFFIX_STRING = "-----END EC PUBLIC KEY---
 
 /**
  * @class ASN1ECPublicKey
- * @brief ASN.1 elliptic curve public key object.
+ * ASN.1 elliptic curve public key object.
  */
 class ASN1ECPublicKey : public ASN1ECKey
 {
 public:
   /**
-   * @brief Constructor for ASN.1 elliptic curve public key from a vector of bytes.
+   * Constructor for ASN.1 elliptic curve public key from a vector of bytes.
    * @param bytes The vector of bytes containing the ASN.1 key data.
    */
   ASN1ECPublicKey(const std::vector<std::byte>& bytes);
 
   /**
-   * @brief Get the key value associated with the ASN.1 elliptic curve public key.
+   * Get the key value associated with the ASN.1 elliptic curve public key.
    * @return The key as a vector of bytes.
    */
   std::vector<std::byte> getKey() const override;
 
 private:
   /**
-   * @brief Constructor for ASN.1 elliptic curve public key.
+   * Constructor for ASN.1 elliptic curve public key.
    */
   ASN1ECPublicKey() = default;
 
   /**
-   * @brief Populate X and Y coordinates from the ASN.1 key bytes.
+   * Populate X and Y coordinates from the ASN.1 key bytes.
    */
   void populateXYcoords();
 

@@ -25,38 +25,37 @@
 #include <unordered_map>
 
 /**
- * @brief Namespace for the internal classes related to the Mirror Node Gateway.
+ * Namespace for the internal classes related to the Mirror Node Gateway.
  */
 namespace Hedera::internal::MirrorNodeGateway
 {
-
 /**
- * @brief Represents different mirror node query types.
+ * Represents different mirror node query types.
  */
-constexpr std::string_view ACCOUNT_INFO_QUERY = "accountInfoQuery";
-constexpr std::string_view CONTRACT_INFO_QUERY = "contractInfoQuery";
-constexpr std::string_view TOKEN_RELATIONSHIPS_QUERY = "tokenRelationshipsQuery";
-constexpr std::string_view TOKEN_BALANCES_QUERY = "tokenBalancesQuery";
+static const std::string& ACCOUNT_INFO_QUERY = "accountInfoQuery";
+static const std::string& CONTRACT_INFO_QUERY = "contractInfoQuery";
+static const std::string& TOKEN_RELATIONSHIPS_QUERY = "tokenRelationshipsQuery";
+static const std::string& TOKEN_BALANCES_QUERY = "tokenBalancesQuery";
 
 /**
- * @brief Class responsible for routing requests to different mirror node routes.
+ * Class responsible for routing requests to different mirror node routes.
  */
 class MirrorNodeRouter
 {
 public:
   /**
-   * @brief Retrieves the route for a specific mirror node query type.
+   * Retrieves the route for a specific mirror node query type.
    *
    * @param queryType The type of the mirror node query (e.g., "accountInfoQuery").
    * @return A string view representing the route for the specified mirror node query.
    */
-  [[nodiscard]] std::string getRoute(const std::string& queryType) const;
+  [[nodiscard]] std::string getRoute(std::string_view queryType) const;
 
 private:
   /**
-   * @brief Internal mapping of mirror node query types to their respective routes.
+   * Internal mapping of mirror node query types to their respective routes.
    */
-  std::unordered_map<std::string_view, std::string> routes = {
+  const std::unordered_map<std::string, std::string> routes = {
     {ACCOUNT_INFO_QUERY,         "/api/v1/accounts/$"       },
     { CONTRACT_INFO_QUERY,       "/api/v1/contracts/$"      },
     { TOKEN_RELATIONSHIPS_QUERY, "/api/v1/accounts/$/tokens"},

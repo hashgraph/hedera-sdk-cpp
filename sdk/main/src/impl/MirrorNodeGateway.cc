@@ -25,11 +25,12 @@
 
 #include "impl/MirrorNodeGateway.h"
 
+using json = nlohmann::json;
+
 namespace Hedera::internal::MirrorNodeGateway
 {
-json MirrorNodeQuery(const std::string& mirrorNodeUrl,
-                     const std::vector<std::string>& params,
-                     const std::string& queryType)
+//-----
+json MirrorNodeQuery(std::string_view mirrorNodeUrl, const std::vector<std::string>& params, std::string_view queryType)
 {
   std::string response;
   try
@@ -45,6 +46,7 @@ json MirrorNodeQuery(const std::string& mirrorNodeUrl,
   return json::parse(response);
 }
 
+//-----
 void replaceParameters(std::string& original, const std::string& search, const std::string& replace)
 {
   size_t startPos = 0;
@@ -56,9 +58,8 @@ void replaceParameters(std::string& original, const std::string& search, const s
   }
 }
 
-std::string buildUrl(const std::string& mirrorNodeUrl,
-                     const std::string& queryType,
-                     const std::vector<std::string>& params)
+//-----
+std::string buildUrl(std::string_view mirrorNodeUrl, std::string_view queryType, const std::vector<std::string>& params)
 {
   std::string prefix = "http://";
   std::string url = mirrorNodeUrl.data();
@@ -67,7 +68,7 @@ std::string buildUrl(const std::string& mirrorNodeUrl,
     url = "https://" + url;
   }
   MirrorNodeRouter router;
-  std::string route = router.getRoute(queryType).data();
+  std::string route = router.getRoute(queryType.data()).data();
   for_each(
     params.begin(), params.end(), [&route](const std::string& replace) { replaceParameters(route, "$", replace); });
   url += route;

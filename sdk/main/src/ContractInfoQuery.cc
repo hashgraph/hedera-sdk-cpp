@@ -27,6 +27,10 @@
 #include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 namespace Hedera
 {
 //-----

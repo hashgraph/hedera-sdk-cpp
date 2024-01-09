@@ -22,11 +22,12 @@
 
 using namespace Hedera;
 
+//-----
 TokenRelationship::TokenRelationship(const TokenId& tokenId,
-                                     const std::string& symbol,
+                                     std::string_view symbol,
                                      uint64_t balance,
-                                     const std::string& kycStatus,
-                                     const std::string& freezeStatus,
+                                     std::string_view kycStatus,
+                                     std::string_view freezeStatus,
                                      bool automaticAssociation)
   : mTokenId(tokenId)
   , mSymbol(symbol)
@@ -39,17 +40,19 @@ TokenRelationship::TokenRelationship(const TokenId& tokenId,
   setFreezeStatus(freezeStatus);
 }
 
+//-----
 std::string TokenRelationship::toString() const
 {
   return "TokenRelationship {"
          "\n  tokenId: " +
-         mTokenId.toString() + "\n  symbol: " + mSymbol + "\n  balance: " + std::to_string(mBalance) +
+         mTokenId.toString() + "\n  symbol: " + mSymbol.data() + "\n  balance: " + std::to_string(mBalance) +
          "\n  kycStatus: " + (mKycStatus.has_value() ? std::to_string(mKycStatus.value()) : "null") +
          "\n  freezeStatus: " + (mFreezeStatus.has_value() ? std::to_string(mFreezeStatus.value()) : "null") +
          "\n  automaticAssociation: " + (mAutomaticAssociation ? "true" : "false") + "\n}";
 }
 
-void TokenRelationship::setKycStatus(const std::string& kycStatusString)
+//-----
+void TokenRelationship::setKycStatus(std::string_view kycStatusString)
 {
   if (kycStatusString == "GRANTED")
   {
@@ -69,7 +72,8 @@ void TokenRelationship::setKycStatus(const std::string& kycStatusString)
   }
 }
 
-void TokenRelationship::setFreezeStatus(const std::string& freezeStatus)
+//-----
+void TokenRelationship::setFreezeStatus(std::string_view freezeStatus)
 {
   if (freezeStatus == "FROZEN")
   {

@@ -194,7 +194,7 @@ public:
   [[nodiscard]] std::string toSolidityAddress() const;
 
   /**
-   * @brief Populates the EVM address for an Account using the Mirror Node. This function fetches the EVM address for an
+   * Populates the EVM address for an Account using the Mirror Node. This function fetches the EVM address for an
    * Account from the Mirror Node.
    *
    * User Note: This Function requires a 3 second sleep if running on testnet environment as the MirrorNode does not

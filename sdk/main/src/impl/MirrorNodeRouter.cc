@@ -26,11 +26,11 @@
 
 namespace Hedera::internal::MirrorNodeGateway
 {
-
-std::string MirrorNodeRouter::getRoute(const std::string& queryType) const
+//-----
+std::string MirrorNodeRouter::getRoute(std::string_view queryType) const
 {
   std::string queryRoute;
-  auto route = routes.find(queryType);
+  auto route = routes.find(queryType.data());
   if (route != routes.end())
   {
     queryRoute = route->second;
@@ -41,5 +41,4 @@ std::string MirrorNodeRouter::getRoute(const std::string& queryType) const
   }
   return queryRoute;
 }
-
-}
+} // namespace Hedera::internal::MirrorNodeGateway

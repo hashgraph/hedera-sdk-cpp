@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @brief This file defines the Hedera C++ SDK's ASN1Key class, derived from ASN1Object.
+ * This file defines the Hedera C++ SDK's ASN1Key class, derived from ASN1Object.
  */
 
 #ifndef HEDERA_SDK_CPP_IMPL_ASN1_EC_KEY_H_
@@ -30,13 +30,13 @@ constexpr size_t ECDSA_KEY_LENGTH = 32; // bytes
 
 /**
  * @class ASN1Key
- * @brief ASN.1 key object.
+ * ASN.1 key object.
  */
 class ASN1ECKey : public ASN1Object
 {
 public:
   /**
-   * @brief Get the key value associated with the ASN.1 key.
+   * Get the key value associated with the ASN.1 key.
    *
    * @return The key as a vector of bytes.
    */
@@ -44,7 +44,7 @@ public:
 
 protected:
   /**
-   * @brief Decode ASN.1 data representing an Elliptic Curve Key.
+   * Decode ASN.1 data representing an Elliptic Curve Key.
    *
    * This method decodes basic ASN.1 data, extracting key data and storing it in the `asn1KeyData` map.
    * EC Keys in ASN1 format always follow a common structure:
@@ -61,7 +61,7 @@ protected:
   virtual void decode(const std::vector<std::byte>& bytes);
 
   /**
-   * @brief Get the value associated with the given ASN.1 tag.
+   * Get the value associated with the given ASN.1 tag.
    *
    * @param tag The ASN.1 tag.
    * @return The value associated with the tag as a vector of bytes.
@@ -69,7 +69,7 @@ protected:
   virtual const std::vector<std::byte> get(const std::byte tag) const;
 
   /**
-   * @brief A map to store ASN.1 key data with their associated tags.
+   * A map to store ASN.1 key data with their associated tags.
    */
   std::unordered_map<std::byte, std::vector<std::byte>> asn1KeyData;
 };

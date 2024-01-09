@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @brief This file defines the Hedera C++ SDK's ASN1Key class, derived from ASN1Object.
+ * This file defines the Hedera C++ SDK's ASN1Key class, derived from ASN1Object.
  */
 
 #ifndef HEDERA_SDK_CPP_IMPL_ASN1_EC_PRIVATE_KEY_H_
@@ -42,20 +42,20 @@ constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY---
 
 /**
  * @class ASN1Key
- * @brief ASN.1 key object.
+ * ASN.1 key object.
  */
 class ASN1ECPrivateKey : public ASN1ECKey
 {
 public:
   /**
-   * @brief Constructor for ASN.1 key from a vector of bytes.
+   * Constructor for ASN.1 key from a vector of bytes.
    *
    * @param bytes The vector of bytes containing the ASN.1 key data.
    */
   ASN1ECPrivateKey(const std::vector<std::byte>& bytes);
 
   /**
-   * @brief Get the key value associated with the ASN.1 key.
+   * Get the key value associated with the ASN.1 key.
    *
    * @return The key as a vector of bytes.
    */
@@ -63,7 +63,7 @@ public:
 
 private:
   /**
-   * @brief Constructor for ASN.1 key.
+   * Constructor for ASN.1 key.
    */
   ASN1ECPrivateKey() = default;
 };

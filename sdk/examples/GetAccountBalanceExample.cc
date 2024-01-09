@@ -21,11 +21,9 @@
 #include "AccountBalanceQuery.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
-#include "HbarUnit.h"
 
 #include <dotenv.h>
 #include <iostream>
-#include <string>
 
 using namespace Hedera;
 

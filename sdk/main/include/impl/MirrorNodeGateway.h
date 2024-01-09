@@ -22,14 +22,15 @@
 
 #include "impl/HttpClient.h"
 #include "impl/MirrorNodeRouter.h"
-#include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
+#include <string_view>
+
+#include <nlohmann/json.hpp>
 
 namespace Hedera::internal::MirrorNodeGateway
 {
 /**
- * @brief Perform a mirror node query.
+ * Perform a mirror node query.
  *
  * This function constructs a URL based on the provided mirror node URL, query type,
  * and parameters. It then sends a REST request to the constructed URL using an
@@ -39,15 +40,14 @@ namespace Hedera::internal::MirrorNodeGateway
  * @param params A vector of strings representing parameters for the query.
  * @param queryType The type of the query.
  * @return A JSON object representing the response of the mirror node query.
- *
  * @throws IllegalStateException If an error occurs during the mirror node query or JSON parsing.
  */
-json MirrorNodeQuery(const std::string& mirrorNodeUrl,
-                     const std::vector<std::string>& params,
-                     const std::string& queryType);
+nlohmann::json MirrorNodeQuery(std::string_view mirrorNodeUrl,
+                               const std::vector<std::string>& params,
+                               std::string_view queryType);
 
 /**
- * @brief Replaces all occurrences of a substring in a string.
+ * Replaces all occurrences of a substring in a string.
  *
  * This function replaces all occurrences of the substring specified by 'search'
  * with the string specified by 'replace' in the original string.
@@ -59,7 +59,7 @@ json MirrorNodeQuery(const std::string& mirrorNodeUrl,
 void replaceParameters(std::string& original, const std::string& search, const std::string& replace);
 
 /**
- * @brief Builds a URL based on a mirror node URL, query type, and parameters.
+ * Builds a URL based on a mirror node URL, query type, and parameters.
  *
  * This function constructs a URL by combining a mirror node URL, a query type,
  * and a list of parameters. It replaces occurrences of "$" in the route with
@@ -70,8 +70,8 @@ void replaceParameters(std::string& original, const std::string& search, const s
  * @param params A vector of strings representing parameters.
  * @return The constructed URL.
  */
-std::string buildUrl(const std::string& mirrorNodeUrl,
-                     const std::string& queryType,
+std::string buildUrl(std::string_view mirrorNodeUrl,
+                     std::string_view queryType,
                      const std::vector<std::string>& params);
 } // namespace Hedera::internal::MirrorNodeGateway
 #endif // HEDERA_SDK_CPP_MIRRORNODEGATEWAY_H

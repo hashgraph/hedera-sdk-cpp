@@ -28,8 +28,6 @@
 
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
-
 namespace Hedera::internal::Utilities
 {
 /**
@@ -165,7 +163,7 @@ template<typename T>
 [[nodiscard]] unsigned int getRandomNumber(unsigned int lowerBound, unsigned int upperBound);
 
 /**
- * @brief Reads and parses a JSON file.
+ * Reads and parses a JSON file.
  *
  * This function reads the contents of a JSON file located at the specified path,
  * parses it, and returns a JSON object.
@@ -175,7 +173,7 @@ template<typename T>
  * @throws std::invalid_argument if the file cannot be found or if the contents
  *         are not valid JSON.
  */
-[[nodiscard]] json fromConfigFile(std::string_view path);
+[[nodiscard]] nlohmann::json fromConfigFile(std::string_view path);
 
 } // namespace Hedera::internal::Utilities
 
