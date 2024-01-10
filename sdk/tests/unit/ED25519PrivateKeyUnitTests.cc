@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@
  * limitations under the License.
  *
  */
-#include "ED25519PrivateKey.h"
 #include "ECDSAsecp256k1PrivateKey.h"
+#include "ED25519PrivateKey.h"
 #include "ED25519PublicKey.h"
 #include "exceptions/BadKeyException.h"
 #include "exceptions/UninitializedException.h"
 #include "impl/Utilities.h"
 
-#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <string>
@@ -46,6 +45,11 @@ protected:
 
   [[nodiscard]] inline const std::string& getTestPrivateKeyHexString() const { return mPrivateKeyHexString; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestPrivateKeyBytes() const { return mPrivateKeyBytes; }
+  [[nodiscard]] inline const std::unordered_map<std::string_view, std::pair<std::string_view, std::string_view>>
+  getExpectedPrivateKeyPairs() const
+  {
+    return expectedPrivateKeyPairs;
+  };
 
 private:
   const std::string mPrivateKeyHexString = "68FBA516472B387C9F33C3E667616D806E5B9CEFF23A766E5D9A3818C77871F1";
@@ -56,6 +60,20 @@ private:
     std::byte(0x9C), std::byte(0xEF), std::byte(0xF2), std::byte(0x3A), std::byte(0x76), std::byte(0x6E),
     std::byte(0x5D), std::byte(0x9A), std::byte(0x38), std::byte(0x18), std::byte(0xC7), std::byte(0x78),
     std::byte(0x71), std::byte(0xF1)
+  };
+  const std::string_view openSSLCompatiblePrivateKey =
+    "302e020100300506032b657004220420feb858a4a69600a5eef2d9c76f7fb84fc0b6627f29e0ab17e160f640c267d404";
+  const std::string_view unencryptedPemPrivateKey =
+    "-----BEGIN PRIVATE KEY-----MC4CAQAwBQYDK2VwBCIEIOgbjaHgEqF7PY0t2dUf2VU0u1MRoKii/fywDlze4lvl-----END PRIVATE "
+    "KEY-----";
+
+  const std::unordered_map<std::string_view, std::pair<std::string_view, std::string_view>> expectedPrivateKeyPairs{
+    {openSSLCompatiblePrivateKey,
+     { "FEB858A4A69600A5EEF2D9C76F7FB84FC0B6627F29E0AB17E160F640C267D404",
+        "8CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D" }},
+    { unencryptedPemPrivateKey,
+     { "E81B8DA1E012A17B3D8D2DD9D51FD95534BB5311A0A8A2FDFCB00E5CDEE25BE5",
+        "F7B9AA4A8E4EEE94E4277DFE757D8D7CDE027E7CD5349B7D8E6EE21C9B9395BE" }},
   };
 };
 
@@ -109,9 +127,6 @@ TEST_F(ED25519PrivateKeyUnitTests, FromString)
   EXPECT_THROW(const std::unique_ptr<ED25519PrivateKey> key =
                  ED25519PrivateKey::fromString(ED25519PrivateKey::DER_ENCODED_PREFIX_HEX +
                                                "F83DEF42411E046461D5AEEAE9S11C56F661 557F349F3412DBD95C9FE8B026X"),
-               BadKeyException);
-  EXPECT_THROW(const std::unique_ptr<ED25519PrivateKey> key = ED25519PrivateKey::fromString(
-                 ECDSAsecp256k1PrivateKey::DER_ENCODED_PREFIX_HEX + getTestPrivateKeyHexString()),
                BadKeyException);
   EXPECT_THROW(const std::unique_ptr<ED25519PrivateKey> key = ED25519PrivateKey::fromString(
                  std::string(ED25519PrivateKey::DER_ENCODED_PREFIX_HEX.size(), 'A') + getTestPrivateKeyHexString()),
@@ -240,4 +255,24 @@ TEST_F(ED25519PrivateKeyUnitTests, GetChainCode)
   EXPECT_TRUE(chainCode.empty());
 
   // Chain code functionality is further tested in SLIP10 test vectors
+}
+
+//-----
+TEST_F(ED25519PrivateKeyUnitTests, ED25519Compatibility)
+{
+  // Given
+  auto expectedKeys = getExpectedPrivateKeyPairs();
+
+  // When // Then
+  for (auto pair : expectedKeys)
+  {
+    auto actualKey = pair.first;
+
+    auto expectedPrivateKey = pair.second.first;
+    auto expectedPublicKey = pair.second.second;
+
+    auto actualResultKeyPair = ED25519PrivateKey::fromString(actualKey);
+    ASSERT_EQ(actualResultKeyPair->toStringRaw(), expectedPrivateKey);
+    ASSERT_EQ(actualResultKeyPair->getPublicKey()->toStringRaw(), expectedPublicKey);
+  }
 }

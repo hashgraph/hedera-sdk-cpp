@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@
  *
  */
 #include "TokenNftInfo.h"
+#include "impl/HexConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/token_get_nft_info.pb.h>
 
 namespace Hedera
@@ -86,6 +88,31 @@ std::unique_ptr<proto::TokenNftInfo> TokenNftInfo::toProtobuf() const
 std::vector<std::byte> TokenNftInfo::toBytes() const
 {
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string TokenNftInfo::toString() const
+{
+  nlohmann::json json;
+  json["mNftId"] = mNftId.toString();
+  json["mAccountId"] = mAccountId.toString();
+  json["mCreationTime"] = internal::TimestampConverter::toString(mCreationTime);
+  json["mMetadata"] = internal::HexConverter::bytesToHex(mMetadata);
+  json["mLedgerId"] = mLedgerId.toString();
+
+  if (mSpenderId.has_value())
+  {
+    json["mSpenderId"] = mSpenderId->toString();
+  }
+
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const TokenNftInfo& info)
+{
+  os << info.toString();
+  return os;
 }
 
 } // namespace Hedera

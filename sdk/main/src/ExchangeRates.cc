@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@
  *
  */
 #include "ExchangeRates.h"
+#include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/exchange_rate.pb.h>
 
 namespace Hedera
@@ -42,6 +44,37 @@ ExchangeRates ExchangeRates::fromBytes(const std::vector<std::byte>& bytes)
   proto::ExchangeRateSet proto;
   proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
   return fromProtobuf(proto);
+}
+
+//-----
+std::unique_ptr<proto::ExchangeRateSet> ExchangeRates::toProtobuf() const
+{
+  auto proto = std::make_unique<proto::ExchangeRateSet>();
+  proto->set_allocated_currentrate(mCurrentRate.toProtobuf().release());
+  proto->set_allocated_nextrate(mNextRate.toProtobuf().release());
+  return proto;
+}
+
+//-----
+std::vector<std::byte> ExchangeRates::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string ExchangeRates::toString() const
+{
+  nlohmann::json json;
+  json["mCurrentRate"] = mCurrentRate.toString();
+  json["mNextRate"] = mNextRate.toString();
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const ExchangeRates& rates)
+{
+  os << rates.toString();
+  return os;
 }
 
 } // namespace Hedera

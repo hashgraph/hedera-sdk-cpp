@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@
  *
  */
 #include "TokenNftTransfer.h"
+#include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
@@ -35,14 +37,22 @@ TokenNftTransfer::TokenNftTransfer(NftId nftId, AccountId sender, AccountId rece
 //-----
 TokenNftTransfer TokenNftTransfer::fromProtobuf(const proto::NftTransfer& proto, const TokenId& tokenId)
 {
-  return TokenNftTransfer(NftId(tokenId, static_cast<uint64_t>(proto.serialnumber())),
-                          AccountId::fromProtobuf(proto.senderaccountid()),
-                          AccountId::fromProtobuf(proto.receiveraccountid()),
-                          proto.is_approval());
+  return { NftId(tokenId, static_cast<uint64_t>(proto.serialnumber())),
+           AccountId::fromProtobuf(proto.senderaccountid()),
+           AccountId::fromProtobuf(proto.receiveraccountid()),
+           proto.is_approval() };
 }
 
 //-----
-void TokenNftTransfer::validateChecksums(const Hedera::Client& client) const
+TokenNftTransfer TokenNftTransfer::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::NftTransfer proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto, TokenId());
+}
+
+//-----
+void TokenNftTransfer::validateChecksums(const Client& client) const
 {
   mNftId.mTokenId.validateChecksum(client);
   mSenderAccountId.validateChecksum(client);
@@ -58,6 +68,30 @@ std::unique_ptr<proto::NftTransfer> TokenNftTransfer::toProtobuf() const
   proto->set_serialnumber(static_cast<int64_t>(mNftId.mSerialNum));
   proto->set_is_approval(mIsApproval);
   return proto;
+}
+
+//-----
+std::vector<std::byte> TokenNftTransfer::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string TokenNftTransfer::toString() const
+{
+  nlohmann::json json;
+  json["mNftId"] = mNftId.toString();
+  json["mSenderAccountId"] = mSenderAccountId.toString();
+  json["mReceiverAccountId"] = mReceiverAccountId.toString();
+  json["mIsApproval"] = mIsApproval;
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const TokenNftTransfer& transfer)
+{
+  os << transfer.toString();
+  return os;
 }
 
 } // namespace Hedera

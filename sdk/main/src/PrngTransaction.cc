@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -80,9 +80,7 @@ void PrngTransaction::initFromSourceTransactionBody()
     throw std::invalid_argument("Transaction body doesn't contain UtilPrng data");
   }
 
-  const proto::UtilPrngTransactionBody& body = transactionBody.util_prng();
-  
-  mRange = body.range();
+  mRange = transactionBody.util_prng().range();
 }
 
 //-----

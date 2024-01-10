@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@
 
 #include <cstddef>
 #include <memory>
+#include <ostream>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -49,17 +51,17 @@ public:
   virtual ~CustomFee() = default;
 
   /**
-   * Create a CustomFee object from a CustomFee protobuf object.
+   * Construct a CustomFee object from a CustomFee protobuf object.
    *
-   * @param proto The CustomFee protobuf object from which to create an CustomFee object.
+   * @param proto The CustomFee protobuf object from which to construct a CustomFee object.
    * @return A pointer to the constructed CustomFee object.
    */
   [[nodiscard]] static std::unique_ptr<CustomFee> fromProtobuf(const proto::CustomFee& proto);
 
   /**
-   * Create a CustomFee object from a byte array.
+   * Construct a CustomFee object from a byte array.
    *
-   * @param bytes The byte array from which to create an CustomFee object.
+   * @param bytes The byte array from which to construct a CustomFee object.
    * @return A pointer to the constructed CustomFee object.
    */
   [[nodiscard]] static std::unique_ptr<CustomFee> fromBytes(const std::vector<std::byte>& bytes);
@@ -79,6 +81,22 @@ public:
   [[nodiscard]] virtual std::unique_ptr<proto::CustomFee> toProtobuf() const = 0;
 
   /**
+   * Construct a string representation of this CustomFee object.
+   *
+   * @return The string representation of this CustomFee object.
+   */
+  [[nodiscard]] virtual std::string toString() const = 0;
+
+  /**
+   * Write this CustomFee to an output stream.
+   *
+   * @param os  The output stream.
+   * @param fee The CustomFee to print.
+   * @return The output stream with this CustomFee written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const CustomFee& fee);
+
+  /**
    * Verify the checksums of all the entities involved in this CustomFee.
    *
    * @param client The Client that should be used to validate the checksums.
@@ -87,9 +105,9 @@ public:
   virtual void validateChecksums(const Client& client) const;
 
   /**
-   * Construct a byte array from this CustomFee object.
+   * Construct a representative byte array from this CustomFee object.
    *
-   * @return A byte array filled with this CustomFee object's data.
+   * @return The byte array representing this CustomFee object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
 

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -46,13 +46,11 @@ int main(int argc, char** argv)
   const auto recipientId = AccountId(3ULL);
   const Hbar amount(10000ULL, HbarUnit::TINYBAR());
 
-  const Hbar senderBalanceBefore = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).getBalance();
-  const Hbar recipientBalanceBefore = AccountBalanceQuery().setAccountId(recipientId).execute(client).getBalance();
+  const Hbar senderBalanceBefore = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).mBalance;
+  const Hbar recipientBalanceBefore = AccountBalanceQuery().setAccountId(recipientId).execute(client).mBalance;
 
-  std::cout << "Sender balance before transfer: " << senderBalanceBefore.toTinybars() << HbarUnit::TINYBAR().getSymbol()
-            << std::endl;
-  std::cout << "Recipient balance before transfer: " << recipientBalanceBefore.toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+  std::cout << "Sender balance before transfer: " << senderBalanceBefore.toString() << std::endl;
+  std::cout << "Recipient balance before transfer: " << recipientBalanceBefore.toString() << std::endl;
 
   TransactionResponse txResponse = TransferTransaction()
                                      .addHbarTransfer(operatorAccountId, amount.negated())
@@ -62,15 +60,13 @@ int main(int argc, char** argv)
 
   TransactionRecord txRecord = txResponse.getRecord(client);
 
-  std::cout << "Transferred " << amount.toTinybars() << HbarUnit::TINYBAR().getSymbol() << std::endl;
+  std::cout << "Transferred " << amount.toString() << std::endl;
 
-  const Hbar senderBalanceAfter = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).getBalance();
-  const Hbar recipientBalanceAfter = AccountBalanceQuery().setAccountId(recipientId).execute(client).getBalance();
+  const Hbar senderBalanceAfter = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).mBalance;
+  const Hbar recipientBalanceAfter = AccountBalanceQuery().setAccountId(recipientId).execute(client).mBalance;
 
-  std::cout << "Sender balance after transfer: " << senderBalanceAfter.toTinybars() << HbarUnit::TINYBAR().getSymbol()
-            << std::endl;
-  std::cout << "Recipient balance after transfer: " << recipientBalanceAfter.toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+  std::cout << "Sender balance after transfer: " << senderBalanceAfter.toString() << std::endl;
+  std::cout << "Recipient balance after transfer: " << recipientBalanceAfter.toString() << std::endl;
   std::cout << "HbarTransfer memo: " << txRecord.mMemo << std::endl;
 
   return 0;

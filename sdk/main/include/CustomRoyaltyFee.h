@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,13 @@ public:
    * @return A pointer to the created CustomFee protobuf object filled with this CustomRoyaltyFee object's data.
    */
   [[nodiscard]] std::unique_ptr<proto::CustomFee> toProtobuf() const override;
+
+  /**
+   * Derived from CustomFee. Construct a string representation of this CustomRoyaltyFee object.
+   *
+   * @return The string representation of this CustomRoyaltyFee object.
+   */
+  [[nodiscard]] std::string toString() const override;
 
   /**
    * Set the desired numerator of the fractional amount of the transferred units to assess as a part of this

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,12 @@
 #define HEDERA_SDK_CPP_ACCOUNT_BALANCE_H_
 
 #include "Hbar.h"
+
+#include <cstddef>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <vector>
 
 namespace proto
 {
@@ -44,13 +50,43 @@ public:
   [[nodiscard]] static AccountBalance fromProtobuf(const proto::CryptoGetAccountBalanceResponse& proto);
 
   /**
-   * Get the balance of the queried account or contract.
+   * Construct an AccountBalance object from a byte array.
    *
-   * @return The account or contract balance.
+   * @param bytes The byte array from which to construct an AccountBalance object.
+   * @return The constructed AccountBalance object.
    */
-  [[nodiscard]] inline Hbar getBalance() const { return mBalance; }
+  [[nodiscard]] static AccountBalance fromBytes(const std::vector<std::byte>& bytes);
 
-private:
+  /**
+   * Construct a CryptoGetAccountBalanceResponse protobuf object from this FeeSchedules object.
+   *
+   * @return A pointer to the created CryptoGetAccountBalanceResponse protobuf object.
+   */
+  [[nodiscard]] std::unique_ptr<proto::CryptoGetAccountBalanceResponse> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this AccountBalance object.
+   *
+   * @return The byte array representing this AccountBalance object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this AccountBalance object.
+   *
+   * @return The string representation of this AccountBalance object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this AccountBalance to an output stream.
+   *
+   * @param os      The output stream.
+   * @param balance The AccountBalance to print.
+   * @return The output stream with this AccountBalance written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const AccountBalance& balance);
+
   /**
    * The account or contract balance.
    */

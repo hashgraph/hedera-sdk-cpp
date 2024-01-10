@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-#include "TokenCreateTransaction.h"
 #include "AccountId.h"
 #include "Client.h"
 #include "CustomFixedFee.h"
@@ -25,6 +24,7 @@
 #include "CustomRoyaltyFee.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "PublicKey.h"
+#include "TokenCreateTransaction.h"
 #include "TokenSupplyType.h"
 #include "TokenType.h"
 #include "exceptions/IllegalStateException.h"
@@ -32,7 +32,6 @@
 #include "impl/TimestampConverter.h"
 
 #include <chrono>
-#include <cstdint>
 #include <gtest/gtest.h>
 #include <memory>
 #include <proto/transaction_body.pb.h>

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,10 @@
 #include "AccountId.h"
 #include "TokenId.h"
 
+#include <cstddef>
 #include <memory>
+#include <ostream>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -55,7 +58,7 @@ public:
    * @param amount     The amount of the token being transferred.
    * @param isApproved \c TRUE if this transfer is approved, otherwise \c FALSE.
    */
-  TokenTransfer(const TokenId& tokenId, AccountId accountId, int64_t amount, bool isApproved);
+  TokenTransfer(TokenId tokenId, AccountId accountId, int64_t amount, bool isApproved);
 
   /**
    * Construct with a token ID, account ID, amount, expected decimals of the token, and approval.
@@ -65,7 +68,7 @@ public:
    * @param amount     The amount of the token being transferred.
    * @param isApproved \c TRUE if this transfer is approved, otherwise \c FALSE.
    */
-  TokenTransfer(const TokenId& tokenId, AccountId accountId, int64_t amount, uint32_t decimals, bool isApproved);
+  TokenTransfer(TokenId tokenId, AccountId accountId, int64_t amount, uint32_t decimals, bool isApproved);
 
   /**
    * Construct a TokenTransfer object from an AccountAmount protobuf object, a TokenId object, and the number of
@@ -81,6 +84,14 @@ public:
                                                   uint32_t expectedDecimals);
 
   /**
+   * Construct a TokenTransfer object from a byte array.
+   *
+   * @param bytes The byte array from which to construct a TokenTransfer object.
+   * @return The constructed TokenTransfer object.
+   */
+  [[nodiscard]] static TokenTransfer fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
    * Validate the checksums of the entities in this TokenTransfer.
    *
    * @param client The Client to use to validate the checksums.
@@ -94,6 +105,29 @@ public:
    * @return A pointer to the constructed AccountAmount protobuf object.
    */
   [[nodiscard]] std::unique_ptr<proto::AccountAmount> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this TokenTransfer object.
+   *
+   * @return The byte array representing this TokenTransfer object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this TokenTransfer object.
+   *
+   * @return The string representation of this TokenTransfer object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TokenTransfer to an output stream.
+   *
+   * @param os       The output stream.
+   * @param transfer The TokenTransfer to print.
+   * @return The output stream with this TokenTransfer written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TokenTransfer& transfer);
 
   /**
    * The ID of the token being transferred.

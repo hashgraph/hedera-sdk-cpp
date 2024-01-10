@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include "AssessedCustomFee.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/custom_fees.pb.h>
 
 namespace Hedera
@@ -81,6 +82,31 @@ std::unique_ptr<proto::AssessedCustomFee> AssessedCustomFee::toProtobuf() const
 std::vector<std::byte> AssessedCustomFee::toBytes() const
 {
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string AssessedCustomFee::toString() const
+{
+  nlohmann::json json;
+  json["mAmount"] = mAmount;
+
+  if (mTokenId.has_value())
+  {
+    json["mTokenId"] = mTokenId->toString();
+  }
+
+  json["mFeeCollectorAccountId"] = mFeeCollectorAccountId.toString();
+  std::for_each(mPayerAccountIdList.cbegin(),
+                mPayerAccountIdList.cend(),
+                [&json](const AccountId& accountId) { json["mPayerAccountIdList"].push_back(accountId.toString()); });
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const AssessedCustomFee& fee)
+{
+  os << fee.toString();
+  return os;
 }
 
 } // namespace Hedera

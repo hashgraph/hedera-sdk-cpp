@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,12 @@
 #include "AccountId.h"
 #include "TokenId.h"
 
+#include <cstddef>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <vector>
+
 namespace proto
 {
 class TokenAssociation;
@@ -37,17 +43,17 @@ class TokenAssociation
 {
 public:
   /**
-   * Create a TokenAssociation object from a TokenAssociation protobuf object.
+   * Construct a TokenAssociation object from a TokenAssociation protobuf object.
    *
-   * @param proto The TokenAssociation protobuf object from which to create a TokenAssociation object.
+   * @param proto The TokenAssociation protobuf object from which to construct a TokenAssociation object.
    * @return The constructed TokenAssociation object.
    */
   [[nodiscard]] static TokenAssociation fromProtobuf(const proto::TokenAssociation& proto);
 
   /**
-   * Create a TokenAssociation object from an array of bytes.
+   * Construct a TokenAssociation object from a byte array.
    *
-   * @param bytes The bytes from which to create a TokenAssociation object.
+   * @param bytes The byte array from which to construct a TokenAssociation object.
    * @return The constructed TokenAssociation object.
    */
   [[nodiscard]] static TokenAssociation fromBytes(const std::vector<std::byte>& bytes);
@@ -55,17 +61,32 @@ public:
   /**
    * Construct a TokenAssociation protobuf object from this TokenAssociation object.
    *
-   * @return A pointer to the created TokenAssociation protobuf object filled with this TokenAssociation object's
-   *         data.
+   * @return A pointer to the created TokenAssociation protobuf object.
    */
   [[nodiscard]] std::unique_ptr<proto::TokenAssociation> toProtobuf() const;
 
   /**
-   * Create a byte array representation of this TokenAssociation object.
+   * Construct a representative byte array from this TokenAssociation object.
    *
-   * @return A byte array representation of this TokenAssociation object.
+   * @return The byte array representing this TokenAssociation object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this TokenAssociation object.
+   *
+   * @return The string representation of this TokenAssociation object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TokenAssociation to an output stream.
+   *
+   * @param os     The output stream.
+   * @param record The TokenAssociation to print.
+   * @return The output stream with this TokenAssociation written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TokenAssociation& record);
 
   /**
    * The ID of the account associated with the token.

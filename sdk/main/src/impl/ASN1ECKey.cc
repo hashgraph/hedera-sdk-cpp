@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -30,18 +30,22 @@ void ASN1ECKey::decode(const std::vector<std::byte>& bytes)
   int currentByteIndex = 0;
   while (currentByteIndex < bytes.size() - 1)
   {
-    std::byte asn1Tag = bytes[currentByteIndex++];
-    int asn1TagSize = static_cast<int>(bytes[currentByteIndex++]);
+    const std::byte asn1Tag = bytes[currentByteIndex++];
+    const int asn1TagSize = static_cast<int>(bytes[currentByteIndex++]);
 
+    if (currentByteIndex + asn1TagSize > bytes.size())
+    {
+      throw BadKeyException("Bad PEM/DER EC KEY bytes data!");
+    }
     // Ignore sequence as ASN1 for EC Key is in basic format
-    if (asn1Tag == SEQUENCE)
-      continue;
+    if (asn1Tag != SEQUENCE)
+    {
+      std::vector<std::byte> asn1DataAtTag(bytes.begin() + currentByteIndex,
+                                           bytes.begin() + currentByteIndex + asn1TagSize);
+      currentByteIndex += asn1TagSize;
 
-    std::vector<std::byte> asn1DataAtTag(bytes.begin() + currentByteIndex,
-                                         bytes.begin() + currentByteIndex + asn1TagSize);
-    currentByteIndex += asn1TagSize;
-
-    asn1KeyData.insert({ asn1Tag, asn1DataAtTag });
+      asn1KeyData.insert({ asn1Tag, asn1DataAtTag });
+    }
   }
 }
 

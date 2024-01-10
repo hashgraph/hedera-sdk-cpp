@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ TEST_F(ContractUpdateTransactionIntegrationTests, ExecuteContractUpdateTransacti
   EXPECT_EQ(contractInfo.mAdminKey->toBytes(), newAdminKey->getPublicKey()->toBytes());
   EXPECT_EQ(contractInfo.mAutoRenewPeriod, newAutoRenewPeriod);
   EXPECT_EQ(contractInfo.mMemo, newMemo);
-  EXPECT_TRUE(contractInfo.mStakingInfo.getDeclineReward());
+  EXPECT_TRUE(contractInfo.mStakingInfo.mDeclineRewards);
 
   // Clean up
   ASSERT_NO_THROW(txReceipt = ContractDeleteTransaction()

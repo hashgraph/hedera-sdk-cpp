@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@
  */
 #include "TopicInfo.h"
 #include "impl/DurationConverter.h"
+#include "impl/HexConverter.h"
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/consensus_get_topic_info.pb.h>
 
 namespace Hedera
@@ -121,6 +123,47 @@ std::unique_ptr<proto::ConsensusGetTopicInfoResponse> TopicInfo::toProtobuf() co
 std::vector<std::byte> TopicInfo::toBytes() const
 {
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string TopicInfo::toString() const
+{
+  nlohmann::json json;
+  json["mTopicId"] = mTopicId.toString();
+  json["mMemo"] = mMemo;
+  json["mRunningHash"] = internal::HexConverter::bytesToHex(mRunningHash);
+  json["mSequenceNumber"] = mSequenceNumber;
+  json["mExpirationTime"] = internal::TimestampConverter::toString(mExpirationTime);
+
+  if (mAdminKey)
+  {
+    json["mAdminKey"] = internal::HexConverter::bytesToHex(mAdminKey->toBytes());
+  }
+
+  if (mSubmitKey)
+  {
+    json["mSubmitKey"] = internal::HexConverter::bytesToHex(mSubmitKey->toBytes());
+  }
+
+  if (mAutoRenewPeriod.has_value())
+  {
+    json["mAutoRenewPeriod"] = std::to_string(mAutoRenewPeriod->count());
+  }
+
+  if (mAutoRenewAccountId.has_value())
+  {
+    json["mAutoRenewAccountId"] = mAutoRenewAccountId->toString();
+  }
+
+  json["mLedgerId"] = mLedgerId.toString();
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const TopicInfo& info)
+{
+  os << info.toString();
+  return os;
 }
 
 } // namespace Hedera

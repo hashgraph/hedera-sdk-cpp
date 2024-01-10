@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @brief This file defines the Hedera C++ SDK's ASN1Key class, derived from ASN1Object.
  */
 
 #ifndef HEDERA_SDK_CPP_IMPL_ASN1_EC_PRIVATE_KEY_H_
@@ -31,12 +30,12 @@ const std::vector<std::byte> ASN1_PRK_PREFIX_BYTES = { std::byte(0x30), std::byt
                                                        std::byte(0x01), std::byte(0x01), std::byte(0x04),
                                                        std::byte(0x20) };
 
-// The ASN.1 algorithm identifier suffix bytes for an ECDSAsecp256k1Key.
+// The ASN.1 algorithm identifier suffix bytes for an ECDSAsecp256k1KeyPrivateKey.
 const std::vector<std::byte> ASN1_PRK_SUFFIX_BYTES = { std::byte(0xA0), std::byte(0x07), std::byte(0x06),
                                                        std::byte(0x05), std::byte(0x2B), std::byte(0x81),
                                                        std::byte(0x04), std::byte(0x00), std::byte(0x0A) };
 
-// PEM Format prefix/suffix string
+// PEM Format prefix/suffix string ECDSA
 constexpr std::string_view PEM_ECPRK_PREFIX_STRING = "-----BEGIN EC PRIVATE KEY-----";
 constexpr std::string_view PEM_ECPRK_SUFFIX_STRING = "-----END EC PRIVATE KEY-----";
 

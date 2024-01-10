@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -194,12 +194,11 @@ public:
   [[nodiscard]] std::string toSolidityAddress() const;
 
   /**
-   * @brief Populates the EVM address for an Account using the Mirror Node.
-   *        This function fetches the EVM address for an Account from the Mirror Node.
+   * @brief Populates the EVM address for an Account using the Mirror Node. This function fetches the EVM address for an
+   * Account from the Mirror Node.
    *
-   *        User Note: This Function requires a 3 second sleep if running on testnet
-   *        environment as the MirrorNode does not update on time for the MirrorNode
-   *        request sent to it.
+   * User Note: This Function requires a 3 second sleep if running on testnet environment as the MirrorNode does not
+   * update on time for the MirrorNode request sent to it.
    *
    * @param client The Client object used for network access.
    * @return A reference to the modified AccountId object.

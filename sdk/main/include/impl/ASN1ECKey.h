@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -26,7 +26,9 @@
 
 namespace Hedera::internal::asn1
 {
-constexpr size_t ECDSA_KEY_LENGTH = 32; // bytes
+constexpr size_t EC_KEY_LENGTH = 32; // bytes
+// more than this would be a malicious attempt
+constexpr size_t MAX_ENCRYPTED_KEY_LENGHT = 160; // bytes ~ 320 characters
 
 /**
  * @class ASN1Key

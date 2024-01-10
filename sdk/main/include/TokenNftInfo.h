@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,10 @@
 
 #include <chrono>
 #include <cstddef>
+#include <memory>
 #include <optional>
+#include <ostream>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -53,7 +56,7 @@ public:
   /**
    * Construct a TokenNftInfo object from a byte array.
    *
-   * @param bytes The byte array representing a TokenNftInfo object.
+   * @param bytes The byte array from which to construct a TokenNftInfo object.
    * @return The constructed TokenNftInfo object.
    */
   [[nodiscard]] static TokenNftInfo fromBytes(const std::vector<std::byte>& bytes);
@@ -71,6 +74,22 @@ public:
    * @return The byte array representing this TokenNftInfo object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this TokenNftInfo object.
+   *
+   * @return The string representation of this TokenNftInfo object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TokenNftInfo to an output stream.
+   *
+   * @param os   The output stream.
+   * @param info The TokenNftInfo to print.
+   * @return The output stream with this TokenNftInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TokenNftInfo& info);
 
   /**
    * The ID of the NFT.

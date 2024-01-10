@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -151,8 +151,7 @@ int main(int argc, char** argv)
 
   // Get Alice's Hbar balance before Bob transfers 20 tokens to Charlie, so that we can see how much Hbar she made.
   std::cout << "Alice's Hbar balance before Bob transfers 20 tokens to Charlie: "
-            << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).mBalance.toString() << std::endl;
 
   // Transfer 20 tokens to Charlie.
   std::cout << "Bob transfer 20 tokens to Charlie: ";
@@ -167,8 +166,7 @@ int main(int argc, char** argv)
 
   // Get Alice's Hbar balance after the transfer.
   std::cout << "Alice's Hbar balance after Bob transfers 20 tokens to Charlie: "
-            << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).mBalance.toString() << std::endl;
 
   // Look at the assessed custom fees in the TransactionRecord.
   std::cout << "Assessed fees: " << std::endl;

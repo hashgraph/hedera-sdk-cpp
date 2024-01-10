@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,14 @@ HttpClient::~HttpClient()
   curl_global_cleanup();
 }
 
-// example mirrorNode query httpClient.invokeREST("https://testnet.mirrornode.hedera.com/api/v1/accounts/" + newAccountId ,"GET","");
-// note: should time out before calling this function because the mirror node is not updated on time if accountID has been created
-// exactly before the call. Works without timeout if the data in the mirror node is there from some seconds beforehand
+// example mirrorNode query:
+// httpClient.invokeREST("https://testnet.mirrornode.hedera.com/api/v1/accounts/" + newAccountId ,"GET", "");
+// note: should time out before calling this function because the mirror node is not updated on time if accountID has
+// been created exactly before the call. Works without timeout if the data in the mirror node is there from some seconds
+// beforehand
 std::string HttpClient::invokeREST(const std::string& url,
-                                         const std::string& httpMethod,
-                                         const std::string& requestBody)
+                                   const std::string& httpMethod,
+                                   const std::string& requestBody)
 {
   std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl(curl_easy_init(), curl_easy_cleanup);
 

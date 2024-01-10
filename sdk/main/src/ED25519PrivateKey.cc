@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "exceptions/BadKeyException.h"
 #include "exceptions/OpenSSLException.h"
 #include "exceptions/UninitializedException.h"
+#include "impl/ASN1ED25519PrivateKey.h"
 #include "impl/DerivationPathUtils.h"
 #include "impl/HexConverter.h"
 #include "impl/PrivateKeyImpl.h"
@@ -54,7 +55,12 @@ const std::vector<std::byte> SLIP10_SEED = { std::byte('e'), std::byte('d'), std
 {
   if (bytes.size() == ED25519PrivateKey::KEY_SIZE)
   {
-    bytes = internal::Utilities::concatenateVectors({ ED25519PrivateKey::DER_ENCODED_PREFIX_BYTES, bytes });
+    bytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPRK_PREFIX_BYTES, bytes });
+  }
+  else
+  {
+    internal::asn1::ASN1ED25519PrivateKey asn1key(bytes);
+    bytes = internal::Utilities::concatenateVectors({ internal::asn1::ASN1_EDPRK_PREFIX_BYTES, asn1key.getKey() });
   }
 
   const unsigned char* rawKeyBytes = internal::Utilities::toTypePtr<unsigned char>(bytes.data());
@@ -96,16 +102,25 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::generatePrivateKey()
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_view key)
 {
-  if (key.size() != KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size() && key.size() != KEY_SIZE * 2)
+  std::string formattedKey = key.data();
+  // Remove PEM prefix/suffix if is present and hex the base64 val
+  if (formattedKey.compare(
+        0, internal::asn1::PEM_EDPRK_PREFIX_STRING.size(), internal::asn1::PEM_EDPRK_PREFIX_STRING) == 0)
   {
-    throw BadKeyException("ED25519PrivateKey cannot be realized from input string: input string size should be " +
-                          std::to_string(KEY_SIZE * 2 + DER_ENCODED_PREFIX_HEX.size()) + " or " +
-                          std::to_string(KEY_SIZE * 2));
+    formattedKey = formattedKey.substr(internal::asn1::PEM_EDPRK_PREFIX_STRING.size(), formattedKey.size());
+
+    if (formattedKey.compare(formattedKey.size() - internal::asn1::PEM_EDPRK_SUFFIX_STRING.size(),
+                             formattedKey.size(),
+                             internal::asn1::PEM_EDPRK_SUFFIX_STRING) == 0)
+      formattedKey = formattedKey.substr(0, formattedKey.size() - internal::asn1::PEM_EDPRK_SUFFIX_STRING.size());
+
+    formattedKey = internal::HexConverter::base64ToHex(formattedKey);
   }
 
   try
   {
-    return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(key))));
+    return std::make_unique<ED25519PrivateKey>(
+      ED25519PrivateKey(bytesToPKEY(internal::HexConverter::hexToBytes(formattedKey))));
   }
   catch (const OpenSSLException& openSSLException)
   {
@@ -117,13 +132,6 @@ std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromString(std::string_vie
 //-----
 std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::fromBytes(const std::vector<std::byte>& bytes)
 {
-  if (bytes.size() != KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size() && bytes.size() != KEY_SIZE)
-  {
-    throw BadKeyException("ED25519PrivateKey cannot be realized from input bytes: input byte array size should be " +
-                          std::to_string(KEY_SIZE + DER_ENCODED_PREFIX_BYTES.size()) + " or " +
-                          std::to_string(KEY_SIZE));
-  }
-
   try
   {
     return std::make_unique<ED25519PrivateKey>(ED25519PrivateKey(bytesToPKEY(bytes)));

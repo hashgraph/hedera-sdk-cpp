@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "ED25519PrivateKey.h"
 #include "LedgerId.h"
 
+#include <dotenv.h>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -30,11 +31,8 @@ using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  if (argc < 3)
-  {
-    std::cout << "Please enter a network name and a configuration filepath" << std::endl;
-    return 1;
-  }
+  dotenv::init();
+  const std::string networkName = std::getenv("HEDERA_NETWORK");
 
   /*
    * Here are some ways you can construct and configure a client. A client has a network and an operator.
@@ -64,7 +62,7 @@ int main(int argc, char** argv)
   // We can also construct a client for previewnet, testnet, or mainnet depending on the value of a network name string.
   // If, for example, the input string equals "testnet", this client will be configured to connect to the Hedera
   // Testnet.
-  Client namedNetworkClient = Client::forName(argv[1]);
+  Client namedNetworkClient = Client::forName(networkName);
 
   // Set the operator on testClient (the AccountId and PrivateKey here are fake, this is just an example).
   testClient.setOperator(
@@ -88,7 +86,7 @@ int main(int argc, char** argv)
   // Let's generate a client from a config.json file. A config file may specify a network by name, or it may provide a
   // custom network in the form of a list of nodes. The config file should specify the operator, so you can use a client
   // constructed using fromConfigFile() immediately.
-  Client configClient = Client::fromConfigFile(argv[2]);
+  Client configClient = Client::fromConfigFile("config/local_node.json");
   configClient.close();
 
   // Always close a Client when you're done with it.

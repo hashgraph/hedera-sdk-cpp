@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2022 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -93,8 +93,8 @@ TEST_F(NetworkUnitTests, ConstructCustomNetwork)
 {
   // Given
   const std::unordered_map<std::string, AccountId> testNetwork = {
-    {"2.testnet.hedera.com:50211",  AccountId(5ULL)},
-    { "3.testnet.hedera.com:50211", AccountId(6ULL)}
+    { "2.testnet.hedera.com:50211", AccountId(5ULL) },
+    { "3.testnet.hedera.com:50211", AccountId(6ULL) }
   };
 
   // When

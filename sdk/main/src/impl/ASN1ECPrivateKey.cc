@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,27 @@ namespace Hedera::internal::asn1
 {
 ASN1ECPrivateKey::ASN1ECPrivateKey(const std::vector<std::byte>& bytes)
 {
-  decode(bytes);
+  if (bytes.size() >= MAX_ENCRYPTED_KEY_LENGHT)
+  {
+    throw BadKeyException("Over maximum possible input bytes for EC Key!");
+  }
+  else
+  {
+    decode(bytes);
+  }
 }
 
 std::vector<std::byte> ASN1ECPrivateKey::getKey() const
 {
   std::vector<std::byte> privateKey = get(OCTET_STRING);
-  if (privateKey.size() > ECDSA_KEY_LENGTH) // remove redundant padded bytes if any
-    privateKey = std::vector<std::byte>(privateKey.end() - ECDSA_KEY_LENGTH, privateKey.end());
+  if (privateKey.size() < EC_KEY_LENGTH)
+  {
+    throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");
+  }
+  if (privateKey.size() > EC_KEY_LENGTH) // remove redundant padded bytes if any
+  {
+    privateKey = std::vector<std::byte>(privateKey.end() - EC_KEY_LENGTH, privateKey.end());
+  }
 
   return privateKey;
 }

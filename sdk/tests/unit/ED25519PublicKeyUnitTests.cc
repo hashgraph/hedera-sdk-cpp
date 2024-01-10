@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,12 @@
  * limitations under the License.
  *
  */
-#include "ED25519PublicKey.h"
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
+#include "ED25519PublicKey.h"
 #include "exceptions/BadKeyException.h"
-#include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
-#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <proto/basic_types.pb.h>
@@ -47,6 +45,10 @@ protected:
 
   [[nodiscard]] inline const std::string& getTestPublicKeyHex() const { return mPublicKeyHexString; }
   [[nodiscard]] inline const std::vector<std::byte>& getTestPublicKeyBytes() const { return mPublicKeyBytes; }
+  [[nodiscard]] inline const std::unordered_map<std::string_view, std::string_view> getExpectedPublicKeyPairs() const
+  {
+    return expectedPublicKeyPairs;
+  };
 
 private:
   const std::string mPublicKeyHexString = "F83DEF42411E046461D5AEEAE9311C56F6612557F349F3412DBD95C9FE8B0265";
@@ -58,6 +60,11 @@ private:
                                                    std::byte(0xF3), std::byte(0x49), std::byte(0xF3), std::byte(0x41),
                                                    std::byte(0x2D), std::byte(0xBD), std::byte(0x95), std::byte(0xC9),
                                                    std::byte(0xFE), std::byte(0x8B), std::byte(0x02), std::byte(0x65) };
+  const std::string_view openSSLCompatibleDERPublicKey =
+    "302A300506032B65700321008CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D";
+  const std::unordered_map<std::string_view, std::string_view> expectedPublicKeyPairs{
+    {openSSLCompatibleDERPublicKey, "8CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D"},
+  };
 };
 
 //-----
@@ -258,4 +265,21 @@ TEST_F(ED25519PublicKeyUnitTests, PublicKeyFromProtobuf)
   // Then
   ASSERT_NE(publicKey, nullptr);
   EXPECT_EQ(publicKey->toBytes(), getTestPublicKeyBytes());
+}
+
+//-----
+TEST_F(ED25519PublicKeyUnitTests, ED25519Compatibility)
+{
+  // Given
+  auto expectedKeys = getExpectedPublicKeyPairs();
+
+  // When // Then
+  for (auto pair : expectedKeys)
+  {
+    auto actualKey = pair.first;
+    auto expectedKey = pair.second;
+
+    auto actualResultKeyPair = ED25519PublicKey::fromString(actualKey);
+    ASSERT_EQ(actualResultKeyPair->toStringRaw(), expectedKey);
+  }
 }

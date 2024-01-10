@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -110,11 +110,9 @@ int main(int argc, char** argv)
 
   // Get the balances.
   std::cout << "Balance of user account: "
-            << AccountBalanceQuery().setAccountId(userAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(userAccountId).execute(client).mBalance.toString() << std::endl;
   std::cout << "Balance of exchange account: "
-            << AccountBalanceQuery().setAccountId(exchangeAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(exchangeAccountId).execute(client).mBalance.toString() << std::endl;
 
   return 0;
 }

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,9 @@
 #include "Hbar.h"
 
 #include <cstddef>
+#include <memory>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -61,6 +63,44 @@ public:
    * @return The constructed ContractFunctionResult object.
    */
   [[nodiscard]] static ContractFunctionResult fromProtobuf(const proto::ContractFunctionResult& proto);
+
+  /**
+   * Construct a ContractFunctionResult object from a byte array.
+   *
+   * @param bytes The byte array from which to construct a ContractFunctionResult object.
+   * @return The constructed ContractFunctionResult object.
+   */
+  [[nodiscard]] static ContractFunctionResult fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Construct a ContractFunctionResult protobuf object from this ContractFunctionResult object.
+   *
+   * @return A pointer to the created ContractFunctionResult protobuf object.
+   */
+  [[nodiscard]] std::unique_ptr<proto::ContractFunctionResult> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this ContractFunctionResult object.
+   *
+   * @return The byte array representing this ContractFunctionResult object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this ContractFunctionResult object.
+   *
+   * @return The string representation of this ContractFunctionResult object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this ContractFunctionResult to an output stream.
+   *
+   * @param os     The output stream.
+   * @param result The ContractFunctionResult to print.
+   * @return The output stream with this ContractFunctionResult written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const ContractFunctionResult& result);
 
   /**
    * Get the value at the input index as a string.
@@ -232,9 +272,9 @@ public:
   AccountId mSenderAccountId;
 
   /**
-   * A vector of updated contract account nonces containing the new nonce value for each contract
-   * account. This is always empty in a ContractCallLocalResponse#ContractFunctionResult message,
-   * since no internal creations can happen in a static EVM call.
+   * A vector of updated contract account nonces containing the new nonce value for each contract account. This is
+   * always empty in a ContractCallLocalResponse#ContractFunctionResult message, since no internal creations can happen
+   * in a static EVM call.
    */
   std::vector<ContractNonceInfo> mContractNonces;
 

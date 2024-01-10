@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -88,8 +88,8 @@ TEST_F(AccountCreateTransactionIntegrationTests, ExecuteAccountCreateTransaction
   EXPECT_EQ(accountInfo.mAutoRenewPeriod, testAutoRenewPeriod);
   EXPECT_EQ(accountInfo.mMemo, testMemo);
   EXPECT_EQ(accountInfo.mMaxAutomaticTokenAssociations, testMaxAutomaticTokenAssociations);
-  EXPECT_TRUE(accountInfo.mStakingInfo.getDeclineReward());
-  EXPECT_FALSE(accountInfo.mStakingInfo.getStakedAccountId().has_value());
+  EXPECT_TRUE(accountInfo.mStakingInfo.mDeclineRewards);
+  EXPECT_FALSE(accountInfo.mStakingInfo.mStakedAccountId.has_value());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -135,16 +135,16 @@ TEST_F(AccountCreateTransactionIntegrationTests, MutuallyExclusiveStakingIds)
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountIdStakedAccountId).execute(getTestClient()));
   EXPECT_EQ(accountInfo.mAccountId, accountIdStakedAccountId);
   EXPECT_EQ(accountInfo.mKey->toBytes(), testPublicKey->toBytes());
-  ASSERT_TRUE(accountInfo.mStakingInfo.getStakedAccountId().has_value());
-  EXPECT_EQ(accountInfo.mStakingInfo.getStakedAccountId(), operatorAccountId);
-  EXPECT_FALSE(accountInfo.mStakingInfo.getStakedNodeId().has_value());
+  ASSERT_TRUE(accountInfo.mStakingInfo.mStakedAccountId.has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.mStakedAccountId, operatorAccountId);
+  EXPECT_FALSE(accountInfo.mStakingInfo.mStakedNodeId.has_value());
 
   ASSERT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(accountIdStakedNodeId).execute(getTestClient()));
   EXPECT_EQ(accountInfo.mAccountId, accountIdStakedNodeId);
   EXPECT_EQ(accountInfo.mKey->toBytes(), testPublicKey->toBytes());
-  EXPECT_FALSE(accountInfo.mStakingInfo.getStakedAccountId().has_value());
-  ASSERT_TRUE(accountInfo.mStakingInfo.getStakedNodeId().has_value());
-  EXPECT_EQ(accountInfo.mStakingInfo.getStakedNodeId(), nodeId);
+  EXPECT_FALSE(accountInfo.mStakingInfo.mStakedAccountId.has_value());
+  ASSERT_TRUE(accountInfo.mStakingInfo.mStakedNodeId.has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.mStakedNodeId, nodeId);
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()

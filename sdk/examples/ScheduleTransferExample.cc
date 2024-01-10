@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -84,8 +84,8 @@ int main(int argc, char** argv)
   std::cout << "Account generated with ID: " << accountId.toString() << std::endl;
 
   // Verify the balance of the created account.
-  Hbar balance = AccountBalanceQuery().setAccountId(accountId).execute(client).getBalance();
-  std::cout << "Balance of created account: " << balance.toTinybars() << HbarUnit::TINYBAR().getSymbol() << std::endl;
+  Hbar balance = AccountBalanceQuery().setAccountId(accountId).execute(client).mBalance;
+  std::cout << "Balance of created account: " << balance.toString() << std::endl;
 
   // The payerAccountId is the account that will be charged the fee for executing the scheduled transaction if/when it
   // is executed. That fee is separate from the fee that will pay to execute the ScheduleCreateTransaction itself.
@@ -109,9 +109,8 @@ int main(int argc, char** argv)
   std::cout << "Scheduled transfer with ID: " << scheduleId.toString() << std::endl;
 
   // Verify the transaction has not executed and that the created account's balance hasn't changed.
-  balance = AccountBalanceQuery().setAccountId(accountId).execute(client).getBalance();
-  std::cout << "Balance of account (should be same as before): " << balance.toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+  balance = AccountBalanceQuery().setAccountId(accountId).execute(client).mBalance;
+  std::cout << "Balance of account (should be same as before): " << balance.toString() << std::endl;
 
   // Once the operator has communicated the schedule ID to the created account, it can query for information about the
   // scheduled transaction.

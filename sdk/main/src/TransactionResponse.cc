@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@
  *
  */
 #include "TransactionResponse.h"
-
 #include "Client.h"
 #include "TransactionReceipt.h"
 #include "TransactionReceiptQuery.h"
 #include "TransactionRecord.h"
 #include "TransactionRecordQuery.h"
+#include "impl/HexConverter.h"
+
+#include <nlohmann/json.hpp>
 
 namespace Hedera
 {
@@ -214,6 +216,23 @@ void TransactionResponse::getRecordAsync(const Client& client,
   {
     exceptionCallback(exception);
   }
+}
+
+//-----
+std::string TransactionResponse::toString() const
+{
+  nlohmann::json json;
+  json["mNodeId"] = mNodeId.toString();
+  json["mTransactionHash"] = internal::HexConverter::bytesToHex(mTransactionHash);
+  json["mTransactionId"] = mTransactionId.toString();
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const TransactionResponse& response)
+{
+  os << response.toString();
+  return os;
 }
 
 //-----

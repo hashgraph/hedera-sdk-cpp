@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
  * limitations under the License.
  *
  */
-#include "NodeAddress.h"
 #include "AccountId.h"
 #include "Endpoint.h"
 #include "IPv4Address.h"
+#include "NodeAddress.h"
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>

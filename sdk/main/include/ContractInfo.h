@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,44 @@ public:
    * @return The constructed ContractInfo object.
    */
   [[nodiscard]] static ContractInfo fromProtobuf(const proto::ContractGetInfoResponse_ContractInfo& proto);
+
+  /**
+   * Construct a ContractInfo object from a byte array.
+   *
+   * @param bytes The byte array from which to construct a ContractInfo object.
+   * @return The constructed ContractInfo object.
+   */
+  [[nodiscard]] static ContractInfo fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Construct a ContractGetInfoResponse_ContractInfo protobuf object from this ContractInfo object.
+   *
+   * @return A pointer to the created ContractGetInfoResponse_ContractInfo protobuf object.
+   */
+  [[nodiscard]] std::unique_ptr<proto::ContractGetInfoResponse_ContractInfo> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this ContractInfo object.
+   *
+   * @return The byte array representing this ContractInfo object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this ContractInfo object.
+   *
+   * @return The string representation of this ContractInfo object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this ContractInfo to an output stream.
+   *
+   * @param os   The output stream.
+   * @param info The ContractInfo to print.
+   * @return The output stream with this ContractInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const ContractInfo& info);
 
   /**
    * The ID of the contract.

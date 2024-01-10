@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#include "AccountInfo.h"
 #include "AccountId.h"
+#include "AccountInfo.h"
 #include "Hbar.h"
 #include "LedgerId.h"
 #include "PublicKey.h"
@@ -136,11 +136,11 @@ TEST_F(AccountInfoUnitTests, FromProtobuf)
   EXPECT_EQ(accountInfo.mMaxAutomaticTokenAssociations, getTestMaxAutomaticTokenAssociations());
   EXPECT_EQ(accountInfo.mPublicKeyAlias->toBytesDer(), getTestPublicKeyAlias()->toBytesDer());
   EXPECT_EQ(accountInfo.mLedgerId.toBytes(), getTestLedgerId().toBytes());
-  EXPECT_EQ(accountInfo.mStakingInfo.getDeclineReward(), getTestDeclineReward());
-  EXPECT_EQ(accountInfo.mStakingInfo.getStakePeriodStart(), getTestStakePeriodStart());
-  EXPECT_EQ(accountInfo.mStakingInfo.getPendingReward(), getTestPendingReward());
-  EXPECT_EQ(accountInfo.mStakingInfo.getStakedToMe(), getTestStakedToMe());
-  ASSERT_TRUE(accountInfo.mStakingInfo.getStakedAccountId().has_value());
-  EXPECT_EQ(accountInfo.mStakingInfo.getStakedAccountId(), getTestStakedAccountId());
-  EXPECT_FALSE(accountInfo.mStakingInfo.getStakedNodeId().has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.mDeclineRewards, getTestDeclineReward());
+  EXPECT_EQ(accountInfo.mStakingInfo.mStakePeriodStart, getTestStakePeriodStart());
+  EXPECT_EQ(accountInfo.mStakingInfo.mPendingReward, getTestPendingReward());
+  EXPECT_EQ(accountInfo.mStakingInfo.mStakedToMe, getTestStakedToMe());
+  ASSERT_TRUE(accountInfo.mStakingInfo.mStakedAccountId.has_value());
+  EXPECT_EQ(accountInfo.mStakingInfo.mStakedAccountId, getTestStakedAccountId());
+  EXPECT_FALSE(accountInfo.mStakingInfo.mStakedNodeId.has_value());
 }

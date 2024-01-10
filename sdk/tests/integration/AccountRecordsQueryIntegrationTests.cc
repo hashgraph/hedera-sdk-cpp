@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ TEST_F(AccountRecordsQueryIntegrationTests, ExecuteAccountRecordsQuery)
   EXPECT_NO_THROW(accountRecords = AccountRecordsQuery().setAccountId(accountId).execute(getTestClient()));
 
   // Then
-  EXPECT_TRUE(accountRecords.getRecords().empty());
+  EXPECT_TRUE(accountRecords.mRecords.empty());
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@
  * limitations under the License.
  *
  */
-#include "TransferTransaction.h"
 #include "AccountId.h"
 #include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "Hbar.h"
 #include "TokenId.h"
+#include "TransferTransaction.h"
 #include "exceptions/IllegalStateException.h"
 
 #include <gtest/gtest.h>

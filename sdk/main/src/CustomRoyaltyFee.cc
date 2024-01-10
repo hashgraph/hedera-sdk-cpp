@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 #include "CustomRoyaltyFee.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/custom_fees.pb.h>
 
 namespace Hedera
@@ -59,8 +60,25 @@ std::unique_ptr<proto::CustomFee> CustomRoyaltyFee::toProtobuf() const
   {
     fee->mutable_royalty_fee()->set_allocated_fallback_fee(mFallbackFee->toFixedFeeProtobuf().release());
   }
-  
+
   return fee;
+}
+
+//-----
+std::string CustomRoyaltyFee::toString() const
+{
+  nlohmann::json json;
+  json["mFeeCollectorAccountId"] = mFeeCollectorAccountId.toString();
+  json["mAllCollectorsAreExempt"] = mAllCollectorsAreExempt;
+  json["mNumerator"] = mNumerator;
+  json["mDenominator"] = mDenominator;
+
+  if (mFallbackFee.has_value())
+  {
+    json["mFallbackFee"] = mFallbackFee->toString();
+  }
+
+  return json.dump();
 }
 
 //-----

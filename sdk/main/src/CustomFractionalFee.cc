@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 #include "CustomFractionalFee.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/custom_fees.pb.h>
 #include <stdexcept>
 
@@ -59,6 +60,21 @@ std::unique_ptr<proto::CustomFee> CustomFractionalFee::toProtobuf() const
   fee->mutable_fractional_fee()->set_maximum_amount(static_cast<int64_t>(mMaxAmount));
   fee->mutable_fractional_fee()->set_net_of_transfers(mAssessmentMethod == FeeAssessmentMethod::EXCLUSIVE);
   return fee;
+}
+
+//-----
+std::string CustomFractionalFee::toString() const
+{
+  nlohmann::json json;
+  json["mFeeCollectorAccountId"] = mFeeCollectorAccountId.toString();
+  json["mAllCollectorsAreExempt"] = mAllCollectorsAreExempt;
+  json["mNumerator"] = mNumerator;
+  json["mDenominator"] = mDenominator;
+  json["mMinAmount"] = mMinAmount;
+  json["mMaxAmount"] = mMaxAmount;
+  json["mMaxAmount"] = mMaxAmount;
+  json["mAssessmentMethod"] = gFeeAssessmentMethodToString.at(mAssessmentMethod);
+  return json.dump();
 }
 
 //-----

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -69,8 +69,7 @@ int main(int argc, char** argv)
                                      .getReceipt(client)
                                      .mAccountId.value();
   std::cout << "Generated Alice account ID " << aliceAccountId.toString() << " and initialized with "
-            << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).mBalance.toString() << std::endl;
 
   const AccountId bobAccountId = AccountCreateTransaction()
                                    .setKey(bobPublicKey)
@@ -79,8 +78,7 @@ int main(int argc, char** argv)
                                    .getReceipt(client)
                                    .mAccountId.value();
   std::cout << "Generated Bob account ID " << bobAccountId.toString() << " and initialized with "
-            << AccountBalanceQuery().setAccountId(bobAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(bobAccountId).execute(client).mBalance.toString() << std::endl;
 
   const AccountId charlieAccountId = AccountCreateTransaction()
                                        .setKey(charliePublicKey)
@@ -89,8 +87,7 @@ int main(int argc, char** argv)
                                        .getReceipt(client)
                                        .mAccountId.value();
   std::cout << "Generated Charlie account ID " << charlieAccountId.toString() << " and initialized with "
-            << AccountBalanceQuery().setAccountId(charlieAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl
+            << AccountBalanceQuery().setAccountId(charlieAccountId).execute(client).mBalance.toString() << std::endl
             << std::endl;
 
   std::cout << "Alice is now going to try and approve Bob to spend 2 of her Hbar" << std::endl;
@@ -169,14 +166,11 @@ int main(int argc, char** argv)
             << std::endl;
 
   std::cout << "Alice's final account balance: "
-            << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(aliceAccountId).execute(client).mBalance.toString() << std::endl;
   std::cout << "Bob's final account balance: "
-            << AccountBalanceQuery().setAccountId(bobAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(bobAccountId).execute(client).mBalance.toString() << std::endl;
   std::cout << "Charlie's final account balance: "
-            << AccountBalanceQuery().setAccountId(charlieAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl
+            << AccountBalanceQuery().setAccountId(charlieAccountId).execute(client).mBalance.toString() << std::endl
             << std::endl;
 
   std::cout << "Now going to attempt to delete Bob's allowance" << std::endl;

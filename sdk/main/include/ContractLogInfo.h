@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@
 
 #include <cstddef>
 #include <memory>
+#include <ostream>
+#include <string>
 #include <vector>
 
 namespace proto
@@ -41,19 +43,50 @@ class ContractLogInfo
 {
 public:
   /**
-   * Construct a ContractLogInfo object from a ContractLogInfo protobuf object.
+   * Construct a ContractLogInfo object from a ContractLoginfo protobuf object.
    *
-   * @param proto The ContractLogInfo protobuf object from which to construct a ContractLogInfo object.
+   * @param proto The ContractLoginfo protobuf object from which to construct a ContractLogInfo object.
    * @return The constructed ContractLogInfo object.
    */
   [[nodiscard]] static ContractLogInfo fromProtobuf(const proto::ContractLoginfo& proto);
 
   /**
-   * Construct a ContractLogInfo protobuf object from this ContractLogInfo object.
+   * Construct a ContractLogInfo object from a byte array.
    *
-   * @return A pointer to the created ContractLogInfo protobuf object filled with this ContractLogInfo object's data.
+   * @param bytes The byte array from which to construct a TransactionRecord object.
+   * @return The constructed ContractLogInfo object.
+   */
+  [[nodiscard]] static ContractLogInfo fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
+   * Construct a ContractLoginfo protobuf object from this ContractLogInfo object.
+   *
+   * @return A pointer to the created ContractLoginfo protobuf object.
    */
   [[nodiscard]] std::unique_ptr<proto::ContractLoginfo> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this ContractLogInfo object.
+   *
+   * @return The byte array representing this ContractLogInfo object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this ContractLogInfo object.
+   *
+   * @return The string representation of this ContractLogInfo object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this ContractLogInfo to an output stream.
+   *
+   * @param os      The output stream.
+   * @param logInfo The ContractLogInfo to print.
+   * @return The output stream with this ContractLogInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const ContractLogInfo& logInfo);
 
   /**
    * The ID of the contract that emitted this log event.

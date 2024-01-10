@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -57,7 +58,7 @@ public:
   /**
    * Construct a TopicInfo object from a byte array.
    *
-   * @param bytes The byte array representing a TopicInfo object.
+   * @param bytes The byte array from which to construct a TopicInfo object.
    * @return The constructed TopicInfo object.
    */
   [[nodiscard]] static TopicInfo fromBytes(const std::vector<std::byte>& bytes);
@@ -75,6 +76,22 @@ public:
    * @return The byte array representing this TopicInfo object.
    */
   [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this TopicInfo object.
+   *
+   * @return The string representation of this TopicInfo object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this TopicInfo to an output stream.
+   *
+   * @param os   The output stream.
+   * @param info The TopicInfo to print.
+   * @return The output stream with this TopicInfo written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const TopicInfo& info);
 
   /**
    * The ID of the topic.

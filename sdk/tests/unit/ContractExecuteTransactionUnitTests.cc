@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@
  * limitations under the License.
  *
  */
-#include "ContractExecuteTransaction.h"
 #include "AccountId.h"
 #include "Client.h"
+#include "ContractExecuteTransaction.h"
 #include "ContractId.h"
 #include "ED25519PrivateKey.h"
-#include "PublicKey.h"
 #include "exceptions/IllegalStateException.h"
 #include "impl/Utilities.h"
 

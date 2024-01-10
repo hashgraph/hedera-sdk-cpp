@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -64,8 +64,8 @@ int main(int argc, char** argv)
   // Query the account info, it should show the staked account ID to be 0.0.3.
   AccountInfo accountInfo = AccountInfoQuery().setAccountId(newAccountId).execute(client);
   std::cout << "Account ID " << newAccountId.toString() << " is staked to: "
-            << ((accountInfo.mStakingInfo.getStakedAccountId().has_value())
-                  ? accountInfo.mStakingInfo.getStakedAccountId()->toString()
+            << ((accountInfo.mStakingInfo.mStakedAccountId.has_value())
+                  ? accountInfo.mStakingInfo.mStakedAccountId->toString()
                   : "NOT STAKED")
             << std::endl;
 
@@ -84,8 +84,8 @@ int main(int argc, char** argv)
   // Query the account info, it should no longer be staked.
   accountInfo = AccountInfoQuery().setAccountId(newAccountId).execute(client);
   std::cout << "Account ID " << newAccountId.toString() << " is staked to: "
-            << ((accountInfo.mStakingInfo.getStakedAccountId().has_value())
-                  ? accountInfo.mStakingInfo.getStakedAccountId()->toString()
+            << ((accountInfo.mStakingInfo.mStakedAccountId.has_value())
+                  ? accountInfo.mStakingInfo.mStakedAccountId->toString()
                   : "NOT STAKED")
             << std::endl;
   return 0;

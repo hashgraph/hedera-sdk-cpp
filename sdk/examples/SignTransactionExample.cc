@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -76,8 +76,7 @@ int main(int argc, char** argv)
 
   // Get the balance of the multi-sig account.
   std::cout << "Balance of multi-sign account (should be 3 Hbar): "
-            << AccountBalanceQuery().setAccountId(accountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(accountId).execute(client).mBalance.toString() << std::endl;
 
   return 0;
 }

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@
  *
  */
 #include "HbarTransfer.h"
+#include "impl/Utilities.h"
 
+#include <nlohmann/json.hpp>
 #include <proto/basic_types.pb.h>
 
 namespace Hedera
@@ -48,14 +50,44 @@ HbarTransfer HbarTransfer::fromProtobuf(const proto::AccountAmount& proto)
 }
 
 //-----
+HbarTransfer HbarTransfer::fromBytes(const std::vector<std::byte>& bytes)
+{
+  proto::AccountAmount proto;
+  proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
+  return fromProtobuf(proto);
+}
+
+//-----
 std::unique_ptr<proto::AccountAmount> HbarTransfer::toProtobuf() const
 {
   auto proto = std::make_unique<proto::AccountAmount>();
   proto->set_allocated_accountid(mAccountId.toProtobuf().release());
   proto->set_amount(mAmount.toTinybars());
   proto->set_is_approval(mIsApproved);
-
   return proto;
+}
+
+//-----
+std::vector<std::byte> HbarTransfer::toBytes() const
+{
+  return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
+}
+
+//-----
+std::string HbarTransfer::toString() const
+{
+  nlohmann::json json;
+  json["mAccountId"] = mAccountId.toString();
+  json["mAmount"] = mAmount.toString();
+  json["mIsApproved"] = mIsApproved;
+  return json.dump();
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const HbarTransfer& transfer)
+{
+  os << transfer.toString();
+  return os;
 }
 
 } // namespace Hedera

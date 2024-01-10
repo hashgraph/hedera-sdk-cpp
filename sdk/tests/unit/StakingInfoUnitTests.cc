@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -62,12 +62,12 @@ TEST_F(StakingInfoUnitTests, FromProtobuf)
   const StakingInfo stakingInfo = StakingInfo::fromProtobuf(protoStakingInfo);
 
   // Then
-  EXPECT_EQ(stakingInfo.getDeclineReward(), getTestDeclineReward());
-  ASSERT_TRUE(stakingInfo.getStakePeriodStart().has_value());
-  EXPECT_EQ(*stakingInfo.getStakePeriodStart(), getTestStakePeriodStart());
-  EXPECT_EQ(stakingInfo.getPendingReward().toTinybars(), getTestPendingReward());
-  EXPECT_EQ(stakingInfo.getStakedToMe().toTinybars(), getTestStakedToMe());
-  EXPECT_FALSE(stakingInfo.getStakedAccountId().has_value());
-  ASSERT_TRUE(stakingInfo.getStakedNodeId().has_value());
-  EXPECT_EQ(*stakingInfo.getStakedNodeId(), getTestStakedNodeId());
+  EXPECT_EQ(stakingInfo.mDeclineRewards, getTestDeclineReward());
+  ASSERT_TRUE(stakingInfo.mStakePeriodStart.has_value());
+  EXPECT_EQ(*stakingInfo.mStakePeriodStart, getTestStakePeriodStart());
+  EXPECT_EQ(stakingInfo.mPendingReward.toTinybars(), getTestPendingReward());
+  EXPECT_EQ(stakingInfo.mStakedToMe.toTinybars(), getTestStakedToMe());
+  EXPECT_FALSE(stakingInfo.mStakedAccountId.has_value());
+  ASSERT_TRUE(stakingInfo.mStakedNodeId.has_value());
+  EXPECT_EQ(*stakingInfo.mStakedNodeId, getTestStakedNodeId());
 }

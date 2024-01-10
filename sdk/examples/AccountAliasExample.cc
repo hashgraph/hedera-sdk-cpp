@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -101,8 +101,7 @@ int main(int argc, char** argv)
             << std::endl;
 
   std::cout << "Balance of the created account: "
-            << AccountBalanceQuery().setAccountId(aliasAccountId).execute(client).getBalance().toTinybars()
-            << HbarUnit::TINYBAR().getSymbol() << std::endl;
+            << AccountBalanceQuery().setAccountId(aliasAccountId).execute(client).mBalance.toString() << std::endl;
 
   /*
    * Note that once an account exists in the ledger, it is assigned a normal AccountId, which can be retrieved via an

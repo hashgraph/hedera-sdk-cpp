@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,12 @@
 
 #include "AccountId.h"
 #include "Hbar.h"
+
+#include <cstddef>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <vector>
 
 namespace proto
 {
@@ -53,11 +59,42 @@ public:
   [[nodiscard]] static HbarTransfer fromProtobuf(const proto::AccountAmount& proto);
 
   /**
+   * Construct an HbarTransfer object from a byte array.
+   *
+   * @param bytes The byte array from which to construct an HbarTransfer object.
+   * @return The constructed HbarTransfer object.
+   */
+  [[nodiscard]] static HbarTransfer fromBytes(const std::vector<std::byte>& bytes);
+
+  /**
    * Construct an AccountAmount protobuf object from this HbarTransfer object.
    *
-   * @return A pointer to a constructed AccountAmount protobuf object filled with this HbarTransfer object's data.
+   * @return A pointer to the created HbarTransfer protobuf object.
    */
   [[nodiscard]] std::unique_ptr<proto::AccountAmount> toProtobuf() const;
+
+  /**
+   * Construct a representative byte array from this HbarTransfer object.
+   *
+   * @return The byte array representing this HbarTransfer object.
+   */
+  [[nodiscard]] std::vector<std::byte> toBytes() const;
+
+  /**
+   * Construct a string representation of this HbarTransfer object.
+   *
+   * @return The string representation of this HbarTransfer object.
+   */
+  [[nodiscard]] std::string toString() const;
+
+  /**
+   * Write this HbarTransfer to an output stream.
+   *
+   * @param os       The output stream.
+   * @param transfer The HbarTransfer to print.
+   * @return The output stream with this HbarTransfer written to it.
+   */
+  friend std::ostream& operator<<(std::ostream& os, const HbarTransfer& transfer);
 
   /**
    * The ID of the account associated with this HbarTransfer.

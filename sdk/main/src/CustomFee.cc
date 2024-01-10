@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,13 @@ std::unique_ptr<CustomFee> CustomFee::fromBytes(const std::vector<std::byte>& by
   proto::CustomFee fee;
   fee.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
   return fromProtobuf(fee);
+}
+
+//-----
+std::ostream& operator<<(std::ostream& os, const CustomFee& fee)
+{
+  os << fee.toString();
+  return os;
 }
 
 //-----
