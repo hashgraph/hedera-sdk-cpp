@@ -9,6 +9,5 @@ add_executable(${TCK_SERVER_NAME}
 target_link_libraries(${TCK_SERVER_NAME} ${PROJECT_NAME})
 
 target_include_directories(${TCK_SERVER_NAME} PRIVATE include)
-target_include_directories(${TCK_SERVER_NAME} PRIVATE ${json-rpc-cxx_SOURCE_DIR}/include)
 
 install(TARGETS ${TCK_SERVER_NAME} RUNTIME DESTINATION tck)

@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace Hedera::TCK
 {
 namespace
 {
-// The default amount of time an SdkClient should wait for a gRPC request.
+// The default amount of time the SdkClient should wait for a gRPC request.
 constexpr auto DEFAULT_TCK_REQUEST_TIMEOUT = std::chrono::seconds(30);
 
 // The SDK Client to use to submit requests to a Hedera network.

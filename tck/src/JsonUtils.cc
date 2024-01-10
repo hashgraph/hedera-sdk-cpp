@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,19 @@
 namespace Hedera::TCK
 {
 //-----
-auto hasKey(const nlohmann::json& request, std::string_view key) -> bool
+bool hasKey(const nlohmann::json& request, std::string_view key)
 {
   return request.contains(key);
 }
 
 //-----
-auto hasKeyType(const nlohmann::json& request, std::string_view key, nlohmann::json::value_t type) -> bool
+bool hasKeyType(const nlohmann::json& request, std::string_view key, nlohmann::json::value_t type)
 {
   return hasKey(request, key) && request.at(key).type() == type;
 }
 
 //-----
-auto hasValidId(const nlohmann::json& request) -> bool
+bool hasValidId(const nlohmann::json& request)
 {
   return hasKey(request, "id") && (request["id"].is_number() || request["id"].is_string() || request["id"].is_null());
 }

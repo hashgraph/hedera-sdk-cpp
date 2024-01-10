@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -198,14 +198,14 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       throw JsonRpcException(JsonErrorType::INVALID_REQUEST, "invalid request: method field must be a string");
     }
 
-    // Make sure that, if there exists an ID field, this it is a number, string, or null.
+    // Make sure that, if there exists an ID field, that it is a number, string, or null.
     if (hasKey(request, "id") && !request["id"].is_number() && !request["id"].is_string() && !request["id"].is_null())
     {
       throw JsonRpcException(JsonErrorType::INVALID_REQUEST,
                              "invalid request: id field must be a number, string or null");
     }
 
-    // Make sure that, if there exists a params field, it is an array, object, or null.
+    // Make sure that, if a params field exists, it is an array, object, or null.
     if (hasKey(request, "params") && !request["params"].is_array() && !request["params"].is_object() &&
         !request["params"].is_null())
     {
