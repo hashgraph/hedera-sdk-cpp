@@ -37,8 +37,8 @@ jobs:
       - name: Run Clang-Format
         uses: jidicula/clang-format-action@v4.11.0
         with:
-          clang-format-version: '17'
-          check-path: 'sdk'
+          clang-format-version: "17"
+          check-path: "sdk"
 
       - name: Setup Docker Compose
         run: |
@@ -63,7 +63,7 @@ jobs:
           node-version: 18
 
       - name: Install Local Node
-        run: sudo npm install -g @hashgraph/hedera-local
+        run: sudo npm install -g @hashgraph/hedera-local@2.15.1
         if: ${{ runner.os == 'Linux' }}
 
       - name: Install Linux Prerequisites
