@@ -248,8 +248,8 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
   catch (const JsonRpcException& ex)
   {
     nlohmann::json error = {
-      { "code",    ex.getCode()    },
-      { "message", ex.getMessage() }
+      {"code",     ex.getCode()   },
+      { "message", ex.getMessage()}
     };
 
     if (!ex.getData().is_null())
@@ -258,9 +258,9 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
     }
 
     return nlohmann::json{
-      { "jsonrpc", "2.0"     },
-      { "id",      requestId },
-      { "error",   error     }
+      {"jsonrpc", "2.0"    },
+      { "id",     requestId},
+      { "error",  error    }
     };
   }
 

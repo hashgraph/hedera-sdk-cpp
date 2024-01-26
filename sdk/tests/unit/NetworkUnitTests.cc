@@ -93,8 +93,8 @@ TEST_F(NetworkUnitTests, ConstructCustomNetwork)
 {
   // Given
   const std::unordered_map<std::string, AccountId> testNetwork = {
-    { "2.testnet.hedera.com:50211", AccountId(5ULL) },
-    { "3.testnet.hedera.com:50211", AccountId(6ULL) }
+    {"2.testnet.hedera.com:50211",  AccountId(5ULL)},
+    { "3.testnet.hedera.com:50211", AccountId(6ULL)}
   };
 
   // When

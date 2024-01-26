@@ -92,8 +92,8 @@ nlohmann::json SdkClient::createAccount(const std::string& publicKey,
 
   const TransactionReceipt txReceipt = accountCreateTransaction.execute(mClient).getReceipt(mClient);
   return {
-    { "accountId", txReceipt.mAccountId->toString()      },
-    { "status",    gStatusToString.at(txReceipt.mStatus) }
+    {"accountId", txReceipt.mAccountId->toString()     },
+    { "status",   gStatusToString.at(txReceipt.mStatus)}
   };
 }
 
@@ -114,7 +114,7 @@ nlohmann::json SdkClient::reset()
 {
   mClient.close();
   return {
-    { "status", "SUCCESS" }
+    {"status", "SUCCESS"}
   };
 }
 
@@ -130,7 +130,7 @@ nlohmann::json SdkClient::setup(const std::string& operatorAccountId,
   if (nodeIp.has_value() && nodeAccountId.has_value() && mirrorNetworkIp.has_value())
   {
     mClient = Client::forNetwork({
-      { nodeIp.value(), Hedera::AccountId::fromString("0.0." + nodeAccountId.value()) }
+      {nodeIp.value(), Hedera::AccountId::fromString("0.0." + nodeAccountId.value())}
     });
     mClient.setMirrorNetwork({ mirrorNetworkIp.value() });
     clientType = "custom";
@@ -145,8 +145,8 @@ nlohmann::json SdkClient::setup(const std::string& operatorAccountId,
   mClient.setRequestTimeout(DEFAULT_TCK_REQUEST_TIMEOUT);
 
   return {
-    { "message", "Successfully setup " + clientType + " client." },
-    { "status",  "SUCCESS"                                       }
+    {"message", "Successfully setup " + clientType + " client."},
+    { "status", "SUCCESS"                                      }
   };
 }
 
