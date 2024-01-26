@@ -4,6 +4,10 @@
   "builtin-baseline": "680071397677bb123b2f2b0ebe73905feae4a955",
   "dependencies": [
     {
+      "name": "openssl",
+      "version>=": "3.2.0#2"
+    },
+    {
       "name": "pthreads",
       "version>=": "3.0.0#11"
     },
