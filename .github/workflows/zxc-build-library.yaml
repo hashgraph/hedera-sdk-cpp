@@ -28,6 +28,9 @@ jobs:
           #   preset: macos-x64
           # - os: windows-latest
           #   preset: windows-x64
+        formatPath:
+          - "sdk"
+          - "tck"
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -38,9 +41,7 @@ jobs:
         uses: jidicula/clang-format-action@v4.11.0
         with:
           clang-format-version: "17"
-          check-path:
-            - "sdk"
-            - "tck"
+          check-path: ${{ matrix.formatPath }}
 
       - name: Setup Docker Compose
         run: |
