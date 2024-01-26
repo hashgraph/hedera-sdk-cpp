@@ -19,11 +19,11 @@
  */
 #include "AccountId.h"
 #include "impl/Network.h"
+
+#include <gtest/gtest.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include <gtest/gtest.h>
 
 using namespace Hedera;
 
