@@ -27,10 +27,7 @@ using namespace Hedera::TCK;
 int main(int argc, char** argv)
 {
   // Initialize the TCK server with the port number.
-  TckServer tckServer(
-    (argc > 1) ? static_cast<int>(Hedera::internal::EntityIdHelper::getNum(argv[1])) : // NOLINT
-
-      
+  TckServer tckServer((argc > 1) ? static_cast<int>(Hedera::internal::EntityIdHelper::getNum(argv[1])) : // NOLINT
                         TckServer::DEFAULT_HTTP_PORT);
 
   // Add the SDK client functions.
