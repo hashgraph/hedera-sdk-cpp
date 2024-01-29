@@ -17,9 +17,9 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: Code
-    uses: ./.github/workflows/zxc-build-library.yaml
   formatting-check:
     name: Format
     uses: ./.github/workflows/clang-format-check.yaml
+  build:
+    name: Code
+    uses: ./.github/workflows/zxc-build-library.yaml
