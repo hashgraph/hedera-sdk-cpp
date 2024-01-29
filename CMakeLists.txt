@@ -28,4 +28,4 @@ include(HederaApi.cmake)
 
 enable_testing()
 
-add_subdirectory(sdk)
+add_subdirectory(src)
