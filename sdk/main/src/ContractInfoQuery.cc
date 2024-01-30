@@ -44,6 +44,30 @@ ContractInfoQuery& ContractInfoQuery::setContractId(const ContractId& contractId
 ContractInfo ContractInfoQuery::mapResponse(const proto::Response& response) const
 {
   ContractInfo contractInfo = ContractInfo::fromProtobuf(response.contractgetinfo().contractinfo());
+
+  fetchTokenInformation(contractInfo);
+
+  return contractInfo;
+}
+
+//-----
+grpc::Status ContractInfoQuery::submitRequest(const proto::Query& request,
+                                              const std::shared_ptr<internal::Node>& node,
+                                              const std::chrono::system_clock::time_point& deadline,
+                                              proto::Response* response) const
+{
+  return node->submitQuery(proto::Query::QueryCase::kContractGetInfo, request, deadline, response);
+}
+
+//-----
+void ContractInfoQuery::validateChecksums(const Client& client) const
+{
+  mContractId.validateChecksum(client);
+}
+
+//-----
+void ContractInfoQuery::fetchTokenInformation(ContractInfo& contractInfo) const
+{
   json tokens =
     internal::MirrorNodeGateway::MirrorNodeQuery(getMirrorNodeResolution(),
                                                  { mContractId.toString() },
@@ -63,23 +87,6 @@ ContractInfo ContractInfoQuery::mapResponse(const proto::Response& response) con
       contractInfo.mTokenRelationships.insert({ tokenId, tokenRelationship });
     }
   }
-
-  return contractInfo;
-}
-
-//-----
-grpc::Status ContractInfoQuery::submitRequest(const proto::Query& request,
-                                              const std::shared_ptr<internal::Node>& node,
-                                              const std::chrono::system_clock::time_point& deadline,
-                                              proto::Response* response) const
-{
-  return node->submitQuery(proto::Query::QueryCase::kContractGetInfo, request, deadline, response);
-}
-
-//-----
-void ContractInfoQuery::validateChecksums(const Client& client) const
-{
-  mContractId.validateChecksum(client);
 }
 
 //-----

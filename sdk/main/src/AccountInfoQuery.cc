@@ -46,6 +46,30 @@ AccountInfoQuery& AccountInfoQuery::setAccountId(const AccountId& accountId)
 AccountInfo AccountInfoQuery::mapResponse(const proto::Response& response) const
 {
   AccountInfo accountInfo = AccountInfo::fromProtobuf(response.cryptogetinfo().accountinfo());
+
+  fetchTokenInformation(accountInfo);
+
+  return accountInfo;
+}
+
+//-----
+grpc::Status AccountInfoQuery::submitRequest(const proto::Query& request,
+                                             const std::shared_ptr<internal::Node>& node,
+                                             const std::chrono::system_clock::time_point& deadline,
+                                             proto::Response* response) const
+{
+  return node->submitQuery(proto::Query::QueryCase::kCryptoGetInfo, request, deadline, response);
+}
+
+//-----
+void AccountInfoQuery::validateChecksums(const Client& client) const
+{
+  mAccountId.validateChecksum(client);
+}
+
+//-----
+void AccountInfoQuery::fetchTokenInformation(AccountInfo& accountInfo) const
+{
   json tokens =
     internal::MirrorNodeGateway::MirrorNodeQuery(getMirrorNodeResolution(),
                                                  { mAccountId.toString() },
@@ -65,23 +89,6 @@ AccountInfo AccountInfoQuery::mapResponse(const proto::Response& response) const
       accountInfo.mTokenRelationships.insert({ tokenId, tokenRelationship });
     }
   }
-
-  return accountInfo;
-}
-
-//-----
-grpc::Status AccountInfoQuery::submitRequest(const proto::Query& request,
-                                             const std::shared_ptr<internal::Node>& node,
-                                             const std::chrono::system_clock::time_point& deadline,
-                                             proto::Response* response) const
-{
-  return node->submitQuery(proto::Query::QueryCase::kCryptoGetInfo, request, deadline, response);
-}
-
-//-----
-void AccountInfoQuery::validateChecksums(const Client& client) const
-{
-  mAccountId.validateChecksum(client);
 }
 
 //-----

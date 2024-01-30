@@ -95,12 +95,12 @@ public:
   Hbar mBalance;
 
   /**
-   *  Map of tokens with associated values.
+   * Map of tokens with associated values.
    */
   std::unordered_map<TokenId, uint64_t> mTokens;
 
   /**
-   *  Map of token decimals with associated values.
+   * Map of token decimals with associated values.
    */
   std::unordered_map<TokenId, int> mTokenDecimals;
 };

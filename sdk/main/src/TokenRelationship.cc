@@ -24,7 +24,7 @@ using namespace Hedera;
 
 //-----
 TokenRelationship::TokenRelationship(const TokenId& tokenId,
-                                     std::string_view symbol,
+                                     const std::string& symbol,
                                      uint64_t balance,
                                      std::string_view kycStatus,
                                      std::string_view freezeStatus,
@@ -45,7 +45,7 @@ std::string TokenRelationship::toString() const
 {
   return "TokenRelationship {"
          "\n  tokenId: " +
-         mTokenId.toString() + "\n  symbol: " + mSymbol.data() + "\n  balance: " + std::to_string(mBalance) +
+         mTokenId.toString() + "\n  symbol: " + mSymbol + "\n  balance: " + std::to_string(mBalance) +
          "\n  kycStatus: " + (mKycStatus.has_value() ? std::to_string(mKycStatus.value()) : "null") +
          "\n  freezeStatus: " + (mFreezeStatus.has_value() ? std::to_string(mFreezeStatus.value()) : "null") +
          "\n  automaticAssociation: " + (mAutomaticAssociation ? "true" : "false") + "\n}";

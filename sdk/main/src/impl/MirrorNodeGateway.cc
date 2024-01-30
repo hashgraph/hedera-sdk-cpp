@@ -22,8 +22,10 @@
 #include "exceptions/CURLException.h"
 #include "exceptions/IllegalStateException.h"
 
+#include <chrono>
 #include <iostream>
 #include <string>
+#include <thread>
 
 using json = nlohmann::json;
 
@@ -35,8 +37,17 @@ json MirrorNodeQuery(std::string_view mirrorNodeUrl, const std::vector<std::stri
   std::string response;
   try
   {
-    const std::string url = buildUrl(mirrorNodeUrl, queryType, params);
+    bool isLocalNetwork = true;
+    const std::string url = buildUrlForNetwork(mirrorNodeUrl, queryType, params, isLocalNetwork);
     HttpClient httpClient;
+
+    // this is needed because of Mirror Node update delay time
+    // agreed to be handled by the user not a local network
+    if (isLocalNetwork)
+    {
+      std::this_thread::sleep_for(std::chrono::seconds(3));
+    }
+
     response = httpClient.invokeREST(url);
   }
   catch (const std::exception& e)
@@ -47,7 +58,7 @@ json MirrorNodeQuery(std::string_view mirrorNodeUrl, const std::vector<std::stri
 }
 
 //-----
-void replaceParameters(std::string& original, const std::string& search, const std::string& replace)
+void replaceParameters(std::string& original, std::string_view search, std::string_view replace)
 {
   size_t startPos = 0;
 
@@ -59,13 +70,23 @@ void replaceParameters(std::string& original, const std::string& search, const s
 }
 
 //-----
-std::string buildUrl(std::string_view mirrorNodeUrl, std::string_view queryType, const std::vector<std::string>& params)
+std::string buildUrlForNetwork(std::string_view mirrorNodeUrl,
+                               std::string_view queryType,
+                               const std::vector<std::string>& params,
+                               bool& isLocalNetwork)
 {
-  std::string prefix = "http://";
+  std::string httpPrefix = "http://";
+  std::string localPrefix = "127.0.0.1:5600";
   std::string url = mirrorNodeUrl.data();
-  if (url.compare(0, prefix.length(), prefix) != 0)
+  if (url.compare(0, httpPrefix.length(), httpPrefix) != 0 && url.compare(0, localPrefix.length(), localPrefix) != 0)
   {
+    isLocalNetwork = false;
     url = "https://" + url;
+  }
+  if (url == localPrefix)
+  {
+    url = httpPrefix + url;
+    url.replace(url.length() - 4, 4, "5551");
   }
   MirrorNodeRouter router;
   std::string route = router.getRoute(queryType.data()).data();

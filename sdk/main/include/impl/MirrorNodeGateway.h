@@ -56,7 +56,7 @@ nlohmann::json MirrorNodeQuery(std::string_view mirrorNodeUrl,
  * @param search The substring to search for.
  * @param replace The string to replace the occurrences of 'search'.
  */
-void replaceParameters(std::string& original, const std::string& search, const std::string& replace);
+void replaceParameters(std::string& original, std::string_view search, std::string_view replace);
 
 /**
  * Builds a URL based on a mirror node URL, query type, and parameters.
@@ -70,8 +70,9 @@ void replaceParameters(std::string& original, const std::string& search, const s
  * @param params A vector of strings representing parameters.
  * @return The constructed URL.
  */
-std::string buildUrl(std::string_view mirrorNodeUrl,
-                     std::string_view queryType,
-                     const std::vector<std::string>& params);
+std::string buildUrlForNetwork(std::string_view mirrorNodeUrl,
+                               std::string_view queryType,
+                               const std::vector<std::string>& params,
+                               bool& isLocalNetwork);
 } // namespace Hedera::internal::MirrorNodeGateway
 #endif // HEDERA_SDK_CPP_MIRRORNODEGATEWAY_H

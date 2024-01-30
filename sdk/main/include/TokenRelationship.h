@@ -20,7 +20,7 @@
 #ifndef HEDERA_SDK_CPP_TOKEN_RELATIONSHIP_H_
 #define HEDERA_SDK_CPP_TOKEN_RELATIONSHIP_H_
 
-#include <TokenId.h>
+#include "TokenId.h"
 
 #include <iostream>
 #include <optional>
@@ -50,7 +50,7 @@ public:
    * @param automaticAssociation Specifies if the relationship is created implicitly.
    */
   TokenRelationship(const TokenId& tokenId,
-                    std::string_view symbol,
+                    const std::string& symbol,
                     uint64_t balance,
                     std::string_view kycStatus,
                     std::string_view freezeStatus,
@@ -88,7 +88,7 @@ private:
   /**
    * The symbol of the token.
    */
-  std::string_view mSymbol;
+  std::string mSymbol;
 
   /**
    * The balance of the account.
