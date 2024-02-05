@@ -369,17 +369,17 @@ private:
   [[nodiscard]] proto::Transaction makeRequest(unsigned int index) const override;
 
   /**
-   * Derived from Transaction. Generate the SignedTransaction protobuf objects for this ChunkedTransaction.
+   * Derived from Transaction. Regenerate the SignedTransaction protobuf objects for this ChunkedTransaction.
    *
-   * @param client A pointer to the Client to use to generate the SignedTransaction protobuf objects.
+   * @param client A pointer to the Client to use to regenerate the SignedTransaction protobuf objects.
    */
-  void generateSignedTransactions(const Client* client) override;
+  void regenerateSignedTransactions(const Client* client) const override;
 
   /**
    * Derived from Transaction. Clear the SignedTransaction and Transaction protobuf objects held by this
    * ChunkedTransaction.
    */
-  void clearTransactions() override;
+  void clearTransactions() const override;
 
   /**
    * Derived from Transaction. Get the ID of the previously-executed ChunkedTransaction.

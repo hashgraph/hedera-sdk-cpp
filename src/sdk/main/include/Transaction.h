@@ -269,11 +269,13 @@ public:
   [[nodiscard]] TransactionId getTransactionId() const;
 
   /**
-   * Get the maximum transaction fee willing to be paid to execute this Transaction.
+   * Get the maximum transaction fee willing to be paid to execute this Transaction. If not set manually, this
+   * Transaction will use the max transaction fee set in the Client used to submit this Transaction upon execution.
+   * If a Client max transaction fee has not been set, then the default max transaction fee will be used.
    *
-   * @return The maximum transaction fee willing to be paid. Uninitialized if no maximum transaction fee has been set.
+   * @return The maximum transaction fee willing to be paid.
    */
-  [[nodiscard]] std::optional<Hbar> getMaxTransactionFee() const;
+  [[nodiscard]] Hbar getMaxTransactionFee() const;
 
   /**
    * Get the default maximum transaction fee. This can change between Transactions depending on their cost.
@@ -283,7 +285,8 @@ public:
   [[nodiscard]] Hbar getDefaultMaxTransactionFee() const;
 
   /**
-   * Get the desired length of time for this Transaction to remain valid upon submission.
+   * Get the desired length of time for this Transaction to remain valid upon submission. If not set manually,
+   * DEFAULT_TRANSACTION_VALID_DURATION will be used.
    *
    * @return The length of time this Transaction will remain valid.
    */
@@ -306,6 +309,13 @@ public:
   [[nodiscard]] std::optional<bool> getRegenerateTransactionIdPolicy() const;
 
 protected:
+  /**
+   * Dummy transaction and account IDs used to assist in deserializing incomplete Transactions.
+   */
+  static inline const AccountId DUMMY_ACCOUNT_ID = AccountId(0ULL, 0ULL, 0ULL);
+  static inline const TransactionId DUMMY_TRANSACTION_ID =
+    TransactionId::withValidStart(DUMMY_ACCOUNT_ID, std::chrono::system_clock::time_point());
+
   Transaction();
   ~Transaction();
   Transaction(const Transaction&);
@@ -347,6 +357,18 @@ protected:
   void buildAllTransactions() const;
 
   /**
+   * Build all unsigned transactions.
+   *
+   * This function clears the internal list of transactions and rebuilds it based on
+   * the provided node account IDs and transaction body. It is used to prepare the
+   * transactions for signing and execution.
+   *
+   * If no node account IDs are provided, a dummy node account ID is set to prevent
+   * the transaction from being executed on the client network by default.
+   */
+  void buildAllUnsignedTransactions();
+
+  /**
    * Update mSourceTransactionBody. This will update all fields of mSourceTransactionBody except the transaction ID and
    * the node account ID.
    *
@@ -355,11 +377,11 @@ protected:
   void updateSourceTransactionBody(const Client* client) const;
 
   /**
-   * Generate the SignedTransaction protobuf objects for this Transaction.
+   * Regenerate the SignedTransaction protobuf objects for this Transaction.
    *
-   * @param client A pointer to the Client to use to generate the SignedTransaction protobuf objects.
+   * @param client A pointer to the Client to use to regenerate the SignedTransaction protobuf objects.
    */
-  virtual void generateSignedTransactions(const Client* client);
+  virtual void regenerateSignedTransactions(const Client* client) const;
 
   /**
    * Add a Transaction or SignedTransaction protobuf object to this Transaction's Transaction or SignedTransaction
@@ -369,8 +391,8 @@ protected:
    *
    * @param transaction The Transaction or SignedTransaction protobuf object to add to this Transaction.
    */
-  void addTransaction(const proto::Transaction& transaction);
-  void addTransaction(const proto::SignedTransaction& transaction);
+  void addTransaction(const proto::Transaction& transaction) const;
+  void addTransaction(const proto::SignedTransaction& transaction) const;
 
   /**
    * Add a SignedTransaction protobuf object created from the input TransactionBody protobuf object for each node
@@ -380,12 +402,12 @@ protected:
    * @param transaction The TransactionBody protobuf object from which to construct the SignedTransaction protobuf
    *                    objects.
    */
-  void addSignedTransactionForEachNode(proto::TransactionBody& transactionBody);
+  void addSignedTransactionForEachNode(proto::TransactionBody transactionBody) const;
 
   /**
    * Clear the SignedTransaction and Transaction protobuf objects held by this Transaction.
    */
-  virtual void clearTransactions();
+  virtual void clearTransactions() const;
 
   /**
    * Check and make sure this Transaction isn't frozen.

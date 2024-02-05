@@ -121,8 +121,8 @@ struct Transaction<SdkRequestType>::TransactionImpl
   // Is this Transaction frozen?
   bool mIsFrozen = false;
 
-  // The ID of this Transaction.
-  TransactionId mTransactionId;
+  // The ID of this Transaction. No value if it has not yet been set.
+  std::optional<TransactionId> mTransactionId;
 
   // The maximum transaction fee willing to be paid to execute this Transaction. If not set, this Transaction will use
   // the Client's set maximum transaction fee. If that's not set, mDefaultMaxTransactionFee is used.
@@ -140,7 +140,7 @@ struct Transaction<SdkRequestType>::TransactionImpl
 
   // Should this Transaction regenerate its TransactionId upon a TRANSACTION_EXPIRED response from the network? If not
   // set, this Transaction will use the Client's set transaction ID regeneration policy. If that's not set, the default
-  // behavior is to regenerate the transaction ID.
+  // behavior is captured in DEFAULT_REGENERATE_TRANSACTION_ID.
   std::optional<bool> mTransactionIdRegenerationPolicy;
 };
 
@@ -162,12 +162,13 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
     for (int i = 0; i < txList.transaction_list_size(); ++i)
     {
       tx = txList.transaction_list(i);
-
       signedTx.ParseFromArray(tx.signedtransactionbytes().data(), static_cast<int>(tx.signedtransactionbytes().size()));
       txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
 
-      transactions[TransactionId::fromProtobuf(txBody.transactionid())]
-                  [AccountId::fromProtobuf(txBody.nodeaccountid())] = tx;
+      transactions[txBody.has_transactionid() ? TransactionId::fromProtobuf(txBody.transactionid())
+                                              : DUMMY_TRANSACTION_ID]
+                  [txBody.has_nodeaccountid() ? AccountId::fromProtobuf(txBody.nodeaccountid()) : DUMMY_ACCOUNT_ID] =
+                    tx;
     }
   }
 
@@ -178,8 +179,9 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
     signedTx.ParseFromArray(tx.signedtransactionbytes().data(), static_cast<int>(tx.signedtransactionbytes().size()));
     txBody.ParseFromArray(signedTx.bodybytes().data(), static_cast<int>(signedTx.bodybytes().size()));
 
-    transactions[TransactionId::fromProtobuf(txBody.transactionid())][AccountId::fromProtobuf(txBody.nodeaccountid())] =
-      tx;
+    transactions[txBody.has_transactionid() ? TransactionId::fromProtobuf(txBody.transactionid())
+                                            : DUMMY_TRANSACTION_ID]
+                [txBody.has_nodeaccountid() ? AccountId::fromProtobuf(txBody.nodeaccountid()) : DUMMY_ACCOUNT_ID] = tx;
   }
 
   // TransactionBody protobuf object.
@@ -189,14 +191,15 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
     signedTx.set_bodybytes(txBody.SerializeAsString());
     tx.set_signedtransactionbytes(signedTx.SerializeAsString());
 
-    transactions[TransactionId::fromProtobuf(txBody.transactionid())][AccountId::fromProtobuf(txBody.nodeaccountid())] =
-      tx;
+    transactions[txBody.has_transactionid() ? TransactionId::fromProtobuf(txBody.transactionid())
+                                            : DUMMY_TRANSACTION_ID]
+                [txBody.has_nodeaccountid() ? AccountId::fromProtobuf(txBody.nodeaccountid()) : DUMMY_ACCOUNT_ID] = tx;
   }
 
   // If not any Transaction, throw.
   else
   {
-    throw std::invalid_argument("Unable to construct Transaction from input bytes");
+    throw std::invalid_argument("Unable to construct Transaction from input bytes.");
   }
 
   switch (txBody.data_case())
@@ -284,7 +287,7 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
     case proto::TransactionBody::kCryptoTransfer:
       return WrappedTransaction(TransferTransaction(transactions));
     default:
-      throw std::invalid_argument("Type of transaction cannot be determined from input bytes");
+      throw std::invalid_argument("Type of transaction cannot be determined from input bytes.");
   }
 }
 
@@ -292,17 +295,37 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
 template<typename SdkRequestType>
 std::vector<std::byte> Transaction<SdkRequestType>::toBytes() const
 {
-  if (!isFrozen())
-  {
-    throw IllegalStateException("Transaction must be frozen before conversion to bytes will be stable.");
-  }
-
-  buildAllTransactions();
-
+  // If no nodes have been selected yet, the mSourceTransactionBody can be used to build a Transaction protobuf object.
   proto::TransactionList txList;
-  for (const auto& tx : mImpl->mTransactions)
+  if (Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+        getNodeAccountIds()
+          .empty())
   {
+    // Make sure the Transaction has, if any, all recent changes.
+    updateSourceTransactionBody(nullptr);
+
+    proto::SignedTransaction signedTx;
+    signedTx.set_bodybytes(mImpl->mSourceTransactionBody.SerializeAsString());
+
+    proto::Transaction tx;
+    tx.set_signedtransactionbytes(signedTx.SerializeAsString());
+
     *txList.add_transaction_list() = tx;
+  }
+  else
+  {
+    // Generate the SignedTransaction protobuf objects if the Transaction's not frozen.
+    if (!isFrozen())
+    {
+      regenerateSignedTransactions(nullptr);
+    }
+
+    // Build all the Transaction protobuf objects and add them to the TransactionList protobuf object.
+    buildAllTransactions();
+    for (const auto& tx : mImpl->mTransactions)
+    {
+      *txList.add_transaction_list() = tx;
+    }
   }
 
   return internal::Utilities::stringToByteVector(txList.SerializeAsString());
@@ -377,6 +400,11 @@ template<typename SdkRequestType>
 std::map<AccountId, std::map<std::shared_ptr<PublicKey>, std::vector<std::byte>>>
 Transaction<SdkRequestType>::getSignatures() const
 {
+  if (!isFrozen())
+  {
+    throw IllegalStateException("Transaction must be frozen in order to have signatures.");
+  }
+
   if (mImpl->mSignatories.empty())
   {
     return {};
@@ -403,7 +431,7 @@ SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client* client)
     return static_cast<SdkRequestType&>(*this);
   }
 
-  if (mImpl->mTransactionId == TransactionId())
+  if (!mImpl->mTransactionId.has_value())
   {
     if (!client)
     {
@@ -427,13 +455,13 @@ SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client* client)
     if (!client)
     {
       throw IllegalStateException(
-        "If no client is provided to freeze transaction, the node account IDs must be manually set.");
+        "If no client is provided to freeze transaction, the node account ID(s) must be manually set.");
     }
 
     // Make sure the client has a valid network.
     if (!client->getClientNetwork())
     {
-      throw UninitializedException("Client has not been initialized with a valid network");
+      throw UninitializedException("Client has not been initialized with a valid network.");
     }
 
     // Have the Client's network generate the node account IDs to which to send this Transaction.
@@ -441,8 +469,8 @@ SdkRequestType& Transaction<SdkRequestType>::freezeWith(const Client* client)
       client->getClientNetwork()->getNodeAccountIdsForExecute());
   }
 
-  // Generate the SignedTransaction protobuf objects.
-  generateSignedTransactions(client);
+  // Regenerate the final SignedTransaction protobuf objects.
+  regenerateSignedTransactions(client);
 
   mImpl->mIsFrozen = true;
   return static_cast<SdkRequestType&>(*this);
@@ -457,7 +485,7 @@ ScheduleCreateTransaction Transaction<SdkRequestType>::schedule() const
          getNodeAccountIds()
            .empty())
   {
-    throw IllegalStateException("Underlying transaction for a scheduled transaction cannot have node account IDs set");
+    throw IllegalStateException("Underlying transaction for a scheduled transaction cannot have node account IDs set.");
   }
 
   updateSourceTransactionBody(nullptr);
@@ -471,7 +499,7 @@ std::vector<std::byte> Transaction<SdkRequestType>::getTransactionHash() const
 {
   if (!isFrozen())
   {
-    throw IllegalStateException("Transaction must be frozen in order to calculate the hash");
+    throw IllegalStateException("Transaction must be frozen in order to calculate the hash.");
   }
 
   // Use the first transaction's hash.
@@ -486,7 +514,7 @@ std::map<AccountId, std::vector<std::byte>> Transaction<SdkRequestType>::getTran
 {
   if (!isFrozen())
   {
-    throw IllegalStateException("Transaction must be frozen in order to calculate the hash");
+    throw IllegalStateException("Transaction must be frozen in order to calculate the hash.");
   }
 
   buildAllTransactions();
@@ -512,7 +540,7 @@ void Transaction<SdkRequestType>::requireOneNodeAccountId() const
         getNodeAccountIds()
           .size() != 1ULL)
   {
-    throw IllegalStateException("Transaction does not have exactly one node account ID set");
+    throw IllegalStateException("Transaction does not have exactly one node account ID set.");
   }
 }
 
@@ -576,19 +604,20 @@ SdkRequestType& Transaction<SdkRequestType>::setRegenerateTransactionIdPolicy(bo
 template<typename SdkRequestType>
 TransactionId Transaction<SdkRequestType>::getTransactionId() const
 {
-  if (mImpl->mTransactionId == TransactionId() && !isFrozen())
+  if (!mImpl->mTransactionId.has_value())
   {
-    throw IllegalStateException("No transaction ID generated yet. Try freezing the transaction");
+    throw UninitializedException("No transaction ID generated yet. Try freezing the transaction or manually setting "
+                                 "the transaction ID.");
   }
 
-  return mImpl->mTransactionId;
+  return mImpl->mTransactionId.value();
 }
 
 //-----
 template<typename SdkRequestType>
-std::optional<Hbar> Transaction<SdkRequestType>::getMaxTransactionFee() const
+Hbar Transaction<SdkRequestType>::getMaxTransactionFee() const
 {
-  return mImpl->mMaxTransactionFee;
+  return mImpl->mMaxTransactionFee.value_or(mImpl->mDefaultMaxTransactionFee);
 }
 
 //-----
@@ -716,39 +745,82 @@ Transaction<SdkRequestType>::Transaction(
     return;
   }
 
-  // The node account IDs get added as a batch so just add them to a separate vector for now.
-  std::vector<AccountId> nodeAccountIds;
-  nodeAccountIds.reserve(transactions.cbegin()->second.size());
-
-  for (const auto& [accountId, protoTx] : transactions.cbegin()->second)
+  // Set the TransactionId of this Transaction. Transactions only care about the first TransactionId in the map, so grab
+  // the first TransactionId and set it as this Transaction's TransactionId if it's not a dummy TransactionId. If
+  // it's a dummy TransactionId, the Transaction should remain incomplete. The other TransactionIds will be looked at by
+  // the ChunkedTransaction constructor if this Transaction is a ChunkedTransaction. If this Transaction is not a
+  // ChunkedTransaction or if it's an incomplete Transaction (i.e. has a dummy account ID in its transaction ID),
+  // there should be only one transaction ID anyway.
+  if (!(transactions.cbegin()->first == DUMMY_TRANSACTION_ID))
   {
-    nodeAccountIds.push_back(accountId);
-    addTransaction(protoTx);
-
-    if (mImpl->mSignatories.empty())
-    {
-      const proto::SignedTransaction& signedTx = mImpl->mSignedTransactions.back();
-      for (int i = 0; i < signedTx.sigmap().sigpair_size(); ++i)
-      {
-        const std::shared_ptr<PublicKey> publicKey =
-          PublicKey::fromBytes(internal::Utilities::stringToByteVector(signedTx.sigmap().sigpair(i).pubkeyprefix()));
-        mImpl->mSignatories.emplace(publicKey, std::function<std::vector<std::byte>(const std::vector<std::byte>&)>());
-        mImpl->mPrivateKeys.emplace(publicKey, nullptr);
-      }
-    }
+    mImpl->mTransactionId = transactions.cbegin()->first;
   }
 
-  // Set the source TransactionBody.
-  proto::TransactionBody txBody;
-  txBody.ParseFromArray(mImpl->mSignedTransactions.cbegin()->bodybytes().data(),
-                        static_cast<int>(mImpl->mSignedTransactions.cbegin()->bodybytes().size()));
-  mImpl->mSourceTransactionBody = txBody;
+  // If the first account ID is a dummy account ID, then only the source TransactionBody needs to be copied.
+  const std::map<AccountId, proto::Transaction>& transactionMap = transactions.cbegin()->second;
+  if (!transactionMap.empty() && transactionMap.cbegin()->first == DUMMY_ACCOUNT_ID)
+  {
+    proto::SignedTransaction signedTx;
+    signedTx.ParseFromString(transactionMap.cbegin()->second.signedtransactionbytes());
 
-  // Set other fields based on the source TransactionBody.
-  mImpl->mTransactionId = transactions.cbegin()->first;
-  Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::setNodeAccountIds(
-    nodeAccountIds);
+    proto::TransactionBody txBody;
+    txBody.ParseFromString(signedTx.bodybytes());
 
+    mImpl->mSourceTransactionBody = txBody;
+  }
+
+  else
+  {
+    // The node account IDs get added as a batch so just add them to a separate vector for now.
+    std::vector<AccountId> nodeAccountIds;
+
+    // A standard Transaction can only hold information for one Transaction. If this Transaction is a
+    // ChunkedTransaction, the additional Transaction protobuf objects will be processed there.
+    nodeAccountIds.reserve(transactions.cbegin()->second.size());
+
+    bool gotSignatures = false;
+    for (const auto& [accountId, protoTx] : transactionMap)
+    {
+      nodeAccountIds.push_back(accountId);
+      addTransaction(protoTx);
+
+      // Only need to grab the signatures once.
+      if (!gotSignatures)
+      {
+        const proto::SignedTransaction& signedTx = mImpl->mSignedTransactions.back();
+
+        // If there are signatures, grab them.
+        if (signedTx.sigmap().sigpair_size() != 0)
+        {
+          for (int i = 0; i < signedTx.sigmap().sigpair_size(); ++i)
+          {
+            const std::shared_ptr<PublicKey> publicKey = PublicKey::fromBytes(
+              internal::Utilities::stringToByteVector(signedTx.sigmap().sigpair(i).pubkeyprefix()));
+            mImpl->mSignatories.emplace(publicKey,
+                                        std::function<std::vector<std::byte>(const std::vector<std::byte>&)>());
+            mImpl->mPrivateKeys.emplace(publicKey, nullptr);
+          }
+
+          // The presence of signatures implies the Transaction should be frozen.
+          mImpl->mIsFrozen = true;
+        }
+
+        gotSignatures = true;
+      }
+    }
+
+    // Set the source TransactionBody based on the generated SignedTransaction protobuf objects.
+    proto::TransactionBody txBody;
+    txBody.ParseFromArray(mImpl->mSignedTransactions.cbegin()->bodybytes().data(),
+                          static_cast<int>(mImpl->mSignedTransactions.cbegin()->bodybytes().size()));
+    mImpl->mSourceTransactionBody = txBody;
+
+    // Now that all node account IDs have been seen, they can all be added at once.
+    Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::setNodeAccountIds(
+      nodeAccountIds);
+  }
+
+  // Set the remaining fields based on the source TransactionBody.
   if (mImpl->mSourceTransactionBody.transactionfee() > 0LL)
   {
     mImpl->mMaxTransactionFee =
@@ -762,10 +834,6 @@ Transaction<SdkRequestType>::Transaction(
   }
 
   mImpl->mTransactionMemo = mImpl->mSourceTransactionBody.memo();
-
-  // This constructor is only used in fromBytes(), which means a Transaction was frozen and serialized using toBytes().
-  // As such, this Transaction should be constructed as frozen.
-  mImpl->mIsFrozen = true;
 }
 
 //-----
@@ -790,10 +858,13 @@ void Transaction<SdkRequestType>::buildAllTransactions() const
 
 //-----
 template<typename SdkRequestType>
-void Transaction<SdkRequestType>::generateSignedTransactions(const Client* client)
+void Transaction<SdkRequestType>::regenerateSignedTransactions(const Client* client) const
 {
   // Update this Transaction's source TransactionBody protobuf object.
   updateSourceTransactionBody(client);
+
+  // Clear out any stale SignedTransaction and/or Transaction protobuf objects.
+  clearTransactions();
 
   // Add a SignedTransaction protobuf object for each node account ID based off of this Transaction's
   // mSourceTransactionBody.
@@ -804,9 +875,9 @@ void Transaction<SdkRequestType>::generateSignedTransactions(const Client* clien
 template<typename SdkRequestType>
 void Transaction<SdkRequestType>::updateSourceTransactionBody(const Client* client) const
 {
-  if (mImpl->mTransactionId != TransactionId())
+  if (mImpl->mTransactionId.has_value())
   {
-    mImpl->mSourceTransactionBody.set_allocated_transactionid(mImpl->mTransactionId.toProtobuf().release());
+    mImpl->mSourceTransactionBody.set_allocated_transactionid(mImpl->mTransactionId->toProtobuf().release());
   }
 
   if (mImpl->mMaxTransactionFee.has_value())
@@ -834,7 +905,7 @@ void Transaction<SdkRequestType>::updateSourceTransactionBody(const Client* clie
 
 //-----
 template<typename SdkRequestType>
-void Transaction<SdkRequestType>::addTransaction(const proto::Transaction& transaction)
+void Transaction<SdkRequestType>::addTransaction(const proto::Transaction& transaction) const
 {
   // Add the Transaction protobuf object to the Transaction protobuf object list.
   mImpl->mTransactions.push_back(transaction);
@@ -850,7 +921,7 @@ void Transaction<SdkRequestType>::addTransaction(const proto::Transaction& trans
 
 //-----
 template<typename SdkRequestType>
-void Transaction<SdkRequestType>::addTransaction(const proto::SignedTransaction& transaction)
+void Transaction<SdkRequestType>::addTransaction(const proto::SignedTransaction& transaction) const
 {
   mImpl->mTransactions.push_back(proto::Transaction());
   mImpl->mSignedTransactions.push_back(transaction);
@@ -858,7 +929,7 @@ void Transaction<SdkRequestType>::addTransaction(const proto::SignedTransaction&
 
 //-----
 template<typename SdkRequestType>
-void Transaction<SdkRequestType>::addSignedTransactionForEachNode(proto::TransactionBody& transactionBody)
+void Transaction<SdkRequestType>::addSignedTransactionForEachNode(proto::TransactionBody transactionBody) const
 {
   // For each node account ID, generate the SignedTransaction protobuf object.
   for (const AccountId& accountId :
@@ -877,7 +948,7 @@ void Transaction<SdkRequestType>::addSignedTransactionForEachNode(proto::Transac
 
 //-----
 template<typename SdkRequestType>
-void Transaction<SdkRequestType>::clearTransactions()
+void Transaction<SdkRequestType>::clearTransactions() const
 {
   mImpl->mSignedTransactions.clear();
   mImpl->mTransactions.clear();
@@ -955,6 +1026,12 @@ proto::Transaction Transaction<SdkRequestType>::getTransactionProtobufObject(uns
 template<typename SdkRequestType>
 proto::TransactionBody Transaction<SdkRequestType>::getSourceTransactionBody() const
 {
+  // mSourceTransactionBody should not be updated in this call because updateSourceTransactionBody() makes a
+  // virtual call to addBody(), which will produce undefined behavior in the construction of derived Transactions. In
+  // the constructors of derived Transactions, mSourceTransactionBody already contains all the correct data and doesn't
+  // need an update. If this function is called anywhere else, a call to updateSourceTransactionBody() should be made
+  // before calling this to make sure any and all recent changes to this Transaction are grabbed and used to update
+  // mSourceTransactionBody.
   return mImpl->mSourceTransactionBody;
 }
 
@@ -962,7 +1039,7 @@ proto::TransactionBody Transaction<SdkRequestType>::getSourceTransactionBody() c
 template<typename SdkRequestType>
 TransactionId Transaction<SdkRequestType>::getCurrentTransactionId() const
 {
-  return mImpl->mTransactionId;
+  return mImpl->mTransactionId.value_or(TransactionId());
 }
 
 //-----
@@ -1021,22 +1098,19 @@ typename Executable<SdkRequestType, proto::Transaction, proto::TransactionRespon
   {
     // If transaction IDs are allowed to be regenerated, regenerate the transaction ID and the Transaction protobuf
     // objects.
-    mImpl->mTransactionId = TransactionId::generate(mImpl->mTransactionId.mAccountId);
+    mImpl->mTransactionId = TransactionId::generate(mImpl->mTransactionId->mAccountId);
 
     // Regenerate the SignedTransaction protobuf objects.
-    clearTransactions();
-    generateSignedTransactions(&client);
+    regenerateSignedTransactions(&client);
 
     // Retry execution with the new transaction ID.
     return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
       ExecutionStatus::RETRY;
   }
-  else
-  {
-    // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated.
-    return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
-      ExecutionStatus::REQUEST_ERROR;
-  }
+
+  // Return REQUEST_ERROR if the transaction expired but transaction IDs aren't allowed to be regenerated.
+  return Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
+    ExecutionStatus::REQUEST_ERROR;
 }
 
 //-----
@@ -1056,7 +1130,7 @@ void Transaction<SdkRequestType>::onExecute(const Client& client)
 
   // Sign with the operator if the operator's present, and if it's paying for the Transaction.
   if (client.getOperatorAccountId().has_value() &&
-      client.getOperatorAccountId().value() == mImpl->mTransactionId.mAccountId)
+      client.getOperatorAccountId().value() == mImpl->mTransactionId->mAccountId)
   {
     signWithOperator(client);
   }
@@ -1077,8 +1151,8 @@ void Transaction<SdkRequestType>::buildTransaction(unsigned int index) const
   proto::SignedTransaction& signedTransaction = mImpl->mSignedTransactions[index];
   for (const auto& [publicKey, signer] : mImpl->mSignatories)
   {
-    // If there is no signer function, the signature has already been generated for the SignedTransaction (either added
-    // manually with addSignature() or this Transaction came from fromBytes()).
+    // If there is no signer function, the signature has already been generated for the SignedTransaction (either
+    // added manually with addSignature() or this Transaction came from fromBytes()).
     if (signer)
     {
       *signedTransaction.mutable_sigmap()->add_sigpair() = *publicKey->toSignaturePairProtobuf(
@@ -1116,9 +1190,10 @@ SdkRequestType& Transaction<SdkRequestType>::signInternal(
   const std::function<std::vector<std::byte>(const std::vector<std::byte>&)>& signer,
   const std::shared_ptr<PrivateKey>& privateKey)
 {
+  // The Transaction must be frozen in order to sign.
   if (!isFrozen())
   {
-    throw IllegalStateException("Transaction must be frozen in order to sign");
+    throw IllegalStateException("Transaction must be frozen in order to sign.");
   }
 
   if (!keyAlreadySigned(publicKey))
