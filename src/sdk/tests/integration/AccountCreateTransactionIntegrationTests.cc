@@ -22,7 +22,6 @@
 #include "AccountInfo.h"
 #include "AccountInfoQuery.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "Defaults.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ECDSAsecp256k1PublicKey.h"
@@ -33,10 +32,12 @@
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
-#include "exceptions/PrecheckStatusException.h"
+#include "WrappedTransaction.h"
+#include "exceptions/IllegalStateException.h"
 #include "exceptions/ReceiptStatusException.h"
-#include "impl/DurationConverter.h"
+#include "exceptions/UninitializedException.h"
 #include "impl/HexConverter.h"
+#include "impl/Network.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_body.pb.h>
@@ -410,5 +411,160 @@ TEST_F(AccountCreateTransactionIntegrationTests,
                     .setTransferAccountId(AccountId(2ULL))
                     .freezeWith(&getTestClient())
                     .sign(adminPrivateKey)
+                    .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTests, SerializeDeserializeCompareFields)
+{
+  // Given
+  const std::shared_ptr<PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
+
+  const TransactionType expectedType = TransactionType::ACCOUNT_CREATE_TRANSACTION;
+
+  AccountCreateTransaction createAccount;
+  ASSERT_NO_THROW(createAccount = AccountCreateTransaction().setKey(testPublicKey).setInitialBalance(Hbar(5LL)););
+
+  const int expectedNodeAccountIdsSize = createAccount.getNodeAccountIds().size();
+  const Hbar expectedBalance = Hbar(5LL);
+
+  // When
+  std::vector<std::byte> transactionBytesSerialized;
+  ASSERT_NO_THROW(transactionBytesSerialized = createAccount.toBytes(););
+
+  WrappedTransaction wrappedTransaction;
+  ASSERT_NO_THROW(wrappedTransaction = Transaction<AccountCreateTransaction>::fromBytes(transactionBytesSerialized););
+  createAccount = *wrappedTransaction.getTransaction<AccountCreateTransaction>();
+
+  // Then
+  EXPECT_EQ(expectedType, wrappedTransaction.getTransactionType());
+  EXPECT_EQ(expectedNodeAccountIdsSize, createAccount.getNodeAccountIds().size());
+  EXPECT_THROW(const auto txId = createAccount.getTransactionId(), UninitializedException);
+  EXPECT_EQ(expectedBalance, createAccount.getInitialBalance());
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTests, SerializeDeserializeEditCompareFields)
+{
+  // Given
+  const std::shared_ptr<PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
+
+  AccountCreateTransaction createAccount;
+  ASSERT_NO_THROW(createAccount = AccountCreateTransaction().setKey(testPublicKey));
+
+  const Hbar expectedBalance = Hbar(5LL);
+  std::vector<AccountId> nodeAccountIds = getTestClient().getClientNetwork()->getNodeAccountIdsForExecute();
+
+  // When
+  std::vector<std::byte> transactionBytesSerialized;
+  ASSERT_NO_THROW(transactionBytesSerialized = createAccount.toBytes(););
+
+  WrappedTransaction wrappedTransaction;
+  ASSERT_NO_THROW(wrappedTransaction = Transaction<AccountCreateTransaction>::fromBytes(transactionBytesSerialized););
+  createAccount = *wrappedTransaction.getTransaction<AccountCreateTransaction>();
+
+  // execute with altered transaction fields
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt =
+                    createAccount.setInitialBalance(Hbar(5LL))
+                      .setTransactionId(TransactionId::generate(getTestClient().getOperatorAccountId().value()))
+                      .setNodeAccountIds(nodeAccountIds) // will fail if nodeAccountIds are bad so not checking equality
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient()););
+
+  // Then
+  EXPECT_EQ(expectedBalance, createAccount.getInitialBalance());
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(txReceipt.mAccountId.value())
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(&getTestClient())
+                    .sign(testPrivateKey)
+                    .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTests, IncompleteSerializeDeserializeAndExecute)
+{
+  // Given
+  const std::shared_ptr<PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<PublicKey> testPublicKey = testPrivateKey->getPublicKey();
+
+  AccountCreateTransaction createAccount;
+  ASSERT_NO_THROW(createAccount = AccountCreateTransaction().setKey(testPublicKey).setInitialBalance(Hbar(5LL)););
+  // When // Then
+  std::vector<std::byte> transactionBytes;
+  ASSERT_NO_THROW(transactionBytes = createAccount.toBytes(););
+
+  WrappedTransaction wrappedTransaction;
+  ASSERT_NO_THROW(wrappedTransaction = Transaction<AccountCreateTransaction>::fromBytes(transactionBytes));
+
+  createAccount = *wrappedTransaction.getTransaction<AccountCreateTransaction>();
+
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt = createAccount.execute(getTestClient()).getReceipt(getTestClient()););
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(txReceipt.mAccountId.value())
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(&getTestClient())
+                    .sign(testPrivateKey)
+                    .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTests, FreezeSignSerializeDeserializeAndExecute)
+{
+  // Given
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
+    std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
+  const EvmAddress testEvmAddress = testPublicKey->toEvmAddress();
+  const Hbar testInitialBalance(1000LL, HbarUnit::TINYBAR());
+  const std::chrono::system_clock::duration testAutoRenewPeriod = std::chrono::seconds(2592000);
+  const std::string testMemo = "test account memo";
+  const uint32_t testMaxAutomaticTokenAssociations = 4U;
+
+  AccountCreateTransaction createAccount;
+  EXPECT_NO_THROW(createAccount = AccountCreateTransaction()
+                                    .setKey(testPublicKey)
+                                    .setInitialBalance(testInitialBalance)
+                                    .setReceiverSignatureRequired(true)
+                                    .setAutoRenewPeriod(testAutoRenewPeriod)
+                                    .setAccountMemo(testMemo)
+                                    .setMaxAutomaticTokenAssociations(testMaxAutomaticTokenAssociations)
+                                    .setDeclineStakingReward(true)
+                                    .setAlias(testEvmAddress)
+                                    .freezeWith(&getTestClient())
+                                    .sign(testPrivateKey));
+  // When
+  std::vector<std::byte> transactionBytesSerialized;
+  ASSERT_NO_THROW(transactionBytesSerialized = createAccount.toBytes(););
+
+  WrappedTransaction wrappedTransaction;
+  ASSERT_NO_THROW(wrappedTransaction = Transaction<AccountCreateTransaction>::fromBytes(transactionBytesSerialized););
+  createAccount = *wrappedTransaction.getTransaction<AccountCreateTransaction>();
+
+  std::vector<std::byte> transactionBytesReserialized;
+  ASSERT_NO_THROW(transactionBytesReserialized = createAccount.toBytes(););
+
+  // Then
+  EXPECT_EQ(transactionBytesSerialized, transactionBytesReserialized);
+
+  TransactionResponse txResponse;
+  ASSERT_NO_THROW(txResponse = createAccount.execute(getTestClient()););
+
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = txResponse.getReceipt(getTestClient()).mAccountId.value());
+
+  // Clean up
+  ASSERT_NO_THROW(AccountDeleteTransaction()
+                    .setDeleteAccountId(accountId)
+                    .setTransferAccountId(AccountId(2ULL))
+                    .freezeWith(&getTestClient())
+                    .sign(testPrivateKey)
                     .execute(getTestClient()));
 }

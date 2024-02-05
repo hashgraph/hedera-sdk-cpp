@@ -214,7 +214,7 @@ SdkRequestType& ChunkedTransaction<SdkRequestType>::addSignature(const std::shar
   {
     throw IllegalStateException(
       "Cannot manually add a signature to a ChunkedTransaction with data length greater than " +
-      std::to_string(mImpl->mChunkSize));
+      std::to_string(mImpl->mChunkSize) + " bytes.");
   }
 
   return Transaction<SdkRequestType>::addSignature(publicKey, signature);
@@ -228,7 +228,7 @@ ChunkedTransaction<SdkRequestType>::getSignatures() const
   if (mImpl->mData.size() > mImpl->mChunkSize)
   {
     throw IllegalStateException("Cannot get signatures for a ChunkedTransaction with data length greater than " +
-                                std::to_string(mImpl->mChunkSize) + ". Try calling getAllSignatures() instead.");
+                                std::to_string(mImpl->mChunkSize) + " bytes. Try calling getAllSignatures() instead.");
   }
 
   return Transaction<SdkRequestType>::getSignatures();
@@ -266,7 +266,7 @@ std::vector<std::byte> ChunkedTransaction<SdkRequestType>::getTransactionHash() 
   if (!mImpl->mChunkedTransactionIds.empty())
   {
     throw IllegalStateException(
-      "A single hash cannot be generated for this transaction, try calling 'getAllTransactionHashesPerNode()'");
+      "A single hash cannot be generated for this transaction, try calling 'getAllTransactionHashesPerNode()'.");
   }
 
   return Transaction<SdkRequestType>::getTransactionHash();
@@ -279,7 +279,7 @@ std::map<AccountId, std::vector<std::byte>> ChunkedTransaction<SdkRequestType>::
   if (!mImpl->mChunkedTransactionIds.empty())
   {
     throw IllegalStateException(
-      "A single hash cannot be generated for this transaction, try calling 'getAllTransactionHashesPerNode()'");
+      "A single hash cannot be generated for this transaction, try calling 'getAllTransactionHashesPerNode()'.");
   }
 
   return Transaction<SdkRequestType>::getTransactionHashPerNode();
@@ -425,7 +425,8 @@ ChunkedTransaction<SdkRequestType>::ChunkedTransaction(
   : Transaction<SdkRequestType>(transactions)
   , mImpl(std::make_unique<ChunkedTransactionImpl>())
 {
-  // Make sure there's more than one chunk.
+  // If all this ChunkedTransaction's data can be fit into one chunk, then all the data is already held in the parent
+  // Transaction object. Nothing needs to be done here.
   if (transactions.size() <= 1)
   {
     return;
@@ -444,7 +445,12 @@ ChunkedTransaction<SdkRequestType>::ChunkedTransaction(
     // account IDs should be in the same order as each other for each TransactionId.
     for (const auto& [accountId, transaction] : iter->second)
     {
-      Transaction<SdkRequestType>::addTransaction(transaction);
+      // Only add the Transaction protobuf object if this is not a dummy account ID. Also, if this is a dummy account
+      // ID, then no more account IDs will be in the map.
+      if (!(accountId == Transaction<SdkRequestType>::DUMMY_ACCOUNT_ID))
+      {
+        Transaction<SdkRequestType>::addTransaction(transaction);
+      }
     }
   }
 }
@@ -513,38 +519,53 @@ proto::Transaction ChunkedTransaction<SdkRequestType>::makeRequest(unsigned int 
 
 //-----
 template<typename SdkRequestType>
-void ChunkedTransaction<SdkRequestType>::generateSignedTransactions(const Client* client)
+void ChunkedTransaction<SdkRequestType>::regenerateSignedTransactions(const Client* client) const
 {
-  // Update this Transaction's source TransactionBody protobuf object.
+  // Get a TransactionBody protobuf object that contains all of this ChunkedTransaction's data.
   Transaction<SdkRequestType>::updateSourceTransactionBody(client);
   proto::TransactionBody sourceTransactionBody = Transaction<SdkRequestType>::getSourceTransactionBody();
 
-  const unsigned int requiredChunks = getNumberOfChunksRequired();
-  for (int i = 0; i < requiredChunks; ++i)
+  // Clear out any stale SignedTransaction and/or Transaction protobuf objects.
+  clearTransactions();
+
+  // If a TransactionId is set, then cascading TransactionIds can be created, and thus the chunks of this
+  // ChunkedTransaction can be created.
+  if (sourceTransactionBody.has_transactionid())
   {
-    // Generate a new TransactionId if this isn't the first chunk. Add one to the smallest system clock duration to make
-    // cascading transaction IDs.
-    if (i > 0)
+    const unsigned int requiredChunks = getNumberOfChunksRequired();
+    for (int i = 0; i < requiredChunks; ++i)
     {
-      mImpl->mChunkedTransactionIds.push_back(TransactionId::withValidStart(
-        AccountId::fromProtobuf(sourceTransactionBody.transactionid().accountid()),
-        internal::TimestampConverter::fromProtobuf(sourceTransactionBody.transactionid().transactionvalidstart()) +
-          std::chrono::system_clock::duration(1)));
-      sourceTransactionBody.set_allocated_transactionid(mImpl->mChunkedTransactionIds.back().toProtobuf().release());
+      // Generate a new TransactionId if this isn't the first chunk. Add one to the smallest system clock duration to
+      // make cascading transaction IDs.
+      if (i > 0)
+      {
+        mImpl->mChunkedTransactionIds.push_back(TransactionId::withValidStart(
+          AccountId::fromProtobuf(sourceTransactionBody.transactionid().accountid()),
+          internal::TimestampConverter::fromProtobuf(sourceTransactionBody.transactionid().transactionvalidstart()) +
+            std::chrono::system_clock::duration(1)));
+        sourceTransactionBody.set_allocated_transactionid(mImpl->mChunkedTransactionIds.back().toProtobuf().release());
+      }
+
+      // Generate the chunk and add it to sourceTransactionBody.
+      addToChunk(i, requiredChunks, sourceTransactionBody);
+
+      // Create a SignedTransaction protobuf object for each node account ID and add it to this ChunkedTransaction's
+      // SignedTransaction protobuf object list.
+      Transaction<SdkRequestType>::addSignedTransactionForEachNode(sourceTransactionBody);
     }
+  }
 
-    // Generate the chunk and add it to sourceTransactionBody.
-    addToChunk(i, requiredChunks, sourceTransactionBody);
-
-    // Create a SignedTransaction protobuf object for each node account ID and add it to this ChunkedTransaction's
-    // SignedTransaction protobuf object list.
+  // If there is no TransactionId set, the chunks for this ChunkedTransaction can't be created yet. Simply add the full
+  // data contents for each node.
+  else
+  {
     Transaction<SdkRequestType>::addSignedTransactionForEachNode(sourceTransactionBody);
   }
 }
 
 //-----
 template<typename SdkRequestType>
-void ChunkedTransaction<SdkRequestType>::clearTransactions()
+void ChunkedTransaction<SdkRequestType>::clearTransactions() const
 {
   Transaction<SdkRequestType>::clearTransactions();
   mImpl->mChunkedTransactionIds.clear();
