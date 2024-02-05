@@ -303,7 +303,7 @@ TEST_F(ECDSAsecp256k1PrivateKeyUnitTests, GetChainCode)
 }
 
 //-----
-TEST_F(ECDSAsecp256k1PrivateKeyUnitTests, ЕCDSACompatibility)
+TEST_F(ECDSAsecp256k1PrivateKeyUnitTests, ECDSACompatibility)
 {
   // Given
   auto expectedKeys = getExpectedPrivateKeyPairs();

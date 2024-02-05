@@ -357,18 +357,6 @@ protected:
   void buildAllTransactions() const;
 
   /**
-   * Build all unsigned transactions.
-   *
-   * This function clears the internal list of transactions and rebuilds it based on
-   * the provided node account IDs and transaction body. It is used to prepare the
-   * transactions for signing and execution.
-   *
-   * If no node account IDs are provided, a dummy node account ID is set to prevent
-   * the transaction from being executed on the client network by default.
-   */
-  void buildAllUnsignedTransactions();
-
-  /**
    * Update mSourceTransactionBody. This will update all fields of mSourceTransactionBody except the transaction ID and
    * the node account ID.
    *

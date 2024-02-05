@@ -437,7 +437,7 @@ TEST_F(ECDSAsecp256k1PublicKeyUnitTests, ToEvmAddress)
 }
 
 //-----
-TEST_F(ECDSAsecp256k1PublicKeyUnitTests, ЕCDSACompatibility)
+TEST_F(ECDSAsecp256k1PublicKeyUnitTests, ECDSACompatibility)
 {
   // Given
   auto expectedKeys = getExpectedPublicKeyPairs();
