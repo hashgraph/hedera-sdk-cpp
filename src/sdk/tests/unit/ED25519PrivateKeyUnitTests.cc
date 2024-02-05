@@ -24,6 +24,7 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/Utilities.h"
 
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <string>
