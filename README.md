@@ -187,7 +187,7 @@ This project is governed by the
 participating, you are expected to uphold this code of conduct.
 
 If you need to prepare a new SDK release, then see
-the [Step-by-Step](https://github.com/hashgraph/hedera-sdk-cpp/blob/00222-step-by-step-guide-to-distribute-a-new-release/NewReleaseStepByStep.md)
+the [Step-by-Step](https://github.com/hashgraph/hedera-sdk-cpp/blob/main/CONTRIBUTING.md#release-new-version)
 guide how to do it.
 
 ## License
