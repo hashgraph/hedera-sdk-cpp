@@ -278,6 +278,12 @@ public:
    */
   std::vector<ContractNonceInfo> mContractNonces;
 
+  /**
+   * If not null this field specifies what the value of the signer account nonce is post transaction execution.
+   * For transactions that don't update the signer nonce, this field should be null.
+   */
+  std::optional<int64_t> signerNonce;
+
 private:
   /**
    * Get bytes that are a dynamic size.
