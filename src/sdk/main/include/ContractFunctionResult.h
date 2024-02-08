@@ -282,7 +282,7 @@ public:
    * If not null this field specifies what the value of the signer account nonce is post transaction execution.
    * For transactions that don't update the signer nonce, this field should be null.
    */
-  std::optional<int64_t> signerNonce;
+  std::optional<int64_t> mSignerNonce;
 
 private:
   /**
