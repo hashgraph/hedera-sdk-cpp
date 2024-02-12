@@ -37,8 +37,57 @@
       }
     },
     {
+      "name": "vcpkg-android-base",
+      "hidden": true,
+      "displayName": "Android VCPkg Base Build",
+      "description": "Configured via the Android NDK toolchain",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/package",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "ANDROID_PLATFORM": {
+          "type": "STRING",
+          "value": "21"
+        },
+        "CMAKE_ANDROID_ARCH_ABI": {
+          "type": "STRING",
+          "value": "arm64-v8a"
+        },
+        "CMAKE_ANDROID_NDK": {
+          "type": "FILEPATH",
+          "value": "/opt/homebrew/share/android-ndk"
+        },
+        "CMAKE_ANDROID_STL_TYPE": {
+          "type": "STRING",
+          "value": "c++_static"
+        },
+        "CMAKE_SYSTEM_NAME": {
+          "type": "STRING",
+          "value": "Android"
+        },
+        "CMAKE_SYSTEM_VERSION": {
+          "type": "STRING",
+          "value": "21"
+        },
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        },
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "/opt/homebrew/share/android-ndk/build/cmake/android.toolchain.cmake"
+        },
+        "CONFIGURE_PARAMETER_1": {
+          "type": "STRING",
+          "value": "blah blah"
+        }
+      }
+    },
+    {
       "name": "linux-x64-release",
-      "inherits": ["vcpkg-base"],
+      "inherits": [
+        "vcpkg-base"
+      ],
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
@@ -52,7 +101,9 @@
     },
     {
       "name": "linux-x64-debug",
-      "inherits": ["vcpkg-base"],
+      "inherits": [
+        "vcpkg-base"
+      ],
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
@@ -66,7 +117,9 @@
     },
     {
       "name": "macos-x64-release",
-      "inherits": ["vcpkg-base"],
+      "inherits": [
+        "vcpkg-base"
+      ],
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
@@ -80,7 +133,9 @@
     },
     {
       "name": "macos-x64-debug",
-      "inherits": ["vcpkg-base"],
+      "inherits": [
+        "vcpkg-base"
+      ],
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
@@ -94,7 +149,9 @@
     },
     {
       "name": "macos-arm64-release",
-      "inherits": ["vcpkg-base"],
+      "inherits": [
+        "vcpkg-base"
+      ],
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
@@ -108,7 +165,9 @@
     },
     {
       "name": "macos-arm64-debug",
-      "inherits": ["vcpkg-base"],
+      "inherits": [
+        "vcpkg-base"
+      ],
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
@@ -122,7 +181,9 @@
     },
     {
       "name": "windows-x64-release",
-      "inherits": ["vcpkg-msbuild-base"],
+      "inherits": [
+        "vcpkg-msbuild-base"
+      ],
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
@@ -136,7 +197,9 @@
     },
     {
       "name": "windows-x64-debug",
-      "inherits": ["vcpkg-msbuild-base"],
+      "inherits": [
+        "vcpkg-msbuild-base"
+      ],
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
@@ -145,6 +208,38 @@
         "CMAKE_BUILD_TYPE": {
           "type": "STRING",
           "value": "Debug"
+        }
+      }
+    },
+    {
+      "name": "android-arm64-debug",
+      "inherits": [
+        "vcpkg-android-base"
+      ],
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": {
+          "type": "STRING",
+          "value": "arm64-android"
+        },
+        "CMAKE_BUILD_TYPE": {
+          "type": "STRING",
+          "value": "Debug"
+        }
+      }
+    },
+    {
+      "name": "android-arm64-release",
+      "inherits": [
+        "vcpkg-android-base"
+      ],
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": {
+          "type": "STRING",
+          "value": "arm64-android"
+        },
+        "CMAKE_BUILD_TYPE": {
+          "type": "STRING",
+          "value": "Release"
         }
       }
     }
@@ -156,7 +251,9 @@
       "displayName": "Build ninja-multi-vcpkg",
       "description": "Build ninja-multi-vcpkg Configurations",
       "configuration": "Release",
-      "targets": ["install"]
+      "targets": [
+        "install"
+      ]
     },
     {
       "name": "linux-x64-debug",
@@ -164,7 +261,9 @@
       "displayName": "Build ninja-multi-vcpkg",
       "description": "Build ninja-multi-vcpkg Configurations",
       "configuration": "Debug",
-      "targets": ["install"]
+      "targets": [
+        "install"
+      ]
     },
     {
       "name": "macos-x64-release",
@@ -172,7 +271,9 @@
       "displayName": "Build ninja-multi-vcpkg",
       "description": "Build ninja-multi-vcpkg Configurations",
       "configuration": "Release",
-      "targets": ["install"]
+      "targets": [
+        "install"
+      ]
     },
     {
       "name": "macos-x64-debug",
@@ -180,7 +281,9 @@
       "displayName": "Build ninja-multi-vcpkg",
       "description": "Build ninja-multi-vcpkg Configurations",
       "configuration": "Debug",
-      "targets": ["install"]
+      "targets": [
+        "install"
+      ]
     },
     {
       "name": "macos-arm64-release",
@@ -188,7 +291,9 @@
       "displayName": "Build ninja-multi-vcpkg",
       "description": "Build ninja-multi-vcpkg Configurations",
       "configuration": "Release",
-      "targets": ["install"]
+      "targets": [
+        "install"
+      ]
     },
     {
       "name": "macos-arm64-debug",
@@ -196,7 +301,9 @@
       "displayName": "Build ninja-multi-vcpkg",
       "description": "Build ninja-multi-vcpkg Configurations",
       "configuration": "Debug",
-      "targets": ["install"]
+      "targets": [
+        "install"
+      ]
     },
     {
       "name": "windows-x64-release",
@@ -204,7 +311,9 @@
       "displayName": "MSVC Release (x64)",
       "description": "Build MSVC Configurations",
       "configuration": "Release",
-      "targets": ["install"]
+      "targets": [
+        "install"
+      ]
     },
     {
       "name": "windows-x64-debug",
@@ -212,10 +321,31 @@
       "displayName": "MSVC Debug (x64)",
       "description": "Build MSVC Configurations",
       "configuration": "Debug",
-      "targets": ["install"]
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "android-arm64-debug",
+      "configurePreset": "android-arm64-debug",
+      "displayName": "Build ninja-multi-vcpkg",
+      "description": "Build ninja-multi-vcpkg Configurations",
+      "configuration": "Debug",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "android-arm64-release",
+      "configurePreset": "android-arm64-release",
+      "displayName": "Build ninja-multi-vcpkg",
+      "description": "Build ninja-multi-vcpkg Configurations",
+      "configuration": "Release",
+      "targets": [
+        "install"
+      ]
     }
   ],
   "testPresets": [
-
   ]
 }
