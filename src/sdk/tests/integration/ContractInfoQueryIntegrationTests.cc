@@ -61,7 +61,7 @@ TEST_F(ContractInfoQueryIntegrationTests, ExecuteContractInfoQuery)
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
                       .setMemo(memo)
@@ -110,7 +110,7 @@ TEST_F(ContractInfoQueryIntegrationTests, CanQueryContractInfoWhenAdminKeyIsNull
   ContractId contractId;
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
                       .setMemo(memo)
