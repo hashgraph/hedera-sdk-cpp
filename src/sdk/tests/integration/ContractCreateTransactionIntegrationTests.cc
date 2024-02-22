@@ -66,7 +66,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, ExecuteContractCreateTransacti
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setAutoRenewPeriod(autoRenewPeriod)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setMemo(memo)
@@ -119,7 +119,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, CreateContractWithNoAdminKey)
   EXPECT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setAutoRenewPeriod(autoRenewPeriod)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setMemo(memo)
@@ -192,7 +192,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, CannotCreateContractWithNoCons
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = ContractCreateTransaction()
                                                       .setAdminKey(operatorKey->getPublicKey())
-                                                      .setGas(100000ULL)
+                                                      .setGas(1000000ULL)
                                                       .setBytecodeFileId(fileId)
                                                       .setMemo("[e2e::ContractCreateTransaction]")
                                                       .execute(getTestClient())
@@ -210,7 +210,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, CannotCreateContractWithByteco
   // Given/ When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
                  ContractCreateTransaction()
-                   .setGas(100000ULL)
+                   .setGas(1000000ULL)
                    .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                    .setMemo("[e2e::ContractCreateTransaction]")
                    .execute(getTestClient())

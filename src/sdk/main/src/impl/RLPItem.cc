@@ -21,19 +21,13 @@
 #include "impl/Utilities.h"
 
 #include <algorithm>
+#include <iostream>
 #include <stdexcept>
 
 namespace Hedera
 {
-namespace
-{
-/*
- * Get the raw byte-representation of a number.
- *
- * @param num The number of which to get the byte-representation.
- * @return The byte-representation of the input number.
- */
-std::vector<std::byte> encodeBinary(size_t num)
+
+std::vector<std::byte> RLPItem::encodeBinary(size_t num)
 {
   std::vector<std::byte> bytes;
   while (num != 0)
@@ -45,14 +39,7 @@ std::vector<std::byte> encodeBinary(size_t num)
   return bytes;
 }
 
-/*
- * Encode a number to its byte-representation, given an offset.
- *
- * @param num    The number to encode.
- * @param offset The offset of the length.
- * @return The byte-encoding of the number.
- */
-std::vector<std::byte> encodeLength(size_t num, unsigned char offset)
+std::vector<std::byte> RLPItem::encodeLength(size_t num, unsigned char offset)
 {
   if (num < 56)
   {
@@ -60,13 +47,11 @@ std::vector<std::byte> encodeLength(size_t num, unsigned char offset)
   }
   else
   {
-    const std::vector<std::byte> encodedLength = encodeBinary(num);
+    const std::vector<std::byte> encodedLength = RLPItem::encodeBinary(num);
     return internal::Utilities::concatenateVectors(
       { { std::byte(encodedLength.size() + offset + 55) }, encodedLength });
   }
 }
-
-} // namespace
 
 //-----
 RLPItem::RLPItem(RLPItem::RLPType type)
@@ -163,7 +148,7 @@ std::vector<std::byte> RLPItem::write() const
     }
     else
     {
-      return internal::Utilities::concatenateVectors({ { encodeLength(mValue.size(), 0x80) }, mValue });
+      return internal::Utilities::concatenateVectors({ { RLPItem::encodeLength(mValue.size(), 0x80) }, mValue });
     }
   }
 
@@ -175,7 +160,7 @@ std::vector<std::byte> RLPItem::write() const
       bytes = internal::Utilities::concatenateVectors({ bytes, item.write() });
     }
 
-    return internal::Utilities::concatenateVectors({ { encodeLength(bytes.size(), 0xC0) }, bytes });
+    return internal::Utilities::concatenateVectors({ { RLPItem::encodeLength(bytes.size(), 0xC0) }, bytes });
   }
 }
 

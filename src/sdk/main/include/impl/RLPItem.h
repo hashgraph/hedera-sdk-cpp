@@ -60,6 +60,23 @@ public:
   explicit RLPItem(std::vector<std::byte> value);
   explicit RLPItem(std::string_view value);
 
+  /*
+   * Get the raw byte-representation of a number.
+   *
+   * @param num The number of which to get the byte-representation.
+   * @return The byte-representation of the input number.
+   */
+  static std::vector<std::byte> encodeBinary(size_t num);
+
+  /*
+   * Encode a number to its byte-representation, given an offset.
+   *
+   * @param num    The number to encode.
+   * @param offset The offset of the length.
+   * @return The byte-encoding of the number.
+   */
+  static std::vector<std::byte> encodeLength(size_t num, unsigned char offset);
+
   /**
    * Clear this RLPItem.
    */
