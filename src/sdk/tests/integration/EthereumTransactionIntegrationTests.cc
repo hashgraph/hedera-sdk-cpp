@@ -21,6 +21,8 @@
 #include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
+#include "AccountInfo.h"
+#include "AccountInfoQuery.h"
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ContractCreateTransaction.h"
@@ -37,6 +39,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
+#include "TransferTransaction.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
 #include "impl/Network.h"
@@ -65,99 +68,69 @@ TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransact
   const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
   const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
-  const EvmAddress testEvmAddress = testPublicKey->toEvmAddress();
-  const Hbar testInitialBalance(1000LL, HbarUnit::HBAR());
-  const std::chrono::system_clock::duration testAutoRenewPeriod = std::chrono::seconds(2592000);
-  const std::string testMemo = "test account memo";
-  const uint32_t testMaxAutomaticTokenAssociations = 4U;
+  const AccountId aliasAccountId = testPublicKey->toAccountId();
 
-  auto senderAccount = AccountCreateTransaction()
-                         .setKey(testPublicKey)
-                         .setInitialBalance(testInitialBalance)
-                         .setReceiverSignatureRequired(true)
-                         .setAutoRenewPeriod(testAutoRenewPeriod)
-                         .setAccountMemo(testMemo)
-                         .setMaxAutomaticTokenAssociations(testMaxAutomaticTokenAssociations)
-                         .setDeclineStakingReward(true)
-                         .setAlias(testEvmAddress)
-                         .freezeWith(&getTestClient())
-                         .sign(testPrivateKey)
-                         .execute(getTestClient());
+  TransactionReceipt aliasTransferTxReciept;
+  EXPECT_NO_THROW(aliasTransferTxReciept =
+                    TransferTransaction()
+                      .addHbarTransfer(getTestClient().getOperatorAccountId().value(), Hbar(1LL).negated())
+                      .addHbarTransfer(aliasAccountId, Hbar(1LL))
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient()));
 
-  AccountId accountId = senderAccount.getReceipt(getTestClient()).mAccountId.value();
-  std::cout << accountId.toString() << std::endl;
-
-  Client ecdsaClient;
-
-  ecdsaClient = Client::fromConfigFile((std::filesystem::current_path() / "local_node.json").string());
-  ecdsaClient.setNetworkUpdatePeriod(std::chrono::hours(24));
-
-  std::vector<std::byte> mFileContent;
-
-  mFileContent = internal::Utilities::stringToByteVector(
-    json::parse(std::ifstream(std::filesystem::current_path() / "hello_world.json", std::ios::in))["object"]
-      .get<std::string>());
-
-  ecdsaClient.setOperator(accountId, testPrivateKey);
-
-  const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
-    "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
-  const std::string memo = "[e2e::ContractCreateTransaction]";
-  const std::chrono::system_clock::duration autoRenewPeriod = std::chrono::hours(2016);
+  AccountInfo accountInfo;
+  EXPECT_NO_THROW(accountInfo = AccountInfoQuery().setAccountId(aliasAccountId).execute(getTestClient()));
 
   FileId fileId;
-  ASSERT_NO_THROW(fileId = FileCreateTransaction()
-                             .setKeys({ operatorKey->getPublicKey() })
+  EXPECT_NO_THROW(fileId = FileCreateTransaction()
+                             .setKeys({ getTestClient().getOperatorPublicKey() })
                              .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
                              .execute(getTestClient())
                              .getReceipt(getTestClient())
                              .mFileId.value());
 
-  // When
+  const std::string memo = "[e2e::ContractCreateTransaction]";
   ContractId contractId;
   EXPECT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
-                      .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(1000000ULL)
-                      .setAutoRenewPeriod(autoRenewPeriod)
+                      .setAdminKey(getTestClient().getOperatorPublicKey())
+                      .setGas(200000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setMemo(memo)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
                       .mContractId.value());
 
-  std::vector<std::byte> contractFunctionParameters =
-    ContractFunctionParameters().addString("new message").toBytes("setMessage");
-
+  // Prepare byte vectors for passing to RLP serialization
   std::vector<std::byte> type = internal::HexConverter::hexToBytes("02");
   std::vector<std::byte> chainId = internal::HexConverter::hexToBytes("012a");
-  std::vector<std::byte> nonce = internal::HexConverter::hexToBytes("05");
+  std::vector<std::byte> nonce = internal::HexConverter::hexToBytes("00");
   std::vector<std::byte> maxPriorityGas = internal::HexConverter::hexToBytes("00");
   std::vector<std::byte> maxGas = internal::HexConverter::hexToBytes("d1385c7bf0");
-  std::vector<std::byte> gasLimit = internal::HexConverter::hexToBytes("6050");
+  std::vector<std::byte> gasLimit = internal::HexConverter::hexToBytes("0249f0");
   std::vector<std::byte> to = internal::HexConverter::hexToBytes(contractId.toSolidityAddress());
-  std::vector<std::byte> value = internal::HexConverter::hexToBytes("02540be400");
-  std::vector<std::byte> callData = contractFunctionParameters;
+  std::vector<std::byte> value = internal::HexConverter::hexToBytes("00");
+  std::vector<std::byte> callData = ContractFunctionParameters().addString("new message").toBytes("setMessage");
   std::vector<std::byte> accessList = {};
 
-  std::cout << contractId.toSolidityAddress() << std::endl;
-
+  // Serialize bytes to RLP format for signing
   RLPItem list(RLPItem::RLPType::LIST_TYPE);
   list.pushBack(chainId);
-  list.pushBack(nonce);
   list.pushBack(RLPItem());
+  list.pushBack(maxPriorityGas);
   list.pushBack(maxGas);
   list.pushBack(gasLimit);
   list.pushBack(to);
-  list.pushBack(value);
   list.pushBack(RLPItem());
+  list.pushBack(callData);
   RLPItem accessListItem(accessList);
   accessListItem.setType(RLPItem::RLPType::LIST_TYPE);
   list.pushBack(accessListItem);
 
   // signed bytes in r,s form
-  std::vector<std::byte> signedBytes = testPrivateKey->sign(internal::OpenSSLUtils::computeKECCAK256(list.write()));
+  std::vector<std::byte> signedBytes =
+    testPrivateKey->sign(internal::Utilities::concatenateVectors({ type, list.write() }));
 
   std::vector<std::byte> r(signedBytes.begin(),
                            signedBytes.begin() + std::min(signedBytes.size(), static_cast<size_t>(32)));
@@ -167,33 +140,23 @@ TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransact
 
   std::vector<std::byte> recoveryId = internal::HexConverter::hexToBytes("01");
 
+  // recId, r, s should be added to original RLP list as Ethereum Transactions require
   list.pushBack(recoveryId);
   list.pushBack(r);
   list.pushBack(s);
 
   std::vector<std::byte> ethereumTransactionData = list.write();
+  // Type should be concatenated to RLP as this is a service side requirement
   ethereumTransactionData = internal::Utilities::concatenateVectors({ type, ethereumTransactionData });
 
-  // Prints RLP
-  std::cout << std::endl;
-  std::cout << "Ether Transaction output: ";
-  for (const auto& byte : ethereumTransactionData)
-  {
-    // Cast std::byte to unsigned char to get its numerical value, then to int for proper I/O stream handling
-    std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(static_cast<unsigned char>(byte))
-              << ' ';
-  }
-  std::cout << std::endl;
-  std::cout << std::endl;
-
   // When
-  EthereumTransaction tx =
-    EthereumTransaction().setEthereumData(ethereumTransactionData).setMaxTransactionFee(Hbar(11, HbarUnit::HBAR()));
+  EthereumTransaction ethereumTransaction;
+  EXPECT_NO_THROW(ethereumTransaction = EthereumTransaction().setEthereumData(ethereumTransactionData));
 
-  TransactionResponse txResponse = tx.execute(ecdsaClient);
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = ethereumTransaction.execute(getTestClient()));
 
-  std::cout << txResponse.getRecord(ecdsaClient).toString() << std::endl;
-
-  auto contractFunctionResult = txResponse.getRecord(ecdsaClient).mContractFunctionResult;
-  std::cout << contractFunctionResult.has_value() << std::endl;
+  EXPECT_TRUE(txResponse.getRecord(getTestClient()).mContractFunctionResult.has_value());
+  //  mSignerNonce should be incremented to 1 after the first contract execution
+  EXPECT_EQ(txResponse.getRecord(getTestClient()).mContractFunctionResult.value().mSignerNonce, 1);
 }
