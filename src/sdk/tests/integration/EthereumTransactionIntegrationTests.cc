@@ -17,8 +17,6 @@
  * limitations under the License.
  *
  */
-#include "AccountBalance.h"
-#include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
 #include "AccountInfo.h"
@@ -26,13 +24,13 @@
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ContractCreateTransaction.h"
+#include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
 #include "ContractId.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
 #include "EthereumTransaction.h"
-#include "EthereumTransactionDataEip1559.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileId.h"
@@ -42,19 +40,12 @@
 #include "TransferTransaction.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
-#include "impl/Network.h"
 #include "impl/RLPItem.h"
 #include "impl/Utilities.h"
-#include "impl/openssl_utils/OpenSSLUtils.h"
 
-#include <filesystem>
-#include <fstream>
 #include <gtest/gtest.h>
-#include <nlohmann/json.hpp>
-#include <thread>
 #include <vector>
 
-using json = nlohmann::json;
 using namespace Hedera;
 
 class EthereumTransactionIntegrationTests : public BaseIntegrationTest
@@ -149,7 +140,7 @@ TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransact
   // Type should be concatenated to RLP as this is a service side requirement
   ethereumTransactionData = internal::Utilities::concatenateVectors({ type, ethereumTransactionData });
 
-  // When
+  // When Then
   EthereumTransaction ethereumTransaction;
   EXPECT_NO_THROW(ethereumTransaction = EthereumTransaction().setEthereumData(ethereumTransactionData));
 
@@ -159,4 +150,12 @@ TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransact
   EXPECT_TRUE(txResponse.getRecord(getTestClient()).mContractFunctionResult.has_value());
   //  mSignerNonce should be incremented to 1 after the first contract execution
   EXPECT_EQ(txResponse.getRecord(getTestClient()).mContractFunctionResult.value().mSignerNonce, 1);
+
+  EXPECT_NO_THROW(
+    const TransactionReceipt txReceipt =
+      ContractDeleteTransaction().setContractId(contractId).execute(getTestClient()).getReceipt(getTestClient()));
+
+  // Clean up
+  EXPECT_NO_THROW(const TransactionReceipt txReceipt =
+                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
