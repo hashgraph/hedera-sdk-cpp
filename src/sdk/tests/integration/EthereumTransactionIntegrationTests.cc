@@ -56,7 +56,9 @@ class EthereumTransactionIntegrationTests : public BaseIntegrationTest
 TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransaction)
 {
   // Given
-  const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::fromString(
+    "30540201010420ac318ea8ff8d991ab2f16172b4738e74dc35a56681199cfb1c0cb2e7cb560ffda00706052b8104000aa124032200036843f5"
+    "cb338bbb4cdb21b0da4ea739d910951d6e8a5f703d313efe31afe788f4");
   const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
   const AccountId aliasAccountId = testPublicKey->toAccountId();
