@@ -25,11 +25,11 @@ RUN \
 
 # Download Android NDK
 RUN \
-  wget https://github.com/lzhiyong/termux-ndk/releases/download/android-ndk/android-ndk-r26b-aarch64.zip && \
-  unzip android-ndk-r26b-aarch64.zip && \
-  rm -rf android-ndk-r26b-aarch64.zip
+  wget https://dl.google.com/android/repository/android-ndk-r26c-linux.zip && \
+  unzip android-ndk-r26c-linux.zip && \
+  rm -rf android-ndk-r26c-linux.zip
 
-ENV ANDROID_NDK_HOME /android-ndk-r26b
+ENV ANDROID_NDK_HOME /android-ndk-r26c
 ENV VCPKG_FORCE_SYSTEM_BINARIES=1
 
 # Clone your repository
