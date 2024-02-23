@@ -17,8 +17,6 @@
  * limitations under the License.
  *
  */
-#include "AccountBalance.h"
-#include "AccountBalanceQuery.h"
 #include "AccountCreateTransaction.h"
 #include "AccountDeleteTransaction.h"
 #include "AccountInfo.h"
@@ -26,13 +24,13 @@
 #include "BaseIntegrationTest.h"
 #include "Client.h"
 #include "ContractCreateTransaction.h"
+#include "ContractDeleteTransaction.h"
 #include "ContractFunctionParameters.h"
 #include "ContractId.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PrivateKey.h"
 #include "EthereumTransaction.h"
-#include "EthereumTransactionDataEip1559.h"
 #include "FileCreateTransaction.h"
 #include "FileDeleteTransaction.h"
 #include "FileId.h"
@@ -42,19 +40,12 @@
 #include "TransferTransaction.h"
 #include "exceptions/OpenSSLException.h"
 #include "impl/HexConverter.h"
-#include "impl/Network.h"
 #include "impl/RLPItem.h"
 #include "impl/Utilities.h"
-#include "impl/openssl_utils/OpenSSLUtils.h"
 
-#include <filesystem>
-#include <fstream>
 #include <gtest/gtest.h>
-#include <nlohmann/json.hpp>
-#include <thread>
 #include <vector>
 
-using json = nlohmann::json;
 using namespace Hedera;
 
 class EthereumTransactionIntegrationTests : public BaseIntegrationTest
@@ -65,7 +56,9 @@ class EthereumTransactionIntegrationTests : public BaseIntegrationTest
 TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransaction)
 {
   // Given
-  const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+  const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::fromString(
+    "30540201010420ac318ea8ff8d991ab2f16172b4738e74dc35a56681199cfb1c0cb2e7cb560ffda00706052b8104000aa124032200036843f5"
+    "cb338bbb4cdb21b0da4ea739d910951d6e8a5f703d313efe31afe788f4");
   const std::shared_ptr<ECDSAsecp256k1PublicKey> testPublicKey =
     std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(testPrivateKey->getPublicKey());
   const AccountId aliasAccountId = testPublicKey->toAccountId();
@@ -149,7 +142,7 @@ TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransact
   // Type should be concatenated to RLP as this is a service side requirement
   ethereumTransactionData = internal::Utilities::concatenateVectors({ type, ethereumTransactionData });
 
-  // When
+  // When Then
   EthereumTransaction ethereumTransaction;
   EXPECT_NO_THROW(ethereumTransaction = EthereumTransaction().setEthereumData(ethereumTransactionData));
 
