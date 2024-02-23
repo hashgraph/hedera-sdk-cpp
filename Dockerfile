@@ -29,7 +29,7 @@ RUN \
   unzip android-ndk-r26b-aarch64.zip && \
   rm -rf android-ndk-r26b-aarch64.zip
 
-ENV ANDROID_NDK_HOME /android-ndk-r26c
+ENV ANDROID_NDK_HOME /android-ndk-r26b
 ENV VCPKG_FORCE_SYSTEM_BINARIES=1
 
 # Clone your repository
