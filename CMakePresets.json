@@ -61,6 +61,10 @@
           "type": "STRING",
           "value": "c++_static"
         },
+        "CMAKE_HOST_SYSTEM_NAME": {
+          "type": "STRING",
+          "value": "Android"
+        },
         "CMAKE_SYSTEM_NAME": {
           "type": "STRING",
           "value": "Android"
