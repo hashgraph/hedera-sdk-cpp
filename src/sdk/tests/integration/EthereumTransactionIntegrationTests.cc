@@ -150,12 +150,4 @@ TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransact
   EXPECT_TRUE(txResponse.getRecord(getTestClient()).mContractFunctionResult.has_value());
   //  mSignerNonce should be incremented to 1 after the first contract execution
   EXPECT_EQ(txResponse.getRecord(getTestClient()).mContractFunctionResult.value().mSignerNonce, 1);
-
-  // Clean up
-  EXPECT_NO_THROW(
-    const TransactionReceipt txReceipt =
-      ContractDeleteTransaction().setContractId(contractId).execute(getTestClient()).getReceipt(getTestClient()));
-
-  EXPECT_NO_THROW(const TransactionReceipt txReceipt =
-                    FileDeleteTransaction().setFileId(fileId).execute(getTestClient()).getReceipt(getTestClient()));
 }
