@@ -31,7 +31,12 @@ RUN \
   rm -rf android-ndk-r26c-linux.zip
 
 ENV ANDROID_NDK_HOME /android-ndk-r26c
-ENV VCPKG_FORCE_SYSTEM_BINARIES=1
+ENV ANDROID_NDK_ROOT $ANDROID_NDK_HOME
+ENV VCPKG_FORCE_SYSTEM_BINARIES 1
+
+# This is needed by OpenSSL because for some reason it uses PATH to find the Android NDK compilers (and obviously
+# this will only work for linux-x86_64 images).
+ENV PATH $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 # Clone your repository
 RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
