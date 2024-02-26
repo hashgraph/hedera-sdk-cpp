@@ -123,7 +123,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::system_clock::duration& timeout)
 {
-  if (mLogger.getLogger()->getName() == DEFAULT_LOGGER_NAME)
+  if (mLogger.getLogger()->name() == DEFAULT_LOGGER_NAME)
   {
     mLogger = client.getLogger();
   }

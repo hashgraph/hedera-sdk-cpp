@@ -18,6 +18,7 @@ RUN \
     linux-libc-dev \
     ninja-build \
     pkg-config \
+    python3 \
     tar \
     unzip \
     wget \
@@ -43,12 +44,13 @@ RUN git submodule update --init
 
 RUN git checkout 00660-add-android-and-ios-builds
 
+# Build
+#RUN cmake --preset android-arm64-release
+#RUN cmake --build --preset android-arm64-release
+
 #RUN git clone https://github.com/microsoft/vcpkg
 #WORKDIR vcpkg
 #RUN ./bootstrap-vcpkg.sh
-
-ENV PATH "/vcpkg:$PATH"
-ENV VCPKG_ROOT "/vcpkg"
 
 # Use Ubuntu Jammy as the base image
 #FROM ubuntu:jammy

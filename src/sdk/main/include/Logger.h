@@ -22,8 +22,8 @@
 
 #include "Defaults.h"
 
-#include <log4cxx/logger.h>
 #include <memory>
+#include <spdlog/spdlog.h>
 #include <string_view>
 
 namespace Hedera
@@ -93,12 +93,12 @@ public:
   void error(std::string_view message) const;
 
   /**
-   * Set the log4cxx logger this Logger should use.
+   * Set the spdlog logger this Logger should use.
    *
-   * @param logger The log4cxx logger to use.
-   * @return A reference to this Logger with the newly-set log4cxx logger.
+   * @param logger The spdlog logger to use.
+   * @return A reference to this Logger with the newly-set spdlog logger.
    */
-  Logger& setLogger(const log4cxx::LoggerPtr& logger);
+  Logger& setLogger(const std::shared_ptr<spdlog::logger>& logger);
 
   /**
    * Set the log level for this Logger.
@@ -117,11 +117,11 @@ public:
   Logger& setSilent(bool silent);
 
   /**
-   * Get the log4cxx logger used by this Logger.
+   * Get the spdlog logger used by this Logger.
    *
-   * @return The log4cxx logger used by this Logger.
+   * @return The spdlog logger used by this Logger.
    */
-  [[nodiscard]] inline log4cxx::LoggerPtr getLogger() const { return mLogger; }
+  [[nodiscard]] inline std::shared_ptr<spdlog::logger> getLogger() const { return mLogger; }
 
   /**
    * Get the LoggingLevel currently being used by this Logger.
@@ -134,7 +134,7 @@ private:
   /**
    * The wrapped log4cxx logger.
    */
-  log4cxx::LoggerPtr mLogger = log4cxx::Logger::getLogger(DEFAULT_LOGGER_NAME);
+  std::shared_ptr<spdlog::logger> mLogger = std::make_shared<spdlog::logger>(spdlog::logger(DEFAULT_LOGGER_NAME));
 
   /**
    * The current logger level.

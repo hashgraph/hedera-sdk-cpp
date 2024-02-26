@@ -35,15 +35,8 @@
       "version>=": "7.84.0"
     },
     {
-      "name": "expat"
-    },
-    {
-      "name": "apr",
-      "version>=": "1.7.4"
-    },
-    {
-      "name": "apr-util",
-      "version>=": "1.6.1#8"
+      "name": "spdlog",
+      "version>=": "1.13.0"
     },
     {
       "name": "cpp-httplib",
