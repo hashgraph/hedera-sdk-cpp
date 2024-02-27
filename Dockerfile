@@ -48,6 +48,8 @@ WORKDIR /hedera-sdk-cpp
 RUN git submodule update --init
 
 RUN git checkout 00660-add-android-and-ios-builds
+RUN git fetch -a -p
+RUN git merge
 
 # Build
 #RUN cmake --preset android-arm64-release
