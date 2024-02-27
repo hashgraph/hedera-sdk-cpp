@@ -21,6 +21,7 @@ RUN \
     python3 \
     tar \
     unzip \
+    vim \
     wget \
     zip
 
