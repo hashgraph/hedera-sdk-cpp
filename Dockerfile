@@ -27,17 +27,17 @@ RUN \
 
 # Download Android NDK
 RUN \
-  wget https://dl.google.com/android/repository/android-ndk-r25c-linux.zip && \
-  unzip android-ndk-r25c-linux.zip && \
-  rm -rf android-ndk-r25c-linux.zip
+  wget https://dl.google.com/android/repository/android-ndk-r26c-linux.zip && \
+  unzip android-ndk-r26c-linux.zip && \
+  rm -rf android-ndk-r26c-linux.zip
 
-ENV ANDROID_NDK_HOME /android-ndk-r25c
-ENV ANDROID_NDK_ROOT $ANDROID_NDK_HOME
+ENV ANDROID_NDK_HOME /android-ndk-r26c
 ENV VCPKG_FORCE_SYSTEM_BINARIES 1
 
 # This is needed by OpenSSL because for some reason it uses PATH to find the Android NDK compilers (and obviously
 # this will only work for linux-x86_64 images).
-ENV PATH $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+ENV ANDROID_NDK_ROOT $ANDROID_NDK_HOME
+ENV PATH $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 # Clone your repository
 RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
