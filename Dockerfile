@@ -26,11 +26,11 @@ RUN \
 
 # Download Android NDK
 RUN \
-  wget https://dl.google.com/android/repository/android-ndk-r26c-linux.zip && \
-  unzip android-ndk-r26c-linux.zip && \
-  rm -rf android-ndk-r26c-linux.zip
+  wget https://dl.google.com/android/repository/android-ndk-r25c-linux.zip && \
+  unzip android-ndk-r25c-linux.zip && \
+  rm -rf android-ndk-r25c-linux.zip
 
-ENV ANDROID_NDK_HOME /android-ndk-r26c
+ENV ANDROID_NDK_HOME /android-ndk-r25c
 ENV ANDROID_NDK_ROOT $ANDROID_NDK_HOME
 ENV VCPKG_FORCE_SYSTEM_BINARIES 1
 
@@ -44,12 +44,11 @@ RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
 # Change working directory to cloned repo
 WORKDIR /hedera-sdk-cpp
 
+# Change to working branch
+RUN git checkout 00660-add-android-and-ios-builds
+
 # Update submodule
 RUN git submodule update --init
-
-RUN git checkout 00660-add-android-and-ios-builds
-RUN git fetch -a -p
-RUN git merge
 
 # Build
 #RUN cmake --preset android-arm64-release
