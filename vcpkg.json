@@ -5,6 +5,7 @@
   "dependencies": [
     {
       "name": "vcpkg-cmake-get-vars",
+      "version>=": "2023-12-31"
     },
     {
       "name": "openssl",
