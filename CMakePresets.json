@@ -55,7 +55,7 @@
         },
         "CMAKE_ANDROID_NDK": {
           "type": "FILEPATH",
-          "value": "/android-ndk-r26c"
+          "value": "/android-ndk-r25c"
         },
         "CMAKE_ANDROID_STL_TYPE": {
           "type": "STRING",
@@ -79,7 +79,7 @@
         },
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
-          "value": "/android-ndk-r26c/build/cmake/android.toolchain.cmake"
+          "value": "/android-ndk-r25c/build/cmake/android.toolchain.cmake"
         },
         "VCPKG_DETECTED_CMAKE_ANDROID_ARCH": {
           "type": "STRING",
