@@ -1,7 +1,7 @@
 {
   "name": "hedera-sdk-cpp",
   "version-string": "0.1.0",
-  "builtin-baseline": "680071397677bb123b2f2b0ebe73905feae4a955",
+  "builtin-baseline": "f6a5d4e8eb7476b8d7fc12a56dff300c1c986131",
   "dependencies": [
     {
       "name": "vcpkg-cmake-get-vars",
