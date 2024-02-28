@@ -31,7 +31,7 @@ RUN \
   unzip android-ndk-r25c-linux.zip && \
   rm -rf android-ndk-r25c-linux.zip
 
-ENV ANDROID_NDK_HOME /android-ndk-r26c
+ENV ANDROID_NDK_HOME /android-ndk-r25c
 ENV VCPKG_FORCE_SYSTEM_BINARIES 1
 
 # This is needed by OpenSSL because for some reason it uses PATH to find the Android NDK compilers (and obviously
