@@ -251,6 +251,14 @@ public:
   TokenCreateTransaction& setPauseKey(const std::shared_ptr<Key>& key);
 
   /**
+   * Set the desired pause key for the new token.
+   *
+   * @param metadata The desired metadata for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set metadata.
+   */
+  TokenCreateTransaction& setMetadata(std::string_view metadata);
+
+  /**
    * Get the desired name for the new token.
    *
    * @return The desired name for the new token.
@@ -401,6 +409,8 @@ public:
 
 private:
   friend class WrappedTransaction;
+
+  static constexpr size_t mMaxMetadataSize = 254;
 
   /**
    * Derived from Executable. Submit a Transaction protobuf object which contains this TokenCreateTransaction's data to
@@ -568,6 +578,11 @@ private:
    * PauseNotApplicable, otherwise Unpaused.
    */
   std::shared_ptr<Key> mPauseKey = nullptr;
+
+  /**
+   * Metadata of the created token definition
+   */
+  std::string mMetadata;
 };
 
 } // namespace Hedera

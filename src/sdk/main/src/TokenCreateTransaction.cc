@@ -224,6 +224,20 @@ TokenCreateTransaction& TokenCreateTransaction::setPauseKey(const std::shared_pt
 }
 
 //-----
+TokenCreateTransaction& TokenCreateTransaction::setMetadata(std::string_view metadata)
+{
+  requireNotFrozen();
+
+  if (metadata.size() > TokenCreateTransaction::mMaxMetadataSize)
+  {
+    throw std::invalid_argument("Provided metadata size exceeds the maximum allowed metadata size which is 254 bytes!");
+  }
+
+  mMetadata = metadata;
+  return *this;
+}
+
+//-----
 grpc::Status TokenCreateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
                                                    const std::chrono::system_clock::time_point& deadline,
@@ -339,6 +353,8 @@ void TokenCreateTransaction::initFromSourceTransactionBody()
   {
     mPauseKey = Key::fromProtobuf(body.pause_key());
   }
+
+  mMetadata = body.metadata();
 }
 
 //-----
@@ -408,6 +424,8 @@ proto::TokenCreateTransactionBody* TokenCreateTransaction::build() const
   {
     body->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
   }
+
+  body->set_metadata(mMetadata);
 
   return body.release();
 }
