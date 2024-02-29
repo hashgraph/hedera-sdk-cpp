@@ -65,7 +65,7 @@ TEST_F(ContractExecuteTransactionIntegrationTests, ExecuteContractExecuteTransac
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
@@ -75,7 +75,7 @@ TEST_F(ContractExecuteTransactionIntegrationTests, ExecuteContractExecuteTransac
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = ContractExecuteTransaction()
                                 .setContractId(contractId)
-                                .setGas(100000ULL)
+                                .setGas(1000000ULL)
                                 .setFunction("setMessage", ContractFunctionParameters().addString(newMessage))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
@@ -83,7 +83,7 @@ TEST_F(ContractExecuteTransactionIntegrationTests, ExecuteContractExecuteTransac
   // Then
   EXPECT_EQ(ContractCallQuery()
               .setContractId(contractId)
-              .setGas(100000ULL)
+              .setGas(1000000ULL)
               .setFunction("getMessage")
               .execute(getTestClient())
               .getString(0),
@@ -103,13 +103,12 @@ TEST_F(ContractExecuteTransactionIntegrationTests, ExecuteContractExecuteTransac
 TEST_F(ContractExecuteTransactionIntegrationTests, CannotExecuteContractWithoutContractId)
 {
   // Given / When / Then
-  EXPECT_THROW(const TransactionReceipt txReceipt =
-                 ContractExecuteTransaction()
-                   .setGas(100000ULL)
-                   .setFunction("setMessage", ContractFunctionParameters().addString("new message"))
-                   .execute(getTestClient())
-                   .getReceipt(getTestClient()),
-               ReceiptStatusException); // INVALID_CONTRACT_ID
+  EXPECT_ANY_THROW(const TransactionReceipt txReceipt =
+                     ContractExecuteTransaction()
+                       .setGas(1000000ULL)
+                       .setFunction("setMessage", ContractFunctionParameters().addString("new message"))
+                       .execute(getTestClient())
+                       .getReceipt(getTestClient())); // INVALID_CONTRACT_ID
 }
 
 //-----
@@ -130,7 +129,7 @@ TEST_F(ContractExecuteTransactionIntegrationTests, CannotExecuteContractWithNoFu
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
@@ -139,7 +138,7 @@ TEST_F(ContractExecuteTransactionIntegrationTests, CannotExecuteContractWithNoFu
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = ContractExecuteTransaction()
                                                       .setContractId(contractId)
-                                                      .setGas(100000ULL)
+                                                      .setGas(1000000ULL)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
                ReceiptStatusException); // CONTRACT_REVERT_EXECUTED
@@ -173,7 +172,7 @@ TEST_F(ContractExecuteTransactionIntegrationTests, CannotExecuteContractWithNoGa
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())

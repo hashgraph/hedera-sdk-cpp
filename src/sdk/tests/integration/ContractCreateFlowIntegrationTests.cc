@@ -46,7 +46,7 @@ TEST_F(ContractCreateFlowIntegrationTests, ExecuteContractCreateFlow)
   ASSERT_NO_THROW(txResponse = ContractCreateFlow()
                                  .setBytecode(getTestSmartContractBytecode())
                                  .setAdminKey(getTestClient().getOperatorPublicKey())
-                                 .setGas(100000ULL)
+                                 .setGas(1000000ULL)
                                  .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
                                  .execute(getTestClient()));
 
@@ -77,7 +77,7 @@ TEST_F(ContractCreateFlowIntegrationTests, CannotCreateContractWithFlowWithoutSi
                  ContractCreateFlow()
                    .setBytecode(getTestSmartContractBytecode())
                    .setAdminKey(adminKey)
-                   .setGas(100000ULL)
+                   .setGas(1000000ULL)
                    .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
                    .execute(getTestClient()),
                ReceiptStatusException); // INVALID_SIGNATURE
@@ -94,7 +94,7 @@ TEST_F(ContractCreateFlowIntegrationTests, ExecuteContractCreateFlowWithPrivateK
   EXPECT_NO_THROW(txResponse = ContractCreateFlow()
                                  .setBytecode(getTestSmartContractBytecode())
                                  .setAdminKey(adminKey)
-                                 .setGas(100000ULL)
+                                 .setGas(1000000ULL)
                                  .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
                                  .freezeWith(getTestClient())
                                  .sign(adminKey)
@@ -130,7 +130,7 @@ TEST_F(ContractCreateFlowIntegrationTests, ExecuteContractCreateFlowWithPublicKe
                     ContractCreateFlow()
                       .setBytecode(getTestSmartContractBytecode())
                       .setAdminKey(adminKey)
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
                       .freezeWith(getTestClient())
                       .signWith(adminKey->getPublicKey(),

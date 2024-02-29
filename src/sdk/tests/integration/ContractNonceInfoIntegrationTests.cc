@@ -113,6 +113,8 @@ TEST_F(ContractNonceInfoIntegrationTests, ContractADeploysContractBInConstructor
   // When
   EXPECT_EQ(contractANonceInfo.mNonce, 2); // A.nonce = 2
   EXPECT_EQ(contractBNonceInfo.mNonce, 1); // B.nonce = 1
+  EXPECT_EQ(contractFunctionResult.mSignerNonce.has_value(),
+            false); // signer nonce should be set only for Ethereum transactions
 
   // Clean up
   ContractId contractId;

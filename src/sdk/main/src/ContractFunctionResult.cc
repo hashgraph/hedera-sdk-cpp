@@ -75,6 +75,11 @@ ContractFunctionResult ContractFunctionResult::fromProtobuf(const proto::Contrac
     contractFunctionResult.mContractNonces.push_back(ContractNonceInfo::fromProtobuf(proto.contract_nonces(i)));
   }
 
+  if (proto.has_signer_nonce())
+  {
+    contractFunctionResult.mSignerNonce = static_cast<int64_t>(proto.signer_nonce().value());
+  }
+
   return contractFunctionResult;
 }
 
@@ -112,6 +117,11 @@ std::unique_ptr<proto::ContractFunctionResult> ContractFunctionResult::toProtobu
                 [&proto](const ContractNonceInfo& nonceInfo)
                 { *proto->add_contract_nonces() = *nonceInfo.toProtobuf(); });
 
+  if (mSignerNonce.has_value())
+  {
+    proto->mutable_signer_nonce()->set_value(mSignerNonce.value());
+  }
+
   return proto;
 }
 
@@ -147,6 +157,11 @@ std::string ContractFunctionResult::toString() const
                 mContractNonces.cend(),
                 [&json](const ContractNonceInfo& nonceInfo)
                 { json["mContractNonces"].push_back(nonceInfo.toString()); });
+
+  if (mSignerNonce.has_value())
+  {
+    json["mSignerNonce"] = mSignerNonce.value();
+  }
 
   return json.dump();
 }

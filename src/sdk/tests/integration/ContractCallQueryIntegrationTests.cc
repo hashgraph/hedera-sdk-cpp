@@ -61,7 +61,7 @@ TEST_F(ContractCallQueryIntegrationTests, ExecuteContractCallQuery)
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())
@@ -72,7 +72,7 @@ TEST_F(ContractCallQueryIntegrationTests, ExecuteContractCallQuery)
   ContractFunctionResult contractFunctionResult;
   EXPECT_NO_THROW(contractFunctionResult = ContractCallQuery()
                                              .setContractId(contractId)
-                                             .setGas(100000ULL)
+                                             .setGas(1000000ULL)
                                              .setFunction("getMessage")
                                              .execute(getTestClient()));
 
@@ -106,7 +106,7 @@ TEST_F(ContractCallQueryIntegrationTests, CannotCallContractFunctionWhenContract
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())
@@ -145,7 +145,7 @@ TEST_F(ContractCallQueryIntegrationTests, CannotCallContractFunctionWhenGasIsNot
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())
@@ -184,7 +184,7 @@ TEST_F(ContractCallQueryIntegrationTests, CannotCallContractFunctionWhenContract
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setAdminKey(operatorKey->getPublicKey())
-                      .setGas(100000ULL)
+                      .setGas(1000000ULL)
                       .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
                       .setBytecodeFileId(fileId)
                       .execute(getTestClient())

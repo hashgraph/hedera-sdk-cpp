@@ -24,11 +24,14 @@
 #include "Client.h"
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
+#include "ContractFunctionParameters.h"
 #include "ContractId.h"
 #include "ED25519PrivateKey.h"
+#include "FileCreateTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 
@@ -85,13 +88,27 @@ TEST_F(AccountBalanceQueryIntegrationTests, ValidButNonExistantAccountId)
 TEST_F(AccountBalanceQueryIntegrationTests, ContractId)
 {
   // Given
+  const std::unique_ptr<PrivateKey> operatorKey = ED25519PrivateKey::fromString(
+    "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137");
+  const std::string memo = "[e2e::Contract]";
+  FileId fileId;
+  ASSERT_NO_THROW(fileId = FileCreateTransaction()
+                             .setKeys({ getTestClient().getOperatorPublicKey() })
+                             .setContents(internal::Utilities::stringToByteVector(getTestSmartContractBytecode()))
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient())
+                             .mFileId.value());
+
   ContractId contractId;
-  ASSERT_NO_THROW(contractId = ContractCreateTransaction()
-                                 .setBytecode({})
-                                 .setGas(500000ULL)
-                                 .execute(getTestClient())
-                                 .getReceipt(getTestClient())
-                                 .mContractId.value());
+  ASSERT_NO_THROW(contractId =
+                    ContractCreateTransaction()
+                      .setGas(1000000ULL)
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setBytecodeFileId(fileId)
+                      .setMemo(memo)
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient())
+                      .mContractId.value());
   AccountBalance accountBalance;
 
   // When

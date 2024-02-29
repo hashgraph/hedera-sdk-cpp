@@ -21,6 +21,7 @@ add_executable(${TEST_PROJECT_NAME}
         ContractNonceInfoIntegrationTests.cc
         ContractUpdateTransactionIntegrationTests.cc
         ContractInfoQueryIntegrationTests.cc
+        EthereumTransactionIntegrationTests.cc
         ExecutableIntegrationTests.cc
         FileAppendTransactionIntegrationTests.cc
         FileContentsQueryIntegrationTests.cc
