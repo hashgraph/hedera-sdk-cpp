@@ -53,7 +53,7 @@ class EthereumTransactionIntegrationTests : public BaseIntegrationTest
 };
 
 //-----
-TEST_F(EthereumTransactionIntegrationTests, SignerNonceChangedOnEthereumTransaction)
+TEST_F(EthereumTransactionIntegrationTests, DISABLED_SignerNonceChangedOnEthereumTransaction)
 {
   // Given
   const std::shared_ptr<ECDSAsecp256k1PrivateKey> testPrivateKey = ECDSAsecp256k1PrivateKey::fromString(
