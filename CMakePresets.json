@@ -45,33 +45,17 @@
       "installDir": "${sourceDir}/package",
       "generator": "Ninja Multi-Config",
       "cacheVariables": {
+        "ANDROID_ABI": {
+          "type": "STRING",
+          "value": "arm64-v8a"
+        },
         "ANDROID_PLATFORM": {
           "type": "STRING",
           "value": "21"
         },
-        "CMAKE_ANDROID_ARCH_ABI": {
+        "CMAKE_SYSTEM_PROCESSOR": {
           "type": "STRING",
-          "value": "arm64-v8a"
-        },
-        "CMAKE_ANDROID_NDK": {
-          "type": "FILEPATH",
-          "value": "/android-ndk-r25c"
-        },
-        "CMAKE_ANDROID_STL_TYPE": {
-          "type": "STRING",
-          "value": "c++_static"
-        },
-        "CMAKE_HOST_SYSTEM_NAME": {
-          "type": "STRING",
-          "value": "Android"
-        },
-        "CMAKE_SYSTEM_NAME": {
-          "type": "STRING",
-          "value": "Android"
-        },
-        "CMAKE_SYSTEM_VERSION": {
-          "type": "STRING",
-          "value": "21"
+          "value": "aarch64"
         },
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
@@ -80,10 +64,6 @@
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
           "value": "/android-ndk-r25c/build/cmake/android.toolchain.cmake"
-        },
-        "VCPKG_DETECTED_CMAKE_ANDROID_ARCH": {
-          "type": "STRING",
-          "value": "arm64"
         }
       }
     },
