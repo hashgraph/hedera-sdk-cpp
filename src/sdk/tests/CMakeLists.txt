@@ -1,4 +1,4 @@
-if (APPLE OR WIN32)
+if (NOT LINUX)
     include(FetchContent)
     FetchContent_Declare(googletest
             GIT_REPOSITORY https://github.com/google/googletest.git
