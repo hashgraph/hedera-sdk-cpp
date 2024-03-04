@@ -73,11 +73,14 @@ add_executable(${TEST_PROJECT_NAME}
 
 # gtest_main is put in a manual-link directory within the vcpkg installation
 target_link_directories(${TEST_PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/manual-link)
-
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE GTest::gtest_main GTest::gtest ${PROJECT_NAME})
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE CURL::libcurl)
 target_link_libraries(${TEST_PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
-gtest_discover_tests(${TEST_PROJECT_NAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+
+# Do not discover tests for cross-compile builds
+if (NOT ANDROID)
+    gtest_discover_tests(${TEST_PROJECT_NAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+endif ()
 
 # Install gRPC's roots.pem file for Windows with the integration tests so that it can be easily referenced.
 if (WIN32)

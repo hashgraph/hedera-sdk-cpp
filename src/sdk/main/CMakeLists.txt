@@ -184,7 +184,7 @@ endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog_header_only)
 
-if (NOT WIN32)
+if (NOT WIN32 AND NOT ANDROID)
     target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)
 endif ()
 
