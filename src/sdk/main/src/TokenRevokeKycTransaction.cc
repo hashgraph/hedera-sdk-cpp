@@ -20,7 +20,7 @@
 #include "TokenRevokeKycTransaction.h"
 #include "impl/Node.h"
 
-#include <grpcpp/client_context.h>
+
 #include <proto/token_revoke_kyc.pb.h>
 #include <proto/transaction.pb.h>
 #include <stdexcept>

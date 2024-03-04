@@ -20,7 +20,7 @@
 #include "TokenDissociateTransaction.h"
 #include "impl/Node.h"
 
-#include <grpcpp/client_context.h>
+
 #include <proto/token_dissociate.pb.h>
 #include <proto/transaction.pb.h>
 #include <stdexcept>

@@ -20,7 +20,7 @@
 #include "TopicDeleteTransaction.h"
 #include "impl/Node.h"
 
-#include <grpcpp/client_context.h>
+
 #include <proto/consensus_delete_topic.pb.h>
 #include <proto/transaction.pb.h>
 #include <stdexcept>

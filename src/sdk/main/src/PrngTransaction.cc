@@ -20,7 +20,7 @@
 #include "PrngTransaction.h"
 #include "impl/Node.h"
 
-#include <grpcpp/client_context.h>
+
 #include <proto/transaction.pb.h>
 #include <proto/util_prng.pb.h>
 #include <stdexcept>

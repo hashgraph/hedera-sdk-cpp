@@ -20,7 +20,6 @@
 #include "ContractDeleteTransaction.h"
 #include "impl/Node.h"
 
-#include <grpcpp/client_context.h>
 #include <proto/contract_delete.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>

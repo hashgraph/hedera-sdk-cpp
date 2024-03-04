@@ -20,7 +20,7 @@
 #include "TokenAssociateTransaction.h"
 #include "impl/Node.h"
 
-#include <grpcpp/client_context.h>
+
 #include <proto/token_associate.pb.h>
 #include <proto/transaction.pb.h>
 #include <stdexcept>

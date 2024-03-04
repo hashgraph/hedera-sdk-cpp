@@ -104,6 +104,7 @@
 #include <proto/response.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_response.pb.h>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <thread>
 

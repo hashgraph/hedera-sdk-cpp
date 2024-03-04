@@ -20,7 +20,7 @@
 #include "TokenBurnTransaction.h"
 #include "impl/Node.h"
 
-#include <grpcpp/client_context.h>
+
 #include <proto/token_burn.pb.h>
 #include <proto/transaction.pb.h>
 #include <stdexcept>

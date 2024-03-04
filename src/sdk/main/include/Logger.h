@@ -20,10 +20,8 @@
 #ifndef HEDERA_SDK_CPP_LOGGER_H_
 #define HEDERA_SDK_CPP_LOGGER_H_
 
-#include "Defaults.h"
-
 #include <memory>
-#include <spdlog/spdlog.h>
+#include <spdlog/fwd.h>
 #include <string_view>
 
 namespace Hedera
@@ -40,12 +38,12 @@ public:
    */
   enum class LoggingLevel
   {
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    SILENT
+    LEVEL_TRACE,
+    LEVEL_DEBUG,
+    LEVEL_INFO,
+    LEVEL_WARN,
+    LEVEL_ERROR,
+    LEVEL_SILENT
   };
 
   Logger() = default;
@@ -134,17 +132,17 @@ private:
   /**
    * The wrapped log4cxx logger.
    */
-  std::shared_ptr<spdlog::logger> mLogger = std::make_shared<spdlog::logger>(spdlog::logger(DEFAULT_LOGGER_NAME));
+  std::shared_ptr<spdlog::logger> mLogger;
 
   /**
    * The current logger level.
    */
-  LoggingLevel mCurrentLevel = LoggingLevel::TRACE;
+  LoggingLevel mCurrentLevel = LoggingLevel::LEVEL_TRACE;
 
   /**
    * The previous logger level.
    */
-  LoggingLevel mPreviousLevel = LoggingLevel::TRACE;
+  LoggingLevel mPreviousLevel = LoggingLevel::LEVEL_TRACE;
 };
 
 } // namespace Hedera
