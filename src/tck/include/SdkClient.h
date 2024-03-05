@@ -50,6 +50,12 @@ nlohmann::json createAccount(const std::string& publicKey,
                              const std::optional<bool>& declineStakingReward,
                              const std::optional<std::string>& accountMemo);
 
+nlohmann::json getAccountInfo(const std::string& accountId);
+
+nlohmann::json deleteAccount(const std::string& accountId,
+                             const std::string& accountKey,
+                             const std::string& recipientId);
+
 /**
  * Generate an ED25519PrivateKey.
  *

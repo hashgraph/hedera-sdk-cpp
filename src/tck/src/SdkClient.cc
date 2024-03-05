@@ -19,13 +19,17 @@
  */
 #include "SdkClient.h"
 #include "AccountCreateTransaction.h"
+#include "AccountDeleteTransaction.h"
 #include "AccountId.h"
+#include "AccountInfo.h"
+#include "AccountInfoQuery.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
 #include "Status.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include <iostream>
 
 #include <nlohmann/json.hpp>
 
@@ -94,6 +98,36 @@ nlohmann::json SdkClient::createAccount(const std::string& publicKey,
   return {
     {"accountId", txReceipt.mAccountId->toString()     },
     { "status",   gStatusToString.at(txReceipt.mStatus)}
+  };
+}
+
+//-----
+nlohmann::json SdkClient::getAccountInfo(const std::string& accountId)
+{
+  AccountInfoQuery accountInfoQuery =
+    AccountInfoQuery().setGrpcDeadline(std::chrono::seconds(30)).setAccountId(AccountId::fromString(accountId));
+
+  const AccountInfo accountInfo = accountInfoQuery.execute(mClient);
+  return {
+    {"accountId", accountInfo.mAccountId.toString()}
+  };
+}
+
+//-----
+nlohmann::json SdkClient::deleteAccount(const std::string& accountId,
+                                        const std::string& accountKey,
+                                        const std::string& recipientId)
+{
+  AccountDeleteTransaction accountDeleteTransaction = AccountDeleteTransaction()
+                                                        .setGrpcDeadline(std::chrono::seconds(30))
+                                                        .setDeleteAccountId(AccountId::fromString(accountId))
+                                                        .setTransferAccountId(AccountId::fromString(recipientId))
+                                                        .freezeWith(&mClient)
+                                                        .sign(ED25519PrivateKey::fromString(accountKey));
+
+  const TransactionReceipt txReceipt = accountDeleteTransaction.execute(mClient).getReceipt(mClient);
+  return {
+    {"status", gStatusToString.at(txReceipt.mStatus)}
   };
 }
 

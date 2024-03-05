@@ -41,6 +41,7 @@ int main(int argc, char** argv)
                   "stakedNodeId",
                   "declineStakingReward",
                   "accountMemo" });
+  tckServer.add("deleteAccount", getHandle(&SdkClient::deleteAccount), { "accountId", "accountKey", "recipientId" });
   tckServer.add("generatePrivateKey", getHandle(&SdkClient::generatePrivateKey));
   tckServer.add("generatePublicKey", getHandle(&SdkClient::generatePublicKey), { "privateKey" });
   tckServer.add("setup",
