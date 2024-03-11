@@ -19,6 +19,8 @@
  */
 #include "Logger.h"
 
+#include <spdlog/spdlog.h>
+
 namespace Hedera
 {
 //-----
@@ -31,50 +33,50 @@ Logger::Logger(Hedera::Logger::LoggingLevel level)
 //-----
 void Logger::trace(std::string_view message) const
 {
-  if (mCurrentLevel != LoggingLevel::SILENT)
+  if (mCurrentLevel != LoggingLevel::LEVEL_SILENT)
   {
-    LOG4CXX_TRACE(mLogger, message);
+    mLogger ? mLogger->trace(message) : spdlog::trace(message);
   }
 }
 
 //-----
 void Logger::debug(std::string_view message) const
 {
-  if (mCurrentLevel != LoggingLevel::SILENT)
+  if (mCurrentLevel != LoggingLevel::LEVEL_SILENT)
   {
-    LOG4CXX_DEBUG(mLogger, message);
+    mLogger ? mLogger->debug(message) : spdlog::debug(message);
   }
 }
 
 //-----
 void Logger::info(std::string_view message) const
 {
-  if (mCurrentLevel != LoggingLevel::SILENT)
+  if (mCurrentLevel != LoggingLevel::LEVEL_SILENT)
   {
-    LOG4CXX_INFO(mLogger, message);
+    mLogger ? mLogger->info(message) : spdlog::info(message);
   }
 }
 
 //-----
 void Logger::warn(std::string_view message) const
 {
-  if (mCurrentLevel != LoggingLevel::SILENT)
+  if (mCurrentLevel != LoggingLevel::LEVEL_SILENT)
   {
-    LOG4CXX_WARN(mLogger, message);
+    mLogger ? mLogger->warn(message) : spdlog::warn(message);
   }
 }
 
 //-----
 void Logger::error(std::string_view message) const
 {
-  if (mCurrentLevel != LoggingLevel::SILENT)
+  if (mCurrentLevel != LoggingLevel::LEVEL_SILENT)
   {
-    LOG4CXX_ERROR(mLogger, message);
+    mLogger ? mLogger->error(message) : spdlog::error(message);
   }
 }
 
 //-----
-Logger& Logger::setLogger(const log4cxx::LoggerPtr& logger)
+Logger& Logger::setLogger(const std::shared_ptr<spdlog::logger>& logger)
 {
   mLogger = logger;
   return *this;
@@ -87,23 +89,23 @@ Logger& Logger::setLevel(Logger::LoggingLevel level)
   mCurrentLevel = level;
   switch (mCurrentLevel)
   {
-    case LoggingLevel::TRACE:
-      mLogger->setLevel(log4cxx::Level::getTrace());
+    case LoggingLevel::LEVEL_TRACE:
+      mLogger ? mLogger->set_level(spdlog::level::trace) : spdlog::set_level(spdlog::level::trace);
       break;
-    case LoggingLevel::DEBUG:
-      mLogger->setLevel(log4cxx::Level::getDebug());
+    case LoggingLevel::LEVEL_DEBUG:
+      mLogger ? mLogger->set_level(spdlog::level::debug) : spdlog::set_level(spdlog::level::debug);
       break;
-    case LoggingLevel::INFO:
-      mLogger->setLevel(log4cxx::Level::getInfo());
+    case LoggingLevel::LEVEL_INFO:
+      mLogger ? mLogger->set_level(spdlog::level::info) : spdlog::set_level(spdlog::level::info);
       break;
-    case LoggingLevel::WARN:
-      mLogger->setLevel(log4cxx::Level::getWarn());
+    case LoggingLevel::LEVEL_WARN:
+      mLogger ? mLogger->set_level(spdlog::level::warn) : spdlog::set_level(spdlog::level::warn);
       break;
-    case LoggingLevel::ERROR:
-      mLogger->setLevel(log4cxx::Level::getError());
+    case LoggingLevel::LEVEL_ERROR:
+      mLogger ? mLogger->set_level(spdlog::level::err) : spdlog::set_level(spdlog::level::err);
       break;
-    case LoggingLevel::SILENT:
-      mLogger->setLevel(log4cxx::Level::getOff());
+    case LoggingLevel::LEVEL_SILENT:
+      mLogger ? mLogger->set_level(spdlog::level::off) : spdlog::set_level(spdlog::level::off);
       break;
   }
   return *this;
@@ -112,7 +114,7 @@ Logger& Logger::setLevel(Logger::LoggingLevel level)
 //-----
 Logger& Logger::setSilent(bool silent)
 {
-  mCurrentLevel = silent ? LoggingLevel::SILENT : mPreviousLevel;
+  mCurrentLevel = silent ? LoggingLevel::LEVEL_SILENT : mPreviousLevel;
   return *this;
 }
 

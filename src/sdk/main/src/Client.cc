@@ -54,7 +54,7 @@ struct Client::ClientImpl
   std::shared_ptr<internal::MirrorNetwork> mMirrorNetwork = nullptr;
 
   // The Logger used by this Client.
-  Logger mLogger = Logger(Logger::LoggingLevel::SILENT);
+  Logger mLogger = Logger(Logger::LoggingLevel::LEVEL_SILENT);
 
   // Subscriptions this Client is tracking.
   std::vector<std::shared_ptr<SubscriptionHandle>> mSubscriptions;

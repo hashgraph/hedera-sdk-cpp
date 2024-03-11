@@ -104,6 +104,7 @@
 #include <proto/response.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_response.pb.h>
+#include <spdlog/spdlog.h>
 #include <stdexcept>
 #include <thread>
 
@@ -123,7 +124,7 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::system_clock::duration& timeout)
 {
-  if (mLogger.getLogger()->getName() == DEFAULT_LOGGER_NAME)
+  if (mLogger.getLogger()->name() == DEFAULT_LOGGER_NAME)
   {
     mLogger = client.getLogger();
   }

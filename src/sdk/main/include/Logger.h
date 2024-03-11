@@ -20,10 +20,8 @@
 #ifndef HEDERA_SDK_CPP_LOGGER_H_
 #define HEDERA_SDK_CPP_LOGGER_H_
 
-#include "Defaults.h"
-
-#include <log4cxx/logger.h>
 #include <memory>
+#include <spdlog/fwd.h>
 #include <string_view>
 
 namespace Hedera
@@ -40,12 +38,12 @@ public:
    */
   enum class LoggingLevel
   {
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    SILENT
+    LEVEL_TRACE,
+    LEVEL_DEBUG,
+    LEVEL_INFO,
+    LEVEL_WARN,
+    LEVEL_ERROR,
+    LEVEL_SILENT
   };
 
   Logger() = default;
@@ -93,12 +91,12 @@ public:
   void error(std::string_view message) const;
 
   /**
-   * Set the log4cxx logger this Logger should use.
+   * Set the spdlog logger this Logger should use.
    *
-   * @param logger The log4cxx logger to use.
-   * @return A reference to this Logger with the newly-set log4cxx logger.
+   * @param logger The spdlog logger to use.
+   * @return A reference to this Logger with the newly-set spdlog logger.
    */
-  Logger& setLogger(const log4cxx::LoggerPtr& logger);
+  Logger& setLogger(const std::shared_ptr<spdlog::logger>& logger);
 
   /**
    * Set the log level for this Logger.
@@ -117,11 +115,11 @@ public:
   Logger& setSilent(bool silent);
 
   /**
-   * Get the log4cxx logger used by this Logger.
+   * Get the spdlog logger used by this Logger.
    *
-   * @return The log4cxx logger used by this Logger.
+   * @return The spdlog logger used by this Logger.
    */
-  [[nodiscard]] inline log4cxx::LoggerPtr getLogger() const { return mLogger; }
+  [[nodiscard]] inline std::shared_ptr<spdlog::logger> getLogger() const { return mLogger; }
 
   /**
    * Get the LoggingLevel currently being used by this Logger.
@@ -134,17 +132,17 @@ private:
   /**
    * The wrapped log4cxx logger.
    */
-  log4cxx::LoggerPtr mLogger = log4cxx::Logger::getLogger(DEFAULT_LOGGER_NAME);
+  std::shared_ptr<spdlog::logger> mLogger;
 
   /**
    * The current logger level.
    */
-  LoggingLevel mCurrentLevel = LoggingLevel::TRACE;
+  LoggingLevel mCurrentLevel = LoggingLevel::LEVEL_TRACE;
 
   /**
    * The previous logger level.
    */
-  LoggingLevel mPreviousLevel = LoggingLevel::TRACE;
+  LoggingLevel mPreviousLevel = LoggingLevel::LEVEL_TRACE;
 };
 
 } // namespace Hedera

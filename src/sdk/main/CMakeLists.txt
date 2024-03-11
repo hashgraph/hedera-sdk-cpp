@@ -205,6 +205,7 @@ if (APPLE)
 endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog_header_only)
 #target_link_libraries(${PROJECT_NAME} PRIVATE log4cxx)
 
 if (NOT WIN32)
