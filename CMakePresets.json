@@ -43,7 +43,7 @@
       "description": "Configured via the VCPkg iOS toolchain",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "installDir": "${sourceDir}/package",
-      "generator": "Ninja Multi-Config",
+      "generator": "Xcode",
       "cacheVariables": {
         "CMAKE_SYSTEM_NAME": {
           "type": "STRING",
@@ -254,8 +254,8 @@
     {
       "name": "ios-arm64-release",
       "configurePreset": "ios-arm64-release",
-      "displayName": "Build ninja-multi-vcpkg",
-      "description": "Build ninja-multi-vcpkg Configurations",
+      "displayName": "Build Xcode ARM64 Release",
+      "description": "Build Xcode ARM64 Configurations",
       "configuration": "Release",
       "targets": ["install"]
     }
