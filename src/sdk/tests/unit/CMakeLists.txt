@@ -1,5 +1,5 @@
-set(TEST_PROJECT_NAME ${PROJECT_NAME}-unit-tests)
-add_executable(${TEST_PROJECT_NAME}
+set(UNIT_TEST_PROJECT_NAME ${PROJECT_NAME}-unit-tests)
+add_executable(${UNIT_TEST_PROJECT_NAME}
         AccountAllowanceApproveTransactionUnitTests.cc
         AccountAllowanceDeleteTransactionUnitTests.cc
         AccountBalanceQueryUnitTests.cc
@@ -129,13 +129,16 @@ add_executable(${TEST_PROJECT_NAME}
         vectors/SLIP10TestVectors.cc)
 
 # gtest_main is put in a manual-link directory within the vcpkg installation
-target_link_directories(${TEST_PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/manual-link)
-target_link_libraries(${TEST_PROJECT_NAME} PRIVATE GTest::gtest_main GTest::gtest ${PROJECT_NAME})
-target_link_libraries(${TEST_PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+target_link_directories(${UNIT_TEST_PROJECT_NAME} PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/manual-link)
+target_link_libraries(${UNIT_TEST_PROJECT_NAME} PRIVATE GTest::gtest_main GTest::gtest ${PROJECT_NAME})
+target_link_libraries(${UNIT_TEST_PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
-# Do not discover tests for cross-compile builds
+# For Android cross-compile builds, testing will take place by running the test executable directly as opposed to
+# running CTest. This means the test executable should be installed and tests shouldn't be discovered.
 if (NOT ANDROID)
-    gtest_discover_tests(${TEST_PROJECT_NAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    gtest_discover_tests(${UNIT_TEST_PROJECT_NAME} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+else ()
+    install(TARGETS ${UNIT_TEST_PROJECT_NAME} DESTINATION tests)
 endif ()
 
 file(COPY ${PROJECT_SOURCE_DIR}/addressbook/previewnet.pb

@@ -61,6 +61,15 @@ ENV PATH $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 #RUN echo | avdmanager create avd --name test-avd --package "system-images;android-21;default;arm64-v8a"
 #RUN emulator -avd test-avd -no-audio -no-window
 
+RUN git clone https://github.com/hashgraph/hedera-protobufs-cpp.git
+WORKDIR /hedera-protobufs-cpp
+RUN git checkout 00042-add-android-and-ios-builds
+ENV VCPKG_FORCE_SYSTEM_BINARIES 1
+RUN git submodule update --init
+RUN cmake --preset android-arm64-release
+RUN cmake --build --preset android-arm64-release
+WORKDIR /
+
 # Clone your repository
 RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
 
@@ -71,7 +80,6 @@ WORKDIR /hedera-sdk-cpp
 RUN git checkout 00660-add-android-and-ios-builds
 
 # Update vcpkg submodule
-ENV VCPKG_FORCE_SYSTEM_BINARIES 1
 RUN git submodule update --init
 
 # Build
