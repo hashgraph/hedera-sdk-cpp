@@ -37,6 +37,29 @@
       }
     },
     {
+      "name": "vcpkg-ios-base",
+      "hidden": true,
+      "displayName": "iOS VCPkg Base Build",
+      "description": "Configured via the VCPkg iOS toolchain",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/package",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": {
+          "type": "STRING",
+          "value": "iOS"
+        },
+        "CMAKE_SYSTEM_PROCESSOR": {
+          "type": "STRING",
+          "value": "arm64"
+        },
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        }
+      }
+    },
+    {
       "name": "linux-x64-release",
       "inherits": ["vcpkg-base"],
       "cacheVariables": {
@@ -145,6 +168,20 @@
         "CMAKE_BUILD_TYPE": {
           "type": "STRING",
           "value": "Debug"
+        }
+      }
+    },
+    {
+      "name": "ios-arm64-release",
+      "inherits": ["vcpkg-ios-base"],
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": {
+          "type": "STRING",
+          "value": "arm64-ios"
+        },
+        "CMAKE_BUILD_TYPE": {
+          "type": "STRING",
+          "value": "Release"
         }
       }
     }
@@ -212,6 +249,14 @@
       "displayName": "MSVC Debug (x64)",
       "description": "Build MSVC Configurations",
       "configuration": "Debug",
+      "targets": ["install"]
+    },
+    {
+      "name": "ios-arm64-release",
+      "configurePreset": "ios-arm64-release",
+      "displayName": "Build ninja-multi-vcpkg",
+      "description": "Build ninja-multi-vcpkg Configurations",
+      "configuration": "Release",
       "targets": ["install"]
     }
   ],

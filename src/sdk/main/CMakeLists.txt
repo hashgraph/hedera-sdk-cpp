@@ -1,8 +1,8 @@
-FetchContent_Declare(
-        log4cxx
-        GIT_REPOSITORY https://github.com/apache/logging-log4cxx.git
-        GIT_TAG rel/v1.1.0
-)
+#FetchContent_Declare(
+#       log4cxx
+#       GIT_REPOSITORY https://github.com/apache/logging-log4cxx.git
+#       GIT_TAG rel/v1.1.0
+#)
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_TESTING OFF)
@@ -16,7 +16,7 @@ if (WIN32)
     set(APR_UTIL_LIBRARIES ${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows/lib/libaprutil-1.lib)
 endif ()
 
-FetchContent_MakeAvailable(log4cxx)
+#FetchContent_MakeAvailable(log4cxx)
 
 add_library(${PROJECT_NAME} STATIC
         src/AccountAllowanceApproveTransaction.cc
@@ -195,8 +195,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR}/proto)
 target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
-target_include_directories(${PROJECT_NAME} PUBLIC ${log4cxx_SOURCE_DIR}/src/main/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${log4cxx_BINARY_DIR}/src/main/include)
+#target_include_directories(${PROJECT_NAME} PUBLIC ${log4cxx_SOURCE_DIR}/src/main/include)
+#target_include_directories(${PROJECT_NAME} PUBLIC ${log4cxx_BINARY_DIR}/src/main/include)
 
 if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${OSX_CORE_FOUNDATION})
@@ -205,7 +205,7 @@ if (APPLE)
 endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
-target_link_libraries(${PROJECT_NAME} PRIVATE log4cxx)
+#target_link_libraries(${PROJECT_NAME} PRIVATE log4cxx)
 
 if (NOT WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE sys::resolv)

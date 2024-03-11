@@ -1,2 +1,2 @@
 add_subdirectory(sdk)
-add_subdirectory(tck)
+#add_subdirectory(tck)
