@@ -172,6 +172,20 @@
       }
     },
     {
+      "name": "ios-arm64-debug",
+      "inherits": ["vcpkg-ios-base"],
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": {
+          "type": "STRING",
+          "value": "arm64-ios"
+        },
+        "CMAKE_BUILD_TYPE": {
+          "type": "STRING",
+          "value": "Debug"
+        }
+      }
+    },
+    {
       "name": "ios-arm64-release",
       "inherits": ["vcpkg-ios-base"],
       "cacheVariables": {
@@ -248,6 +262,14 @@
       "configurePreset": "windows-x64-debug",
       "displayName": "MSVC Debug (x64)",
       "description": "Build MSVC Configurations",
+      "configuration": "Debug",
+      "targets": ["install"]
+    },
+    {
+      "name": "ios-arm64-debug",
+      "configurePreset": "ios-arm64-debug",
+      "displayName": "Build Xcode ARM64 Debug",
+      "description": "Build Xcode ARM64 Configurations",
       "configuration": "Debug",
       "targets": ["install"]
     },
