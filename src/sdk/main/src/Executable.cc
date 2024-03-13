@@ -116,7 +116,6 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 {
   return execute(client, client.getRequestTimeout());
 }
-
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
@@ -472,6 +471,7 @@ void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponse
   mCurrentGrpcDeadline = mGrpcDeadline.has_value()              ? mGrpcDeadline.value()
                          : client.getGrpcDeadline().has_value() ? client.getGrpcDeadline().value()
                                                                 : DEFAULT_GRPC_DEADLINE;
+  mMirrorNodeIds = client.getMirrorNetwork();
 }
 
 //-----

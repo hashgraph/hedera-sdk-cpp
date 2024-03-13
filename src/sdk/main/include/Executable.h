@@ -325,6 +325,16 @@ protected:
                                                         [[maybe_unused]] const Client& client,
                                                         [[maybe_unused]] const ProtoResponseType& response);
 
+  /**
+   * Gets the mirror node resolution for the query.
+   *
+   * This function returns the mirror node resolution by accessing the first element
+   * of the vector mMirrorNodeIds.
+   *
+   * @return The mirror node resolution as a std::string.
+   */
+  [[nodiscard]] std::string getMirrorNodeResolution() const { return mMirrorNodeIds[0]; }
+
 private:
   /**
    * Construct a ProtoRequestType object from this Executable, based on the node account ID at the given index.
@@ -422,6 +432,11 @@ private:
    * The list of account IDs of the nodes with which execution should be attempted.
    */
   std::vector<AccountId> mNodeAccountIds;
+
+  /**
+   * The list of node IDs of the mirror nodes with which query should be attempted.
+   */
+  std::vector<std::string> mMirrorNodeIds;
 
   /**
    * The callback to be called before a request is sent. The callback will receive the protobuf of the request and
