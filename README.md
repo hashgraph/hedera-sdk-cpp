@@ -16,14 +16,14 @@
 For MacOS and Linux users:
 
 - ninja
-    - MacOS: `brew install ninja`
-    - Linux: `apt-get install ninja`
+  - MacOS: `brew install ninja`
+  - Linux: `apt-get install ninja`
 - pkg-config
-    - MacOS: `brew install pkg-config`
-    - Linux: `apt-get install pkg-config`
+  - MacOS: `brew install pkg-config`
+  - Linux: `apt-get install pkg-config`
 - cmake
-    - MacOS: `brew install cmake`
-    - Linux: `apt-get install cmake`
+  - MacOS: `brew install cmake`
+  - Linux: `apt-get install cmake`
 
 📣 **Note**: Ensure you install all three `ninja`, `pkg-config`, and `cmake` to avoid errors in subsequent steps. The
 installations might take a few minutes.
@@ -160,7 +160,15 @@ From there, you can run:
 examples/<EXAMPLE_NAME>
 ```
 
-__NOTE:__ Make sure you copy your `.env` file with your environment variables into this folder as well.
+**NOTE:** Make sure you copy your `.env` file with your environment variables into this folder as well.
+
+Additionally, the examples can be run using the `run_examples` scripts(`.sh` for macOS, Linux/ `.bat` for Windows systems) from the project root directory. In the scripts you will find an `EXECUTABLES_DIRECTORY` variable.
+
+```
+EXECUTABLES_DIRECTORY = <build_folder_with_exec_binaries>
+```
+
+Make sure to set it to the proper build folder of the binaries after building the project.
 
 ## Contributing to this Project
 
@@ -179,7 +187,7 @@ This project is governed by the
 participating, you are expected to uphold this code of conduct.
 
 If you need to prepare a new SDK release, then see
-the [Step-by-Step](https://github.com/hashgraph/hedera-sdk-cpp/blob/00222-step-by-step-guide-to-distribute-a-new-release/NewReleaseStepByStep.md)
+the [Step-by-Step](https://github.com/hashgraph/hedera-sdk-cpp/blob/main/CONTRIBUTING.md#release-new-version)
 guide how to do it.
 
 ## License

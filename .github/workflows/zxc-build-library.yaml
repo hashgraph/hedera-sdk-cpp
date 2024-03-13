@@ -37,15 +37,15 @@ jobs:
       - name: Run Clang-Format
         uses: jidicula/clang-format-action@v4.11.0
         with:
-          clang-format-version: '17'
-          check-path: 'sdk'
+          clang-format-version: "17"
+          check-path: "src"
 
       - name: Setup Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y --allow-downgrades \
               ca-certificates \
-              curl=7.81.0-1ubuntu1.14 \
+              curl \
               gnupg \
               lsb-release
           sudo mkdir -p /etc/apt/keyrings
@@ -57,10 +57,10 @@ jobs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
         if: ${{ runner.os == 'Linux' }}
 
-      - name: Use Node.js 18
+      - name: Use Node.js 21
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 21
 
       - name: Install Local Node
         run: sudo npm install -g @hashgraph/hedera-local

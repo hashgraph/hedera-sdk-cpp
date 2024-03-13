@@ -4,6 +4,10 @@
   "builtin-baseline": "680071397677bb123b2f2b0ebe73905feae4a955",
   "dependencies": [
     {
+      "name": "openssl",
+      "version>=": "3.2.0#2"
+    },
+    {
       "name": "pthreads",
       "version>=": "3.0.0#11"
     },
@@ -24,8 +28,7 @@
       "version>=": "2022-06-21"
     },
     {
-      "name": "nlohmann-json",
-      "version>=": "3.11.2"
+      "name": "nlohmann-json"
     },
     {
       "name": "curl",
@@ -41,6 +44,10 @@
     {
       "name": "apr-util",
       "version>=": "1.6.1#8"
+    },
+    {
+      "name": "cpp-httplib",
+      "version>=": "0.14.1"
     }
   ]
 }
