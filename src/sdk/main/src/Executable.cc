@@ -124,7 +124,8 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
   const Client& client,
   const std::chrono::system_clock::duration& timeout)
 {
-  if (mLogger.getLogger()->name() == DEFAULT_LOGGER_NAME)
+  // Use the Client's logger instance if this Executable has no initialized logger and the Client does.
+  if (!mLogger.getLogger() && client.getLogger().getLogger())
   {
     mLogger = client.getLogger();
   }
