@@ -80,11 +80,13 @@ void AccountInfoQuery::fetchTokenInformation(AccountInfo& accountInfo) const
     {
       bool automaticAssociation = token["automatic_association"];
       uint64_t balance = token["balance"];
+      uint32_t decimals = token["decimals"];
       std::string kycStatus = token["kyc_status"].dump().substr(1, token["kyc_status"].dump().length() - 2);
       std::string freezeStatus = token["freeze_status"].dump().substr(1, token["freeze_status"].dump().length() - 2);
       TokenId tokenId = TokenId::fromString(token["token_id"].dump().substr(1, token["token_id"].dump().length() - 2));
 
-      TokenRelationship tokenRelationship(tokenId, "", balance, kycStatus, freezeStatus, automaticAssociation);
+      TokenRelationship tokenRelationship(
+        tokenId, "", balance, decimals, kycStatus, freezeStatus, automaticAssociation);
 
       accountInfo.mTokenRelationships.insert({ tokenId, tokenRelationship });
     }

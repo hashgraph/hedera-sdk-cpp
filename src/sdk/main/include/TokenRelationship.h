@@ -45,6 +45,7 @@ public:
    * @param symbol The symbol of the token.
    * @param balance The balance of the account in the smallest denomination for fungible common tokens,
    *                or the number of NFTs held by the account for non-fungible unique tokens.
+   * @param decimals The token decimals
    * @param kycStatus The KYC status of the account (optional).
    * @param freezeStatus The freeze status of the account (optional).
    * @param automaticAssociation Specifies if the relationship is created implicitly.
@@ -52,6 +53,7 @@ public:
   TokenRelationship(const TokenId& tokenId,
                     const std::string& symbol,
                     uint64_t balance,
+                    uint32_t decimals,
                     std::string_view kycStatus,
                     std::string_view freezeStatus,
                     bool automaticAssociation);
@@ -62,23 +64,6 @@ public:
    * @return A string representation of the TokenRelationship.
    */
   std::string toString() const;
-
-private:
-  /**
-   * Sets the KYC status based on the provided string.
-   *
-   * @param kycStatusString The string representation of KYC status ("GRANTED", "REVOKED", or "NOT_APPLICABLE").
-   * @throws std::invalid_argument if the provided string is not a valid KYC status.
-   */
-  void setKycStatus(std::string_view kycStatusString);
-
-  /**
-   * Sets the freeze status based on the provided string.
-   *
-   * @param freezeStatus The string representation of freeze status ("FROZEN", "UNFROZEN", or "NOT_APPLICABLE").
-   * @throws std::invalid_argument if the provided string is not a valid freeze status.
-   */
-  void setFreezeStatus(std::string_view freezeStatus);
 
   /**
    *  The unique token ID.
@@ -96,6 +81,11 @@ private:
   uint64_t mBalance;
 
   /**
+   * The token decimals.
+   */
+  uint32_t mDecimals;
+
+  /**
    * The KYC status of the account (optional).
    */
   std::optional<bool> mKycStatus;
@@ -109,6 +99,23 @@ private:
    * Specifies if the relationship is created implicitly.
    */
   bool mAutomaticAssociation;
+
+private:
+  /**
+   * Sets the KYC status based on the provided string.
+   *
+   * @param kycStatusString The string representation of KYC status ("GRANTED", "REVOKED", or "NOT_APPLICABLE").
+   * @throws std::invalid_argument if the provided string is not a valid KYC status.
+   */
+  void setKycStatus(std::string_view kycStatusString);
+
+  /**
+   * Sets the freeze status based on the provided string.
+   *
+   * @param freezeStatus The string representation of freeze status ("FROZEN", "UNFROZEN", or "NOT_APPLICABLE").
+   * @throws std::invalid_argument if the provided string is not a valid freeze status.
+   */
+  void setFreezeStatus(std::string_view freezeStatus);
 };
 } // namespace Hedera
 
