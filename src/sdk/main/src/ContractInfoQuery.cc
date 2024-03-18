@@ -17,12 +17,13 @@
  * limitations under the License.
  *
  */
+#include <proto/contract_get_info.pb.h>
+
 #include "ContractInfoQuery.h"
 #include "ContractInfo.h"
 #include "impl/MirrorNodeGateway.h"
 #include "impl/Node.h"
 
-#include <proto/contract_get_info.pb.h>
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
