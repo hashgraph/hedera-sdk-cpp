@@ -19,8 +19,8 @@
  */
 #include <proto/contract_get_info.pb.h>
 
-#include "ContractInfoQuery.h"
 #include "ContractInfo.h"
+#include "ContractInfoQuery.h"
 #include "impl/MirrorNodeGateway.h"
 #include "impl/Node.h"
 

@@ -19,8 +19,8 @@
  */
 #include <proto/crypto_get_info.pb.h>
 
-#include "AccountInfoQuery.h"
 #include "AccountInfo.h"
+#include "AccountInfoQuery.h"
 #include "TokenId.h"
 #include "TokenRelationship.h"
 #include "impl/MirrorNodeGateway.h"
