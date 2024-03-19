@@ -20,7 +20,6 @@
 #include "TokenFreezeTransaction.h"
 #include "impl/Node.h"
 
-
 #include <proto/token_freeze_account.pb.h>
 #include <proto/transaction.pb.h>
 #include <stdexcept>

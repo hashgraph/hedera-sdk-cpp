@@ -20,7 +20,6 @@
 #include "TokenFeeScheduleUpdateTransaction.h"
 #include "impl/Node.h"
 
-
 #include <proto/token_fee_schedule_update.pb.h>
 #include <proto/transaction.pb.h>
 #include <stdexcept>
