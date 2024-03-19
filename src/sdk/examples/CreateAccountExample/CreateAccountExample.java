@@ -1,6 +1,6 @@
 public class CreateAccountExample {
     static {
-        System.loadLibrary("native");
+        System.loadLibrary("hedera-sdk-cpp-create-account-example");
     }
 
     public static void main(String[] args) {

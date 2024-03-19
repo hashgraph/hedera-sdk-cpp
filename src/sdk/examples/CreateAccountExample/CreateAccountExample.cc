@@ -27,9 +27,18 @@
 #include <dotenv.h>
 #include <iostream>
 
+#ifdef __ANDROID__
+#include "CreateAccountExample.h"
+#include <jni.h>
+#endif
+
 using namespace Hedera;
 
+#ifdef __ANDROID__
+void nativeMain()
+#else
 int main(int argc, char** argv)
+#endif
 {
   dotenv::init();
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
@@ -57,5 +66,16 @@ int main(int argc, char** argv)
   const AccountId newAccountId = txReceipt.mAccountId.value();
   std::cout << "Created new account with ID " << newAccountId.toString() << std::endl;
 
+#ifdef __ANDROID__
+  return;
+#else
   return 0;
+#endif
 }
+
+#ifdef __ANDROID__
+JNIEXPORT void JNICALL Java_CreateAccountExample_nativeMain(JNIEnv*, jobject)
+{
+  nativeMain();
+}
+#endif
