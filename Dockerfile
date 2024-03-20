@@ -37,30 +37,6 @@ ENV ANDROID_NDK_HOME /android-ndk-r25c
 # this will only work for linux-x86_64 images).
 ENV PATH $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
-# Download Android SDK
-#RUN \
-#  mkdir android-sdk && \
-#  cd android-sdk && \
-#  wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip && \
-#  unzip commandlinetools-linux-11076708_latest.zip && \
-#  rm commandlinetools-linux-11076708_latest.zip && \
-  # For some reason the SDK download doesn't put the cmdline-tools in a 'latest' folder even though its required by the
-  # sdkmanager, so some directory rearranging is required here.
-#  mkdir latest && \
-#  mv cmdline-tools/* latest && \
-#  mv latest cmdline-tools
-
-# Add environment variables to help run tools.
-#ENV ANDROID_HOME /android-sdk
-#ENV PATH $ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH
-
-# Download an Android platform on which to test.
-#RUN yes | sdkmanager --licenses
-#RUN sdkmanager --update
-#RUN sdkmanager "emulator" "platforms;android-21" "platform-tools" "system-images;android-21;default;arm64-v8a"
-#RUN echo | avdmanager create avd --name test-avd --package "system-images;android-21;default;arm64-v8a"
-#RUN emulator -avd test-avd -no-audio -no-window
-
 RUN git clone https://github.com/hashgraph/hedera-protobufs-cpp.git
 WORKDIR /hedera-protobufs-cpp
 RUN git checkout 00042-add-android-and-ios-builds
@@ -85,3 +61,33 @@ RUN git submodule update --init
 # Build
 RUN cmake --preset android-arm64-release
 RUN cmake --build --preset android-arm64-release
+
+# Download Android SDK
+WORKDIR /
+RUN \
+  mkdir android-sdk && \
+  cd android-sdk && \
+  wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip && \
+  unzip commandlinetools-linux-11076708_latest.zip && \
+  rm commandlinetools-linux-11076708_latest.zip && \
+  # For some reason the SDK download doesn't put the cmdline-tools in a 'latest' folder even though its required by the
+  # sdkmanager, so some directory rearranging is required here.
+  mkdir latest && \
+  mv cmdline-tools/* latest && \
+  mv latest cmdline-tools
+
+# Add environment variables to help run tools.
+ENV ANDROID_HOME /android-sdk
+ENV PATH $ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH
+
+# Download an Android platform on which to test.
+RUN yes | sdkmanager --licenses
+RUN sdkmanager --update
+RUN sdkmanager \
+    "emulator" \
+    "platforms;android-21" \
+    "platform-tools" \
+    "system-images;android-21;default;arm64-v8a" \
+    "build-tools;34.0.0"
+#RUN echo | avdmanager create avd --name test-avd --package "system-images;android-21;default;arm64-v8a"
+#RUN emulator -avd test-avd -no-audio -no-window
