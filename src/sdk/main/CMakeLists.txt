@@ -145,6 +145,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenType.cc
         src/TokenUnfreezeTransaction.cc
         src/TokenUnpauseTransaction.cc
+        src/TokenUpdateNftsTransaction.cc
         src/TokenUpdateTransaction.cc
         src/TokenWipeTransaction.cc
         src/TopicCreateTransaction.cc

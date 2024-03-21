@@ -167,6 +167,14 @@ TokenUpdateTransaction& TokenUpdateTransaction::setPauseKey(const std::shared_pt
 }
 
 //-----
+TokenUpdateTransaction& TokenUpdateTransaction::setMetadataKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mMetadataKey = key;
+  return *this;
+}
+
+//-----
 grpc::Status TokenUpdateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
                                                    const std::chrono::system_clock::time_point& deadline,
@@ -276,6 +284,11 @@ void TokenUpdateTransaction::initFromSourceTransactionBody()
   {
     mPauseKey = Key::fromProtobuf(body.pause_key());
   }
+
+  if (body.has_metadata_key())
+  {
+    mMetadataKey = Key::fromProtobuf(body.metadata_key());
+  }
 }
 
 //-----
@@ -352,6 +365,11 @@ proto::TokenUpdateTransactionBody* TokenUpdateTransaction::build() const
   if (mPauseKey)
   {
     body->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
+  }
+
+  if (mMetadataKey)
+  {
+    body->set_allocated_metadata_key(mMetadataKey->toProtobufKey().release());
   }
 
   return body.release();

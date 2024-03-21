@@ -170,6 +170,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(TokenUnpauseTransaction(proto));
   }
+  else if (proto.has_token_update_nfts())
+  {
+    return WrappedTransaction(TokenUpdateNftsTransaction(proto));
+  }
   else if (proto.has_tokenwipe())
   {
     return WrappedTransaction(TokenWipeTransaction(proto));
@@ -361,6 +365,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
   {
     *txBody.mutable_token_unpause() = proto.token_unpause();
     return WrappedTransaction(TokenUnpauseTransaction(txBody));
+  }
+  else if (proto.has_token_update_nfts())
+  {
+    *txBody.mutable_token_update_nfts() = proto.token_update_nfts();
+    return WrappedTransaction(TokenUpdateNftsTransaction(txBody));
   }
   else if (proto.has_tokenwipe())
   {
@@ -610,6 +619,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
     case TOKEN_UPDATE_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenUpdateTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_UPDATE_NFTS_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenUpdateNftsTransaction>();
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }

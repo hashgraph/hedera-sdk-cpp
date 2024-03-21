@@ -128,6 +128,13 @@ TokenInfo TokenInfo::fromProtobuf(const proto::TokenInfo& proto)
 
   tokenInfo.mLedgerId = LedgerId(internal::Utilities::stringToByteVector(proto.ledger_id()));
 
+  tokenInfo.mMetadata = internal::Utilities::stringToByteVector(proto.metadata());
+
+  if (proto.has_metadata_key())
+  {
+    tokenInfo.mMetadataKey = Key::fromProtobuf(proto.metadata_key());
+  }
+
   return tokenInfo;
 }
 
@@ -203,6 +210,8 @@ std::unique_ptr<proto::TokenInfo> TokenInfo::toProtobuf() const
   }
 
   protoTokenInfo->set_ledger_id(internal::Utilities::byteVectorToString(mLedgerId.toBytes()));
+  protoTokenInfo->set_metadata(internal::Utilities::byteVectorToString(mMetadata));
+  protoTokenInfo->set_allocated_metadata_key(mMetadataKey->toProtobufKey().release());
 
   return protoTokenInfo;
 }
@@ -288,6 +297,17 @@ std::string TokenInfo::toString() const
   }
 
   json["mLedgerId"] = mLedgerId.toString();
+
+  if (!mMetadata.empty())
+  {
+    json["mMetadata"] = internal::HexConverter::bytesToHex(mMetadata);
+  }
+
+  if (mMetadataKey)
+  {
+    json["mMetadataKey"] = internal::HexConverter::bytesToHex(mMetadataKey->toBytes());
+  }
+
   return json.dump();
 }
 
