@@ -78,7 +78,7 @@ RUN \
 
 # Add environment variables to help run tools.
 ENV ANDROID_HOME /android-sdk
-ENV PATH $ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH
+ENV PATH $ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
 
 # Download an Android platform on which to test.
 RUN yes | sdkmanager --licenses
