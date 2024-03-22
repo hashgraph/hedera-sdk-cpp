@@ -22,6 +22,7 @@
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <grpcpp/client_context.h>
 #include <proto/token_create.pb.h>
@@ -224,6 +225,22 @@ TokenCreateTransaction& TokenCreateTransaction::setPauseKey(const std::shared_pt
 }
 
 //-----
+TokenCreateTransaction& TokenCreateTransaction::setMetadata(const std::vector<std::byte>& metadata)
+{
+  requireNotFrozen();
+  mMetadata = metadata;
+  return *this;
+}
+
+//-----
+TokenCreateTransaction& TokenCreateTransaction::setMetadataKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mMetadataKey = key;
+  return *this;
+}
+
+//-----
 grpc::Status TokenCreateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
                                                    const std::chrono::system_clock::time_point& deadline,
@@ -339,6 +356,13 @@ void TokenCreateTransaction::initFromSourceTransactionBody()
   {
     mPauseKey = Key::fromProtobuf(body.pause_key());
   }
+
+  mMetadata = internal::Utilities::stringToByteVector(body.metadata());
+
+  if (body.has_metadata_key())
+  {
+    mMetadataKey = Key::fromProtobuf(body.metadata_key());
+  }
 }
 
 //-----
@@ -407,6 +431,13 @@ proto::TokenCreateTransactionBody* TokenCreateTransaction::build() const
   if (mPauseKey)
   {
     body->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
+  }
+
+  body->set_metadata(internal::Utilities::byteVectorToString(mMetadata));
+
+  if (mMetadataKey)
+  {
+    body->set_allocated_metadata_key(mMetadataKey->toProtobufKey().release());
   }
 
   return body.release();

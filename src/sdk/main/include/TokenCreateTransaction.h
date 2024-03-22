@@ -251,6 +251,22 @@ public:
   TokenCreateTransaction& setPauseKey(const std::shared_ptr<Key>& key);
 
   /**
+   * Set the desired metadata for the new token.
+   *
+   * @param metadata The desired metadata for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set metadata.
+   */
+  TokenCreateTransaction& setMetadata(const std::vector<std::byte>& metadata);
+
+  /**
+   * Set the desired metadata key for the new token.
+   *
+   * @param key The desired metadata key for the new token.
+   * @return A reference to this TokenCreateTransaction with the newly-set metadata key.
+   */
+  TokenCreateTransaction& setMetadataKey(const std::shared_ptr<Key>& metadataKey);
+
+  /**
    * Get the desired name for the new token.
    *
    * @return The desired name for the new token.
@@ -398,6 +414,20 @@ public:
    * @return The desired pause key for the new token.
    */
   [[nodiscard]] inline std::shared_ptr<Key> getPauseKey() const { return mPauseKey; }
+
+  /**
+   * Get the desired metadata for the new token.
+   *
+   * @return The desired metadata for the new token.
+   */
+  [[nodiscard]] inline std::vector<std::byte> getMetadata() const { return mMetadata; }
+
+  /**
+   * Get the desired metadata key for the new token.
+   *
+   * @return The desired metadata key for the new token.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getMetadataKey() const { return mMetadataKey; }
 
 private:
   friend class WrappedTransaction;
@@ -568,6 +598,17 @@ private:
    * PauseNotApplicable, otherwise Unpaused.
    */
   std::shared_ptr<Key> mPauseKey = nullptr;
+
+  /**
+   * Metadata of the created token definition.
+   */
+  std::vector<std::byte> mMetadata;
+
+  /**
+   * The key which can change the metadata of a token
+   * (token definition, partition definition, and individual NFTs).
+   */
+  std::shared_ptr<Key> mMetadataKey = nullptr;
 };
 
 } // namespace Hedera
