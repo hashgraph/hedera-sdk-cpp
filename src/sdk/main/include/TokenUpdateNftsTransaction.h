@@ -35,7 +35,6 @@ class TransactionBody;
 
 namespace Hedera
 {
-
 class TokenUpdateNftsTransaction : public Transaction<TokenUpdateNftsTransaction>
 {
 public:
@@ -155,10 +154,12 @@ private:
    * The token for which to update NFTs.
    */
   TokenId mTokenId;
+
   /**
    * The list of serial numbers to be updated.
    */
   std::vector<uint64_t> mSerials;
+
   /**
    * The new metadata of the NFT(s)
    */

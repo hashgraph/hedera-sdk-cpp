@@ -241,8 +241,7 @@ public:
   std::vector<std::byte> mMetadata;
 
   /**
-   * The key which can change the metadata of a token
-   * (token definition and individual NFTs).
+   * The key which can change the metadata of a token (token definition and individual NFTs).
    */
   std::shared_ptr<Key> mMetadataKey = nullptr;
 };

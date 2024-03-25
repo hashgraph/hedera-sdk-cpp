@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-
 #include "TokenUpdateNftsTransaction.h"
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
@@ -32,7 +31,6 @@
 
 namespace Hedera
 {
-
 //-----
 TokenUpdateNftsTransaction::TokenUpdateNftsTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<TokenUpdateNftsTransaction>(transactionBody)
@@ -78,7 +76,7 @@ grpc::Status TokenUpdateNftsTransaction::submitRequest(const proto::Transaction&
                                                        const std::chrono::system_clock::time_point& deadline,
                                                        proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenUpdate, request, deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenUpdateNfts, request, deadline, response);
 }
 
 //-----
