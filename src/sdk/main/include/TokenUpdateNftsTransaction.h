@@ -35,6 +35,18 @@ class TransactionBody;
 
 namespace Hedera
 {
+/**
+ * At consensus, updates an already created Non Fungible Token to the given values.
+ *
+ * If no value is given for a field, that field is left unchanged.
+ * Only certain fields such as metadata can be updated.
+ *
+ * Updating the metadata of an NFT does not affect its ownership or transferability.
+ * This operation is intended for updating attributes of individual NFTs in a collection.
+ *
+ * Transaction Signing Requirements
+ *  - To update metadata of an NFT, the metadata_key of the token should sign the transaction.
+ */
 class TokenUpdateNftsTransaction : public Transaction<TokenUpdateNftsTransaction>
 {
 public:
