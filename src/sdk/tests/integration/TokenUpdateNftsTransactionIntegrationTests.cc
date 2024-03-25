@@ -202,6 +202,7 @@ TEST_F(TokenUpdateNftsTransactionIntegrationTests, CannotUpdateNFTMetadataWhenNo
 
   std::vector<uint64_t> serials = txReceipt.mSerialNumbers;
 
+  // When / Then
   ASSERT_THROW(txReceipt = TokenUpdateNftsTransaction()
                              .setTokenId(tokenId)
                              .setSerials(serials)
