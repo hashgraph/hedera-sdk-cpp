@@ -57,6 +57,7 @@
 #include "TokenRevokeKycTransaction.h"
 #include "TokenUnfreezeTransaction.h"
 #include "TokenUnpauseTransaction.h"
+#include "TokenUpdateNftsTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
@@ -272,6 +273,8 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(TokenUnfreezeTransaction(transactions));
     case proto::TransactionBody::kTokenUnpause:
       return WrappedTransaction(TokenUnpauseTransaction(transactions));
+    case proto::TransactionBody::kTokenUpdateNfts:
+      return WrappedTransaction(TokenUpdateNftsTransaction(transactions));
     case proto::TransactionBody::kTokenUpdate:
       return WrappedTransaction(TokenUpdateTransaction(transactions));
     case proto::TransactionBody::kTokenWipe:
@@ -335,8 +338,7 @@ std::vector<std::byte> Transaction<SdkRequestType>::toBytes() const
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::sign(const std::shared_ptr<PrivateKey>& key)
 {
-  return signInternal(
-    key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
+  return signInternal(key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
 }
 
 //-----
@@ -1245,6 +1247,7 @@ template class Transaction<TokenPauseTransaction>;
 template class Transaction<TokenRevokeKycTransaction>;
 template class Transaction<TokenUnfreezeTransaction>;
 template class Transaction<TokenUnpauseTransaction>;
+template class Transaction<TokenUpdateNftsTransaction>;
 template class Transaction<TokenUpdateTransaction>;
 template class Transaction<TokenWipeTransaction>;
 template class Transaction<TopicCreateTransaction>;

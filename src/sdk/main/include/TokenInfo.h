@@ -234,6 +234,16 @@ public:
    * The ID of the ledger from which this response was returned.
    */
   LedgerId mLedgerId;
+
+  /**
+   * Represents the metadata of the token definition.
+   */
+  std::vector<std::byte> mMetadata;
+
+  /**
+   * The key which can change the metadata of a token (token definition and individual NFTs).
+   */
+  std::shared_ptr<Key> mMetadataKey = nullptr;
 };
 
 } // namespace Hedera

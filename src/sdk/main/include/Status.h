@@ -1501,7 +1501,23 @@ enum class Status
   /**
    * An alias that is assigned to an account or contract cannot be assigned to another account or contract.
    */
-  ALIAS_ALREADY_ASSIGNED
+  ALIAS_ALREADY_ASSIGNED,
+
+  /**
+   * A provided metadata key was invalid. Verification includes, for example, checking the size of Ed25519 and
+   * ECDSA(secp256k1) public keys.
+   */
+  INVALID_METADATA_KEY,
+
+  /**
+   * Token Metadata is not provided
+   */
+  MISSING_TOKEN_METADATA,
+
+  /**
+   * NFT serial numbers are missing in the TokenUpdateNftsTransactionBody
+   */
+  MISSING_SERIAL_NUMBERS
 };
 
 /**

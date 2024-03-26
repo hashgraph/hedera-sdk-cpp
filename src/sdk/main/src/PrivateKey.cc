@@ -175,6 +175,8 @@ std::vector<std::byte> PrivateKey::signTransaction(WrappedTransaction& transacti
       return signTransaction(*transaction.getTransaction<TokenUnfreezeTransaction>());
     case TOKEN_UNPAUSE_TRANSACTION:
       return signTransaction(*transaction.getTransaction<TokenUnpauseTransaction>());
+    case TOKEN_UPDATE_NFTS_TRANSACTION:
+      return signTransaction(*transaction.getTransaction<TokenUpdateNftsTransaction>());
     case TOKEN_UPDATE_TRANSACTION:
       return signTransaction(*transaction.getTransaction<TokenUpdateTransaction>());
     case TOKEN_WIPE_TRANSACTION:
