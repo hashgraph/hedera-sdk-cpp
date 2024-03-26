@@ -21,7 +21,6 @@
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
-
 #include <proto/token_mint.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>

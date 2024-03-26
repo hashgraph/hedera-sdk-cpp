@@ -78,7 +78,7 @@ RUN \
 
 # Add environment variables to help run tools.
 ENV ANDROID_HOME /android-sdk
-ENV PATH $ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
+ENV PATH $ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/29.0.2:$PATH
 
 # Download an Android platform on which to test.
 RUN yes | sdkmanager --licenses
@@ -88,6 +88,6 @@ RUN sdkmanager \
     "platforms;android-21" \
     "platform-tools" \
     "system-images;android-21;default;arm64-v8a" \
-    "build-tools;34.0.0"
+    "build-tools;29.0.2"
 #RUN echo | avdmanager create avd --name test-avd --package "system-images;android-21;default;arm64-v8a"
 #RUN emulator -avd test-avd -no-audio -no-window
