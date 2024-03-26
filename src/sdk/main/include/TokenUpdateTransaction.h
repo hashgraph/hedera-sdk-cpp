@@ -193,6 +193,14 @@ public:
   TokenUpdateTransaction& setPauseKey(const std::shared_ptr<Key>& key);
 
   /**
+   * Set the desired metadata for the token.
+   *
+   * @param metadata The desired metadata for the token.
+   * @return A reference to this TokenUpdateTransaction with the newly-set metadata.
+   */
+  TokenUpdateTransaction& setMetadata(const std::vector<std::byte>& metadata);
+
+  /**
    * Set a new metadata key for the token.
    *
    * @param key The new metadata key for the token.
@@ -451,6 +459,11 @@ private:
    * The new pause key for the token.
    */
   std::shared_ptr<Key> mPauseKey = nullptr;
+
+  /**
+   * Metadata of the updated token.
+   */
+  std::vector<std::byte> mMetadata;
 
   /**
    * The new metadata key of the token. The metadata key has the ability to

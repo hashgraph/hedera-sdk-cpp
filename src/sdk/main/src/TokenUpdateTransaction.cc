@@ -21,6 +21,7 @@
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <grpcpp/client_context.h>
 #include <proto/token_update.pb.h>
@@ -167,6 +168,14 @@ TokenUpdateTransaction& TokenUpdateTransaction::setPauseKey(const std::shared_pt
 }
 
 //-----
+TokenUpdateTransaction& TokenUpdateTransaction::setMetadata(const std::vector<std::byte>& metadata)
+{
+  requireNotFrozen();
+  mMetadata = metadata;
+  return *this;
+}
+
+//-----
 TokenUpdateTransaction& TokenUpdateTransaction::setMetadataKey(const std::shared_ptr<Key>& key)
 {
   requireNotFrozen();
@@ -285,6 +294,8 @@ void TokenUpdateTransaction::initFromSourceTransactionBody()
     mPauseKey = Key::fromProtobuf(body.pause_key());
   }
 
+  mMetadata = internal::Utilities::stringToByteVector(body.metadata().value());
+
   if (body.has_metadata_key())
   {
     mMetadataKey = Key::fromProtobuf(body.metadata_key());
@@ -366,6 +377,8 @@ proto::TokenUpdateTransactionBody* TokenUpdateTransaction::build() const
   {
     body->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
   }
+
+  body->mutable_metadata()->set_value(internal::Utilities::byteVectorToString(mMetadata));
 
   if (mMetadataKey)
   {
