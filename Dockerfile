@@ -54,6 +54,7 @@ WORKDIR /hedera-sdk-cpp
 
 # Change to working branch
 RUN git checkout 00660-add-android-and-ios-builds
+RUN git pull
 
 # Update vcpkg submodule
 RUN git submodule update --init
@@ -91,3 +92,22 @@ RUN sdkmanager \
     "build-tools;29.0.2"
 #RUN echo | avdmanager create avd --name test-avd --package "system-images;android-21;default;arm64-v8a"
 #RUN emulator -avd test-avd -no-audio -no-window
+WORKDIR /hedera-sdk-cpp/src/sdk/examples/CreateAccountExample
+RUN mkdir -p build/gen build/obj build/apk/lib/arm64-v8a jni
+RUN aapt package -f -m -J build/gen -S res -M AndroidManifest.xml -I $ANDROID_HOME/platforms/android-21/android.jar
+RUN javac -bootclasspath $JAVA_HOME/jre/lib/rt.jar -classpath $ANDROID_HOME/platforms/android-21/android.jar -d \
+    build/obj build/gen/com/hedera/hashgraph/sdk/cpp/examples/R.java \
+    src/main/java/com/hedera/hashgraph/sdk/cpp/examples/CreateAccountExample.java -source 1.7 -target 1.7
+RUN dx --dex --output=build/apk/classes.dex build/obj
+RUN cp \
+    /hedera-sdk-cpp/build/android-arm64-release/src/sdk/examples/Release/libhedera-sdk-cpp-create-account-example.so \
+    build/apk/lib/arm64-v8a/
+RUN aapt package -f -M AndroidManifest.xml -S res -I $ANDROID_HOME/platforms/android-21/android.jar -F \
+    build/hedera-sdk-cpp-create-account-example-apk.unsigned.apk build/apk
+RUN zipalign -f -p 4 build/hedera-sdk-cpp-create-account-example-apk.unsigned.apk \
+    build/hedera-sdk-cpp-create-account-example-apk.aligned.apk
+RUN { echo testkey; echo testkey; echo; echo; echo; echo; echo; echo; echo y; } | keytool -genkeypair -keystore \
+    keystore.jks -alias androidkey -validity 10000 -keyalg RSA -keysize 2048
+RUN echo testkey | apksigner sign --ks keystore.jks --ks-key-alias androidkey --out \
+    build/hedera-sdk-cpp-create-account-example-apk.apk build/hedera-sdk-cpp-create-account-example-apk.aligned.apk
+

@@ -74,7 +74,8 @@ int main(int argc, char** argv)
 }
 
 #ifdef __ANDROID__
-JNIEXPORT void JNICALL Java_CreateAccountExample_nativeMain(JNIEnv*, jobject)
+JNIEXPORT void JNICALL Java_com_hedera_hashgraph_sdk_cpp_examples_CreateAccountExample_createAccountExample(JNIEnv*,
+                                                                                                            jobject)
 {
   nativeMain();
 }

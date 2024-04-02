@@ -21,7 +21,6 @@
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
 
-
 #include <proto/system_delete.pb.h>
 #include <proto/transaction.pb.h>
 #include <stdexcept>
