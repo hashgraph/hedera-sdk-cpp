@@ -25,6 +25,7 @@ RUN \
     vim \
     wget \
     zip
+ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
 
 # Download Android NDK
 RUN \
