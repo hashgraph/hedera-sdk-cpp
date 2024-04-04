@@ -52,6 +52,7 @@ RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
 
 # Change working directory to cloned repo
 WORKDIR /hedera-sdk-cpp
+RUN cd .
 
 # Change to working branch
 RUN git checkout 00660-add-android-and-ios-builds
@@ -59,7 +60,6 @@ RUN git pull
 
 # Update vcpkg submodule
 RUN git submodule update --init
-RUN cd .
 
 # Build
 RUN cmake --preset android-arm64-release

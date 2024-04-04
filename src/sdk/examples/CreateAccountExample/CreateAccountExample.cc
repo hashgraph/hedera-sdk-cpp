@@ -85,7 +85,7 @@ Java_com_hedera_hashgraph_sdk_cpp_examples_CreateAccountExample_createAccountExa
                                                                                      jobject,
                                                                                      jobject assetManager)
 {
-  internal::ANDROID_ASSET_MANAGER = AAssetManager_fromJava(env, assetManager);
+  ANDROID_ASSET_MANAGER = AAssetManager_fromJava(env, assetManager);
   nativeMain();
 }
 #endif
