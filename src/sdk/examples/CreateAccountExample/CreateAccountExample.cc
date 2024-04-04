@@ -30,6 +30,7 @@
 #ifdef __ANDROID__
 #include "AndroidHelper.h"
 #include "CreateAccountExample.h"
+#include <android.log.h>
 #include <jni.h>
 #endif
 
@@ -38,12 +39,12 @@ using namespace Hedera;
 #ifdef __ANDROID__
 void nativeMain()
 {
+  __android_log_print(ANDROID_LOG_INFO, "tag", __FUNCTION__);
 #else
 int main(int argc, char** argv)
 {
   dotenv::init();
 #endif
-  std::cout << __FUNCTION__ << std::endl;
 
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
   std::cout << "got operator id" << std::endl;

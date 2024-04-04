@@ -45,25 +45,6 @@ ENV VCPKG_FORCE_SYSTEM_BINARIES 1
 RUN git submodule update --init
 RUN cmake --preset android-arm64-release
 RUN cmake --build --preset android-arm64-release
-WORKDIR /
-
-# Clone your repository
-RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
-
-# Change working directory to cloned repo
-RUN cd ../hedera-sdk-cpp
-WORKDIR /hedera-sdk-cpp
-
-# Change to working branch
-RUN git checkout 00660-add-android-and-ios-builds
-RUN git pull
-
-# Update vcpkg submodule
-RUN git submodule update --init
-
-# Build
-RUN cmake --preset android-arm64-release
-RUN cmake --build --preset android-arm64-release
 
 # Download Android SDK
 WORKDIR /
@@ -94,6 +75,24 @@ RUN sdkmanager \
     "build-tools;29.0.2"
 #RUN echo | avdmanager create avd --name test-avd --package "system-images;android-21;default;arm64-v8a"
 #RUN emulator -avd test-avd -no-audio -no-window
+
+# Clone your repository
+RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
+
+# Change working directory to cloned repo
+WORKDIR /hedera-sdk-cpp
+
+# Change to working branch
+RUN git checkout 00660-add-android-and-ios-builds
+RUN git pull
+
+# Update vcpkg submodule
+RUN git submodule update --init
+
+# Build
+RUN cmake --preset android-arm64-release
+RUN cmake --build --preset android-arm64-release
+
 WORKDIR /hedera-sdk-cpp/src/sdk/examples/CreateAccountExample
 RUN mkdir -p build/gen build/obj build/apk/lib/arm64-v8a build/apk/assets
 RUN aapt package -f -m -J build/gen -S res -M AndroidManifest.xml -I $ANDROID_HOME/platforms/android-21/android.jar
