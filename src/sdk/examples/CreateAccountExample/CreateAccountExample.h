@@ -14,6 +14,7 @@ extern "C"
    * Signature: ()V
    */
   JNIEXPORT void JNICALL Java_com_hedera_hashgraph_sdk_cpp_examples_CreateAccountExample_createAccountExample(JNIEnv*,
+                                                                                                              jobject,
                                                                                                               jobject);
 
 #ifdef __cplusplus

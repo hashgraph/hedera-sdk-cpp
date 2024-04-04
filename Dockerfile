@@ -94,7 +94,7 @@ RUN sdkmanager \
 #RUN echo | avdmanager create avd --name test-avd --package "system-images;android-21;default;arm64-v8a"
 #RUN emulator -avd test-avd -no-audio -no-window
 WORKDIR /hedera-sdk-cpp/src/sdk/examples/CreateAccountExample
-RUN mkdir -p build/gen build/obj build/apk/lib/arm64-v8a jni
+RUN mkdir -p build/gen build/obj build/apk/lib/arm64-v8a build/apk/assets
 RUN aapt package -f -m -J build/gen -S res -M AndroidManifest.xml -I $ANDROID_HOME/platforms/android-21/android.jar
 RUN javac -bootclasspath $JAVA_HOME/jre/lib/rt.jar -classpath $ANDROID_HOME/platforms/android-21/android.jar -d \
     build/obj build/gen/com/hedera/hashgraph/sdk/cpp/examples/R.java \
@@ -102,7 +102,9 @@ RUN javac -bootclasspath $JAVA_HOME/jre/lib/rt.jar -classpath $ANDROID_HOME/plat
 RUN dx --dex --output=build/apk/classes.dex build/obj
 RUN cp \
     /hedera-sdk-cpp/build/android-arm64-release/src/sdk/examples/Release/libhedera-sdk-cpp-create-account-example.so \
-    build/apk/lib/arm64-v8a/
+    build/apk/lib/arm64-v8a/ \
+RUN cp -r /hedera-sdk-cpp/addressbook build/apk/assets
+RUN cp -r /hedera-sdk-cpp/config build/apk/assets
 RUN aapt package -f -M AndroidManifest.xml -S res -I $ANDROID_HOME/platforms/android-21/android.jar -F \
     build/hedera-sdk-cpp-create-account-example-apk.unsigned.apk build/apk
 RUN zipalign -f -p 4 build/hedera-sdk-cpp-create-account-example-apk.unsigned.apk \

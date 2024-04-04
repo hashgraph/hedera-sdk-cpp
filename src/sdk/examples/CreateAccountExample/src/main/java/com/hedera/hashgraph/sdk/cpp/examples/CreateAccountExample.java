@@ -1,6 +1,7 @@
 package com.hedera.hashgraph.sdk.cpp.examples;
 
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -9,13 +10,14 @@ public class CreateAccountExample extends Activity {
         System.loadLibrary("hedera-sdk-cpp-create-account-example");
     }
 
-    public native void createAccountExample();
+    public native void createAccountExample(AssetManager assetManager);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        createAccountExample();
+        AssetManager assetManager = getAssets();
+        createAccountExample(assetManager);
     }
 }

@@ -35,6 +35,10 @@
 #include "impl/Network.h"
 #include "impl/TLSBehavior.h"
 
+#ifdef __ANDROID__
+#include "impl/AndroidHelper.h"
+#endif
+
 #include <condition_variable>
 #include <fstream>
 #include <stdexcept>

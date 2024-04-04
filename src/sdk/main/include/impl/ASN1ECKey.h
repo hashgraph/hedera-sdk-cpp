@@ -18,7 +18,6 @@
  *
  * @brief This file defines the Hedera C++ SDK's ASN1Key class, derived from ASN1Object.
  */
-
 #ifndef HEDERA_SDK_CPP_IMPL_ASN1_EC_KEY_H_
 #define HEDERA_SDK_CPP_IMPL_ASN1_EC_KEY_H_
 

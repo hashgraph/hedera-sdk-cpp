@@ -29,6 +29,7 @@
 
 #ifdef __ANDROID__
 #include "CreateAccountExample.h"
+#include "impl/AndroidHelper.h"
 #include <jni.h>
 #endif
 
@@ -74,9 +75,12 @@ int main(int argc, char** argv)
 }
 
 #ifdef __ANDROID__
-JNIEXPORT void JNICALL Java_com_hedera_hashgraph_sdk_cpp_examples_CreateAccountExample_createAccountExample(JNIEnv*,
-                                                                                                            jobject)
+JNIEXPORT void JNICALL
+Java_com_hedera_hashgraph_sdk_cpp_examples_CreateAccountExample_createAccountExample(JNIEnv* env,
+                                                                                     jobject,
+                                                                                     jobject assetManager)
 {
+  internal::ANDROID_ASSET_MANAGER = AAssetManager_fromJava(env, assetManager);
   nativeMain();
 }
 #endif
