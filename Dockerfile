@@ -51,8 +51,8 @@ WORKDIR /
 RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
 
 # Change working directory to cloned repo
+RUN cd ../hedera-sdk-cpp
 WORKDIR /hedera-sdk-cpp
-RUN cd .
 
 # Change to working branch
 RUN git checkout 00660-add-android-and-ios-builds

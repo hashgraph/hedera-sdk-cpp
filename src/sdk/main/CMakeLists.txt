@@ -1,4 +1,4 @@
-add_library(${PROJECT_NAME} STATIC
+set(PROJECT_SRC_FILES
         src/AccountAllowanceApproveTransaction.cc
         src/AccountAllowanceDeleteTransaction.cc
         src/AccountBalance.cc
@@ -169,6 +169,12 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/RLPItem.cc
         src/impl/TimestampConverter.cc
         src/impl/Utilities.cc)
+
+if (ANDROID)
+    add_library(${PROJECT_NAME} STATIC ${PROJECT_SRC_FILES} src/AndroidHelper.cc)
+else ()
+    add_library(${PROJECT_NAME} STATIC ${PROJECT_SRC_FILES})
+endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})

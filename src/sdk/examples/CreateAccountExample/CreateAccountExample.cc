@@ -36,7 +36,7 @@
 using namespace Hedera;
 
 #ifdef __ANDROID__
-void nativeMain()
+void main()
 {
 #else
 int main(int argc, char** argv)
@@ -85,7 +85,7 @@ Java_com_hedera_hashgraph_sdk_cpp_examples_CreateAccountExample_createAccountExa
                                                                                      jobject,
                                                                                      jobject assetManager)
 {
-  ANDROID_ASSET_MANAGER = AAssetManager_fromJava(env, assetManager);
-  nativeMain();
+  Android::setAssetManager(AAssetManager_fromJava(env, assetManager));
+  main();
 }
 #endif

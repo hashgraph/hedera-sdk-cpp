@@ -26,13 +26,15 @@
 #include <string_view>
 #include <vector>
 
-namespace Hedera
+namespace Hedera::Android
 {
 /**
- * The AssetManager used by Android APK's to get their assets. There will only ever need to be one of these for each
+ * Set the AssetManager used by Android APK's to get their assets. There will only ever need to be one of these for each
  * APK. The lifetime of this is managed by the Android framework.
+ *
+ * @param assetManager The asset manager for Android assets.
  */
-AAssetManager* ANDROID_ASSET_MANAGER = nullptr;
+void setAssetManager(AAssetManager* assetManager);
 
 /**
  * Get an asset from the Android APK.
@@ -40,23 +42,8 @@ AAssetManager* ANDROID_ASSET_MANAGER = nullptr;
  * @param filepath The filepath to the asset.
  * @return The bytes of the asset.
  */
-std::vector<std::byte> getAsset(std::string_view filepath)
-{
-  AAsset* asset = AAssetManager_open(ANDROID_ASSET_MANAGER, filepath.data(), AASSET_MODE_UNKNOWN);
-  if (asset)
-  {
-    size_t size = AAsset_getLength(asset);
-    std::vector<std::byte> bytes;
-    bytes.reserve(size);
-    AAsset_read(asset, bytes.data(), size);
-    AAsset_close(asset);
+std::vector<std::byte> getAsset(std::string_view filepath);
 
-    return bytes;
-  }
-
-  return {};
-}
-
-} // namespace Hedera
+} // namespace Hedera::Android
 
 #endif // HEDERA_SDK_CPP_ANDROID_HELPER_H_
