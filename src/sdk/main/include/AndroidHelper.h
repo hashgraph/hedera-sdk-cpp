@@ -42,7 +42,7 @@ AAssetManager* ANDROID_ASSET_MANAGER = nullptr;
  */
 std::vector<std::byte> getAsset(std::string_view filepath)
 {
-  AAsset* asset = AAssetManager_open(ANDROID_ASSET_MANAGER, filepath, AASSET_MODE_UNKNOWN);
+  AAsset* asset = AAssetManager_open(ANDROID_ASSET_MANAGER, filepath.data(), AASSET_MODE_UNKNOWN);
   if (asset)
   {
     size_t size = AAsset_getLength(asset);
