@@ -30,7 +30,7 @@
 #ifdef __ANDROID__
 #include "AndroidHelper.h"
 #include "CreateAccountExample.h"
-#include <android.log.h>
+#include <android/log.h>
 #include <jni.h>
 #endif
 
