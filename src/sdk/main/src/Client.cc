@@ -36,7 +36,7 @@
 #include "impl/TLSBehavior.h"
 
 #ifdef __ANDROID__
-#include "impl/AndroidHelper.h"
+#include "AndroidHelper.h"
 #endif
 
 #include <condition_variable>
