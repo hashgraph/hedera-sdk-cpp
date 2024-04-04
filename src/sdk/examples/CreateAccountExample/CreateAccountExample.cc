@@ -37,11 +37,13 @@ using namespace Hedera;
 
 #ifdef __ANDROID__
 void nativeMain()
+{
 #else
 int main(int argc, char** argv)
-#endif
 {
   dotenv::init();
+#endif
+
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
   const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
 
