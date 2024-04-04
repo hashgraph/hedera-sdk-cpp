@@ -28,8 +28,8 @@
 #include <iostream>
 
 #ifdef __ANDROID__
+#include "AndroidHelper.h"
 #include "CreateAccountExample.h"
-#include "impl/AndroidHelper.h"
 #include <jni.h>
 #endif
 

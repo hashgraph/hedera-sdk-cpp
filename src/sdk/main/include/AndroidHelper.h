@@ -53,6 +53,8 @@ std::vector<std::byte> getAsset(std::string_view filepath)
 
     return bytes;
   }
+
+  return {};
 }
 
 } // namespace Hedera

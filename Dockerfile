@@ -55,8 +55,10 @@ WORKDIR /hedera-sdk-cpp
 
 # Change to working branch
 RUN git checkout 00660-add-android-and-ios-builds
+RUN git pull
 
 # Update vcpkg submodule
+RUN cd .
 RUN git submodule update --init
 
 # Build
@@ -101,7 +103,7 @@ RUN javac -bootclasspath $JAVA_HOME/jre/lib/rt.jar -classpath $ANDROID_HOME/plat
 RUN dx --dex --output=build/apk/classes.dex build/obj
 RUN cp \
     /hedera-sdk-cpp/build/android-arm64-release/src/sdk/examples/Release/libhedera-sdk-cpp-create-account-example.so \
-    build/apk/lib/arm64-v8a/ \
+    build/apk/lib/arm64-v8a/
 RUN cp -r /hedera-sdk-cpp/addressbook build/apk/assets
 RUN cp -r /hedera-sdk-cpp/config build/apk/assets
 RUN aapt package -f -M AndroidManifest.xml -S res -I $ANDROID_HOME/platforms/android-21/android.jar -F \
