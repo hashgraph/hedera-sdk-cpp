@@ -55,7 +55,6 @@ WORKDIR /hedera-sdk-cpp
 
 # Change to working branch
 RUN git checkout 00660-add-android-and-ios-builds
-RUN git pull
 
 # Update vcpkg submodule
 RUN git submodule update --init
