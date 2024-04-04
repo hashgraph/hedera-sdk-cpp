@@ -58,8 +58,8 @@ RUN git checkout 00660-add-android-and-ios-builds
 RUN git pull
 
 # Update vcpkg submodule
-RUN cd .
 RUN git submodule update --init
+RUN cd .
 
 # Build
 RUN cmake --preset android-arm64-release

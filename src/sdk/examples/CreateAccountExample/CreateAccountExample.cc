@@ -43,9 +43,12 @@ int main(int argc, char** argv)
 {
   dotenv::init();
 #endif
+  std::cout << __FUNCTION__ << std::endl;
 
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
+  std::cout << "got operator id" << std::endl;
   const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
+  std::cout << "got operator key" << std::endl;
 
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
