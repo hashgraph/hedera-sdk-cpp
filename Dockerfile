@@ -93,24 +93,24 @@ RUN git submodule update --init
 RUN cmake --preset android-arm64-release
 RUN cmake --build --preset android-arm64-release
 
-WORKDIR /hedera-sdk-cpp/src/sdk/examples/CreateAccountExample
-RUN mkdir -p build/gen build/obj build/apk/lib/arm64-v8a build/apk/assets
-RUN aapt package -f -m -J build/gen -S res -M AndroidManifest.xml -I $ANDROID_HOME/platforms/android-21/android.jar
-RUN javac -bootclasspath $JAVA_HOME/jre/lib/rt.jar -classpath $ANDROID_HOME/platforms/android-21/android.jar -d \
-    build/obj build/gen/com/hedera/hashgraph/sdk/cpp/examples/R.java \
-    src/main/java/com/hedera/hashgraph/sdk/cpp/examples/CreateAccountExample.java -source 1.7 -target 1.7
-RUN dx --dex --output=build/apk/classes.dex build/obj
-RUN cp \
-    /hedera-sdk-cpp/build/android-arm64-release/src/sdk/examples/Release/libhedera-sdk-cpp-create-account-example.so \
-    build/apk/lib/arm64-v8a/
-RUN cp -r /hedera-sdk-cpp/addressbook build/apk/assets
-RUN cp -r /hedera-sdk-cpp/config build/apk/assets
-RUN aapt package -f -M AndroidManifest.xml -S res -I $ANDROID_HOME/platforms/android-21/android.jar -F \
-    build/hedera-sdk-cpp-create-account-example-apk.unsigned.apk build/apk
-RUN zipalign -f -p 4 build/hedera-sdk-cpp-create-account-example-apk.unsigned.apk \
-    build/hedera-sdk-cpp-create-account-example-apk.aligned.apk
-RUN { echo testkey; echo testkey; echo; echo; echo; echo; echo; echo; echo y; } | keytool -genkeypair -keystore \
-    keystore.jks -alias androidkey -validity 10000 -keyalg RSA -keysize 2048
-RUN echo testkey | apksigner sign --ks keystore.jks --ks-key-alias androidkey --out \
-    build/hedera-sdk-cpp-create-account-example-apk.apk build/hedera-sdk-cpp-create-account-example-apk.aligned.apk
+#WORKDIR /hedera-sdk-cpp/src/sdk/examples/CreateAccountExample
+#RUN mkdir -p build/gen build/obj build/apk/lib/arm64-v8a build/apk/assets
+#RUN aapt package -f -m -J build/gen -S res -M AndroidManifest.xml -I $ANDROID_HOME/platforms/android-21/android.jar
+#RUN javac -bootclasspath $JAVA_HOME/jre/lib/rt.jar -classpath $ANDROID_HOME/platforms/android-21/android.jar -d \
+#    build/obj build/gen/com/hedera/hashgraph/sdk/cpp/examples/R.java \
+#    src/main/java/com/hedera/hashgraph/sdk/cpp/examples/CreateAccountExample.java -source 1.7 -target 1.7
+#RUN dx --dex --output=build/apk/classes.dex build/obj
+#RUN cp \
+#    /hedera-sdk-cpp/build/android-arm64-release/src/sdk/examples/Release/libhedera-sdk-cpp-create-account-example.so \
+#    build/apk/lib/arm64-v8a/
+#RUN cp -r /hedera-sdk-cpp/addressbook build/apk/assets
+#RUN cp -r /hedera-sdk-cpp/config build/apk/assets
+#RUN aapt package -f -M AndroidManifest.xml -S res -I $ANDROID_HOME/platforms/android-21/android.jar -F \
+#    build/hedera-sdk-cpp-create-account-example-apk.unsigned.apk build/apk
+#RUN zipalign -f -p 4 build/hedera-sdk-cpp-create-account-example-apk.unsigned.apk \
+#    build/hedera-sdk-cpp-create-account-example-apk.aligned.apk
+#RUN { echo testkey; echo testkey; echo; echo; echo; echo; echo; echo; echo y; } | keytool -genkeypair -keystore \
+#    keystore.jks -alias androidkey -validity 10000 -keyalg RSA -keysize 2048
+#RUN echo testkey | apksigner sign --ks keystore.jks --ks-key-alias androidkey --out \
+#    build/hedera-sdk-cpp-create-account-example-apk.apk build/hedera-sdk-cpp-create-account-example-apk.aligned.apk
 

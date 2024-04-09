@@ -63,7 +63,7 @@
         },
         "CMAKE_SYSTEM_VERSION": {
           "type": "STRING",
-          "value": "21"
+          "value": "34"
         },
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
