@@ -102,6 +102,10 @@ TEST_F(FileUpdateTransactionIntegrationTests, ExecuteFileUpdateTransaction)
 TEST_F(FileUpdateTransactionIntegrationTests, CannotUpdateImmutableFile)
 {
   // Given
+  std::shared_ptr<PrivateKey> newKey;
+  ASSERT_NO_THROW(
+    newKey = ED25519PrivateKey::fromString(
+      "302e020100300506032b6570042204209d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60"));
   FileId fileId;
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setContents(internal::Utilities::stringToByteVector("[e2e::FileCreateTransaction]"))
@@ -112,6 +116,7 @@ TEST_F(FileUpdateTransactionIntegrationTests, CannotUpdateImmutableFile)
   // When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt = FileUpdateTransaction()
                                                       .setFileId(fileId)
+                                                      .setKeys({ newKey->getPublicKey() })
                                                       .setContents("[e2e::FileUpdateTransaction]")
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),

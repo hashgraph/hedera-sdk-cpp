@@ -33,6 +33,7 @@
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
 #include "exceptions/PrecheckStatusException.h"
+#include "exceptions/ReceiptStatusException.h"
 
 #include <gtest/gtest.h>
 

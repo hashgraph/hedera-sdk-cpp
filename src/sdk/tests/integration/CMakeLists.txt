@@ -23,6 +23,7 @@ add_executable(${TEST_PROJECT_NAME}
         ContractInfoQueryIntegrationTests.cc
         EthereumTransactionIntegrationTests.cc
         ExecutableIntegrationTests.cc
+        FeeSchedulesIntegrationTests.cc
         FileAppendTransactionIntegrationTests.cc
         FileContentsQueryIntegrationTests.cc
         FileCreateTransactionIntegrationTests.cc
