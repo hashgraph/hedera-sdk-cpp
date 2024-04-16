@@ -12,30 +12,19 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on:
-      - self-hosted
-      - "${{ matrix.os }}"
-      - xlarge
-      - ephemeral
+    runs-on: [ self-hosted, Linux, xlarge, ephemeral ]
+
     env:
       HEDERA_NETWORK: localhost
-    strategy:
-      matrix:
-        include:
-          - os: Linux
-            preset: linux-x64
-          # - os: macos-12
-          #   preset: macos-x64
-          # - os: windows-latest
-          #   preset: windows-x64
+
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           submodules: true
 
       - name: Run Clang-Format
-        uses: jidicula/clang-format-action@v4.11.0
+        uses: jidicula/clang-format-action@f62da5e3d3a2d88ff364771d9d938773a618ab5e # v4.11.0
         with:
           clang-format-version: "17"
           check-path: "src"
@@ -55,19 +44,16 @@ jobs:
             $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
           sudo apt-get update
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-        if: ${{ runner.os == 'Linux' }}
 
       - name: Use Node.js 21
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
         with:
           node-version: 21
 
       - name: Install Local Node
         run: sudo npm install -g @hashgraph/hedera-local
-        if: ${{ runner.os == 'Linux' }}
 
       - name: Install Linux Prerequisites
-        if: ${{ runner.os == 'Linux' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
@@ -76,10 +62,10 @@ jobs:
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
       - name: Install CMake & Ninja
-        uses: lukka/get-cmake@latest
+        uses: lukka/get-cmake@4931ab1fc1604964c055eb330edb3f6b26ba0cfa # v3.29.2
 
       - name: Setup VCPkg
-        uses: lukka/run-vcpkg@v11
+        uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
         with:
           binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
@@ -89,7 +75,7 @@ jobs:
           git fetch --unshallow --prune
 
       - name: CMake Build (Debug)
-        uses: lukka/run-cmake@v10
+        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
         env:
           VCPKG_BINARY_SOURCES: clear
         with:
@@ -98,7 +84,7 @@ jobs:
 
       - name: CMake Build (Release)
         if: github.event.pull_request.merged == true
-        uses: lukka/run-cmake@v10
+        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
         env:
           VCPKG_BINARY_SOURCES: clear
         with:
@@ -129,7 +115,7 @@ jobs:
 
       - name: Attach Artifact
         if: github.event.pull_request.merged == true
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
           path: package/
