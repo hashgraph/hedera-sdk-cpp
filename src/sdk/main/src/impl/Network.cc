@@ -201,13 +201,9 @@ NodeAddressBook Network::getAddressBookForLedgerId(const LedgerId& ledgerId)
     return {};
   }
 
-#ifdef __ANDROID___
-  return NodeAddressBook::fromBytes(Android::getAsset(std::string("addressbook/") + ledgerId.toString() + ".pb"));
-#else
   std::string buildPath = std::filesystem::current_path().string() + "/addressbook/" + ledgerId.toString() + ".pb";
   std::ifstream infile(buildPath, std::ios_base::binary);
   return NodeAddressBook::fromBytes({ std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>() });
-#endif
 }
 
 //-----

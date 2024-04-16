@@ -23,7 +23,6 @@
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
 
-
 #include <proto/consensus_update_topic.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>

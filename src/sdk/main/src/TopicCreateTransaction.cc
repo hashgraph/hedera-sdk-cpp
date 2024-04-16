@@ -21,7 +21,6 @@
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 
-
 #include <proto/consensus_create_topic.pb.h>
 #include <proto/transaction.pb.h>
 #include <proto/transaction_body.pb.h>

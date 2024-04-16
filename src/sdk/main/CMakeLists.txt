@@ -1,4 +1,4 @@
-set(PROJECT_SRC_FILES
+add_library(${PROJECT_NAME} STATIC
         src/AccountAllowanceApproveTransaction.cc
         src/AccountAllowanceDeleteTransaction.cc
         src/AccountBalance.cc
@@ -169,12 +169,6 @@ set(PROJECT_SRC_FILES
         src/impl/RLPItem.cc
         src/impl/TimestampConverter.cc
         src/impl/Utilities.cc)
-
-if (ANDROID)
-    add_library(${PROJECT_NAME} STATIC ${PROJECT_SRC_FILES} src/AndroidHelper.cc)
-else ()
-    add_library(${PROJECT_NAME} STATIC ${PROJECT_SRC_FILES})
-endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})

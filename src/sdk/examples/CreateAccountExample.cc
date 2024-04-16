@@ -27,29 +27,14 @@
 #include <dotenv.h>
 #include <iostream>
 
-#ifdef __ANDROID__
-#include "AndroidHelper.h"
-#include "CreateAccountExample.h"
-#include <android/log.h>
-#include <jni.h>
-#endif
-
 using namespace Hedera;
 
-#ifdef __ANDROID__
-void nativeMain()
-{
-  __android_log_print(ANDROID_LOG_INFO, "tag", __FUNCTION__);
-#else
 int main(int argc, char** argv)
 {
   dotenv::init();
-#endif
 
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
-  std::cout << "got operator id" << std::endl;
   const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
-  std::cout << "got operator key" << std::endl;
 
   // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
@@ -73,20 +58,5 @@ int main(int argc, char** argv)
   const AccountId newAccountId = txReceipt.mAccountId.value();
   std::cout << "Created new account with ID " << newAccountId.toString() << std::endl;
 
-#ifdef __ANDROID__
-  return;
-#else
   return 0;
-#endif
 }
-
-#ifdef __ANDROID__
-JNIEXPORT void JNICALL
-Java_com_hedera_hashgraph_sdk_cpp_examples_CreateAccountExample_createAccountExample(JNIEnv* env,
-                                                                                     jobject,
-                                                                                     jobject assetManager)
-{
-  Android::setAssetManager(AAssetManager_fromJava(env, assetManager));
-  nativeMain();
-}
-#endif
