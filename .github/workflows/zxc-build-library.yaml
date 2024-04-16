@@ -82,7 +82,7 @@ jobs:
           docker cp $(docker create ubuntu-jammy-hedera-sdk-cpp-android-build:latest):/hedera-sdk-cpp/package .
 
       - name: Install CMake & Ninja
-        uses: lukka/get-cmake@3.27.7
+        uses: lukka/get-cmake@latest
 
       - name: Setup VCPkg
         uses: lukka/run-vcpkg@v11
