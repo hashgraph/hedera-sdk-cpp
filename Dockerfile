@@ -38,7 +38,7 @@ ENV ANDROID_NDK_HOME /android-ndk-r25c
 ENV PATH $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 # Clone the repository.
-RUN git clone https://github.com/hashgraph/hedera-protobufs-cpp.git
+RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
 
 # Change the working directory to that of the cloned repository.
 WORKDIR /hedera-sdk-cpp
