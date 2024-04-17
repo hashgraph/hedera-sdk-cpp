@@ -31,6 +31,7 @@
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
+#include "exceptions/ReceiptStatusException.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_body.pb.h>
@@ -100,7 +101,7 @@ TEST_F(SystemDeleteTransactionIntegrationTests, DeleteContract)
                                                       .setExpirationTime(std::chrono::system_clock::now())
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               PrecheckStatusException); // NOT_SUPPORTED
+               ReceiptStatusException); // NOT_SUPPORTED
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =

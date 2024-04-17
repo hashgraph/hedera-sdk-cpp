@@ -21,11 +21,13 @@
 #define HEDERA_SDK_CPP_ACCOUNT_BALANCE_H_
 
 #include "Hbar.h"
+#include "TokenId.h"
 
 #include <cstddef>
 #include <memory>
 #include <ostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace proto
@@ -91,6 +93,16 @@ public:
    * The account or contract balance.
    */
   Hbar mBalance;
+
+  /**
+   * Map of tokens with associated values.
+   */
+  std::unordered_map<TokenId, uint64_t> mTokens;
+
+  /**
+   * Map of token decimals with associated values.
+   */
+  std::unordered_map<TokenId, int> mTokenDecimals;
 };
 
 } // namespace Hedera

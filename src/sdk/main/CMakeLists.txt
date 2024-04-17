@@ -118,6 +118,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenNftInfoQuery.cc
         src/TokenNftTransfer.cc
         src/TokenPauseTransaction.cc
+        src/TokenRelationship.cc
         src/TokenRevokeKycTransaction.cc
         src/TokenSupplyType.cc
         src/TokenTransfer.cc
@@ -163,6 +164,8 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/HttpClient.cc
         src/impl/MirrorNetwork.cc
         src/impl/MirrorNode.cc
+        src/impl/MirrorNodeGateway.cc
+        src/impl/MirrorNodeRouter.cc
         src/impl/Network.cc
         src/impl/Node.cc
         src/impl/OpenSSLUtils.cc

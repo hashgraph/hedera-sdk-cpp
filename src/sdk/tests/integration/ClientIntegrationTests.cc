@@ -127,7 +127,13 @@ TEST_F(ClientIntegrationTests, ConnectToLocalNode)
 }
 
 //-----
-TEST_F(ClientIntegrationTests, SetNetworkIsWorkingCorrectly)
+// Disabled as certain queries would need to query the Mirror Node.
+// Mirror Node url's are built from the client network so they can
+// resolve to the correct local/testnet/mainnet/previewnet networks.
+// When networkMap is built there is no guarantee that queries would
+// resolve to an appropriate mirror node url. This specific case
+// should be further taken into consideration for HIP-367.
+TEST_F(ClientIntegrationTests, DISABLED_SetNetworkIsWorkingCorrectly)
 {
   // Given
   const AccountId accountId_3 = AccountId::fromString("0.0.3");

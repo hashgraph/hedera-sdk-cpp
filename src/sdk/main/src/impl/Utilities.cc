@@ -21,8 +21,11 @@
 
 #include <algorithm>
 #include <charconv>
+#include <fstream>
 #include <iostream>
 #include <random>
+
+using json = nlohmann::json;
 
 namespace Hedera::internal::Utilities
 {
@@ -101,6 +104,29 @@ unsigned int getRandomNumber(unsigned int lowerBound, unsigned int upperBound)
 
   std::uniform_int_distribution dis(lowerBound, upperBound);
   return dis(eng);
+}
+
+//-----
+json fromConfigFile(std::string_view path)
+{
+  std::ifstream infile(path.data());
+  if (!infile.is_open())
+  {
+    throw std::invalid_argument(std::string("File cannot be found at ") + path.data());
+  }
+
+  // Make sure the input file is valid JSON.
+  nlohmann::json jsonObj;
+  try
+  {
+    jsonObj = nlohmann::json::parse(infile);
+  }
+  catch (const std::exception& ex)
+  {
+    throw std::invalid_argument(std::string("Cannot parse JSON: ") + ex.what());
+  }
+
+  return jsonObj;
 }
 
 } // namespace Hedera::internal::Utilities

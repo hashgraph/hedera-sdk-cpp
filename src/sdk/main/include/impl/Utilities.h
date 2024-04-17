@@ -26,6 +26,8 @@
 #include <string_view>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 namespace Hedera::internal::Utilities
 {
 /**
@@ -159,6 +161,19 @@ template<typename T>
  * @throws std::invalid_argument If lowerBound is greater than or equal to upperBound.
  */
 [[nodiscard]] unsigned int getRandomNumber(unsigned int lowerBound, unsigned int upperBound);
+
+/**
+ * Reads and parses a JSON file.
+ *
+ * This function reads the contents of a JSON file located at the specified path,
+ * parses it, and returns a JSON object.
+ *
+ * @param path The path to the JSON file.
+ * @return A JSON object representing the contents of the file.
+ * @throws std::invalid_argument if the file cannot be found or if the contents
+ *         are not valid JSON.
+ */
+[[nodiscard]] nlohmann::json fromConfigFile(std::string_view path);
 
 } // namespace Hedera::internal::Utilities
 
