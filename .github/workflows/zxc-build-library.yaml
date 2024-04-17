@@ -76,7 +76,7 @@ jobs:
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
       - name: Install CMake & Ninja
-        uses: lukka/get-cmake@latest
+        uses: lukka/get-cmake@v3.27.7
 
       - name: Setup VCPkg
         uses: lukka/run-vcpkg@v11
@@ -111,7 +111,7 @@ jobs:
       #     run: tree /F build
 
       - name: Start the local node
-        run: sudo npx @hashgraph/hedera-local start -d --network local
+        run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.49.0-alpha.3
 
       - name: Start CTest suite (Debug)
         run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure

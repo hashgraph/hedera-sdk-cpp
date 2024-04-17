@@ -116,7 +116,7 @@ TEST_F(ContractUpdateTransactionIntegrationTests, CannotUpdateContractWithNoCont
   // Given / When / Then
   EXPECT_THROW(const TransactionReceipt txReceipt =
                  ContractUpdateTransaction().execute(getTestClient()).getReceipt(getTestClient()),
-               PrecheckStatusException); // INVALID_CONTRACT_ID
+               ReceiptStatusException); // INVALID_CONTRACT_ID
 }
 
 //-----
