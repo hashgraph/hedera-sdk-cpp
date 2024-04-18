@@ -1303,4 +1303,4 @@ template class Transaction<TopicMessageSubmitTransaction>;
 template class Transaction<TopicUpdateTransaction>;
 template class Transaction<TransferTransaction>;
 
-} // namespace Hedera           
+} // namespace Hedera
