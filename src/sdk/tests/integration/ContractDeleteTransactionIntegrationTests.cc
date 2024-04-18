@@ -116,6 +116,7 @@ TEST_F(ContractDeleteTransactionIntegrationTests, CannotDeleteContractWithNoAdmi
 TEST_F(ContractDeleteTransactionIntegrationTests, CannotDeleteContractWithNoContractId)
 {
   // Given / When / Then
-  EXPECT_THROW(const TransactionResponse txResponse = ContractDeleteTransaction().execute(getTestClient()),
-               PrecheckStatusException); // INVALID_CONTRACT_ID
+  EXPECT_THROW(const TransactionReceipt txReceipt =
+                 ContractDeleteTransaction().execute(getTestClient()).getReceipt(getTestClient()),
+               ReceiptStatusException); // INVALID_CONTRACT_ID
 }

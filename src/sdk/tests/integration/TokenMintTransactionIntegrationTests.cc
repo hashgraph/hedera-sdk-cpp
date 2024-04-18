@@ -277,7 +277,7 @@ TEST_F(TokenMintTransactionIntegrationTests, CannotMintNftsIfMetadataIsTooBig)
                                                       .setTokenId(tokenId)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               PrecheckStatusException); // METADATA_TOO_LONG
+               ReceiptStatusException); // METADATA_TOO_LONG
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =
