@@ -68,6 +68,8 @@ TEST_F(TokenCreateTransactionIntegrationTests, ExecuteTokenCreateTransaction)
                                 .setKycKey(operatorKey)
                                 .setSupplyKey(operatorKey)
                                 .setFeeScheduleKey(operatorKey)
+                                .setPauseKey(operatorKey)
+                                .setMetadataKey(operatorKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
