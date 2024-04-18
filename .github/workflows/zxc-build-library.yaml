@@ -37,7 +37,7 @@ jobs:
       - name: Run Clang-Format
         uses: jidicula/clang-format-action@v4.11.0
         with:
-          clang-format-version: "18"
+          clang-format-version: "17"
           check-path: "src"
 
       - name: Setup Docker Compose
