@@ -37,23 +37,15 @@ ENV ANDROID_NDK_HOME /android-ndk-r25c
 # this will only work for linux-x86_64 images).
 ENV PATH $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
-# Clone the repository.
-RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git
-
-# Change the working directory to that of the cloned repository.
-WORKDIR /hedera-sdk-cpp
-
-# Checkout the working branch.
-RUN git checkout origin/$BRANCH_NAME
-
-# Update the submodule.
-RUN git submodule update --init
-
-# Build
-RUN cmake --preset android-arm64-release
-RUN cmake --preset android-arm64-debug
-RUN cmake --build --preset android-arm64-release
-RUN cmake --build --preset android-arm64-debug
+# Clone the repository and generate the Android debug and release builds.
+RUN git clone https://github.com/hashgraph/hedera-sdk-cpp.git && \
+    cd hedera-sdk-cpp && \
+    git checkout origin/$BRANCH_NAME && \
+    git submodule update --init && \
+    cmake --preset android-arm64-release && \
+    cmake --preset android-arm64-debug && \
+    cmake --build --preset android-arm64-release && \
+    cmake --build --preset android-arm64-debug
 
 # TODO:
 # The steps below are steps needed to test the Android library executables. Currently, the Android emulator is unable to

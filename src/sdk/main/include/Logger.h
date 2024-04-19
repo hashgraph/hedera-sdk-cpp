@@ -27,7 +27,7 @@
 namespace Hedera
 {
 /**
- * Logger class used by the Hedera C++ SDK. In essence, it's a wrapper for a log4cxx logger instance and provides easier
+ * Logger class used by the Hedera C++ SDK. In essence, it's a wrapper for a spdlog logger instance and provides easier
  * usage.
  */
 class Logger
@@ -130,7 +130,7 @@ public:
 
 private:
   /**
-   * The wrapped log4cxx logger.
+   * The wrapped spdlog logger.
    */
   std::shared_ptr<spdlog::logger> mLogger;
 
