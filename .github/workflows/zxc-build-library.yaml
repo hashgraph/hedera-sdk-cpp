@@ -80,7 +80,7 @@ jobs:
           git fetch --unshallow --prune
 
       - name: CMake Build (Debug)
-        uses: lukka/run-cmake@e265d767c12ee0dc03becaa1d55155db4beb45f6 # v10
+        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
         env:
           VCPKG_BINARY_SOURCES: clear
         with:
@@ -89,7 +89,7 @@ jobs:
 
       - name: CMake Build (Release)
         if: github.event.pull_request.merged == true
-        uses: lukka/run-cmake@e265d767c12ee0dc03becaa1d55155db4beb45f6 # v10
+        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
         env:
           VCPKG_BINARY_SOURCES: clear
         with:
