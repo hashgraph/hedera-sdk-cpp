@@ -13,9 +13,6 @@
 # Protection Rules for Github Configuration Files and Actions Workflows
 /.github/                                       @hashgraph/release-engineering @hashgraph/release-engineering-managers
 
-# Legacy Maven project files
-**/pom.xml                                      @hashgraph/release-engineering @hashgraph/release-engineering-managers
-
 # Cmake project files and inline plugins
 **/.clang*                                      @hashgraph/release-engineering @hashgraph/release-engineering-managers
 **/.clang-format                                @hashgraph/release-engineering @hashgraph/release-engineering-managers
@@ -40,7 +37,3 @@
 # Git Ignore definitions
 **/.gitignore                                   @hashgraph/release-engineering @hashgraph/release-engineering-managers
 **/.gitignore.*                                 @hashgraph/release-engineering @hashgraph/release-engineering-managers
-
-# Legacy CircleCI configuration
-.circleci.settings.xml                          @hashgraph/release-engineering @hashgraph/release-engineering-managers
-/.circleci/                                     @hashgraph/release-engineering @hashgraph/release-engineering-managers
