@@ -12,7 +12,7 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: [ self-hosted, ${{ matrix.os }}, xlarge, ephemeral ]
+    runs-on: [ self-hosted, Linux, xlarge, ephemeral ]
 
     env:
       HEDERA_NETWORK: localhost
