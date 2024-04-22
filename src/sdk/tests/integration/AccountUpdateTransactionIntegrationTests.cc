@@ -213,13 +213,14 @@ TEST_F(AccountUpdateTransactionIntegrationTests, InvalidAutoRenewPeriod)
                                 .mAccountId.value());
 
   // When / Then
-  EXPECT_THROW(const TransactionResponse txResponse = AccountUpdateTransaction()
-                                                        .setAccountId(accountId)
-                                                        .setAutoRenewPeriod(invalidAutoRenewPeriod)
-                                                        .freezeWith(&getTestClient())
-                                                        .sign(privateKey)
-                                                        .execute(getTestClient()),
-               PrecheckStatusException); // AUTORENEW_DURATION_NOT_IN_RANGE
+  EXPECT_THROW(const TransactionReceipt txReceipt = AccountUpdateTransaction()
+                                                      .setAccountId(accountId)
+                                                      .setAutoRenewPeriod(invalidAutoRenewPeriod)
+                                                      .freezeWith(&getTestClient())
+                                                      .sign(privateKey)
+                                                      .execute(getTestClient())
+                                                      .getReceipt(getTestClient()),
+               ReceiptStatusException); // AUTORENEW_DURATION_NOT_IN_RANGE
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
