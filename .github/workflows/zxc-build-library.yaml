@@ -12,10 +12,15 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: [ self-hosted, Linux, xlarge, ephemeral ]
+    runs-on: [ self-hosted, ${{ matrix.os }}, xlarge, ephemeral ]
 
     env:
       HEDERA_NETWORK: localhost
+    strategy:
+      matrix:
+        include:
+          - os: Linux
+            preset: linux-x64
 
     steps:
       - name: Harden Runner
