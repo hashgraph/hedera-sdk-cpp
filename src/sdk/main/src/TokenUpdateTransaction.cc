@@ -378,7 +378,10 @@ proto::TokenUpdateTransactionBody* TokenUpdateTransaction::build() const
     body->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
   }
 
-  body->mutable_metadata()->set_value(internal::Utilities::byteVectorToString(mMetadata));
+  if (!mMetadata.empty())
+  {
+    body->mutable_metadata()->set_value(internal::Utilities::byteVectorToString(mMetadata));
+  }
 
   if (mMetadataKey)
   {

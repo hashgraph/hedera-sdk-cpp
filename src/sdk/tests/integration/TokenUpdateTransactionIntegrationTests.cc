@@ -222,88 +222,242 @@ TEST_F(TokenUpdateTransactionIntegrationTests, CanUpdateNonFungibleTokenMetadata
   EXPECT_EQ(tokenInfo.mMetadata, updatedMetadataRecord);
 }
 
-// //-----
-// TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateFungibleTokenMetadataKeyNotSet)
-// {
-//   // Given
-//   const std::vector<std::byte> updatedMetadataRecord = {
-//     std::byte(0xBA), std::byte(0xBB), std::byte(0xBC), std::byte(0xBD)
-//   };
+//-----
+// This test verifies that metadata is not updated silently. This test is kept for regression
+// because previously the metadata got updated silently
+TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateFungibleTokenMetadataKeyNotSet)
+{
+  // Given
+  // create a NFT without metadata and metadata key
+  TokenId tokenId;
+  ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
+                              .setTokenName("ffff")
+                              .setTokenSymbol("F")
+                              .setMetadata(getTestMetadata())
+                              .setTokenType(TokenType::FUNGIBLE_COMMON)
+                              .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
+                              .setAdminKey(getTestClient().getOperatorPublicKey())
+                              .setSupplyKey(getTestClient().getOperatorPublicKey())
+                              .setFreezeDefault(false)
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTokenId.value());
 
-//   // create a NFT without metadata and metadata key
-//   TokenId tokenId;
-//   ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
-//                               .setTokenName("ffff")
-//                               .setTokenSymbol("F")
-//                               .setMetadata(getTestMetadata())
-//                               .setTokenType(TokenType::FUNGIBLE_COMMON)
-//                               .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
-//                               .setAdminKey(getTestClient().getOperatorPublicKey())
-//                               .setSupplyKey(getTestClient().getOperatorPublicKey())
-//                               .setFreezeDefault(false)
-//                               .execute(getTestClient())
-//                               .getReceipt(getTestClient())
-//                               .mTokenId.value());
+  // check if FT created successfully with metadata and metadata key
+  TokenInfo tokenInfo;
+  ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
+  EXPECT_EQ(tokenInfo.mMetadata, getTestMetadata());
+  EXPECT_EQ(tokenInfo.mMetadataKey, nullptr);
 
-//   // check if FT created successfully with metadata and metadata key
-//   TokenInfo tokenInfo;
-//   ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
-//   EXPECT_EQ(tokenInfo.mMetadata, getTestMetadata());
-//   EXPECT_EQ(tokenInfo.mMetadataKey, nullptr);
+  // When
+  // update token's metadata
+  ASSERT_NO_THROW(TokenUpdateTransaction()
+                    .setTokenId(tokenId)
+                    .freezeWith(&getTestClient())
+                    .execute(getTestClient())
+                    .getReceipt(getTestClient()));
 
-//   // When
-//   // update token's metadata
-//   ASSERT_NO_THROW(TokenUpdateTransaction()
-//                     .setTokenId(tokenId)
-//                     .setMetadata(updatedMetadataRecord)
-//                     .freezeWith(&getTestClient())
-//                     .execute(getTestClient())
-//                     .getReceipt(getTestClient()));
+  // Then
+  ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
+  EXPECT_EQ(tokenInfo.mMetadata, getTestMetadata());
+}
 
-//   // Then
-//   ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
-//   EXPECT_NE(tokenInfo.mMetadata, updatedMetadataRecord);
-// }
+//-----
+// This test verifies that metadata is not updated silently. This test is kept for regression
+// because previously the metadata got updated silently
+TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateNonFungibleTokenMetadataKeyNotSet)
+{
+  // Given
+  // create a NFT without metadata and metadata key
+  TokenId tokenId;
+  ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
+                              .setTokenName("ffff")
+                              .setTokenSymbol("F")
+                              .setMetadata(getTestMetadata())
+                              .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
+                              .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
+                              .setAdminKey(getTestClient().getOperatorPublicKey())
+                              .setSupplyKey(getTestClient().getOperatorPublicKey())
+                              .setFreezeDefault(false)
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTokenId.value());
 
-// //-----
-// TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateNonFungibleTokenMetadataKeyNotSet)
-// {
-//   // Given
-//   const std::vector<std::byte> updatedMetadataRecord = {
-//     std::byte(0xBA), std::byte(0xBB), std::byte(0xBC), std::byte(0xBD)
-//   };
+  // check if NFT created successfully with metadata and metadata key
+  TokenInfo tokenInfo;
+  ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
+  EXPECT_EQ(tokenInfo.mMetadata, getTestMetadata());
+  EXPECT_EQ(tokenInfo.mMetadataKey, nullptr);
 
-//   // create a NFT without metadata and metadata key
-//   TokenId tokenId;
-//   ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
-//                               .setTokenName("ffff")
-//                               .setTokenSymbol("F")
-//                               .setMetadata(getTestMetadata())
-//                               .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
-//                               .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
-//                               .setAdminKey(getTestClient().getOperatorPublicKey())
-//                               .setSupplyKey(getTestClient().getOperatorPublicKey())
-//                               .setFreezeDefault(false)
-//                               .execute(getTestClient())
-//                               .getReceipt(getTestClient())
-//                               .mTokenId.value());
+  // When
+  // update token's metadata
+  ASSERT_NO_THROW(TokenUpdateTransaction()
+                    .setTokenId(tokenId)
+                    .setTokenMemo("abc")
+                    .execute(getTestClient())
+                    .getReceipt(getTestClient()));
 
-//   // check if NFT created successfully with metadata and metadata key
-//   TokenInfo tokenInfo;
-//   ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
-//   EXPECT_EQ(tokenInfo.mMetadata, getTestMetadata());
-//   EXPECT_EQ(tokenInfo.mMetadataKey, nullptr);
+  // Then
+  ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
+  EXPECT_EQ(tokenInfo.mMetadata, getTestMetadata());
+}
 
-//   // When
-//   // update token's metadata
-//   ASSERT_NO_THROW(TokenUpdateTransaction()
-//                     .setTokenId(tokenId)
-//                     .setMetadata(updatedMetadataRecord)
-//                     .freezeWith(&getTestClient())
-//                     .execute(getTestClient())
-//                     .getReceipt(getTestClient()));
+//-----
+TEST_F(TokenUpdateTransactionIntegrationTests,
+       CannotUpdateFungibleTokenMetadataWhenTransactionNotSignedWithMetadataOrAdminKey)
+{
+  // Given
+  std::shared_ptr<PrivateKey> metadataKey;
+  ASSERT_NO_THROW(metadataKey = ED25519PrivateKey::generatePrivateKey());
+  std::shared_ptr<PrivateKey> adminKey;
+  ASSERT_NO_THROW(adminKey = ED25519PrivateKey::generatePrivateKey());
+  const std::vector<std::byte> updatedMetadataRecord = {
+    std::byte(0xBA), std::byte(0xBB), std::byte(0xBC), std::byte(0xBD)
+  };
 
-//   // Then
-//   ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
-//   EXPECT_NE(tokenInfo.mMetadata, updatedMetadataRecord);
-// }
+  // create a FT with metadata and metadata key
+  TokenId tokenId;
+  ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
+                              .setTokenName("ffff")
+                              .setTokenSymbol("F")
+                              .setMetadata(getTestMetadata())
+                              .setTokenType(TokenType::FUNGIBLE_COMMON)
+                              .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
+                              .setAdminKey(adminKey)
+                              .setMetadataKey(metadataKey)
+                              .setSupplyKey(getTestClient().getOperatorPublicKey())
+                              .freezeWith(&getTestClient())
+                              .sign(adminKey)
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTokenId.value());
+
+  // check if FT created successfully with metadata and metadata key
+  TokenInfo tokenInfo;
+  ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
+
+  // When / Then
+  // update token's metadata
+  EXPECT_THROW(TokenUpdateTransaction()
+                 .setTokenId(tokenId)
+                 .setMetadata(updatedMetadataRecord)
+                 .freezeWith(&getTestClient())
+                 .execute(getTestClient())
+                 .getReceipt(getTestClient()),
+               ReceiptStatusException); // INVALID_SIGNATURE
+}
+
+//-----
+TEST_F(TokenUpdateTransactionIntegrationTests,
+       CannotUpdateNonFungibleTokenMetadataWhenTransactionNotSignedWithMetadataOrAdminKey)
+{
+  // Given
+  std::shared_ptr<PrivateKey> metadataKey;
+  ASSERT_NO_THROW(metadataKey = ED25519PrivateKey::generatePrivateKey());
+  std::shared_ptr<PrivateKey> adminKey;
+  ASSERT_NO_THROW(adminKey = ED25519PrivateKey::generatePrivateKey());
+  const std::vector<std::byte> updatedMetadataRecord = {
+    std::byte(0xBA), std::byte(0xBB), std::byte(0xBC), std::byte(0xBD)
+  };
+
+  // create a NFT with metadata and metadata key
+  TokenId tokenId;
+  ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
+                              .setTokenName("ffff")
+                              .setTokenSymbol("F")
+                              .setMetadata(getTestMetadata())
+                              .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
+                              .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
+                              .setAdminKey(adminKey)
+                              .setMetadataKey(metadataKey)
+                              .setSupplyKey(getTestClient().getOperatorPublicKey())
+                              .freezeWith(&getTestClient())
+                              .sign(adminKey)
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTokenId.value());
+
+  // check if NFT created successfully with metadata and metadata key
+  TokenInfo tokenInfo;
+  ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
+
+  // When / Then
+  // update token's metadata
+  EXPECT_THROW(TokenUpdateTransaction()
+                 .setTokenId(tokenId)
+                 .setMetadata(updatedMetadataRecord)
+                 .freezeWith(&getTestClient())
+                 .execute(getTestClient())
+                 .getReceipt(getTestClient()),
+               ReceiptStatusException); // INVALID_SIGNATURE
+}
+
+//-----
+TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateNonFungibleTokenMetadataWhenMetadataKeyNotSet)
+{
+  // Given
+  const std::vector<std::byte> updatedMetadataRecord = {
+    std::byte(0xBA), std::byte(0xBB), std::byte(0xBC), std::byte(0xBD)
+  };
+
+  // create a NFT with metadata and metadata key
+  TokenId tokenId;
+  ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
+                              .setTokenName("ffff")
+                              .setTokenSymbol("F")
+                              .setMetadata(getTestMetadata())
+                              .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
+                              .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
+                              .setSupplyKey(getTestClient().getOperatorPublicKey())
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTokenId.value());
+
+  // check if NFT created successfully with metadata and metadata key
+  TokenInfo tokenInfo;
+  ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
+
+  // When / Then
+  // update token's metadata
+  EXPECT_THROW(TokenUpdateTransaction()
+                 .setTokenId(tokenId)
+                 .setMetadata(updatedMetadataRecord)
+                 .execute(getTestClient())
+                 .getReceipt(getTestClient()),
+               ReceiptStatusException); // TOKEN_IS_IMMUTABLE
+}
+
+//-----
+TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateFungibleTokenMetadataWhenMetadataKeyNotSet)
+{
+  // Given
+  const std::vector<std::byte> updatedMetadataRecord = {
+    std::byte(0xBA), std::byte(0xBB), std::byte(0xBC), std::byte(0xBD)
+  };
+
+  // create a NFT with metadata and metadata key
+  TokenId tokenId;
+  ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
+                              .setTokenName("ffff")
+                              .setTokenSymbol("F")
+                              .setMetadata(getTestMetadata())
+                              .setTokenType(TokenType::FUNGIBLE_COMMON)
+                              .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
+                              .setSupplyKey(getTestClient().getOperatorPublicKey())
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTokenId.value());
+
+  // check if NFT created successfully with metadata and metadata key
+  TokenInfo tokenInfo;
+  ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
+
+  // When / Then
+  // update token's metadata
+  EXPECT_THROW(TokenUpdateTransaction()
+                 .setTokenId(tokenId)
+                 .setMetadata(updatedMetadataRecord)
+                 .execute(getTestClient())
+                 .getReceipt(getTestClient()),
+               ReceiptStatusException); // TOKEN_IS_IMMUTABLE
+}
