@@ -2,7 +2,7 @@
 ##### Global Protection Rule ######
 ###################################
 # NOTE: This rule is overriden by the more specific rules below. This is the catch-all rule for all files not covered by the more specific rules below.
-*                                               @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-contributors
+*                                               @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers
 
 #########################
 #####  Core Files  ######
