@@ -48,11 +48,11 @@ int main(int argc, char** argv)
   }
 
   TokenType tokenType;
-  if (std::string(argv[1]) == "-ft")
+  if (strcmp(argv[1], "-ft") == 0)
   {
     tokenType = TokenType::FUNGIBLE_COMMON;
   }
-  else if (std::string(argv[1]) == "-nft")
+  else if (strcmp(argv[1], "-nft") == 0)
   {
     tokenType = TokenType::NON_FUNGIBLE_UNIQUE;
   }
