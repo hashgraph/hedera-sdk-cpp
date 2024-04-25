@@ -435,7 +435,7 @@ TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateFungibleTokenMetadata
     std::byte(0xBA), std::byte(0xBB), std::byte(0xBC), std::byte(0xBD)
   };
 
-  // create a NFT with metadata and metadata key
+  // create a NFT with metadata
   TokenId tokenId;
   ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
                               .setTokenName("ffff")
