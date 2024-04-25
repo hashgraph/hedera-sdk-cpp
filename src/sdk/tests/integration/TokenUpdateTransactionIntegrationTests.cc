@@ -42,7 +42,7 @@ using namespace Hedera;
 class TokenUpdateTransactionIntegrationTests : public BaseIntegrationTest
 {
 protected:
-  [[nodiscard]] inline const std::vector<std::byte> getTestMetadata() const { return mMetadata; }
+  [[nodiscard]] inline const std::vector<std::byte>& getTestMetadata() const { return mMetadata; }
 
 private:
   const std::vector<std::byte> mMetadata = { std::byte(0xAA), std::byte(0xAB), std::byte(0xAC), std::byte(0xAD) };
