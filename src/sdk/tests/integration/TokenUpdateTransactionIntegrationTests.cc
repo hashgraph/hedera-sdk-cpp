@@ -448,7 +448,7 @@ TEST_F(TokenUpdateTransactionIntegrationTests, CannotUpdateFungibleTokenMetadata
                               .getReceipt(getTestClient())
                               .mTokenId.value());
 
-  // check if NFT created successfully with metadata and metadata key
+  // check if NFT created successfully with metadata
   TokenInfo tokenInfo;
   ASSERT_NO_THROW(tokenInfo = TokenInfoQuery().setTokenId(tokenId).execute(getTestClient()));
 
