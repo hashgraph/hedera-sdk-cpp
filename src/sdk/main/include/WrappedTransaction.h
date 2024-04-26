@@ -54,6 +54,7 @@
 #include "TokenRevokeKycTransaction.h"
 #include "TokenUnfreezeTransaction.h"
 #include "TokenUnpauseTransaction.h"
+#include "TokenUpdateNftsTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
@@ -116,6 +117,7 @@ public:
                                               TokenRevokeKycTransaction,
                                               TokenUnfreezeTransaction,
                                               TokenUnpauseTransaction,
+                                              TokenUpdateNftsTransaction,
                                               TokenUpdateTransaction,
                                               TokenWipeTransaction,
                                               TopicCreateTransaction,

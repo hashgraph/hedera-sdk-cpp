@@ -330,7 +330,10 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
   { proto::ResponseCodeEnum::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES },
   { proto::ResponseCodeEnum::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 Status::TRANSACTION_HAS_UNKNOWN_FIELDS         },
   { proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE,                                           Status::ACCOUNT_IS_IMMUTABLE                   },
-  { proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED,                                         Status::ALIAS_ALREADY_ASSIGNED                 }
+  { proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED,                                         Status::ALIAS_ALREADY_ASSIGNED                 },
+  { proto::ResponseCodeEnum::INVALID_METADATA_KEY,                                           Status::INVALID_METADATA_KEY                   },
+  { proto::ResponseCodeEnum::MISSING_TOKEN_METADATA,                                         Status::MISSING_TOKEN_METADATA                 },
+  { proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS,                                         Status::MISSING_SERIAL_NUMBERS                 }
 };
 
 //-----
@@ -641,6 +644,9 @@ const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufRespo
   { Status::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 proto::ResponseCodeEnum::TRANSACTION_HAS_UNKNOWN_FIELDS         },
   { Status::ACCOUNT_IS_IMMUTABLE,                                           proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE                   },
   { Status::ALIAS_ALREADY_ASSIGNED,                                         proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED                 },
+  { Status::INVALID_METADATA_KEY,                                           proto::ResponseCodeEnum::INVALID_METADATA_KEY                   },
+  { Status::MISSING_TOKEN_METADATA,                                         proto::ResponseCodeEnum::MISSING_TOKEN_METADATA                 },
+  { Status::MISSING_SERIAL_NUMBERS,                                         proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS                 }
 };
 
 //-----
@@ -932,7 +938,10 @@ const std::unordered_map<Status, std::string> gStatusToString = {
   { Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         "INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES"            },
   { Status::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 "TRANSACTION_HAS_UNKNOWN_FIELDS"                    },
   { Status::ACCOUNT_IS_IMMUTABLE,                                           "ACCOUNT_IS_IMMUTABLE"                              },
-  { Status::ALIAS_ALREADY_ASSIGNED,                                         "ALIAS_ALREADY_ASSIGNED"                            }
+  { Status::ALIAS_ALREADY_ASSIGNED,                                         "ALIAS_ALREADY_ASSIGNED"                            },
+  { Status::INVALID_METADATA_KEY,                                           "INVALID_METADATA_KEY"                              },
+  { Status::MISSING_TOKEN_METADATA,                                         "MISSING_TOKEN_METADATA"                            },
+  { Status::MISSING_SERIAL_NUMBERS,                                         "MISSING_SERIAL_NUMBERS"                            }
 };
 
 } // namespace Hedera

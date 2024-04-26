@@ -187,6 +187,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->unpauseToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenUpdate:
       return mTokenStub->updateToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenUpdateNfts:
+      return mTokenStub->updateToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenWipe:
       return mTokenStub->wipeTokenAccount(&context, transaction, response);
     case proto::TransactionBody::DataCase::kUtilPrng:
