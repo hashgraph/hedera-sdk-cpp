@@ -12,6 +12,7 @@
 
 # Protection Rules for Github Configuration Files and Actions Workflows
 /.github/                                       @hashgraph/release-engineering @hashgraph/release-engineering-managers
+/.github/workflows/                             @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers
 
 # Cmake project files and inline plugins
 **/.clang*                                      @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers
