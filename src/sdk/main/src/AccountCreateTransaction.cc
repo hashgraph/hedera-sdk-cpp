@@ -35,14 +35,14 @@ namespace Hedera
 AccountCreateTransaction::AccountCreateTransaction()
   : Transaction<AccountCreateTransaction>()
 {
-  setDefaultMaxTransactionFee(Hbar(5LL));
+  setDefaultMaxTransactionFee(Hbar(10000LL));
 }
 
 //-----
 AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountCreateTransaction>(transactionBody)
 {
-  setDefaultMaxTransactionFee(Hbar(5LL));
+  setDefaultMaxTransactionFee(Hbar(10000LL));
   initFromSourceTransactionBody();
 }
 
@@ -51,7 +51,7 @@ AccountCreateTransaction::AccountCreateTransaction(
   const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
   : Transaction<AccountCreateTransaction>(transactions)
 {
-  setDefaultMaxTransactionFee(Hbar(5LL));
+  setDefaultMaxTransactionFee(Hbar(10000LL));
   initFromSourceTransactionBody();
 }
 
@@ -96,11 +96,6 @@ AccountCreateTransaction& AccountCreateTransaction::setAutoRenewPeriod(
 AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_view memo)
 {
   requireNotFrozen();
-
-  if (memo.size() > 100)
-  {
-    throw std::length_error("Account memo is too large. Must be smaller than 100 bytes");
-  }
 
   mAccountMemo = memo;
   return *this;

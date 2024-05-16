@@ -25,6 +25,8 @@
 #include "exceptions/ReceiptStatusException.h"
 #include "httplib.h"
 
+#include <algorithm>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include <stdexcept>
 
@@ -143,7 +145,9 @@ std::string TckServer::handleJsonRequest(std::string_view request)
     // If the JSON request is an object, then it's a single request.
     if (jsonRequest.is_object())
     {
+      std::cout << "Handling request " << jsonRequest.dump() << std::endl;
       const nlohmann::json result = handleSingleRequest(jsonRequest);
+      std::cout << "Request response: " << result.dump() << std::endl;
       return result.is_null() ? "" : result.dump();
     }
 

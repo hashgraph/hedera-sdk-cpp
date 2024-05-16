@@ -20,50 +20,69 @@
 #ifndef HEDERA_TCK_CPP_SDK_CLIENT_H_
 #define HEDERA_TCK_CPP_SDK_CLIENT_H_
 
-#include "Client.h"
+#include "TckKey.h"
 
 #include <nlohmann/json_fwd.hpp>
+#include <optional>
 #include <string>
-#include <string_view>
+#include <vector>
 
 namespace Hedera::TCK::SdkClient
 {
 /**
  * Create an account.
  *
- * @param publicKey                     The desired public key for the account.
- * @param initialBalance                The desired initial balance for the account.
- * @param receiverSignatureRequired     Should the new account require a receiver signature?
- * @param maxAutomaticTokenAssociations The desired maximum number of automatic token associations for the account.
- * @param stakedAccountId               The ID of the desired account to which the new account should stake.
- * @param stakedNodeId                  The ID of the desired node to which the new account should stake.
- * @param declineStakingReward          Should the new account decline staking rewards?
- * @param accountMemo                   The desired memo for the new account.
+ * @param key                       The desired key for the account.
+ * @param initialBalance            The desired initial balance for the account.
+ * @param receiverSignatureRequired Should the new account require a receiver signature?
+ * @param autoRenewPeriod           The desired amount of time in seconds to renew the new account.
+ * @param memo                      The desired memo for the new account.
+ * @param maxAutoTokenAssociations  The desired maximum number of automatic token associations for the account.
+ * @param stakedAccountId           The ID of the desired account to which the new account should stake.
+ * @param stakedNodeId              The ID of the desired node to which the new account should stake.
+ * @param declineStakingReward      Should the new account decline staking rewards?
+ * @param alias                     The desired alias for the new account.
+ * @param signerKeys                Any keys that should sign the transaction (excluding fee-payer).
  * @return A JSON response containing the created account ID and the status of the account creation.
  */
-nlohmann::json createAccount(const std::string& publicKey,
+nlohmann::json createAccount(const std::optional<std::string>& key,
                              const std::optional<int64_t>& initialBalance,
                              const std::optional<bool>& receiverSignatureRequired,
-                             const std::optional<uint32_t>& maxAutomaticTokenAssociations,
+                             const std::optional<int64_t>& autoRenewPeriod,
+                             const std::optional<std::string>& memo,
+                             const std::optional<uint32_t>& maxAutoTokenAssociations,
                              const std::optional<std::string>& stakedAccountId,
                              const std::optional<uint64_t>& stakedNodeId,
                              const std::optional<bool>& declineStakingReward,
-                             const std::optional<std::string>& accountMemo);
+                             const std::optional<std::string>& alias,
+                             const std::optional<std::vector<std::string>>& signerKeys);
 
 /**
- * Generate an ED25519PrivateKey.
+ * Generate a Key.
  *
- * @return The generated ED25519PrivateKey, as a DER-encoded hex string.
+ * @param type      The type of Key to generate. If provided, it MUST be one of `ed25519PrivateKey`, `ed25519PublicKey`,
+ *                  `ecdsaSecp256k1PrivateKey`, `ecdsaSecp256k1PublicKey`, `keyList`, `thresholdKey`, `privateKey`,
+ *                  `publicKey`, or `evmAddress`. If not provided, the returned key will be of type `ed25519PrivateKey`,
+ *                  `ed25519PublicKey`, `ecdsaSecp256k1PrivateKey`, or `ecdsaSecp256k1PublicKey`. `privateKey` and
+ *                  `publicKey` types should be used when any private or public key type is required (respectively) but
+ *                  the specific type (ED25519 or ECDSAsecp256k1) doesn't matter.
+ * @param fromKey   For `ed25519PublicKey` and `ecdsaSecp256k1PublicKey` types, the DER-encoded hex string private key
+ *                  from which to generate the public key. No value means a random `ed25519PublicKey` or
+ *                  `ecdsaSecp256k1PublicKey` will be generated, respectively. For the `evmAddress` type, the
+ *                  DER-encoded hex string of an `ecdsaSecp256k1PrivateKey` or `ecdsaSecp256k1PublicKey` from which to
+ *                  generate the EVM address. An `ecdsaSecp256k1PrivateKey` will first generate its respective
+ *                  `ecdsaSecp256k1PublicKey`, and then generate the EVM address from that public key. No value means a
+ *                  random EVM address will be generated.
+ * @param threshold Required for `thresholdKey` types. The number of keys that must sign for a threshold key.
+ * @param keys      Required for `keyList` and `thresholdKey` types. Specify the types of keys to be generated and put
+ *                  in the `keyList` or `thresholdKey`. All keys should contain the same parameters as this
+ *                  `generateKey` method, if required.
+ * @return The JSON object which contains the generated Key.
  */
-std::string generatePrivateKey();
-
-/**
- * Generate an ED25519PublicKey.
- *
- * @param privateKey The private key from which to derive the public key, as a DER-encoded hex string.
- * @return The generated ED25519PrivateKey, as a DER-encoded hex string.
- */
-std::string generatePublicKey(const std::string& privateKey);
+nlohmann::json generateKey(const std::optional<std::string>& type,
+                           const std::optional<std::string>& fromKey,
+                           const std::optional<int>& threshold,
+                           const std::optional<std::vector<TckKey>>& keys);
 
 /**
  * Reset the SDK client.

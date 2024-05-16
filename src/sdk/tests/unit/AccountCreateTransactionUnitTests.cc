@@ -249,16 +249,6 @@ TEST_F(AccountCreateTransactionUnitTests, SetAccountMemo)
 }
 
 //-----
-TEST_F(AccountCreateTransactionUnitTests, SetAccountMemoTooLarge)
-{
-  // Given
-  AccountCreateTransaction transaction;
-
-  // When / Then
-  EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::length_error);
-}
-
-//-----
 TEST_F(AccountCreateTransactionUnitTests, SetAccountMemoFrozen)
 {
   // Given

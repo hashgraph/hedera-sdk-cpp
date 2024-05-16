@@ -33,16 +33,18 @@ int main(int argc, char** argv)
   // Add the SDK client functions.
   tckServer.add("createAccount",
                 getHandle(&SdkClient::createAccount),
-                { "publicKey",
+                { "key",
                   "initialBalance",
                   "receiverSignatureRequired",
-                  "maxAutomaticTokenAssociations",
+                  "autoRenewPeriod",
+                  "memo",
+                  "maxAutoTokenAssociations",
                   "stakedAccountId",
                   "stakedNodeId",
                   "declineStakingReward",
-                  "accountMemo" });
-  tckServer.add("generatePrivateKey", getHandle(&SdkClient::generatePrivateKey));
-  tckServer.add("generatePublicKey", getHandle(&SdkClient::generatePublicKey), { "privateKey" });
+                  "alias",
+                  "signerKeys" });
+  tckServer.add("generateKey", getHandle(&SdkClient::generateKey), { "type", "fromKey", "threshold", "keys" });
   tckServer.add("setup",
                 getHandle(&SdkClient::setup),
                 { "operatorAccountId", "operatorPrivateKey", "nodeIp", "nodeAccountId", "mirrorNetworkIp" });

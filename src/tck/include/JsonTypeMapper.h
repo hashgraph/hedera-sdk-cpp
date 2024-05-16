@@ -23,9 +23,11 @@
 #include "JsonErrorType.h"
 #include "JsonRpcException.h"
 
+#include <cstddef>
 #include <functional>
-#include <iostream>
+#include <limits>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <optional>
 #include <string>
 #include <type_traits>
@@ -54,7 +56,11 @@ template<typename T> struct isOptional<std::optional<T>> : std::true_type {};
 template<typename T>
 constexpr nlohmann::json::value_t getType()
 {
-  if constexpr (std::is_same_v<T, void>)
+  if constexpr (isOptional<T>::value)
+  {
+    return getType<typename T::value_type>();
+  }
+  else if constexpr (std::is_same_v<T, void>)
   {
     return nlohmann::json::value_t::null;
   }
@@ -122,6 +128,7 @@ inline std::string getTypeName(nlohmann::json::value_t type)
 template<typename T>
 void checkParamType(size_t index, const nlohmann::json& param, nlohmann::json::value_t expectedType)
 {
+
   if constexpr (isOptional<T>::value)
   {
     if constexpr (std::is_same_v<T, std::optional<typename T::value_type>>)
@@ -235,7 +242,7 @@ MethodHandle createMethodHandle(const std::function<ReturnType(ParamTypes...)>& 
   // guarantees if it will remain in scope.
   MethodHandle handle = [method](const nlohmann::json& params)
   {
-    if constexpr (sizeof...(ParamTypes) > 0)
+    if (sizeof...(ParamTypes) > 0 && !params.empty())
     {
       (checkParamType<std::decay_t<ParamTypes>>(index, params[index], getType<std::decay_t<ParamTypes>>()), ...);
     }
