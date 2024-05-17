@@ -25,7 +25,7 @@
 
 namespace proto
 {
-enum TokenKeyValidationType : int;
+enum TokenKeyValidation : int;
 }
 
 namespace Hedera
@@ -33,7 +33,7 @@ namespace Hedera
 /**
  * Types of validation strategies for token keys.
  */
-enum class TokenKeyValidationType
+enum class TokenKeyValidation
 {
   /**
    * Currently the default behaviour. It will perform all token key validations.
@@ -47,21 +47,21 @@ enum class TokenKeyValidationType
 };
 
 /**
- * Map of protobuf TokenKeyValidationType to the corresponding TokenKeyValidationType.
+ * Map of protobuf TokenKeyValidation to the corresponding TokenKeyValidation.
  */
-extern const std::unordered_map<proto::TokenType, TokenKeyValidationType>
-  gProtobufTokenKeyValidationTypeToTokenKeyValidationType;
+extern const std::unordered_map<proto::TokenKeyValidation, TokenKeyValidation>
+  gProtobufTokenKeyValidationToTokenKeyValidation;
 
 /**
- * Map of TokenKeyValidationType to the corresponding protobuf TokenKeyValidationType.
+ * Map of TokenKeyValidation to the corresponding protobuf TokenKeyValidation.
  */
-extern const std::unordered_map<TokenKeyValidationType, proto::TokenType>
-  gTokenKeyValidationTypeToProtobufTokenKeyValidationType;
+extern const std::unordered_map<TokenKeyValidation, proto::TokenKeyValidation>
+  gTokenKeyValidationToProtobufTokenKeyValidation;
 
 /**
- * Map of TokenKeyValidationType to its corresponding string.
+ * Map of TokenKeyValidation to its corresponding string.
  */
-[[maybe_unused]] extern const std::unordered_map<TokenKeyValidationType, const char*> gTokenKeyValidationTypeToString;
+[[maybe_unused]] extern const std::unordered_map<TokenKeyValidation, const char*> gTokenKeyValidationToString;
 
 } // namespace Hedera
 

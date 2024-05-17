@@ -184,6 +184,14 @@ TokenUpdateTransaction& TokenUpdateTransaction::setMetadataKey(const std::shared
 }
 
 //-----
+TokenUpdateTransaction& TokenUpdateTransaction::setTokenVerificationMode(TokenKeyValidation mode)
+{
+  requireNotFrozen();
+  mKeyVerificationMode = mode;
+  return *this;
+}
+
+//-----
 grpc::Status TokenUpdateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
                                                    const std::chrono::system_clock::time_point& deadline,
@@ -300,6 +308,8 @@ void TokenUpdateTransaction::initFromSourceTransactionBody()
   {
     mMetadataKey = Key::fromProtobuf(body.metadata_key());
   }
+
+  mKeyVerificationMode = gProtobufTokenKeyValidationToTokenKeyValidation.at(body.key_verification_mode());
 }
 
 //-----
@@ -387,6 +397,8 @@ proto::TokenUpdateTransactionBody* TokenUpdateTransaction::build() const
   {
     body->set_allocated_metadata_key(mMetadataKey->toProtobufKey().release());
   }
+
+  body->set_key_verification_mode(gTokenKeyValidationToProtobufTokenKeyValidation.at(mKeyVerificationMode));
 
   return body.release();
 }

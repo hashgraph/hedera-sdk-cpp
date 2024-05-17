@@ -23,6 +23,7 @@
 #include "AccountId.h"
 #include "Key.h"
 #include "TokenId.h"
+#include "TokenKeyValidation.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -209,6 +210,14 @@ public:
   TokenUpdateTransaction& setMetadataKey(const std::shared_ptr<Key>& key);
 
   /**
+   * Set the token verification mode for the token.
+   *
+   * @param mode The new verification mode for the token.
+   * @return A reference to this TokenUpdateTransaction with the newly-set verification mode.
+   */
+  TokenUpdateTransaction& setTokenVerificationMode(TokenKeyValidation mode);
+
+  /**
    * Get the ID of the token to update.
    *
    * @return The ID of the token to update.
@@ -327,6 +336,13 @@ public:
    * @return The new metadata key for the token. Returns nullptr if no new metadata key has been set.
    */
   [[nodiscard]] inline std::shared_ptr<Key> getMetadataKey() const { return mMetadataKey; }
+
+  /**
+   * Get the token verification mode for the token.
+   *
+   * @return The token verification mode for the token. Returns nullptr if no token verification mode has been set.
+   */
+  [[nodiscard]] inline TokenKeyValidation getTokenVerificationMode() const { return mKeyVerificationMode; }
 
 private:
   friend class WrappedTransaction;
@@ -472,6 +488,12 @@ private:
    * the transaction will resolve to TOKEN_HAS_NO_METADATA_KEY.
    */
   std::shared_ptr<Key> mMetadataKey = nullptr;
+
+  /**
+   * Determines whether the system should check the validity of the passed keys for update.
+   * Defaults to FULL_VALIDATION
+   */
+  TokenKeyValidation mKeyVerificationMode = TokenKeyValidation::FULL_VALIDATION;
 };
 
 } // namespace Hedera
