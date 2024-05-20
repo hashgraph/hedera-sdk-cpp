@@ -27,7 +27,6 @@
 #include <functional>
 #include <limits>
 #include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include <optional>
 #include <string>
 #include <type_traits>
@@ -128,7 +127,6 @@ inline std::string getTypeName(nlohmann::json::value_t type)
 template<typename T>
 void checkParamType(size_t index, const nlohmann::json& param, nlohmann::json::value_t expectedType)
 {
-
   if constexpr (isOptional<T>::value)
   {
     if constexpr (std::is_same_v<T, std::optional<typename T::value_type>>)
@@ -270,7 +268,7 @@ NotificationHandle createNotificationHandle(const std::function<void(ParamTypes.
   // there are no guarantees if it will remain in scope.
   return [notification](const nlohmann::json& params)
   {
-    if constexpr (sizeof...(ParamTypes) > 0)
+    if (sizeof...(ParamTypes) > 0 && !params.empty())
     {
       (checkParamType<std::decay_t<ParamTypes>>(index, params[index], getType<std::decay_t<ParamTypes>>()), ...);
     }

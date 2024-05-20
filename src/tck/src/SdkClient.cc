@@ -58,7 +58,7 @@ constexpr auto DEFAULT_TCK_REQUEST_TIMEOUT = std::chrono::seconds(30);
 Client mClient; // NOLINT
 
 // Generate a Key object from an undetermined key DER-encoded hex string.
-std::shared_ptr<Key> getKey(std::string_view key)
+std::shared_ptr<Key> getKey(const std::string& key)
 {
   try
   {
@@ -150,18 +150,7 @@ std::string generateKeyHelper(const TckKey& key)
     KeyList keyList;
     std::for_each(key.mKeys->cbegin(),
                   key.mKeys->cend(),
-                  [&keyList](const TckKey& key)
-                  {
-                    const std::string generatedKey = generateKeyHelper(key);
-                    try
-                    {
-                      keyList.push_back(PrivateKey::fromStringDer(generatedKey));
-                    }
-                    catch (const BadKeyException& ex)
-                    {
-                      keyList.push_back(PublicKey::fromStringDer(generatedKey));
-                    }
-                  });
+                  [&keyList](const TckKey& key) { keyList.push_back(getKey(generateKeyHelper(key))); });
 
     if (isThreshold)
     {

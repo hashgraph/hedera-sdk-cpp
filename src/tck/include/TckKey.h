@@ -23,6 +23,8 @@
 #include "JsonErrorType.h"
 #include "JsonRpcException.h"
 
+#include <algorithm>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
@@ -185,6 +187,7 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::TckKey>
                                             "invalid request: keys should be a list");
       }
 
+      key.mKeys = std::vector<Hedera::TCK::TckKey>(jsonFrom["keys"].size());
       std::for_each(jsonFrom["keys"].cbegin(),
                     jsonFrom["keys"].cend(),
                     [&key](const json& jsonKey)
