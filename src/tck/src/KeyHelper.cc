@@ -70,7 +70,7 @@ std::optional<KeyType> getKeyTypeEnum(const std::optional<std::string>& type)
   if (type.value() == "evmAddress")               { return KeyType::EVM_ADDRESS_KEY_TYPE; }
   // clang-format on
 
-  throw std::invalid_argument("unrecognized key type " + type.value());
+  throw std::invalid_argument("unrecognized key type string " + type.value());
 };
 
 //-----
@@ -87,8 +87,9 @@ std::optional<std::string> getKeyTypeString(const std::optional<KeyType>& type)
   if (type.value() == KeyType::PRIVATE_KEY_TYPE)                 { return "privateKey"; }
   if (type.value() == KeyType::PUBLIC_KEY_TYPE)                  { return "publicKey"; }
   if (type.value() == KeyType::EVM_ADDRESS_KEY_TYPE)             { return "evmAddress"; }
-  return std::nullopt;
   // clang-format on
+
+  throw std::invalid_argument("input key type is KeyType::KEY_TYPE_SIZE and does not represent a valid KeyType");
 };
 
 //-----

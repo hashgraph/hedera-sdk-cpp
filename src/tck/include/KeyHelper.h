@@ -37,7 +37,7 @@ namespace Hedera::TCK
 /**
  * Enumeration of the possible types of Keys the SDK server can generate.
  */
-enum class KeyType
+enum class KeyType : uint8_t
 {
   ED25519_PRIVATE_KEY_TYPE,
   ED25519_PUBLIC_KEY_TYPE,
@@ -48,7 +48,7 @@ enum class KeyType
   PRIVATE_KEY_TYPE,
   PUBLIC_KEY_TYPE,
   EVM_ADDRESS_KEY_TYPE,
-  KEY_TYPE_SIZE
+  KEY_TYPE_SIZE [[maybe_unused]]
 };
 
 /**
@@ -107,7 +107,7 @@ struct KeyRequest
  *
  * @param type The type as a string.
  * @return The corresponding KeyType. Uninitialized if the input type string was uninitialized.
- * @throws std::invalid_argument If the input string does not map to a Type enum.
+ * @throws std::invalid_argument If the input string does not map to a KeyType enum.
  */
 std::optional<KeyType> getKeyTypeEnum(const std::optional<std::string>& type);
 
@@ -118,6 +118,7 @@ std::optional<KeyType> getKeyTypeEnum(const std::optional<std::string>& type);
  * @param type The KeyType from which to get the string representation.
  * @return The corresponding string representation of the input KeyType. Uninitialized if the KeyType string was
  *         uninitialized.
+ * @throws std::invalid_argument If the input KeyType is KEY_TYPE_SIZE.
  */
 std::optional<std::string> getKeyTypeString(const std::optional<KeyType>& type);
 
