@@ -78,7 +78,7 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
 nlohmann::json generateKey(const std::optional<std::string>& type,
                            const std::optional<std::string>& fromKey,
                            const std::optional<int>& threshold,
-                           const std::optional<std::vector<Hedera::TCK::Key>>& keys);
+                           const std::optional<std::vector<KeyRequest>>& keys);
 
 /**
  * Reset the SDK client.

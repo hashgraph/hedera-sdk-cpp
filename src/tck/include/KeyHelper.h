@@ -35,48 +35,30 @@
 namespace Hedera::TCK
 {
 /**
- * Helper struct used to assist in generating Keys for the TCK. Since generating KeyLists and ThresholdKeys can be
- * recursive, this helps with converting the nlohmann::json objects and checking types.
+ * Enumeration of the possible types of Keys the SDK server can generate.
  */
-struct Key
+enum class KeyType
 {
-  /**
-   * Enumeration of the possible types of Keys.
-   */
-  enum Type : uint8_t
-  {
-    ED25519_PRIVATE,
-    ED25519_PUBLIC,
-    ECDSA_SECP256k1_PRIVATE,
-    ECDSA_SECP256k1_PUBLIC,
-    LIST,
-    THRESHOLD,
-    PRIVATE,
-    PUBLIC,
-    EVM_ADDRESS
-  };
+  ED25519_PRIVATE_KEY_TYPE,
+  ED25519_PUBLIC_KEY_TYPE,
+  ECDSA_SECP256k1_PRIVATE_KEY_TYPE,
+  ECDSA_SECP256k1_PUBLIC_KEY_TYPE,
+  LIST_KEY_TYPE,
+  THRESHOLD_KEY_TYPE,
+  PRIVATE_KEY_TYPE,
+  PUBLIC_KEY_TYPE,
+  EVM_ADDRESS_KEY_TYPE,
+  KEY_TYPE_SIZE
+};
 
-  /**
-   * Get the corresponding Type of an input type string. This function acts as a map from a Type string representation
-   * to the actual Type the string represents, except it supports empty optional arguments.
-   *
-   * @param type The type as a string.
-   * @return The corresponding Type. Uninitialized if the input type string was uninitialized.
-   * @throws std::invalid_argument If the input string does not map to a Type enum.
-   */
-  static std::optional<Type> getTypeEnum(const std::optional<std::string>& type);
-
-  /**
-   * Get the corresponding type string of an input Type. This function acts as a map from a Type to that Type's
-   * string representation, except it supports empty optional arguments.
-   *
-   * @param type The Type from which to get the string representation.
-   * @return The corresponding string representation of the input Type. Uninitialized if the Type string was
-   *         uninitialized.
-   */
-  static std::optional<std::string> getTypeString(const std::optional<Type>& type);
-
-  Key() = default;
+/**
+ * Helper struct used to contain information about a key the TCK would like the SDK server to generate. Since
+ * generating KeyLists and ThresholdKeys can be recursive (KeyLists that contain a list of KeyLists, etc.), a struct
+ * that can contain itself is needed to help with converting the nlohmann::json objects and checking types.
+ */
+struct KeyRequest
+{
+  KeyRequest() = default;
 
   /**
    * Construct with values for all fields.
@@ -85,19 +67,19 @@ struct Key
    * @param fromKey   The associated private key for a public key, or ECDSAsecp256k1 private or public key for an EVM
    *                  address.
    * @param threshold The threshold of keys to sign for ThresholdKeys.
-   * @param keys      The key information for KeyLists and ThresholdKeys.
+   * @param keys      The KeyRequest information for KeyLists and ThresholdKeys.
    */
-  Key(const std::optional<std::string>& type,
-      const std::optional<std::string>& fromKey,
-      const std::optional<int>& threshold,
-      const std::optional<std::vector<Key>>& keys);
+  KeyRequest(const std::optional<std::string>& type,
+             const std::optional<std::string>& fromKey,
+             const std::optional<int>& threshold,
+             const std::optional<std::vector<KeyRequest>>& keys);
 
   /**
-   * The type of Key to generate. If not provided, the returned key will be of type ED25519Private, ED25519Public,
+   * The type of Key to generate. If not provided, the generated key will be of type ED25519Private, ED25519Public,
    * ECDSAsecp256k1Private, or ECDSAsecp256k1Public. Private and Public types should be used when any private or public
    * key type is required (respectively) but the specific type (ED25519 or ECDSAsecp256k1) doesn't matter.
    */
-  std::optional<Type> mType;
+  std::optional<KeyType> mType;
 
   /**
    * For ED25519Public and ECDSAsecp256k1Public types, the DER-encoded hex string private key from which to generate the
@@ -114,10 +96,30 @@ struct Key
   std::optional<int> mThreshold;
 
   /**
-   * Required for List and Threshold types. Specify the types of keys to be generated and put in the List or Threshold.
+   * Required for List and Threshold types. Specify the keys to be generated and put in the List or Threshold.
    */
-  std::optional<std::vector<TCK::Key>> mKeys;
+  std::optional<std::vector<KeyRequest>> mKeys;
 };
+
+/**
+ * Get the corresponding KeyType of an input type string. This function acts as a map from a KeyType string
+ * representation to the actual KeyType the string represents, except it supports empty optional arguments.
+ *
+ * @param type The type as a string.
+ * @return The corresponding KeyType. Uninitialized if the input type string was uninitialized.
+ * @throws std::invalid_argument If the input string does not map to a Type enum.
+ */
+std::optional<KeyType> getKeyTypeEnum(const std::optional<std::string>& type);
+
+/**
+ * Get the corresponding type string of an input KeyType. This function acts as a map from a KeyType to that KeyType's
+ * string representation, except it supports empty optional arguments.
+ *
+ * @param type The KeyType from which to get the string representation.
+ * @return The corresponding string representation of the input KeyType. Uninitialized if the KeyType string was
+ *         uninitialized.
+ */
+std::optional<std::string> getKeyTypeString(const std::optional<KeyType>& type);
 
 /**
  * Generate a Hedera Key from a key hex string. The string must be either the DER-encoding of an ED25519 or
@@ -129,79 +131,79 @@ struct Key
 std::shared_ptr<Hedera::Key> getHederaKey(const std::string& key);
 
 /**
- * Helper function used to generate the hex string of an input TCK Key. For ED25519 or ECDSAsecp256k1 private or
- * public key types, this will be the DER-encoding of the key. For KeyList of ThresholdKey types, this will be the
- * serialized Key protobuf of the key.
+ * Process a KeyRequest and return the generated key. For ED25519 or ECDSAsecp256k1 private or public key types, this
+ * will be the DER-encoding of the key. For KeyList of ThresholdKey types, this will be the serialized Key protobuf of
+ * the key.
  *
- * @param key The TCK Key to encode.
- * @return The hex encoding of the TCK Key.
+ * @param request The KeyRequest to process.
+ * @return The hex encoding of the generated key.
  */
-std::string tckKeyToHex(const Hedera::TCK::Key& key);
+std::string processKeyRequest(const KeyRequest& request);
 
 } // namespace Hedera::TCK
 
 namespace nlohmann
 {
 /**
- * JSON serializer template specialization required to convert TckKey arguments properly.
+ * JSON serializer template specialization required to convert KeyRequest arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::Key>
+struct [[maybe_unused]] adl_serializer<Hedera::TCK::KeyRequest>
 {
   /**
-   * Convert a TckKey to a JSON object.
+   * Convert a KeyRequest to a JSON object.
    *
-   * @param jsonTo The JSON object to fill with the TckKey.
-   * @param opt    The TckKey with which to fill the JSON object.
+   * @param jsonTo  The JSON object to fill with the KeyRequest.
+   * @param request The KeyRequest with which to fill the JSON object.
    */
-  static void to_json(json& jsonTo, const Hedera::TCK::Key& key)
+  static void to_json(json& jsonTo, const Hedera::TCK::KeyRequest& request)
   {
-    if (key.mType.has_value())
+    if (request.mType.has_value())
     {
-      jsonTo["type"] = Hedera::TCK::Key::getTypeString(key.mType).value(); // NOLINT
+      jsonTo["type"] = Hedera::TCK::getKeyTypeString(request.mType).value(); // NOLINT
     }
 
-    if (key.mFromKey.has_value())
+    if (request.mFromKey.has_value())
     {
-      jsonTo["fromKey"] = key.mFromKey.value();
+      jsonTo["fromKey"] = request.mFromKey.value();
     }
 
-    if (key.mThreshold.has_value())
+    if (request.mThreshold.has_value())
     {
-      jsonTo["threshold"] = key.mThreshold.value();
+      jsonTo["threshold"] = request.mThreshold.value();
     }
 
-    if (key.mKeys.has_value())
+    if (request.mKeys.has_value())
     {
-      std::for_each(key.mKeys->cbegin(),
-                    key.mKeys->cend(),
-                    [&jsonTo](const Hedera::TCK::Key& key) // NOLINT
+      std::for_each(request.mKeys->cbegin(),
+                    request.mKeys->cend(),
+                    [&jsonTo](const Hedera::TCK::KeyRequest& request)
                     {
                       jsonTo["keys"].push_back(json());
-                      to_json(jsonTo["keys"].back(), key);
+                      to_json(jsonTo["keys"].back(), request);
                     });
     }
   }
 
   /**
-   * Convert a JSON object to a TckKey.
+   * Convert a JSON object to a KeyRequest.
    *
-   * @param jsonFrom The JSON object with which to fill the Key.
-   * @param opt      The TckKey to fill with the JSON object.
+   * @param jsonFrom The JSON object with which to fill the KeyRequest.
+   * @param request  The KeyRequest to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::Key& key)
+  static void from_json(const json& jsonFrom, Hedera::TCK::KeyRequest& request)
   {
     if (jsonFrom.contains("type"))
     {
       if (!jsonFrom["type"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_REQUEST,
-                                            "invalid request: type should be a string");
+        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                            "invalid parameters: type should be a string");
       }
 
       try
       {
-        key.mType = Hedera::TCK::Key::getTypeEnum(jsonFrom["type"].get<std::string>());
+        request.mType = Hedera::TCK::getKeyTypeEnum(jsonFrom["type"].get<std::string>());
       }
       catch (const std::invalid_argument& ex)
       {
@@ -214,40 +216,40 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::Key>
     {
       if (!jsonFrom["fromKey"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_REQUEST,
-                                            "invalid request: fromKey should be a string");
+        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                            "invalid parameters: fromKey should be a string");
       }
 
-      key.mFromKey = jsonFrom["fromKey"];
+      request.mFromKey = jsonFrom["fromKey"];
     }
 
     if (jsonFrom.contains("threshold"))
     {
       if (!jsonFrom["threshold"].is_number_integer())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_REQUEST,
-                                            "invalid request: threshold should be an integer");
+        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                            "invalid parameters: threshold should be an integer");
       }
 
-      key.mThreshold = jsonFrom["threshold"];
+      request.mThreshold = jsonFrom["threshold"];
     }
 
     if (jsonFrom.contains("keys"))
     {
       if (!jsonFrom["keys"].is_array())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_REQUEST,
-                                            "invalid request: keys should be a list");
+        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                            "invalid parameters: keys should be a list");
       }
 
-      key.mKeys = std::vector<Hedera::TCK::Key>();
-      key.mKeys->reserve(jsonFrom["keys"].size());
+      request.mKeys = std::vector<Hedera::TCK::KeyRequest>();
+      request.mKeys->reserve(jsonFrom["keys"].size());
       std::for_each(jsonFrom["keys"].cbegin(),
                     jsonFrom["keys"].cend(),
-                    [&key](const json& jsonKey)
+                    [&request](const json& jsonKey)
                     {
-                      key.mKeys->push_back(Hedera::TCK::Key());
-                      from_json(jsonKey, key.mKeys->back());
+                      request.mKeys->push_back(Hedera::TCK::KeyRequest());
+                      from_json(jsonKey, request.mKeys->back());
                     });
     }
   }

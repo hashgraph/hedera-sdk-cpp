@@ -135,10 +135,10 @@ nlohmann::json SdkClient::createAccount(const std::optional<std::string>& key,
 nlohmann::json SdkClient::generateKey(const std::optional<std::string>& type,
                                       const std::optional<std::string>& fromKey,
                                       const std::optional<int>& threshold,
-                                      const std::optional<std::vector<Hedera::TCK::Key>>& keys)
+                                      const std::optional<std::vector<KeyRequest>>& keys)
 {
   return {
-    {"key", tckKeyToHex({ type, fromKey, threshold, keys })}
+    {"key", processKeyRequest({ type, fromKey, threshold, keys })}
   };
 }
 
