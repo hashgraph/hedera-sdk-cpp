@@ -2,6 +2,7 @@ set(TCK_SERVER_NAME ${PROJECT_NAME}-tck)
 add_executable(${TCK_SERVER_NAME}
         src/JsonRpcException.cc
         src/JsonUtils.cc
+        src/KeyHelper.cc
         src/main.cc
         src/SdkClient.cc
         src/TckServer.cc)

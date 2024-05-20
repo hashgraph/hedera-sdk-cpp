@@ -20,7 +20,7 @@
 #ifndef HEDERA_TCK_CPP_SDK_CLIENT_H_
 #define HEDERA_TCK_CPP_SDK_CLIENT_H_
 
-#include "TckKey.h"
+#include "KeyHelper.h"
 
 #include <nlohmann/json_fwd.hpp>
 #include <optional>
@@ -60,29 +60,25 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
 /**
  * Generate a Key.
  *
- * @param type      The type of Key to generate. If provided, it MUST be one of `ed25519PrivateKey`, `ed25519PublicKey`,
- *                  `ecdsaSecp256k1PrivateKey`, `ecdsaSecp256k1PublicKey`, `keyList`, `thresholdKey`, `privateKey`,
- *                  `publicKey`, or `evmAddress`. If not provided, the returned key will be of type `ed25519PrivateKey`,
- *                  `ed25519PublicKey`, `ecdsaSecp256k1PrivateKey`, or `ecdsaSecp256k1PublicKey`. `privateKey` and
- *                  `publicKey` types should be used when any private or public key type is required (respectively) but
- *                  the specific type (ED25519 or ECDSAsecp256k1) doesn't matter.
- * @param fromKey   For `ed25519PublicKey` and `ecdsaSecp256k1PublicKey` types, the DER-encoded hex string private key
- *                  from which to generate the public key. No value means a random `ed25519PublicKey` or
- *                  `ecdsaSecp256k1PublicKey` will be generated, respectively. For the `evmAddress` type, the
- *                  DER-encoded hex string of an `ecdsaSecp256k1PrivateKey` or `ecdsaSecp256k1PublicKey` from which to
- *                  generate the EVM address. An `ecdsaSecp256k1PrivateKey` will first generate its respective
- *                  `ecdsaSecp256k1PublicKey`, and then generate the EVM address from that public key. No value means a
- *                  random EVM address will be generated.
- * @param threshold Required for `thresholdKey` types. The number of keys that must sign for a threshold key.
- * @param keys      Required for `keyList` and `thresholdKey` types. Specify the types of keys to be generated and put
- *                  in the `keyList` or `thresholdKey`. All keys should contain the same parameters as this
- *                  `generateKey` method, if required.
+ * @param type      The type of Key to generate. If not provided, the returned key will be of type ED25519Private,
+ *                  ED25519Public, ECDSAsecp256k1Private, or ECDSAsecp256k1Public. Private and Public types should be
+ *                  used when any private or public key type is required (respectively) but the specific type (ED25519
+ *                  or ECDSAsecp256k1) doesn't matter.
+ * @param fromKey   For ED25519Public and ECDSAsecp256k1Public types, the DER-encoded hex string private key from which
+ *                  to generate the public key. No value means a random ED25519Public or ECDSAsecp256k1Public will be
+ *                  generated, respectively. For EvmAddress, the DER-encoded hex string of an ECDSAsecp256k1Private or
+ *                  ECDSAsecp256k1Public from which to generate the EVM address. An ECDSAsecp256k1Private will first
+ *                  generate its respective ECDSAsecp256k1Public, and then generate the EVM address from that public
+ *                  key. No value means a random EVM address will be generated.
+ * @param threshold Required for Threshold types. The number of keys that must sign for a threshold key.
+ * @param keys      Required for List and Threshold types. Specify the types of keys to be generated and put in the List
+ *                  or Threshold.
  * @return The JSON object which contains the generated Key.
  */
 nlohmann::json generateKey(const std::optional<std::string>& type,
                            const std::optional<std::string>& fromKey,
                            const std::optional<int>& threshold,
-                           const std::optional<std::vector<TckKey>>& keys);
+                           const std::optional<std::vector<Hedera::TCK::Key>>& keys);
 
 /**
  * Reset the SDK client.
