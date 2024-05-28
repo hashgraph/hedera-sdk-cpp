@@ -60,6 +60,13 @@ public:
   static inline const std::string DER_ENCODED_PREFIX_HEX = "302E020100300506032B657004220420";
 
   /**
+   * SDK needs to provide  a way to set an unusable key such as an Ed25519 all-zeros
+   * key, since it is (presumably) impossible to find the 32-byte string whose SHA-512 hash begins with 32 bytes
+   * of zeros. We recommend using all-zeros to clearly advertise any unsuable keys.
+   */
+  std::string_view zeroKeyStr = "0000000000000000000000000000000000000000000000000000000000000000";
+
+  /**
    * Disallow default construction of an ED25519PrivateKey, as an uninitialized ED25519PrivateKey provides no
    * functionality. Instead, a factory function should be used.
    */
