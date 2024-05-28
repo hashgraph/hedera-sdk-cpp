@@ -340,7 +340,7 @@ public:
   /**
    * Get the token verification mode for the token.
    *
-   * @return The token verification mode for the token. Returns nullptr if no token verification mode has been set.
+   * @return The token verification mode for the token.
    */
   [[nodiscard]] inline TokenKeyValidation getTokenVerificationMode() const { return mKeyVerificationMode; }
 

@@ -333,21 +333,6 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateLowerPrivilegeKeysWithInval
                    tokenId, UpdateKeyType::LOWER_PRIVILEGE, validKey, someKey, TokenKeyValidation::NO_VALIDATION)
                    .getReceipt(getTestClient()),
                ReceiptStatusException);
-
-  // KeyList kl;
-  // std::cout << kl.empty() << std::endl;
-  // std::cout << kl.toString() << std::endl;
-  // std::shared_ptr<Key> klPtr = std::make_shared<KeyList>(kl);
-  // std::shared_ptr<PrivateKey> pklPtr = std::dynamic_pointer_cast<PrivateKey>(klPtr);
-
-  // if (pklPtr.get() == NULL)
-  //   std::cout << "nullptr" << std::endl;
-
-  // EXPECT_NO_THROW(txReceipt = updateTokenKeysHelper(
-  //                               tokenId, UpdateKeyType::LOWER_PRIVILEGE, pklPtr, someKey,
-  //                               TokenKeyValidation::NO_VALIDATION) .getReceipt(getTestClient()));
-
-  // std::cout << txReceipt.toString() << std::endl;
 }
 
 //-----
