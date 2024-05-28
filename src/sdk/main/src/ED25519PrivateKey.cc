@@ -171,7 +171,7 @@ std::unique_ptr<Key> ED25519PrivateKey::clone() const
 //-----
 std::unique_ptr<proto::Key> ED25519PrivateKey::toProtobufKey() const
 {
-  if (toStringRaw() == zeroKeyStr)
+  if (toStringRaw() == ZERO_KEY_STR)
   {
     auto keyProtobuf = std::make_unique<proto::Key>();
     keyProtobuf->set_ed25519(internal::Utilities::byteVectorToString(toBytesRaw()));
