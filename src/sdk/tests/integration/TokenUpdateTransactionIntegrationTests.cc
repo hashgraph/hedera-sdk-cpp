@@ -46,7 +46,6 @@ class TokenUpdateTransactionIntegrationTests : public BaseIntegrationTest
 {
 protected:
   [[nodiscard]] inline const std::vector<std::byte>& getTestMetadata() const { return mMetadata; }
-  [[nodiscard]] inline std::string_view getTestZeroKeyStr() const { return mZeroKeyStr; }
 
   enum class UpdateKeyType
   {
@@ -58,16 +57,14 @@ protected:
     PAUSE_KEY,
     METADATA_KEY,
     ADMIN_KEY,
-    ALL,
     LOWER_PRIVILEGE,
-    ALL_DIFFERENT_ADMIN_KEY,
+    ALL,
     NONE,
   };
 
   TransactionResponse createTokenWithKeysHelper(UpdateKeyType createKeyType,
                                                 std::shared_ptr<PrivateKey> initialKey,
-                                                std::shared_ptr<PrivateKey> signerKey,
-                                                TokenKeyValidation tokenKeyValidation)
+                                                std::shared_ptr<PrivateKey> signerKey)
   {
     TokenCreateTransaction tx;
     tx = TokenCreateTransaction()
@@ -112,16 +109,6 @@ protected:
           .setMetadataKey(initialKey);
         break;
       case UpdateKeyType::ALL:
-        tx.setWipeKey(initialKey)
-          .setKycKey(initialKey)
-          .setSupplyKey(initialKey)
-          .setFreezeKey(initialKey)
-          .setFeeScheduleKey(initialKey)
-          .setPauseKey(initialKey)
-          .setMetadataKey(initialKey)
-          .setAdminKey(signerKey);
-        break;
-      case UpdateKeyType::ALL_DIFFERENT_ADMIN_KEY:
         tx.setWipeKey(initialKey)
           .setKycKey(initialKey)
           .setSupplyKey(initialKey)
@@ -195,16 +182,6 @@ protected:
           .setMetadataKey(newKey)
           .setAdminKey(newKey);
         break;
-      case UpdateKeyType::ALL_DIFFERENT_ADMIN_KEY:
-        tx.setWipeKey(newKey)
-          .setKycKey(newKey)
-          .setSupplyKey(newKey)
-          .setFreezeKey(newKey)
-          .setFeeScheduleKey(newKey)
-          .setPauseKey(newKey)
-          .setMetadataKey(newKey)
-          .setAdminKey(signerKey);
-        break;
       case UpdateKeyType::NONE:
         break;
     }
@@ -225,7 +202,6 @@ protected:
 
 private:
   const std::vector<std::byte> mMetadata = { std::byte(0xAA), std::byte(0xAB), std::byte(0xAC), std::byte(0xAD) };
-  std::string_view mZeroKeyStr = "0000000000000000000000000000000000000000000000000000000000000000";
 };
 
 // HIP-540 tests
@@ -238,11 +214,10 @@ TEST_F(TokenUpdateTransactionIntegrationTests, TokenUpdateTransactionUpdateKeysT
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(getTestZeroKeyStr());
+  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(ED25519PrivateKey::ZERO_KEY_STR);
 
   // Make token immutable
-  TransactionResponse txResponse =
-    createTokenWithKeysHelper(UpdateKeyType::ALL, operatorKey, operatorKey, TokenKeyValidation::NO_VALIDATION);
+  TransactionResponse txResponse = createTokenWithKeysHelper(UpdateKeyType::ALL, operatorKey, operatorKey);
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
   TokenId tokenId = txReceipt.mTokenId.value();
@@ -265,13 +240,14 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateLowerPrivilegeKeysWithAdmin
   std::shared_ptr<PrivateKey> validKey;
   ASSERT_NO_THROW(validKey = ED25519PrivateKey::generatePrivateKey());
 
+  // When
   TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(
-                    UpdateKeyType::ALL, operatorKey, operatorKey, TokenKeyValidation::FULL_VALIDATION));
+  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::ALL, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
   TokenId tokenId = txReceipt.mTokenId.value();
 
+  // Then
   EXPECT_NO_THROW(
     txResponse = updateTokenKeysHelper(
       tokenId, UpdateKeyType::LOWER_PRIVILEGE, validKey, operatorKey, TokenKeyValidation::FULL_VALIDATION));
@@ -291,13 +267,14 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateLowerPrivilegeKeysWithAdmin
   std::shared_ptr<PrivateKey> validKey;
   ASSERT_NO_THROW(validKey = ED25519PrivateKey::generatePrivateKey());
 
+  // When
   TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(
-                    UpdateKeyType::ALL, operatorKey, operatorKey, TokenKeyValidation::NO_VALIDATION));
+  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::ALL, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
   TokenId tokenId = txReceipt.mTokenId.value();
 
+  // Then
   EXPECT_NO_THROW(txResponse = updateTokenKeysHelper(
                     tokenId, UpdateKeyType::LOWER_PRIVILEGE, validKey, operatorKey, TokenKeyValidation::NO_VALIDATION));
 
@@ -321,13 +298,14 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateLowerPrivilegeKeysWithInval
   std::shared_ptr<PrivateKey> nonAdminKey;
   ASSERT_NO_THROW(nonAdminKey = ED25519PrivateKey::generatePrivateKey());
 
+  // When
   TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(
-                    UpdateKeyType::ALL, nonAdminKey, operatorKey, TokenKeyValidation::NO_VALIDATION));
+  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::ALL, nonAdminKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
   TokenId tokenId = txReceipt.mTokenId.value();
 
+  // Then
   EXPECT_THROW(txReceipt =
                  updateTokenKeysHelper(
                    tokenId, UpdateKeyType::LOWER_PRIVILEGE, validKey, someKey, TokenKeyValidation::NO_VALIDATION)
@@ -343,13 +321,6 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateKeyWithoutAlreadySetAdminKe
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(
-                    UpdateKeyType::NONE, operatorKey, operatorKey, TokenKeyValidation::NO_VALIDATION));
-
-  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
-
   std::shared_ptr<PrivateKey> someKey;
   ASSERT_NO_THROW(someKey = ED25519PrivateKey::generatePrivateKey());
 
@@ -358,6 +329,14 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateKeyWithoutAlreadySetAdminKe
                                              UpdateKeyType::FEE_SCHEDULE_KEY, UpdateKeyType::PAUSE_KEY,
                                              UpdateKeyType::METADATA_KEY,     UpdateKeyType::ADMIN_KEY };
 
+  // When
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::NONE, operatorKey, operatorKey));
+
+  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
+  TokenId tokenId = txReceipt.mTokenId.value();
+
+  // Then
   for (UpdateKeyType updateType : updateTypes)
   {
     EXPECT_THROW(txReceipt =
@@ -376,13 +355,6 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(
-                    UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey, TokenKeyValidation::NO_VALIDATION));
-
-  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
-
   std::shared_ptr<PrivateKey> someKey;
   ASSERT_NO_THROW(someKey = ED25519PrivateKey::generatePrivateKey());
 
@@ -391,6 +363,14 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
                                                            UpdateKeyType::FEE_SCHEDULE_KEY, UpdateKeyType::PAUSE_KEY,
                                                            UpdateKeyType::METADATA_KEY };
 
+  // When
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey));
+
+  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
+  TokenId tokenId = txReceipt.mTokenId.value();
+
+  // Then
   for (UpdateKeyType updateType : lowerPrivilageUpdateTypes)
   {
     EXPECT_NO_THROW(
@@ -408,20 +388,21 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(
-                    UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey, TokenKeyValidation::NO_VALIDATION));
-
-  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
-
-  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(getTestZeroKeyStr());
+  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(ED25519PrivateKey::ZERO_KEY_STR);
 
   std::vector<UpdateKeyType> lowerPrivilageUpdateTypes = { UpdateKeyType::WIPE_KEY,         UpdateKeyType::KYC_KEY,
                                                            UpdateKeyType::SUPPLY_KEY,       UpdateKeyType::FREEZE_KEY,
                                                            UpdateKeyType::FEE_SCHEDULE_KEY, UpdateKeyType::PAUSE_KEY,
                                                            UpdateKeyType::METADATA_KEY };
 
+  // When
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey));
+
+  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
+  TokenId tokenId = txReceipt.mTokenId.value();
+
+  // Then
   for (UpdateKeyType updateType : lowerPrivilageUpdateTypes)
   {
     EXPECT_NO_THROW(
@@ -439,13 +420,6 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(
-                    UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey, TokenKeyValidation::FULL_VALIDATION));
-
-  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
-
   std::shared_ptr<PrivateKey> someKey;
   ASSERT_NO_THROW(someKey = ED25519PrivateKey::generatePrivateKey());
 
@@ -454,6 +428,14 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
                                                            UpdateKeyType::FEE_SCHEDULE_KEY, UpdateKeyType::PAUSE_KEY,
                                                            UpdateKeyType::METADATA_KEY };
 
+  // When
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey));
+
+  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
+  TokenId tokenId = txReceipt.mTokenId.value();
+
+  // Then
   for (UpdateKeyType updateType : lowerPrivilageUpdateTypes)
   {
     EXPECT_NO_THROW(
@@ -471,20 +453,21 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(getTestZeroKeyStr());
-
-  TransactionResponse txResponse;
-  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(
-                    UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey, TokenKeyValidation::FULL_VALIDATION));
-
-  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(ED25519PrivateKey::ZERO_KEY_STR);
 
   std::vector<UpdateKeyType> lowerPrivilageUpdateTypes = { UpdateKeyType::WIPE_KEY,         UpdateKeyType::KYC_KEY,
                                                            UpdateKeyType::SUPPLY_KEY,       UpdateKeyType::FREEZE_KEY,
                                                            UpdateKeyType::FEE_SCHEDULE_KEY, UpdateKeyType::PAUSE_KEY,
                                                            UpdateKeyType::METADATA_KEY };
 
+  // When
+  TransactionResponse txResponse;
+  EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey));
+
+  TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
+  TokenId tokenId = txReceipt.mTokenId.value();
+
+  // Then
   for (UpdateKeyType updateType : lowerPrivilageUpdateTypes)
   {
     EXPECT_THROW(txReceipt =

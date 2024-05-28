@@ -64,7 +64,7 @@ public:
    * key, since it is (presumably) impossible to find the 32-byte string whose SHA-512 hash begins with 32 bytes
    * of zeros. We recommend using all-zeros to clearly advertise any unsuable keys.
    */
-  std::string_view zeroKeyStr = "0000000000000000000000000000000000000000000000000000000000000000";
+  static inline const std::string ZERO_KEY_STR = "0000000000000000000000000000000000000000000000000000000000000000";
 
   /**
    * Disallow default construction of an ED25519PrivateKey, as an uninitialized ED25519PrivateKey provides no
