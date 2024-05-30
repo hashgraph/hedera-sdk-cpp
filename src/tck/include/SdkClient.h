@@ -20,6 +20,7 @@
 #ifndef HEDERA_TCK_CPP_SDK_CLIENT_H_
 #define HEDERA_TCK_CPP_SDK_CLIENT_H_
 
+#include "CommonTransactionParams.h"
 #include "KeyHelper.h"
 
 #include <nlohmann/json_fwd.hpp>
@@ -42,7 +43,7 @@ namespace Hedera::TCK::SdkClient
  * @param stakedNodeId              The ID of the desired node to which the new account should stake.
  * @param declineStakingReward      Should the new account decline staking rewards?
  * @param alias                     The desired alias for the new account.
- * @param signerKeys                Any keys that should sign the transaction (excluding fee-payer).
+ * @param commonTxParams            Any parameters common to all transaction types.
  * @return A JSON response containing the created account ID and the status of the account creation.
  */
 nlohmann::json createAccount(const std::optional<std::string>& key,
@@ -55,7 +56,7 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
                              const std::optional<uint64_t>& stakedNodeId,
                              const std::optional<bool>& declineStakingReward,
                              const std::optional<std::string>& alias,
-                             const std::optional<std::vector<std::string>>& signerKeys);
+                             const std::optional<CommonTransactionParams>& commonTxParams);
 
 /**
  * Generate a Key.

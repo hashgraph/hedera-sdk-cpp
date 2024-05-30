@@ -47,6 +47,16 @@ template<typename T> struct isOptional<std::optional<T>> : std::true_type {};
 // clang-format on
 
 /**
+ * Helper type traits to check if an argument is a vector and if the vector contains the correct argument.
+ */
+// clang-format off
+template<typename T, typename = void> struct hasValueType : std::false_type {};
+template<typename T> struct hasValueType<T, std::void_t<typename T::value_type>> : std::true_type {};
+template<typename T, bool = hasValueType<T>::value> struct isVector : std::false_type {};
+template<typename T> struct isVector<T, true> : std::is_same<T, std::vector<typename T::value_type>> {};
+// clang-format on
+
+/**
  * Map a type to its corresponding JSON type.
  *
  * @tparam T The type to map.
@@ -83,7 +93,7 @@ constexpr nlohmann::json::value_t getType()
   {
     return nlohmann::json::value_t::string;
   }
-  else if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
+  else if constexpr (isVector<T>::value)
   {
     return nlohmann::json::value_t::array;
   }

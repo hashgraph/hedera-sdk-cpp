@@ -60,7 +60,7 @@ nlohmann::json SdkClient::createAccount(const std::optional<std::string>& key,
                                         const std::optional<uint64_t>& stakedNodeId,
                                         const std::optional<bool>& declineStakingReward,
                                         const std::optional<std::string>& alias,
-                                        const std::optional<std::vector<std::string>>& signerKeys)
+                                        const std::optional<CommonTransactionParams>& commonTxParams)
 {
   AccountCreateTransaction accountCreateTransaction;
   accountCreateTransaction.setGrpcDeadline(std::chrono::seconds(DEFAULT_TCK_REQUEST_TIMEOUT));
@@ -115,13 +115,9 @@ nlohmann::json SdkClient::createAccount(const std::optional<std::string>& key,
     accountCreateTransaction.setAlias(EvmAddress::fromString(alias.value()));
   }
 
-  if (signerKeys.has_value())
+  if (commonTxParams.has_value())
   {
-    accountCreateTransaction.freezeWith(&mClient);
-    std::for_each(signerKeys->cbegin(),
-                  signerKeys->cend(),
-                  [&accountCreateTransaction](const std::string& signerKey)
-                  { accountCreateTransaction.sign(std::dynamic_pointer_cast<PrivateKey>(getHederaKey(signerKey))); });
+    commonTxParams->fillOutTransaction(accountCreateTransaction, mClient);
   }
 
   const TransactionReceipt txReceipt = accountCreateTransaction.execute(mClient).getReceipt(mClient);

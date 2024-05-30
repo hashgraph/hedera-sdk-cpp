@@ -43,7 +43,7 @@ int main(int argc, char** argv)
                   "stakedNodeId",
                   "declineStakingReward",
                   "alias",
-                  "signerKeys" });
+                  "commonTransactionParams" });
   tckServer.add("generateKey", getHandle(&SdkClient::generateKey), { "type", "fromKey", "threshold", "keys" });
   tckServer.add("setup",
                 getHandle(&SdkClient::setup),
