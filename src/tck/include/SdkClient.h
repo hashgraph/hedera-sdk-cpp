@@ -51,9 +51,9 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
                              const std::optional<bool>& receiverSignatureRequired,
                              const std::optional<int64_t>& autoRenewPeriod,
                              const std::optional<std::string>& memo,
-                             const std::optional<uint32_t>& maxAutoTokenAssociations,
+                             const std::optional<int32_t>& maxAutoTokenAssociations,
                              const std::optional<std::string>& stakedAccountId,
-                             const std::optional<uint64_t>& stakedNodeId,
+                             const std::optional<int64_t>& stakedNodeId,
                              const std::optional<bool>& declineStakingReward,
                              const std::optional<std::string>& alias,
                              const std::optional<CommonTransactionParams>& commonTxParams);
@@ -103,6 +103,33 @@ nlohmann::json setup(const std::string& operatorAccountId,
                      const std::optional<std::string>& nodeIp,
                      const std::optional<std::string>& nodeAccountId,
                      const std::optional<std::string>& mirrorNetworkIp);
+/**
+ * Update an account.
+ *
+ * @param accountId                 The ID of the account to update.
+ * @param key                       The desired key for the account.
+ * @param autoRenewPeriod           The new desired amount of time in seconds to renew the account.
+ * @param expirationTime            The new desired time for the account to expire.
+ * @param receiverSignatureRequired Should the account now require a receiver signature?
+ * @param memo                      The new desired memo for the account.
+ * @param maxAutoTokenAssociations  The new desired maximum number of automatic token associations for the account.
+ * @param stakedAccountId           The ID of the new desired account to which the account should stake.
+ * @param stakedNodeId              The ID of the new desired node to which the account should stake.
+ * @param declineStakingReward      Should the account now decline staking rewards?
+ * @param commonTxParams            Any parameters common to all transaction types.
+ * @return A JSON response containing the created account ID and the status of the account creation.
+ */
+nlohmann::json updateAccount(const std::optional<std::string>& accountId,
+                             const std::optional<std::string>& key,
+                             const std::optional<int64_t>& autoRenewPeriod,
+                             const std::optional<int64_t>& expirationTime,
+                             const std::optional<bool>& receiverSignatureRequired,
+                             const std::optional<std::string>& memo,
+                             const std::optional<int32_t>& maxAutoTokenAssociations,
+                             const std::optional<std::string>& stakedAccountId,
+                             const std::optional<int64_t>& stakedNodeId,
+                             const std::optional<bool>& declineStakingReward,
+                             const std::optional<CommonTransactionParams>& commonTxParams);
 
 } // namespace Hedera::TCK::SdkClient
 
