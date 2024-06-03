@@ -30,6 +30,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace Hedera::TCK
@@ -45,11 +46,19 @@ enum class KeyType : uint8_t
   ECDSA_SECP256k1_PUBLIC_KEY_TYPE,
   LIST_KEY_TYPE,
   THRESHOLD_KEY_TYPE,
-  PRIVATE_KEY_TYPE,
-  PUBLIC_KEY_TYPE,
   EVM_ADDRESS_KEY_TYPE,
   KEY_TYPE_SIZE [[maybe_unused]]
 };
+
+/**
+ * Map of KeyTypes to their string representation.
+ */
+extern const std::unordered_map<std::string, KeyType> gStringToKeyType;
+
+/**
+ * Map of KeyType string representations to KeyType.
+ */
+extern const std::unordered_map<KeyType, std::string> gKeyTypeToString;
 
 /**
  * Helper struct used to contain information about a key the TCK would like the SDK server to generate. Since
@@ -69,17 +78,15 @@ struct KeyRequest
    * @param threshold The threshold of keys to sign for ThresholdKeys.
    * @param keys      The KeyRequest information for KeyLists and ThresholdKeys.
    */
-  KeyRequest(const std::optional<std::string>& type,
+  KeyRequest(const std::string& type,
              const std::optional<std::string>& fromKey,
              const std::optional<int>& threshold,
              const std::optional<std::vector<KeyRequest>>& keys);
 
   /**
-   * The type of Key to generate. If not provided, the generated key will be of type ED25519Private, ED25519Public,
-   * ECDSAsecp256k1Private, or ECDSAsecp256k1Public. Private and Public types should be used when any private or public
-   * key type is required (respectively) but the specific type (ED25519 or ECDSAsecp256k1) doesn't matter.
+   * The type of Key to generate.
    */
-  std::optional<KeyType> mType;
+  KeyType mType;
 
   /**
    * For ED25519Public and ECDSAsecp256k1Public types, the DER-encoded hex string private key from which to generate the
@@ -102,44 +109,26 @@ struct KeyRequest
 };
 
 /**
- * Get the corresponding KeyType of an input type string. This function acts as a map from a KeyType string
- * representation to the actual KeyType the string represents, except it supports empty optional arguments.
+ * Generate a Key from a key hex string. The string must be either the DER-encoding of an ED25519 or ECDSAsecp256k1
+ * private or public key, or the serialized Key protobuf of a KeyList or ThresholdKey.
  *
- * @param type The type as a string.
- * @return The corresponding KeyType. Uninitialized if the input type string was uninitialized.
- * @throws std::invalid_argument If the input string does not map to a KeyType enum.
+ * @param key The hex string from which to get the Key.
+ * @return The Key of the input hex string.
  */
-std::optional<KeyType> getKeyTypeEnum(const std::optional<std::string>& type);
-
-/**
- * Get the corresponding type string of an input KeyType. This function acts as a map from a KeyType to that KeyType's
- * string representation, except it supports empty optional arguments.
- *
- * @param type The KeyType from which to get the string representation.
- * @return The corresponding string representation of the input KeyType. Uninitialized if the KeyType string was
- *         uninitialized.
- * @throws std::invalid_argument If the input KeyType is KEY_TYPE_SIZE.
- */
-std::optional<std::string> getKeyTypeString(const std::optional<KeyType>& type);
-
-/**
- * Generate a Hedera Key from a key hex string. The string must be either the DER-encoding of an ED25519 or
- * ECDSAsecp256k1 private or public key, or the serialized Key protobuf of a KeyList or ThresholdKey.
- *
- * @param key The hex string from which to get the Hedera Key.
- * @return The Hedera Key of the input hex string.
- */
-std::shared_ptr<Hedera::Key> getHederaKey(const std::string& key);
+std::shared_ptr<Key> getHederaKey(const std::string& key);
 
 /**
  * Process a KeyRequest and return the generated key. For ED25519 or ECDSAsecp256k1 private or public key types, this
  * will be the DER-encoding of the key. For KeyList of ThresholdKey types, this will be the serialized Key protobuf of
- * the key.
+ * the key, as well as the private keys contained in the list.
  *
- * @param request The KeyRequest to process.
+ * @param request  The KeyRequest to process.
+ * @param response The JSON object to possibly fill with a list of private keys for KeyList and ThresholdKey types.
+ * @param isList   If the current KeyRequest is a KeyList or ThresholdKey type and should add private keys to the
+ *                 response.
  * @return The hex encoding of the generated key.
  */
-std::string processKeyRequest(const KeyRequest& request);
+std::string processKeyRequest(const KeyRequest& request, nlohmann::json& response, bool isList = false);
 
 } // namespace Hedera::TCK
 
@@ -159,10 +148,7 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::KeyRequest>
    */
   static void to_json(json& jsonTo, const Hedera::TCK::KeyRequest& request)
   {
-    if (request.mType.has_value())
-    {
-      jsonTo["type"] = Hedera::TCK::getKeyTypeString(request.mType).value(); // NOLINT
-    }
+    jsonTo["type"] = Hedera::TCK::gKeyTypeToString.at(request.mType);
 
     if (request.mFromKey.has_value())
     {
@@ -194,23 +180,26 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::KeyRequest>
    */
   static void from_json(const json& jsonFrom, Hedera::TCK::KeyRequest& request)
   {
-    if (jsonFrom.contains("type"))
+    if (!jsonFrom.contains("type"))
     {
-      if (!jsonFrom["type"].is_string())
-      {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: type should be a string");
-      }
+      throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                          "invalid parameters: type is required");
+    }
 
-      try
-      {
-        request.mType = Hedera::TCK::getKeyTypeEnum(jsonFrom["type"].get<std::string>());
-      }
-      catch (const std::invalid_argument& ex)
-      {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: " + std::string(ex.what()));
-      }
+    if (!jsonFrom["type"].is_string())
+    {
+      throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                          "invalid parameters: type should be a string");
+    }
+
+    try
+    {
+      request.mType = Hedera::TCK::gStringToKeyType.at(jsonFrom["type"].get<std::string>());
+    }
+    catch (const std::invalid_argument& ex)
+    {
+      throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                          "invalid parameters: " + std::string(ex.what()));
     }
 
     if (jsonFrom.contains("fromKey"))
