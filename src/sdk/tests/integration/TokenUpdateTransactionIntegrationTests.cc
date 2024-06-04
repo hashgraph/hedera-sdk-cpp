@@ -62,16 +62,14 @@ protected:
     NONE,
   };
 
+  //-----
   TransactionResponse createTokenWithKeysHelper(UpdateKeyType createKeyType,
-                                                std::shared_ptr<PrivateKey> initialKey,
-                                                std::shared_ptr<PrivateKey> signerKey)
+                                                const std::shared_ptr<PrivateKey>& initialKey,
+                                                const std::shared_ptr<PrivateKey>& signerKey)
   {
     TokenCreateTransaction tx;
-    tx = TokenCreateTransaction()
-           .setTokenName("ffff")
-           .setTokenSymbol("F")
-           .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
-           .setFreezeDefault(false);
+    tx = TokenCreateTransaction().setTokenName("ffff").setTokenSymbol("F").setTreasuryAccountId(
+      getTestClient().getOperatorAccountId().value());
 
     switch (createKeyType)
     {
@@ -128,10 +126,11 @@ protected:
     return txResponse;
   }
 
+  //-----
   TransactionResponse updateTokenKeysHelper(TokenId tokenId,
                                             UpdateKeyType updateKeyType,
-                                            std::shared_ptr<PrivateKey> newKey,
-                                            std::shared_ptr<PrivateKey> signerKey,
+                                            const std::shared_ptr<PrivateKey>& newKey,
+                                            const std::shared_ptr<PrivateKey>& signerKey,
                                             TokenKeyValidation tokenKeyValidation)
   {
     TokenUpdateTransaction tx =
@@ -216,12 +215,15 @@ TEST_F(TokenUpdateTransactionIntegrationTests, TokenUpdateTransactionUpdateKeysT
 
   std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(ED25519PrivateKey::ZERO_KEY_STR);
 
+  // When
   // Make token immutable
   TransactionResponse txResponse = createTokenWithKeysHelper(UpdateKeyType::ALL, operatorKey, operatorKey);
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
+  // Then
   EXPECT_NO_THROW(txResponse = updateTokenKeysHelper(
                     tokenId, UpdateKeyType::ALL, zeroKey, operatorKey, TokenKeyValidation::NO_VALIDATION));
 
@@ -245,7 +247,8 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateLowerPrivilegeKeysWithAdmin
   EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::ALL, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Then
   EXPECT_NO_THROW(
@@ -272,7 +275,8 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateLowerPrivilegeKeysWithAdmin
   EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::ALL, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Then
   EXPECT_NO_THROW(txResponse = updateTokenKeysHelper(
@@ -303,7 +307,8 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateLowerPrivilegeKeysWithInval
   EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::ALL, nonAdminKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Then
   EXPECT_THROW(txReceipt =
@@ -334,7 +339,8 @@ TEST_F(TokenUpdateTransactionIntegrationTests, UpdateKeyWithoutAlreadySetAdminKe
   EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::NONE, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Then
   for (UpdateKeyType updateType : updateTypes)
@@ -368,7 +374,8 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Then
   for (UpdateKeyType updateType : lowerPrivilageUpdateTypes)
@@ -400,7 +407,8 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Then
   for (UpdateKeyType updateType : lowerPrivilageUpdateTypes)
@@ -433,7 +441,8 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Then
   for (UpdateKeyType updateType : lowerPrivilageUpdateTypes)
@@ -465,7 +474,8 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   EXPECT_NO_THROW(txResponse = createTokenWithKeysHelper(UpdateKeyType::LOWER_PRIVILEGE, operatorKey, operatorKey));
 
   TransactionReceipt txReceipt = txResponse.setValidateStatus(true).getReceipt(getTestClient());
-  TokenId tokenId = txReceipt.mTokenId.value();
+  TokenId tokenId;
+  EXPECT_NO_THROW(tokenId = txReceipt.mTokenId.value());
 
   // Then
   for (UpdateKeyType updateType : lowerPrivilageUpdateTypes)

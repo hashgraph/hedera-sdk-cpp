@@ -177,8 +177,7 @@ std::unique_ptr<proto::Key> ED25519PrivateKey::toProtobufKey() const
     keyProtobuf->set_ed25519(internal::Utilities::byteVectorToString(toBytesRaw()));
     return keyProtobuf;
   }
-  else
-    return getPublicKey()->toProtobufKey();
+  return getPublicKey()->toProtobufKey();
 }
 
 //-----
