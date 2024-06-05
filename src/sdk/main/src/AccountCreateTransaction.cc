@@ -35,14 +35,14 @@ namespace Hedera
 AccountCreateTransaction::AccountCreateTransaction()
   : Transaction<AccountCreateTransaction>()
 {
-  setDefaultMaxTransactionFee(Hbar(10000LL));
+  setDefaultMaxTransactionFee(Hbar(5LL));
 }
 
 //-----
 AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountCreateTransaction>(transactionBody)
 {
-  setDefaultMaxTransactionFee(Hbar(10000LL));
+  setDefaultMaxTransactionFee(Hbar(5LL));
   initFromSourceTransactionBody();
 }
 
@@ -51,7 +51,7 @@ AccountCreateTransaction::AccountCreateTransaction(
   const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
   : Transaction<AccountCreateTransaction>(transactions)
 {
-  setDefaultMaxTransactionFee(Hbar(10000LL));
+  setDefaultMaxTransactionFee(Hbar(5LL));
   initFromSourceTransactionBody();
 }
 
