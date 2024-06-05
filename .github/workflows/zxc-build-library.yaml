@@ -72,7 +72,7 @@ jobs:
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
       - name: Install CMake & Ninja
-        uses: lukka/get-cmake@c57ffe818cee3ee5f08fc1cc78c8bbede1cbbe59 # v3.29.3
+        uses: lukka/get-cmake@85652a37b177d946c9f4fad0f696b2927ee7754d # v3.29.4
 
       - name: Setup VCPkg
         uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
