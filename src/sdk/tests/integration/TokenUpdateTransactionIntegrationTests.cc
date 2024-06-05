@@ -804,7 +804,7 @@ TEST_F(TokenUpdateTransactionIntegrationTests,
   TokenId tokenId;
   ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
                               .setTokenName("ffff")
-                              .setTokenSymbol("F")
+                              .setTokenSymbol("FF")
                               .setMetadata(getTestMetadata())
                               .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
                               .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
