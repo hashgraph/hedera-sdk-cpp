@@ -30,7 +30,7 @@ using namespace Hedera;
 int main(int argc, char** argv)
 {
   dotenv::init();
-  const AccountId operatorAccountId = AccountId::fromString("0.0.2202375");
+  const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
 
   // Get a client for the Hedera testnet
   Client client = Client::forTestnet();
