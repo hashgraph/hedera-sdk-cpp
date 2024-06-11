@@ -75,7 +75,7 @@ public:
   /**
    * Construct a TokenRelationship object from a TokenRelationship protobuf object.
    *
-   * @param proto The TokenRelationship protobuf object from which to construct an TokenRelationship
+   * @param proto The TokenRelationship protobuf object from which to construct a TokenRelationship
    * object.
    * @return The constructed TokenRelationship object.
    */
