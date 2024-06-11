@@ -47,9 +47,6 @@ AccountInfoQuery& AccountInfoQuery::setAccountId(const AccountId& accountId)
 AccountInfo AccountInfoQuery::mapResponse(const proto::Response& response) const
 {
   AccountInfo accountInfo = AccountInfo::fromProtobuf(response.cryptogetinfo().accountinfo());
-
-  fetchTokenInformation(accountInfo);
-
   return accountInfo;
 }
 
@@ -66,32 +63,6 @@ grpc::Status AccountInfoQuery::submitRequest(const proto::Query& request,
 void AccountInfoQuery::validateChecksums(const Client& client) const
 {
   mAccountId.validateChecksum(client);
-}
-
-//-----
-void AccountInfoQuery::fetchTokenInformation(AccountInfo& accountInfo) const
-{
-  json tokens =
-    internal::MirrorNodeGateway::MirrorNodeQuery(getMirrorNodeResolution(),
-                                                 { mAccountId.toString() },
-                                                 internal::MirrorNodeGateway::TOKEN_RELATIONSHIPS_QUERY.data());
-  if (!tokens["tokens"].empty())
-  {
-    for (const auto& token : tokens["tokens"])
-    {
-      bool automaticAssociation = token["automatic_association"];
-      uint64_t balance = token["balance"];
-      uint32_t decimals = token["decimals"];
-      std::string kycStatus = token["kyc_status"].dump().substr(1, token["kyc_status"].dump().length() - 2);
-      std::string freezeStatus = token["freeze_status"].dump().substr(1, token["freeze_status"].dump().length() - 2);
-      TokenId tokenId = TokenId::fromString(token["token_id"].dump().substr(1, token["token_id"].dump().length() - 2));
-
-      TokenRelationship tokenRelationship(
-        tokenId, "", balance, decimals, kycStatus, freezeStatus, automaticAssociation);
-
-      accountInfo.mTokenRelationships.insert({ tokenId, tokenRelationship });
-    }
-  }
 }
 
 //-----

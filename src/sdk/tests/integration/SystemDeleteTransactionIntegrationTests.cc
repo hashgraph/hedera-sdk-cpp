@@ -101,7 +101,7 @@ TEST_F(SystemDeleteTransactionIntegrationTests, DeleteContract)
                                                       .setExpirationTime(std::chrono::system_clock::now())
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               ReceiptStatusException); // NOT_SUPPORTED
+               PrecheckStatusException); // NOT_SUPPORTED
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =

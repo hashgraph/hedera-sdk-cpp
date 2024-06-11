@@ -61,9 +61,6 @@ AccountBalanceQuery& AccountBalanceQuery::setContractId(const ContractId& contra
 AccountBalance AccountBalanceQuery::mapResponse(const proto::Response& response) const
 {
   AccountBalance accountBalance = AccountBalance::fromProtobuf(response.cryptogetaccountbalance());
-
-  fetchTokenInformation(accountBalance);
-
   return accountBalance;
 }
 
@@ -87,38 +84,6 @@ void AccountBalanceQuery::validateChecksums(const Client& client) const
   if (mContractId.has_value())
   {
     mContractId->validateChecksum(client);
-  }
-}
-
-//-----
-void AccountBalanceQuery::fetchTokenInformation(AccountBalance& accountBalance) const
-{
-  std::string param;
-  if (mAccountId.has_value())
-  {
-    param = mAccountId.value().toString();
-  }
-  else if (mContractId.has_value())
-  {
-    param = mContractId.value().toString();
-  }
-  else
-  {
-    throw UninitializedException("Missing both accountId and contractId");
-  }
-
-  json tokens = internal::MirrorNodeGateway::MirrorNodeQuery(
-    getMirrorNodeResolution(), { param }, internal::MirrorNodeGateway::TOKEN_RELATIONSHIPS_QUERY.data());
-
-  if (!tokens["tokens"].empty())
-  {
-    for (const auto& token : tokens["tokens"])
-    {
-      std::string tokenIdStr = token["token_id"].dump();
-      uint64_t tokenBalance = token["balance"];
-      TokenId tokenId = TokenId::fromString(tokenIdStr.substr(1, tokenIdStr.length() - 2));
-      accountBalance.mTokens.insert({ tokenId, tokenBalance });
-    }
   }
 }
 

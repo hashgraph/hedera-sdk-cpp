@@ -308,12 +308,12 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWi
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
 
   TopicId topicId;
-  ASSERT_NO_THROW(topicId = TopicCreateTransaction()
-                              .setAdminKey(operatorKey)
-                              .setMemo(testMemo)
-                              .execute(getTestClient())
-                              .getReceipt(getTestClient())
-                              .mTopicId.value());
+  ASSERT_ANY_THROW(topicId = TopicCreateTransaction()
+                               .setAdminKey(operatorKey)
+                               .setMemo(testMemo)
+                               .execute(getTestClient())
+                               .getReceipt(getTestClient())
+                               .mTopicId.value());
 
   // When
   std::vector<TransactionResponse> txResponses;

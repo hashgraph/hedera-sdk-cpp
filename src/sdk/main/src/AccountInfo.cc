@@ -86,6 +86,12 @@ AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_Account
     accountInfo.mStakingInfo = StakingInfo::fromProtobuf(proto.staking_info());
   }
 
+  for (auto it = proto.tokenrelationships().begin(); it != proto.tokenrelationships().end(); it++)
+  {
+    accountInfo.mTokenRelationships.insert(
+      { TokenId::fromProtobuf(it->tokenid()), TokenRelationship::fromProtobuf(*it) });
+  }
+
   return accountInfo;
 }
 
@@ -130,6 +136,11 @@ std::unique_ptr<proto::CryptoGetInfoResponse_AccountInfo> AccountInfo::toProtobu
 
   proto->set_ledger_id(internal::Utilities::byteVectorToString(mLedgerId.toBytes()));
   proto->set_allocated_staking_info(mStakingInfo.toProtobuf().release());
+
+  for (auto tr : mTokenRelationships)
+  {
+    proto->mutable_tokenrelationships()->AddAllocated(tr.second.toProtobuf().release());
+  }
 
   return proto;
 }

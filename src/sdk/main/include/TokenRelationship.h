@@ -2,7 +2,7 @@
  *
  * Hedera C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,13 @@
 #include <optional>
 #include <string>
 
+#include <proto/basic_types.pb.h>
+
+namespace proto
+{
+class TokenRelationship;
+}
+
 namespace Hedera
 {
 /**
@@ -38,6 +45,13 @@ namespace Hedera
 class TokenRelationship
 {
 public:
+  /**
+   * @brief Default constructor for TokenRelationship.
+   *
+   * Constructs an empty TokenRelationship object with no initial values.
+   */
+  TokenRelationship() = default;
+
   /**
    * Constructor for TokenRelationship.
    *
@@ -54,9 +68,25 @@ public:
                     const std::string& symbol,
                     uint64_t balance,
                     uint32_t decimals,
-                    std::string_view kycStatus,
-                    std::string_view freezeStatus,
+                    int kycStatus,
+                    int freezeStatus,
                     bool automaticAssociation);
+
+  /**
+   * Construct a TokenRelationship object from a TokenRelationship protobuf object.
+   *
+   * @param proto The TokenRelationship protobuf object from which to construct an TokenRelationship
+   * object.
+   * @return The constructed TokenRelationship object.
+   */
+  [[nodiscard]] static TokenRelationship fromProtobuf(const proto::TokenRelationship& proto);
+
+  /**
+   * Construct a TokenRelationship protobuf object from this TokenRelationship object.
+   *
+   * @return A pointer to the created TokenRelationship protobuf object.
+   */
+  [[nodiscard]] std::unique_ptr<proto::TokenRelationship> toProtobuf() const;
 
   /**
    * Converts the TokenRelationship object to a string representation.
@@ -102,20 +132,38 @@ public:
 
 private:
   /**
-   * Sets the KYC status based on the provided string.
+   * Sets the KYC status based on the provided int.
    *
-   * @param kycStatusString The string representation of KYC status ("GRANTED", "REVOKED", or "NOT_APPLICABLE").
+   * @param kycStatus The int representation of KYC status (1 - GRANTED, 2 - REVOKED, or 0 - NOT_APPLICABLE).
    * @throws std::invalid_argument if the provided string is not a valid KYC status.
    */
-  void setKycStatus(std::string_view kycStatusString);
+  void setKycStatus(int kycStatusString);
 
   /**
-   * Sets the freeze status based on the provided string.
+   * Sets the freeze status based on the provided int.
    *
-   * @param freezeStatus The string representation of freeze status ("FROZEN", "UNFROZEN", or "NOT_APPLICABLE").
+   * @param freezeStatus The string representation of freeze status (1 - FROZEN, 2 - UNFROZEN, or 0 - NOT_APPLICABLE).
    * @throws std::invalid_argument if the provided string is not a valid freeze status.
    */
-  void setFreezeStatus(std::string_view freezeStatus);
+  void setFreezeStatus(int freezeStatus);
+
+  /**
+   * @brief Get the KYC status of the token.
+   *
+   * This method converts the internal KYC status to the corresponding protobuf enum value.
+   *
+   * @return The protobuf enum value representing the KYC status.
+   */
+  proto::TokenKycStatus getKycStatus() const;
+
+  /**
+   * @brief Get the freeze status of the token.
+   *
+   * This method converts the internal freeze status to the corresponding protobuf enum value.
+   *
+   * @return The protobuf enum value representing the freeze status.
+   */
+  proto::TokenFreezeStatus getFreezeStatus() const;
 };
 } // namespace Hedera
 

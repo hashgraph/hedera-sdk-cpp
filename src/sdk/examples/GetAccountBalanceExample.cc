@@ -30,15 +30,22 @@ using namespace Hedera;
 int main(int argc, char** argv)
 {
   dotenv::init();
-  const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
+  const AccountId operatorAccountId = AccountId::fromString("0.0.2202375");
 
   // Get a client for the Hedera testnet
   Client client = Client::forTestnet();
 
   // Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.
-  Hbar balance = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client).mBalance;
+  AccountBalance accountBalance = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client);
 
-  std::cout << "Balance of account " << operatorAccountId.toString() << " is " << balance.toString() << std::endl;
+  std::cout << "Balance of account " << operatorAccountId.toString() << " is " << accountBalance.mBalance.toString()
+            << std::endl;
+
+  std::cout << "Token balances of account" << std::endl;
+  for (auto tokenBalance : accountBalance.mTokens)
+  {
+    std::cout << tokenBalance.first.toString() << ": " << tokenBalance.second << std::endl;
+  }
 
   return 0;
 }
