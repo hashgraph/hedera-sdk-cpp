@@ -148,7 +148,7 @@ private:
   void setFreezeStatus(int freezeStatus);
 
   /**
-   * @brief Get the KYC status of the token.
+   * Get the KYC status of the token.
    *
    * This method converts the internal KYC status to the corresponding protobuf enum value.
    *
