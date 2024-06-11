@@ -143,7 +143,7 @@ private:
    * Sets the freeze status based on the provided int.
    *
    * @param freezeStatus The string representation of freeze status (1 - FROZEN, 2 - UNFROZEN, or 0 - NOT_APPLICABLE).
-   * @throws std::invalid_argument if the provided string is not a valid freeze status.
+   * @throws std::invalid_argument if the provided int is not a valid freeze status.
    */
   void setFreezeStatus(int freezeStatus);
 
