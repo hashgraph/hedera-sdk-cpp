@@ -25,20 +25,6 @@
 using namespace Hedera;
 
 //-----
-// TokenRelationship::TokenRelationship()
-//   : mTokenId(TokenId())
-//   , mSymbol("")
-//   , mBalance(0)
-//   , mDecimals(0)
-//   , mKycStatus()
-//   , mFreezeStatus()
-//   , mAutomaticAssociation(false)
-// {
-//   setKycStatus(0);
-//   setFreezeStatus(0);
-// }
-
-//-----
 TokenRelationship::TokenRelationship(const TokenId& tokenId,
                                      const std::string& symbol,
                                      uint64_t balance,
