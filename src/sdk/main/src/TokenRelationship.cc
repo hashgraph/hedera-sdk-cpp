@@ -133,7 +133,7 @@ proto::TokenKycStatus TokenRelationship::getKycStatus() const
 {
   if (!mKycStatus.has_value())
     return proto::TokenKycStatus::KycNotApplicable;
-  if (mKycStatus.value() == true)
+  if (mKycStatus.value())
     return proto::TokenKycStatus::Granted;
   else
     return proto::TokenKycStatus::Revoked;
