@@ -157,7 +157,7 @@ private:
   proto::TokenKycStatus getKycStatus() const;
 
   /**
-   * @brief Get the freeze status of the token.
+   * Get the freeze status of the token.
    *
    * This method converts the internal freeze status to the corresponding protobuf enum value.
    *
