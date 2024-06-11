@@ -135,7 +135,7 @@ private:
    * Sets the KYC status based on the provided int.
    *
    * @param kycStatus The int representation of KYC status (1 - GRANTED, 2 - REVOKED, or 0 - NOT_APPLICABLE).
-   * @throws std::invalid_argument if the provided string is not a valid KYC status.
+   * @throws std::invalid_argument if the provided int is not a valid KYC status.
    */
   void setKycStatus(int kycStatusString);
 
