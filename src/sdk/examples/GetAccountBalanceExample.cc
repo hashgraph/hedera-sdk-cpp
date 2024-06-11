@@ -36,7 +36,7 @@ int main(int argc, char** argv)
   Client client = Client::forTestnet();
 
   // Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.
-  AccountBalance accountBalance = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client);
+  const AccountBalance accountBalance = AccountBalanceQuery().setAccountId(operatorAccountId).execute(client);
 
   std::cout << "Balance of account " << operatorAccountId.toString() << " is " << accountBalance.mBalance.toString()
             << std::endl;
