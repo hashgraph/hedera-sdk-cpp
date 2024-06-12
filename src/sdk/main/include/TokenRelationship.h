@@ -45,11 +45,6 @@ namespace Hedera
 class TokenRelationship
 {
 public:
-  /**
-   * @brief Default constructor for TokenRelationship.
-   *
-   * Constructs an empty TokenRelationship object with no initial values.
-   */
   TokenRelationship() = default;
 
   /**

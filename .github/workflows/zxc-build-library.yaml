@@ -12,7 +12,7 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: [ self-hosted, Linux, xlarge, ephemeral ]
+    runs-on: [self-hosted, Linux, xlarge, ephemeral]
 
     env:
       HEDERA_NETWORK: localhost
@@ -107,7 +107,7 @@ jobs:
       #     run: tree /F build
 
       - name: Start the local node
-        run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.49.0-alpha.3
+        run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.51.0-alpha.3
 
       - name: Start CTest suite (Debug)
         run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure

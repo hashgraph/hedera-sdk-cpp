@@ -72,6 +72,8 @@ std::unique_ptr<proto::TokenRelationship> TokenRelationship::toProtobuf() const
   proto->set_decimals(mDecimals);
   proto->set_kycstatus(getKycStatus());
   proto->set_freezestatus(getFreezeStatus());
+
+  return proto;
 }
 
 //-----
@@ -132,20 +134,32 @@ void TokenRelationship::setFreezeStatus(int freezeStatus)
 proto::TokenKycStatus TokenRelationship::getKycStatus() const
 {
   if (!mKycStatus.has_value())
+  {
     return proto::TokenKycStatus::KycNotApplicable;
+  }
   if (mKycStatus.value())
+  {
     return proto::TokenKycStatus::Granted;
+  }
   else
+  {
     return proto::TokenKycStatus::Revoked;
+  }
 }
 
 //-----
 proto::TokenFreezeStatus TokenRelationship::getFreezeStatus() const
 {
   if (!mFreezeStatus.has_value())
+  {
     return proto::TokenFreezeStatus::FreezeNotApplicable;
+  }
   if (mFreezeStatus.value() == true)
+  {
     return proto::TokenFreezeStatus::Frozen;
+  }
   else
+  {
     return proto::TokenFreezeStatus::Unfrozen;
+  }
 }
