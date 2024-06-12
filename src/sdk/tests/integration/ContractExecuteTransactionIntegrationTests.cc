@@ -100,15 +100,19 @@ TEST_F(ContractExecuteTransactionIntegrationTests, ExecuteContractExecuteTransac
 }
 
 //-----
-TEST_F(ContractExecuteTransactionIntegrationTests, CannotExecuteContractWithoutContractId)
+// Disabled due to client executing with privileged account
+// this bypasses the Precheck in the service code so changing
+// operator for certain tests will be a separate issue
+TEST_F(ContractExecuteTransactionIntegrationTests, DISABLED_CannotExecuteContractWithoutContractId)
 {
   // Given / When / Then
-  EXPECT_ANY_THROW(const TransactionReceipt txReceipt =
-                     ContractExecuteTransaction()
-                       .setGas(1000000ULL)
-                       .setFunction("setMessage", ContractFunctionParameters().addString("new message"))
-                       .execute(getTestClient())
-                       .getReceipt(getTestClient())); // INVALID_CONTRACT_ID
+  EXPECT_THROW(const TransactionReceipt txReceipt =
+                 ContractExecuteTransaction()
+                   .setGas(100000ULL)
+                   .setFunction("setMessage", ContractFunctionParameters().addString("new message"))
+                   .execute(getTestClient())
+                   .getReceipt(getTestClient()),
+               PrecheckStatusException); // INVALID_CONTRACT_ID
 }
 
 //-----

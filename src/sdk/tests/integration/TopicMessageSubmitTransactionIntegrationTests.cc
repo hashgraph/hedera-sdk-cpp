@@ -27,6 +27,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
+#include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 
 #include <chrono>
@@ -308,18 +309,19 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWi
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
 
   TopicId topicId;
-  ASSERT_ANY_THROW(topicId = TopicCreateTransaction()
-                               .setAdminKey(operatorKey)
-                               .setMemo(testMemo)
-                               .execute(getTestClient())
-                               .getReceipt(getTestClient())
-                               .mTopicId.value());
+  ASSERT_NO_THROW(topicId = TopicCreateTransaction()
+                              .setAdminKey(operatorKey)
+                              .setMemo(testMemo)
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTopicId.value());
 
   // When
   std::vector<TransactionResponse> txResponses;
-  EXPECT_NO_THROW(
+  ASSERT_THROW(
     txResponses =
-      TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()));
+      TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()),
+    PrecheckStatusException);
 
   // Then
   for (const auto& resp : txResponses)
