@@ -154,7 +154,7 @@ proto::TokenFreezeStatus TokenRelationship::getFreezeStatus() const
   {
     return proto::TokenFreezeStatus::FreezeNotApplicable;
   }
-  if (mFreezeStatus.value() == true)
+  if (mFreezeStatus.value())
   {
     return proto::TokenFreezeStatus::Frozen;
   }
