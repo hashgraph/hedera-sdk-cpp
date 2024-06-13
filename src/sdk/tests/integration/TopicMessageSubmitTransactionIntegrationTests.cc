@@ -318,7 +318,7 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWi
 
   // When
   std::vector<TransactionResponse> txResponses;
-  EXPECT_THROW(
+  ASSERT_THROW(
     txResponses =
       TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()),
     PrecheckStatusException);

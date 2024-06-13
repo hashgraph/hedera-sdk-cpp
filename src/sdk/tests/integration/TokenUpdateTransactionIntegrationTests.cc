@@ -213,7 +213,7 @@ TEST_F(TokenUpdateTransactionIntegrationTests, TokenUpdateTransactionUpdateKeysT
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(ED25519PrivateKey::ZERO_KEY_STR);
+  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::getZeroKey();
 
   // When
   // Make token immutable
@@ -395,7 +395,7 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(ED25519PrivateKey::ZERO_KEY_STR);
+  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::getZeroKey();
 
   std::vector<UpdateKeyType> lowerPrivilageUpdateTypes = { UpdateKeyType::WIPE_KEY,         UpdateKeyType::KYC_KEY,
                                                            UpdateKeyType::SUPPLY_KEY,       UpdateKeyType::FREEZE_KEY,
@@ -462,7 +462,7 @@ TEST_F(TokenUpdateTransactionIntegrationTests, LowerPrivilageKeysCanSelfUpdateTo
   ASSERT_NO_THROW(operatorKey =
                     ED25519PrivateKey::fromString("bbd0894de0b4ecfa862e963825c5448d2d17f807a16869526bff29185747acdb"));
 
-  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::fromString(ED25519PrivateKey::ZERO_KEY_STR);
+  std::shared_ptr<PrivateKey> zeroKey = ED25519PrivateKey::getZeroKey();
 
   std::vector<UpdateKeyType> lowerPrivilageUpdateTypes = { UpdateKeyType::WIPE_KEY,         UpdateKeyType::KYC_KEY,
                                                            UpdateKeyType::SUPPLY_KEY,       UpdateKeyType::FREEZE_KEY,

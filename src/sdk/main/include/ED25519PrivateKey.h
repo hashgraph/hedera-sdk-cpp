@@ -178,6 +178,14 @@ public:
    */
   [[nodiscard]] std::vector<std::byte> toBytesRaw() const override;
 
+  /**
+   * Construct an ED25519PrivateKey object from a hex-encoded string (DER-encoded or raw).
+   *
+   * @return A pointer to an ED25519PrivateKey all zero key. Unusable key defined in HIP-540.
+   * @throws BadKeyException If an ED25519PrivateKey cannot be realized from the input hex string.
+   */
+  [[nodiscard]] static std::unique_ptr<ED25519PrivateKey> getZeroKey();
+
 private:
   /**
    * Construct from a wrapped OpenSSL key object and optionally a chain code.

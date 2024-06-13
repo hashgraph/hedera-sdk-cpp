@@ -259,6 +259,12 @@ std::vector<std::byte> ED25519PrivateKey::toBytesRaw() const
 }
 
 //-----
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::getZeroKey()
+{
+  return fromString(ZERO_KEY_STR);
+}
+
+//-----
 std::unique_ptr<PrivateKey> ED25519PrivateKey::derive(uint32_t childIndex) const
 {
   if (getChainCode().empty())
