@@ -45,9 +45,6 @@ ContractInfoQuery& ContractInfoQuery::setContractId(const ContractId& contractId
 ContractInfo ContractInfoQuery::mapResponse(const proto::Response& response) const
 {
   ContractInfo contractInfo = ContractInfo::fromProtobuf(response.contractgetinfo().contractinfo());
-
-  fetchTokenInformation(contractInfo);
-
   return contractInfo;
 }
 
@@ -64,32 +61,6 @@ grpc::Status ContractInfoQuery::submitRequest(const proto::Query& request,
 void ContractInfoQuery::validateChecksums(const Client& client) const
 {
   mContractId.validateChecksum(client);
-}
-
-//-----
-void ContractInfoQuery::fetchTokenInformation(ContractInfo& contractInfo) const
-{
-  json tokens =
-    internal::MirrorNodeGateway::MirrorNodeQuery(getMirrorNodeResolution(),
-                                                 { mContractId.toString() },
-                                                 internal::MirrorNodeGateway::TOKEN_RELATIONSHIPS_QUERY.data());
-  if (!tokens["tokens"].empty())
-  {
-    for (const auto& token : tokens["tokens"])
-    {
-      bool automaticAssociation = token["automatic_association"];
-      uint64_t balance = token["balance"];
-      uint32_t decimals = token["decimals"];
-      std::string kycStatus = token["kyc_status"].dump().substr(1, token["kyc_status"].dump().length() - 2);
-      std::string freezeStatus = token["freeze_status"].dump().substr(1, token["freeze_status"].dump().length() - 2);
-      TokenId tokenId = TokenId::fromString(token["token_id"].dump().substr(1, token["token_id"].dump().length() - 2));
-
-      TokenRelationship tokenRelationship(
-        tokenId, "", balance, decimals, kycStatus, freezeStatus, automaticAssociation);
-
-      contractInfo.mTokenRelationships.insert({ tokenId, tokenRelationship });
-    }
-  }
 }
 
 //-----

@@ -89,16 +89,6 @@ private:
   void validateChecksums(const Client& client) const override;
 
   /**
-   * Fetches token relationship data from Mirror Node and updates the queried data.
-   *
-   * This function retrieves token relationship information. It then populates missing
-   * object fields with token information obtained from the Mirror Node response.
-   *
-   * @throws IllegalStateException on bad Mirror Node response state
-   */
-  void fetchTokenInformation(ContractInfo& contractInfo) const;
-
-  /**
    * Derived from Query. Build a Query protobuf object with this ContractInfoQuery's data, with the input QueryHeader
    * protobuf object.
    *
