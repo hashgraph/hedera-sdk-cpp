@@ -1,6 +1,6 @@
 ---
+BasedOnStyle: ""
 Language: Cpp
-# BasedOnStyle:  Mozilla
 AccessModifierOffset: -2
 AlignAfterOpenBracket: Align
 AlignArrayOfStructures: Left
@@ -50,15 +50,13 @@ BraceWrapping:
 BreakBeforeBinaryOperators: None
 BreakBeforeConceptDeclarations: true
 BreakBeforeBraces: Allman
-BreakBeforeInheritanceComma: false
 BreakInheritanceList: BeforeComma
 BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeComma
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
 ColumnLimit: 120
-CommentPragmas: '^ IWYU pragma:'
+CommentPragmas: "^ IWYU pragma:"
 QualifierAlignment: Leave
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 2
@@ -71,7 +69,6 @@ EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: LogicalBlock
 ExperimentalAutoDetectBinPacking: false
 PackConstructorInitializers: BinPack
-BasedOnStyle: ''
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 AllowAllConstructorInitializersOnNextLine: true
 FixNamespaceComments: false
@@ -83,27 +80,26 @@ IfMacros:
   - KJ_IF_MAYBE
 IncludeBlocks: Preserve
 IncludeCategories:
-  - Regex: '^"(llvm|llvm-c|clang|clang-c)/'
+  - Regex: ^"(llvm|llvm-c|clang|clang-c)/
     Priority: 2
     SortPriority: 0
     CaseSensitive: false
-  - Regex: '^(<|"(gtest|gmock|isl|json)/)'
+  - Regex: ^(<|"(gtest|gmock|isl|json)/)
     Priority: 3
     SortPriority: 0
     CaseSensitive: false
-  - Regex: '.*'
+  - Regex: .*
     Priority: 1
     SortPriority: 0
     CaseSensitive: false
-IncludeIsMainRegex: '(Test)?$'
-IncludeIsMainSourceRegex: ''
+IncludeIsMainRegex: (Test)?$
+IncludeIsMainSourceRegex: ""
 IndentAccessModifiers: false
 IndentCaseLabels: true
 IndentCaseBlocks: false
 IndentGotoLabels: true
 IndentPPDirectives: None
 IndentExternBlock: AfterExternBlock
-IndentRequires: false
 IndentWidth: 2
 IndentWrappedFunctionNames: false
 InsertTrailingCommas: None
@@ -111,8 +107,8 @@ JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: true
 LambdaBodyIndentation: Signature
-MacroBlockBegin: ''
-MacroBlockEnd: ''
+MacroBlockBegin: ""
+MacroBlockEnd: ""
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 ObjCBinPackProtocolList: Auto
@@ -188,4 +184,3 @@ WhitespaceSensitiveMacros:
   - BOOST_PP_STRINGIZE
   - NS_SWIFT_NAME
   - CF_SWIFT_NAME
-...
