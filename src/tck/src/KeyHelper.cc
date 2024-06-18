@@ -36,7 +36,6 @@
 #include <memory>
 #include <optional>
 #include <proto/basic_types.pb.h>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -129,19 +128,11 @@ std::string processKeyRequest(const KeyRequest& request, nlohmann::json& respons
   switch (request.mType)
   {
     case KeyType::ED25519_PRIVATE_KEY_TYPE:
-    {
-      const std::string key = ED25519PrivateKey::generatePrivateKey()->toStringDer();
-      if (isList)
-      {
-        response["privateKeys"].push_back(key);
-      }
-
-      return key;
-    }
-
     case KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE:
     {
-      const std::string key = ECDSAsecp256k1PrivateKey::generatePrivateKey()->toStringDer();
+      const std::string key = request.mType == KeyType::ED25519_PUBLIC_KEY_TYPE
+                                ? ED25519PrivateKey::generatePrivateKey()->toStringDer()
+                                : ECDSAsecp256k1PrivateKey::generatePrivateKey()->toStringDer();
       if (isList)
       {
         response["privateKeys"].push_back(key);
@@ -151,29 +142,17 @@ std::string processKeyRequest(const KeyRequest& request, nlohmann::json& respons
     }
 
     case KeyType::ED25519_PUBLIC_KEY_TYPE:
-    {
-      if (request.mFromKey.has_value())
-      {
-        return ED25519PrivateKey::fromString(request.mFromKey.value())->getPublicKey()->toStringDer();
-      }
-
-      const std::unique_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
-      if (isList)
-      {
-        response["privateKeys"].push_back(key->toStringDer());
-      }
-
-      return key->getPublicKey()->toStringDer();
-    }
-
     case KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE:
     {
       if (request.mFromKey.has_value())
       {
-        return ECDSAsecp256k1PrivateKey::fromString(request.mFromKey.value())->getPublicKey()->toStringDer();
+        return PrivateKey::fromStringDer(request.mFromKey.value())->getPublicKey()->toStringDer();
       }
 
-      const std::unique_ptr<PrivateKey> key = ECDSAsecp256k1PrivateKey::generatePrivateKey();
+      const std::unique_ptr<PrivateKey> key =
+        request.mType == KeyType::ED25519_PUBLIC_KEY_TYPE
+          ? static_cast<std::unique_ptr<PrivateKey>>(ED25519PrivateKey::generatePrivateKey())
+          : static_cast<std::unique_ptr<PrivateKey>>(ECDSAsecp256k1PrivateKey::generatePrivateKey());
       if (isList)
       {
         response["privateKeys"].push_back(key->toStringDer());
