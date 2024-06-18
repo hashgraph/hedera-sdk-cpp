@@ -144,12 +144,13 @@ public:
   /**
    * Set the maximum automatic token associations the new account can have.
    *
-   * @param associations The desired maximum amount of token associations for the new account.
+   * @param associations The desired maximum amount of token associations for the new account. A value of -1 means
+   *                     the new account can have unlimited automatic token associations.
    * @return A reference to this AccountCreateTransaction object with the newly-set maximum automatic token
    *         associations.
    * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
-  AccountCreateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
+  AccountCreateTransaction& setMaxAutomaticTokenAssociations(int32_t associations);
 
   /**
    * Set the account to which the new account should stake. This is mutually exclusive with mStakedNodeId, and will
@@ -230,7 +231,7 @@ public:
    *
    * @return The maximum automatic token associations for the new account.
    */
-  [[nodiscard]] inline uint32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
+  [[nodiscard]] inline int32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
    * Get the ID of the account to which the new account will stake.
@@ -341,9 +342,9 @@ private:
 
   /**
    * The maximum number of tokens with which the new account can be implicitly associated. Only allows values up to a
-   * maximum value of 5000.
+   * maximum value of 5000. A value of -1 means the new account can have unlimited automatic token associations.
    */
-  uint32_t mMaxAutomaticTokenAssociations = 0U;
+  int32_t mMaxAutomaticTokenAssociations = 0;
 
   /**
    * The ID of the account to which the new account will be staked. Mutually exclusive with mStakedNodeId.

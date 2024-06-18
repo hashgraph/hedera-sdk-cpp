@@ -205,7 +205,7 @@ ContractCreateFlow& ContractCreateFlow::setMemo(std::string_view memo)
 }
 
 //-----
-ContractCreateFlow& ContractCreateFlow::setMaxAutomaticTokenAssociations(uint32_t associations)
+ContractCreateFlow& ContractCreateFlow::setMaxAutomaticTokenAssociations(int32_t associations)
 {
   mMaxAutomaticTokenAssociations = associations;
   return *this;

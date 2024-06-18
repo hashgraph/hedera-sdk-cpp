@@ -113,7 +113,7 @@ AccountUpdateTransaction& AccountUpdateTransaction::clearAccountMemo()
 }
 
 //-----
-AccountUpdateTransaction& AccountUpdateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
+AccountUpdateTransaction& AccountUpdateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
 {
   requireNotFrozen();
 
@@ -297,7 +297,7 @@ proto::CryptoUpdateTransactionBody* AccountUpdateTransaction::build() const
   if (mMaxAutomaticTokenAssociations.has_value())
   {
     auto value = std::make_unique<google::protobuf::Int32Value>();
-    value->set_value(static_cast<int32_t>(mMaxAutomaticTokenAssociations.value()));
+    value->set_value(mMaxAutomaticTokenAssociations.value());
     body->set_allocated_max_automatic_token_associations(value.release());
   }
 
