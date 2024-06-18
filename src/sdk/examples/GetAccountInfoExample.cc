@@ -49,5 +49,11 @@ int main(int argc, char** argv)
   std::cout << "Account expiration time:             " << accountInfo.mExpirationTime.time_since_epoch().count()
             << std::endl;
 
+  std::cout << "Account token relationships: " << std::endl;
+  for (auto tr : accountInfo.mTokenRelationships)
+  {
+    std::cout << tr.second.toString() << std::endl;
+  }
+
   return 0;
 }

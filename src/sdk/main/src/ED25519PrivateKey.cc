@@ -171,6 +171,12 @@ std::unique_ptr<Key> ED25519PrivateKey::clone() const
 //-----
 std::unique_ptr<proto::Key> ED25519PrivateKey::toProtobufKey() const
 {
+  if (toStringRaw() == ZERO_KEY_STR)
+  {
+    auto keyProtobuf = std::make_unique<proto::Key>();
+    keyProtobuf->set_ed25519(internal::Utilities::byteVectorToString(toBytesRaw()));
+    return keyProtobuf;
+  }
   return getPublicKey()->toProtobufKey();
 }
 
@@ -250,6 +256,12 @@ std::vector<std::byte> ED25519PrivateKey::toBytesDer() const
 std::vector<std::byte> ED25519PrivateKey::toBytesRaw() const
 {
   return internal::Utilities::removePrefix(toBytesDer(), static_cast<long>(DER_ENCODED_PREFIX_BYTES.size()));
+}
+
+//-----
+std::unique_ptr<ED25519PrivateKey> ED25519PrivateKey::getZeroKey()
+{
+  return fromString(ZERO_KEY_STR);
 }
 
 //-----

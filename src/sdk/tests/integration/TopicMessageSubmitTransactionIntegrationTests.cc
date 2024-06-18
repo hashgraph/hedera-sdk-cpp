@@ -27,6 +27,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
+#include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 
 #include <chrono>
@@ -317,9 +318,10 @@ TEST_F(TopicMessageSubmitTransactionIntegrationTests, CannotSubmitTopicMessageWi
 
   // When
   std::vector<TransactionResponse> txResponses;
-  EXPECT_NO_THROW(
+  ASSERT_THROW(
     txResponses =
-      TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()));
+      TopicMessageSubmitTransaction().setMessage(getTestBigContents()).setMaxChunks(15).executeAll(getTestClient()),
+    PrecheckStatusException);
 
   // Then
   for (const auto& resp : txResponses)

@@ -132,6 +132,7 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenId.cc
         src/TokenInfo.cc
         src/TokenInfoQuery.cc
+        src/TokenKeyValidation.cc
         src/TokenMintTransaction.cc
         src/TokenNftAllowance.cc
         src/TokenNftInfo.cc

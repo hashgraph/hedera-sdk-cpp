@@ -32,6 +32,7 @@
 #include "PrivateKey.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 #include "impl/Utilities.h"
 
@@ -168,7 +169,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, CannotCreateContractWithNoGas)
                    .setMemo("[e2e::ContractCreateTransaction]")
                    .execute(getTestClient())
                    .getReceipt(getTestClient()),
-               ReceiptStatusException); // INSUFFICIENT_GAS
+               PrecheckStatusException); // INSUFFICIENT_GAS
 
   // Clean up
   ASSERT_NO_THROW(const TransactionReceipt txReceipt =
