@@ -116,7 +116,16 @@ int main(int argc, char** argv)
   const TransactionReceipt receipt =
     TransactionReceiptQuery().setTransactionId(response.mTransactionId).setIncludeChildren(true).execute(client);
 
-  const AccountId newAccountId = receipt.mChildren.at(0).mAccountId.value();
+  AccountId newAccountId = receipt.mChildren.at(0).mAccountId.value();
+
+  // Wait some seconds for Mirror Node to update state with the newly created hollow account
+  std::this_thread::sleep_for(std::chrono::seconds(5));
+
+  // Populate the account public EVM Address from Mirror Node
+  newAccountId.populateAccountEvmAddress(client);
+
+  // If Mirror Node contained the account public EVM Address. It should be printed instead of the Hedera AccountID
+  std::cout << newAccountId.toString() << std::endl;
 
   return 0;
 }
