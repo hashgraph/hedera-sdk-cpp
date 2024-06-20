@@ -21,13 +21,22 @@
 #include "AccountCreateTransaction.h"
 #include "AccountId.h"
 #include "Client.h"
-#include "ED25519PrivateKey.h"
+#include "EvmAddress.h"
+#include "HbarUnit.h"
+#include "KeyHelper.h"
 #include "PrivateKey.h"
 #include "Status.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "impl/HexConverter.h"
 
+#include <algorithm>
+#include <chrono>
+#include <memory>
 #include <nlohmann/json.hpp>
+#include <proto/basic_types.pb.h>
+#include <stdexcept>
+#include <string>
 
 namespace Hedera::TCK
 {
@@ -38,22 +47,28 @@ constexpr auto DEFAULT_TCK_REQUEST_TIMEOUT = std::chrono::seconds(30);
 
 // The SDK Client to use to submit requests to a Hedera network.
 Client mClient; // NOLINT
-
 } // namespace
 
 //-----
-nlohmann::json SdkClient::createAccount(const std::string& publicKey,
+nlohmann::json SdkClient::createAccount(const std::optional<std::string>& key,
                                         const std::optional<int64_t>& initialBalance,
                                         const std::optional<bool>& receiverSignatureRequired,
-                                        const std::optional<uint32_t>& maxAutomaticTokenAssociations,
+                                        const std::optional<int64_t>& autoRenewPeriod,
+                                        const std::optional<std::string>& memo,
+                                        const std::optional<int32_t>& maxAutoTokenAssociations,
                                         const std::optional<std::string>& stakedAccountId,
-                                        const std::optional<uint64_t>& stakedNodeId,
+                                        const std::optional<int64_t>& stakedNodeId,
                                         const std::optional<bool>& declineStakingReward,
-                                        const std::optional<std::string>& accountMemo)
+                                        const std::optional<std::string>& alias,
+                                        const std::optional<CommonTransactionParams>& commonTxParams)
 {
   AccountCreateTransaction accountCreateTransaction;
-  accountCreateTransaction.setGrpcDeadline(std::chrono::seconds(30));
-  accountCreateTransaction.setKey(PublicKey::fromStringDer(publicKey));
+  accountCreateTransaction.setGrpcDeadline(std::chrono::seconds(DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (key.has_value())
+  {
+    accountCreateTransaction.setKey(getHederaKey(key.value()));
+  }
 
   if (initialBalance.has_value())
   {
@@ -65,9 +80,19 @@ nlohmann::json SdkClient::createAccount(const std::string& publicKey,
     accountCreateTransaction.setReceiverSignatureRequired(receiverSignatureRequired.value());
   }
 
-  if (maxAutomaticTokenAssociations.has_value())
+  if (autoRenewPeriod.has_value())
   {
-    accountCreateTransaction.setMaxAutomaticTokenAssociations(maxAutomaticTokenAssociations.value());
+    accountCreateTransaction.setAutoRenewPeriod(std::chrono::seconds(autoRenewPeriod.value()));
+  }
+
+  if (memo.has_value())
+  {
+    accountCreateTransaction.setAccountMemo(memo.value());
+  }
+
+  if (maxAutoTokenAssociations.has_value())
+  {
+    accountCreateTransaction.setMaxAutomaticTokenAssociations(maxAutoTokenAssociations.value());
   }
 
   if (stakedAccountId.has_value())
@@ -85,9 +110,14 @@ nlohmann::json SdkClient::createAccount(const std::string& publicKey,
     accountCreateTransaction.setDeclineStakingReward(declineStakingReward.value());
   }
 
-  if (accountMemo.has_value())
+  if (alias.has_value())
   {
-    accountCreateTransaction.setAccountMemo(accountMemo.value());
+    accountCreateTransaction.setAlias(EvmAddress::fromString(alias.value()));
+  }
+
+  if (commonTxParams.has_value())
+  {
+    commonTxParams->fillOutTransaction(accountCreateTransaction, mClient);
   }
 
   const TransactionReceipt txReceipt = accountCreateTransaction.execute(mClient).getReceipt(mClient);
@@ -98,15 +128,14 @@ nlohmann::json SdkClient::createAccount(const std::string& publicKey,
 }
 
 //-----
-std::string SdkClient::generatePrivateKey()
+nlohmann::json SdkClient::generateKey(const std::string& type,
+                                      const std::optional<std::string>& fromKey,
+                                      const std::optional<int>& threshold,
+                                      const std::optional<std::vector<KeyRequest>>& keys)
 {
-  return ED25519PrivateKey::generatePrivateKey()->toStringDer();
-}
-
-//-----
-std::string SdkClient::generatePublicKey(const std::string& privateKey)
-{
-  return ED25519PrivateKey::fromString(privateKey)->getPublicKey()->toStringDer();
+  nlohmann::json response;
+  response["key"] = processKeyRequest({ type, fromKey, threshold, keys }, response);
+  return response;
 }
 
 //-----
@@ -130,7 +159,7 @@ nlohmann::json SdkClient::setup(const std::string& operatorAccountId,
   if (nodeIp.has_value() && nodeAccountId.has_value() && mirrorNetworkIp.has_value())
   {
     mClient = Client::forNetwork({
-      {nodeIp.value(), Hedera::AccountId::fromString("0.0." + nodeAccountId.value())}
+      {nodeIp.value(), Hedera::AccountId::fromString(nodeAccountId.value())}
     });
     mClient.setMirrorNetwork({ mirrorNetworkIp.value() });
     clientType = "custom";

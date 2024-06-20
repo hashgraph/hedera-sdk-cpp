@@ -136,7 +136,6 @@ public:
    *
    * @param memo The desired memo for the new account.
    * @return A reference to this AccountCreateTransaction object with the newly-set memo.
-   * @throws std::length_error If the memo is more than 100 characters.
    * @throws IllegalStateException If this AccountCreateTransaction is frozen.
    */
   AccountCreateTransaction& setAccountMemo(std::string_view memo);
