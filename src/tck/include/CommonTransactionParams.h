@@ -93,7 +93,7 @@ struct CommonTransactionParams
   /**
    * The maximum amount willing to be paid to execute the transaction.
    */
-  std::optional<int64_t> mMaxTransactionFee;
+  std::optional<Hbar> mMaxTransactionFee;
 
   /**
    * The length of time for which the transaction is valid.
@@ -141,7 +141,7 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CommonTransactionParams>
 
     if (txParams.mMaxTransactionFee.has_value())
     {
-      jsonTo["maxTransactionFee"] = txParams.mMaxTransactionFee.value();
+      jsonTo["maxTransactionFee"] = txParams.mMaxTransactionFee.value().toTinybars();
     }
 
     if (txParams.mValidTransactionDuration.has_value())
@@ -195,7 +195,7 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CommonTransactionParams>
                                             "invalid parameters: maxTransactionFee should be an integer");
       }
 
-      txParams.mMaxTransactionFee = jsonFrom["maxTransactionFee"];
+      txParams.mMaxTransactionFee = Hedera::Hbar::fromTinybars(jsonFrom["maxTransactionFee"]);
     }
 
     if (jsonFrom.contains("validTransactionDuration"))

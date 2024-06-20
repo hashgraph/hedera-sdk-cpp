@@ -61,10 +61,8 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
 /**
  * Generate a Key.
  *
- * @param type      The type of Key to generate. If not provided, the returned key will be of type ED25519Private,
- *                  ED25519Public, ECDSAsecp256k1Private, or ECDSAsecp256k1Public. Private and Public types should be
- *                  used when any private or public key type is required (respectively) but the specific type (ED25519
- *                  or ECDSAsecp256k1) doesn't matter.
+ * @param type      The type of Key to generate. It MUST be one of `ed25519PrivateKey`, `ed25519PublicKey`,
+ *                  `ecdsaSecp256k1PrivateKey`, `ecdsaSecp256k1PublicKey`, `keyList`, `thresholdKey`, or `evmAddress`.
  * @param fromKey   For ED25519Public and ECDSAsecp256k1Public types, the DER-encoded hex string private key from which
  *                  to generate the public key. No value means a random ED25519Public or ECDSAsecp256k1Public will be
  *                  generated, respectively. For EvmAddress, the DER-encoded hex string of an ECDSAsecp256k1Private or
@@ -76,7 +74,7 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
  *                  or Threshold.
  * @return The JSON object which contains the generated Key.
  */
-nlohmann::json generateKey(const std::optional<std::string>& type,
+nlohmann::json generateKey(const std::string& type,
                            const std::optional<std::string>& fromKey,
                            const std::optional<int>& threshold,
                            const std::optional<std::vector<KeyRequest>>& keys);

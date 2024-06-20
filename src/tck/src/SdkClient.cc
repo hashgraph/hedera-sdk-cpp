@@ -129,14 +129,14 @@ nlohmann::json SdkClient::createAccount(const std::optional<std::string>& key,
 }
 
 //-----
-nlohmann::json SdkClient::generateKey(const std::optional<std::string>& type,
+nlohmann::json SdkClient::generateKey(const std::string& type,
                                       const std::optional<std::string>& fromKey,
                                       const std::optional<int>& threshold,
                                       const std::optional<std::vector<KeyRequest>>& keys)
 {
-  return {
-    {"key", processKeyRequest({ type, fromKey, threshold, keys })}
-  };
+  nlohmann::json response;
+  response["key"] = processKeyRequest({ type, fromKey, threshold, keys }, response);
+  return response;
 }
 
 //-----

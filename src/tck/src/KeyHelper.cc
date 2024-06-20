@@ -36,61 +36,44 @@
 #include <memory>
 #include <optional>
 #include <proto/basic_types.pb.h>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace Hedera::TCK
 {
 //-----
-KeyRequest::KeyRequest(const std::optional<std::string>& type,
+const std::unordered_map<std::string, KeyType> gStringToKeyType = {
+  {"ed25519PrivateKey",         KeyType::ED25519_PRIVATE_KEY_TYPE        },
+  { "ed25519PublicKey",         KeyType::ED25519_PUBLIC_KEY_TYPE         },
+  { "ecdsaSecp256k1PrivateKey", KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE},
+  { "ecdsaSecp256k1PublicKey",  KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE },
+  { "keyList",                  KeyType::LIST_KEY_TYPE                   },
+  { "thresholdKey",             KeyType::THRESHOLD_KEY_TYPE              },
+  { "evmAddress",               KeyType::EVM_ADDRESS_KEY_TYPE            }
+};
+
+//-----
+const std::unordered_map<KeyType, std::string> gKeyTypeToString = {
+  {KeyType::ED25519_PRIVATE_KEY_TYPE,          "ed25519PrivateKey"       },
+  { KeyType::ED25519_PUBLIC_KEY_TYPE,          "ed25519PublicKey"        },
+  { KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE, "ecdsaSecp256k1PrivateKey"},
+  { KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE,  "ecdsaSecp256k1PublicKey" },
+  { KeyType::LIST_KEY_TYPE,                    "keyList"                 },
+  { KeyType::THRESHOLD_KEY_TYPE,               "thresholdKey"            },
+  { KeyType::EVM_ADDRESS_KEY_TYPE,             "evmAddress"              }
+};
+
+//-----
+KeyRequest::KeyRequest(const std::string& type,
                        const std::optional<std::string>& fromKey,
                        const std::optional<int>& threshold,
                        const std::optional<std::vector<KeyRequest>>& keys)
-  : mType(getKeyTypeEnum(type))
+  : mType(gStringToKeyType.at(type))
   , mFromKey(fromKey)
   , mThreshold(threshold)
   , mKeys(keys)
 {
 }
-
-//-----
-std::optional<KeyType> getKeyTypeEnum(const std::optional<std::string>& type)
-{
-  // clang-format off
-  if (!type.has_value())                          { return std::nullopt; }
-  if (type.value() == "ed25519PrivateKey")        { return KeyType::ED25519_PRIVATE_KEY_TYPE; }
-  if (type.value() == "ed25519PublicKey")         { return KeyType::ED25519_PUBLIC_KEY_TYPE; }
-  if (type.value() == "ecdsaSecp256k1PrivateKey") { return KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE; }
-  if (type.value() == "ecdsaSecp256k1PublicKey")  { return KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE; }
-  if (type.value() == "keyList")                  { return KeyType::LIST_KEY_TYPE; }
-  if (type.value() == "thresholdKey")             { return KeyType::THRESHOLD_KEY_TYPE; }
-  if (type.value() == "privateKey")               { return KeyType::PRIVATE_KEY_TYPE; }
-  if (type.value() == "publicKey")                { return KeyType::PUBLIC_KEY_TYPE; }
-  if (type.value() == "evmAddress")               { return KeyType::EVM_ADDRESS_KEY_TYPE; }
-  // clang-format on
-
-  throw std::invalid_argument("unrecognized key type string " + type.value());
-};
-
-//-----
-std::optional<std::string> getKeyTypeString(const std::optional<KeyType>& type)
-{
-  // clang-format off
-  if (!type.has_value())                                         { return std::nullopt; }
-  if (type.value() == KeyType::ED25519_PRIVATE_KEY_TYPE)         { return "ed25519PrivateKey"; }
-  if (type.value() == KeyType::ED25519_PUBLIC_KEY_TYPE)          { return "ed25519PublicKey"; }
-  if (type.value() == KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE) { return "ecdsaSecp256k1PrivateKey"; }
-  if (type.value() == KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE)  { return "ecdsaSecp256k1PublicKey"; }
-  if (type.value() == KeyType::LIST_KEY_TYPE)                    { return "keyList"; }
-  if (type.value() == KeyType::THRESHOLD_KEY_TYPE)               { return "thresholdKey"; }
-  if (type.value() == KeyType::PRIVATE_KEY_TYPE)                 { return "privateKey"; }
-  if (type.value() == KeyType::PUBLIC_KEY_TYPE)                  { return "publicKey"; }
-  if (type.value() == KeyType::EVM_ADDRESS_KEY_TYPE)             { return "evmAddress"; }
-  // clang-format on
-
-  throw std::invalid_argument("input key type is KeyType::KEY_TYPE_SIZE and does not represent a valid KeyType");
-};
 
 //-----
 std::shared_ptr<Hedera::Key> getHederaKey(const std::string& key)
@@ -115,59 +98,67 @@ std::shared_ptr<Hedera::Key> getHederaKey(const std::string& key)
 }
 
 //-----
-std::string processKeyRequest(const KeyRequest& request)
+std::string processKeyRequest(const KeyRequest& request, nlohmann::json& response, bool isList)
 {
-  // No type indicates a random ED25519/ECDSAsecp256k1 private/public key.
-  if (!request.mType.has_value())
+  // Make sure fromKey is only provided for ED25519_PUBLIC_KEY_TYPE, ECDSA_SECP256k1_PUBLIC_KEY_TYPE, or
+  // EVM_ADDRESS_KEY_TYPE.
+  if (request.mFromKey.has_value() && request.mType != KeyType::ED25519_PUBLIC_KEY_TYPE &&
+      request.mType != KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE && request.mType != KeyType::EVM_ADDRESS_KEY_TYPE)
   {
-    // If no type is specified, nothing else should be specified.
-    if (request.mFromKey.has_value() || request.mThreshold.has_value() || request.mKeys.has_value())
-    {
-      throw JsonRpcException(JsonErrorType::INVALID_REQUEST,
-                             "invalid request: no other parameters should be specified if type isn't specified.");
-    }
-
-    // Generate a random key.
-    switch (internal::Utilities::getRandomNumber(0, 3))
-    {
-      case 0:
-        return ED25519PrivateKey::generatePrivateKey()->toStringDer();
-      case 1:
-        return ED25519PrivateKey::generatePrivateKey()->getPublicKey()->toStringDer();
-      case 2:
-        return ECDSAsecp256k1PrivateKey::generatePrivateKey()->toStringDer();
-      case 3:
-        return ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey()->toStringDer();
-      default:
-        // This should never happen.
-        throw std::range_error("Random number generated outside specified range.");
-    }
+    throw JsonRpcException(JsonErrorType::INVALID_PARAMS,
+                           "invalid parameters: fromKey should only be provided for ed25519PublicKey, "
+                           "ecdsaSecp256k1PublicKey, or evmAddress types.");
   }
 
-  switch (request.mType.value())
+  // Make sure threshold is only provided for THRESHOLD_KEY_TYPE.
+  if (request.mThreshold.has_value() && request.mType != KeyType::THRESHOLD_KEY_TYPE)
+  {
+    throw JsonRpcException(JsonErrorType::INVALID_PARAMS,
+                           "invalid parameters: threshold should only be provided for thresholdKey types.");
+  }
+
+  // Make sure keys is only provided for LIST_KEY_TYPE or THRESHOLD_KEY_TYPE.
+  if (request.mKeys.has_value() && request.mType != KeyType::LIST_KEY_TYPE &&
+      request.mType != KeyType::THRESHOLD_KEY_TYPE)
+  {
+    throw JsonRpcException(JsonErrorType::INVALID_PARAMS,
+                           "invalid parameters: keys should only be provided for keyList or thresholdKey types.");
+  }
+
+  switch (request.mType)
   {
     case KeyType::ED25519_PRIVATE_KEY_TYPE:
-    {
-      return ED25519PrivateKey::generatePrivateKey()->toStringDer();
-    }
-
     case KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE:
     {
-      return ECDSAsecp256k1PrivateKey::generatePrivateKey()->toStringDer();
+      const std::string key = request.mType == KeyType::ED25519_PUBLIC_KEY_TYPE
+                                ? ED25519PrivateKey::generatePrivateKey()->toStringDer()
+                                : ECDSAsecp256k1PrivateKey::generatePrivateKey()->toStringDer();
+      if (isList)
+      {
+        response["privateKeys"].push_back(key);
+      }
+
+      return key;
     }
 
     case KeyType::ED25519_PUBLIC_KEY_TYPE:
-    {
-      return (request.mFromKey.has_value())
-               ? ED25519PrivateKey::fromStringDer(request.mFromKey.value())->getPublicKey()->toStringDer()
-               : ED25519PrivateKey::generatePrivateKey()->getPublicKey()->toStringDer();
-    }
-
     case KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE:
     {
-      return (request.mFromKey.has_value())
-               ? ECDSAsecp256k1PrivateKey::fromStringDer(request.mFromKey.value())->getPublicKey()->toStringDer()
-               : ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey()->toStringDer();
+      if (request.mFromKey.has_value())
+      {
+        return PrivateKey::fromStringDer(request.mFromKey.value())->getPublicKey()->toStringDer();
+      }
+
+      const std::unique_ptr<PrivateKey> key =
+        request.mType == KeyType::ED25519_PUBLIC_KEY_TYPE
+          ? static_cast<std::unique_ptr<PrivateKey>>(ED25519PrivateKey::generatePrivateKey())
+          : static_cast<std::unique_ptr<PrivateKey>>(ECDSAsecp256k1PrivateKey::generatePrivateKey());
+      if (isList)
+      {
+        response["privateKeys"].push_back(key->toStringDer());
+      }
+
+      return key->getPublicKey()->toStringDer();
     }
 
     case KeyType::LIST_KEY_TYPE:
@@ -179,7 +170,7 @@ std::string processKeyRequest(const KeyRequest& request)
                                "invalid request: keys list is required for generating a KeyList type.");
       }
 
-      const bool isThreshold = request.mType.value() == KeyType::THRESHOLD_KEY_TYPE;
+      const bool isThreshold = request.mType == KeyType::THRESHOLD_KEY_TYPE;
       if (isThreshold && !request.mThreshold.has_value())
       {
         throw JsonRpcException(JsonErrorType::INVALID_REQUEST,
@@ -189,7 +180,8 @@ std::string processKeyRequest(const KeyRequest& request)
       KeyList keyList;
       std::for_each(request.mKeys->cbegin(),
                     request.mKeys->cend(),
-                    [&keyList](const KeyRequest& key) { keyList.push_back(getHederaKey(processKeyRequest(key))); });
+                    [&keyList, &response](const KeyRequest& key)
+                    { keyList.push_back(getHederaKey(processKeyRequest(key, response, true))); });
 
       if (isThreshold)
       {
@@ -200,38 +192,33 @@ std::string processKeyRequest(const KeyRequest& request)
         internal::Utilities::stringToByteVector(keyList.toProtobufKey()->SerializeAsString()));
     }
 
-    case KeyType::PRIVATE_KEY_TYPE:
-    {
-      return internal::Utilities::getRandomNumber(0, 1) > 0
-               ? ED25519PrivateKey::generatePrivateKey()->toStringDer()
-               : ECDSAsecp256k1PrivateKey::generatePrivateKey()->toStringDer();
-    }
-
-    case KeyType::PUBLIC_KEY_TYPE:
+    case KeyType::EVM_ADDRESS_KEY_TYPE:
     {
       if (request.mFromKey.has_value())
       {
-        try
+        const std::shared_ptr<Key> key = getHederaKey(request.mFromKey.value());
+        if (const std::shared_ptr<ECDSAsecp256k1PrivateKey> privateKey =
+              std::dynamic_pointer_cast<ECDSAsecp256k1PrivateKey>(key);
+            privateKey)
         {
-          return ED25519PrivateKey::fromStringDer(request.mFromKey.value())->getPublicKey()->toStringDer();
+          return std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(privateKey->getPublicKey())
+            ->toEvmAddress()
+            .toString();
         }
-        catch (const BadKeyException&)
+
+        if (const std::shared_ptr<ECDSAsecp256k1PublicKey> publicKey =
+              std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(key);
+            publicKey)
         {
-          return ECDSAsecp256k1PrivateKey::fromStringDer(request.mFromKey.value())->getPublicKey()->toStringDer();
+          return publicKey->toEvmAddress().toString();
         }
+
+        throw JsonRpcException(JsonErrorType::INVALID_PARAMS,
+                               "invalid parameters: fromKey for evmAddress is not ECDSAsecp256k1.");
       }
 
-      return (internal::Utilities::getRandomNumber(0, 1) > 0)
-               ? ED25519PrivateKey::generatePrivateKey()->getPublicKey()->toStringDer()
-               : ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey()->toStringDer();
-    }
-
-    case KeyType::EVM_ADDRESS_KEY_TYPE:
-    {
       return std::dynamic_pointer_cast<ECDSAsecp256k1PublicKey>(
-               request.mFromKey.has_value()
-                 ? ECDSAsecp256k1PrivateKey::fromStringDer(request.mFromKey.value())->getPublicKey()
-                 : ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey())
+               ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey())
         ->toEvmAddress()
         .toString();
     }
