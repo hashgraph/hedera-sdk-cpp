@@ -58,7 +58,7 @@ struct CommonTransactionParams
 
     if (mMaxTransactionFee.has_value())
     {
-      transaction.setMaxTransactionFee(Hbar::fromTinybars(mMaxTransactionFee.value()));
+      transaction.setMaxTransactionFee(mMaxTransactionFee.value());
     }
 
     if (mValidTransactionDuration.has_value())
