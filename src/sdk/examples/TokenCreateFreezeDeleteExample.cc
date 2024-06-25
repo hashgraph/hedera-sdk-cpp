@@ -54,25 +54,27 @@ int main(int argc, char** argv)
 
   AccountId accountId = AccountCreateTransaction()
                           .setKey(accountKey)
-                          .setInitialBalance(Hbar(1LL))
+                          .setInitialBalance(Hbar(5LL))
                           .execute(client)
                           .getReceipt(client)
                           .mAccountId.value();
 
-  std::cout << "1" << std::endl;
-
+  // Create token with Treasury Account and set Admin Key so the token is Mutable
+  // and we can later delete it
   TokenId tokenId = TokenCreateTransaction()
                       .setTokenName("ffff")
                       .setTokenSymbol("F")
-                      .setInitialSupply(100000ULL)
-                      .setTreasuryAccountId(AccountId(2ULL))
+                      .setInitialSupply(10000ULL)
+                      .setTreasuryAccountId(operatorAccountId)
+                      .setFreezeKey(accountKey)
                       .setAdminKey(operatorPrivateKey)
-                      .setFreezeKey(operatorPrivateKey)
+                      .freezeWith(&client)
+                      .sign(operatorPrivateKey)
                       .execute(client)
                       .getReceipt(client)
                       .mTokenId.value();
 
-  std::cout << "2" << std::endl;
+  std::cout << "Created Token with id: " << tokenId.toString() << std::endl;
 
   TransactionReceipt txReceipt = TokenAssociateTransaction()
                                    .setAccountId(accountId)
@@ -82,8 +84,6 @@ int main(int argc, char** argv)
                                    .execute(client)
                                    .getReceipt(client);
 
-  std::cout << "3" << std::endl;
-
   txReceipt = TokenFreezeTransaction()
                 .setAccountId(accountId)
                 .setTokenId(tokenId)
@@ -92,11 +92,7 @@ int main(int argc, char** argv)
                 .execute(client)
                 .getReceipt(client);
 
-  txReceipt = TransferTransaction()
-                .addTokenTransfer(tokenId, AccountId(2ULL), -10LL)
-                .addTokenTransfer(tokenId, accountId, 10LL)
-                .execute(client)
-                .getReceipt(client); // ACCOUNT_FROZEN_FOR_TOKEN
+  std::cout << "Freezing Token: " << tokenId.toString() << std::endl;
 
   txReceipt = AccountDeleteTransaction()
                 .setDeleteAccountId(accountId)
@@ -106,7 +102,15 @@ int main(int argc, char** argv)
                 .execute(client)
                 .getReceipt(client);
 
-  txReceipt = TokenDeleteTransaction().setTokenId(tokenId).execute(client).getReceipt(client);
+  std::cout << "Deleting Token: " << tokenId.toString() << std::endl;
+
+  // Sign with the Token Admin Key
+  txReceipt = TokenDeleteTransaction()
+                .setTokenId(tokenId)
+                .freezeWith(&client)
+                .sign(operatorPrivateKey)
+                .execute(client)
+                .getReceipt(client);
 
   return 0;
 }
