@@ -21,6 +21,9 @@
 #include "ContractCreateTransaction.h"
 #include "ContractDeleteTransaction.h"
 #include "ContractFunctionResult.h"
+#include "ContractInfo.h"
+#include "ContractInfoQuery.h"
+#include "ContractUpdateTransaction.h"
 #include "ED25519PrivateKey.h"
 #include "FileAppendTransaction.h"
 #include "FileCreateTransaction.h"
@@ -82,12 +85,14 @@ int main(int argc, char** argv)
   const FileId newFileId = txReceipt.mFileId.value();
   std::cout << "Contract bytecode file created with ID " << newFileId.toString() << std::endl;
 
+  std::string_view memo = "[e2e::ContractADeploysContractBInConstructor]";
+
   // Create the actual contract
   TransactionResponse contractCreateTxResponse = ContractCreateTransaction()
                                                    .setAdminKey(operatorPublicKey)
                                                    .setGas(100000ULL)
                                                    .setBytecodeFileId(newFileId)
-                                                   .setMemo("[e2e::ContractADeploysContractBInConstructor]")
+                                                   .setMemo(memo)
                                                    .execute(client);
 
   TransactionReceipt contractCreateTxReceipt = contractCreateTxResponse.getReceipt(client);
@@ -111,10 +116,22 @@ int main(int argc, char** argv)
        ++it)
   {
     std::cout << "ContractId: " << (*it).mContractId.toString() << std::endl;
-    std::cout << "Nonce: " << (*it).mNonce << std::endl << std::endl;
+    std::cout << "Nonce: " << (*it).mNonce << std::endl;
   }
 
-  std::cout << std::endl << std::endl;
+  std::cout << "Updating Smart contract memo " << contractId.toString() << std::endl;
+
+  // Update the memo contract field
+  TransactionResponse contractUpdateTxResponse =
+    ContractUpdateTransaction()
+      .setContractId(contractId)
+      .setContractMemo("[e2e::ContractADeploysContractBInConstructorUpdated]")
+      .freezeWith(&client)
+      .sign(operatorPrivateKey)
+      .execute(client);
+
+  ContractInfo contractInfo = ContractInfoQuery().setContractId(contractId).execute(client);
+  std::cout << "Newly set memo: " << contractInfo.mMemo << std::endl;
 
   // Now delete the contract
   txReceipt = ContractDeleteTransaction()
