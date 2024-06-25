@@ -95,11 +95,6 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAccountMemo(std::string_v
 {
   requireNotFrozen();
 
-  if (memo.size() > 100)
-  {
-    throw std::length_error("Account memo is too large. Must be smaller than 100 bytes");
-  }
-
   mAccountMemo = memo;
   return *this;
 }
