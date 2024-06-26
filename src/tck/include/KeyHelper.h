@@ -84,7 +84,7 @@ struct KeyRequest
              const std::optional<std::vector<KeyRequest>>& keys);
 
   /**
-   * The type of Key to generate.
+   *The type of Key to generate.
    */
   KeyType mType;
 
@@ -109,7 +109,7 @@ struct KeyRequest
 };
 
 /**
- * Generate a Key from a key hex string. The string must be either the DER-encoding of an ED25519 or ECDSAsecp256k1
+ * Generate a Key from a key hex string.The string must be either the DER - encoding of an ED25519 or ECDSAsecp256k1
  * private or public key, or the serialized Key protobuf of a KeyList or ThresholdKey.
  *
  * @param key The hex string from which to get the Key.

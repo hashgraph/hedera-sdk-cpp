@@ -281,16 +281,6 @@ TEST_F(AccountUpdateTransactionUnitTests, SetAccountMemo)
 }
 
 //-----
-TEST_F(AccountUpdateTransactionUnitTests, SetAccountMemoTooLarge)
-{
-  // Given
-  AccountUpdateTransaction transaction;
-
-  // When / Then
-  EXPECT_THROW(transaction.setAccountMemo(std::string(101, 'a')), std::length_error);
-}
-
-//-----
 TEST_F(AccountUpdateTransactionUnitTests, SetAccountMemoFrozen)
 {
   // Given

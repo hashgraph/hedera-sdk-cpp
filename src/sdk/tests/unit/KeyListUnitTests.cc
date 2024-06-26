@@ -34,6 +34,7 @@ protected:
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey1() const { return mTestPublicKey1; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey2() const { return mTestPublicKey2; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKey3() const { return mTestPublicKey3; }
+  [[nodiscard]] inline uint32_t getTestThreshold() const { return mTestThreshold; }
 
 private:
   const std::shared_ptr<PublicKey> mTestPublicKey1 =
@@ -48,10 +49,11 @@ private:
     ED25519PrivateKey::fromString(
       "302e020100300506032b657004220420db484b828e64b2d8f12ce3c0a0e93a0b8cce7af1bb8f39c97732394482538e12")
       ->getPublicKey();
+  const uint32_t mTestThreshold = 2U;
 };
 
 //-----
-TEST_F(KeyListUnitTests, FromProtobuf)
+TEST_F(KeyListUnitTests, FromProtobufKeyList)
 {
   // Given
   proto::KeyList protoKeyList;
@@ -64,6 +66,30 @@ TEST_F(KeyListUnitTests, FromProtobuf)
   EXPECT_NO_THROW(keyList = KeyList::fromProtobuf(protoKeyList));
 
   // Then
+  EXPECT_TRUE(keyList.contains(getTestPublicKey1().get()));
+  EXPECT_TRUE(keyList.contains(getTestPublicKey2().get()));
+  EXPECT_TRUE(keyList.contains(getTestPublicKey3().get()));
+}
+
+//-----
+TEST_F(KeyListUnitTests, FromProtobufThresholdKey)
+{
+  // Given
+  proto::ThresholdKey protoThresholdKey;
+  protoThresholdKey.set_threshold(getTestThreshold());
+  protoThresholdKey.mutable_keys()->add_keys()->set_ed25519(
+    internal::Utilities::byteVectorToString(getTestPublicKey1()->toBytesDer()));
+  protoThresholdKey.mutable_keys()->add_keys()->set_ed25519(
+    internal::Utilities::byteVectorToString(getTestPublicKey2()->toBytesDer()));
+  protoThresholdKey.mutable_keys()->add_keys()->set_ed25519(
+    internal::Utilities::byteVectorToString(getTestPublicKey3()->toBytesDer()));
+
+  // When
+  KeyList keyList;
+  EXPECT_NO_THROW(keyList = KeyList::fromProtobuf(protoThresholdKey));
+
+  // Then
+  EXPECT_EQ(keyList.getThreshold(), getTestThreshold());
   EXPECT_TRUE(keyList.contains(getTestPublicKey1().get()));
   EXPECT_TRUE(keyList.contains(getTestPublicKey2().get()));
   EXPECT_TRUE(keyList.contains(getTestPublicKey3().get()));

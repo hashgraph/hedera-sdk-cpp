@@ -28,14 +28,27 @@
 namespace Hedera
 {
 //-----
-KeyList KeyList::fromProtobuf(const proto::KeyList& proto, int threshold)
+KeyList KeyList::fromProtobuf(const proto::KeyList& proto)
 {
   KeyList keyList;
-  keyList.mThreshold = threshold;
 
   for (int i = 0; i < proto.keys_size(); ++i)
   {
     keyList.mKeys.emplace_back(Key::fromProtobuf(proto.keys(i)).release());
+  }
+
+  return keyList;
+}
+
+//-----
+KeyList KeyList::fromProtobuf(const proto::ThresholdKey& proto)
+{
+  KeyList keyList;
+  keyList.mThreshold = proto.threshold();
+
+  for (int i = 0; i < proto.keys().keys_size(); ++i)
+  {
+    keyList.mKeys.emplace_back(Key::fromProtobuf(proto.keys().keys(i)).release());
   }
 
   return keyList;
@@ -50,7 +63,7 @@ KeyList KeyList::of(const std::vector<std::shared_ptr<Key>>& keys)
 }
 
 //-----
-KeyList KeyList::withThreshold(int threshold)
+KeyList KeyList::withThreshold(uint32_t threshold)
 {
   KeyList keyList;
   keyList.mThreshold = threshold;
@@ -118,7 +131,7 @@ std::ostream& operator<<(std::ostream& os, const KeyList& list)
 }
 
 //-----
-KeyList& KeyList::setThreshold(int threshold)
+KeyList& KeyList::setThreshold(uint32_t threshold)
 {
   mThreshold = threshold;
   return *this;

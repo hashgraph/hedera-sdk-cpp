@@ -49,6 +49,19 @@ int main(int argc, char** argv)
                 getHandle(&SdkClient::setup),
                 { "operatorAccountId", "operatorPrivateKey", "nodeIp", "nodeAccountId", "mirrorNetworkIp" });
   tckServer.add("reset", getHandle(&SdkClient::reset));
+  tckServer.add("updateAccount",
+                getHandle(&SdkClient::updateAccount),
+                { "accountId",
+                  "key",
+                  "autoRenewPeriod",
+                  "expirationTime",
+                  "receiverSignatureRequired",
+                  "memo",
+                  "maxAutoTokenAssociations",
+                  "stakedAccountId",
+                  "stakedNodeId",
+                  "declineStakingReward",
+                  "commonTransactionParams" });
 
   // Start listening for requests.
   tckServer.startServer();
