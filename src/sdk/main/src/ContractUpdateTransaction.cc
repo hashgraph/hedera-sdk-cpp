@@ -93,7 +93,7 @@ ContractUpdateTransaction& ContractUpdateTransaction::setContractMemo(std::strin
 }
 
 //-----
-ContractUpdateTransaction& ContractUpdateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
+ContractUpdateTransaction& ContractUpdateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
 {
   requireNotFrozen();
   mMaxAutomaticTokenAssociations = associations;
@@ -205,7 +205,7 @@ void ContractUpdateTransaction::initFromSourceTransactionBody()
 
   if (body.has_max_automatic_token_associations())
   {
-    mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations().value());
+    mMaxAutomaticTokenAssociations = body.max_automatic_token_associations().value();
   }
 
   if (body.has_auto_renew_account_id())
@@ -261,7 +261,7 @@ proto::ContractUpdateTransactionBody* ContractUpdateTransaction::build() const
   if (mMaxAutomaticTokenAssociations.has_value())
   {
     auto value = std::make_unique<google::protobuf::Int32Value>();
-    value->set_value(static_cast<int32_t>(mMaxAutomaticTokenAssociations.value()));
+    value->set_value(mMaxAutomaticTokenAssociations.value());
     body->set_allocated_max_automatic_token_associations(value.release());
   }
 

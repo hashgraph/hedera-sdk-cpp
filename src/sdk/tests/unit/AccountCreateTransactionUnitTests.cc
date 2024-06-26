@@ -43,7 +43,7 @@ protected:
     return mAutoRenewPeriod;
   }
   [[nodiscard]] inline const std::string& getTestAccountMemo() const { return mAccountMemo; }
-  [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
+  [[nodiscard]] inline int32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
   [[nodiscard]] inline const AccountId& getTestAccountId() const { return mAccountId; }
   [[nodiscard]] inline const uint64_t& getTestNodeId() const { return mNodeId; }
   [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
@@ -55,7 +55,7 @@ private:
   const bool mReceiverSignatureRequired = true;
   const std::chrono::system_clock::duration mAutoRenewPeriod = std::chrono::hours(2);
   const std::string mAccountMemo = "test account memo";
-  const uint32_t mMaxTokenAssociations = 3U;
+  const int32_t mMaxTokenAssociations = 3;
   const AccountId mAccountId = AccountId(4ULL);
   const uint64_t mNodeId = 5ULL;
   const bool mDeclineStakingReward = true;
@@ -74,7 +74,7 @@ TEST_F(AccountCreateTransactionUnitTests, ConstructAccountCreateTransaction)
   EXPECT_FALSE(transaction.getReceiverSignatureRequired());
   EXPECT_EQ(transaction.getAutoRenewPeriod(), DEFAULT_AUTO_RENEW_PERIOD);
   EXPECT_EQ(transaction.getTransactionMemo(), std::string());
-  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 0U);
+  EXPECT_EQ(transaction.getMaxAutomaticTokenAssociations(), 0);
   EXPECT_FALSE(transaction.getStakedAccountId().has_value());
   EXPECT_FALSE(transaction.getStakedNodeId().has_value());
   EXPECT_FALSE(transaction.getDeclineStakingReward());
@@ -91,7 +91,7 @@ TEST_F(AccountCreateTransactionUnitTests, ConstructAccountCreateTransactionFromT
   body->set_receiversigrequired(getTestReceiverSignatureRequired());
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
   body->set_memo(getTestAccountMemo());
-  body->set_max_automatic_token_associations(static_cast<int32_t>(getTestMaximumTokenAssociations()));
+  body->set_max_automatic_token_associations(getTestMaximumTokenAssociations());
   body->set_allocated_staked_account_id(getTestAccountId().toProtobuf().release());
   body->set_decline_reward(getTestDeclineStakingReward());
 

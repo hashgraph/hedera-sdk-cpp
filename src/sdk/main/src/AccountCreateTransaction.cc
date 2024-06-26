@@ -102,7 +102,7 @@ AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_v
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
+AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
 {
   requireNotFrozen();
 
@@ -198,7 +198,7 @@ void AccountCreateTransaction::initFromSourceTransactionBody()
   }
 
   mAccountMemo = body.memo();
-  mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations());
+  mMaxAutomaticTokenAssociations = body.max_automatic_token_associations();
 
   if (body.has_staked_account_id())
   {
@@ -232,7 +232,7 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
   body->set_receiversigrequired(mReceiverSignatureRequired);
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
   body->set_memo(mAccountMemo);
-  body->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
+  body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
 
   if (mStakedAccountId)
   {

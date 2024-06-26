@@ -54,7 +54,7 @@ protected:
   }
   [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
   [[nodiscard]] inline const uint64_t& getTestOwnedNfts() const { return mTestOwnedNfts; }
-  [[nodiscard]] inline uint32_t getTestMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
+  [[nodiscard]] inline int32_t getTestMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPublicKeyAlias() const { return mTestPublicKeyAlias; }
   [[nodiscard]] inline const LedgerId& getTestLedgerId() const { return mTestLedgerId; }
   [[nodiscard]] inline bool getTestDeclineReward() const { return mTestDeclineReward; }
@@ -79,7 +79,7 @@ private:
   const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(4);
   const std::string mTestMemo = "test memo";
   const uint64_t mTestOwnedNfts = 5ULL;
-  const uint32_t mMaxAutomaticTokenAssociations = 6U;
+  const int32_t mMaxAutomaticTokenAssociations = 6;
   const std::shared_ptr<PublicKey> mTestPublicKeyAlias = PublicKey::fromStringDer(
     "302A300506032B6570032100fc51cd8e6218a1a38da47ed00230f0580816ed13ba3303ac5deb911548908025");
   const LedgerId mTestLedgerId = LedgerId({ std::byte(0x07), std::byte(0x08), std::byte(0x09) });
@@ -106,7 +106,7 @@ TEST_F(AccountInfoUnitTests, FromProtobuf)
   protoAccountInfo.set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(getTestAutoRenewPeriod()));
   protoAccountInfo.set_memo(getTestMemo());
   protoAccountInfo.set_ownednfts(static_cast<int64_t>(getTestOwnedNfts()));
-  protoAccountInfo.set_max_automatic_token_associations(static_cast<int32_t>(getTestMaxAutomaticTokenAssociations()));
+  protoAccountInfo.set_max_automatic_token_associations(getTestMaxAutomaticTokenAssociations());
   protoAccountInfo.set_alias(getTestPublicKeyAlias()->toProtobufKey()->SerializeAsString());
   protoAccountInfo.set_ledger_id(internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
 

@@ -59,7 +59,7 @@ TEST_F(AccountCreateTransactionIntegrationTests, ExecuteAccountCreateTransaction
   const Hbar testInitialBalance(1000LL, HbarUnit::TINYBAR());
   const std::chrono::system_clock::duration testAutoRenewPeriod = std::chrono::seconds(2592000);
   const std::string testMemo = "test account memo";
-  const uint32_t testMaxAutomaticTokenAssociations = 4U;
+  const int32_t testMaxAutomaticTokenAssociations = -1;
 
   // When
   TransactionResponse txResponse;
@@ -526,7 +526,7 @@ TEST_F(AccountCreateTransactionIntegrationTests, FreezeSignSerializeDeserializeA
   const Hbar testInitialBalance(1000LL, HbarUnit::TINYBAR());
   const std::chrono::system_clock::duration testAutoRenewPeriod = std::chrono::seconds(2592000);
   const std::string testMemo = "test account memo";
-  const uint32_t testMaxAutomaticTokenAssociations = 4U;
+  const int32_t testMaxAutomaticTokenAssociations = 4;
 
   AccountCreateTransaction createAccount;
   EXPECT_NO_THROW(createAccount = AccountCreateTransaction()
@@ -567,4 +567,19 @@ TEST_F(AccountCreateTransactionIntegrationTests, FreezeSignSerializeDeserializeA
                     .freezeWith(&getTestClient())
                     .sign(testPrivateKey)
                     .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountCreateTransactionIntegrationTests, CannotCreateAccountWithLessThanNegativeOneAutomaticTokenAssociations)
+{
+  // Given
+  const std::shared_ptr<PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
+
+  // When / Then
+  EXPECT_THROW(AccountCreateTransaction()
+                 .setKey(key)
+                 .setMaxAutomaticTokenAssociations(-2)
+                 .execute(getTestClient())
+                 .getReceipt(getTestClient()),
+               ReceiptStatusException); // INVALID_MAX_AUTO_ASSOCIATIONS
 }

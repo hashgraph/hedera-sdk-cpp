@@ -46,7 +46,7 @@ protected:
     return mTestAutoRenewPeriod;
   }
   [[nodiscard]] inline const std::string& getTestContractMemo() const { return mTestContractMemo; }
-  [[nodiscard]] inline uint32_t getTestMaximumAutomaticTokenAssociations() const
+  [[nodiscard]] inline int32_t getTestMaximumAutomaticTokenAssociations() const
   {
     return mTestMaximumAutomaticTokenAssociations;
   }
@@ -61,7 +61,7 @@ private:
   const std::shared_ptr<PublicKey> mTestAdminKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(2);
   const std::string mTestContractMemo = "test contract memo";
-  const uint32_t mTestMaximumAutomaticTokenAssociations = 3U;
+  const int32_t mTestMaximumAutomaticTokenAssociations = 3;
   const AccountId mTestAutoRenewAccountId = AccountId(4ULL);
   const AccountId mTestStakedAccountId = AccountId(5ULL);
   const uint64_t mTestStakedNodeId = 6ULL;
@@ -85,7 +85,7 @@ TEST_F(ContractUpdateTransactionUnitTests, ConstructContractUpdateTransactionFro
   body->set_allocated_memowrapper(stringValue.release());
 
   auto int32Value = std::make_unique<google::protobuf::Int32Value>();
-  int32Value->set_value(static_cast<int32_t>(getTestMaximumAutomaticTokenAssociations()));
+  int32Value->set_value(getTestMaximumAutomaticTokenAssociations());
   body->set_allocated_max_automatic_token_associations(int32Value.release());
 
   auto boolValue = std::make_unique<google::protobuf::BoolValue>();

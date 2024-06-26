@@ -129,7 +129,7 @@ public:
    *         associations.
    * @throws IllegalStateException If this ContractUpdateTransaction is frozen.
    */
-  ContractUpdateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
+  ContractUpdateTransaction& setMaxAutomaticTokenAssociations(int32_t associations);
 
   /**
    * Set the ID of the account that will auto-renew this contract.
@@ -219,7 +219,7 @@ public:
    * @return The new maximum automatic token associations for the contract. Returns uninitialized if a new maximum
    *         automatic token associations amount has not yet been set.
    */
-  [[nodiscard]] inline std::optional<uint32_t> getMaxAutomaticTokenAssociations() const
+  [[nodiscard]] inline std::optional<int32_t> getMaxAutomaticTokenAssociations() const
   {
     return mMaxAutomaticTokenAssociations;
   }
@@ -332,7 +332,7 @@ private:
   /**
    * The new maximum automatic token associations for the contract. Only allows values up to a maximum value of 5000.
    */
-  std::optional<uint32_t> mMaxAutomaticTokenAssociations;
+  std::optional<int32_t> mMaxAutomaticTokenAssociations;
 
   /**
    * The ID of the account that will auto-renew this contract.

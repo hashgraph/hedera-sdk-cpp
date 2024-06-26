@@ -46,7 +46,7 @@ protected:
     return mExpirationTime;
   }
   [[nodiscard]] inline const std::string& getTestAccountMemo() const { return mAccountMemo; }
-  [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
+  [[nodiscard]] inline int32_t getTestMaximumTokenAssociations() const { return mMaxTokenAssociations; }
   [[nodiscard]] inline const AccountId& getTestStakedAccountId() const { return mStakedAccountId; }
   [[nodiscard]] inline const uint64_t& getTestStakedNodeId() const { return mStakedNodeId; }
   [[nodiscard]] inline bool getTestDeclineStakingReward() const { return mDeclineStakingReward; }
@@ -58,7 +58,7 @@ private:
   const std::chrono::system_clock::duration mAutoRenewPeriod = std::chrono::hours(2);
   const std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now();
   const std::string mAccountMemo = "test account memo";
-  const uint32_t mMaxTokenAssociations = 3U;
+  const int32_t mMaxTokenAssociations = 3;
   const AccountId mStakedAccountId = AccountId(4ULL);
   const uint64_t mStakedNodeId = 5ULL;
   const bool mDeclineStakingReward = true;
@@ -107,7 +107,7 @@ TEST_F(AccountUpdateTransactionUnitTests, ConstructAccountUpdateTransactionFromT
   body->set_allocated_memo(stringValue.release());
 
   auto int32Value = std::make_unique<google::protobuf::Int32Value>();
-  int32Value->set_value(static_cast<int32_t>(getTestMaximumTokenAssociations()));
+  int32Value->set_value(getTestMaximumTokenAssociations());
   body->set_allocated_max_automatic_token_associations(int32Value.release());
 
   proto::TransactionBody txBody;
