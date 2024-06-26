@@ -85,7 +85,7 @@ int main(int argc, char** argv)
   const FileId newFileId = txReceipt.mFileId.value();
   std::cout << "Contract bytecode file created with ID " << newFileId.toString() << std::endl;
 
-  std::string_view memo = "[e2e::ContractADeploysContractBInConstructor]";
+  std::string memo = "[e2e::ContractADeploysContractBInConstructor]";
 
   // Create the actual contract
   TransactionResponse contractCreateTxResponse = ContractCreateTransaction()
