@@ -44,6 +44,9 @@ int main(int argc, char** argv)
                   "declineStakingReward",
                   "alias",
                   "commonTransactionParams" });
+  tckServer.add("deleteAccount",
+                getHandle(&SdkClient::deleteAccount),
+                { "deleteAccountId", "transferAccountId", "commonTransactionParams" });
   tckServer.add("generateKey", getHandle(&SdkClient::generateKey), { "type", "fromKey", "threshold", "keys" });
   tckServer.add("setup",
                 getHandle(&SdkClient::setup),

@@ -59,6 +59,18 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
                              const std::optional<CommonTransactionParams>& commonTxParams);
 
 /**
+ * Delete an account.
+ *
+ * @param deleteAccountId   The ID of the account to delete.
+ * @param transferAccountId The ID of the account to which to transfer remaining balances.
+ * @param commonTxParams    Any parameters common to all transaction types.
+ * @return A JSON response containing the status of the account deletion.
+ */
+nlohmann::json deleteAccount(const std::optional<std::string>& deleteAccountId,
+                             const std::optional<std::string>& transferAccountId,
+                             const std::optional<CommonTransactionParams>& commonTxParams);
+
+/**
  * Generate a Key.
  *
  * @param type      The type of Key to generate. It MUST be one of `ed25519PrivateKey`, `ed25519PublicKey`,
