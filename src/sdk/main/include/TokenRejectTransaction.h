@@ -29,6 +29,7 @@ namespace proto
 {
 class TokenRejectTransactionBody;
 class TransactionBody;
+class TokenReference;
 }
 
 namespace Hedera
@@ -143,7 +144,7 @@ private:
    * If set, this account MUST sign this transaction.
    * If not set, the payer for this transaction SHALL be the account rejecting tokens.
    */
-  std::optional<AccountId> owner;
+  std::optional<AccountId> mOwner;
 
   /**
    * On success each rejected token serial number or balance SHALL be transferred from
@@ -153,12 +154,12 @@ private:
    *
    * A list of one or more fungible token rejections.
    */
-  std::vector<TokenId> fts;
+  std::vector<TokenId> mFts;
 
   /**
    * A list of one or more non-fungible token rejections.
    */
-  std::vector<NftId> nfts;
+  std::vector<NftId> mNfts;
 };
 
 } // namespace Hedera
