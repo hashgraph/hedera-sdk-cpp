@@ -23,8 +23,9 @@
 #include "JsonErrorType.h"
 #include "JsonRpcException.h"
 
+#include <cstddef>
 #include <functional>
-#include <iostream>
+#include <limits>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
@@ -46,6 +47,16 @@ template<typename T> struct isOptional<std::optional<T>> : std::true_type {};
 // clang-format on
 
 /**
+ * Helper type traits to check if an argument is a vector and if the vector contains the correct argument.
+ */
+// clang-format off
+template<typename T, typename = void> struct hasValueType : std::false_type {};
+template<typename T> struct hasValueType<T, std::void_t<typename T::value_type>> : std::true_type {};
+template<typename T, bool = hasValueType<T>::value> struct isVector : std::false_type {};
+template<typename T> struct isVector<T, true> : std::is_same<T, std::vector<typename T::value_type>> {};
+// clang-format on
+
+/**
  * Map a type to its corresponding JSON type.
  *
  * @tparam T The type to map.
@@ -54,7 +65,11 @@ template<typename T> struct isOptional<std::optional<T>> : std::true_type {};
 template<typename T>
 constexpr nlohmann::json::value_t getType()
 {
-  if constexpr (std::is_same_v<T, void>)
+  if constexpr (isOptional<T>::value)
+  {
+    return getType<typename T::value_type>();
+  }
+  else if constexpr (std::is_same_v<T, void>)
   {
     return nlohmann::json::value_t::null;
   }
@@ -78,7 +93,7 @@ constexpr nlohmann::json::value_t getType()
   {
     return nlohmann::json::value_t::string;
   }
-  else if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
+  else if constexpr (isVector<T>::value)
   {
     return nlohmann::json::value_t::array;
   }
@@ -235,7 +250,7 @@ MethodHandle createMethodHandle(const std::function<ReturnType(ParamTypes...)>& 
   // guarantees if it will remain in scope.
   MethodHandle handle = [method](const nlohmann::json& params)
   {
-    if constexpr (sizeof...(ParamTypes) > 0)
+    if (sizeof...(ParamTypes) > 0 && !params.empty())
     {
       (checkParamType<std::decay_t<ParamTypes>>(index, params[index], getType<std::decay_t<ParamTypes>>()), ...);
     }
@@ -263,7 +278,7 @@ NotificationHandle createNotificationHandle(const std::function<void(ParamTypes.
   // there are no guarantees if it will remain in scope.
   return [notification](const nlohmann::json& params)
   {
-    if constexpr (sizeof...(ParamTypes) > 0)
+    if (sizeof...(ParamTypes) > 0 && !params.empty())
     {
       (checkParamType<std::decay_t<ParamTypes>>(index, params[index], getType<std::decay_t<ParamTypes>>()), ...);
     }
