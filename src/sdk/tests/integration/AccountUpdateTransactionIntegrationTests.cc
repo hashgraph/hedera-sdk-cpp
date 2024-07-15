@@ -24,16 +24,13 @@
 #include "AccountInfoQuery.h"
 #include "AccountUpdateTransaction.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
-#include "TokenAssociateTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
-#include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 
 #include <gtest/gtest.h>

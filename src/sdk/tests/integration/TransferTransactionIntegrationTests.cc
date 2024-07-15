@@ -417,15 +417,15 @@ TEST_F(TransferTransactionIntegrationTests,
                                    .getReceipt(getTestClient())
                                    .mAccountId.value());
 
-  ASSERT_NO_THROW(AccountAllowanceApproveTransaction()
-                    .approveTokenAllowance(tokenId, senderId, allowancedId, amount)
+  ASSERT_NO_THROW(TokenAssociateTransaction()
+                    .setAccountId(senderId)
+                    .setTokenIds({ tokenId })
                     .freezeWith(&getTestClient())
                     .sign(senderKey)
                     .execute(getTestClient())
                     .getReceipt(getTestClient()));
-  ASSERT_NO_THROW(TokenAssociateTransaction()
-                    .setAccountId(senderId)
-                    .setTokenIds({ tokenId })
+  ASSERT_NO_THROW(AccountAllowanceApproveTransaction()
+                    .approveTokenAllowance(tokenId, senderId, allowancedId, amount)
                     .freezeWith(&getTestClient())
                     .sign(senderKey)
                     .execute(getTestClient())
@@ -435,11 +435,17 @@ TEST_F(TransferTransactionIntegrationTests,
                     .addTokenTransfer(tokenId, senderId, amount)
                     .execute(getTestClient())
                     .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(TransferTransaction()
+                    .addHbarTransfer(getTestClient().getOperatorAccountId().value(), Hbar(-10LL))
+                    .addHbarTransfer(allowancedId, Hbar(10LL))
+                    .execute(getTestClient())
+                    .getReceipt(getTestClient()));
 
   // When
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TransferTransaction()
                                                          .addApprovedTokenTransfer(tokenId, senderId, -amount)
                                                          .addTokenTransfer(tokenId, receiverId, amount)
+                                                         .setTransactionId(TransactionId::generate(allowancedId))
                                                          .freezeWith(&getTestClient())
                                                          .sign(allowancedKey)
                                                          .execute(getTestClient())
@@ -556,6 +562,7 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithUnlimited
                               .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
                               .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
                               .setAdminKey(operatorKey)
+                              .setSupplyKey(operatorKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
                               .mTokenId.value());
@@ -575,7 +582,7 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithUnlimited
   ASSERT_NO_THROW(nftId = NftId(tokenId,
                                 TokenMintTransaction()
                                   .setTokenId(tokenId)
-                                  .setAmount(1)
+                                  .addMetadata({ std::byte(0x00), std::byte(0x01), std::byte(0x02) })
                                   .execute(getTestClient())
                                   .getReceipt(getTestClient())
                                   .mSerialNumbers.front()));
@@ -633,6 +640,7 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithNoTokenAs
                               .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
                               .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
                               .setAdminKey(operatorKey)
+                              .setSupplyKey(operatorKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
                               .mTokenId.value());
@@ -652,7 +660,7 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithNoTokenAs
   ASSERT_NO_THROW(nftId = NftId(tokenId,
                                 TokenMintTransaction()
                                   .setTokenId(tokenId)
-                                  .setAmount(1)
+                                  .addMetadata({ std::byte(0x00), std::byte(0x01), std::byte(0x02) })
                                   .execute(getTestClient())
                                   .getReceipt(getTestClient())
                                   .mSerialNumbers.front()));
@@ -668,7 +676,7 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithNoTokenAs
                     .setAccountId(receiverId)
                     .setTokenIds({ tokenId })
                     .freezeWith(&getTestClient())
-                    .sign(senderKey)
+                    .sign(receiverKey)
                     .execute(getTestClient())
                     .getReceipt(getTestClient()));
   ASSERT_NO_THROW(TransferTransaction()
@@ -720,6 +728,7 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithUnlimited
                               .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
                               .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
                               .setAdminKey(operatorKey)
+                              .setSupplyKey(operatorKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
                               .mTokenId.value());
@@ -744,17 +753,11 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithUnlimited
   ASSERT_NO_THROW(nftId = NftId(tokenId,
                                 TokenMintTransaction()
                                   .setTokenId(tokenId)
-                                  .setAmount(1)
+                                  .addMetadata({ std::byte(0x00), std::byte(0x01), std::byte(0x02) })
                                   .execute(getTestClient())
                                   .getReceipt(getTestClient())
                                   .mSerialNumbers.front()));
 
-  ASSERT_NO_THROW(AccountAllowanceApproveTransaction()
-                    .approveNftAllowanceAllSerials(tokenId, senderId, allowancedId)
-                    .freezeWith(&getTestClient())
-                    .sign(senderKey)
-                    .execute(getTestClient())
-                    .getReceipt(getTestClient()));
   ASSERT_NO_THROW(TokenAssociateTransaction()
                     .setAccountId(senderId)
                     .setTokenIds({ tokenId })
@@ -762,9 +765,8 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithUnlimited
                     .sign(senderKey)
                     .execute(getTestClient())
                     .getReceipt(getTestClient()));
-  ASSERT_NO_THROW(TokenAssociateTransaction()
-                    .setAccountId(receiverId)
-                    .setTokenIds({ tokenId })
+  ASSERT_NO_THROW(AccountAllowanceApproveTransaction()
+                    .approveNftAllowanceAllSerials(tokenId, senderId, allowancedId)
                     .freezeWith(&getTestClient())
                     .sign(senderKey)
                     .execute(getTestClient())
@@ -773,10 +775,16 @@ TEST_F(TransferTransactionIntegrationTests, CanTransferNftToAccountWithUnlimited
                     .addNftTransfer(nftId, getTestClient().getOperatorAccountId().value(), senderId)
                     .execute(getTestClient())
                     .getReceipt(getTestClient()));
+  ASSERT_NO_THROW(TransferTransaction()
+                    .addHbarTransfer(getTestClient().getOperatorAccountId().value(), Hbar(-10LL))
+                    .addHbarTransfer(allowancedId, Hbar(10LL))
+                    .execute(getTestClient())
+                    .getReceipt(getTestClient()));
 
   // When
   ASSERT_NO_THROW(const TransactionReceipt txReceipt = TransferTransaction()
                                                          .addApprovedNftTransfer(nftId, senderId, receiverId)
+                                                         .setTransactionId(TransactionId::generate(allowancedId))
                                                          .freezeWith(&getTestClient())
                                                          .sign(allowancedKey)
                                                          .execute(getTestClient())
@@ -882,6 +890,7 @@ TEST_F(TransferTransactionIntegrationTests, CannotTransferNftToAccountWithNoToke
                               .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
                               .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
                               .setAdminKey(operatorKey)
+                              .setSupplyKey(operatorKey)
                               .execute(getTestClient())
                               .getReceipt(getTestClient())
                               .mTokenId.value());
@@ -901,7 +910,7 @@ TEST_F(TransferTransactionIntegrationTests, CannotTransferNftToAccountWithNoToke
   ASSERT_NO_THROW(nftId = NftId(tokenId,
                                 TokenMintTransaction()
                                   .setTokenId(tokenId)
-                                  .setAmount(1)
+                                  .addMetadata({ std::byte(0x00), std::byte(0x01), std::byte(0x02) })
                                   .execute(getTestClient())
                                   .getReceipt(getTestClient())
                                   .mSerialNumbers.front()));

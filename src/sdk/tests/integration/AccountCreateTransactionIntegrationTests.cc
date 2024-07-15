@@ -34,6 +34,7 @@
 #include "TransactionResponse.h"
 #include "WrappedTransaction.h"
 #include "exceptions/IllegalStateException.h"
+#include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 #include "exceptions/UninitializedException.h"
 #include "impl/HexConverter.h"
@@ -581,5 +582,5 @@ TEST_F(AccountCreateTransactionIntegrationTests, CannotCreateAccountWithLessThan
                  .setMaxAutomaticTokenAssociations(-2)
                  .execute(getTestClient())
                  .getReceipt(getTestClient()),
-               ReceiptStatusException); // INVALID_MAX_AUTO_ASSOCIATIONS
+               PrecheckStatusException); // INVALID_MAX_AUTO_ASSOCIATIONS
 }

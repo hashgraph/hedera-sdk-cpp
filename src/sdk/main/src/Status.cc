@@ -333,7 +333,8 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
   { proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED,                                         Status::ALIAS_ALREADY_ASSIGNED                 },
   { proto::ResponseCodeEnum::INVALID_METADATA_KEY,                                           Status::INVALID_METADATA_KEY                   },
   { proto::ResponseCodeEnum::MISSING_TOKEN_METADATA,                                         Status::MISSING_TOKEN_METADATA                 },
-  { proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS,                                         Status::MISSING_SERIAL_NUMBERS                 }
+  { proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS,                                         Status::MISSING_SERIAL_NUMBERS                 },
+  { proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS,                                  Status::INVALID_MAX_AUTO_ASSOCIATIONS          }
 };
 
 //-----
@@ -646,7 +647,8 @@ const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufRespo
   { Status::ALIAS_ALREADY_ASSIGNED,                                         proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED                 },
   { Status::INVALID_METADATA_KEY,                                           proto::ResponseCodeEnum::INVALID_METADATA_KEY                   },
   { Status::MISSING_TOKEN_METADATA,                                         proto::ResponseCodeEnum::MISSING_TOKEN_METADATA                 },
-  { Status::MISSING_SERIAL_NUMBERS,                                         proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS                 }
+  { Status::MISSING_SERIAL_NUMBERS,                                         proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS                 },
+  { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS          }
 };
 
 //-----
@@ -941,7 +943,8 @@ const std::unordered_map<Status, std::string> gStatusToString = {
   { Status::ALIAS_ALREADY_ASSIGNED,                                         "ALIAS_ALREADY_ASSIGNED"                            },
   { Status::INVALID_METADATA_KEY,                                           "INVALID_METADATA_KEY"                              },
   { Status::MISSING_TOKEN_METADATA,                                         "MISSING_TOKEN_METADATA"                            },
-  { Status::MISSING_SERIAL_NUMBERS,                                         "MISSING_SERIAL_NUMBERS"                            }
+  { Status::MISSING_SERIAL_NUMBERS,                                         "MISSING_SERIAL_NUMBERS"                            },
+  { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  "INVALID_MAX_AUTO_ASSOCIATIONS"                     }
 };
 
 } // namespace Hedera
