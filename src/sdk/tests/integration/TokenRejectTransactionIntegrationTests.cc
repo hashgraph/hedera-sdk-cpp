@@ -23,6 +23,7 @@
 #include "BaseIntegrationTest.h"
 #include "ED25519PrivateKey.h"
 #include "TokenCreateTransaction.h"
+#include "TokenMintTransaction.h"
 #include "TokenRejectTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
@@ -35,12 +36,30 @@ using namespace Hedera;
 class TokenRejectTransactionIntegrationTests : public BaseIntegrationTest
 {
 protected:
-  TokenId createToken(const std::shared_ptr<PrivateKey>& operatorKey)
+  TokenId createFt(const std::shared_ptr<PrivateKey>& operatorKey)
   {
     return TokenCreateTransaction()
       .setTokenName("ffff")
       .setTokenSymbol("F")
+      .setTokenType(TokenType::FUNGIBLE_COMMON)
       .setInitialSupply(100000)
+      .setTreasuryAccountId(AccountId(2ULL))
+      .setAdminKey(operatorKey)
+      .setFreezeKey(operatorKey)
+      .setWipeKey(operatorKey)
+      .setSupplyKey(operatorKey)
+      .setFeeScheduleKey(operatorKey)
+      .execute(getTestClient())
+      .getReceipt(getTestClient())
+      .mTokenId.value();
+  }
+
+  TokenId createNft(const std::shared_ptr<PrivateKey>& operatorKey)
+  {
+    return TokenCreateTransaction()
+      .setTokenName("ffff")
+      .setTokenSymbol("F")
+      .setTokenType(TokenType::NON_FUNGIBLE_UNIQUE)
       .setTreasuryAccountId(AccountId(2ULL))
       .setAdminKey(operatorKey)
       .setFreezeKey(operatorKey)
@@ -69,24 +88,23 @@ private:
 //-----
 TEST_F(TokenRejectTransactionIntegrationTests, CanExecuteForFT)
 {
-  // Given
   std::shared_ptr<PrivateKey> operatorKey;
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
 
-  // create two fts
+  // Create two fts
   TokenId tokenId1;
-  ASSERT_NO_THROW(tokenId1 = createToken(operatorKey));
+  ASSERT_NO_THROW(tokenId1 = createFt(operatorKey));
   TokenId tokenId2;
-  ASSERT_NO_THROW(tokenId2 = createToken(operatorKey));
+  ASSERT_NO_THROW(tokenId2 = createFt(operatorKey));
 
-  // create receiver account with auto associations
+  // Create receiver account with auto associations
   AccountId receiver;
   std::shared_ptr<PrivateKey> receiverKey = ED25519PrivateKey::generatePrivateKey();
   ASSERT_NO_THROW(receiver = createAccount(receiverKey));
 
-  // transfer fts to the receiver
+  // Transfer fts to the receiver
   TransactionReceipt txReceipt;
   ASSERT_NO_THROW(txReceipt = TransferTransaction()
                                 .addTokenTransfer(tokenId1, getTestClient().getOperatorAccountId().value(), -10)
@@ -96,7 +114,7 @@ TEST_F(TokenRejectTransactionIntegrationTests, CanExecuteForFT)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
-  // reject the tokens
+  // Reject the tokens
   EXPECT_NO_THROW(txReceipt = TokenRejectTransaction()
                                 .setOwner(receiver)
                                 .setFts({ tokenId1, tokenId2 })
@@ -105,14 +123,14 @@ TEST_F(TokenRejectTransactionIntegrationTests, CanExecuteForFT)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
-  // verify the balance of the receiver is 0
+  // Verify the balance of the receiver is 0
   AccountBalance balance;
   EXPECT_NO_THROW(balance = AccountBalanceQuery().setAccountId(receiver).execute(getTestClient()));
 
   EXPECT_EQ(0, balance.mTokens[tokenId1]);
   EXPECT_EQ(0, balance.mTokens[tokenId2]);
 
-  // verify the tokens are transferred back to the treasury
+  // Verify the tokens are transferred back to the treasury
   EXPECT_NO_THROW(
     balance =
       AccountBalanceQuery().setAccountId(getTestClient().getOperatorAccountId().value()).execute(getTestClient()));
@@ -124,9 +142,66 @@ TEST_F(TokenRejectTransactionIntegrationTests, CanExecuteForFT)
 //-----
 TEST_F(TokenRejectTransactionIntegrationTests, CanExecuteForNFT)
 {
-  // Given
-  // When
-  // Then
+  std::shared_ptr<PrivateKey> operatorKey;
+  ASSERT_NO_THROW(
+    operatorKey = ED25519PrivateKey::fromString(
+      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+
+  // Create two nfts
+  TokenId tokenId1;
+  ASSERT_NO_THROW(tokenId1 = createNft(operatorKey));
+  TokenId tokenId2;
+  ASSERT_NO_THROW(tokenId2 = createNft(operatorKey));
+
+  // Mint the nfts
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt = TokenMintTransaction()
+                                .setTokenId(tokenId1)
+                                .setMetadata({ { std::byte(0xAB) } })
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+
+  ASSERT_NO_THROW(txReceipt = TokenMintTransaction()
+                                .setTokenId(tokenId2)
+                                .setMetadata({ { std::byte(0xAB) } })
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+
+  // Create receiver account with auto associations
+  AccountId receiver;
+  std::shared_ptr<PrivateKey> receiverKey = ED25519PrivateKey::generatePrivateKey();
+  ASSERT_NO_THROW(receiver = createAccount(receiverKey));
+
+  ASSERT_NO_THROW(txReceipt =
+                    TransferTransaction()
+                      .addNftTransfer(tokenId1.nft(1), getTestClient().getOperatorAccountId().value(), receiver)
+                      .addNftTransfer(tokenId2.nft(1), getTestClient().getOperatorAccountId().value(), receiver)
+                      .execute(getTestClient())
+                      .getReceipt(getTestClient()));
+
+  // Reject the nfts
+  EXPECT_NO_THROW(txReceipt = TokenRejectTransaction()
+                                .setOwner(receiver)
+                                .setNfts({ tokenId1.nft(1), tokenId2.nft(1) })
+                                .freezeWith(&getTestClient())
+                                .sign(receiverKey)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+
+  // Verify the balance of the receiver is 0
+  AccountBalance balance;
+  EXPECT_NO_THROW(balance = AccountBalanceQuery().setAccountId(receiver).execute(getTestClient()));
+
+  EXPECT_EQ(0, balance.mTokens[tokenId1]);
+  EXPECT_EQ(0, balance.mTokens[tokenId2]);
+
+  // Verify the tokens are transferred back to the treasury
+  EXPECT_NO_THROW(
+    balance =
+      AccountBalanceQuery().setAccountId(getTestClient().getOperatorAccountId().value()).execute(getTestClient()));
+
+  EXPECT_EQ(1, balance.mTokens[tokenId1]);
+  EXPECT_EQ(1, balance.mTokens[tokenId2]);
 }
 
 //-----
