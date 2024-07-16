@@ -51,7 +51,7 @@ protected:
     return mTestConstructorParameters;
   }
   [[nodiscard]] inline const std::string& getTestMemo() const { return mTestMemo; }
-  [[nodiscard]] inline uint32_t getTestMaximumTokenAssociations() const { return mTestMaxTokenAssociations; }
+  [[nodiscard]] inline int32_t getTestMaximumTokenAssociations() const { return mTestMaxTokenAssociations; }
   [[nodiscard]] inline const AccountId& getTestAutoRenewAccountId() const { return mTestAutoRenewAccountId; }
   [[nodiscard]] inline const AccountId& getTestStakedAccountId() const { return mTestStakedAccountId; }
   [[nodiscard]] inline const uint64_t& getTestStakedNodeId() const { return mTestStakedNodeId; }
@@ -67,7 +67,7 @@ private:
   const std::chrono::system_clock::duration mTestAutoRenewPeriod = std::chrono::hours(7);
   const std::vector<std::byte> mTestConstructorParameters = { std::byte(0x08), std::byte(0x09), std::byte(0x10) };
   const std::string mTestMemo = "test smart contract memo";
-  const uint32_t mTestMaxTokenAssociations = 11U;
+  const int32_t mTestMaxTokenAssociations = 11;
   const AccountId mTestAutoRenewAccountId = AccountId(12ULL);
   const AccountId mTestStakedAccountId = AccountId(13ULL);
   const uint64_t mTestStakedNodeId = 14ULL;
@@ -87,7 +87,7 @@ TEST_F(ContractCreateTransactionUnitTests, ConstructContractCreateTransactionFro
   body->set_allocated_constructorparameters(
     new std::string(internal::Utilities::byteVectorToString(getTestConstructorParameters())));
   body->set_allocated_memo(new std::string(getTestMemo()));
-  body->set_max_automatic_token_associations(static_cast<int32_t>(getTestMaximumTokenAssociations()));
+  body->set_max_automatic_token_associations(getTestMaximumTokenAssociations());
   body->set_allocated_auto_renew_account_id(getTestAutoRenewAccountId().toProtobuf().release());
   body->set_allocated_staked_account_id(getTestStakedAccountId().toProtobuf().release());
   body->set_decline_reward(getTestDeclineStakingReward());

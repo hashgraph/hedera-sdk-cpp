@@ -1517,7 +1517,13 @@ enum class Status
   /**
    * NFT serial numbers are missing in the TokenUpdateNftsTransactionBody
    */
-  MISSING_SERIAL_NUMBERS
+  MISSING_SERIAL_NUMBERS,
+
+  /**
+   * The maximum automatic associations value is not valid. The most common cause for this error is a value less than
+   * `-1`.
+   */
+  INVALID_MAX_AUTO_ASSOCIATIONS
 };
 
 /**
