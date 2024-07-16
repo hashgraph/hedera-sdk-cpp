@@ -17,6 +17,7 @@
  * limitations under the License.
  *
  */
+#include "Transaction.h"
 #include "AccountAllowanceApproveTransaction.h"
 #include "AccountAllowanceDeleteTransaction.h"
 #include "AccountCreateTransaction.h"
@@ -64,7 +65,6 @@
 #include "TopicDeleteTransaction.h"
 #include "TopicMessageSubmitTransaction.h"
 #include "TopicUpdateTransaction.h"
-#include "Transaction.h"
 #include "TransactionId.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
