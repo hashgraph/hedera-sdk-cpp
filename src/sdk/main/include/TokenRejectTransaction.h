@@ -68,6 +68,27 @@ public:
   explicit TokenRejectTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
   /**
+   * Get the account holding tokens to be rejected.
+   *
+   * @return Optional containing the account Id of the owner.
+   */
+  [[nodiscard]] std::optional<AccountId> getOwner() const { return mOwner; };
+
+  /**
+   * Get the list of fungible tokens to be rejected.
+   *
+   * @return A vector of TokenId objects.
+   */
+  [[nodiscard]] const std::vector<TokenId>& getFts() const { return mFts; };
+
+  /**
+   * Get the list of non-fungible tokens to be rejected.
+   *
+   * @return A vector of NftId objects.
+   */
+  [[nodiscard]] const std::vector<NftId>& getNfts() const { return mNfts; };
+
+  /**
    * Set a new account holding tokens to be rejected.
    *
    * @param owner Account Id of the account.
