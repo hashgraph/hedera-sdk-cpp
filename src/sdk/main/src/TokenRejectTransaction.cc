@@ -80,7 +80,6 @@ grpc::Status TokenRejectTransaction::submitRequest(const proto::Transaction& req
   return node->submitTransaction(proto::TransactionBody::DataCase::kTokenReject, request, deadline, response);
 }
 
-// Remember Vanko
 //-----
 void TokenRejectTransaction::validateChecksums(const Client& client) const
 {

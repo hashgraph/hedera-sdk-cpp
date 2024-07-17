@@ -1517,7 +1517,22 @@ enum class Status
   /**
    * NFT serial numbers are missing in the TokenUpdateNftsTransactionBody
    */
-  MISSING_SERIAL_NUMBERS
+  MISSING_SERIAL_NUMBERS,
+
+  /**
+   * The transaction attempted to use duplicate `TokenReference`.<br/>
+   * This affects `TokenReject` attempting to reject same token reference more than once.
+   */
+  TOKEN_REFERENCE_REPEATED,
+
+  /**
+   * The account id specified as the owner in `TokenReject` is invalid or does not exist.
+   */
+  INVALID_OWNER_ID,
+  /**
+   * The transaction attempted to use empty `TokenReference` list.
+   */
+  EMPTY_TOKEN_REFERENCE_LIST
 };
 
 /**
