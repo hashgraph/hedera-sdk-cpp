@@ -25,7 +25,6 @@
 #include "TokenId.h"
 #include "TokenRejectTransaction.h"
 #include "TransactionReceipt.h"
-
 #include "exceptions/UninitializedException.h"
 
 namespace Hedera
@@ -67,7 +66,7 @@ TransactionResponse TokenRejectFlow::execute(const Client& client, const std::ch
     tokenRejectTransaction.signWith(mPublicKey, mSigner.value());
   }
 
-  // Submit the ContractCreateTransaction.
+  // Submit the TokenRejectTransaction.
   TransactionResponse txResponse = tokenRejectTransaction.execute(client, timeout);
 
   // Make sure the transaction reaches consensus.
