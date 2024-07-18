@@ -159,7 +159,7 @@ public:
   /**
    * The maximum number of tokens with which the queried account can be associated.
    */
-  uint32_t mMaxAutomaticTokenAssociations = 0U;
+  int32_t mMaxAutomaticTokenAssociations = 0;
 
   /**
    * The PublicKey alias of the queried account.
