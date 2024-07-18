@@ -1519,7 +1519,7 @@ enum class Status
    */
   MISSING_SERIAL_NUMBERS,
 
-  /*
+  /**
    * The maximum automatic associations value is not valid. The most common cause for this error is a value less than
    * `-1`.
    */
@@ -1535,7 +1535,7 @@ enum class Status
    * The account id specified as the owner in `TokenReject` is invalid or does not exist.
    */
   INVALID_OWNER_ID,
-  
+
   /**
    * The transaction attempted to use empty `TokenReference` list.
    */
