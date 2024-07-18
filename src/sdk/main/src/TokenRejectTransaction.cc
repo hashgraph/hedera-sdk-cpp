@@ -17,7 +17,6 @@
  * limitations under the License.
  *
  */
-
 #include "TokenRejectTransaction.h"
 #include "AccountId.h"
 #include "NftId.h"
