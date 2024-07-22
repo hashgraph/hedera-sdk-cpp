@@ -141,14 +141,14 @@ proto::TokenRejectTransactionBody* TokenRejectTransaction::build() const
 
   for (const TokenId& ft : mFts)
   {
-    std::unique_ptr<proto::TokenReference> tr = std::make_unique<proto::TokenReference>();
+    auto tr = std::make_unique<proto::TokenReference>();
     tr->set_allocated_fungible_token(ft.toProtobuf().release());
     body->mutable_rejections()->AddAllocated(tr.release());
   }
 
   for (const NftId& nft : mNfts)
   {
-    std::unique_ptr<proto::TokenReference> tr = std::make_unique<proto::TokenReference>();
+    auto tr = std::make_unique<proto::TokenReference>();
     tr->set_allocated_nft(nft.toProtobuf().release());
     body->mutable_rejections()->AddAllocated(tr.release());
   }

@@ -38,7 +38,7 @@ TransactionResponse TokenRejectFlow::execute(const Client& client)
 //-----
 TransactionResponse TokenRejectFlow::execute(const Client& client, const std::chrono::system_clock::duration& timeout)
 {
-  TokenRejectTransaction tokenRejectTransaction = TokenRejectTransaction();
+  TokenRejectTransaction tokenRejectTransaction;
 
   if (mOwner.has_value())
   {
@@ -72,7 +72,7 @@ TransactionResponse TokenRejectFlow::execute(const Client& client, const std::ch
   // Make sure the transaction reaches consensus.
   TransactionReceipt txReceipt = txResponse.getReceipt(client, timeout);
 
-  TokenDissociateTransaction tokenDissociateTransaction = TokenDissociateTransaction();
+  TokenDissociateTransaction tokenDissociateTransaction;
 
   if (mOwner.has_value())
   {
@@ -91,9 +91,9 @@ TransactionResponse TokenRejectFlow::execute(const Client& client, const std::ch
 }
 
 //-----
-TokenRejectFlow& TokenRejectFlow::freezeWith(const Client& client)
+TokenRejectFlow& TokenRejectFlow::freezeWith(const Client* client)
 {
-  mFreezeWithClient = &client;
+  mFreezeWithClient = client;
   return *this;
 }
 

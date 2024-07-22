@@ -74,7 +74,7 @@ public:
    * @return A reference to this TokenRejectFlow object with the newly-set freeze Client.
    * @throws UninitializedException If Client operator has not been initialized.
    */
-  TokenRejectFlow& freezeWith(const Client& client);
+  TokenRejectFlow& freezeWith(const Client* client);
 
   /**
    * Set the PrivateKey with which the TokenRejectTransaction will be signed.
