@@ -334,7 +334,10 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
   { proto::ResponseCodeEnum::INVALID_METADATA_KEY,                                           Status::INVALID_METADATA_KEY                   },
   { proto::ResponseCodeEnum::MISSING_TOKEN_METADATA,                                         Status::MISSING_TOKEN_METADATA                 },
   { proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS,                                         Status::MISSING_SERIAL_NUMBERS                 },
-  { proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS,                                  Status::INVALID_MAX_AUTO_ASSOCIATIONS          }
+  { proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS,                                  Status::INVALID_MAX_AUTO_ASSOCIATIONS          },
+  { proto::ResponseCodeEnum::TOKEN_REFERENCE_REPEATED,                                       Status::TOKEN_REFERENCE_REPEATED               },
+  { proto::ResponseCodeEnum::INVALID_OWNER_ID,                                               Status::INVALID_OWNER_ID                       },
+  { proto::ResponseCodeEnum::EMPTY_TOKEN_REFERENCE_LIST,                                     Status::EMPTY_TOKEN_REFERENCE_LIST             }
 };
 
 //-----
@@ -648,7 +651,10 @@ const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufRespo
   { Status::INVALID_METADATA_KEY,                                           proto::ResponseCodeEnum::INVALID_METADATA_KEY                   },
   { Status::MISSING_TOKEN_METADATA,                                         proto::ResponseCodeEnum::MISSING_TOKEN_METADATA                 },
   { Status::MISSING_SERIAL_NUMBERS,                                         proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS                 },
-  { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS          }
+  { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS          },
+  { Status::TOKEN_REFERENCE_REPEATED,                                       proto::ResponseCodeEnum::TOKEN_REFERENCE_REPEATED               },
+  { Status::INVALID_OWNER_ID,                                               proto::ResponseCodeEnum::INVALID_OWNER_ID                       },
+  { Status::EMPTY_TOKEN_REFERENCE_LIST,                                     proto::ResponseCodeEnum::EMPTY_TOKEN_REFERENCE_LIST             }
 };
 
 //-----
@@ -944,7 +950,10 @@ const std::unordered_map<Status, std::string> gStatusToString = {
   { Status::INVALID_METADATA_KEY,                                           "INVALID_METADATA_KEY"                              },
   { Status::MISSING_TOKEN_METADATA,                                         "MISSING_TOKEN_METADATA"                            },
   { Status::MISSING_SERIAL_NUMBERS,                                         "MISSING_SERIAL_NUMBERS"                            },
-  { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  "INVALID_MAX_AUTO_ASSOCIATIONS"                     }
+  { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  "INVALID_MAX_AUTO_ASSOCIATIONS"                     },
+  { Status::TOKEN_REFERENCE_REPEATED,                                       "TOKEN_REFERENCE_REPEATED"                          },
+  { Status::INVALID_OWNER_ID,                                               "INVALID_OWNER_ID"                                  },
+  { Status::EMPTY_TOKEN_REFERENCE_LIST,                                     "EMPTY_TOKEN_REFERENCE_LIST"                        }
 };
 
 } // namespace Hedera

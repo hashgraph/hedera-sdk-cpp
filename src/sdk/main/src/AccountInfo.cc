@@ -137,6 +137,7 @@ std::unique_ptr<proto::CryptoGetInfoResponse_AccountInfo> AccountInfo::toProtobu
   proto->set_ledger_id(internal::Utilities::byteVectorToString(mLedgerId.toBytes()));
   proto->set_allocated_staking_info(mStakingInfo.toProtobuf().release());
 
+  // TODO: reference and type
   for (auto tr : mTokenRelationships)
   {
     proto->mutable_tokenrelationships()->AddAllocated(tr.second.toProtobuf().release());

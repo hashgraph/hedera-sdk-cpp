@@ -1523,7 +1523,23 @@ enum class Status
    * The maximum automatic associations value is not valid. The most common cause for this error is a value less than
    * `-1`.
    */
-  INVALID_MAX_AUTO_ASSOCIATIONS
+  INVALID_MAX_AUTO_ASSOCIATIONS,
+
+  /**
+   * The transaction attempted to use duplicate `TokenReference`.<br/>
+   * This affects `TokenReject` attempting to reject same token reference more than once.
+   */
+  TOKEN_REFERENCE_REPEATED,
+
+  /**
+   * The account id specified as the owner in `TokenReject` is invalid or does not exist.
+   */
+  INVALID_OWNER_ID,
+
+  /**
+   * The transaction attempted to use empty `TokenReference` list.
+   */
+  EMPTY_TOKEN_REFERENCE_LIST
 };
 
 /**

@@ -73,6 +73,7 @@
 #include "TokenNftInfo.h"
 #include "TokenNftInfoQuery.h"
 #include "TokenPauseTransaction.h"
+#include "TokenRejectTransaction.h"
 #include "TokenRevokeKycTransaction.h"
 #include "TokenUnfreezeTransaction.h"
 #include "TokenUnpauseTransaction.h"
@@ -656,6 +657,7 @@ template class Executable<TokenInfoQuery, proto::Query, proto::Response, TokenIn
 template class Executable<TokenMintTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenNftInfoQuery, proto::Query, proto::Response, TokenNftInfo>;
 template class Executable<TokenPauseTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TokenRejectTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenRevokeKycTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,

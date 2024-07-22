@@ -169,6 +169,8 @@ std::vector<std::byte> PrivateKey::signTransaction(WrappedTransaction& transacti
       return signTransaction(*transaction.getTransaction<TokenMintTransaction>());
     case TOKEN_PAUSE_TRANSACTION:
       return signTransaction(*transaction.getTransaction<TokenPauseTransaction>());
+    case TOKEN_REJECT_TRANSACTION:
+      return signTransaction(*transaction.getTransaction<TokenRejectTransaction>());
     case TOKEN_REVOKE_KYC_TRANSACTION:
       return signTransaction(*transaction.getTransaction<TokenRevokeKycTransaction>());
     case TOKEN_UNFREEZE_TRANSACTION:
