@@ -54,6 +54,7 @@ add_executable(${TEST_PROJECT_NAME}
         TokenMintTransactionIntegrationTests.cc
         TokenNftInfoQueryIntegrationTests.cc
         TokenPauseTransactionIntegrationTests.cc
+        TokenRejectTransactionIntegrationTests.cc
         TokenRevokeKycTransactionIntegrationTests.cc
         TokenUnfreezeTransactionIntegrationTests.cc
         TokenUnpauseTransactionIntegrationTests.cc

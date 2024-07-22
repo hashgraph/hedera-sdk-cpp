@@ -56,7 +56,7 @@ jobs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
       - name: Use Node.js 21
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: 21
 
@@ -72,7 +72,7 @@ jobs:
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
       - name: Install CMake & Ninja
-        uses: lukka/get-cmake@2bcb1a4c14ab154443cc740dced0f9b6a8fb2b59 # v3.29.6
+        uses: lukka/get-cmake@34181361be075620f7c3871daa1cadb92d9a903e # v3.30.1
 
       - name: Setup VCPkg
         uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
@@ -107,7 +107,7 @@ jobs:
       #     run: tree /F build
 
       - name: Start the local node
-        run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.51.0-alpha.3
+        run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.52.0-alpha.6
 
       - name: Start CTest suite (Debug)
         run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
@@ -125,7 +125,7 @@ jobs:
 
       - name: Attach Artifact
         if: github.event.pull_request.merged == true
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
           path: package/

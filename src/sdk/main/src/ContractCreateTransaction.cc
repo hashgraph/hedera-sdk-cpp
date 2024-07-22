@@ -123,7 +123,7 @@ ContractCreateTransaction& ContractCreateTransaction::setMemo(std::string_view m
 }
 
 //-----
-ContractCreateTransaction& ContractCreateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
+ContractCreateTransaction& ContractCreateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
 {
   requireNotFrozen();
   mMaxAutomaticTokenAssociations = associations;
@@ -236,7 +236,7 @@ void ContractCreateTransaction::initFromSourceTransactionBody()
 
   mConstructorParameters = internal::Utilities::stringToByteVector(body.constructorparameters());
   mMemo = body.memo();
-  mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations());
+  mMaxAutomaticTokenAssociations = body.max_automatic_token_associations();
 
   if (body.has_auto_renew_account_id())
   {
@@ -281,7 +281,7 @@ proto::ContractCreateTransactionBody* ContractCreateTransaction::build() const
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
   body->set_constructorparameters(internal::Utilities::byteVectorToString(mConstructorParameters));
   body->set_memo(mMemo);
-  body->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
+  body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
 
   if (mAutoRenewAccountId.has_value())
   {

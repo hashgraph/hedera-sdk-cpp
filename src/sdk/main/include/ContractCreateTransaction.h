@@ -204,7 +204,7 @@ public:
    *         associations.
    * @throws IllegalStateException If this ContractCreateTransaction is frozen.
    */
-  ContractCreateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
+  ContractCreateTransaction& setMaxAutomaticTokenAssociations(int32_t associations);
 
   /**
    * Set the account to charge for auto-renewal of the new smart contract instance. If not set, or set to an account
@@ -312,7 +312,7 @@ public:
    *
    * @return The maximum number of tokens with which the new smart contract instance can be automatically associated.
    */
-  [[nodiscard]] inline uint32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
+  [[nodiscard]] inline int32_t getMaxAutomaticTokenAssociations() const { return mMaxAutomaticTokenAssociations; }
 
   /**
    * Get the account to charge for auto-renewal of the new smart contract instance.
@@ -440,7 +440,7 @@ private:
   /**
    * The maximum number of tokens with which the new smart contract instance can be implicitly associated.
    */
-  uint32_t mMaxAutomaticTokenAssociations = 0U;
+  int32_t mMaxAutomaticTokenAssociations = 0;
 
   /**
    * The account to charge for auto-renewal of the new smart contract instance.

@@ -158,6 +158,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(TokenPauseTransaction(proto));
   }
+  else if (proto.has_tokenreject())
+  {
+    return WrappedTransaction(TokenRejectTransaction(proto));
+  }
   else if (proto.has_tokenrevokekyc())
   {
     return WrappedTransaction(TokenRevokeKycTransaction(proto));
@@ -350,6 +354,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
   {
     *txBody.mutable_token_pause() = proto.token_pause();
     return WrappedTransaction(TokenPauseTransaction(txBody));
+  }
+  else if (proto.has_tokenreject())
+  {
+    *txBody.mutable_tokenreject() = proto.tokenreject();
+    return WrappedTransaction(TokenRejectTransaction(txBody));
   }
   else if (proto.has_tokenrevokekyc())
   {
@@ -595,6 +604,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
     case TOKEN_PAUSE_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenPauseTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_REJECT_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenRejectTransaction>();
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }

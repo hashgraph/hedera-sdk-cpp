@@ -54,6 +54,7 @@
 #include "TokenGrantKycTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TokenPauseTransaction.h"
+#include "TokenRejectTransaction.h"
 #include "TokenRevokeKycTransaction.h"
 #include "TokenUnfreezeTransaction.h"
 #include "TokenUnpauseTransaction.h"
@@ -278,6 +279,8 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(TokenMintTransaction(transactions));
     case proto::TransactionBody::kTokenPause:
       return WrappedTransaction(TokenPauseTransaction(transactions));
+    case proto::TransactionBody::kTokenReject:
+      return WrappedTransaction(TokenRejectTransaction(transactions));
     case proto::TransactionBody::kTokenRevokeKyc:
       return WrappedTransaction(TokenRevokeKycTransaction(transactions));
     case proto::TransactionBody::kTokenUnfreeze:
@@ -1291,6 +1294,7 @@ template class Transaction<TokenFreezeTransaction>;
 template class Transaction<TokenGrantKycTransaction>;
 template class Transaction<TokenMintTransaction>;
 template class Transaction<TokenPauseTransaction>;
+template class Transaction<TokenRejectTransaction>;
 template class Transaction<TokenRevokeKycTransaction>;
 template class Transaction<TokenUnfreezeTransaction>;
 template class Transaction<TokenUnpauseTransaction>;

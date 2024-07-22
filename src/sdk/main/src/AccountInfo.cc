@@ -62,7 +62,7 @@ AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_Account
 
   accountInfo.mMemo = proto.memo();
   accountInfo.mOwnedNfts = static_cast<uint64_t>(proto.ownednfts());
-  accountInfo.mMaxAutomaticTokenAssociations = static_cast<uint32_t>(proto.max_automatic_token_associations());
+  accountInfo.mMaxAutomaticTokenAssociations = proto.max_automatic_token_associations();
 
   if (!proto.alias().empty())
   {
@@ -123,7 +123,7 @@ std::unique_ptr<proto::CryptoGetInfoResponse_AccountInfo> AccountInfo::toProtobu
   proto->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
   proto->set_memo(mMemo);
   proto->set_ownednfts(static_cast<int64_t>(mOwnedNfts));
-  proto->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
+  proto->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
 
   if (mPublicKeyAlias)
   {
@@ -137,6 +137,7 @@ std::unique_ptr<proto::CryptoGetInfoResponse_AccountInfo> AccountInfo::toProtobu
   proto->set_ledger_id(internal::Utilities::byteVectorToString(mLedgerId.toBytes()));
   proto->set_allocated_staking_info(mStakingInfo.toProtobuf().release());
 
+  // TODO: reference and type
   for (auto tr : mTokenRelationships)
   {
     proto->mutable_tokenrelationships()->AddAllocated(tr.second.toProtobuf().release());

@@ -51,6 +51,7 @@
 #include "TokenGrantKycTransaction.h"
 #include "TokenMintTransaction.h"
 #include "TokenPauseTransaction.h"
+#include "TokenRejectTransaction.h"
 #include "TokenRevokeKycTransaction.h"
 #include "TokenUnfreezeTransaction.h"
 #include "TokenUnpauseTransaction.h"
@@ -114,6 +115,7 @@ public:
                                               TokenGrantKycTransaction,
                                               TokenMintTransaction,
                                               TokenPauseTransaction,
+                                              TokenRejectTransaction,
                                               TokenRevokeKycTransaction,
                                               TokenUnfreezeTransaction,
                                               TokenUnpauseTransaction,
