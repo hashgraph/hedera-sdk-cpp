@@ -30,6 +30,7 @@ namespace proto
 {
 class Key;
 class KeyList;
+class ThresholdKey;
 }
 
 namespace Hedera
@@ -55,7 +56,16 @@ public:
    * @return The created KeyList object.
    * @throws BadKeyException If a key in the KeyList protobuf is unable to be created.
    */
-  [[nodiscard]] static KeyList fromProtobuf(const proto::KeyList& proto, int threshold = -1);
+  [[nodiscard]] static KeyList fromProtobuf(const proto::KeyList& proto);
+
+  /**
+   * Construct a KeyList object from a ThresholdKey protobuf object.
+   *
+   * @param proto     The ThresholdKey protobuf object from which to create a KeyList object.
+   * @return The created KeyList object.
+   * @throws BadKeyException If a key in the KeyList protobuf is unable to be created.
+   */
+  [[nodiscard]] static KeyList fromProtobuf(const proto::ThresholdKey& proto);
 
   /**
    * Construct a KeyList object from a list of Keys.
@@ -71,7 +81,7 @@ public:
    * @param threshold The number of Keys in the KeyList that must sign.
    * @param The created Keylist object.
    */
-  [[nodiscard]] static KeyList withThreshold(int threshold);
+  [[nodiscard]] static KeyList withThreshold(uint32_t threshold);
 
   /**
    * Derived from Key. Create a clone of this KeyList object.
@@ -117,14 +127,14 @@ public:
    * @param threshold The threshold for this KeyList.
    * @return A reference to this KeyList with the newly-set threshold.
    */
-  KeyList& setThreshold(int threshold);
+  KeyList& setThreshold(uint32_t threshold);
 
   /**
    * Get the threshold for this KeyList.
    *
    * @return The threshold number of Keys that must sign.
    */
-  [[nodiscard]] inline int getThreshold() const { return mThreshold; }
+  [[nodiscard]] inline uint32_t getThreshold() const { return mThreshold; }
 
   /**
    * Get the number of keys in this KeyList.
@@ -174,9 +184,9 @@ private:
   std::vector<std::shared_ptr<Key>> mKeys;
 
   /**
-   * The threshold number of keys that must sign a transaction. -1 means all keys must sign.
+   * The threshold number of keys that must sign a transaction. 0 means all keys must sign.
    */
-  int mThreshold = -1;
+  uint32_t mThreshold = 0;
 };
 
 } // namespace Hedera
