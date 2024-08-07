@@ -19,6 +19,7 @@
  */
 #include "SdkClient.h"
 #include "AccountCreateTransaction.h"
+#include "AccountDeleteTransaction.h"
 #include "AccountId.h"
 #include "AccountUpdateTransaction.h"
 #include "Client.h"
@@ -125,6 +126,34 @@ nlohmann::json SdkClient::createAccount(const std::optional<std::string>& key,
   return {
     {"accountId", txReceipt.mAccountId->toString()     },
     { "status",   gStatusToString.at(txReceipt.mStatus)}
+  };
+}
+
+//-----
+nlohmann::json SdkClient::deleteAccount(const std::optional<std::string>& deleteAccountId,
+                                        const std::optional<std::string>& transferAccountId,
+                                        const std::optional<CommonTransactionParams>& commonTxParams)
+{
+  AccountDeleteTransaction accountDeleteTransaction;
+  accountDeleteTransaction.setGrpcDeadline(std::chrono::seconds(DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (deleteAccountId.has_value())
+  {
+    accountDeleteTransaction.setDeleteAccountId(AccountId::fromString(deleteAccountId.value()));
+  }
+
+  if (transferAccountId.has_value())
+  {
+    accountDeleteTransaction.setTransferAccountId(AccountId::fromString(transferAccountId.value()));
+  }
+
+  if (commonTxParams.has_value())
+  {
+    commonTxParams->fillOutTransaction(accountDeleteTransaction, mClient);
+  }
+
+  return {
+    {"status", gStatusToString.at(accountDeleteTransaction.execute(mClient).getReceipt(mClient).mStatus)}
   };
 }
 
