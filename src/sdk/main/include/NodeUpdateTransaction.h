@@ -1,0 +1,214 @@
+/*-
+ *
+ * Hedera C++ SDK
+ *
+ * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+#ifndef HEDERA_SDK_CPP_NODE_UPDATE_TRANSACTION_H_
+#define HEDERA_SDK_CPP_NODE_UPDATE_TRANSACTION_H_
+
+#include "Endpoint.h"
+#include "Transaction.h"
+
+namespace proto
+{
+class NodeUpdateTransactionBody;
+class TransactionBody;
+}
+
+namespace Hedera
+{
+/**
+ * Transaction to modify address book node attributes.
+ *
+ * - This transaction SHALL enable the node operator, as identified by the
+ *   `admin_key`, to modify operational attributes of the node.
+ * - This transaction MUST be signed by the active `admin_key` for the node.
+ * - If this transaction sets a new value for the `admin_key`, then both the
+ *   current `admin_key`, and the new `admin_key` MUST sign this transaction.
+ * - This transaction SHALL NOT change any field that is not set (is null) in
+ *   this transaction body.
+ * - This SHALL create a pending update to the node, but the change SHALL NOT
+ *   be immediately applied to the active configuration.
+ * - All pending node updates SHALL be applied to the active network
+ *   configuration during the next `freeze` transaction with the field
+ *   `freeze_type` set to `PREPARE_UPGRADE`.
+ *
+ * ### Record Stream Effects
+ * Upon completion the `node_id` for the updated entry SHALL be in the
+ * transaction receipt.
+ */
+class NodeUpdateTransaction : public Transaction<NodeUpdateTransaction>
+{
+public:
+  NodeUpdateTransaction() = default;
+
+  /**
+   * Construct from a TransactionBody protobuf object.
+   *
+   * @param transactionBody The TransactionBody protobuf object from which to construct.
+   * @throws std::invalid_argument If the input TransactionBody does not represent a NodeUpdate transaction.
+   */
+  explicit NodeUpdateTransaction(const proto::TransactionBody& transactionBody);
+
+  /**
+   * Construct from a map of TransactionIds to node account IDs and their respective Transaction protobuf objects.
+   *
+   * @param transactions The map of TransactionIds to node account IDs and their respective Transaction protobuf
+   *                     objects.
+   */
+  explicit NodeUpdateTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
+
+private:
+  friend class WrappedTransaction;
+
+  /**
+   * Derived from Executable. Submit a Transaction protobuf object which contains this NodeUpdateTransaction's data to
+   * a Node.
+   *
+   * @param request  The Transaction protobuf object to submit.
+   * @param node     The Node to which to submit the request.
+   * @param deadline The deadline for submitting the request.
+   * @param response Pointer to the ProtoResponseType object that gRPC should populate with the response information
+   *                 from the gRPC server.
+   * @return The gRPC status of the submission.
+   */
+  [[nodiscard]] grpc::Status submitRequest(const proto::Transaction& request,
+                                           const std::shared_ptr<internal::Node>& node,
+                                           const std::chrono::system_clock::time_point& deadline,
+                                           proto::TransactionResponse* response) const override;
+
+  /**
+   * Derived from Transaction. Verify that all the checksums in this NodeUpdateTransaction are valid.
+   *
+   * @param client The Client that should be used to validate the checksums.
+   * @throws BadEntityException This NodeUpdateTransaction's checksums are not valid.
+   */
+  void validateChecksums(const Client& client) const override;
+
+  /**
+   * Derived from Transaction. Build and add the NodeUpdateTransaction protobuf representation to the Transaction
+   * protobuf object.
+   *
+   * @param body The TransactionBody protobuf object being built.
+   */
+  void addToBody(proto::TransactionBody& body) const override;
+
+  /**
+   * Initialize this NodeUpdateTransaction from its source TransactionBody protobuf object.
+   */
+  void initFromSourceTransactionBody();
+
+  /**
+   * Build a NodeUpdateTransactionBody protobuf object from this NodeUpdateTransaction object.
+   *
+   * @return A pointer to a NodeUpdateTransactionBody protobuf object filled with this NodeUpdateTransaction object's
+   *         data.
+   */
+  [[nodiscard]] proto::NodeUpdateTransactionBody* build() const;
+
+  /**
+   * A consensus node identifier in the network state.
+   * The node identified MUST exist in the network address book.
+   * The node identified MUST NOT be deleted.
+   * This value is REQUIRED.
+   */
+  uint64_t mNodeId;
+
+  /**
+   * A Node account identifier.
+   * This account identifier MUST be in the "account number" form.
+   * This account identifier MUST NOT use the alias field.
+   * If the identified account does not exist, this transaction SHALL fail.
+   * Multiple nodes MAY share the same node account.
+   * This field is REQUIRED.
+   */
+  AccountId mAccountId;
+
+  /**
+   * A short description of the node.
+   * This value, if set, MUST NOT exceed 100 bytes when encoded as UTF-8.
+   * This field is OPTIONAL.
+   */
+  std::optional<std::string> mDescription;
+
+  /**
+   * A list of service endpoints for gossip.
+   * These endpoints SHALL represent the published endpoints to which other
+   * consensus nodes may _gossip_ transactions.
+   * These endpoints MUST specify a port.
+   * This list MUST NOT be empty.
+   * This list MUST NOT contain more than `10` entries.
+   * The first two entries in this list SHALL be the endpoints published to
+   * all consensus nodes.
+   * All other entries SHALL be reserved for future use.
+   * Each network may have additional requirements for these endpoints.
+   * A client MUST check network-specific documentation for those
+   * details.
+   * If the network configuration value `gossipFqdnRestricted` is set, then
+   * all endpoints in this list MUST supply only IP address.
+   * If the network configuration value `gossipFqdnRestricted` is _not_ set,
+   * then endpoints in this list MAY supply either IP address or FQDN, but
+   * MUST NOT supply both values for the same endpoint.
+   */
+  std::vector<Endpoint> gossipEndpoints;
+
+  /**
+   * A list of service endpoints for gRPC calls.
+   * These endpoints SHALL represent the published gRPC endpoints to which
+   * clients may submit transactions.
+   * These endpoints MUST specify a port.
+   * Endpoints in this list MAY supply either IP address or FQDN, but MUST
+   * NOT supply both values for the same endpoint.
+   * This list MUST NOT be empty.
+   * This list MUST NOT contain more than `8` entries.
+   */
+  std::vector<Endpoint> serviceEndpoints;
+
+  /**
+   * A certificate used to sign gossip events.
+   * This value MUST be a certificate of a type permitted for gossip
+   * signatures.
+   * This value MUST be the DER encoding of the certificate presented.
+   * This field is REQUIRED and MUST NOT be empty.
+   */
+  std::vector<std::byte> mGossipCaCertificate;
+
+  /**
+   * A hash of the node gRPC TLS certificate.
+   * This value MAY be used to verify the certificate presented by the node
+   * during TLS negotiation for gRPC.
+   * This value MUST be a SHA-384 hash.
+   * The TLS certificate to be hashed MUST first be in PEM format and MUST be
+   * encoded with UTF-8 NFKD encoding to a stream of bytes provided to
+   * the hash algorithm.
+   * This field is OPTIONAL.
+   */
+  std::vector<std::byte> mGrpcCertificateHash;
+
+  /**
+   * An administrative key controlled by the node operator.
+   * This key MUST sign this transaction.
+   * This key MUST sign each transaction to update this node.
+   * This field MUST contain a valid `Key` value.
+   * This field is REQUIRED and MUST NOT be set to an empty `KeyList`.
+   */
+  std::shared_ptr<Key> mAdminKey;
+};
+
+} // namespace Hedera
+
+#endif // HEDERA_SDK_CPP_NODE_UPDATE_TRANSACTION_H_
