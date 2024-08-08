@@ -258,7 +258,10 @@ proto::CryptoUpdateTransactionBody* AccountUpdateTransaction::build() const
 {
   auto body = std::make_unique<proto::CryptoUpdateTransactionBody>();
 
-  body->set_allocated_accountidtoupdate(mAccountId.toProtobuf().release());
+  if (!(mAccountId == AccountId()))
+  {
+    body->set_allocated_accountidtoupdate(mAccountId.toProtobuf().release());
+  }
 
   if (mKey)
   {
