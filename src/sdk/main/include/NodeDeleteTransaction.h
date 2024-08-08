@@ -69,6 +69,21 @@ public:
    */
   explicit NodeDeleteTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
+  /**
+   * Get the consensus node identifier in the network state.
+   *
+   * @return A uint64_t representing the node identifier.
+   */
+  [[nodiscard]] uint64_t getNodeId() const { return mNodeId; };
+
+  /**
+   * Set the consensus node identifier in the network state.
+   *
+   * @param nodeId A uint64_t representing the node identifier.
+   * @return A reference to this NodeDeleteTransaction with the newly-set node identifier.
+   */
+  NodeDeleteTransaction& setNodeId(uint64_t nodeId);
+
 private:
   friend class WrappedTransaction;
 

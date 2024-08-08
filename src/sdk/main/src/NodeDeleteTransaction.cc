@@ -33,7 +33,7 @@ namespace Hedera
 NodeDeleteTransaction::NodeDeleteTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<NodeDeleteTransaction>(transactionBody)
 {
-  // Function implementation will go here
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -41,7 +41,15 @@ NodeDeleteTransaction::NodeDeleteTransaction(
   const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
   : Transaction<NodeDeleteTransaction>(transactions)
 {
-  // Function implementation will go here
+  initFromSourceTransactionBody();
+}
+
+//-----
+NodeDeleteTransaction& NodeDeleteTransaction::setNodeId(uint64_t nodeId)
+{
+  requireNotFrozen();
+  mNodeId = nodeId;
+  return *this;
 }
 
 //-----
@@ -50,7 +58,7 @@ grpc::Status NodeDeleteTransaction::submitRequest(const proto::Transaction& requ
                                                   const std::chrono::system_clock::time_point& deadline,
                                                   proto::TransactionResponse* response) const
 {
-  // Function implementation will go here
+  return node->submitTransaction(proto::TransactionBody::DataCase::kNodeDelete, request, deadline, response);
 }
 
 //-----

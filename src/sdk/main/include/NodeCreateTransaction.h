@@ -78,6 +78,114 @@ public:
    */
   explicit NodeCreateTransaction(const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
+  /**
+   * Get the node account identifier.
+   *
+   * @return An account identifier.
+   */
+  [[nodiscard]] const AccountId& getAccountId() const { return mAccountId; };
+
+  /**
+   * Get the short description of the node.
+   *
+   * @return An optional string containing the description.
+   */
+  [[nodiscard]] const std::optional<std::string>& getDescription() const { return mDescription; };
+
+  /**
+   * Get the list of service endpoints for gossip.
+   *
+   * @return A vector of gossip service endpoints.
+   */
+  [[nodiscard]] const std::vector<Endpoint>& getGossipEndpoints() const { return gossipEndpoints; };
+
+  /**
+   * Get the list of service endpoints for gRPC calls.
+   *
+   * @return A vector of gRPC service endpoints.
+   */
+  [[nodiscard]] const std::vector<Endpoint>& getServiceEndpoints() const { return serviceEndpoints; };
+
+  /**
+   * Get the certificate used to sign gossip events.
+   *
+   * @return A vector of bytes representing the gossip CA certificate in DER encoding.
+   */
+  [[nodiscard]] const std::vector<std::byte>& getGossipCaCertificate() const { return mGossipCaCertificate; };
+
+  /**
+   * Get the hash of the node gRPC TLS certificate.
+   *
+   * @return A vector of bytes representing the SHA-384 hash of the gRPC TLS certificate.
+   */
+  [[nodiscard]] const std::optional<std::vector<std::byte>>& getGrpcCertificateHash() const
+  {
+    return mGrpcCertificateHash;
+  };
+
+  /**
+   * Get the administrative key controlled by the node operator.
+   *
+   * @return A shared pointer to the administrative Key.
+   */
+  [[nodiscard]] const std::shared_ptr<Key>& getAdminKey() const { return mAdminKey; };
+
+  /**
+   * Set the node account identifier.
+   *
+   * @param accountId The AccountId to set.
+   * @return A reference to this NodeCreateTransaction with the newly-set account identifier.
+   */
+  NodeCreateTransaction& setAccountId(const AccountId& accountId);
+
+  /**
+   * Set the description for the node.
+   *
+   * @param description A string containing the description.
+   * @return A reference to this NodeCreateTransaction with the newly-set description.
+   */
+  NodeCreateTransaction& setDescription(const std::optional<std::string>& description);
+
+  /**
+   * Set the list of service endpoints for gossip.
+   *
+   * @param endpoints A vector of Endpoint objects for gossip.
+   * @return A reference to this NodeCreateTransaction with the newly-set gossip endpoints.
+   */
+  NodeCreateTransaction& setGossipEndpoints(const std::vector<Endpoint>& endpoints);
+
+  /**
+   * Set the list of service endpoints for gRPC calls.
+   *
+   * @param endpoints A vector of Endpoint objects for gRPC.
+   * @return A reference to this NodeCreateTransaction with the newly-set service endpoints.
+   */
+  NodeCreateTransaction& setServiceEndpoints(const std::vector<Endpoint>& endpoints);
+
+  /**
+   * Set the certificate used to sign gossip events.
+   *
+   * @param certificate A vector of bytes representing the gossip CA certificate in DER encoding.
+   * @return A reference to this NodeCreateTransaction with the newly-set gossip CA certificate.
+   */
+  NodeCreateTransaction& setGossipCaCertificate(const std::vector<std::byte>& certificate);
+
+  /**
+   * Set the hash of the node gRPC TLS certificate.
+   *
+   * @param hash A vector of bytes representing the SHA-384 hash of the gRPC TLS certificate.
+   * @return A reference to this NodeCreateTransaction with the newly-set gRPC certificate hash.
+   */
+  NodeCreateTransaction& setGrpcCertificateHash(const std::vector<std::byte>& hash);
+
+  /**
+   * Set the administrative key controlled by the node operator.
+   *
+   * @param key A shared pointer to a Key object representing the administrative key.
+   * @return A reference to this NodeCreateTransaction with the newly-set administrative key.
+   */
+  NodeCreateTransaction& setAdminKey(const std::shared_ptr<Key>& key);
+
 private:
   friend class WrappedTransaction;
 
@@ -195,7 +303,7 @@ private:
    * the hash algorithm.
    * This field is OPTIONAL.
    */
-  std::vector<std::byte> mGrpcCertificateHash;
+  std::optional<std::vector<std::byte>> mGrpcCertificateHash;
 
   /**
    * An administrative key controlled by the node operator.

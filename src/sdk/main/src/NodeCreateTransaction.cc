@@ -33,7 +33,7 @@ namespace Hedera
 NodeCreateTransaction::NodeCreateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<NodeCreateTransaction>(transactionBody)
 {
-  // Function implementation will go here
+  initFromSourceTransactionBody();
 }
 
 //-----
@@ -41,7 +41,63 @@ NodeCreateTransaction::NodeCreateTransaction(
   const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
   : Transaction<NodeCreateTransaction>(transactions)
 {
-  // Function implementation will go here
+  initFromSourceTransactionBody();
+}
+
+//-----
+NodeCreateTransaction& NodeCreateTransaction::setAccountId(const AccountId& accountId)
+{
+  requireNotFrozen();
+  mAccountId = accountId;
+  return *this;
+}
+
+//-----
+NodeCreateTransaction& NodeCreateTransaction::setDescription(const std::optional<std::string>& description)
+{
+  requireNotFrozen();
+  mDescription = description;
+  return *this;
+}
+
+//-----
+NodeCreateTransaction& NodeCreateTransaction::setGossipEndpoints(const std::vector<Endpoint>& endpoints)
+{
+  requireNotFrozen();
+  gossipEndpoints = endpoints;
+  return *this;
+}
+
+//-----
+NodeCreateTransaction& NodeCreateTransaction::setServiceEndpoints(const std::vector<Endpoint>& endpoints)
+{
+  requireNotFrozen();
+  serviceEndpoints = endpoints;
+  return *this;
+}
+
+//-----
+NodeCreateTransaction& NodeCreateTransaction::setGossipCaCertificate(const std::vector<std::byte>& certificate)
+{
+  requireNotFrozen();
+  mGossipCaCertificate = certificate;
+  return *this;
+}
+
+//-----
+NodeCreateTransaction& NodeCreateTransaction::setGrpcCertificateHash(const std::vector<std::byte>& hash)
+{
+  requireNotFrozen();
+  mGrpcCertificateHash = hash;
+  return *this;
+}
+
+//-----
+NodeCreateTransaction& NodeCreateTransaction::setAdminKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mAdminKey = key;
+  return *this;
 }
 
 //-----
@@ -50,7 +106,7 @@ grpc::Status NodeCreateTransaction::submitRequest(const proto::Transaction& requ
                                                   const std::chrono::system_clock::time_point& deadline,
                                                   proto::TransactionResponse* response) const
 {
-  // Function implementation will go here
+  return node->submitTransaction(proto::TransactionBody::DataCase::kNodeCreate, request, deadline, response);
 }
 
 //-----
