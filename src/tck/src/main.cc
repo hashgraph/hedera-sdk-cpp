@@ -44,11 +44,27 @@ int main(int argc, char** argv)
                   "declineStakingReward",
                   "alias",
                   "commonTransactionParams" });
+  tckServer.add("deleteAccount",
+                getHandle(&SdkClient::deleteAccount),
+                { "deleteAccountId", "transferAccountId", "commonTransactionParams" });
   tckServer.add("generateKey", getHandle(&SdkClient::generateKey), { "type", "fromKey", "threshold", "keys" });
   tckServer.add("setup",
                 getHandle(&SdkClient::setup),
                 { "operatorAccountId", "operatorPrivateKey", "nodeIp", "nodeAccountId", "mirrorNetworkIp" });
   tckServer.add("reset", getHandle(&SdkClient::reset));
+  tckServer.add("updateAccount",
+                getHandle(&SdkClient::updateAccount),
+                { "accountId",
+                  "key",
+                  "autoRenewPeriod",
+                  "expirationTime",
+                  "receiverSignatureRequired",
+                  "memo",
+                  "maxAutoTokenAssociations",
+                  "stakedAccountId",
+                  "stakedNodeId",
+                  "declineStakingReward",
+                  "commonTransactionParams" });
 
   // Start listening for requests.
   tckServer.startServer();

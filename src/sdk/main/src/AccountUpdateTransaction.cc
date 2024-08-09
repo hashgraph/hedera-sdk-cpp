@@ -95,11 +95,6 @@ AccountUpdateTransaction& AccountUpdateTransaction::setAccountMemo(std::string_v
 {
   requireNotFrozen();
 
-  if (memo.size() > 100)
-  {
-    throw std::length_error("Account memo is too large. Must be smaller than 100 bytes");
-  }
-
   mAccountMemo = memo;
   return *this;
 }
@@ -263,7 +258,10 @@ proto::CryptoUpdateTransactionBody* AccountUpdateTransaction::build() const
 {
   auto body = std::make_unique<proto::CryptoUpdateTransactionBody>();
 
-  body->set_allocated_accountidtoupdate(mAccountId.toProtobuf().release());
+  if (!(mAccountId == AccountId()))
+  {
+    body->set_allocated_accountidtoupdate(mAccountId.toProtobuf().release());
+  }
 
   if (mKey)
   {
