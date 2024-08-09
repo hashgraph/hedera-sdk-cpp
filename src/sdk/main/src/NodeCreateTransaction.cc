@@ -20,6 +20,7 @@
 #include "NodeCreateTransaction.h"
 #include "TransactionId.h"
 #include "impl/Node.h"
+#include "impl/Utilities.h"
 
 #include <grpcpp/client_context.h>
 #include <proto/node_create.pb.h>
@@ -64,7 +65,7 @@ NodeCreateTransaction& NodeCreateTransaction::setDescription(const std::optional
 NodeCreateTransaction& NodeCreateTransaction::setGossipEndpoints(const std::vector<Endpoint>& endpoints)
 {
   requireNotFrozen();
-  gossipEndpoints = endpoints;
+  mGossipEndpoints = endpoints;
   return *this;
 }
 
@@ -72,7 +73,7 @@ NodeCreateTransaction& NodeCreateTransaction::setGossipEndpoints(const std::vect
 NodeCreateTransaction& NodeCreateTransaction::setServiceEndpoints(const std::vector<Endpoint>& endpoints)
 {
   requireNotFrozen();
-  serviceEndpoints = endpoints;
+  mServiceEndpoints = endpoints;
   return *this;
 }
 
@@ -112,25 +113,89 @@ grpc::Status NodeCreateTransaction::submitRequest(const proto::Transaction& requ
 //-----
 void NodeCreateTransaction::validateChecksums(const Client& client) const
 {
-  // Function implementation will go here
+  mAccountId.validateChecksum(client);
 }
 
 //-----
 void NodeCreateTransaction::addToBody(proto::TransactionBody& body) const
 {
-  // Function implementation will go here
+  body.set_allocated_nodecreate(build());
 }
 
 //-----
 void NodeCreateTransaction::initFromSourceTransactionBody()
 {
-  // Function implementation will go here
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_nodeupdate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain NodeCreate data");
+  }
+
+  const aproto::NodeCreateTransactionBody& body = transactionBody.nodecreate();
+
+  mAccountId = AccountId::fromProtobuf(body.account_id());
+
+  mDescription = body.description();
+
+  for (int i = 0; i < body.gossip_endpoint_size(); i++)
+  {
+    mGossipEndpoints.push_back(Endpoint::fromProtobuf(body.gossip_endpoint(i)));
+  }
+
+  for (int i = 0; i < body.service_endpoint_size(); i++)
+  {
+    mServiceEndpoints.push_back(Endpoint::fromProtobuf(body.service_endpoint(i)));
+  }
+
+  mGossipCaCertificate = internal::Utilities::stringToByteVector(body.gossip_ca_certificate());
+
+  mGrpcCertificateHash = internal::Utilities::stringToByteVector(body.grpc_certificate_hash());
+
+  if (body.has_admin_key())
+  {
+    mAdminKey = Key::fromProtobuf(body.admin_key());
+  }
 }
 
 //-----
-proto::NodeCreateTransactionBody* NodeCreateTransaction::build() const
+aproto::NodeCreateTransactionBody* NodeCreateTransaction::build() const
 {
-  // Function implementation will go here
+  auto body = std::make_unique<aproto::NodeCreateTransactionBody>();
+
+  body->set_allocated_account_id(mAccountId.toProtobuf().release());
+
+  if (mDescription.has_value())
+  {
+    body->set_description(mDescription.value());
+  }
+
+  for (const Endpoint& e : mGossipEndpoints)
+  {
+    auto se = std::make_unique<proto::ServiceEndpoint>();
+    se->set_domain_name(e.getAddress().toString());
+    se->set_port(e.getPort());
+    body->mutable_gossip_endpoint()->AddAllocated(se.release());
+  }
+
+  for (const Endpoint& e : mServiceEndpoints)
+  {
+    auto se = std::make_unique<proto::ServiceEndpoint>();
+    se->set_domain_name(e.getAddress().toString());
+    se->set_port(e.getPort());
+    body->mutable_service_endpoint()->AddAllocated(se.release());
+  }
+
+  body->set_gossip_ca_certificate(internal::Utilities::byteVectorToString(mGossipCaCertificate));
+
+  if (mGrpcCertificateHash.has_value())
+  {
+    body->set_grpc_certificate_hash(internal::Utilities::byteVectorToString(mGrpcCertificateHash.value()));
+  }
+
+  body->set_allocated_admin_key(mAdminKey->toProtobufKey().release());
+
+  return body.release();
 }
 
 } // namespace Hedera

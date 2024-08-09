@@ -64,13 +64,20 @@ grpc::Status NodeDeleteTransaction::submitRequest(const proto::Transaction& requ
 //-----
 void NodeDeleteTransaction::validateChecksums(const Client& client) const
 {
-  // Function implementation will go here
+  // No checksum to validate.
 }
 
 //-----
 void NodeDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
-  // Function implementation will go here
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_nodedelete())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain NodeDelete data");
+  }
+
+  // const proto::NodeDeleteTransactionBody& body = transactionBody.nodedelete();
 }
 
 //-----

@@ -20,6 +20,7 @@
 #include "NodeUpdateTransaction.h"
 #include "TransactionId.h"
 #include "impl/Node.h"
+#include "impl/Utilities.h"
 
 #include <grpcpp/client_context.h>
 #include <proto/node_update.pb.h>
@@ -72,7 +73,7 @@ NodeUpdateTransaction& NodeUpdateTransaction::setDescription(const std::optional
 NodeUpdateTransaction& NodeUpdateTransaction::setGossipEndpoints(const std::vector<Endpoint>& endpoints)
 {
   requireNotFrozen();
-  gossipEndpoints = endpoints;
+  mGossipEndpoints = endpoints;
   return *this;
 }
 
@@ -80,7 +81,7 @@ NodeUpdateTransaction& NodeUpdateTransaction::setGossipEndpoints(const std::vect
 NodeUpdateTransaction& NodeUpdateTransaction::setServiceEndpoints(const std::vector<Endpoint>& endpoints)
 {
   requireNotFrozen();
-  serviceEndpoints = endpoints;
+  mServiceEndpoints = endpoints;
   return *this;
 }
 
@@ -120,25 +121,100 @@ grpc::Status NodeUpdateTransaction::submitRequest(const proto::Transaction& requ
 //-----
 void NodeUpdateTransaction::validateChecksums(const Client& client) const
 {
-  // Function implementation will go here
+  mAccountId.validateChecksum(client);
 }
 
 //-----
 void NodeUpdateTransaction::addToBody(proto::TransactionBody& body) const
 {
-  // Function implementation will go here
+  body.set_allocated_nodeupdate(build());
 }
 
 //-----
 void NodeUpdateTransaction::initFromSourceTransactionBody()
 {
-  // Function implementation will go here
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_nodeupdate())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain NodeUpdate data");
+  }
+
+  const aproto::NodeUpdateTransactionBody& body = transactionBody.nodeupdate();
+
+  mNodeId = body.node_id();
+  mAccountId = AccountId::fromProtobuf(body.account_id());
+
+  if (body.has_description())
+  {
+    mDescription = body.description().value();
+  }
+
+  for (int i = 0; i < body.gossip_endpoint_size(); i++)
+  {
+    mGossipEndpoints.push_back(Endpoint::fromProtobuf(body.gossip_endpoint(i)));
+  }
+
+  for (int i = 0; i < body.service_endpoint_size(); i++)
+  {
+    mServiceEndpoints.push_back(Endpoint::fromProtobuf(body.service_endpoint(i)));
+  }
+
+  mGossipCaCertificate = internal::Utilities::stringToByteVector(body.gossip_ca_certificate().value());
+
+  if (body.has_grpc_certificate_hash())
+  {
+    mGrpcCertificateHash = internal::Utilities::stringToByteVector(body.grpc_certificate_hash().value());
+  }
+
+  if (body.has_admin_key())
+  {
+    mAdminKey = Key::fromProtobuf(body.admin_key());
+  }
 }
 
 //-----
-proto::NodeUpdateTransactionBody* NodeUpdateTransaction::build() const
+aproto::NodeUpdateTransactionBody* NodeUpdateTransaction::build() const
 {
-  // Function implementation will go here
+  auto body = std::make_unique<aproto::NodeUpdateTransactionBody>();
+
+  body->set_node_id(mNodeId);
+  body->set_allocated_account_id(mAccountId.toProtobuf().release());
+
+  if (mDescription.has_value())
+  {
+    auto value = std::make_unique<google::protobuf::StringValue>();
+    value->set_value(mDescription.value());
+    body->set_allocated_description(value.release());
+  }
+
+  for (const Endpoint& e : mGossipEndpoints)
+  {
+    auto se = std::make_unique<proto::ServiceEndpoint>();
+    se->set_domain_name(e.getAddress().toString());
+    se->set_port(e.getPort());
+    body->mutable_gossip_endpoint()->AddAllocated(se.release());
+  }
+
+  for (const Endpoint& e : mServiceEndpoints)
+  {
+    auto se = std::make_unique<proto::ServiceEndpoint>();
+    se->set_domain_name(e.getAddress().toString());
+    se->set_port(e.getPort());
+    body->mutable_service_endpoint()->AddAllocated(se.release());
+  }
+
+  body->mutable_gossip_ca_certificate()->set_value(internal::Utilities::byteVectorToString(mGossipCaCertificate));
+
+  if (mGrpcCertificateHash.has_value())
+  {
+    body->mutable_grpc_certificate_hash()->set_value(
+      internal::Utilities::byteVectorToString(mGrpcCertificateHash.value()));
+  }
+
+  body->set_allocated_admin_key(mAdminKey->toProtobufKey().release());
+
+  return body.release();
 }
 
 } // namespace Hedera

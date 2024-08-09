@@ -26,9 +26,16 @@
 
 namespace proto
 {
-class NodeCreateTransactionBody;
+// class NodeCreateTransactionBody;
 class TransactionBody;
 }
+
+namespace com::hedera::hapi::node::addressbook
+{
+class NodeCreateTransactionBody;
+}
+
+namespace aproto = com::hedera::hapi::node::addressbook;
 
 namespace Hedera
 {
@@ -97,14 +104,14 @@ public:
    *
    * @return A vector of gossip service endpoints.
    */
-  [[nodiscard]] const std::vector<Endpoint>& getGossipEndpoints() const { return gossipEndpoints; };
+  [[nodiscard]] const std::vector<Endpoint>& getGossipEndpoints() const { return mGossipEndpoints; };
 
   /**
    * Get the list of service endpoints for gRPC calls.
    *
    * @return A vector of gRPC service endpoints.
    */
-  [[nodiscard]] const std::vector<Endpoint>& getServiceEndpoints() const { return serviceEndpoints; };
+  [[nodiscard]] const std::vector<Endpoint>& getServiceEndpoints() const { return mServiceEndpoints; };
 
   /**
    * Get the certificate used to sign gossip events.
@@ -232,7 +239,7 @@ private:
    * @return A pointer to a NodeCreateTransactionBody protobuf object filled with this NodeCreateTransaction object's
    *         data.
    */
-  [[nodiscard]] proto::NodeCreateTransactionBody* build() const;
+  [[nodiscard]] aproto::NodeCreateTransactionBody* build() const;
 
   /**
    * A Node account identifier.
@@ -270,7 +277,7 @@ private:
    * then endpoints in this list MAY supply either IP address or FQDN, but
    * MUST NOT supply both values for the same endpoint.
    */
-  std::vector<Endpoint> gossipEndpoints;
+  std::vector<Endpoint> mGossipEndpoints;
 
   /**
    * A list of service endpoints for gRPC calls.
@@ -282,7 +289,7 @@ private:
    * This list MUST NOT be empty.
    * This list MUST NOT contain more than `8` entries.
    */
-  std::vector<Endpoint> serviceEndpoints;
+  std::vector<Endpoint> mServiceEndpoints;
 
   /**
    * A certificate used to sign gossip events.
