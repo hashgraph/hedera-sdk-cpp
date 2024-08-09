@@ -35,6 +35,9 @@
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
 #include "FreezeTransaction.h"
+#include "NodeCreateTransaction.h"
+#include "NodeDeleteTransaction.h"
+#include "NodeUpdateTransaction.h"
 #include "PrivateKey.h"
 #include "PrngTransaction.h"
 #include "PublicKey.h"
@@ -247,6 +250,12 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(FileUpdateTransaction(transactions));
     case proto::TransactionBody::kFreeze:
       return WrappedTransaction(FreezeTransaction(transactions));
+    case proto::TransactionBody::kNodeCreate:
+      return WrappedTransaction(NodeCreateTransaction(transactions));
+    case proto::TransactionBody::kNodeDelete:
+      return WrappedTransaction(NodeDeleteTransaction(transactions));
+    case proto::TransactionBody::kNodeUpdate:
+      return WrappedTransaction(NodeUpdateTransaction(transactions));
     case proto::TransactionBody::kUtilPrng:
       return WrappedTransaction(PrngTransaction(transactions));
     case proto::TransactionBody::kScheduleCreate:
@@ -355,8 +364,7 @@ std::vector<std::byte> Transaction<SdkRequestType>::toBytes() const
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::sign(const std::shared_ptr<PrivateKey>& key)
 {
-  return signInternal(
-    key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
+  return signInternal(key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
 }
 
 //-----
@@ -1278,6 +1286,9 @@ template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
 template class Transaction<FreezeTransaction>;
+template class Transaction<NodeCreateTransaction>;
+template class Transaction<NodeDeleteTransaction>;
+template class Transaction<NodeUpdateTransaction>;
 template class Transaction<PrngTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<ScheduleDeleteTransaction>;
