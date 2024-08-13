@@ -252,6 +252,16 @@ public:
    * consensus order. Always empty if the top-level status is UNKNOWN.
    */
   std::vector<TransactionReceipt> mChildren;
+
+  /**
+   * In the receipt of a NodeCreate, NodeUpdate, NodeDelete, the id of the newly created node.
+   * An affected node identifier.
+   * This value SHALL be set following a `createNode` transaction.
+   * This value SHALL be set following a `updateNode` transaction.
+   * This value SHALL be set following a `deleteNode` transaction.
+   * This value SHALL NOT be set following any other transaction.
+   */
+  std::optional<uint64_t> mNodeId;
 };
 
 } // namespace Hedera
