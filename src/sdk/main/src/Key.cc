@@ -41,6 +41,8 @@ std::unique_ptr<Key> Key::fromProtobuf(const proto::Key& key)
       return ECDSAsecp256k1PublicKey::fromBytes(internal::Utilities::stringToByteVector(key.ecdsa_secp256k1()));
     case proto::Key::KeyCase::kKeyList:
       return std::make_unique<KeyList>(KeyList::fromProtobuf(key.keylist()));
+    case proto::Key::KeyCase::kThresholdKey:
+      return std::make_unique<KeyList>(KeyList::fromProtobuf(key.thresholdkey()));
     default:
       throw std::invalid_argument("Key protobuf case not recognized");
   }

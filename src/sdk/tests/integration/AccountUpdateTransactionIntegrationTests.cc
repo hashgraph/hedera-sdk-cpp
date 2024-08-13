@@ -31,6 +31,7 @@
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "TransferTransaction.h"
+#include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 
 #include <gtest/gtest.h>
@@ -158,7 +159,7 @@ TEST_F(AccountUpdateTransactionIntegrationTests, CannotUpdateAccountWithoutAccou
                                                       .sign(privateKey)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               ReceiptStatusException); // ACCOUNT_ID_DOES_NOT_EXIST
+               PrecheckStatusException); // ACCOUNT_ID_DOES_NOT_EXIST
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
