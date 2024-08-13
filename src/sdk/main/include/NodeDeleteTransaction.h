@@ -28,6 +28,13 @@ class NodeDeleteTransactionBody;
 class TransactionBody;
 }
 
+namespace com::hedera::hapi::node::addressbook
+{
+class NodeDeleteTransactionBody;
+}
+
+namespace aproto = com::hedera::hapi::node::addressbook;
+
 namespace Hedera
 {
 /**
@@ -130,7 +137,7 @@ private:
    * @return A pointer to a NodeDeleteTransactionBody protobuf object filled with this NodeDeleteTransaction object's
    *         data.
    */
-  [[nodiscard]] proto::NodeDeleteTransactionBody* build() const;
+  [[nodiscard]] aproto::NodeDeleteTransactionBody* build() const;
 
   /**
    * A consensus node identifier in the network state.

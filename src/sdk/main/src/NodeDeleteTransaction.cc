@@ -70,6 +70,12 @@ void NodeDeleteTransaction::validateChecksums(const Client& client) const
 //-----
 void NodeDeleteTransaction::addToBody(proto::TransactionBody& body) const
 {
+  body.set_allocated_nodedelete(build());
+}
+
+//-----
+void NodeDeleteTransaction::initFromSourceTransactionBody()
+{
   const proto::TransactionBody transactionBody = getSourceTransactionBody();
 
   if (!transactionBody.has_nodedelete())
@@ -77,19 +83,18 @@ void NodeDeleteTransaction::addToBody(proto::TransactionBody& body) const
     throw std::invalid_argument("Transaction body doesn't contain NodeDelete data");
   }
 
-  // const proto::NodeDeleteTransactionBody& body = transactionBody.nodedelete();
+  const aproto::NodeDeleteTransactionBody& body = transactionBody.nodedelete();
+
+  mNodeId = body.node_id();
 }
 
 //-----
-void NodeDeleteTransaction::initFromSourceTransactionBody()
+aproto::NodeDeleteTransactionBody* NodeDeleteTransaction::build() const
 {
-  // Function implementation will go here
-}
+  auto body = std::make_unique<aproto::NodeDeleteTransactionBody>();
+  body->set_node_id(mNodeId);
 
-//-----
-proto::NodeDeleteTransactionBody* NodeDeleteTransaction::build() const
-{
-  // Function implementation will go here
+  return body.release();
 }
 
 } // namespace Hedera

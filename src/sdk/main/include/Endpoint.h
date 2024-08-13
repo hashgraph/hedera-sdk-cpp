@@ -77,6 +77,14 @@ public:
   Endpoint& setPort(unsigned int port);
 
   /**
+   * Set the domain name of this Endpoint.
+   *
+   * @param domainName The domain name to set.
+   * @return A reference to this Endpoint with the newly-set domain name.
+   */
+  Endpoint& setDomainName(const std::string& domainName);
+
+  /**
    * Get the IP address of this Endpoint.
    *
    * @return The IP address of this Endpoint.
@@ -90,6 +98,13 @@ public:
    */
   [[nodiscard]] inline unsigned int getPort() const { return mPort; }
 
+  /**
+   * Get the domain name of this Endpoint.
+   *
+   * @return The domain name of this Endpoint.
+   */
+  [[nodiscard]] inline const std::string& getDomainName() const { return mDomainName; }
+
 private:
   /**
    * The IP address of the Endpoint.
@@ -100,6 +115,16 @@ private:
    * The port of the Endpoint.
    */
   unsigned int mPort = 0U;
+
+  /**
+   * A node domain name.
+   * This MUST be the fully qualified domain(DNS) name of the node.
+   * This value MUST NOT be more than 253 characters.
+   * domain_name and ipAddressV4 are mutually exclusive.
+   * When the `domain_name` field is set, the `ipAddressV4` field MUST NOT be set.
+   * When the `ipAddressV4` field is set, the `domain_name` field MUST NOT be set.
+   */
+  std::string mDomainName;
 };
 
 } // namespace Hedera

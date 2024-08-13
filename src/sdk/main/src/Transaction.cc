@@ -364,7 +364,9 @@ std::vector<std::byte> Transaction<SdkRequestType>::toBytes() const
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::sign(const std::shared_ptr<PrivateKey>& key)
 {
+  // clang-format off
   return signInternal(key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
+  // clang-format on
 }
 
 //-----

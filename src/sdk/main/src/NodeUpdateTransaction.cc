@@ -190,18 +190,12 @@ aproto::NodeUpdateTransactionBody* NodeUpdateTransaction::build() const
 
   for (const Endpoint& e : mGossipEndpoints)
   {
-    auto se = std::make_unique<proto::ServiceEndpoint>();
-    se->set_domain_name(e.getAddress().toString());
-    se->set_port(e.getPort());
-    body->mutable_gossip_endpoint()->AddAllocated(se.release());
+    body->mutable_gossip_endpoint()->AddAllocated(e.toProtobuf().release());
   }
 
   for (const Endpoint& e : mServiceEndpoints)
   {
-    auto se = std::make_unique<proto::ServiceEndpoint>();
-    se->set_domain_name(e.getAddress().toString());
-    se->set_port(e.getPort());
-    body->mutable_service_endpoint()->AddAllocated(se.release());
+    body->mutable_service_endpoint()->AddAllocated(e.toProtobuf().release());
   }
 
   body->mutable_gossip_ca_certificate()->set_value(internal::Utilities::byteVectorToString(mGossipCaCertificate));

@@ -26,7 +26,6 @@
 
 namespace proto
 {
-// class NodeCreateTransactionBody;
 class TransactionBody;
 }
 
