@@ -33,7 +33,7 @@ class ServiceEndpoint;
 namespace Hedera
 {
 /**
- * A network endpoint, which contains an IPv4 address and a port.
+ * A network endpoint, which contains an IPv4 address or domain name and a port.
  */
 class Endpoint
 {

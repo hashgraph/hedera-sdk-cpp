@@ -56,6 +56,9 @@ add_executable(${TEST_PROJECT_NAME}
         FileInfoUnitTests.cc
         FileUpdateTransactionUnitTests.cc
         FreezeTransactionUnitTests.cc
+        NodeCreateTransactionUnitTests.cc
+        NodeDeleteTransactionUnitTests.cc
+        NodeUpdateTransactionUnitTests.cc
         HbarAllowanceUnitTests.cc
         HbarUnitTests.cc
         HbarTransferUnitTests.cc
