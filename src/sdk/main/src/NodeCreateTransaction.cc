@@ -127,7 +127,7 @@ void NodeCreateTransaction::initFromSourceTransactionBody()
 {
   const proto::TransactionBody transactionBody = getSourceTransactionBody();
 
-  if (!transactionBody.has_nodeupdate())
+  if (!transactionBody.has_nodecreate())
   {
     throw std::invalid_argument("Transaction body doesn't contain NodeCreate data");
   }

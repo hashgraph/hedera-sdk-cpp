@@ -19,8 +19,10 @@
  */
 #include "ED25519PrivateKey.h"
 #include "NodeUpdateTransaction.h"
+#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
+#include <proto/transaction_body.pb.h>
 
 using namespace Hedera;
 
@@ -37,6 +39,59 @@ protected:
                         }))
                         .setPort(50211);
 };
+
+//-----
+TEST_F(NodeUpdateTransactionUnitTests, ConstructNodeUpdateTransactionFromTransactionBodyProtobuf)
+{
+  // Given
+  proto::TransactionBody transactionBody;
+  aproto::NodeUpdateTransactionBody* body = transactionBody.mutable_nodeupdate();
+
+  // Set AccountId
+  proto::AccountID* accountId = body->mutable_account_id();
+  accountId->set_shardnum(1);
+  accountId->set_realmnum(2);
+  accountId->set_accountnum(3);
+
+  // Set Description
+  std::string description = "Test Node";
+  auto value = std::make_unique<google::protobuf::StringValue>();
+  value->set_value(description);
+  body->set_allocated_description(value.release());
+
+  // Set Gossip Endpoints
+  body->mutable_gossip_endpoint()->AddAllocated(endpoint.toProtobuf().release());
+
+  // Set Service Endpoints
+  body->mutable_service_endpoint()->AddAllocated(endpoint.toProtobuf().release());
+
+  // Set Gossip CA Certificate
+  const std::vector<std::byte> bytes = { std::byte(0x01), std::byte(0x02) };
+  body->mutable_gossip_ca_certificate()->set_value(internal::Utilities::byteVectorToString(bytes));
+
+  // Set GRPC Certificate Hash
+  body->mutable_grpc_certificate_hash()->set_value(internal::Utilities::byteVectorToString(bytes));
+
+  // Set Admin Key
+  const std::shared_ptr<ED25519PrivateKey> key = ED25519PrivateKey::generatePrivateKey();
+  body->set_allocated_admin_key(key->toProtobufKey().release());
+
+  // When
+  NodeUpdateTransaction nodeUpdateTransaction(transactionBody);
+
+  // Then
+  EXPECT_EQ(nodeUpdateTransaction.getAccountId().mShardNum, 1ULL);
+  EXPECT_EQ(nodeUpdateTransaction.getAccountId().mRealmNum, 2ULL);
+  EXPECT_TRUE(nodeUpdateTransaction.getAccountId().mAccountNum.has_value());
+  EXPECT_EQ(*nodeUpdateTransaction.getAccountId().mAccountNum, 3ULL);
+  EXPECT_EQ(nodeUpdateTransaction.getDescription(), description);
+  ASSERT_EQ(nodeUpdateTransaction.getGossipEndpoints().size(), 1);
+  ASSERT_EQ(nodeUpdateTransaction.getServiceEndpoints().size(), 1);
+  EXPECT_EQ(nodeUpdateTransaction.getGossipCaCertificate(), bytes);
+  EXPECT_EQ(nodeUpdateTransaction.getGrpcCertificateHash(), bytes);
+  EXPECT_EQ(nodeUpdateTransaction.getAdminKey()->toProtobufKey()->SerializeAsString(),
+            key->toProtobufKey()->SerializeAsString());
+}
 
 //-----
 TEST_F(NodeUpdateTransactionUnitTests, SetAndGetAccountId)
