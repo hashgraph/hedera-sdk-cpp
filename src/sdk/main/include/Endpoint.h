@@ -103,7 +103,7 @@ public:
    *
    * @return The domain name of this Endpoint.
    */
-  [[nodiscard]] inline std::string_view getDomainName() const { return mDomainName; }
+  [[nodiscard]] inline const std::string& getDomainName() const { return mDomainName; }
 
 private:
   /**
@@ -124,7 +124,7 @@ private:
    * When the `domain_name` field is set, the `ipAddressV4` field MUST NOT be set.
    * When the `ipAddressV4` field is set, the `domain_name` field MUST NOT be set.
    */
-  std::string_view mDomainName;
+  std::string mDomainName;
 };
 
 } // namespace Hedera

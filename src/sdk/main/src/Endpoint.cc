@@ -39,7 +39,7 @@ std::unique_ptr<proto::ServiceEndpoint> Endpoint::toProtobuf() const
   auto proto = std::make_unique<proto::ServiceEndpoint>();
   proto->set_ipaddressv4(internal::Utilities::byteVectorToString(mAddress.toBytes()));
   proto->set_port(static_cast<int32_t>(mPort));
-  proto->set_domain_name(mDomainName.data());
+  proto->set_domain_name(mDomainName);
   return proto;
 }
 

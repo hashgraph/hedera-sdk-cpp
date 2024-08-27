@@ -136,10 +136,7 @@ void NodeCreateTransaction::initFromSourceTransactionBody()
 
   mAccountId = AccountId::fromProtobuf(body.account_id());
 
-  if (mDescription.has_value())
-  {
-    mDescription = body.description();
-  }
+  mDescription = body.description();
 
   for (int i = 0; i < body.gossip_endpoint_size(); i++)
   {
