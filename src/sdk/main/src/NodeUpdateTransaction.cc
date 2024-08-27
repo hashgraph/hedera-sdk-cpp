@@ -62,10 +62,10 @@ NodeUpdateTransaction& NodeUpdateTransaction::setAccountId(const AccountId& acco
 }
 
 //-----
-NodeUpdateTransaction& NodeUpdateTransaction::setDescription(const std::optional<std::string>& description)
+NodeUpdateTransaction& NodeUpdateTransaction::setDescription(std::string_view description)
 {
   requireNotFrozen();
-  mDescription = description;
+  mDescription = description.data();
   return *this;
 }
 
@@ -206,7 +206,10 @@ aproto::NodeUpdateTransactionBody* NodeUpdateTransaction::build() const
       internal::Utilities::byteVectorToString(mGrpcCertificateHash.value()));
   }
 
-  body->set_allocated_admin_key(mAdminKey->toProtobufKey().release());
+  if (mAdminKey != nullptr)
+  {
+    body->set_allocated_admin_key(mAdminKey->toProtobufKey().release());
+  }
 
   return body.release();
 }

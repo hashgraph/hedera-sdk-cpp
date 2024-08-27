@@ -54,10 +54,10 @@ NodeCreateTransaction& NodeCreateTransaction::setAccountId(const AccountId& acco
 }
 
 //-----
-NodeCreateTransaction& NodeCreateTransaction::setDescription(const std::optional<std::string>& description)
+NodeCreateTransaction& NodeCreateTransaction::setDescription(std::string_view description)
 {
   requireNotFrozen();
-  mDescription = description;
+  mDescription = description.data();
   return *this;
 }
 
@@ -136,7 +136,10 @@ void NodeCreateTransaction::initFromSourceTransactionBody()
 
   mAccountId = AccountId::fromProtobuf(body.account_id());
 
-  mDescription = body.description();
+  if (mDescription.has_value())
+  {
+    mDescription = body.description();
+  }
 
   for (int i = 0; i < body.gossip_endpoint_size(); i++)
   {
@@ -187,7 +190,10 @@ aproto::NodeCreateTransactionBody* NodeCreateTransaction::build() const
     body->set_grpc_certificate_hash(internal::Utilities::byteVectorToString(mGrpcCertificateHash.value()));
   }
 
-  body->set_allocated_admin_key(mAdminKey->toProtobufKey().release());
+  if (mAdminKey != nullptr)
+  {
+    body->set_allocated_admin_key(mAdminKey->toProtobufKey().release());
+  }
 
   return body.release();
 }

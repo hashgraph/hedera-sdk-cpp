@@ -150,7 +150,7 @@ public:
    * @param description A string containing the description.
    * @return A reference to this NodeCreateTransaction with the newly-set description.
    */
-  NodeCreateTransaction& setDescription(const std::optional<std::string>& description);
+  NodeCreateTransaction& setDescription(std::string_view description);
 
   /**
    * Set the list of service endpoints for gossip.

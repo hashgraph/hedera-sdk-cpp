@@ -46,7 +46,6 @@ std::unique_ptr<proto::ServiceEndpoint> Endpoint::toProtobuf() const
 //-----
 std::string Endpoint::toString() const
 {
-
   return mAddress.toString() + ':' + std::to_string(mPort);
 }
 
@@ -65,7 +64,7 @@ Endpoint& Endpoint::setPort(unsigned int port)
 }
 
 //-----
-Endpoint& Endpoint::setDomainName(const std::string& domainName)
+Endpoint& Endpoint::setDomainName(std::string_view domainName)
 {
   mDomainName = domainName;
   return *this;

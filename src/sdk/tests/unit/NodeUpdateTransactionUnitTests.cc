@@ -97,7 +97,7 @@ TEST_F(NodeUpdateTransactionUnitTests, ConstructNodeUpdateTransactionFromTransac
 TEST_F(NodeUpdateTransactionUnitTests, SetAndGetAccountId)
 {
   // Given
-  Hedera::AccountId accountId(1234);
+  AccountId accountId(1234);
 
   // When
   transaction.setAccountId(accountId);
