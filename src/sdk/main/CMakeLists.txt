@@ -101,6 +101,9 @@ add_library(${PROJECT_NAME} STATIC
         src/NftId.cc
         src/NodeAddress.cc
         src/NodeAddressBook.cc
+        src/NodeCreateTransaction.cc
+        src/NodeDeleteTransaction.cc
+        src/NodeUpdateTransaction.cc
         src/PrivateKey.cc
         src/PrngTransaction.cc
         src/ProxyStaker.cc
