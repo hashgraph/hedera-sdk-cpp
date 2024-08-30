@@ -29,7 +29,7 @@ jobs:
           echo "::group::Get System Configuration"
             USR_ID="$(id -un)"
             GRP_ID="$(id -gn)"
-            SDK_CPP_MEM_LIMIT="17179869184"
+            SDK_CPP_MEM_LIMIT="30064771072"
             AGENT_MEM_LIMIT="2147483648"
             USER_SLICE="user.slice/user-$(id -u).slice"
             USER_SERVICE="${USER_SLICE}/user@$(id -u).service"
