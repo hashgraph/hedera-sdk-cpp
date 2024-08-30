@@ -120,11 +120,15 @@ jobs:
           VCPKG_BINARY_SOURCES: clear
         run: |
           echo "::group::Configure Project"
+          set -x
           ${CG_EXEC} cmake --preset ${{ matrix.preset }}-debug
+          set +x
           echo "::endgroup::"
           
           echo "::group::Build Project"
+          set -x
           ${CG_EXEC} cmake --build --preset ${{ matrix.preset }}-debug
+          set +x
           echo "::endgroup::"
 
 #      - name: CMake Build (Release)
