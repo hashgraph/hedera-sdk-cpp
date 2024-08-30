@@ -61,7 +61,7 @@ jobs:
             sudo cgclassify -g cpu,memory:${AGENT_GROUP_NAME} $(pgrep 'Runner.Worker' | tr '\n' ' ')
           echo "::endgroup::"
           
-          CG_EXEC="cgexec -g cpu,memory:user.slice/user-$(id -u).slice/user@$(id -u).service/sdk-cpp-${{ github.run_id }} --sticky ionice -c 2 -n 2 nice -n 19"
+          CG_EXEC="cgexec -g cpu,memory:${SDK_CPP_GROUP_NAME} --sticky ionice -c 2 -n 2 nice -n 19"
           echo "exec=${CG_EXEC}" >> "${GITHUB_OUTPUT}"
 
       - name: Harden Runner
