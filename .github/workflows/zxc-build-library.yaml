@@ -121,13 +121,13 @@ jobs:
         run: |
           echo "::group::Configure Project"
           set -x
-          ${CG_EXEC} cmake --preset ${{ matrix.preset }}-debug
+          "${CG_EXEC}" cmake --preset ${{ matrix.preset }}-debug
           set +x
           echo "::endgroup::"
           
           echo "::group::Build Project"
           set -x
-          ${CG_EXEC} cmake --build --preset ${{ matrix.preset }}-debug
+          "${CG_EXEC}" cmake --build --preset ${{ matrix.preset }}-debug
           set +x
           echo "::endgroup::"
 
@@ -146,11 +146,11 @@ jobs:
           VCPKG_BINARY_SOURCES: clear
         run: |
           echo "::group::Configure Project"
-          ${CG_EXEC} cmake --preset ${{ matrix.preset }}-release
+          "${CG_EXEC}" cmake --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
           
           echo "::group::Build Project"
-          ${CG_EXEC} cmake --build --preset ${{ matrix.preset }}-release
+          "${CG_EXEC}" cmake --build --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
 
       # - name: List Directory Structure
