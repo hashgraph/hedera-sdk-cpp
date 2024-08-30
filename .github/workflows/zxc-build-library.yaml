@@ -125,7 +125,7 @@ jobs:
           echo "::endgroup::"
           
           echo "::group::Build Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --build --preset ${{ matrix.preset }}-debug
+          ${{ steps.cgroup.outputs.exec }} cmake -j 4 --build --preset ${{ matrix.preset }}-debug
           echo "::endgroup::"
 
 #      - name: CMake Build (Release)
@@ -147,7 +147,7 @@ jobs:
           echo "::endgroup::"
           
           echo "::group::Build Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --build --preset ${{ matrix.preset }}-release
+          ${{ steps.cgroup.outputs.exec }} cmake -j 4 --build --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
 
       # - name: List Directory Structure
