@@ -156,7 +156,9 @@ jobs:
       #     run: tree /F build
 
       - name: Start the local node
-        run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.53.2
+        run: |
+          npm i -g @hashgraph/hedera-local@2.29.2
+          npx hedera start --verbose=trace --detached --network-tag=0.52.3
 
       - name: Start CTest suite (Debug)
         run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
