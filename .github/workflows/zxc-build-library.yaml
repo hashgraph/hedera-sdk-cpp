@@ -6,13 +6,16 @@ defaults:
   run:
     shell: bash
 
+env:
+  CG_EXEC: export R_UID=$(id -u); CGROUP_LOGLEVEL=DEBUG cgexec -g cpu,memory:user.slice/user-${R_UID}.slice/user@${R_UID}.service/e2e-${{ github.run_id }} --sticky ionice -c 2 -n 2 nice -n 19
+
 permissions:
   contents: read
 
 jobs:
   build:
     name: Build
-    runs-on: client-sdk-linux-xlarge
+    runs-on: client-sdk-linux-large
 
     env:
       HEDERA_NETWORK: localhost
@@ -28,7 +31,7 @@ jobs:
           echo "::group::Get System Configuration"
             USR_ID="$(id -un)"
             GRP_ID="$(id -gn)"
-            SDK_CPP_MEM_LIMIT="30064771072"
+            SDK_CPP_MEM_LIMIT="17179869184"
             AGENT_MEM_LIMIT="2147483648"
             USER_SLICE="user.slice/user-$(id -u).slice"
             USER_SERVICE="${USER_SLICE}/user@$(id -u).service"
@@ -104,22 +107,47 @@ jobs:
         working-directory: vcpkg
         run: git fetch --unshallow --prune
 
+#      - name: CMake Build (Debug)
+#        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
+#        env:
+#          VCPKG_BINARY_SOURCES: clear
+#        with:
+#          configurePreset: ${{ matrix.preset }}-debug
+#          buildPreset: ${{ matrix.preset }}-debug
+
       - name: CMake Build (Debug)
-        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
         env:
           VCPKG_BINARY_SOURCES: clear
-        with:
-          configurePreset: ${{ matrix.preset }}-debug
-          buildPreset: ${{ matrix.preset }}-debug
+        run: |
+          echo "::group::Configure Project"
+          ${CG_EXEC} cmake --preset ${{ matrix.preset }}-debug
+          echo "::endgroup::"
+          
+          echo "::group::Build Project"
+          ${CG_EXEC} cmake --build --preset ${{ matrix.preset }}-debug
+          echo "::endgroup::"
+
+#      - name: CMake Build (Release)
+#        if: github.event.pull_request.merged == true
+#        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
+#        env:
+#          VCPKG_BINARY_SOURCES: clear
+#        with:
+#          configurePreset: ${{ matrix.preset }}-release
+#          buildPreset: ${{ matrix.preset }}-release
 
       - name: CMake Build (Release)
         if: github.event.pull_request.merged == true
-        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
         env:
           VCPKG_BINARY_SOURCES: clear
-        with:
-          configurePreset: ${{ matrix.preset }}-release
-          buildPreset: ${{ matrix.preset }}-release
+        run: |
+          echo "::group::Configure Project"
+          ${CG_EXEC} cmake --preset ${{ matrix.preset }}-release
+          echo "::endgroup::"
+          
+          echo "::group::Build Project"
+          ${CG_EXEC} cmake --build --preset ${{ matrix.preset }}-release
+          echo "::endgroup::"
 
       # - name: List Directory Structure
       #     if: ${{ contains(runner.os, 'Windows') && always() }}
@@ -130,11 +158,11 @@ jobs:
         run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.52.0-alpha.6
 
       - name: Start CTest suite (Debug)
-        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+        run: ${CG_EXEC} ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
 
       - name: Start CTest suite (Release)
         if: github.event.pull_request.merged == true
-        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+        run: ${CG_EXEC} ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
       - name: Stop the local node
         run: sudo npx @hashgraph/hedera-local stop
