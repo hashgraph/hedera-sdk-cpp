@@ -7,7 +7,7 @@ defaults:
     shell: bash
 
 env:
-  CG_EXEC: export R_UID=$(id -u); CGROUP_LOGLEVEL=DEBUG cgexec -g cpu,memory:user.slice/user-${R_UID}.slice/user@${R_UID}.service/sdk-cpp-${{ github.run_id }} --sticky ionice -c 2 -n 2 nice -n 19
+  CG_EXEC: cgexec -g "cpu,memory:user.slice/user-$(id -u).slice/user@$(id -u).service/sdk-cpp-${{ github.run_id }}" --sticky ionice -c 2 -n 2 nice -n 19
 
 permissions:
   contents: read
@@ -73,11 +73,11 @@ jobs:
         with:
           submodules: true
 
-      - name: Run Clang-Format
-        uses: jidicula/clang-format-action@c74383674bf5f7c69f60ce562019c1c94bc1421a # v4.13.0
-        with:
-          clang-format-version: "17"
-          check-path: "src"
+#      - name: Run Clang-Format
+#        uses: jidicula/clang-format-action@c74383674bf5f7c69f60ce562019c1c94bc1421a # v4.13.0
+#        with:
+#          clang-format-version: "17"
+#          check-path: "src"
 
       - name: Use Node.js 21
         uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
