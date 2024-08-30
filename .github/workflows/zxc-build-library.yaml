@@ -6,9 +6,6 @@ defaults:
   run:
     shell: bash
 
-env:
-  CG_EXEC: cgexec -g cpu,memory:user.slice/user-$(id -u).slice/user@$(id -u).service/sdk-cpp-${{ github.run_id }} --sticky ionice -c 2 -n 2 nice -n 19
-
 permissions:
   contents: read
 
@@ -27,6 +24,7 @@ jobs:
 
     steps:
       - name: Setup Control Groups
+        id: cgroup
         run: |
           echo "::group::Get System Configuration"
             USR_ID="$(id -un)"
@@ -62,6 +60,9 @@ jobs:
             sudo cgclassify --sticky -g cpu,memory:${AGENT_GROUP_NAME} $(pgrep 'Runner.Listener' | tr '\n' ' ')
             sudo cgclassify -g cpu,memory:${AGENT_GROUP_NAME} $(pgrep 'Runner.Worker' | tr '\n' ' ')
           echo "::endgroup::"
+          
+          CG_EXEC="cgexec -g cpu,memory:user.slice/user-$(id -u).slice/user@$(id -u).service/sdk-cpp-${{ github.run_id }} --sticky ionice -c 2 -n 2 nice -n 19"
+          echo "exec=${CG_EXEC}" >> "${GITHUB_OUTPUT}"
 
       - name: Harden Runner
         uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
@@ -121,13 +122,13 @@ jobs:
         run: |
           echo "::group::Configure Project"
           set -x
-          "${CG_EXEC}" cmake --preset ${{ matrix.preset }}-debug
+          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug
           set +x
           echo "::endgroup::"
           
           echo "::group::Build Project"
           set -x
-          "${CG_EXEC}" cmake --build --preset ${{ matrix.preset }}-debug
+          ${{ steps.cgroup.outputs.exec }} cmake --build --preset ${{ matrix.preset }}-debug
           set +x
           echo "::endgroup::"
 
@@ -146,11 +147,11 @@ jobs:
           VCPKG_BINARY_SOURCES: clear
         run: |
           echo "::group::Configure Project"
-          "${CG_EXEC}" cmake --preset ${{ matrix.preset }}-release
+          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
           
           echo "::group::Build Project"
-          "${CG_EXEC}" cmake --build --preset ${{ matrix.preset }}-release
+          ${{ steps.cgroup.outputs.exec }} cmake --build --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
 
       # - name: List Directory Structure
