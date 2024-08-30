@@ -80,10 +80,10 @@ jobs:
 #          clang-format-version: "17"
 #          check-path: "src"
 
-      - name: Use Node.js 21
+      - name: Use Node.js 22
         uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
-          node-version: 21
+          node-version: 22
 
       - name: Install Local Node
         run: sudo npm install -g @hashgraph/hedera-local
@@ -121,15 +121,11 @@ jobs:
           VCPKG_BINARY_SOURCES: clear
         run: |
           echo "::group::Configure Project"
-          set -x
           ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug
-          set +x
           echo "::endgroup::"
           
           echo "::group::Build Project"
-          set -x
           ${{ steps.cgroup.outputs.exec }} cmake --build --preset ${{ matrix.preset }}-debug
-          set +x
           echo "::endgroup::"
 
 #      - name: CMake Build (Release)
