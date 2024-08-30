@@ -7,7 +7,7 @@ defaults:
     shell: bash
 
 env:
-  CG_EXEC: cgexec -g "cpu,memory:user.slice/user-$(id -u).slice/user@$(id -u).service/sdk-cpp-${{ github.run_id }}" --sticky ionice -c 2 -n 2 nice -n 19
+  CG_EXEC: cgexec -g cpu,memory:user.slice/user-$(id -u).slice/user@$(id -u).service/sdk-cpp-${{ github.run_id }} --sticky ionice -c 2 -n 2 nice -n 19
 
 permissions:
   contents: read
