@@ -125,7 +125,7 @@ jobs:
           echo "::endgroup::"
           
           echo "::group::Build Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --build -j 4 --preset ${{ matrix.preset }}-debug
+          ${{ steps.cgroup.outputs.exec }} cmake --build -j 6 --preset ${{ matrix.preset }}-debug
           echo "::endgroup::"
 
 #      - name: CMake Build (Release)
@@ -147,7 +147,7 @@ jobs:
           echo "::endgroup::"
           
           echo "::group::Build Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --build -j 4 --preset ${{ matrix.preset }}-release
+          ${{ steps.cgroup.outputs.exec }} cmake --build -j 6 --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
 
       # - name: List Directory Structure
@@ -159,11 +159,11 @@ jobs:
         run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.52.3
 
       - name: Start CTest suite (Debug)
-        run: ${{ steps.cgroup.outputs.exec }} ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
 
       - name: Start CTest suite (Release)
         if: github.event.pull_request.merged == true
-        run: ${{ steps.cgroup.outputs.exec }} ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
       - name: Stop the local node
         run: sudo npx @hashgraph/hedera-local stop
