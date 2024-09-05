@@ -296,7 +296,7 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
 
       royaltyFee->setDenominator(jsonFrom["royaltyFee"]["denominator"].get<int64_t>());
 
-      if (jsonFrom.contains("fallbackFee"))
+      if (jsonFrom["royaltyFee"].contains("fallbackFee"))
       {
         Hedera::CustomFixedFee fallbackFee;
 
@@ -316,7 +316,7 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
 
         if (jsonFrom["royaltyFee"]["fallbackFee"].contains("denominatingTokenId"))
         {
-          if (!jsonFrom["royaltyFee"]["fallbackFee"]["denominatingTokenId"].is_number_integer())
+          if (!jsonFrom["royaltyFee"]["fallbackFee"]["denominatingTokenId"].is_string())
           {
             throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
                                                 "invalid parameters: denominatingTokenId MUST be a string.");
