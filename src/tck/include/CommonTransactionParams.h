@@ -37,7 +37,7 @@
 namespace Hedera::TCK
 {
 /**
- * Struct the contains the common parameters of a Transaction.
+ * Struct that contains the common parameters of a Transaction.
  */
 struct CommonTransactionParams
 {
