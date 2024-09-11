@@ -91,6 +91,26 @@ int main(int argc, char** argv)
                   "stakedNodeId",
                   "declineStakingReward",
                   "commonTransactionParams" });
+  tckServer.add("updateToken",
+                getHandle(&SdkClient::updateToken),
+                { "tokenId",
+                  "symbol",
+                  "name",
+                  "treasuryAccountId",
+                  "adminKey",
+                  "kycKey",
+                  "freezeKey",
+                  "wipeKey",
+                  "supplyKey",
+                  "autoRenewAccountId",
+                  "autoRenewPeriod",
+                  "expirationTime",
+                  "memo",
+                  "feeScheduleKey",
+                  "pauseKey",
+                  "metadata",
+                  "metadataKey",
+                  "commonTransactionParams" });
 
   // Start listening for requests.
   tckServer.startServer();

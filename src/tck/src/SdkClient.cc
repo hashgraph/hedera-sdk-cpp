@@ -33,6 +33,7 @@
 #include "TokenCreateTransaction.h"
 #include "TokenSupplyType.h"
 #include "TokenType.h"
+#include "TokenUpdateTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "impl/HexConverter.h"
@@ -457,6 +458,126 @@ nlohmann::json SdkClient::updateAccount(const std::optional<std::string>& accoun
   }
 
   const TransactionReceipt txReceipt = accountUpdateTransaction.execute(mClient).getReceipt(mClient);
+  return {
+    {"status", gStatusToString.at(txReceipt.mStatus)}
+  };
+}
+
+//-----
+nlohmann::json SdkClient::updateToken(const std::optional<std::string>& tokenId,
+                                      const std::optional<std::string>& symbol,
+                                      const std::optional<std::string>& name,
+                                      const std::optional<std::string>& treasuryAccountId,
+                                      const std::optional<std::string>& adminKey,
+                                      const std::optional<std::string>& kycKey,
+                                      const std::optional<std::string>& freezeKey,
+                                      const std::optional<std::string>& wipeKey,
+                                      const std::optional<std::string>& supplyKey,
+                                      const std::optional<std::string>& autoRenewAccountId,
+                                      const std::optional<int64_t>& autoRenewPeriod,
+                                      const std::optional<int64_t>& expirationTime,
+                                      const std::optional<std::string>& memo,
+                                      const std::optional<std::string>& feeScheduleKey,
+                                      const std::optional<std::string>& pauseKey,
+                                      const std::optional<std::string>& metadata,
+                                      const std::optional<std::string>& metadataKey,
+                                      const std::optional<CommonTransactionParams>& commonTxParams)
+{
+  TokenUpdateTransaction tokenUpdateTransaction;
+  tokenUpdateTransaction.setGrpcDeadline(std::chrono::seconds(DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (tokenId.has_value())
+  {
+    tokenUpdateTransaction.setTokenId(TokenId::fromString(tokenId.value()));
+  }
+
+  if (symbol.has_value())
+  {
+    tokenUpdateTransaction.setTokenSymbol(symbol.value());
+  }
+
+  if (name.has_value())
+  {
+    tokenUpdateTransaction.setTokenName(name.value());
+  }
+
+  if (treasuryAccountId.has_value())
+  {
+    tokenUpdateTransaction.setTreasuryAccountId(AccountId::fromString(treasuryAccountId.value()));
+  }
+
+  if (adminKey.has_value())
+  {
+    tokenUpdateTransaction.setAdminKey(getHederaKey(adminKey.value()));
+  }
+
+  if (kycKey.has_value())
+  {
+    tokenUpdateTransaction.setKycKey(getHederaKey(kycKey.value()));
+  }
+
+  if (freezeKey.has_value())
+  {
+    tokenUpdateTransaction.setFreezeKey(getHederaKey(freezeKey.value()));
+  }
+
+  if (wipeKey.has_value())
+  {
+    tokenUpdateTransaction.setWipeKey(getHederaKey(wipeKey.value()));
+  }
+
+  if (supplyKey.has_value())
+  {
+    tokenUpdateTransaction.setSupplyKey(getHederaKey(supplyKey.value()));
+  }
+
+  if (autoRenewAccountId.has_value())
+  {
+    tokenUpdateTransaction.setAutoRenewAccountId(AccountId::fromString(autoRenewAccountId.value()));
+  }
+
+  if (autoRenewPeriod.has_value())
+  {
+    tokenUpdateTransaction.setAutoRenewPeriod(std::chrono::seconds(autoRenewPeriod.value()));
+  }
+
+  if (expirationTime.has_value())
+  {
+    tokenUpdateTransaction.setExpirationTime(std::chrono::system_clock::from_time_t(0) +
+                                             std::chrono::seconds(expirationTime.value()));
+  }
+
+  if (memo.has_value())
+  {
+    tokenUpdateTransaction.setTokenMemo(memo.value());
+  }
+
+  if (feeScheduleKey.has_value())
+  {
+    tokenUpdateTransaction.setFeeScheduleKey(getHederaKey(feeScheduleKey.value()));
+  }
+
+  if (pauseKey.has_value())
+  {
+    tokenUpdateTransaction.setPauseKey(getHederaKey(pauseKey.value()));
+  }
+
+  if (metadata.has_value())
+  {
+    tokenUpdateTransaction.setMetadata(internal::HexConverter::hexToBytes(metadata.value()));
+  }
+
+  if (metadataKey.has_value())
+  {
+    tokenUpdateTransaction.setMetadataKey(getHederaKey(metadataKey.value()));
+  }
+
+  if (commonTxParams.has_value())
+  {
+    commonTxParams->fillOutTransaction(tokenUpdateTransaction, mClient);
+  }
+
+  const TransactionReceipt txReceipt = tokenUpdateTransaction.execute(mClient).getReceipt(mClient);
   return {
     {"status", gStatusToString.at(txReceipt.mStatus)}
   };

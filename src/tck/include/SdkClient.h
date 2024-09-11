@@ -200,6 +200,48 @@ nlohmann::json updateAccount(const std::optional<std::string>& accountId,
                              const std::optional<bool>& declineStakingReward,
                              const std::optional<CommonTransactionParams>& commonTxParams);
 
+/**
+ * Update a token.
+ *
+ * @param tokenId            The ID of the token to update.
+ * @param symbol             The desired new symbol of the token.
+ * @param name               The desired new name of the token.
+ * @param treasuryAccountId  The ID of the desired new treasury account of the token.
+ * @param adminKey           The desired new admin key of the token.
+ * @param kycKey             The desired new KYC key of the token.
+ * @param freezeKey          The desired new freeze key of the token.
+ * @param wipeKey            The desired new wipe key of the token.
+ * @param supplyKey          The desired new supply key of the token.
+ * @param autoRenewAccountId The ID of the desired account to now pay auto-renewal fees.
+ * @param autoRenewPeriod    The desired new interval of time for which to charge the auto-renew account to renew the
+ *                           token.
+ * @param expirationTime     The desired new expiration time of the token.
+ * @param memo               The desired new memo of the token.
+ * @param feeScheduleKey     The desired new fee schedule key of the token.
+ * @param pauseKey           The desired new pause key of the token.
+ * @param metadata           The desired new metadata of the token.
+ * @param metadataKey        The desired new metadata key of the token.
+ * @param commonTxParams     Any parameters common to all transaction types.
+ */
+nlohmann::json updateToken(const std::optional<std::string>& tokenId,
+                           const std::optional<std::string>& symbol,
+                           const std::optional<std::string>& name,
+                           const std::optional<std::string>& treasuryAccountId,
+                           const std::optional<std::string>& adminKey,
+                           const std::optional<std::string>& kycKey,
+                           const std::optional<std::string>& freezeKey,
+                           const std::optional<std::string>& wipeKey,
+                           const std::optional<std::string>& supplyKey,
+                           const std::optional<std::string>& autoRenewAccountId,
+                           const std::optional<int64_t>& autoRenewPeriod,
+                           const std::optional<int64_t>& expirationTime,
+                           const std::optional<std::string>& memo,
+                           const std::optional<std::string>& feeScheduleKey,
+                           const std::optional<std::string>& pauseKey,
+                           const std::optional<std::string>& metadata,
+                           const std::optional<std::string>& metadataKey,
+                           const std::optional<CommonTransactionParams>& commonTxParams);
+
 } // namespace Hedera::TCK::SdkClient
 
 #endif // HEDERA_TCK_CPP_SDK_CLIENT_H_
