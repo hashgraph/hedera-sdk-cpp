@@ -109,16 +109,16 @@ public:
   AccountId mReceiverId;
 
   /**
-   * A token ID.<br/>
-   * This is the type of token for a fungible/common token airdrop.<br/>
+   * A token ID.
+   * This is the type of token for a fungible/common token airdrop.
    * This field is REQUIRED for a fungible/common token and MUST NOT be used for a
    * non-fungible/unique token.
    */
   std::optional<TokenId> mFt;
 
   /**
-   * The id of a single NFT, consisting of a Token ID and serial number.<br/>
-   * This is the type of token for a non-fungible/unique token airdrop.<br/>
+   * The id of a single NFT, consisting of a Token ID and serial number.
+   * This is the type of token for a non-fungible/unique token airdrop.
    * This field is REQUIRED for a non-fungible/unique token and MUST NOT be used for a
    * fungible/common token.
    */
