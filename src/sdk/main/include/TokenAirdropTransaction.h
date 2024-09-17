@@ -101,6 +101,109 @@ public:
   explicit TokenAirdropTransaction(
     const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
+  /**
+   * Add a token transfer to be submitted as part of this TokenAirdropTransaction.
+   *
+   * @param tokenId   The ID of the token associated with this transfer.
+   * @param accountId The ID of the account associated with this transfer.
+   * @param amount    The number of tokens to transfer.
+   * @return A reference to this TokenAirdropTransaction object with the newly-added token transfer.
+   * @throws IllegalStateException If this TokenAirdropTransaction is frozen.
+   */
+  TokenAirdropTransaction& addTokenTransfer(const TokenId& tokenId, const AccountId& accountId, const int64_t& amount);
+
+  /**
+   * Add an NFT transfer to be submitted as part of this TokenAirdropTransaction.
+   *
+   * @param nftId             The ID of the NFT associated with this transfer.
+   * @param senderAccountId   The ID of the account sending the NFT.
+   * @param receiverAccountId The ID of the receiving sending the NFT.
+   * @return A reference to this TokenAirdropTransaction object with the newly-added NFT transfer.
+   * @throws IllegalStateException If this TokenAirdropTransaction is frozen.
+   */
+  TokenAirdropTransaction& addNftTransfer(const NftId& nftId,
+                                          const AccountId& senderAccountId,
+                                          const AccountId& receiverAccountId);
+
+  /**
+   * Add a token transfer with decimals to be submitted as part of this TokenAirdropTransaction.
+   *
+   * @param tokenId   The ID of the token associated with this transfer.
+   * @param accountId The ID of the account associated with this transfer.
+   * @param amount    The number of tokens to transfer.
+   * @param decimals  The number of decimals in the transfer amount.
+   * @return A reference to this TokenAirdropTransaction object with the newly-added token transfer.
+   * @throws IllegalStateException If this TokenAirdropTransaction is frozen.
+   * @throws std::invalid_argument If decimals does not match previously set decimals for this token.
+   */
+  TokenAirdropTransaction& addTokenTransferWithDecimals(const TokenId& tokenId,
+                                                        const AccountId& accountId,
+                                                        const int64_t& amount,
+                                                        uint32_t decimals);
+
+  /**
+   * Add an approved token transfer to be submitted as part of this TokenAirdropTransaction.
+   *
+   * @param tokenId   The ID of the token associated with this transfer.
+   * @param accountId The ID of the account associated with this transfer.
+   * @param amount    The number of tokens to transfer.
+   * @return A reference to this TokenAirdropTransaction object with the newly-added approved token transfer.
+   * @throws IllegalStateException If this TokenAirdropTransaction is frozen.
+   */
+  TokenAirdropTransaction& addApprovedTokenTransfer(const TokenId& tokenId,
+                                                    const AccountId& accountId,
+                                                    const int64_t& amount);
+
+  /**
+   * Add an approved NFT transfer to be submitted as part of this TokenAirdropTransaction.
+   *
+   * @param nftId             The ID of the NFT associated with this transfer.
+   * @param senderAccountId   The ID of the account sending the NFT.
+   * @param receiverAccountId The ID of the receiving sending the NFT.
+   * @return A reference to this TokenAirdropTransaction object with the newly-added approved NFT transfer.
+   * @throws IllegalStateException If this TokenAirdropTransaction is frozen.
+   */
+  TokenAirdropTransaction& addApprovedNftTransfer(const NftId& nftId,
+                                                  const AccountId& senderAccountId,
+                                                  const AccountId& receiverAccountId);
+
+  /**
+   * Add an approved token transfer with decimals to be submitted as part of this TokenAirdropTransaction.
+   *
+   * @param tokenId   The ID of the token associated with this transfer.
+   * @param accountId The ID of the account associated with this transfer.
+   * @param amount    The number of tokens to transfer.
+   * @param decimals  The number of decimals in the transfer amount.
+   * @return A reference to this TokenAirdropTransaction object with the newly-added approved token transfer.
+   * @throws IllegalStateException If this TokenAirdropTransaction is frozen.
+   * @throws std::invalid_argument If decimals does not match previously set decimals for this token.
+   */
+  TokenAirdropTransaction& addApprovedTokenTransferWithDecimals(const TokenId& tokenId,
+                                                                const AccountId& accountId,
+                                                                const int64_t& amount,
+                                                                uint32_t decimals);
+
+  /**
+   * Get all token transfers that have been added to this TokenAirdropTransaction.
+   *
+   * @return The map of token transfers.
+   */
+  [[nodiscard]] std::unordered_map<TokenId, std::unordered_map<AccountId, int64_t>> getTokenTransfers() const;
+
+  /**
+   * Get all NFT transfers that have been added to this TokenAirdropTransaction.
+   *
+   * @return The map of NFT transfers.
+   */
+  [[nodiscard]] std::unordered_map<TokenId, std::vector<TokenNftTransfer>> getNftTransfers() const;
+
+  /**
+   * Get the expected decimals for token transfers that have been added to this TokenAirdropTransaction.
+   *
+   * @return The map of expected decimals.
+   */
+  [[nodiscard]] std::unordered_map<TokenId, uint32_t> getTokenIdDecimals() const;
+
 private:
   friend class WrappedTransaction;
 
@@ -148,6 +251,23 @@ private:
    * object's data.
    */
   [[nodiscard]] proto::TokenAirdropTransactionBody* build() const;
+
+  /**
+   * Add a token transfer to the token transfers list.
+   *
+   * @param transfer The token transfer to add.
+   */
+  void doTokenTransfer(const TokenTransfer& transfer);
+
+  /**
+   * Add an NFT transfer to the NFT transfers list.
+   *
+   * @param nftId The ID of the NFT.
+   * @param sender The ID of the account sending the NFT.
+   * @param receiver The ID of the account receiving the NFT.
+   * @param approved \c TRUE if this is an approved allowance NFT transfer, otherwise \c FALSE.
+   */
+  void doNftTransfer(const NftId& nftId, const AccountId& sender, const AccountId& receiver, bool approved);
 
   /**
    * The desired token adjustments.

@@ -47,6 +47,15 @@ TokenCancelAirdropTransaction::TokenCancelAirdropTransaction(
 }
 
 //-----
+TokenCancelAirdropTransaction& TokenCancelAirdropTransaction::setPendingAirdrops(
+  const std::vector<PendingAirdropId>& pendingAirdrops)
+{
+  requireNotFrozen();
+  mPendingAirdrops = pendingAirdrops;
+  return *this;
+}
+
+//-----
 grpc::Status TokenCancelAirdropTransaction::submitRequest(const proto::Transaction& request,
                                                           const std::shared_ptr<internal::Node>& node,
                                                           const std::chrono::system_clock::time_point& deadline,
@@ -65,9 +74,34 @@ void TokenCancelAirdropTransaction::addToBody(proto::TransactionBody& body) cons
 }
 
 //-----
-void TokenCancelAirdropTransaction::initFromSourceTransactionBody() {}
+void TokenCancelAirdropTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokencancelairdrop())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain Token Cancel Airdrop data");
+  }
+
+  const proto::TokenCancelAirdropTransactionBody& body = transactionBody.tokencancelairdrop();
+
+  for (int i = 0; i < body.pending_airdrops_size(); i++)
+  {
+    mPendingAirdrops.push_back(PendingAirdropId::fromProtobuf(body.pending_airdrops(i)));
+  }
+}
 
 //-----
-proto::TokenCancelAirdropTransactionBody* TokenCancelAirdropTransaction::build() const {}
+proto::TokenCancelAirdropTransactionBody* TokenCancelAirdropTransaction::build() const
+{
+  auto body = std::make_unique<proto::TokenCancelAirdropTransactionBody>();
+
+  for (const PendingAirdropId& pendingAirdrop : mPendingAirdrops)
+  {
+    body->mutable_pending_airdrops()->AddAllocated(pendingAirdrop.toProtobuf().release());
+  }
+
+  return body.release();
+}
 
 } // namespace Hedera

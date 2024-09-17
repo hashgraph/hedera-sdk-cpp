@@ -63,6 +63,21 @@ public:
   explicit TokenCancelAirdropTransaction(
     const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions);
 
+  /**
+   * Get the list of pending airdrops to be claimed.
+   *
+   * @return A vector of Pending Airdrop Id objects.
+   */
+  [[nodiscard]] const std::vector<PendingAirdropId>& getPendingAirdrops() const { return mPendingAirdrops; };
+
+  /**
+   * Set the Pending Airdrops to be claimed
+   *
+   * @param pendingAirdrops The list of Pending Airdrop Id objects
+   * @return A reference to this TokenClaimAirdropTransaction with the newly-set owner.
+   */
+  TokenCancelAirdropTransaction& setPendingAirdrops(const std::vector<PendingAirdropId>& pendingAirdrops);
+
 private:
   friend class WrappedTransaction;
 

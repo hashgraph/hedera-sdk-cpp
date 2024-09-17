@@ -57,12 +57,20 @@ public:
   PendingAirdropId() = default;
 
   /**
-   * Construct with two AccountIDs.
+   * Construct with two AccountIDs and a TokenId.
    *
    * @param sender The accountID of the sender.
    * @param receiver The accountID of the receiver.
    */
-  explicit PendingAirdropId(AccountId sender, AccountId receiver);
+  explicit PendingAirdropId(AccountId sender, AccountId receiver, TokenId tokenId);
+
+  /**
+   * Construct with two AccountIDs and a NftId.
+   *
+   * @param sender The accountID of the sender.
+   * @param receiver The accountID of the receiver.
+   */
+  explicit PendingAirdropId(AccountId sender, AccountId receiver, NftId tokenId);
 
   /**
    * Construct an PendingAirdropId object from an PendingAirdropId protobuf object.
@@ -99,14 +107,14 @@ public:
    * This is the account that initiated, and SHALL fund, this pending airdrop.
    * This field is REQUIRED.
    */
-  AccountId mSenderId;
+  AccountId mSender;
 
   /**
    * A receiving account.
    * This is the ID of the account that SHALL receive the airdrop.
    * This field is REQUIRED.
    */
-  AccountId mReceiverId;
+  AccountId mReceiver;
 
   /**
    * A token ID.

@@ -47,12 +47,21 @@ TokenClaimAirdropTransaction::TokenClaimAirdropTransaction(
 }
 
 //-----
+TokenClaimAirdropTransaction& TokenClaimAirdropTransaction::setPendingAirdrops(
+  const std::vector<PendingAirdropId>& pendingAirdrops)
+{
+  requireNotFrozen();
+  mPendingAirdrops = pendingAirdrops;
+  return *this;
+}
+
+//-----
 grpc::Status TokenClaimAirdropTransaction::submitRequest(const proto::Transaction& request,
                                                          const std::shared_ptr<internal::Node>& node,
                                                          const std::chrono::system_clock::time_point& deadline,
                                                          proto::TransactionResponse* response) const
 {
-  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenReject, request, deadline, response);
+  return node->submitTransaction(proto::TransactionBody::DataCase::kTokenClaimAirdrop, request, deadline, response);
 }
 
 //-----
@@ -65,9 +74,34 @@ void TokenClaimAirdropTransaction::addToBody(proto::TransactionBody& body) const
 }
 
 //-----
-void TokenClaimAirdropTransaction::initFromSourceTransactionBody() {}
+void TokenClaimAirdropTransaction::initFromSourceTransactionBody()
+{
+  const proto::TransactionBody transactionBody = getSourceTransactionBody();
+
+  if (!transactionBody.has_tokenclaimairdrop())
+  {
+    throw std::invalid_argument("Transaction body doesn't contain Token Claim Airdrop data");
+  }
+
+  const proto::TokenClaimAirdropTransactionBody& body = transactionBody.tokenclaimairdrop();
+
+  for (int i = 0; i < body.pending_airdrops_size(); i++)
+  {
+    mPendingAirdrops.push_back(PendingAirdropId::fromProtobuf(body.pending_airdrops(i)));
+  }
+}
 
 //-----
-proto::TokenClaimAirdropTransactionBody* TokenClaimAirdropTransaction::build() const {}
+proto::TokenClaimAirdropTransactionBody* TokenClaimAirdropTransaction::build() const
+{
+  auto body = std::make_unique<proto::TokenClaimAirdropTransactionBody>();
+
+  for (const PendingAirdropId& pendingAirdrop : mPendingAirdrops)
+  {
+    body->mutable_pending_airdrops()->AddAllocated(pendingAirdrop.toProtobuf().release());
+  }
+
+  return body.release();
+}
 
 } // namespace Hedera

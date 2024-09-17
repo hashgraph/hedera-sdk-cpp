@@ -25,6 +25,7 @@
 namespace proto
 {
 class PendingAirdropRecord;
+class PendingAirdropId;
 }
 
 namespace Hedera
