@@ -45,6 +45,8 @@ add_executable(${TEST_PROJECT_NAME}
         TokenAirdropTransactionIntegrationTests.cc
         TokenAssociateTransactionIntegrationTests.cc
         TokenBurnTransactionIntegrationTests.cc
+        TokenCancelAirdropTransactionIntegrationTests.cc
+        TokenClaimAirdropTransactionIntegrationTests.cc
         TokenCreateTransactionIntegrationTests.cc
         TokenDeleteTransactionIntegrationTests.cc
         TokenDissociateTransactionIntegrationTests.cc

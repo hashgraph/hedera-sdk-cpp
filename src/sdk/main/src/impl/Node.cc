@@ -165,6 +165,10 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mTokenStub->associateTokens(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenBurn:
       return mTokenStub->burnToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenCancelAirdrop:
+      return mTokenStub->burnToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenClaimAirdrop:
+      return mTokenStub->burnToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenCreation:
       return mTokenStub->createToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenDeletion:
