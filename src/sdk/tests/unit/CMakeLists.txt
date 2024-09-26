@@ -68,6 +68,8 @@ add_executable(${TEST_PROJECT_NAME}
         NetworkVersionInfoUnitTests.cc
         NftIdUnitTests.cc
         NodeAddressUnitTests.cc
+        PendingAirdropIdUnitTests.cc
+        PendingAirdropRecordUnitTests.cc
         PrngTransactionUnitTests.cc
         ProxyStakerUnitTests.cc
         ScheduleCreateTransactionUnitTests.cc
@@ -80,10 +82,13 @@ add_executable(${TEST_PROJECT_NAME}
         StakingInfoUnitTests.cc
         SystemDeleteTransactionUnitTests.cc
         SystemUndeleteTransactionUnitTests.cc
+        TokenAirdropTransactionUnitTests.cc
         TokenAllowanceUnitTests.cc
         TokenAssociateTransactionUnitTests.cc
         TokenAssociationUnitTests.cc
         TokenBurnTransactionUnitTests.cc
+        TokenCancelAirdropTransactionUnitTests.cc
+        TokenClaimAirdropTransactionUnitTests.cc
         TokenCreateTransactionUnitTests.cc
         TokenDeleteTransactionUnitTests.cc
         TokenDissociateTransactionUnitTests.cc

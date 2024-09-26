@@ -332,6 +332,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_systemundelete() = proto.systemundelete();
     return WrappedTransaction(SystemUndeleteTransaction(txBody));
   }
+  else if (proto.has_tokenairdrop())
+  {
+    *txBody.mutable_tokenairdrop() = proto.tokenairdrop();
+    return WrappedTransaction(TokenAirdropTransaction(txBody));
+  }
   else if (proto.has_tokenassociate())
   {
     *txBody.mutable_tokenassociate() = proto.tokenassociate();
@@ -341,6 +346,16 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
   {
     *txBody.mutable_tokenburn() = proto.tokenburn();
     return WrappedTransaction(TokenBurnTransaction(txBody));
+  }
+  else if (proto.has_tokencancelairdrop())
+  {
+    *txBody.mutable_tokencancelairdrop() = proto.tokencancelairdrop();
+    return WrappedTransaction(TokenCancelAirdropTransaction(txBody));
+  }
+  else if (proto.has_tokenclaimairdrop())
+  {
+    *txBody.mutable_tokenclaimairdrop() = proto.tokenclaimairdrop();
+    return WrappedTransaction(TokenClaimAirdropTransaction(txBody));
   }
   else if (proto.has_tokencreation())
   {
@@ -592,6 +607,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
+    case TOKEN_AIRDROP_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenAirdropTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
     case TOKEN_ASSOCIATE_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenAssociateTransaction>();
@@ -601,6 +622,18 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
     case TOKEN_BURN_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenBurnTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_CANCEL_AIRDROP_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenCancelAirdropTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_CLAIM_AIRDROP_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenClaimAirdropTransaction>();
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
@@ -824,6 +857,10 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   {
     schedulableTxBody->set_allocated_systemundelete(txBody.release_systemundelete());
   }
+  else if (txBody.has_tokenairdrop())
+  {
+    schedulableTxBody->set_allocated_tokenairdrop(txBody.release_tokenairdrop());
+  }
   else if (txBody.has_tokenassociate())
   {
     schedulableTxBody->set_allocated_tokenassociate(txBody.release_tokenassociate());
@@ -831,6 +868,14 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   else if (txBody.has_tokenburn())
   {
     schedulableTxBody->set_allocated_tokenburn(txBody.release_tokenburn());
+  }
+  else if (txBody.has_tokencancelairdrop())
+  {
+    schedulableTxBody->set_allocated_tokencancelairdrop(txBody.release_tokencancelairdrop());
+  }
+  else if (txBody.has_tokenclaimairdrop())
+  {
+    schedulableTxBody->set_allocated_tokenclaimairdrop(txBody.release_tokenclaimairdrop());
   }
   else if (txBody.has_tokencreation())
   {
