@@ -163,6 +163,12 @@ TransactionRecord TransactionRecord::fromProtobuf(const proto::TransactionRecord
     transactionRecord.mEvmAddress = EvmAddress::fromBytes(internal::Utilities::stringToByteVector(proto.evm_address()));
   }
 
+  for (int i = 0; i < proto.new_pending_airdrops_size(); i++)
+  {
+    transactionRecord.mPendingAirdropRecords.push_back(
+      PendingAirdropRecord::fromProtobuf(proto.new_pending_airdrops(i)));
+  }
+
   return transactionRecord;
 }
 
@@ -305,6 +311,15 @@ std::unique_ptr<proto::TransactionRecord> TransactionRecord::toProtobuf() const
     proto->set_evm_address(internal::Utilities::byteVectorToString(mEvmAddress->toBytes()));
   }
 
+  for (int i = 0; i < mPendingAirdropRecords.size(); i++)
+  {
+    auto pr = std::make_unique<proto::PendingAirdropRecord>();
+    pr->set_allocated_pending_airdrop_id(mPendingAirdropRecords[i].mPendingAirdropId.toProtobuf().release());
+    auto value = std::make_unique<proto::PendingAirdropValue>();
+    value->set_amount(mPendingAirdropRecords[i].mAmount);
+    pr->set_allocated_pending_airdrop_value(value.release());
+  }
+
   return proto;
 }
 
@@ -399,6 +414,11 @@ std::string TransactionRecord::toString() const
   {
     json["mEvmAddress"] = mEvmAddress->toString();
   }
+
+  std::for_each(mPendingAirdropRecords.cbegin(),
+                mPendingAirdropRecords.cend(),
+                [&json](const PendingAirdropRecord& record)
+                { json["mPendingAirdropRecords"].push_back(record.toString()); });
 
   std::for_each(mChildren.cbegin(),
                 mChildren.cend(),

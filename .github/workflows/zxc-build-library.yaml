@@ -60,7 +60,7 @@ jobs:
             sudo cgclassify --sticky -g cpu,memory:${AGENT_GROUP_NAME} $(pgrep 'Runner.Listener' | tr '\n' ' ')
             sudo cgclassify -g cpu,memory:${AGENT_GROUP_NAME} $(pgrep 'Runner.Worker' | tr '\n' ' ')
           echo "::endgroup::"
-          
+
           CG_EXEC="cgexec -g cpu,memory:${SDK_CPP_GROUP_NAME} --sticky ionice -c 2 -n 2 nice -n 19"
           echo "exec=${CG_EXEC}" >> "${GITHUB_OUTPUT}"
 
@@ -74,11 +74,11 @@ jobs:
         with:
           submodules: true
 
-#      - name: Run Clang-Format
-#        uses: jidicula/clang-format-action@c74383674bf5f7c69f60ce562019c1c94bc1421a # v4.13.0
-#        with:
-#          clang-format-version: "17"
-#          check-path: "src"
+      #      - name: Run Clang-Format
+      #        uses: jidicula/clang-format-action@c74383674bf5f7c69f60ce562019c1c94bc1421a # v4.13.0
+      #        with:
+      #          clang-format-version: "17"
+      #          check-path: "src"
 
       - name: Use Node.js 22
         uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
@@ -108,13 +108,13 @@ jobs:
         working-directory: vcpkg
         run: git fetch --unshallow --prune
 
-#      - name: CMake Build (Debug)
-#        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
-#        env:
-#          VCPKG_BINARY_SOURCES: clear
-#        with:
-#          configurePreset: ${{ matrix.preset }}-debug
-#          buildPreset: ${{ matrix.preset }}-debug
+      #      - name: CMake Build (Debug)
+      #        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
+      #        env:
+      #          VCPKG_BINARY_SOURCES: clear
+      #        with:
+      #          configurePreset: ${{ matrix.preset }}-debug
+      #          buildPreset: ${{ matrix.preset }}-debug
 
       - name: CMake Build (Debug)
         env:
@@ -123,19 +123,19 @@ jobs:
           echo "::group::Configure Project"
           ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug
           echo "::endgroup::"
-          
+
           echo "::group::Build Project"
           ${{ steps.cgroup.outputs.exec }} cmake --build -j 6 --preset ${{ matrix.preset }}-debug
           echo "::endgroup::"
 
-#      - name: CMake Build (Release)
-#        if: github.event.pull_request.merged == true
-#        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
-#        env:
-#          VCPKG_BINARY_SOURCES: clear
-#        with:
-#          configurePreset: ${{ matrix.preset }}-release
-#          buildPreset: ${{ matrix.preset }}-release
+      #      - name: CMake Build (Release)
+      #        if: github.event.pull_request.merged == true
+      #        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
+      #        env:
+      #          VCPKG_BINARY_SOURCES: clear
+      #        with:
+      #          configurePreset: ${{ matrix.preset }}-release
+      #          buildPreset: ${{ matrix.preset }}-release
 
       - name: CMake Build (Release)
         if: github.event.pull_request.merged == true
@@ -145,7 +145,7 @@ jobs:
           echo "::group::Configure Project"
           ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
-          
+
           echo "::group::Build Project"
           ${{ steps.cgroup.outputs.exec }} cmake --build -j 6 --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
@@ -156,7 +156,7 @@ jobs:
       #     run: tree /F build
 
       - name: Start the local node
-        run: npx hedera start --verbose=trace --detached --network-tag=0.52.3
+        run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
 
       - name: Start CTest suite (Debug)
         run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
