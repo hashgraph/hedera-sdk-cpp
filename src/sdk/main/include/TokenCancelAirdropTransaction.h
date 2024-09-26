@@ -68,7 +68,7 @@ public:
    *
    * @return A vector of Pending Airdrop Id objects.
    */
-  [[nodiscard]] const std::vector<PendingAirdropId>& getPendingAirdrops() const { return mPendingAirdrops; };
+  [[nodiscard]] std::vector<PendingAirdropId> getPendingAirdrops() const { return mPendingAirdrops; };
 
   /**
    * Set the Pending Airdrops to be claimed

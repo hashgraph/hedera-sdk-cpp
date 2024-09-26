@@ -61,6 +61,7 @@ public:
    *
    * @param sender The accountID of the sender.
    * @param receiver The accountID of the receiver.
+   * @param tokenId The tokenID of the pending airdrop.
    */
   explicit PendingAirdropId(AccountId sender, AccountId receiver, TokenId tokenId);
 
@@ -69,6 +70,7 @@ public:
    *
    * @param sender The accountID of the sender.
    * @param receiver The accountID of the receiver.
+   * @param tokenId The tokenID of the pending airdrop.
    */
   explicit PendingAirdropId(AccountId sender, AccountId receiver, NftId tokenId);
 
