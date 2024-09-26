@@ -44,8 +44,11 @@
 #include "ScheduleSignTransaction.h"
 #include "SystemDeleteTransaction.h"
 #include "SystemUndeleteTransaction.h"
+#include "TokenAirdropTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
+#include "TokenCancelAirdropTransaction.h"
+#include "TokenClaimAirdropTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
@@ -111,8 +114,11 @@ public:
                                               ScheduleSignTransaction,
                                               SystemDeleteTransaction,
                                               SystemUndeleteTransaction,
+                                              TokenAirdropTransaction,
                                               TokenAssociateTransaction,
                                               TokenBurnTransaction,
+                                              TokenCancelAirdropTransaction,
+                                              TokenClaimAirdropTransaction,
                                               TokenCreateTransaction,
                                               TokenDeleteTransaction,
                                               TokenDissociateTransaction,
