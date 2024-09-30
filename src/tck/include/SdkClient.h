@@ -186,7 +186,7 @@ nlohmann::json setup(const std::string& operatorAccountId,
  * @param stakedNodeId              The ID of the new desired node to which the account should stake.
  * @param declineStakingReward      Should the account now decline staking rewards?
  * @param commonTxParams            Any parameters common to all transaction types.
- * @return A JSON response containing the created account ID and the status of the account creation.
+ * @return A JSON response containing the status of the account update.
  */
 nlohmann::json updateAccount(const std::optional<std::string>& accountId,
                              const std::optional<std::string>& key,
@@ -199,6 +199,17 @@ nlohmann::json updateAccount(const std::optional<std::string>& accountId,
                              const std::optional<int64_t>& stakedNodeId,
                              const std::optional<bool>& declineStakingReward,
                              const std::optional<CommonTransactionParams>& commonTxParams);
+/**
+ * Update the fee schedule of a token.
+ *
+ * @param tokenId        The ID of the token of which to update the fee schedule.
+ * @param customFees     The desired new fees to assess for the token.
+ * @param commonTxParams Any parameters common to all transaction types.
+ * @return A JSON response containing the status of the fee schedule update.
+ */
+nlohmann::json updateTokenFeeSchedule(const std::optional<std::string>& tokenId,
+                                      const std::optional<std::vector<std::shared_ptr<CustomFee>>>& customFees,
+                                      const std::optional<CommonTransactionParams>& commonTxParams);
 
 } // namespace Hedera::TCK::SdkClient
 

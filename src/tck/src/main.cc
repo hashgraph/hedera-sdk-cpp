@@ -91,6 +91,9 @@ int main(int argc, char** argv)
                   "stakedNodeId",
                   "declineStakingReward",
                   "commonTransactionParams" });
+  tckServer.add("updateTokenFeeSchedule",
+                getHandle(&SdkClient::updateTokenFeeSchedule),
+                { "tokenId", "customFees", "commonTransactionParams" });
 
   // Start listening for requests.
   tckServer.startServer();
