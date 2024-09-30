@@ -20,6 +20,7 @@
 #ifndef HEDERA_TCK_CPP_JSON_TYPE_MAPPER_H_
 #define HEDERA_TCK_CPP_JSON_TYPE_MAPPER_H_
 
+#include "CustomFeeSerializer.h"
 #include "JsonErrorType.h"
 #include "JsonRpcException.h"
 
