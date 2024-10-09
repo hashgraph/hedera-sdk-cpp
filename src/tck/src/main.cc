@@ -47,6 +47,7 @@ int main(int argc, char** argv)
   tckServer.add("deleteAccount",
                 getHandle(&SdkClient::deleteAccount),
                 { "deleteAccountId", "transferAccountId", "commonTransactionParams" });
+  tckServer.add("deleteToken", getHandle(&SdkClient::deleteToken), { "tokenId", "commonTransactionParams" });
   tckServer.add("generateKey", getHandle(&SdkClient::generateKey), { "type", "fromKey", "threshold", "keys" });
   tckServer.add("setup",
                 getHandle(&SdkClient::setup),

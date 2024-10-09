@@ -28,6 +28,8 @@
 #include "KeyHelper.h"
 #include "PrivateKey.h"
 #include "Status.h"
+#include "TokenDeleteTransaction.h"
+#include "TokenId.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 #include "impl/HexConverter.h"
@@ -154,6 +156,28 @@ nlohmann::json SdkClient::deleteAccount(const std::optional<std::string>& delete
 
   return {
     {"status", gStatusToString.at(accountDeleteTransaction.execute(mClient).getReceipt(mClient).mStatus)}
+  };
+}
+
+//-----
+nlohmann::json SdkClient::deleteToken(const std::optional<std::string>& tokenId,
+                                      const std::optional<CommonTransactionParams>& commonTxParams)
+{
+  TokenDeleteTransaction tokenDeleteTransaction;
+  tokenDeleteTransaction.setGrpcDeadline(std::chrono::seconds(DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (tokenId.has_value())
+  {
+    tokenDeleteTransaction.setTokenId(TokenId::fromString(tokenId.value()));
+  }
+
+  if (commonTxParams.has_value())
+  {
+    commonTxParams->fillOutTransaction(tokenDeleteTransaction, mClient);
+  }
+
+  return {
+    {"status", gStatusToString.at(tokenDeleteTransaction.execute(mClient).getReceipt(mClient).mStatus)}
   };
 }
 

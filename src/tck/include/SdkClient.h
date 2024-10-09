@@ -71,6 +71,16 @@ nlohmann::json deleteAccount(const std::optional<std::string>& deleteAccountId,
                              const std::optional<CommonTransactionParams>& commonTxParams);
 
 /**
+ * Delete a token.
+ *
+ * @param tokenId        The ID of the token to delete.
+ * @param commonTxParams Any parameters common to all transaction types.
+ * @return A JSON response containing the status of the token deletion.
+ */
+nlohmann::json deleteToken(const std::optional<std::string>& tokenId,
+                           const std::optional<CommonTransactionParams>& commonTxParams);
+
+/**
  * Generate a Key.
  *
  * @param type      The type of Key to generate. It MUST be one of `ed25519PrivateKey`, `ed25519PublicKey`,
