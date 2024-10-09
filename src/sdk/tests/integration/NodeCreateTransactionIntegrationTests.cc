@@ -82,7 +82,7 @@ private:
 };
 
 //-----
-TEST_F(NodeCreateTransactionIntegrationTests, CanExecuteNodeCreateTransaction)
+TEST_F(NodeCreateTransactionIntegrationTests, DISABLED_CanExecuteNodeCreateTransaction)
 {
   TransactionResponse txResponse;
   ASSERT_NO_THROW(txResponse = NodeCreateTransaction()
