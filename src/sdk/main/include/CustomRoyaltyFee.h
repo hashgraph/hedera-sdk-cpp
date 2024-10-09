@@ -87,7 +87,6 @@ public:
    * @param denominator The desired denominator of the fractional amount of the transferred units to assess as a part of
    *                    this CustomRoyaltyFee.
    * @return A reference to this CustomRoyaltyFee object, with the newly-set denominator.
-   * @throws std::invalid_argument If the input denominator is 0.
    */
   CustomRoyaltyFee& setDenominator(const int64_t& denominator);
 

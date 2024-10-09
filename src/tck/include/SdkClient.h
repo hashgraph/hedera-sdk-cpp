@@ -21,6 +21,7 @@
 #define HEDERA_TCK_CPP_SDK_CLIENT_H_
 
 #include "CommonTransactionParams.h"
+#include "CustomFee.h"
 #include "KeyHelper.h"
 
 #include <nlohmann/json_fwd.hpp>
@@ -57,6 +58,64 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
                              const std::optional<bool>& declineStakingReward,
                              const std::optional<std::string>& alias,
                              const std::optional<CommonTransactionParams>& commonTxParams);
+
+/**
+ * Create a token.
+ *
+ * @param name               The name of the new token.
+ * @param symbol             The symbol of the new token.
+ * @param decimals           The number of decimal places by which the new token will be divisible.
+ * @param initialSupply      The number of tokens to put into circulation upon creation.
+ * @param treasureAccountId  The ID of the account which will act as the new token's treasury and will receive the
+ *                           specified initial supply of the new token.
+ * @param adminKey           The key which can perform update/delete operations on the new token.
+ * @param kycKey             The key which can grant/revoke KYC on an account for transactions of the new token.
+ * @param freezeKey          The key which can freeze/unfreeze an account for transactions of the new token.
+ * @param wipeKey            The key which can wipe the balance of the new token from an account.
+ * @param supplyKey          The key which can change the supply of the new token.
+ * @param freezeDefault      Should accounts initially be frozen with respect to the new token?
+ * @param expirationTime     The time at which the new token should expire.
+ * @param autoRenewAccountId The ID of the account that should be charged to renew the new token's expiration.
+ * @param autoRenewPeriod    The interval at which the auto renew account will be charged to extend the new token's
+ *                           expiration.
+ * @param memo               The memo associated with the token.
+ * @param tokenType          The type of the new token.
+ * @param supplyType         The supply type of the new token.
+ * @param maxSupply          The maximum amount of the new token that can be in circulation (for fungible types) or
+ *                           minted (for NFTs).
+ * @param feeScheduleKey     The key which can change the new token's fee schedule.
+ * @param customFees         The fees to be assessed during a transfer of the new token.
+ * @param pauseKey           The key which can pause/unpause the new token.
+ * @param metadata           The metadata of the new token.
+ * @param metadataKey        The key which can change the metadata of the new token and/or individual NFTs of the new
+ *                           token class.
+ * @param commonTxParams     Any parameters common to all transaction types.
+ * @return A JSON response containing the created token ID and the status of the token creation.
+ */
+nlohmann::json createToken(const std::optional<std::string>& name,
+                           const std::optional<std::string>& symbol,
+                           const std::optional<uint32_t>& decimals,
+                           const std::optional<uint64_t>& initialSupply,
+                           const std::optional<std::string>& treasuryAccountId,
+                           const std::optional<std::string>& adminKey,
+                           const std::optional<std::string>& kycKey,
+                           const std::optional<std::string>& freezeKey,
+                           const std::optional<std::string>& wipeKey,
+                           const std::optional<std::string>& supplyKey,
+                           const std::optional<bool>& freezeDefault,
+                           const std::optional<int64_t>& expirationTime,
+                           const std::optional<std::string>& autoRenewAccountId,
+                           const std::optional<int64_t>& autoRenewPeriod,
+                           const std::optional<std::string>& memo,
+                           const std::optional<std::string>& tokenType,
+                           const std::optional<std::string>& supplyType,
+                           const std::optional<int64_t>& maxSupply,
+                           const std::optional<std::string>& feeScheduleKey,
+                           const std::optional<std::vector<std::shared_ptr<CustomFee>>>& customFees,
+                           const std::optional<std::string>& pauseKey,
+                           const std::optional<std::string>& metadata,
+                           const std::optional<std::string>& metadataKey,
+                           const std::optional<CommonTransactionParams>& commonTxParams);
 
 /**
  * Delete an account.
