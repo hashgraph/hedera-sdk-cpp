@@ -346,7 +346,22 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
   { proto::ResponseCodeEnum::THROTTLED_AT_CONSENSUS,                                         Status::THROTTLED_AT_CONSENSUS                 },
   { proto::ResponseCodeEnum::INVALID_PENDING_AIRDROP_ID,                                     Status::INVALID_PENDING_AIRDROP_ID             },
   { proto::ResponseCodeEnum::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY,                            Status::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY    },
-  { proto::ResponseCodeEnum::INVALID_TOKEN_IN_PENDING_AIRDROP,                               Status::INVALID_TOKEN_IN_PENDING_AIRDROP       }
+  { proto::ResponseCodeEnum::INVALID_TOKEN_IN_PENDING_AIRDROP,                               Status::INVALID_TOKEN_IN_PENDING_AIRDROP       },
+  { proto::ResponseCodeEnum::NODE_DELETED,                                                   Status::NODE_DELETED                           },
+  { proto::ResponseCodeEnum::INVALID_NODE_ID,                                                Status::INVALID_NODE_ID                        },
+  { proto::ResponseCodeEnum::INVALID_GOSSIP_ENDPOINT,                                        Status::INVALID_GOSSIP_ENDPOINT                },
+  { proto::ResponseCodeEnum::INVALID_NODE_ACCOUNT_ID,                                        Status::INVALID_NODE_ACCOUNT_ID                },
+  { proto::ResponseCodeEnum::INVALID_NODE_DESCRIPTION,                                       Status::INVALID_NODE_DESCRIPTION               },
+  { proto::ResponseCodeEnum::INVALID_SERVICE_ENDPOINT,                                       Status::INVALID_SERVICE_ENDPOINT               },
+  { proto::ResponseCodeEnum::INVALID_GOSSIP_CA_CERTIFICATE,                                  Status::INVALID_GOSSIP_CA_CERTIFICATE          },
+  { proto::ResponseCodeEnum::INVALID_GRPC_CERTIFICATE,                                       Status::INVALID_GRPC_CERTIFICATE               },
+  { proto::ResponseCodeEnum::MAX_NODES_CREATED,                                              Status::MAX_NODES_CREATED                      },
+  { proto::ResponseCodeEnum::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT,                        
+   Status::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT                                                                                          },
+  { proto::ResponseCodeEnum::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN,                               Status::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN       },
+  { proto::ResponseCodeEnum::FQDN_SIZE_TOO_LARGE,                                            Status::FQDN_SIZE_TOO_LARGE                    },
+  { proto::ResponseCodeEnum::INVALID_ENDPOINT,                                               Status::INVALID_ENDPOINT                       },
+  { proto::ResponseCodeEnum::GOSSIP_ENDPOINTS_EXCEEDED_LIMIT,                                Status::GOSSIP_ENDPOINTS_EXCEEDED_LIMIT        }
 };
 
 //-----
@@ -672,7 +687,22 @@ const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufRespo
   { Status::THROTTLED_AT_CONSENSUS,                                         proto::ResponseCodeEnum::THROTTLED_AT_CONSENSUS                 },
   { Status::INVALID_PENDING_AIRDROP_ID,                                     proto::ResponseCodeEnum::INVALID_PENDING_AIRDROP_ID             },
   { Status::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY,                            proto::ResponseCodeEnum::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY    },
-  { Status::INVALID_TOKEN_IN_PENDING_AIRDROP,                               proto::ResponseCodeEnum::INVALID_TOKEN_IN_PENDING_AIRDROP       }
+  { Status::INVALID_TOKEN_IN_PENDING_AIRDROP,                               proto::ResponseCodeEnum::INVALID_TOKEN_IN_PENDING_AIRDROP       },
+  { Status::NODE_DELETED,                                                   proto::ResponseCodeEnum::NODE_DELETED                           },
+  { Status::INVALID_NODE_ID,                                                proto::ResponseCodeEnum::INVALID_NODE_ID                        },
+  { Status::INVALID_GOSSIP_ENDPOINT,                                        proto::ResponseCodeEnum::INVALID_GOSSIP_ENDPOINT                },
+  { Status::INVALID_NODE_ACCOUNT_ID,                                        proto::ResponseCodeEnum::INVALID_NODE_ACCOUNT_ID                },
+  { Status::INVALID_NODE_DESCRIPTION,                                       proto::ResponseCodeEnum::INVALID_NODE_DESCRIPTION               },
+  { Status::INVALID_SERVICE_ENDPOINT,                                       proto::ResponseCodeEnum::INVALID_SERVICE_ENDPOINT               },
+  { Status::INVALID_GOSSIP_CA_CERTIFICATE,                                  proto::ResponseCodeEnum::INVALID_GOSSIP_CA_CERTIFICATE          },
+  { Status::INVALID_GRPC_CERTIFICATE,                                       proto::ResponseCodeEnum::INVALID_GRPC_CERTIFICATE               },
+  { Status::MAX_NODES_CREATED,                                              proto::ResponseCodeEnum::MAX_NODES_CREATED                      },
+  { Status::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT,                        
+   proto::ResponseCodeEnum::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT                                                                         },
+  { Status::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN,                               proto::ResponseCodeEnum::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN       },
+  { Status::FQDN_SIZE_TOO_LARGE,                                            proto::ResponseCodeEnum::FQDN_SIZE_TOO_LARGE                    },
+  { Status::INVALID_ENDPOINT,                                               proto::ResponseCodeEnum::INVALID_ENDPOINT                       },
+  { Status::GOSSIP_ENDPOINTS_EXCEEDED_LIMIT,                                proto::ResponseCodeEnum::GOSSIP_ENDPOINTS_EXCEEDED_LIMIT        }
 };
 
 //-----
@@ -980,7 +1010,21 @@ const std::unordered_map<Status, std::string> gStatusToString = {
   { Status::THROTTLED_AT_CONSENSUS,                                         "THROTTLED_AT_CONSENSUS"                            },
   { Status::INVALID_PENDING_AIRDROP_ID,                                     "INVALID_PENDING_AIRDROP_ID"                        },
   { Status::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY,                            "TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY"               },
-  { Status::INVALID_TOKEN_IN_PENDING_AIRDROP,                               "INVALID_TOKEN_IN_PENDING_AIRDROP"                  }
+  { Status::INVALID_TOKEN_IN_PENDING_AIRDROP,                               "INVALID_TOKEN_IN_PENDING_AIRDROP"                  },
+  { Status::NODE_DELETED,                                                   "NODE_DELETED"                                      },
+  { Status::INVALID_NODE_ID,                                                "INVALID_NODE_ID"                                   },
+  { Status::INVALID_GOSSIP_ENDPOINT,                                        "INVALID_GOSSIP_ENDPOINT"                           },
+  { Status::INVALID_NODE_ACCOUNT_ID,                                        "INVALID_NODE_ACCOUNT_ID"                           },
+  { Status::INVALID_NODE_DESCRIPTION,                                       "INVALID_NODE_DESCRIPTION"                          },
+  { Status::INVALID_SERVICE_ENDPOINT,                                       "INVALID_SERVICE_ENDPOINT"                          },
+  { Status::INVALID_GOSSIP_CA_CERTIFICATE,                                  "INVALID_GOSSIP_CA_CERTIFICATE"                     },
+  { Status::INVALID_GRPC_CERTIFICATE,                                       "INVALID_GRPC_CERTIFICATE"                          },
+  { Status::MAX_NODES_CREATED,                                              "MAX_NODES_CREATED"                                 },
+  { Status::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT,                        "IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT"           },
+  { Status::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN,                               "GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN"                  },
+  { Status::FQDN_SIZE_TOO_LARGE,                                            "FQDN_SIZE_TOO_LARGE"                               },
+  { Status::INVALID_ENDPOINT,                                               "INVALID_ENDPOINT"                                  },
+  { Status::GOSSIP_ENDPOINTS_EXCEEDED_LIMIT,                                "GOSSIP_ENDPOINTS_EXCEEDED_LIMIT"                   }
 };
 
 } // namespace Hedera

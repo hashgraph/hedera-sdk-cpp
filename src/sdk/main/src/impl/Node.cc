@@ -149,6 +149,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mFileStub->updateFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFreeze:
       return mFreezeStub->freeze(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kNodeCreate:
+      return mFreezeStub->freeze(&context, transaction, response);
     case proto::TransactionBody::DataCase::kScheduleCreate:
       return mScheduleStub->createSchedule(&context, transaction, response);
     case proto::TransactionBody::DataCase::kScheduleDelete:
