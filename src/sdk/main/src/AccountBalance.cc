@@ -30,6 +30,12 @@ AccountBalance AccountBalance::fromProtobuf(const proto::CryptoGetAccountBalance
 {
   AccountBalance balance;
   balance.mBalance = Hbar(static_cast<int64_t>(proto.balance()), HbarUnit::TINYBAR());
+
+  for (auto it = proto.tokenbalances().begin(); it != proto.tokenbalances().end(); it++)
+  {
+    balance.mTokens.insert({ TokenId::fromProtobuf(it->tokenid()), it->balance() });
+  }
+
   return balance;
 }
 

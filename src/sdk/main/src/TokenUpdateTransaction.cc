@@ -21,6 +21,7 @@
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
+#include "impl/Utilities.h"
 
 #include <grpcpp/client_context.h>
 #include <proto/token_update.pb.h>
@@ -167,6 +168,30 @@ TokenUpdateTransaction& TokenUpdateTransaction::setPauseKey(const std::shared_pt
 }
 
 //-----
+TokenUpdateTransaction& TokenUpdateTransaction::setMetadata(const std::vector<std::byte>& metadata)
+{
+  requireNotFrozen();
+  mMetadata = metadata;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setMetadataKey(const std::shared_ptr<Key>& key)
+{
+  requireNotFrozen();
+  mMetadataKey = key;
+  return *this;
+}
+
+//-----
+TokenUpdateTransaction& TokenUpdateTransaction::setTokenVerificationMode(TokenKeyValidation mode)
+{
+  requireNotFrozen();
+  mKeyVerificationMode = mode;
+  return *this;
+}
+
+//-----
 grpc::Status TokenUpdateTransaction::submitRequest(const proto::Transaction& request,
                                                    const std::shared_ptr<internal::Node>& node,
                                                    const std::chrono::system_clock::time_point& deadline,
@@ -276,6 +301,15 @@ void TokenUpdateTransaction::initFromSourceTransactionBody()
   {
     mPauseKey = Key::fromProtobuf(body.pause_key());
   }
+
+  mMetadata = internal::Utilities::stringToByteVector(body.metadata().value());
+
+  if (body.has_metadata_key())
+  {
+    mMetadataKey = Key::fromProtobuf(body.metadata_key());
+  }
+
+  mKeyVerificationMode = gProtobufTokenKeyValidationToTokenKeyValidation.at(body.key_verification_mode());
 }
 
 //-----
@@ -353,6 +387,18 @@ proto::TokenUpdateTransactionBody* TokenUpdateTransaction::build() const
   {
     body->set_allocated_pause_key(mPauseKey->toProtobufKey().release());
   }
+
+  if (!mMetadata.empty())
+  {
+    body->mutable_metadata()->set_value(internal::Utilities::byteVectorToString(mMetadata));
+  }
+
+  if (mMetadataKey)
+  {
+    body->set_allocated_metadata_key(mMetadataKey->toProtobufKey().release());
+  }
+
+  body->set_key_verification_mode(gTokenKeyValidationToProtobufTokenKeyValidation.at(mKeyVerificationMode));
 
   return body.release();
 }

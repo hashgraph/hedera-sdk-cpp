@@ -98,6 +98,7 @@ const std::unordered_map<proto::HederaFunctionality, RequestType> gProtobufHeder
   { proto::HederaFunctionality::EthereumTransaction,        RequestType::ETHEREUM_TRANSACTION         },
   { proto::HederaFunctionality::NodeStakeUpdate,            RequestType::NODE_STAKE_UPDATE            },
   { proto::HederaFunctionality::UtilPrng,                   RequestType::UTIL_PRNG                    },
+  { proto::HederaFunctionality::TokenUpdateNfts,            RequestType::TOKEN_UPDATE_NFTS            },
 };
 
 //-----
@@ -174,7 +175,8 @@ const std::unordered_map<RequestType, proto::HederaFunctionality> gRequestTypeTo
   { RequestType::GET_ACCOUNT_DETAILS,           proto::HederaFunctionality::GetAccountDetails         },
   { RequestType::ETHEREUM_TRANSACTION,          proto::HederaFunctionality::EthereumTransaction       },
   { RequestType::NODE_STAKE_UPDATE,             proto::HederaFunctionality::NodeStakeUpdate           },
-  { RequestType::UTIL_PRNG,                     proto::HederaFunctionality::UtilPrng                  }
+  { RequestType::UTIL_PRNG,                     proto::HederaFunctionality::UtilPrng                  },
+  { RequestType::TOKEN_UPDATE_NFTS,             proto::HederaFunctionality::TokenUpdateNfts           },
 };
 
 //-----
@@ -251,7 +253,8 @@ const std::unordered_map<RequestType, std::string> gRequestTypeToString = {
   { RequestType::GET_ACCOUNT_DETAILS,           "GET_ACCOUNT_DETAILS"          },
   { RequestType::ETHEREUM_TRANSACTION,          "ETHEREUM_TRANSACTION"         },
   { RequestType::NODE_STAKE_UPDATE,             "NODE_STAKE_UPDATE"            },
-  { RequestType::UTIL_PRNG,                     "UTIL_PRNG"                    }
+  { RequestType::UTIL_PRNG,                     "UTIL_PRNG"                    },
+  { RequestType::TOKEN_UPDATE_NFTS,             "TOKEN_UPDATE_NFTS"            },
 };
 
 } // namespace Hedera

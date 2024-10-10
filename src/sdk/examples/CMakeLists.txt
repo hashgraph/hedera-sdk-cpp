@@ -30,6 +30,7 @@ set(EXEMPT_CUSTOM_FEES_EXAMPLE_NAME ${PROJECT_NAME}-exempt-custom-fees-example)
 set(FILE_APPEND_CHUNKED_EXAMPLE_NAME ${PROJECT_NAME}-file-append-chunked-example)
 set(GENERATE_KEY_EXAMPLE_NAME ${PROJECT_NAME}-generate-key-example)
 set(GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME ${PROJECT_NAME}-generate-private-key-from-mnemonic-example)
+set(GENERATE_PRIVATE_KEY_FROM_SPECIFIC_MNEMONIC_EXAMPLE_NAME ${PROJECT_NAME}-generate-private-key-from-specific-mnemonic-example)
 set(GET_ACCOUNT_BALANCE_EXAMPLE_NAME ${PROJECT_NAME}-get-account-balance-example)
 set(GET_ACCOUNT_INFO_EXAMPLE_NAME ${PROJECT_NAME}-get-account-info-example)
 set(GET_ADDRESS_BOOK_EXAMPLE_NAME ${PROJECT_NAME}-get-address-book-example)
@@ -48,6 +49,9 @@ set(SIGN_TRANSACTION_EXAMPLE_NAME ${PROJECT_NAME}-sign-transaction-example)
 set(SOLIDITY_PRECOMPILE_EXAMPLE_NAME ${PROJECT_NAME}-solidity-precompile-example)
 set(STAKING_EXAMPLE_NAME ${PROJECT_NAME}-staking-example)
 set(STAKING_WITH_UPDATE_EXAMPLE_NAME ${PROJECT_NAME}-staking-with-update-example)
+set(TOKEN_AIRDROP_EXAMPLE_NAME ${PROJECT_NAME}-token-airdrop-example)
+set(TOKEN_CREATE_FREEZE_DELETE_EXAMPLE_NAME ${PROJECT_NAME}-token-create-freeze-delete-example)
+set(TOKEN_METADATA_EXAMPLE_NAME ${PROJECT_NAME}-token-metadata-example)
 set(TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME ${PROJECT_NAME}-topic-with-admin-key-example)
 set(TRANSFER_CRYPTO_EXAMPLE_NAME ${PROJECT_NAME}-transfer-crypto-example)
 set(TRANSFER_TOKENS_EXAMPLE_NAME ${PROJECT_NAME}-transfer-tokens-example)
@@ -79,7 +83,8 @@ add_executable(${DELETE_FILE_EXAMPLE_NAME} DeleteFileExample.cc)
 add_executable(${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME} ExemptCustomFeesExample.cc)
 add_executable(${FILE_APPEND_CHUNKED_EXAMPLE_NAME} FileAppendChunkedExample.cc)
 add_executable(${GENERATE_KEY_EXAMPLE_NAME} GenerateKeyExample.cc)
-add_executable(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} GeneratePrivateKeyFromMnemonic.cc)
+add_executable(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} GeneratePrivateKeyFromMnemonicExample.cc)
+add_executable(${GENERATE_PRIVATE_KEY_FROM_SPECIFIC_MNEMONIC_EXAMPLE_NAME} GeneratePrivateKeyFromSpecificMnemonicExample.cc)
 add_executable(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} GetAccountBalanceExample.cc)
 add_executable(${GET_ACCOUNT_INFO_EXAMPLE_NAME} GetAccountInfoExample.cc)
 add_executable(${GET_ADDRESS_BOOK_EXAMPLE_NAME} GetAddressBookExample.cc)
@@ -98,6 +103,9 @@ add_executable(${SIGN_TRANSACTION_EXAMPLE_NAME} SignTransactionExample.cc)
 add_executable(${SOLIDITY_PRECOMPILE_EXAMPLE_NAME} SolidityPrecompileExample.cc)
 add_executable(${STAKING_EXAMPLE_NAME} StakingExample.cc)
 add_executable(${STAKING_WITH_UPDATE_EXAMPLE_NAME} StakingWithUpdateExample.cc)
+add_executable(${TOKEN_AIRDROP_EXAMPLE_NAME} TokenAirdropExample.cc)
+add_executable(${TOKEN_CREATE_FREEZE_DELETE_EXAMPLE_NAME} TokenCreateFreezeDeleteExample.cc)
+add_executable(${TOKEN_METADATA_EXAMPLE_NAME} TokenMetadataExample.cc)
 add_executable(${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME} TopicWithAdminKeyExample.cc)
 add_executable(${TRANSFER_CRYPTO_EXAMPLE_NAME} TransferCryptoExample.cc)
 add_executable(${TRANSFER_TOKENS_EXAMPLE_NAME} TransferTokensExample.cc)
@@ -152,6 +160,7 @@ target_link_libraries(${EXEMPT_CUSTOM_FEES_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${FILE_APPEND_CHUNKED_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GENERATE_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${GENERATE_PRIVATE_KEY_FROM_SPECIFIC_MNEMONIC_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ACCOUNT_BALANCE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ACCOUNT_INFO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${GET_ADDRESS_BOOK_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -170,6 +179,9 @@ target_link_libraries(${SIGN_TRANSACTION_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${SOLIDITY_PRECOMPILE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${STAKING_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${STAKING_WITH_UPDATE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${TOKEN_AIRDROP_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${TOKEN_CREATE_FREEZE_DELETE_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
+target_link_libraries(${TOKEN_METADATA_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_CRYPTO_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 target_link_libraries(${TRANSFER_TOKENS_EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
@@ -204,6 +216,7 @@ install(TARGETS
         ${FILE_APPEND_CHUNKED_EXAMPLE_NAME}
         ${GENERATE_KEY_EXAMPLE_NAME}
         ${GENERATE_PRIVATE_KEY_FROM_MNEMONIC_EXAMPLE_NAME}
+        ${GENERATE_PRIVATE_KEY_FROM_SPECIFIC_MNEMONIC_EXAMPLE_NAME}
         ${GET_ACCOUNT_BALANCE_EXAMPLE_NAME}
         ${GET_ACCOUNT_INFO_EXAMPLE_NAME}
         ${GET_ADDRESS_BOOK_EXAMPLE_NAME}
@@ -222,6 +235,7 @@ install(TARGETS
         ${SOLIDITY_PRECOMPILE_EXAMPLE_NAME}
         ${STAKING_EXAMPLE_NAME}
         ${STAKING_WITH_UPDATE_EXAMPLE_NAME}
+        ${TOKEN_AIRDROP_EXAMPLE_NAME}
         ${TOPIC_WITH_ADMIN_KEY_EXAMPLE_NAME}
         ${TRANSFER_CRYPTO_EXAMPLE_NAME}
         ${TRANSFER_TOKENS_EXAMPLE_NAME}

@@ -78,6 +78,12 @@ ContractInfo ContractInfo::fromProtobuf(const proto::ContractGetInfoResponse_Con
     contractInfo.mStakingInfo = StakingInfo::fromProtobuf(proto.staking_info());
   }
 
+  for (auto it = proto.tokenrelationships().begin(); it != proto.tokenrelationships().end(); it++)
+  {
+    contractInfo.mTokenRelationships.insert(
+      { TokenId::fromProtobuf(it->tokenid()), TokenRelationship::fromProtobuf(*it) });
+  }
+
   return contractInfo;
 }
 
@@ -117,6 +123,12 @@ std::unique_ptr<proto::ContractGetInfoResponse_ContractInfo> ContractInfo::toPro
 
   proto->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
   proto->set_allocated_staking_info(mStakingInfo.toProtobuf().release());
+
+  for (auto tr : mTokenRelationships)
+  {
+    proto->mutable_tokenrelationships()->AddAllocated(tr.second.toProtobuf().release());
+  }
+
   return proto;
 }
 

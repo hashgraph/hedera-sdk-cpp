@@ -330,7 +330,23 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
   { proto::ResponseCodeEnum::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES },
   { proto::ResponseCodeEnum::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 Status::TRANSACTION_HAS_UNKNOWN_FIELDS         },
   { proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE,                                           Status::ACCOUNT_IS_IMMUTABLE                   },
-  { proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED,                                         Status::ALIAS_ALREADY_ASSIGNED                 }
+  { proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED,                                         Status::ALIAS_ALREADY_ASSIGNED                 },
+  { proto::ResponseCodeEnum::INVALID_METADATA_KEY,                                           Status::INVALID_METADATA_KEY                   },
+  { proto::ResponseCodeEnum::MISSING_TOKEN_METADATA,                                         Status::MISSING_TOKEN_METADATA                 },
+  { proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS,                                         Status::MISSING_SERIAL_NUMBERS                 },
+  { proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS,                                  Status::INVALID_MAX_AUTO_ASSOCIATIONS          },
+  { proto::ResponseCodeEnum::TOKEN_REFERENCE_REPEATED,                                       Status::TOKEN_REFERENCE_REPEATED               },
+  { proto::ResponseCodeEnum::INVALID_OWNER_ID,                                               Status::INVALID_OWNER_ID                       },
+  { proto::ResponseCodeEnum::EMPTY_TOKEN_REFERENCE_LIST,                                     Status::EMPTY_TOKEN_REFERENCE_LIST             },
+  { proto::ResponseCodeEnum::EMPTY_PENDING_AIRDROP_ID_LIST,                                  Status::EMPTY_PENDING_AIRDROP_ID_LIST          },
+  { proto::ResponseCodeEnum::PENDING_AIRDROP_ID_REPEATED,                                    Status::PENDING_AIRDROP_ID_REPEATED            },
+  { proto::ResponseCodeEnum::PENDING_AIRDROP_ID_LIST_TOO_LONG,                               Status::PENDING_AIRDROP_ID_LIST_TOO_LONG       },
+  { proto::ResponseCodeEnum::PENDING_NFT_AIRDROP_ALREADY_EXISTS,                             Status::PENDING_NFT_AIRDROP_ALREADY_EXISTS     },
+  { proto::ResponseCodeEnum::ACCOUNT_HAS_PENDING_AIRDROPS,                                   Status::ACCOUNT_HAS_PENDING_AIRDROPS           },
+  { proto::ResponseCodeEnum::THROTTLED_AT_CONSENSUS,                                         Status::THROTTLED_AT_CONSENSUS                 },
+  { proto::ResponseCodeEnum::INVALID_PENDING_AIRDROP_ID,                                     Status::INVALID_PENDING_AIRDROP_ID             },
+  { proto::ResponseCodeEnum::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY,                            Status::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY    },
+  { proto::ResponseCodeEnum::INVALID_TOKEN_IN_PENDING_AIRDROP,                               Status::INVALID_TOKEN_IN_PENDING_AIRDROP       }
 };
 
 //-----
@@ -641,6 +657,22 @@ const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufRespo
   { Status::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 proto::ResponseCodeEnum::TRANSACTION_HAS_UNKNOWN_FIELDS         },
   { Status::ACCOUNT_IS_IMMUTABLE,                                           proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE                   },
   { Status::ALIAS_ALREADY_ASSIGNED,                                         proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED                 },
+  { Status::INVALID_METADATA_KEY,                                           proto::ResponseCodeEnum::INVALID_METADATA_KEY                   },
+  { Status::MISSING_TOKEN_METADATA,                                         proto::ResponseCodeEnum::MISSING_TOKEN_METADATA                 },
+  { Status::MISSING_SERIAL_NUMBERS,                                         proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS                 },
+  { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS          },
+  { Status::TOKEN_REFERENCE_REPEATED,                                       proto::ResponseCodeEnum::TOKEN_REFERENCE_REPEATED               },
+  { Status::INVALID_OWNER_ID,                                               proto::ResponseCodeEnum::INVALID_OWNER_ID                       },
+  { Status::EMPTY_TOKEN_REFERENCE_LIST,                                     proto::ResponseCodeEnum::EMPTY_TOKEN_REFERENCE_LIST             },
+  { Status::EMPTY_PENDING_AIRDROP_ID_LIST,                                  proto::ResponseCodeEnum::EMPTY_PENDING_AIRDROP_ID_LIST          },
+  { Status::PENDING_AIRDROP_ID_REPEATED,                                    proto::ResponseCodeEnum::PENDING_AIRDROP_ID_REPEATED            },
+  { Status::PENDING_AIRDROP_ID_LIST_TOO_LONG,                               proto::ResponseCodeEnum::PENDING_AIRDROP_ID_LIST_TOO_LONG       },
+  { Status::PENDING_NFT_AIRDROP_ALREADY_EXISTS,                             proto::ResponseCodeEnum::PENDING_NFT_AIRDROP_ALREADY_EXISTS     },
+  { Status::ACCOUNT_HAS_PENDING_AIRDROPS,                                   proto::ResponseCodeEnum::ACCOUNT_HAS_PENDING_AIRDROPS           },
+  { Status::THROTTLED_AT_CONSENSUS,                                         proto::ResponseCodeEnum::THROTTLED_AT_CONSENSUS                 },
+  { Status::INVALID_PENDING_AIRDROP_ID,                                     proto::ResponseCodeEnum::INVALID_PENDING_AIRDROP_ID             },
+  { Status::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY,                            proto::ResponseCodeEnum::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY    },
+  { Status::INVALID_TOKEN_IN_PENDING_AIRDROP,                               proto::ResponseCodeEnum::INVALID_TOKEN_IN_PENDING_AIRDROP       }
 };
 
 //-----
@@ -932,7 +964,23 @@ const std::unordered_map<Status, std::string> gStatusToString = {
   { Status::INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES,                         "INSUFFICIENT_BALANCES_FOR_RENEWAL_FEES"            },
   { Status::TRANSACTION_HAS_UNKNOWN_FIELDS,                                 "TRANSACTION_HAS_UNKNOWN_FIELDS"                    },
   { Status::ACCOUNT_IS_IMMUTABLE,                                           "ACCOUNT_IS_IMMUTABLE"                              },
-  { Status::ALIAS_ALREADY_ASSIGNED,                                         "ALIAS_ALREADY_ASSIGNED"                            }
+  { Status::ALIAS_ALREADY_ASSIGNED,                                         "ALIAS_ALREADY_ASSIGNED"                            },
+  { Status::INVALID_METADATA_KEY,                                           "INVALID_METADATA_KEY"                              },
+  { Status::MISSING_TOKEN_METADATA,                                         "MISSING_TOKEN_METADATA"                            },
+  { Status::MISSING_SERIAL_NUMBERS,                                         "MISSING_SERIAL_NUMBERS"                            },
+  { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  "INVALID_MAX_AUTO_ASSOCIATIONS"                     },
+  { Status::TOKEN_REFERENCE_REPEATED,                                       "TOKEN_REFERENCE_REPEATED"                          },
+  { Status::INVALID_OWNER_ID,                                               "INVALID_OWNER_ID"                                  },
+  { Status::EMPTY_TOKEN_REFERENCE_LIST,                                     "EMPTY_TOKEN_REFERENCE_LIST"                        },
+  { Status::EMPTY_PENDING_AIRDROP_ID_LIST,                                  "EMPTY_PENDING_AIRDROP_ID_LIST"                     },
+  { Status::PENDING_AIRDROP_ID_REPEATED,                                    "PENDING_AIRDROP_ID_REPEATED"                       },
+  { Status::PENDING_AIRDROP_ID_LIST_TOO_LONG,                               "PENDING_AIRDROP_ID_LIST_TOO_LONG"                  },
+  { Status::PENDING_NFT_AIRDROP_ALREADY_EXISTS,                             "PENDING_NFT_AIRDROP_ALREADY_EXISTS"                },
+  { Status::ACCOUNT_HAS_PENDING_AIRDROPS,                                   "ACCOUNT_HAS_PENDING_AIRDROPS"                      },
+  { Status::THROTTLED_AT_CONSENSUS,                                         "THROTTLED_AT_CONSENSUS"                            },
+  { Status::INVALID_PENDING_AIRDROP_ID,                                     "INVALID_PENDING_AIRDROP_ID"                        },
+  { Status::TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY,                            "TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY"               },
+  { Status::INVALID_TOKEN_IN_PENDING_AIRDROP,                               "INVALID_TOKEN_IN_PENDING_AIRDROP"                  }
 };
 
 } // namespace Hedera

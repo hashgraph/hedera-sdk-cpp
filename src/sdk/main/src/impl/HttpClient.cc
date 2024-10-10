@@ -18,6 +18,8 @@
  *
  */
 
+#include "exceptions/CURLException.h"
+
 #include "impl/HttpClient.h"
 
 namespace Hedera::internal
@@ -26,7 +28,7 @@ HttpClient::HttpClient()
 {
   if (curl_global_init(CURL_GLOBAL_DEFAULT) != 0)
   {
-    throw std::runtime_error("Failed to initialize libcurl");
+    throw CURLException("Failed to initialize libcurl!");
   }
 }
 
@@ -48,7 +50,7 @@ std::string HttpClient::invokeREST(const std::string& url,
 
   if (!curl)
   {
-    throw std::runtime_error("CURL initialization failed");
+    throw CURLException("CURL initialization failed!");
   }
 
   curl_easy_setopt(curl.get(), CURLOPT_URL, url.c_str());
@@ -68,7 +70,7 @@ std::string HttpClient::invokeREST(const std::string& url,
   CURLcode res = curl_easy_perform(curl.get());
   if (res != CURLE_OK)
   {
-    throw std::runtime_error(std::string("Error getting curl result: ") + curl_easy_strerror(res));
+    throw CURLException(std::string("Error getting curl result: ") + curl_easy_strerror(res));
   }
 
   return response;
@@ -81,7 +83,7 @@ std::string HttpClient::invokeRPC(const std::string& url, const std::string& rpc
   std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl(curl_easy_init(), curl_easy_cleanup);
   if (!curl)
   {
-    throw std::runtime_error("Failed to initialize libcurl");
+    throw CURLException("Failed to initialize libcurl");
   }
 
   curl_easy_setopt(curl.get(), CURLOPT_URL, url.c_str());
@@ -101,7 +103,7 @@ std::string HttpClient::invokeRPC(const std::string& url, const std::string& rpc
   CURLcode res = curl_easy_perform(curl.get());
   if (res != CURLE_OK)
   {
-    throw std::runtime_error(std::string("Error getting curl result! ") + curl_easy_strerror(res));
+    throw CURLException(std::string("Error getting curl result! ") + curl_easy_strerror(res));
   }
 
   return response;

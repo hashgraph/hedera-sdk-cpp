@@ -101,6 +101,11 @@ add_library(${PROJECT_NAME} STATIC
         src/NftId.cc
         src/NodeAddress.cc
         src/NodeAddressBook.cc
+        src/NodeCreateTransaction.cc
+        src/NodeDeleteTransaction.cc
+        src/NodeUpdateTransaction.cc
+        src/PendingAirdropId.cc
+        src/PendingAirdropRecord.cc
         src/PrivateKey.cc
         src/PrngTransaction.cc
         src/ProxyStaker.cc
@@ -119,10 +124,13 @@ add_library(${PROJECT_NAME} STATIC
         src/SubscriptionHandle.cc
         src/SystemDeleteTransaction.cc
         src/SystemUndeleteTransaction.cc
+        src/TokenAirdropTransaction.cc
         src/TokenAllowance.cc
         src/TokenAssociateTransaction.cc
         src/TokenAssociation.cc
         src/TokenBurnTransaction.cc
+        src/TokenCancelAirdropTransaction.cc
+        src/TokenClaimAirdropTransaction.cc
         src/TokenCreateTransaction.cc
         src/TokenDeleteTransaction.cc
         src/TokenDissociateTransaction.cc
@@ -132,18 +140,23 @@ add_library(${PROJECT_NAME} STATIC
         src/TokenId.cc
         src/TokenInfo.cc
         src/TokenInfoQuery.cc
+        src/TokenKeyValidation.cc
         src/TokenMintTransaction.cc
         src/TokenNftAllowance.cc
         src/TokenNftInfo.cc
         src/TokenNftInfoQuery.cc
         src/TokenNftTransfer.cc
         src/TokenPauseTransaction.cc
+        src/TokenRejectFlow.cc
+        src/TokenRejectTransaction.cc
+        src/TokenRelationship.cc
         src/TokenRevokeKycTransaction.cc
         src/TokenSupplyType.cc
         src/TokenTransfer.cc
         src/TokenType.cc
         src/TokenUnfreezeTransaction.cc
         src/TokenUnpauseTransaction.cc
+        src/TokenUpdateNftsTransaction.cc
         src/TokenUpdateTransaction.cc
         src/TokenWipeTransaction.cc
         src/TopicCreateTransaction.cc
@@ -183,6 +196,8 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/HttpClient.cc
         src/impl/MirrorNetwork.cc
         src/impl/MirrorNode.cc
+        src/impl/MirrorNodeGateway.cc
+        src/impl/MirrorNodeRouter.cc
         src/impl/Network.cc
         src/impl/Node.cc
         src/impl/OpenSSLUtils.cc

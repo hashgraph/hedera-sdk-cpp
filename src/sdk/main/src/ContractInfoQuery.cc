@@ -17,14 +17,20 @@
  * limitations under the License.
  *
  */
-#include "ContractInfoQuery.h"
+#include <proto/contract_get_info.pb.h>
+
 #include "ContractInfo.h"
+#include "ContractInfoQuery.h"
+#include "impl/MirrorNodeGateway.h"
 #include "impl/Node.h"
 
-#include <proto/contract_get_info.pb.h>
 #include <proto/query.pb.h>
 #include <proto/query_header.pb.h>
 #include <proto/response.pb.h>
+
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace Hedera
 {
@@ -38,7 +44,8 @@ ContractInfoQuery& ContractInfoQuery::setContractId(const ContractId& contractId
 //-----
 ContractInfo ContractInfoQuery::mapResponse(const proto::Response& response) const
 {
-  return ContractInfo::fromProtobuf(response.contractgetinfo().contractinfo());
+  ContractInfo contractInfo = ContractInfo::fromProtobuf(response.contractgetinfo().contractinfo());
+  return contractInfo;
 }
 
 //-----

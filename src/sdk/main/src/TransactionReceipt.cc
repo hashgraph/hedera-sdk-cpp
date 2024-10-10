@@ -119,6 +119,8 @@ TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionRece
     receipt.mSerialNumbers.push_back(static_cast<uint64_t>(proto.serialnumbers(i)));
   }
 
+  receipt.mNodeId = proto.node_id();
+
   return receipt;
 }
 
@@ -194,6 +196,11 @@ std::unique_ptr<proto::TransactionReceipt> TransactionReceipt::toProtobuf() cons
   std::for_each(mSerialNumbers.cbegin(),
                 mSerialNumbers.cend(),
                 [&proto](uint64_t num) { proto->add_serialnumbers(static_cast<int64_t>(num)); });
+
+  if (mNodeId.has_value())
+  {
+    proto->set_node_id(mNodeId.value());
+  }
 
   return proto;
 }
@@ -277,6 +284,11 @@ std::string TransactionReceipt::toString() const
   std::for_each(mChildren.cbegin(),
                 mChildren.cend(),
                 [&json](const TransactionReceipt& receipt) { json["mChildren"].push_back(receipt.toString()); });
+
+  if (mNodeId.has_value())
+  {
+    json["mNodeId"] = mNodeId.value();
+  }
 
   return json.dump();
 }

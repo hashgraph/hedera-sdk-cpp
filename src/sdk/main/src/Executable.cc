@@ -51,6 +51,9 @@
 #include "FreezeTransaction.h"
 #include "NetworkVersionInfo.h"
 #include "NetworkVersionInfoQuery.h"
+#include "NodeCreateTransaction.h"
+#include "NodeDeleteTransaction.h"
+#include "NodeUpdateTransaction.h"
 #include "PrngTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
@@ -59,8 +62,11 @@
 #include "ScheduleSignTransaction.h"
 #include "SystemDeleteTransaction.h"
 #include "SystemUndeleteTransaction.h"
+#include "TokenAirdropTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
+#include "TokenCancelAirdropTransaction.h"
+#include "TokenClaimAirdropTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
@@ -73,9 +79,11 @@
 #include "TokenNftInfo.h"
 #include "TokenNftInfoQuery.h"
 #include "TokenPauseTransaction.h"
+#include "TokenRejectTransaction.h"
 #include "TokenRevokeKycTransaction.h"
 #include "TokenUnfreezeTransaction.h"
 #include "TokenUnpauseTransaction.h"
+#include "TokenUpdateNftsTransaction.h"
 #include "TokenUpdateTransaction.h"
 #include "TokenWipeTransaction.h"
 #include "TopicCreateTransaction.h"
@@ -116,7 +124,6 @@ SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, 
 {
   return execute(client, client.getRequestTimeout());
 }
-
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
 SdkResponseType Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponseType>::execute(
@@ -472,6 +479,7 @@ void Executable<SdkRequestType, ProtoRequestType, ProtoResponseType, SdkResponse
   mCurrentGrpcDeadline = mGrpcDeadline.has_value()              ? mGrpcDeadline.value()
                          : client.getGrpcDeadline().has_value() ? client.getGrpcDeadline().value()
                                                                 : DEFAULT_GRPC_DEADLINE;
+  mMirrorNodeIds = client.getMirrorNetwork();
 }
 
 //-----
@@ -615,6 +623,9 @@ template class Executable<FileInfoQuery, proto::Query, proto::Response, FileInfo
 template class Executable<FileUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<FreezeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<NetworkVersionInfoQuery, proto::Query, proto::Response, NetworkVersionInfo>;
+template class Executable<NodeCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<NodeDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<NodeUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<PrngTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<ScheduleCreateTransaction,
                           proto::Transaction,
@@ -631,11 +642,20 @@ template class Executable<SystemUndeleteTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+template class Executable<TokenAirdropTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenAssociateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
 template class Executable<TokenBurnTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TokenCancelAirdropTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
+template class Executable<TokenClaimAirdropTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TokenCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenDissociateTransaction,
@@ -655,6 +675,7 @@ template class Executable<TokenInfoQuery, proto::Query, proto::Response, TokenIn
 template class Executable<TokenMintTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenNftInfoQuery, proto::Query, proto::Response, TokenNftInfo>;
 template class Executable<TokenPauseTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TokenRejectTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenRevokeKycTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
@@ -664,6 +685,10 @@ template class Executable<TokenUnfreezeTransaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
 template class Executable<TokenUnpauseTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TokenUpdateNftsTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TokenUpdateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenWipeTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TopicCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;

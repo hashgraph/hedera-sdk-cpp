@@ -23,6 +23,7 @@
 #include "AccountId.h"
 #include "Key.h"
 #include "TokenId.h"
+#include "TokenKeyValidation.h"
 #include "Transaction.h"
 
 #include <chrono>
@@ -193,6 +194,30 @@ public:
   TokenUpdateTransaction& setPauseKey(const std::shared_ptr<Key>& key);
 
   /**
+   * Set the desired metadata for the token.
+   *
+   * @param metadata The desired metadata for the token.
+   * @return A reference to this TokenUpdateTransaction with the newly-set metadata.
+   */
+  TokenUpdateTransaction& setMetadata(const std::vector<std::byte>& metadata);
+
+  /**
+   * Set a new metadata key for the token.
+   *
+   * @param key The new metadata key for the token.
+   * @return A reference to this TokenUpdateTransaction with the newly-set metadata key.
+   */
+  TokenUpdateTransaction& setMetadataKey(const std::shared_ptr<Key>& key);
+
+  /**
+   * Set the token verification mode for the token.
+   *
+   * @param mode The new verification mode for the token.
+   * @return A reference to this TokenUpdateTransaction with the newly-set verification mode.
+   */
+  TokenUpdateTransaction& setTokenVerificationMode(TokenKeyValidation mode);
+
+  /**
    * Get the ID of the token to update.
    *
    * @return The ID of the token to update.
@@ -304,6 +329,20 @@ public:
    * @return The new pause key for the token. Returns nullptr if no new pause key has been set.
    */
   [[nodiscard]] inline std::shared_ptr<Key> getPauseKey() const { return mPauseKey; }
+
+  /**
+   * Get the new metadata key for the token.
+   *
+   * @return The new metadata key for the token. Returns nullptr if no new metadata key has been set.
+   */
+  [[nodiscard]] inline std::shared_ptr<Key> getMetadataKey() const { return mMetadataKey; }
+
+  /**
+   * Get the token verification mode for the token.
+   *
+   * @return The token verification mode for the token.
+   */
+  [[nodiscard]] inline TokenKeyValidation getTokenVerificationMode() const { return mKeyVerificationMode; }
 
 private:
   friend class WrappedTransaction;
@@ -436,6 +475,25 @@ private:
    * The new pause key for the token.
    */
   std::shared_ptr<Key> mPauseKey = nullptr;
+
+  /**
+   * Metadata of the updated token.
+   */
+  std::vector<std::byte> mMetadata;
+
+  /**
+   * The new metadata key of the token. The metadata key has the ability to
+   * change the metadata of a token (token definition, partition definition,
+   * and individual NFTs). If the Token does not currently have a Metadata key,
+   * the transaction will resolve to TOKEN_HAS_NO_METADATA_KEY.
+   */
+  std::shared_ptr<Key> mMetadataKey = nullptr;
+
+  /**
+   * Determines whether the system should check the validity of the passed keys for update.
+   * Defaults to FULL_VALIDATION
+   */
+  TokenKeyValidation mKeyVerificationMode = TokenKeyValidation::FULL_VALIDATION;
 };
 
 } // namespace Hedera

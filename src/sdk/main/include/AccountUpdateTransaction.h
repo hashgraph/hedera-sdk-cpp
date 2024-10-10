@@ -121,7 +121,6 @@ public:
    * @param memo The desired new memo for the account.
    * @return A reference to this AccountUpdateTransaction object with the newly-set memo.
    * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
-   * @throws std::length_error If the memo is more than 100 characters.
    */
   AccountUpdateTransaction& setAccountMemo(std::string_view memo);
 
@@ -141,7 +140,7 @@ public:
    *         associations.
    * @throws IllegalStateException If this AccountUpdateTransaction is frozen.
    */
-  AccountUpdateTransaction& setMaxAutomaticTokenAssociations(uint32_t associations);
+  AccountUpdateTransaction& setMaxAutomaticTokenAssociations(int32_t associations);
 
   /**
    * Set the new account to which the account should stake. This is mutually exclusive with mStakedNodeId, and will
@@ -241,7 +240,7 @@ public:
    *
    * @return The new maximum automatic token associations for the account.
    */
-  [[nodiscard]] inline std::optional<uint32_t> getMaxAutomaticTokenAssociations() const
+  [[nodiscard]] inline std::optional<int32_t> getMaxAutomaticTokenAssociations() const
   {
     return mMaxAutomaticTokenAssociations;
   }
@@ -350,10 +349,10 @@ private:
   std::optional<std::string> mAccountMemo;
 
   /**
-   * The new maximum number of tokens with which the new account can be implicitly associated. Only allows values up to
-   * a maximum value of 5000.
+   * The new maximum number of tokens with which the account can be implicitly associated. Only allows values up to a
+   * maximum value of 5000. A value of -1 means the account can have unlimited token associations.
    */
-  std::optional<uint32_t> mMaxAutomaticTokenAssociations;
+  std::optional<int32_t> mMaxAutomaticTokenAssociations;
 
   /**
    * The ID of the new account to which this account will be staked. Mutually exclusive with mStakedNodeId.

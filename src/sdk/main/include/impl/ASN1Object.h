@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @brief This file defines the Hedera C++ SDK's ASN1Object class.
+ * This file defines the Hedera C++ SDK's ASN1Object class.
  */
 
 #ifndef HEDERA_SDK_CPP_IMPL_ASN1_OBJECT_H_
@@ -30,7 +30,7 @@ namespace Hedera::internal::asn1
 {
 
 /**
- * @brief Constants for ASN.1 standard.
+ * Constants for ASN.1 standard.
  */
 constexpr std::byte INTEGER = std::byte(0x02);
 constexpr std::byte BIT_STRING = std::byte(0x03);
@@ -40,13 +40,13 @@ constexpr std::byte SEQUENCE = std::byte(0x30);
 
 /**
  * @class ASN1Object
- * @brief Abstract base class for ASN.1 objects.
+ * Abstract base class for ASN.1 objects.
  */
 class ASN1Object
 {
 protected:
   /**
-   * @brief Get the ASN.1 object's value in bytes.
+   * Get the ASN.1 object's value in bytes.
    *
    * @param tag The ASN.1 tag of the object.
    * @return The object's value in bytes.
@@ -54,7 +54,7 @@ protected:
   virtual const std::vector<std::byte> get(const std::byte tag) const = 0;
 
   /**
-   * @brief Decode the ASN.1 object from a vector of bytes.
+   * Decode the ASN.1 object from a vector of bytes.
    *
    * @param data The vector of bytes containing the ASN.1 object's data.
    */

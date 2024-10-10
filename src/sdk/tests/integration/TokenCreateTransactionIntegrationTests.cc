@@ -68,6 +68,8 @@ TEST_F(TokenCreateTransactionIntegrationTests, ExecuteTokenCreateTransaction)
                                 .setKycKey(operatorKey)
                                 .setSupplyKey(operatorKey)
                                 .setFeeScheduleKey(operatorKey)
+                                .setPauseKey(operatorKey)
+                                .setMetadataKey(operatorKey)
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient()));
 
@@ -106,7 +108,7 @@ TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithNoName)
                                                       .setTreasuryAccountId(AccountId(2ULL))
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               PrecheckStatusException); // MISSING_TOKEN_NAME
+               ReceiptStatusException); // MISSING_TOKEN_NAME
 }
 
 //-----
@@ -118,7 +120,7 @@ TEST_F(TokenCreateTransactionIntegrationTests, CannotCreateTokenWithNoSymbol)
                                                       .setTreasuryAccountId(AccountId(2ULL))
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               PrecheckStatusException); // MISSING_TOKEN_SYMBOL
+               ReceiptStatusException); // MISSING_TOKEN_SYMBOL
 }
 
 //-----

@@ -94,6 +94,18 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(FreezeTransaction(proto));
   }
+  else if (proto.has_nodecreate())
+  {
+    return WrappedTransaction(NodeCreateTransaction(proto));
+  }
+  else if (proto.has_nodedelete())
+  {
+    return WrappedTransaction(NodeDeleteTransaction(proto));
+  }
+  else if (proto.has_nodeupdate())
+  {
+    return WrappedTransaction(NodeUpdateTransaction(proto));
+  }
   else if (proto.has_util_prng())
   {
     return WrappedTransaction(PrngTransaction(proto));
@@ -158,6 +170,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   {
     return WrappedTransaction(TokenPauseTransaction(proto));
   }
+  else if (proto.has_tokenreject())
+  {
+    return WrappedTransaction(TokenRejectTransaction(proto));
+  }
   else if (proto.has_tokenrevokekyc())
   {
     return WrappedTransaction(TokenRevokeKycTransaction(proto));
@@ -169,6 +185,10 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::TransactionBody
   else if (proto.has_token_unpause())
   {
     return WrappedTransaction(TokenUnpauseTransaction(proto));
+  }
+  else if (proto.has_token_update_nfts())
+  {
+    return WrappedTransaction(TokenUpdateNftsTransaction(proto));
   }
   else if (proto.has_tokenwipe())
   {
@@ -277,6 +297,21 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_freeze() = proto.freeze();
     return WrappedTransaction(FreezeTransaction(txBody));
   }
+  else if (proto.has_nodecreate())
+  {
+    *txBody.mutable_nodecreate() = proto.nodecreate();
+    return WrappedTransaction(NodeCreateTransaction(txBody));
+  }
+  else if (proto.has_nodedelete())
+  {
+    *txBody.mutable_nodedelete() = proto.nodedelete();
+    return WrappedTransaction(NodeDeleteTransaction(txBody));
+  }
+  else if (proto.has_nodeupdate())
+  {
+    *txBody.mutable_nodeupdate() = proto.nodeupdate();
+    return WrappedTransaction(NodeUpdateTransaction(txBody));
+  }
   else if (proto.has_util_prng())
   {
     *txBody.mutable_util_prng() = proto.util_prng();
@@ -297,6 +332,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_systemundelete() = proto.systemundelete();
     return WrappedTransaction(SystemUndeleteTransaction(txBody));
   }
+  else if (proto.has_tokenairdrop())
+  {
+    *txBody.mutable_tokenairdrop() = proto.tokenairdrop();
+    return WrappedTransaction(TokenAirdropTransaction(txBody));
+  }
   else if (proto.has_tokenassociate())
   {
     *txBody.mutable_tokenassociate() = proto.tokenassociate();
@@ -306,6 +346,16 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
   {
     *txBody.mutable_tokenburn() = proto.tokenburn();
     return WrappedTransaction(TokenBurnTransaction(txBody));
+  }
+  else if (proto.has_tokencancelairdrop())
+  {
+    *txBody.mutable_tokencancelairdrop() = proto.tokencancelairdrop();
+    return WrappedTransaction(TokenCancelAirdropTransaction(txBody));
+  }
+  else if (proto.has_tokenclaimairdrop())
+  {
+    *txBody.mutable_tokenclaimairdrop() = proto.tokenclaimairdrop();
+    return WrappedTransaction(TokenClaimAirdropTransaction(txBody));
   }
   else if (proto.has_tokencreation())
   {
@@ -347,6 +397,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
     *txBody.mutable_token_pause() = proto.token_pause();
     return WrappedTransaction(TokenPauseTransaction(txBody));
   }
+  else if (proto.has_tokenreject())
+  {
+    *txBody.mutable_tokenreject() = proto.tokenreject();
+    return WrappedTransaction(TokenRejectTransaction(txBody));
+  }
   else if (proto.has_tokenrevokekyc())
   {
     *txBody.mutable_tokenrevokekyc() = proto.tokenrevokekyc();
@@ -361,6 +416,11 @@ WrappedTransaction WrappedTransaction::fromProtobuf(const proto::SchedulableTran
   {
     *txBody.mutable_token_unpause() = proto.token_unpause();
     return WrappedTransaction(TokenUnpauseTransaction(txBody));
+  }
+  else if (proto.has_token_update_nfts())
+  {
+    *txBody.mutable_token_update_nfts() = proto.token_update_nfts();
+    return WrappedTransaction(TokenUpdateNftsTransaction(txBody));
   }
   else if (proto.has_tokenwipe())
   {
@@ -493,6 +553,24 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
+    case NODE_CREATE_TRANSACTION:
+    {
+      const auto transaction = getTransaction<NodeCreateTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case NODE_DELETE_TRANSACTION:
+    {
+      const auto transaction = getTransaction<NodeDeleteTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case NODE_UPDATE_TRANSACTION:
+    {
+      const auto transaction = getTransaction<NodeUpdateTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
     case PRNG_TRANSACTION:
     {
       const auto transaction = getTransaction<PrngTransaction>();
@@ -529,6 +607,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
+    case TOKEN_AIRDROP_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenAirdropTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
     case TOKEN_ASSOCIATE_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenAssociateTransaction>();
@@ -538,6 +622,18 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
     case TOKEN_BURN_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenBurnTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_CANCEL_AIRDROP_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenCancelAirdropTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_CLAIM_AIRDROP_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenClaimAirdropTransaction>();
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
@@ -589,6 +685,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
+    case TOKEN_REJECT_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenRejectTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
     case TOKEN_REVOKE_KYC_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenRevokeKycTransaction>();
@@ -610,6 +712,12 @@ std::unique_ptr<proto::TransactionBody> WrappedTransaction::toProtobuf() const
     case TOKEN_UPDATE_TRANSACTION:
     {
       const auto transaction = getTransaction<TokenUpdateTransaction>();
+      transaction->updateSourceTransactionBody(nullptr);
+      return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
+    }
+    case TOKEN_UPDATE_NFTS_TRANSACTION:
+    {
+      const auto transaction = getTransaction<TokenUpdateNftsTransaction>();
       transaction->updateSourceTransactionBody(nullptr);
       return std::make_unique<proto::TransactionBody>(transaction->getSourceTransactionBody());
     }
@@ -721,6 +829,18 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   {
     schedulableTxBody->set_allocated_freeze(txBody.release_freeze());
   }
+  else if (txBody.has_nodecreate())
+  {
+    schedulableTxBody->set_allocated_nodecreate(txBody.release_nodecreate());
+  }
+  else if (txBody.has_nodedelete())
+  {
+    schedulableTxBody->set_allocated_nodedelete(txBody.release_nodedelete());
+  }
+  else if (txBody.has_nodeupdate())
+  {
+    schedulableTxBody->set_allocated_nodeupdate(txBody.release_nodeupdate());
+  }
   else if (txBody.has_util_prng())
   {
     schedulableTxBody->set_allocated_util_prng(txBody.release_util_prng());
@@ -737,6 +857,10 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   {
     schedulableTxBody->set_allocated_systemundelete(txBody.release_systemundelete());
   }
+  else if (txBody.has_tokenairdrop())
+  {
+    schedulableTxBody->set_allocated_tokenairdrop(txBody.release_tokenairdrop());
+  }
   else if (txBody.has_tokenassociate())
   {
     schedulableTxBody->set_allocated_tokenassociate(txBody.release_tokenassociate());
@@ -744,6 +868,14 @@ std::unique_ptr<proto::SchedulableTransactionBody> WrappedTransaction::toSchedul
   else if (txBody.has_tokenburn())
   {
     schedulableTxBody->set_allocated_tokenburn(txBody.release_tokenburn());
+  }
+  else if (txBody.has_tokencancelairdrop())
+  {
+    schedulableTxBody->set_allocated_tokencancelairdrop(txBody.release_tokencancelairdrop());
+  }
+  else if (txBody.has_tokenclaimairdrop())
+  {
+    schedulableTxBody->set_allocated_tokenclaimairdrop(txBody.release_tokenclaimairdrop());
   }
   else if (txBody.has_tokencreation())
   {

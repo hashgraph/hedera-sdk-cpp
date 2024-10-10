@@ -24,12 +24,13 @@
 #include "AccountInfoQuery.h"
 #include "AccountUpdateTransaction.h"
 #include "BaseIntegrationTest.h"
-#include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "ED25519PrivateKey.h"
 #include "PrivateKey.h"
+#include "TokenCreateTransaction.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "TransferTransaction.h"
 #include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 
@@ -52,7 +53,7 @@ TEST_F(AccountUpdateTransactionIntegrationTests, ExecuteAccountUpdateTransaction
   const std::chrono::system_clock::time_point newExpirationTime =
     std::chrono::system_clock::now() + std::chrono::seconds(3000000);
   const std::string newAccountMemo = "New Account Memo!";
-  const uint32_t newMaxAutomaticTokenAssociations = 100U;
+  const int32_t newMaxAutomaticTokenAssociations = 100;
   const uint64_t newStakedNodeId = 0ULL;
   const bool newDeclineStakingRewards = true;
 
@@ -61,7 +62,7 @@ TEST_F(AccountUpdateTransactionIntegrationTests, ExecuteAccountUpdateTransaction
                                 .setKey(initialPrivateKey->getPublicKey())
                                 .setAutoRenewPeriod(std::chrono::seconds(2592000))
                                 .setAccountMemo("test account memo")
-                                .setMaxAutomaticTokenAssociations(10U)
+                                .setMaxAutomaticTokenAssociations(10)
                                 .setStakedAccountId(AccountId(2ULL))
                                 .execute(getTestClient())
                                 .getReceipt(getTestClient())
@@ -158,7 +159,7 @@ TEST_F(AccountUpdateTransactionIntegrationTests, CannotUpdateAccountWithoutAccou
                                                       .sign(privateKey)
                                                       .execute(getTestClient())
                                                       .getReceipt(getTestClient()),
-               ReceiptStatusException); // ACCOUNT_ID_DOES_NOT_EXIST
+               PrecheckStatusException); // ACCOUNT_ID_DOES_NOT_EXIST
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -213,13 +214,14 @@ TEST_F(AccountUpdateTransactionIntegrationTests, InvalidAutoRenewPeriod)
                                 .mAccountId.value());
 
   // When / Then
-  EXPECT_THROW(const TransactionResponse txResponse = AccountUpdateTransaction()
-                                                        .setAccountId(accountId)
-                                                        .setAutoRenewPeriod(invalidAutoRenewPeriod)
-                                                        .freezeWith(&getTestClient())
-                                                        .sign(privateKey)
-                                                        .execute(getTestClient()),
-               PrecheckStatusException); // AUTORENEW_DURATION_NOT_IN_RANGE
+  EXPECT_THROW(const TransactionReceipt txReceipt = AccountUpdateTransaction()
+                                                      .setAccountId(accountId)
+                                                      .setAutoRenewPeriod(invalidAutoRenewPeriod)
+                                                      .freezeWith(&getTestClient())
+                                                      .sign(privateKey)
+                                                      .execute(getTestClient())
+                                                      .getReceipt(getTestClient()),
+               ReceiptStatusException); // AUTORENEW_DURATION_NOT_IN_RANGE
 
   // Clean up
   ASSERT_NO_THROW(AccountDeleteTransaction()
@@ -228,4 +230,57 @@ TEST_F(AccountUpdateTransactionIntegrationTests, InvalidAutoRenewPeriod)
                     .freezeWith(&getTestClient())
                     .sign(privateKey)
                     .execute(getTestClient()));
+}
+
+//-----
+TEST_F(AccountUpdateTransactionIntegrationTests,
+       CannotUpdateMaxAutomaticTokenAssociationsToLowerThanCurrentlyAssociated)
+{
+  // Given
+  const int64_t amount = 10LL;
+
+  std::shared_ptr<PrivateKey> operatorKey;
+  ASSERT_NO_THROW(
+    operatorKey = std::shared_ptr<PrivateKey>(
+      ED25519PrivateKey::fromString(
+        "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137")
+        .release()));
+
+  std::shared_ptr<PrivateKey> accountKey;
+  ASSERT_NO_THROW(accountKey = ED25519PrivateKey::generatePrivateKey());
+
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = AccountCreateTransaction()
+                                .setKey(accountKey)
+                                .setMaxAutomaticTokenAssociations(1)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient())
+                                .mAccountId.value());
+
+  TokenId tokenId;
+  ASSERT_NO_THROW(tokenId = TokenCreateTransaction()
+                              .setTokenName("ffff")
+                              .setTokenSymbol("F")
+                              .setInitialSupply(100000)
+                              .setTreasuryAccountId(getTestClient().getOperatorAccountId().value())
+                              .setAdminKey(operatorKey)
+                              .execute(getTestClient())
+                              .getReceipt(getTestClient())
+                              .mTokenId.value());
+
+  ASSERT_NO_THROW(TransferTransaction()
+                    .addTokenTransfer(tokenId, getTestClient().getOperatorAccountId().value(), -amount)
+                    .addTokenTransfer(tokenId, accountId, amount)
+                    .execute(getTestClient())
+                    .getReceipt(getTestClient()));
+
+  // When / Then
+  ASSERT_THROW(AccountUpdateTransaction()
+                 .setAccountId(accountId)
+                 .setMaxAutomaticTokenAssociations(0)
+                 .freezeWith(&getTestClient())
+                 .sign(accountKey)
+                 .execute(getTestClient())
+                 .getReceipt(getTestClient()),
+               ReceiptStatusException); // EXISTING_AUTOMATIC_ASSOCIATIONS_EXCEED_GIVEN_LIMIT
 }

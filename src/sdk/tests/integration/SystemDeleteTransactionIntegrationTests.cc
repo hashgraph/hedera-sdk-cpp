@@ -31,6 +31,7 @@
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "exceptions/PrecheckStatusException.h"
+#include "exceptions/ReceiptStatusException.h"
 
 #include <gtest/gtest.h>
 #include <proto/transaction_body.pb.h>

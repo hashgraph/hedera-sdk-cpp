@@ -32,6 +32,7 @@ add_executable(${TEST_PROJECT_NAME}
         FreezeTransactionIntegrationTests.cc
         HttpClientIntegrationTests.cc
         JSONIntegrationTests.cc
+        MirrorNodeGatewayIntegrationTests.cc
         NetworkVersionInfoQueryIntegrationTests.cc
         PrngTransactionIntegrationTests.cc
         QueryIntegrationTests.cc
@@ -41,8 +42,11 @@ add_executable(${TEST_PROJECT_NAME}
         ScheduleSignTransactionIntegrationTests.cc
         SystemDeleteTransactionIntegrationTests.cc
         SystemUndeleteTransactionIntegrationTests.cc
+        TokenAirdropTransactionIntegrationTests.cc
         TokenAssociateTransactionIntegrationTests.cc
         TokenBurnTransactionIntegrationTests.cc
+        TokenCancelAirdropTransactionIntegrationTests.cc
+        TokenClaimAirdropTransactionIntegrationTests.cc
         TokenCreateTransactionIntegrationTests.cc
         TokenDeleteTransactionIntegrationTests.cc
         TokenDissociateTransactionIntegrationTests.cc
@@ -53,9 +57,11 @@ add_executable(${TEST_PROJECT_NAME}
         TokenMintTransactionIntegrationTests.cc
         TokenNftInfoQueryIntegrationTests.cc
         TokenPauseTransactionIntegrationTests.cc
+        TokenRejectTransactionIntegrationTests.cc
         TokenRevokeKycTransactionIntegrationTests.cc
         TokenUnfreezeTransactionIntegrationTests.cc
         TokenUnpauseTransactionIntegrationTests.cc
+        TokenUpdateNftsTransactionIntegrationTests.cc
         TokenUpdateTransactionIntegrationTests.cc
         TokenWipeTransactionIntegrationTests.cc
         TopicCreateTransactionIntegrationTests.cc

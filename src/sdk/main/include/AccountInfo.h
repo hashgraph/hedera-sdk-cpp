@@ -26,12 +26,15 @@
 #include "Key.h"
 #include "LedgerId.h"
 #include "StakingInfo.h"
+#include "TokenId.h"
+#include "TokenRelationship.h"
 
 #include <chrono>
 #include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace proto
@@ -156,7 +159,7 @@ public:
   /**
    * The maximum number of tokens with which the queried account can be associated.
    */
-  uint32_t mMaxAutomaticTokenAssociations = 0U;
+  int32_t mMaxAutomaticTokenAssociations = 0;
 
   /**
    * The PublicKey alias of the queried account.
@@ -177,6 +180,11 @@ public:
    * The staking metadata for the queried account.
    */
   StakingInfo mStakingInfo;
+
+  /**
+   * The token relationships mappings for the queried account.
+   */
+  std::unordered_map<TokenId, TokenRelationship> mTokenRelationships;
 };
 
 } // namespace Hedera

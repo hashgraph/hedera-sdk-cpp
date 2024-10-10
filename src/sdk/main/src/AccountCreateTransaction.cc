@@ -35,14 +35,14 @@ namespace Hedera
 AccountCreateTransaction::AccountCreateTransaction()
   : Transaction<AccountCreateTransaction>()
 {
-  setDefaultMaxTransactionFee(Hbar(5LL));
+  setDefaultMaxTransactionFee(Hbar(10000LL));
 }
 
 //-----
 AccountCreateTransaction::AccountCreateTransaction(const proto::TransactionBody& transactionBody)
   : Transaction<AccountCreateTransaction>(transactionBody)
 {
-  setDefaultMaxTransactionFee(Hbar(5LL));
+  setDefaultMaxTransactionFee(Hbar(10000LL));
   initFromSourceTransactionBody();
 }
 
@@ -51,7 +51,7 @@ AccountCreateTransaction::AccountCreateTransaction(
   const std::map<TransactionId, std::map<AccountId, proto::Transaction>>& transactions)
   : Transaction<AccountCreateTransaction>(transactions)
 {
-  setDefaultMaxTransactionFee(Hbar(5LL));
+  setDefaultMaxTransactionFee(Hbar(10000LL));
   initFromSourceTransactionBody();
 }
 
@@ -97,17 +97,12 @@ AccountCreateTransaction& AccountCreateTransaction::setAccountMemo(std::string_v
 {
   requireNotFrozen();
 
-  if (memo.size() > 100)
-  {
-    throw std::length_error("Account memo is too large. Must be smaller than 100 bytes");
-  }
-
   mAccountMemo = memo;
   return *this;
 }
 
 //-----
-AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(uint32_t associations)
+AccountCreateTransaction& AccountCreateTransaction::setMaxAutomaticTokenAssociations(int32_t associations)
 {
   requireNotFrozen();
 
@@ -203,7 +198,7 @@ void AccountCreateTransaction::initFromSourceTransactionBody()
   }
 
   mAccountMemo = body.memo();
-  mMaxAutomaticTokenAssociations = static_cast<uint32_t>(body.max_automatic_token_associations());
+  mMaxAutomaticTokenAssociations = body.max_automatic_token_associations();
 
   if (body.has_staked_account_id())
   {
@@ -237,7 +232,7 @@ proto::CryptoCreateTransactionBody* AccountCreateTransaction::build() const
   body->set_receiversigrequired(mReceiverSignatureRequired);
   body->set_allocated_autorenewperiod(internal::DurationConverter::toProtobuf(mAutoRenewPeriod));
   body->set_memo(mAccountMemo);
-  body->set_max_automatic_token_associations(static_cast<int32_t>(mMaxAutomaticTokenAssociations));
+  body->set_max_automatic_token_associations(mMaxAutomaticTokenAssociations);
 
   if (mStakedAccountId)
   {

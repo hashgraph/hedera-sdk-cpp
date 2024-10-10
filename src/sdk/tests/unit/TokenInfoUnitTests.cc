@@ -72,6 +72,8 @@ protected:
   [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestPauseKey() const { return mTestPauseKey; }
   [[nodiscard]] inline const std::optional<bool>& getTestPauseStatus() const { return mTestPauseStatus; }
   [[nodiscard]] inline const LedgerId& getTestLedgerId() const { return mTestLedgerId; }
+  [[nodiscard]] inline const std::vector<std::byte> getTestMetadata() const { return mTestMetadata; }
+  [[nodiscard]] inline const std::shared_ptr<PublicKey>& getTestMetadataKey() const { return mTestMetadataKey; }
 
 private:
   const TokenId mTestTokenId = TokenId(1ULL, 2ULL, 3ULL);
@@ -102,6 +104,8 @@ private:
   const std::shared_ptr<PublicKey> mTestPauseKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
   const std::optional<bool> mTestPauseStatus = true;
   const LedgerId mTestLedgerId = LedgerId({ std::byte(0x0E), std::byte(0x0F) });
+  const std::vector<std::byte> mTestMetadata = { std::byte(0x0E), std::byte(0x0F) };
+  const std::shared_ptr<PublicKey> mTestMetadataKey = ECDSAsecp256k1PrivateKey::generatePrivateKey()->getPublicKey();
 };
 
 //-----
@@ -169,6 +173,8 @@ TEST_F(TokenInfoUnitTests, FromProtobuf)
   }
 
   protoTokenInfo.set_ledger_id(internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
+  protoTokenInfo.set_metadata(internal::Utilities::byteVectorToString(getTestMetadata()));
+  protoTokenInfo.set_allocated_metadata_key(getTestMetadataKey()->toProtobufKey().release());
 
   // When
   const TokenInfo tokenInfo = TokenInfo::fromProtobuf(protoTokenInfo);
@@ -200,6 +206,8 @@ TEST_F(TokenInfoUnitTests, FromProtobuf)
   EXPECT_EQ(tokenInfo.mPauseKey->toBytes(), getTestPauseKey()->toBytes());
   EXPECT_EQ(tokenInfo.mPauseStatus, getTestPauseStatus());
   EXPECT_EQ(tokenInfo.mLedgerId.toBytes(), getTestLedgerId().toBytes());
+  EXPECT_EQ(tokenInfo.mMetadata, getTestMetadata());
+  EXPECT_EQ(tokenInfo.mMetadataKey->toBytes(), getTestMetadataKey()->toBytes());
 }
 
 //-----
@@ -267,6 +275,8 @@ TEST_F(TokenInfoUnitTests, FromBytes)
   }
 
   protoTokenInfo.set_ledger_id(internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
+  protoTokenInfo.set_metadata(internal::Utilities::byteVectorToString(getTestMetadata()));
+  protoTokenInfo.set_allocated_metadata_key(getTestMetadataKey()->toProtobufKey().release());
 
   // When
   const TokenInfo tokenInfo =
@@ -332,6 +342,8 @@ TEST_F(TokenInfoUnitTests, ToProtobuf)
   tokenInfo.mPauseKey = getTestPauseKey();
   tokenInfo.mPauseStatus = getTestPauseStatus();
   tokenInfo.mLedgerId = getTestLedgerId();
+  tokenInfo.mMetadata = getTestMetadata();
+  tokenInfo.mMetadataKey = getTestMetadataKey();
 
   // When
   const std::unique_ptr<proto::TokenInfo> protoTokenInfo = tokenInfo.toProtobuf();
@@ -389,6 +401,9 @@ TEST_F(TokenInfoUnitTests, ToProtobuf)
                ? proto::TokenPauseStatus::PauseNotApplicable
                : (getTestPauseStatus().value() ? proto::TokenPauseStatus::Paused : proto::TokenPauseStatus::Unpaused)));
   EXPECT_EQ(protoTokenInfo->ledger_id(), internal::Utilities::byteVectorToString(getTestLedgerId().toBytes()));
+  EXPECT_EQ(protoTokenInfo->metadata(), internal::Utilities::byteVectorToString(getTestMetadata()));
+  EXPECT_EQ(protoTokenInfo->metadata_key().ecdsa_secp256k1(),
+            internal::Utilities::byteVectorToString(getTestMetadataKey()->toBytesRaw()));
 }
 
 //-----
@@ -422,6 +437,8 @@ TEST_F(TokenInfoUnitTests, ToBytes)
   tokenInfo.mPauseKey = getTestPauseKey();
   tokenInfo.mPauseStatus = getTestPauseStatus();
   tokenInfo.mLedgerId = getTestLedgerId();
+  tokenInfo.mMetadata = getTestMetadata();
+  tokenInfo.mMetadataKey = getTestMetadataKey();
 
   // When
   const std::vector<std::byte> bytes = tokenInfo.toBytes();

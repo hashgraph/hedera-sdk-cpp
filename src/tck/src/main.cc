@@ -33,21 +33,38 @@ int main(int argc, char** argv)
   // Add the SDK client functions.
   tckServer.add("createAccount",
                 getHandle(&SdkClient::createAccount),
-                { "publicKey",
+                { "key",
                   "initialBalance",
                   "receiverSignatureRequired",
-                  "maxAutomaticTokenAssociations",
+                  "autoRenewPeriod",
+                  "memo",
+                  "maxAutoTokenAssociations",
                   "stakedAccountId",
                   "stakedNodeId",
                   "declineStakingReward",
-                  "accountMemo" });
-  tckServer.add("deleteAccount", getHandle(&SdkClient::deleteAccount), { "accountId", "accountKey", "recipientId" });
-  tckServer.add("generatePrivateKey", getHandle(&SdkClient::generatePrivateKey));
-  tckServer.add("generatePublicKey", getHandle(&SdkClient::generatePublicKey), { "privateKey" });
+                  "alias",
+                  "commonTransactionParams" });
+  tckServer.add("deleteAccount",
+                getHandle(&SdkClient::deleteAccount),
+                { "deleteAccountId", "transferAccountId", "commonTransactionParams" });
+  tckServer.add("generateKey", getHandle(&SdkClient::generateKey), { "type", "fromKey", "threshold", "keys" });
   tckServer.add("setup",
                 getHandle(&SdkClient::setup),
                 { "operatorAccountId", "operatorPrivateKey", "nodeIp", "nodeAccountId", "mirrorNetworkIp" });
   tckServer.add("reset", getHandle(&SdkClient::reset));
+  tckServer.add("updateAccount",
+                getHandle(&SdkClient::updateAccount),
+                { "accountId",
+                  "key",
+                  "autoRenewPeriod",
+                  "expirationTime",
+                  "receiverSignatureRequired",
+                  "memo",
+                  "maxAutoTokenAssociations",
+                  "stakedAccountId",
+                  "stakedNodeId",
+                  "declineStakingReward",
+                  "commonTransactionParams" });
 
   // Start listening for requests.
   tckServer.startServer();

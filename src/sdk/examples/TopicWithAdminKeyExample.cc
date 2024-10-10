@@ -22,6 +22,7 @@
 #include "ED25519PrivateKey.h"
 #include "KeyList.h"
 #include "TopicCreateTransaction.h"
+#include "TopicDeleteTransaction.h"
 #include "TopicId.h"
 #include "TopicUpdateTransaction.h"
 #include "TransactionReceipt.h"
@@ -83,6 +84,19 @@ int main(int argc, char** argv)
                                     .sign(keys.at(0))
                                     .sign(keys.at(2))
                                     // Three of the four new keys are required to sign.
+                                    .sign(newKeys.at(0))
+                                    .sign(newKeys.at(1))
+                                    .sign(newKeys.at(3))
+                                    .execute(client)
+                                    .getReceipt(client)
+                                    .mStatus)
+            << std::endl;
+
+  // Clean up: Attempt to delete the topic with admin key
+  std::cout << "Deleting topic with the admin key: "
+            << gStatusToString.at(TopicDeleteTransaction()
+                                    .setTopicId(topicId)
+                                    .freezeWith(&client)
                                     .sign(newKeys.at(0))
                                     .sign(newKeys.at(1))
                                     .sign(newKeys.at(3))
