@@ -56,11 +56,18 @@ public:
    */
   [[nodiscard]] std::string toString() const;
 
+  /**
+   * Check if the IPV4Address is empty.
+   *
+   * @return The boolean representation of an IPV4Address empty state.
+   */
+  [[nodiscard]] bool isEmpty() const;
+
 private:
   /**
    * The four octets of the address.
    */
-  std::array<std::byte, 4> mAddress;
+  std::vector<std::byte> mAddress;
 };
 
 } // namespace Hedera
