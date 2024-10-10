@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_FEE_ASSESSMENT_METHOD_H_
 #define HEDERA_SDK_CPP_FEE_ASSESSMENT_METHOD_H_
 
+#include <string>
 #include <unordered_map>
 
 namespace Hedera
@@ -46,9 +47,17 @@ enum class FeeAssessmentMethod
 /**
  * Map of FeeAssessmentMethod to its corresponding string.
  */
-const std::unordered_map<FeeAssessmentMethod, const char*> gFeeAssessmentMethodToString = {
+const std::unordered_map<FeeAssessmentMethod, std::string> gFeeAssessmentMethodToString = {
   {FeeAssessmentMethod::INCLUSIVE,  "INCLUSIVE"},
   { FeeAssessmentMethod::EXCLUSIVE, "EXCLUSIVE"}
+};
+
+/**
+ * Map of FeeAssessmentMethod string representation to its corresponding enum value.
+ */
+[[maybe_unused]] const std::unordered_map<std::string, FeeAssessmentMethod> gStringToFeeAssessmentMethod = {
+  {"INCLUSIVE",  FeeAssessmentMethod::INCLUSIVE},
+  { "EXCLUSIVE", FeeAssessmentMethod::EXCLUSIVE}
 };
 
 } // namespace Hedera
