@@ -18,23 +18,65 @@
  *
  */
 
-#include "exceptions/CURLException.h"
-
 #include "impl/HttpClient.h"
+
+#include <httplib.h>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 
 namespace Hedera::internal
 {
-HttpClient::HttpClient()
+namespace
 {
-  if (curl_global_init(CURL_GLOBAL_DEFAULT) != 0)
+// The index in a URL to begin searching for the path after the end of the URL scheme ("http://" or "https://").
+const int SCHEME_END_INDEX = 8;
+
+//
+// Perform an HTTP request.
+//
+// @param url    The URL to which to send the request.
+// @param method The HTTP method type of this request.
+// @param body   The body of the request.
+// @return The response of the request.
+//
+[[nodiscard]] std::string performRequest(std::string_view url, std::string_view method, std::string_view body)
+{
+  // Create an HTTP client to communicate with the given URL.
+  httplib::Client client(std::string(url.substr(0, url.find('/', SCHEME_END_INDEX))));
+  const std::string path = url.substr(url.find('/', SCHEME_END_INDEX)).data();
+
+  httplib::Result res;
+
+  // Perform the request based on the HTTP method
+  if (method == "GET")
   {
-    throw CURLException("Failed to initialize libcurl!");
+    res = client.Get(path);
   }
+  else if (method == "POST")
+  {
+    res = client.Post(path, body.data(), body.size(), "application/json");
+  }
+  else
+  {
+    throw std::invalid_argument(std::string("Unsupported HTTP method: ") + method.data());
+  }
+
+  if (!res || res->status != httplib::StatusCode::OK_200)
+  {
+    throw std::runtime_error("HTTP error: " + httplib::to_string(res.error()));
+  }
+
+  return res->body;
 }
 
-HttpClient::~HttpClient()
+} // namespace
+
+// example infura query: rpcMethod = R"({"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":[")" + hash +
+// R"("],"id":1})"
+std::string HttpClient::invokeRPC(std::string_view url, std::string_view rpcMethod)
 {
-  curl_global_cleanup();
+  return performRequest(url, "POST", rpcMethod);
 }
 
 // example mirrorNode query:
@@ -42,77 +84,11 @@ HttpClient::~HttpClient()
 // note: should time out before calling this function because the mirror node is not updated on time if accountID has
 // been created exactly before the call. Works without timeout if the data in the mirror node is there from some seconds
 // beforehand
-std::string HttpClient::invokeREST(const std::string& url,
-                                   const std::string& httpMethod,
-                                   const std::string& requestBody)
+std::string HttpClient::invokeREST(std::string_view url, std::string_view httpMethod, std::string_view requestBody)
 {
-  std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl(curl_easy_init(), curl_easy_cleanup);
-
-  if (!curl)
-  {
-    throw CURLException("CURL initialization failed!");
-  }
-
-  curl_easy_setopt(curl.get(), CURLOPT_URL, url.c_str());
-
-  std::string response;
-
-  curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, &HttpClient::writeCallback);
-  curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &response);
-
-  curl_easy_setopt(curl.get(), CURLOPT_CUSTOMREQUEST, httpMethod.c_str());
-
-  if (httpMethod == "POST")
-  {
-    curl_easy_setopt(curl.get(), CURLOPT_POSTFIELDS, requestBody.c_str());
-  }
-
-  CURLcode res = curl_easy_perform(curl.get());
-  if (res != CURLE_OK)
-  {
-    throw CURLException(std::string("Error getting curl result: ") + curl_easy_strerror(res));
-  }
-
-  return response;
+  return performRequest(url, httpMethod, requestBody);
 }
 
-// example infura query: rpcMethod = R"({"jsonrpc":"2.0","method":"eth_getTransactionByHash","params":[")" + hash +
-// R"("],"id":1})"
-std::string HttpClient::invokeRPC(const std::string& url, const std::string& rpcMethod)
-{
-  std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl(curl_easy_init(), curl_easy_cleanup);
-  if (!curl)
-  {
-    throw CURLException("Failed to initialize libcurl");
-  }
+//-----
 
-  curl_easy_setopt(curl.get(), CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl.get(), CURLOPT_POST, 1L);
-
-  std::shared_ptr<curl_slist> headers(curl_slist_append(nullptr, "Content-Type: application/json"),
-                                      curl_slist_free_all);
-  curl_easy_setopt(curl.get(), CURLOPT_HTTPHEADER, headers.get());
-
-  std::string json_body = rpcMethod;
-  curl_easy_setopt(curl.get(), CURLOPT_POSTFIELDS, json_body.c_str());
-
-  std::string response;
-  curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, writeCallback);
-  curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &response);
-
-  CURLcode res = curl_easy_perform(curl.get());
-  if (res != CURLE_OK)
-  {
-    throw CURLException(std::string("Error getting curl result! ") + curl_easy_strerror(res));
-  }
-
-  return response;
-}
-
-size_t HttpClient::writeCallback(char* contents, size_t size, size_t nmemb, std::string* output)
-{
-  size_t totalSize = size * nmemb;
-  output->append(contents, totalSize);
-  return totalSize;
-};
 } // namespace Hedera::internal
