@@ -42,18 +42,10 @@ protected:
 
 private:
   const AccountId mAccountId = AccountId::fromString("0.0.4");
-
-  const Endpoint endpoint = Endpoint()
-                              .setAddress(IPv4Address::fromBytes({
-                                std::byte(0x01),
-                                std::byte(0x01),
-                                std::byte(0x01),
-                                std::byte(0x01),
-                              }))
-                              .setPort(50211);
-
-  const std::vector<Endpoint> mGossipEndpoints = { endpoint };
-  const std::vector<Endpoint> mGrpcServiceEndpoints = { endpoint };
+  const Endpoint endpoint1 = Endpoint().setDomainName("test.com").setPort(123);
+  const Endpoint endpoint2 = Endpoint().setDomainName("test2.com").setPort(123);
+  const std::vector<Endpoint> mGossipEndpoints = { endpoint1, endpoint2 };
+  const std::vector<Endpoint> mGrpcServiceEndpoints = { endpoint1, endpoint2 };
   const std::string mGossipCertificateDer =
     "3082052830820310a003020102020101300d06092a864886f70d01010c05003010310e300c060355040313056e6f6465333024170d32343130"
     "30383134333233395a181332313234313030383134333233392e3337395a3010310e300c060355040313056e6f64653330820222300d06092a"
@@ -84,13 +76,21 @@ private:
 //-----
 TEST_F(NodeCreateTransactionIntegrationTests, DISABLED_CanExecuteNodeCreateTransaction)
 {
+  // Given
+  const std::shared_ptr<PrivateKey> adminKey = ED25519PrivateKey::generatePrivateKey();
+
+  // When / Then
   TransactionResponse txResponse;
   ASSERT_NO_THROW(txResponse = NodeCreateTransaction()
                                  .setAccountId(getAccountId())
                                  .setGossipEndpoints(getGossipEndpoints())
                                  .setServiceEndpoints(getGrpcServiceEndpoints())
                                  .setGossipCaCertificate(getGossipCertificate())
-                                 .setAdminKey(ED25519PrivateKey::generatePrivateKey())
+                                 .setAdminKey(adminKey->getPublicKey())
                                  .freezeWith(&getTestClient())
+                                 .sign(adminKey)
                                  .execute(getTestClient()));
+
+  TransactionReceipt txReceipt;
+  ASSERT_NO_THROW(txReceipt = txResponse.getReceipt(getTestClient()));
 }
