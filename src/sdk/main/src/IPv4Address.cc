@@ -27,16 +27,12 @@ namespace Hedera
 //-----
 IPv4Address IPv4Address::fromBytes(const std::vector<std::byte>& bytes)
 {
-  IPv4Address iPv4Address;
-  if (bytes.empty())
-  {
-    return iPv4Address;
-  }
-
   if (bytes.size() != 4)
   {
     throw std::invalid_argument("Incorrect byte array size, should be 4 bytes but is " + std::to_string(bytes.size()));
   }
+
+  IPv4Address iPv4Address;
 
   for (const auto& byte : bytes)
   {
@@ -54,9 +50,10 @@ std::vector<std::byte> IPv4Address::toBytes() const
 //-----
 std::string IPv4Address::toString() const
 {
-  if (mAddress.empty())
+  if (mAddress.size() != 4)
   {
-    return "";
+    throw IllegalStateException("Incorrect byte array size, should be 4 bytes but is " +
+                                std::to_string(mAddress.size()));
   }
   else
   {
@@ -70,14 +67,7 @@ std::string IPv4Address::toString() const
 //-----
 bool IPv4Address::isEmpty() const
 {
-  if (mAddress.empty())
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
+  return mAddress.empty();
 }
 
 } // namespace Hedera
