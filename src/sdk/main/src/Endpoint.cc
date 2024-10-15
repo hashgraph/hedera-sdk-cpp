@@ -46,7 +46,7 @@ std::unique_ptr<proto::ServiceEndpoint> Endpoint::toProtobuf() const
 //-----
 std::string Endpoint::toString() const
 {
-  if (mAddress.isEmpty())
+  if (!mAddress.isEmpty())
   {
     return mAddress.toString() + ':' + std::to_string(mPort);
   }
