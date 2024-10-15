@@ -62,7 +62,7 @@ const int SCHEME_END_INDEX = 8;
     throw std::invalid_argument(std::string("Unsupported HTTP method: ") + method.data());
   }
 
-  if (!res || res->status != httplib::StatusCode::OK_200)
+  if (!res)
   {
     throw std::runtime_error("HTTP error: " + httplib::to_string(res.error()));
   }
