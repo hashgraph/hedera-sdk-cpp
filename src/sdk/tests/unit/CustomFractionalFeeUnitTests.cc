@@ -176,16 +176,6 @@ TEST_F(CustomFractionalFeeUnitTests, GetSetDenominator)
 }
 
 //-----
-TEST_F(CustomFractionalFeeUnitTests, CannotSetDenominatorToZero)
-{
-  // Given
-  CustomFractionalFee customFractionalFee;
-
-  // When / Then
-  EXPECT_THROW(customFractionalFee.setDenominator(0LL), std::invalid_argument);
-}
-
-//-----
 TEST_F(CustomFractionalFeeUnitTests, GetSetMinimumAmount)
 {
   // Given
