@@ -319,8 +319,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         absl::time
         absl::time_zone)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
-
 target_link_libraries(${PROJECT_NAME} PRIVATE
         upb::upb
         upb::descriptor_upb_proto
