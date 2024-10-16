@@ -20,12 +20,14 @@
 #ifndef HEDERA_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
 #define HEDERA_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
 
-#include "Client.h"
-#include "Hbar.h"
 #include "JsonRpcException.h"
-#include "PrivateKey.h"
-#include "Transaction.h"
-#include "TransactionId.h"
+#include "JsonUtils.h"
+
+#include <Client.h>
+#include <Hbar.h>
+#include <PrivateKey.h>
+#include <Transaction.h>
+#include <TransactionId.h>
 
 #include <chrono>
 #include <memory>
@@ -127,48 +129,6 @@ template<>
 struct [[maybe_unused]] adl_serializer<Hedera::TCK::CommonTransactionParams>
 {
   /**
-   * Convert a CommonTransactionParams to a JSON object.
-   *
-   * @param jsonTo   The JSON object to fill with the CommonTransactionParams.
-   * @param txParams The CommonTransactionParams with which to fill the JSON object.
-   */
-  static void to_json(json& jsonTo, const Hedera::TCK::CommonTransactionParams& txParams)
-  {
-    if (txParams.mTransactionId.has_value())
-    {
-      jsonTo["transactionId"] = txParams.mTransactionId->toString();
-    }
-
-    if (txParams.mMaxTransactionFee.has_value())
-    {
-      jsonTo["maxTransactionFee"] = txParams.mMaxTransactionFee.value().toTinybars();
-    }
-
-    if (txParams.mValidTransactionDuration.has_value())
-    {
-      jsonTo["validTransactionDuration"] = txParams.mValidTransactionDuration->count();
-    }
-
-    if (txParams.mMemo.has_value())
-    {
-      jsonTo["memo"] = txParams.mMemo.value();
-    }
-
-    if (txParams.mRegenerateTransactionId.has_value())
-    {
-      jsonTo["regenerateTransactionId"] = txParams.mRegenerateTransactionId.value();
-    }
-
-    if (txParams.mSigners.has_value())
-    {
-      std::for_each(txParams.mSigners->cbegin(),
-                    txParams.mSigners->cend(),
-                    [&jsonTo](const std::shared_ptr<Hedera::PrivateKey>& key)
-                    { jsonTo["signers"].push_back(key->toStringDer()); });
-    }
-  }
-
-  /**
    * Convert a JSON object to a CommonTransactionParams.
    *
    * @param jsonFrom The JSON object with which to fill the CommonTransactionParams.
@@ -176,83 +136,38 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CommonTransactionParams>
    */
   static void from_json(const json& jsonFrom, Hedera::TCK::CommonTransactionParams& txParams)
   {
-    if (jsonFrom.contains("transactionId"))
+    if (auto transactionId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transactionId");
+        transactionId.has_value())
     {
-      if (!jsonFrom["transactionId"].is_string())
-      {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: transactionId should be a string");
-      }
-
-      txParams.mTransactionId = Hedera::TransactionId::fromString(jsonFrom["transactionId"].get<std::string>());
+      txParams.mTransactionId = Hedera::TransactionId::fromString(transactionId.value());
     }
 
-    if (jsonFrom.contains("maxTransactionFee"))
+    if (auto maxTransactionFee = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxTransactionFee");
+        maxTransactionFee.has_value())
     {
-      if (!jsonFrom["maxTransactionFee"].is_number_integer())
-      {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: maxTransactionFee should be an integer");
-      }
-
-      txParams.mMaxTransactionFee = Hedera::Hbar::fromTinybars(jsonFrom["maxTransactionFee"]);
+      txParams.mMaxTransactionFee = Hedera::Hbar::fromTinybars(maxTransactionFee.value());
     }
 
-    if (jsonFrom.contains("validTransactionDuration"))
+    if (auto validTransactionDuration =
+          Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "validTransactionDuration");
+        validTransactionDuration.has_value())
     {
-      if (!jsonFrom["validTransactionDuration"].is_number_integer())
-      {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: validTransactionDuration should be an integer");
-      }
-
-      txParams.mValidTransactionDuration = std::chrono::seconds(jsonFrom["validTransactionDuration"]);
+      txParams.mValidTransactionDuration = std::chrono::seconds(validTransactionDuration.value());
     }
 
-    if (jsonFrom.contains("memo"))
+    txParams.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
+    txParams.mRegenerateTransactionId =
+      Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "regenerateTransactionId");
+
+    if (auto keys = Hedera::TCK::getOptionalJsonParameter<std::vector<std::string>>(jsonFrom, "signers");
+        keys.has_value())
     {
-      if (!jsonFrom["memo"].is_string())
-      {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: memo should be a string");
-      }
-
-      txParams.mMemo = jsonFrom["memo"];
-    }
-
-    if (jsonFrom.contains("regenerateTransactionId"))
-    {
-      if (!jsonFrom["regenerateTransactionId"].is_boolean())
-      {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: regenerateTransactionId should be a boolean");
-      }
-
-      txParams.mRegenerateTransactionId = jsonFrom["regenerateTransactionId"];
-    }
-
-    if (jsonFrom.contains("signers"))
-    {
-      if (!jsonFrom["signers"].is_array())
-      {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: signers should be a list");
-      }
-
       txParams.mSigners = std::vector<std::shared_ptr<Hedera::PrivateKey>>();
-      txParams.mSigners->reserve(jsonFrom["signers"].size());
-      std::for_each(jsonFrom["signers"].cbegin(),
-                    jsonFrom["signers"].cend(),
-                    [&txParams](const json& jsonKey)
-                    {
-                      if (!jsonKey.is_string())
-                      {
-                        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                                            "invalid parameters: key in signers list is not a string");
-                      }
-
-                      txParams.mSigners->push_back(Hedera::PrivateKey::fromStringDer(jsonKey.get<std::string>()));
-                    });
+      txParams.mSigners->reserve(keys->size());
+      std::for_each(keys->cbegin(),
+                    keys->cend(),
+                    [&txParams](const std::string& key)
+                    { txParams.mSigners->push_back(Hedera::PrivateKey::fromStringDer(key)); });
     }
   }
 };

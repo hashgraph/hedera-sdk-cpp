@@ -20,11 +20,73 @@
 #ifndef HEDERA_TCK_CPP_JSON_UTILS_H_
 #define HEDERA_TCK_CPP_JSON_UTILS_H_
 
+#include "JsonErrorType.h"
+#include "JsonRpcException.h"
+
 #include <nlohmann/json.hpp>
+#include <optional>
+#include <string>
 #include <string_view>
 
 namespace Hedera::TCK
 {
+/**
+ * Get a required parameter from a JSON object.
+ *
+ * @tparam T The C++ type of parameter to get.
+ * @param json The JSON from which to get the parameter.
+ * @param name The name of the parameter to get.
+ * @return The parameter as the specified type.
+ * @throws JsonRpcException If the parameter doesn't exist or is not the specified type.
+ */
+template<typename T>
+T getRequiredJsonParameter(const nlohmann::json& json, std::string_view name)
+{
+  if (!json.contains(name))
+  {
+    throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                        "invalid parameters: " + std::string(name) + " is required");
+  }
+
+  try
+  {
+    return json[name].get<T>();
+  }
+  catch (const nlohmann::json::type_error& err)
+  {
+    throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                        "invalid parameters: " + std::string(err.what()));
+  }
+}
+
+/**
+ * Get an optional parameter from a JSON object.
+ *
+ * @tparam T The C++ type of parameter to get.
+ * @param json The JSON from which to get the parameter.
+ * @param name The name of the parameter to get.
+ * @return The parameter as the specified type, std::nullopt if the parameter doesn't exist.
+ * @throws JsonRpcException If the parameter doesn't exist or is not the specified type.
+ */
+template<typename T>
+std::optional<T> getOptionalJsonParameter(const nlohmann::json& json, std::string_view name)
+{
+  if (!json.contains(name))
+  {
+    return std::optional<T>(std::nullopt);
+  }
+
+  try
+  {
+    return json[name].get<T>();
+  }
+  catch (const nlohmann::json::type_error& err)
+  {
+    throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+                                        "invalid parameters: " + std::string(err.what()));
+  }
+}
+
 /**
  * Does a JSON request have a particular key?
  *
