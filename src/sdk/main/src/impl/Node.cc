@@ -105,6 +105,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
 
   switch (funcEnum)
   {
+    case proto::TransactionBody::DataCase::kNodeCreate:
+      return mAddressBookStub->createNode(&context, transaction, response);
     case proto::TransactionBody::DataCase::kConsensusCreateTopic:
       return mConsensusStub->createTopic(&context, transaction, response);
     case proto::TransactionBody::DataCase::kConsensusDeleteTopic:
@@ -148,8 +150,6 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
     case proto::TransactionBody::DataCase::kFileUpdate:
       return mFileStub->updateFile(&context, transaction, response);
     case proto::TransactionBody::DataCase::kFreeze:
-      return mFreezeStub->freeze(&context, transaction, response);
-    case proto::TransactionBody::DataCase::kNodeCreate:
       return mFreezeStub->freeze(&context, transaction, response);
     case proto::TransactionBody::DataCase::kScheduleCreate:
       return mScheduleStub->createSchedule(&context, transaction, response);
@@ -288,6 +288,7 @@ void Node::initializeStubs()
   if (!mSmartContractStub) mSmartContractStub = proto::SmartContractService::NewStub(getChannel());
   if (!mTokenStub)         mTokenStub         = proto::TokenService::NewStub(getChannel());
   if (!mUtilStub)          mUtilStub          = proto::UtilService::NewStub(getChannel());
+  if (!mAddressBookStub)   mAddressBookStub   = proto::AddressBookService::NewStub(getChannel());
   // clang-format on
 }
 
@@ -303,6 +304,7 @@ void Node::closeStubs()
   mSmartContractStub = nullptr;
   mTokenStub = nullptr;
   mUtilStub = nullptr;
+  mAddressBookStub = nullptr;
 }
 
 } // namespace Hedera::internal
