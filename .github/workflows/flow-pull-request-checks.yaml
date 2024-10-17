@@ -20,6 +20,13 @@ permissions:
   contents: read
 
 jobs:
+  prepare-working-windows-folder:
+    name: prepare-windows-folder
+    runs-on: client-sdk-linux-large
+    steps:
+      - name: create folder
+        run: mkdir windows-build-test
+
   build:
     name: Code
     uses: ./.github/workflows/zxc-build-library.yaml
