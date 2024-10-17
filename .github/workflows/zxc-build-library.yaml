@@ -261,10 +261,10 @@ jobs:
       - name: Install Local Node
         run: sudo npm install -g @hashgraph/hedera-local@2.29.2
 
-      # - name: Install Linux Prerequisites
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
+      - name: Install Linux Prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
 
       # Install dependencies, including CMake and mingw-w64
       - name: Install Windows Prerequisites
