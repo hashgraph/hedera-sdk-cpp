@@ -185,7 +185,7 @@ jobs:
     runs-on: client-sdk-linux-large
     defaults:
       run:
-        working-directory: ./windows-build-test #REMOVE TEST FROM THE NAME!
+        working-directory: windows-build-test #REMOVE TEST FROM THE NAME!
 
     env:
       HEDERA_NETWORK: localhost
