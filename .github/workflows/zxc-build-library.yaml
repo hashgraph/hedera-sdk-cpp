@@ -300,11 +300,11 @@ jobs:
           VCPKG_BINARY_SOURCES: clear
         run: |
           echo "::group::Configure Project"
-          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/windows-toolchain.cmake --preset ${{ matrix.preset }}-debug
+          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=windows-toolchain.cmake --preset ${{ matrix.preset }}-debug
           echo "::endgroup::"
 
           echo "::group::Build Project"
-          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/windows-toolchain.cmake --build -j 6 --preset ${{ matrix.preset }}-debug
+          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=windows-toolchain.cmake --build -j 6 --preset ${{ matrix.preset }}-debug
           echo "::endgroup::"
 
       #      - name: CMake Build (Release)
@@ -322,11 +322,11 @@ jobs:
           VCPKG_BINARY_SOURCES: clear
         run: |
           echo "::group::Configure Project"
-          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/windows-toolchain.cmake --preset ${{ matrix.preset }}-release
+          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=windows-toolchain.cmake --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
 
           echo "::group::Build Project"
-          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/windows-toolchain.cmake --build -j 6 --preset ${{ matrix.preset }}-release
+          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=windows-toolchain.cmake --build -j 6 --preset ${{ matrix.preset }}-release
           echo "::endgroup::"
 
       # - name: List Directory Structure
