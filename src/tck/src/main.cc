@@ -20,6 +20,7 @@
 #include "JsonTypeMapper.h"
 #include "SdkClient.h"
 #include "TckServer.h"
+#include "account/AccountService.h"
 #include "impl/EntityIdHelper.h"
 
 using namespace Hedera::TCK;
@@ -32,7 +33,7 @@ int main(int argc, char** argv)
 
   // Add the SDK client functions.
   tckServer.add("createAccount",
-                getHandle(&SdkClient::createAccount),
+                getHandle(&AccountService::createAccount),
                 { "key",
                   "initialBalance",
                   "receiverSignatureRequired",
@@ -45,7 +46,7 @@ int main(int argc, char** argv)
                   "alias",
                   "commonTransactionParams" });
   tckServer.add("deleteAccount",
-                getHandle(&SdkClient::deleteAccount),
+                getHandle(&AccountService::deleteAccount),
                 { "deleteAccountId", "transferAccountId", "commonTransactionParams" });
   tckServer.add("generateKey", getHandle(&SdkClient::generateKey), { "type", "fromKey", "threshold", "keys" });
   tckServer.add("setup",
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
                 { "operatorAccountId", "operatorPrivateKey", "nodeIp", "nodeAccountId", "mirrorNetworkIp" });
   tckServer.add("reset", getHandle(&SdkClient::reset));
   tckServer.add("updateAccount",
-                getHandle(&SdkClient::updateAccount),
+                getHandle(&AccountService::updateAccount),
                 { "accountId",
                   "key",
                   "autoRenewPeriod",

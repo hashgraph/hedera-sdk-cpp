@@ -37,10 +37,10 @@
 #include <optional>
 #include <string>
 
-namespace Hedera::TCK
+namespace Hedera::TCK::AccountService
 {
 //-----
-nlohmann::json AccountService::createAccount(const CreateAccountParams& params)
+nlohmann::json createAccount(const CreateAccountParams& params, const SdkClient& client)
 {
   AccountCreateTransaction accountCreateTransaction;
   accountCreateTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
@@ -97,11 +97,11 @@ nlohmann::json AccountService::createAccount(const CreateAccountParams& params)
 
   if (params.mCommonTxParams.has_value())
   {
-    params.mCommonTxParams->fillOutTransaction(accountCreateTransaction, getSdkClient()->getClient());
+    params.mCommonTxParams->fillOutTransaction(accountCreateTransaction, client.getClient());
   }
 
   const TransactionReceipt txReceipt =
-    accountCreateTransaction.execute(getSdkClient()->getClient()).getReceipt(getSdkClient()->getClient());
+    accountCreateTransaction.execute(client.getClient()).getReceipt(client.getClient());
   return {
     {"accountId", txReceipt.mAccountId->toString()     },
     { "status",   gStatusToString.at(txReceipt.mStatus)}
@@ -109,9 +109,10 @@ nlohmann::json AccountService::createAccount(const CreateAccountParams& params)
 }
 
 //-----
-nlohmann::json AccountService::deleteAccount(const std::optional<std::string>& deleteAccountId,
-                                             const std::optional<std::string>& transferAccountId,
-                                             const std::optional<CommonTransactionParams>& commonTxParams)
+nlohmann::json deleteAccount(const std::optional<std::string>& deleteAccountId,
+                             const std::optional<std::string>& transferAccountId,
+                             const std::optional<CommonTransactionParams>& commonTxParams,
+                             const SdkClient& client)
 {
   AccountDeleteTransaction accountDeleteTransaction;
   accountDeleteTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
@@ -128,28 +129,28 @@ nlohmann::json AccountService::deleteAccount(const std::optional<std::string>& d
 
   if (commonTxParams.has_value())
   {
-    commonTxParams->fillOutTransaction(accountDeleteTransaction, getSdkClient()->getClient());
+    commonTxParams->fillOutTransaction(accountDeleteTransaction, client.getClient());
   }
 
   return {
     {"status",
-     gStatusToString.at(
-        accountDeleteTransaction.execute(getSdkClient()->getClient()).getReceipt(getSdkClient()->getClient()).mStatus)}
+     gStatusToString.at(accountDeleteTransaction.execute(client.getClient()).getReceipt(client.getClient()).mStatus)}
   };
 }
 
 //-----
-nlohmann::json AccountService::updateAccount(const std::optional<std::string>& accountId,
-                                             const std::optional<std::string>& key,
-                                             const std::optional<int64_t>& autoRenewPeriod,
-                                             const std::optional<int64_t>& expirationTime,
-                                             const std::optional<bool>& receiverSignatureRequired,
-                                             const std::optional<std::string>& memo,
-                                             const std::optional<int32_t>& maxAutoTokenAssociations,
-                                             const std::optional<std::string>& stakedAccountId,
-                                             const std::optional<int64_t>& stakedNodeId,
-                                             const std::optional<bool>& declineStakingReward,
-                                             const std::optional<CommonTransactionParams>& commonTxParams)
+nlohmann::json updateAccount(const std::optional<std::string>& accountId,
+                             const std::optional<std::string>& key,
+                             const std::optional<int64_t>& autoRenewPeriod,
+                             const std::optional<int64_t>& expirationTime,
+                             const std::optional<bool>& receiverSignatureRequired,
+                             const std::optional<std::string>& memo,
+                             const std::optional<int32_t>& maxAutoTokenAssociations,
+                             const std::optional<std::string>& stakedAccountId,
+                             const std::optional<int64_t>& stakedNodeId,
+                             const std::optional<bool>& declineStakingReward,
+                             const std::optional<CommonTransactionParams>& commonTxParams,
+                             const SdkClient& client)
 {
   AccountUpdateTransaction accountUpdateTransaction;
   accountUpdateTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
@@ -207,11 +208,11 @@ nlohmann::json AccountService::updateAccount(const std::optional<std::string>& a
 
   if (commonTxParams.has_value())
   {
-    commonTxParams->fillOutTransaction(accountUpdateTransaction, getSdkClient()->getClient());
+    commonTxParams->fillOutTransaction(accountUpdateTransaction, client.getClient());
   }
 
   const TransactionReceipt txReceipt =
-    accountUpdateTransaction.execute(getSdkClient()->getClient()).getReceipt(getSdkClient()->getClient());
+    accountUpdateTransaction.execute(client.getClient()).getReceipt(client.getClient());
   return {
     {"status", gStatusToString.at(txReceipt.mStatus)}
   };
