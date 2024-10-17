@@ -196,8 +196,6 @@ jobs:
             preset: linux-x64
 
     steps:
-      - name: Create working directory
-        run: mkdir windows-build-test
       - name: Setup Control Groups
         id: cgroup
         run: |
