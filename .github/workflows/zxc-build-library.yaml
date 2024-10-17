@@ -183,9 +183,9 @@ jobs:
   build-windows:
     name: Build-Windows
     runs-on: client-sdk-linux-large
-    defaults:
-      run:
-        working-directory: windows-build-test #REMOVE TEST FROM THE NAME!
+    # defaults:
+    #   run:
+    #     working-directory: windows-build-test #REMOVE TEST FROM THE NAME!
 
     env:
       HEDERA_NETWORK: localhost
@@ -273,7 +273,7 @@ jobs:
           sudo apt-get install -y cmake mingw-w64
 
       - name: Ensure Binary Cache Path Exists
-        run: mkdir -p "${{ github.workspace }}/windows-build-test/b/vcpkg_cache"
+        run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
       - name: Install CMake & Ninja
         uses: lukka/get-cmake@b516803a3c5fac40e2e922349d15cdebdba01e60 # v3.30.5
@@ -281,10 +281,10 @@ jobs:
       - name: Setup VCPkg
         uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
         with:
-          binaryCachePath: ${{ github.workspace }}/windows-build-test/b/vcpkg_cache
+          binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
       - name: Convert VCPkg to Full Clone
-        working-directory: windows-build-test/vcpkg
+        working-directory: vcpkg
         run: git fetch --unshallow --prune
 
       #      - name: CMake Build (Debug)
@@ -338,11 +338,11 @@ jobs:
         run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
 
       - name: Start CTest suite (Debug)
-        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir windows-build-test/build/${{ matrix.preset }}-debug --output-on-failure
+        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
 
       - name: Start CTest suite (Release)
         if: github.event.pull_request.merged == true
-        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir windows-build-test/build/${{ matrix.preset }}-release --output-on-failure
+        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
       - name: Stop the local node
         run: sudo npx @hashgraph/hedera-local stop
