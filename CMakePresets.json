@@ -141,10 +141,6 @@
       "name": "windows-x64-debug",
       "inherits": ["vcpkg-msbuild-base"],
       "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": {
-          "type": "STRING",
-          "value": "x64-mingw-dynamic"
-        },
         "CMAKE_BUILD_TYPE": {
           "type": "STRING",
           "value": "Debug"
