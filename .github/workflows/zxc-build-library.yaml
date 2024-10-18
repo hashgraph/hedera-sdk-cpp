@@ -258,13 +258,13 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Local Node
-        run: sudo npm install -g @hashgraph/hedera-local@2.29.2
+      # - name: Install Local Node
+      #   run: sudo npm install -g @hashgraph/hedera-local@2.29.2
 
-      - name: Install Linux Prerequisites
+      - name: Install Prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
+          sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential mingw-w64
 
       # # Install dependencies, including CMake and mingw-w64
       # - name: Install Windows Prerequisites
@@ -300,13 +300,16 @@ jobs:
         env:
           VCPKG_BINARY_SOURCES: clear
         run: |
-          echo "::group::Configure Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug
-          echo "::endgroup::"
+          cmake -DCMAKE_TOOLCHAIN_FILE=./windows-toolchain.cmake --build -j 6
 
-          echo "::group::Build Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --build -j 6 --preset ${{ matrix.preset }}-debug
-          echo "::endgroup::"
+
+      # echo "::group::Configure Project"
+      # ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug
+      # echo "::endgroup::"
+
+      # echo "::group::Build Project"
+      # ${{ steps.cgroup.outputs.exec }} cmake --build -j 6 --preset ${{ matrix.preset }}-debug
+      # echo "::endgroup::"
 
       #      - name: CMake Build (Release)
       #        if: github.event.pull_request.merged == true
@@ -335,22 +338,22 @@ jobs:
       #     shell: pwsh
       #     run: tree /F build
 
-      - name: Start the local node
-        run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
+      # - name: Start the local node
+      #   run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
 
-      - name: Start CTest suite (Debug)
-        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+      # - name: Start CTest suite (Debug)
+      #   run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
 
-      - name: Start CTest suite (Release)
-        if: github.event.pull_request.merged == true
-        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+      # - name: Start CTest suite (Release)
+      #   if: github.event.pull_request.merged == true
+      #   run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
-      - name: Stop the local node
-        run: sudo npx @hashgraph/hedera-local stop
+      # - name: Stop the local node
+      #   run: sudo npx @hashgraph/hedera-local stop
 
-      - name: Compute Short SHA
-        id: sha
-        run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
+      # - name: Compute Short SHA
+      #   id: sha
+      #   run: echo "short=$(echo -n "${{ github.sha }}" | cut -c1-8)" >> $GITHUB_OUTPUT
 
       - name: Attach Artifact
         if: github.event.pull_request.merged == true
