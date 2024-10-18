@@ -36,7 +36,8 @@
         },
         "CMAKE_SYSTEM_NAME": "Windows",
         "CMAKE_C_COMPILER": "/usr/bin/x86_64-w64-mingw32-gcc",
-        "CMAKE_CXX_COMPILER": "/usr/bin/x86_64-w64-mingw32-g++"
+        "CMAKE_CXX_COMPILER": "/usr/bin/x86_64-w64-mingw32-g++",
+        "CMAKE_MAKE_PROGRAM": "/home/runner/_work/_temp/-111029589/ninja"
       }
     },
     {
