@@ -144,7 +144,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
-          "value": "x64-mingw-static"
+          "value": "x64-mingw-dynamic"
         },
         "CMAKE_BUILD_TYPE": {
           "type": "STRING",

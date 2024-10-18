@@ -285,7 +285,10 @@ jobs:
 
       - name: Convert VCPkg to Full Clone
         working-directory: vcpkg
-        run: git fetch --unshallow --prune
+        run: |
+          git fetch --unshallow --prune
+          git pull
+          vcpkg update
 
       #      - name: CMake Build (Debug)
       #        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
