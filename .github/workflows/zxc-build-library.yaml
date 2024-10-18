@@ -266,11 +266,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
 
-      # Install dependencies, including CMake and mingw-w64
-      - name: Install Windows Prerequisites
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake mingw-w64
+      # # Install dependencies, including CMake and mingw-w64
+      # - name: Install Windows Prerequisites
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y cmake mingw-w64
 
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
@@ -287,7 +287,6 @@ jobs:
         working-directory: vcpkg
         run: |
           git fetch --unshallow --prune
-          git pull
 
       #      - name: CMake Build (Debug)
       #        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
