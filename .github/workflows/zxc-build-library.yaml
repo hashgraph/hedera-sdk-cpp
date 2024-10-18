@@ -287,7 +287,6 @@ jobs:
         working-directory: vcpkg
         run: |
           git fetch --unshallow --prune
-          git pull
           vcpkg update
 
       #      - name: CMake Build (Debug)
