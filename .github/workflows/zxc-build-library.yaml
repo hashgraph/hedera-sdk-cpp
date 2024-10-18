@@ -300,7 +300,7 @@ jobs:
         env:
           VCPKG_BINARY_SOURCES: clear
         run: |
-          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=./windows-toolchain.cmake --build -j 6
+          ${{ steps.cgroup.outputs.exec }} cmake -DCMAKE_TOOLCHAIN_FILE=./windows-toolchain.cmake --build
 
 
       # echo "::group::Configure Project"
