@@ -35,7 +35,9 @@
 #include "TokenType.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
+#include "impl/EntityIdHelper.h"
 #include "impl/HexConverter.h"
+#include "impl/Utilities.h"
 
 #include <algorithm>
 #include <chrono>
@@ -138,7 +140,7 @@ nlohmann::json SdkClient::createAccount(const std::optional<std::string>& key,
 nlohmann::json SdkClient::createToken(const std::optional<std::string>& name,
                                       const std::optional<std::string>& symbol,
                                       const std::optional<uint32_t>& decimals,
-                                      const std::optional<uint64_t>& initialSupply,
+                                      const std::optional<std::string>& initialSupply,
                                       const std::optional<std::string>& treasuryAccountId,
                                       const std::optional<std::string>& adminKey,
                                       const std::optional<std::string>& kycKey,
@@ -146,13 +148,13 @@ nlohmann::json SdkClient::createToken(const std::optional<std::string>& name,
                                       const std::optional<std::string>& wipeKey,
                                       const std::optional<std::string>& supplyKey,
                                       const std::optional<bool>& freezeDefault,
-                                      const std::optional<int64_t>& expirationTime,
+                                      const std::optional<std::string>& expirationTime,
                                       const std::optional<std::string>& autoRenewAccountId,
-                                      const std::optional<int64_t>& autoRenewPeriod,
+                                      const std::optional<std::string>& autoRenewPeriod,
                                       const std::optional<std::string>& memo,
                                       const std::optional<std::string>& tokenType,
                                       const std::optional<std::string>& supplyType,
-                                      const std::optional<int64_t>& maxSupply,
+                                      const std::optional<std::string>& maxSupply,
                                       const std::optional<std::string>& feeScheduleKey,
                                       const std::optional<std::vector<std::shared_ptr<CustomFee>>>& customFees,
                                       const std::optional<std::string>& pauseKey,
@@ -180,7 +182,14 @@ nlohmann::json SdkClient::createToken(const std::optional<std::string>& name,
 
   if (initialSupply.has_value())
   {
-    tokenCreateTransaction.setInitialSupply(initialSupply.value());
+    try
+    {
+      tokenCreateTransaction.setInitialSupply(Hedera::internal::EntityIdHelper::getNum<int64_t>(initialSupply.value()));
+    }
+    catch (const std::invalid_argument&)
+    {
+      tokenCreateTransaction.setInitialSupply(Hedera::internal::EntityIdHelper::getNum(initialSupply.value()));
+    }
   }
 
   if (treasuryAccountId.has_value())
@@ -220,8 +229,18 @@ nlohmann::json SdkClient::createToken(const std::optional<std::string>& name,
 
   if (expirationTime.has_value())
   {
-    tokenCreateTransaction.setExpirationTime(std::chrono::system_clock::from_time_t(0) +
-                                             std::chrono::seconds(expirationTime.value()));
+    try
+    {
+      tokenCreateTransaction.setExpirationTime(
+        std::chrono::system_clock::from_time_t(0) +
+        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(expirationTime.value())));
+    }
+    catch (const std::invalid_argument&)
+    {
+      tokenCreateTransaction.setExpirationTime(
+        std::chrono::system_clock::from_time_t(0) +
+        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum(expirationTime.value())));
+    }
   }
 
   if (autoRenewAccountId.has_value())
@@ -231,7 +250,16 @@ nlohmann::json SdkClient::createToken(const std::optional<std::string>& name,
 
   if (autoRenewPeriod.has_value())
   {
-    tokenCreateTransaction.setAutoRenewPeriod(std::chrono::seconds(autoRenewPeriod.value()));
+    try
+    {
+      tokenCreateTransaction.setAutoRenewPeriod(
+        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(autoRenewPeriod.value())));
+    }
+    catch (const std::invalid_argument&)
+    {
+      tokenCreateTransaction.setAutoRenewPeriod(
+        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum(autoRenewPeriod.value())));
+    }
   }
 
   if (memo.has_value())
@@ -264,7 +292,14 @@ nlohmann::json SdkClient::createToken(const std::optional<std::string>& name,
 
   if (maxSupply.has_value())
   {
-    tokenCreateTransaction.setMaxSupply(maxSupply.value());
+    try
+    {
+      tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum<int64_t>(maxSupply.value()));
+    }
+    catch (const std::invalid_argument&)
+    {
+      tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum(maxSupply.value()));
+    }
   }
 
   if (feeScheduleKey.has_value())
@@ -284,7 +319,7 @@ nlohmann::json SdkClient::createToken(const std::optional<std::string>& name,
 
   if (metadata.has_value())
   {
-    tokenCreateTransaction.setMetadata(internal::HexConverter::hexToBytes(metadata.value()));
+    tokenCreateTransaction.setMetadata(internal::Utilities::stringToByteVector(metadata.value()));
   }
 
   if (metadataKey.has_value())
@@ -339,7 +374,9 @@ nlohmann::json SdkClient::generateKey(const std::string& type,
                                       const std::optional<std::vector<KeyRequest>>& keys)
 {
   nlohmann::json response;
-  response["key"] = processKeyRequest({ type, fromKey, threshold, keys }, response);
+  std::string key = processKeyRequest({ type, fromKey, threshold, keys }, response);
+  std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return std::tolower(c); });
+  response["key"] = key;
   return response;
 }
 

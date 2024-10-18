@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_ENTITY_ID_HELPER_H_
 #define HEDERA_SDK_CPP_IMPL_ENTITY_ID_HELPER_H_
 
+#include <charconv>
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -55,12 +56,23 @@ template<typename EntityType>
 [[nodiscard]] EntityType fromSolidityAddress(const std::vector<std::byte>& address);
 
 /**
- * Convert a string to a uint64_t. E.g. "123" will return 123.
+ * Convert a string to a number type. E.g. "123" will return 123.
  *
  * @param str The string to convert.
- * @return The uint64_t contained in the string.
+ * @return The number type contained in the string.
  */
-[[nodiscard]] uint64_t getNum(std::string_view str);
+template<typename T = uint64_t>
+[[nodiscard]] T getNum(std::string_view str)
+{
+  T num;
+  if (auto result = std::from_chars(str.data(), str.data() + str.size(), num);
+      result.ec != std::errc() || result.ptr != str.data() + str.size())
+  {
+    throw std::invalid_argument("Input entity ID string is malformed");
+  }
+
+  return num;
+}
 
 /**
  * Get the shard from an entity ID.
