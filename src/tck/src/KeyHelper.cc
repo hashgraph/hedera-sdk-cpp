@@ -78,20 +78,21 @@ KeyRequest::KeyRequest(const std::string& type,
 //-----
 std::shared_ptr<Hedera::Key> getHederaKey(const std::string& key)
 {
+  const std::vector<std::byte> keyBytes = internal::HexConverter::hexToBytes(key);
   try
   {
-    return PublicKey::fromStringDer(key);
+    return PublicKey::fromBytesDer(keyBytes);
   }
   catch (const BadKeyException&)
   {
     try
     {
-      return PrivateKey::fromStringDer(key);
+      return PrivateKey::fromBytesDer(keyBytes);
     }
     catch (const BadKeyException&)
     {
       proto::Key protoKey;
-      protoKey.ParseFromString(internal::Utilities::byteVectorToString(internal::HexConverter::hexToBytes(key)));
+      protoKey.ParseFromString(internal::Utilities::byteVectorToString(keyBytes));
       return Hedera::Key::fromProtobuf(protoKey);
     }
   }

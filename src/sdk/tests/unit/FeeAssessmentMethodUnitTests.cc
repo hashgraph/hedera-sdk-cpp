@@ -33,6 +33,6 @@ TEST_F(FeeAssessmentMethodUnitTests, FeeAssessmentMethodToString)
   // Given / When / Then
   ASSERT_TRUE(gFeeAssessmentMethodToString.find(FeeAssessmentMethod::INCLUSIVE) != gFeeAssessmentMethodToString.end());
   ASSERT_TRUE(gFeeAssessmentMethodToString.find(FeeAssessmentMethod::EXCLUSIVE) != gFeeAssessmentMethodToString.end());
-  EXPECT_STRCASEEQ(gFeeAssessmentMethodToString.at(FeeAssessmentMethod::INCLUSIVE), "INCLUSIVE");
-  EXPECT_STRCASEEQ(gFeeAssessmentMethodToString.at(FeeAssessmentMethod::EXCLUSIVE), "EXCLUSIVE");
+  EXPECT_EQ(gFeeAssessmentMethodToString.at(FeeAssessmentMethod::INCLUSIVE), "INCLUSIVE");
+  EXPECT_EQ(gFeeAssessmentMethodToString.at(FeeAssessmentMethod::EXCLUSIVE), "EXCLUSIVE");
 }
