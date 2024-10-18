@@ -28,7 +28,7 @@
       "description": "Configured via the VS msbuild vcpkg toolchain",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "installDir": "${sourceDir}/package",
-      "generator": "Ninja",
+      "generator": "Ninja Multi-Config",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
@@ -143,7 +143,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
-          "value": "x64-windows"
+          "value": "x64-windows-mingw"
         },
         "CMAKE_BUILD_TYPE": {
           "type": "STRING",
