@@ -91,7 +91,7 @@ jobs:
       - name: Install Linux Prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential
+          sudo apt-get install -y pkg-config libc6-dbg libgtest-dev build-essential gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
 
       - name: Ensure Binary Cache Path Exists
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
