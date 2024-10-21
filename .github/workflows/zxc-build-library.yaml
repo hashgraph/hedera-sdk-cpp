@@ -128,9 +128,8 @@ jobs:
         env:
           VCPKG_BINARY_SOURCES: clear
         run: |
-          cmake --log-level=VERBOSE
           echo "::group::Configure Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug
+          ${{ steps.cgroup.outputs.exec }} cmake --log-level=VERBOSE --preset ${{ matrix.preset }}-debug
           echo "::endgroup::"
 
           echo "::group::Build Project"
