@@ -110,7 +110,7 @@ jobs:
           git fetch --unshallow --prune
           git pull
           ./bootstrap-vcpkg.sh
-          ./vcpkg install zlib:x64-mingw-dynamic
+          ./vcpkg install apr:x64-mingw-dynamic
           cd ..
           mv temporary_rename_to_hide_this_file_from_vcpkg_vcpkg.json vcpkg.json
           which ninja
