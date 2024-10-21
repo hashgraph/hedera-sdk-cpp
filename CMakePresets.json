@@ -28,7 +28,7 @@
       "description": "Configured via the VS msbuild vcpkg toolchain",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "installDir": "${sourceDir}/package",
-      "generator": "ninja",
+      "generator": "Ninja Multi-Config",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
