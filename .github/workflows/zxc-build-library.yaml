@@ -110,7 +110,6 @@ jobs:
           git fetch --unshallow --prune
           git pull
           ./bootstrap-vcpkg.sh
-          vcpkg update
           vcpkg install zlib:x64-mingw-dynamic
 
       #      - name: CMake Build (Debug)
