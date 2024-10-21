@@ -111,6 +111,8 @@ jobs:
           git pull
           ./bootstrap-vcpkg.sh
           ./vcpkg install zlib:x64-mingw-dynamic
+          cd ..
+          mv temporary_rename_to_hide_this_file_from_vcpkg_vcpkg.json vcpkg.json
 
       #      - name: CMake Build (Debug)
       #        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
