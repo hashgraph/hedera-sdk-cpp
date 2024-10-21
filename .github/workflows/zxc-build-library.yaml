@@ -19,8 +19,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: Linux
-            preset: linux-x64
+          - os: Windows
+            preset: windows-x64
 
     steps:
       - name: Setup Control Groups
