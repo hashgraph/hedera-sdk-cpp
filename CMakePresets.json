@@ -145,6 +145,10 @@
         "CMAKE_BUILD_TYPE": {
           "type": "STRING",
           "value": "Debug"
+        },
+        "VCPKG_CMAKE_SYSTEM_NAME": {
+          "type": "STRING",
+          "value": "MinGW"
         }
       }
     }
