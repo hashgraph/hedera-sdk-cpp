@@ -149,6 +149,10 @@
         "CMAKE_CXX_COMPILER": {
           "type": "STRING",
           "value": "/usr/bin/x86_64-w64-mingw32-g++"
+        },
+        "CMAKE_MAKE_PROGRAM": {
+          "type": "STRING",
+          "value": "ninja"
         }
       }
     }
