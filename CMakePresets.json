@@ -150,6 +150,10 @@
           "type": "STRING",
           "value": "/usr/bin/x86_64-w64-mingw32-g++"
         },
+        "CMAKE_C_COMPILER": {
+          "type": "STRING",
+          "value": "/usr/bin/x86_64-w64-mingw32-gcc"
+        },
         "CMAKE_MAKE_PROGRAM": {
           "type": "STRING",
           "value": "ninja"
