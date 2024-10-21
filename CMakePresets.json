@@ -140,15 +140,11 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": {
           "type": "STRING",
-          "value": "x64-windows"
+          "value": "x64-windows-mingw"
         },
         "CMAKE_BUILD_TYPE": {
           "type": "STRING",
           "value": "Debug"
-        },
-        "VCPKG_CMAKE_SYSTEM_NAME": {
-          "type": "STRING",
-          "value": "MinGW"
         }
       }
     }
