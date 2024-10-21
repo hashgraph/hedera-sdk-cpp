@@ -28,13 +28,7 @@
       "description": "Configured via the VS msbuild vcpkg toolchain",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "installDir": "${sourceDir}/package",
-      "generator": "Ninja Multi-Config",
-      "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": {
-          "type": "FILEPATH",
-          "value": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
-        }
-      }
+      "generator": "Ninja Multi-Config"
     },
     {
       "name": "linux-x64-release",
