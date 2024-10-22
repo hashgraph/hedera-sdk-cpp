@@ -111,8 +111,6 @@ jobs:
         working-directory: vcpkg
         run: |
           git fetch --unshallow --prune
-          git pull
-          vcpkg update
           which ninja
           which x86_64-w64-mingw32-g++
 
