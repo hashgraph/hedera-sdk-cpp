@@ -20,8 +20,7 @@
 #ifndef HEDERA_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
 #define HEDERA_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
 
-#include "JsonRpcException.h"
-#include "JsonUtils.h"
+#include "json/JsonUtils.h"
 
 #include <Client.h>
 #include <Hbar.h>
@@ -30,8 +29,8 @@
 #include <TransactionId.h>
 
 #include <chrono>
-#include <memory>
-#include <nlohmann/json.hpp>
+#include <cstdint>
+#include <nlohmann/json_fwd.hpp>
 #include <optional>
 #include <string>
 #include <vector>
@@ -46,26 +45,26 @@ struct CommonTransactionParams
   /**
    * Function that fills a Transaction with the parameters present in this CommonTransactionParams.
    *
-   * @tparam T The type of Transaction being filled out.
-   * @param transaction The Transaction to fill out.
-   * @param client      The Client being used to submit this Transaction.
+   * @tparam T           The type of Transaction being filled out.
+   * @param  transaction The Transaction to fill out.
+   * @param  client      The Client being used to submit this Transaction.
    */
   template<typename T>
   void fillOutTransaction(Transaction<T>& transaction, const Client& client) const
   {
     if (mTransactionId.has_value())
     {
-      transaction.setTransactionId(mTransactionId.value());
+      transaction.setTransactionId(TransactionId::fromString(mTransactionId.value()));
     }
 
     if (mMaxTransactionFee.has_value())
     {
-      transaction.setMaxTransactionFee(mMaxTransactionFee.value());
+      transaction.setMaxTransactionFee(Hbar::fromTinybars(mMaxTransactionFee.value()));
     }
 
     if (mValidTransactionDuration.has_value())
     {
-      transaction.setValidTransactionDuration(mValidTransactionDuration.value());
+      transaction.setValidTransactionDuration(std::chrono::seconds(mValidTransactionDuration.value()));
     }
 
     if (mMemo.has_value())
@@ -83,24 +82,24 @@ struct CommonTransactionParams
       transaction.freezeWith(&client);
       std::for_each(mSigners->cbegin(),
                     mSigners->cend(),
-                    [&transaction](const std::shared_ptr<PrivateKey>& key) { transaction.sign(key); });
+                    [&transaction](const std::string& key) { transaction.sign(PrivateKey::fromStringDer(key)); });
     }
   }
 
   /**
    * The ID of the transaction.
    */
-  std::optional<TransactionId> mTransactionId;
+  std::optional<std::string> mTransactionId;
 
   /**
    * The maximum amount willing to be paid to execute the transaction.
    */
-  std::optional<Hbar> mMaxTransactionFee;
+  std::optional<int64_t> mMaxTransactionFee;
 
   /**
    * The length of time for which the transaction is valid.
    */
-  std::optional<std::chrono::seconds> mValidTransactionDuration;
+  std::optional<int64_t> mValidTransactionDuration;
 
   /**
    * The memo of the transaction.
@@ -115,7 +114,7 @@ struct CommonTransactionParams
   /**
    * The list of DER-encoded hex strings of private keys to sign the transaction.
    */
-  std::optional<std::vector<std::shared_ptr<PrivateKey>>> mSigners;
+  std::optional<std::vector<std::string>> mSigners;
 };
 
 } // namespace Hedera::TCK
@@ -132,42 +131,24 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CommonTransactionParams>
    * Convert a JSON object to a CommonTransactionParams.
    *
    * @param jsonFrom The JSON object with which to fill the CommonTransactionParams.
-   * @param txParams The CommonTransactionParams to fill with the JSON object.
+   * @param params   The CommonTransactionParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::CommonTransactionParams& txParams)
+  static void from_json(const json& jsonFrom, Hedera::TCK::CommonTransactionParams& params)
   {
-    if (auto transactionId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transactionId");
-        transactionId.has_value())
-    {
-      txParams.mTransactionId = Hedera::TransactionId::fromString(transactionId.value());
-    }
-
-    if (auto maxTransactionFee = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxTransactionFee");
-        maxTransactionFee.has_value())
-    {
-      txParams.mMaxTransactionFee = Hedera::Hbar::fromTinybars(maxTransactionFee.value());
-    }
-
-    if (auto validTransactionDuration =
-          Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "validTransactionDuration");
-        validTransactionDuration.has_value())
-    {
-      txParams.mValidTransactionDuration = std::chrono::seconds(validTransactionDuration.value());
-    }
-
-    txParams.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
-    txParams.mRegenerateTransactionId =
-      Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "regenerateTransactionId");
+    params.mTransactionId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transactionId");
+    params.mMaxTransactionFee = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxTransactionFee");
+    params.mValidTransactionDuration =
+      Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "validTransactionDuration");
+    params.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
+    params.mRegenerateTransactionId = Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "regenerateTransactionId");
 
     if (auto keys = Hedera::TCK::getOptionalJsonParameter<std::vector<std::string>>(jsonFrom, "signers");
         keys.has_value())
     {
-      txParams.mSigners = std::vector<std::shared_ptr<Hedera::PrivateKey>>();
-      txParams.mSigners->reserve(keys->size());
-      std::for_each(keys->cbegin(),
-                    keys->cend(),
-                    [&txParams](const std::string& key)
-                    { txParams.mSigners->push_back(Hedera::PrivateKey::fromStringDer(key)); });
+      params.mSigners = std::vector<std::string>();
+      params.mSigners->reserve(keys->size());
+      std::for_each(
+        keys->cbegin(), keys->cend(), [&params](const std::string& key) { params.mSigners->push_back(key); });
     }
   }
 };

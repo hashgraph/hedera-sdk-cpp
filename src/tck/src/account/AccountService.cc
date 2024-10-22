@@ -18,10 +18,12 @@
  *
  */
 #include "account/AccountService.h"
-#include "CommonTransactionParams.h"
-#include "SdkClient.h"
 #include "account/params/CreateAccountParams.h"
+#include "account/params/DeleteAccountParams.h"
 #include "account/params/UpdateAccountParams.h"
+#include "common/CommonTransactionParams.h"
+#include "key/KeyService.h"
+#include "sdk/SdkClient.h"
 
 #include <AccountCreateTransaction.h>
 #include <AccountDeleteTransaction.h>
@@ -34,9 +36,7 @@
 #include <TransactionResponse.h>
 
 #include <chrono>
-#include <cstdint>
 #include <nlohmann/json.hpp>
-#include <optional>
 #include <string>
 
 namespace Hedera::TCK::AccountService
@@ -47,7 +47,10 @@ nlohmann::json createAccount(const CreateAccountParams& params)
   AccountCreateTransaction accountCreateTransaction;
   accountCreateTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
 
-  accountCreateTransaction.setKey(params.mKey);
+  if (params.mKey.has_value())
+  {
+    accountCreateTransaction.setKey(KeyService::getHederaKey(params.mKey.value()));
+  }
 
   if (params.mInitialBalance.has_value())
   {
@@ -76,7 +79,7 @@ nlohmann::json createAccount(const CreateAccountParams& params)
 
   if (params.mStakedAccountId.has_value())
   {
-    accountCreateTransaction.setStakedAccountId(params.mStakedAccountId.value());
+    accountCreateTransaction.setStakedAccountId(AccountId::fromString(params.mStakedAccountId.value()));
   }
 
   if (params.mStakedNodeId.has_value())
@@ -115,12 +118,12 @@ nlohmann::json deleteAccount(const DeleteAccountParams& params)
 
   if (params.mDeleteAccountId.has_value())
   {
-    accountDeleteTransaction.setDeleteAccountId(params.mDeleteAccountId.value());
+    accountDeleteTransaction.setDeleteAccountId(AccountId::fromString(params.mDeleteAccountId.value()));
   }
 
   if (params.mTransferAccountId.has_value())
   {
-    accountDeleteTransaction.setTransferAccountId(params.mTransferAccountId.value());
+    accountDeleteTransaction.setTransferAccountId(AccountId::fromString(params.mTransferAccountId.value()));
   }
 
   if (params.mCommonTxParams.has_value())
@@ -143,10 +146,13 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
 
   if (params.mAccountId.has_value())
   {
-    accountUpdateTransaction.setAccountId(params.mAccountId.value());
+    accountUpdateTransaction.setAccountId(AccountId::fromString(params.mAccountId.value()));
   }
 
-  accountUpdateTransaction.setKey(params.mKey);
+  if (params.mKey.has_value())
+  {
+    accountUpdateTransaction.setKey(KeyService::getHederaKey(params.mKey.value()));
+  }
 
   if (params.mAutoRenewPeriod.has_value())
   {
@@ -155,7 +161,8 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
 
   if (params.mExpirationTime.has_value())
   {
-    accountUpdateTransaction.setExpirationTime(params.mExpirationTime.value());
+    accountUpdateTransaction.setExpirationTime(std::chrono::system_clock::from_time_t(0) +
+                                               std::chrono::seconds(params.mExpirationTime.value()));
   }
 
   if (params.mReceiverSignatureRequired.has_value())
@@ -175,7 +182,7 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
 
   if (params.mStakedAccountId.has_value())
   {
-    accountUpdateTransaction.setStakedAccountId(params.mStakedAccountId.value());
+    accountUpdateTransaction.setStakedAccountId(AccountId::fromString(params.mStakedAccountId.value()));
   }
 
   if (params.mStakedNodeId.has_value())
@@ -200,4 +207,4 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
   };
 }
 
-} // namespace Hedera::TCK
+} // namespace Hedera::TCK::AccountService

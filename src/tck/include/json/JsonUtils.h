@@ -23,7 +23,7 @@
 #include "JsonErrorType.h"
 #include "JsonRpcException.h"
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -33,9 +33,9 @@ namespace Hedera::TCK
 /**
  * Get a required parameter from a JSON object.
  *
- * @tparam T The C++ type of parameter to get.
- * @param json The JSON from which to get the parameter.
- * @param name The name of the parameter to get.
+ * @tparam T    The C++ type of parameter to get.
+ * @param  json The JSON from which to get the parameter.
+ * @param  name The name of the parameter to get.
  * @return The parameter as the specified type.
  * @throws JsonRpcException If the parameter doesn't exist or is not the specified type.
  */
@@ -44,8 +44,7 @@ T getRequiredJsonParameter(const nlohmann::json& json, std::string_view name)
 {
   if (!json.contains(name))
   {
-    throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                        "invalid parameters: " + std::string(name) + " is required");
+    throw JsonRpcException(JsonErrorType::INVALID_PARAMS, "invalid parameters: " + std::string(name) + " is required");
   }
 
   try
@@ -54,17 +53,16 @@ T getRequiredJsonParameter(const nlohmann::json& json, std::string_view name)
   }
   catch (const nlohmann::json::type_error& err)
   {
-    throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                        "invalid parameters: " + std::string(err.what()));
+    throw JsonRpcException(JsonErrorType::INVALID_PARAMS, "invalid parameters: " + std::string(err.what()));
   }
 }
 
 /**
  * Get an optional parameter from a JSON object.
  *
- * @tparam T The C++ type of parameter to get.
- * @param json The JSON from which to get the parameter.
- * @param name The name of the parameter to get.
+ * @tparam T    The C++ type of parameter to get.
+ * @param  json The JSON from which to get the parameter.
+ * @param  name The name of the parameter to get.
  * @return The parameter as the specified type, std::nullopt if the parameter doesn't exist.
  * @throws JsonRpcException If the parameter doesn't exist or is not the specified type.
  */
@@ -82,19 +80,9 @@ std::optional<T> getOptionalJsonParameter(const nlohmann::json& json, std::strin
   }
   catch (const nlohmann::json::type_error& err)
   {
-    throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                        "invalid parameters: " + std::string(err.what()));
+    throw JsonRpcException(JsonErrorType::INVALID_PARAMS, "invalid parameters: " + std::string(err.what()));
   }
 }
-
-/**
- * Does a JSON request have a particular key?
- *
- * @param request The JSON request used to determine whether it contains the key.
- * @param key     The key for which to check.
- * @return \c TRUE if the JSON request contains the key, otherwise \c FALSE.
- */
-bool hasKey(const nlohmann::json& request, std::string_view key);
 
 /**
  * Does a JSON request have a particular key of a particular type?

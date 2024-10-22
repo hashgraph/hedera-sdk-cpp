@@ -1,11 +1,12 @@
 set(TCK_SERVER_NAME ${PROJECT_NAME}-tck)
 add_executable(${TCK_SERVER_NAME}
         src/account/AccountService.cc
-        src/JsonRpcException.cc
-        src/JsonUtils.cc
-        src/KeyHelper.cc
+        src/json/JsonRpcException.cc
+        src/json/JsonUtils.cc
+        src/key/KeyService.cc
+        src/key/KeyType.cc
+        src/sdk/SdkClient.cc
         src/main.cc
-        src/SdkClient.cc
         src/TckServer.cc)
 
 target_link_libraries(${TCK_SERVER_NAME} ${PROJECT_NAME})

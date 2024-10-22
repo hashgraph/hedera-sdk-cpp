@@ -36,14 +36,6 @@ class JsonRpcException : public std::exception
 {
 public:
   /**
-   * Construct a JsonRcpException from a JSON object.
-   *
-   * @param json The JSON object containing the error data.
-   * @return The constructed JsonRpcException object.
-   */
-  [[nodiscard]] static JsonRpcException fromJson(const nlohmann::json& json);
-
-  /**
    * Construct with an error code and an error message.
    *
    * @param code    The error code.

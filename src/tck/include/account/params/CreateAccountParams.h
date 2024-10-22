@@ -20,30 +20,25 @@
 #ifndef HEDERA_TCK_CPP_CREATE_ACCOUNT_PARAMS_H_
 #define HEDERA_TCK_CPP_CREATE_ACCOUNT_PARAMS_H_
 
-#include "CommonTransactionParams.h"
-#include "JsonUtils.h"
+#include "common/CommonTransactionParams.h"
+#include "json/JsonUtils.h"
 
-#include <AccountId.h>
-#include <Key.h>
-
-#include <chrono>
 #include <cstdint>
-#include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 
-namespace Hedera::TCK
+namespace Hedera::TCK::AccountService
 {
 /**
- * Struct to hold the arguments for a `createAccount` function call.
+ * Struct to hold the arguments for a `createAccount` JSON-RPC method call.
  */
 struct CreateAccountParams
 {
   /**
    * The desired key for the account.
    */
-  std::shared_ptr<Key> mKey;
+  std::optional<std::string> mKey;
 
   /**
    * The desired initial balance for the account.
@@ -58,7 +53,7 @@ struct CreateAccountParams
   /**
    * The desired amount of time in seconds to renew the new account.
    */
-  std::optional<std::chrono::seconds> mAutoRenewPeriod;
+  std::optional<int64_t> mAutoRenewPeriod;
 
   /**
    * The desired memo for the new account.
@@ -73,7 +68,7 @@ struct CreateAccountParams
   /**
    * The ID of the desired account to which the new account should stake.
    */
-  std::optional<AccountId> mStakedAccountId;
+  std::optional<std::string> mStakedAccountId;
 
   /**
    * The ID of the desired node to which the new account should stake.
@@ -96,7 +91,7 @@ struct CreateAccountParams
   std::optional<CommonTransactionParams> mCommonTxParams;
 };
 
-} // namespace Hedera::TCK::SdkClient::AccountClient
+} // namespace Hedera::TCK::AccountService
 
 namespace nlohmann
 {
@@ -104,7 +99,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert CreateAccountParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::CreateAccountParams>
+struct [[maybe_unused]] adl_serializer<Hedera::TCK::AccountService::CreateAccountParams>
 {
   /**
    * Convert a JSON object to a CreateAccountParams.
@@ -112,33 +107,17 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CreateAccountParams>
    * @param jsonFrom The JSON object with which to fill the CreateAccountParams.
    * @param params   The CreateAccountParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::CreateAccountParams& params)
+  static void from_json(const json& jsonFrom, Hedera::TCK::AccountService::CreateAccountParams& params)
   {
-    if (auto keyStr = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "key"); keyStr.has_value())
-    {
-      params.mKey = Hedera::TCK::getHederaKey(keyStr.value());
-    }
-
+    params.mKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "key");
     params.mInitialBalance = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "initialBalance");
     params.mReceiverSignatureRequired =
       Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "receiverSignatureRequired");
-
-    if (auto autoRenewPeriodInt = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "autoRenewPeriod");
-        autoRenewPeriodInt.has_value())
-    {
-      params.mAutoRenewPeriod = std::chrono::seconds(autoRenewPeriodInt.value());
-    }
-
+    params.mAutoRenewPeriod = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "autoRenewPeriod");
     params.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
     params.mMaxAutoTokenAssociations =
       Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxAutoTokenAssociations");
-
-    if (auto stakedAccountIdStr = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "stakedAccountId");
-        stakedAccountIdStr.has_value())
-    {
-      params.mStakedAccountId = Hedera::AccountId::fromString(stakedAccountIdStr.value());
-    }
-
+    params.mStakedAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "stakedAccountId");
     params.mStakedNodeId = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "stakedNodeId");
     params.mDeclineStakingReward = Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "declineStakingReward");
     params.mAlias = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "alias");

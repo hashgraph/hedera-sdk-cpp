@@ -20,35 +20,29 @@
 #ifndef HEDERA_TCK_CPP_DELETE_ACCOUNT_PARAMS_H_
 #define HEDERA_TCK_CPP_DELETE_ACCOUNT_PARAMS_H_
 
-#include "CommonTransactionParams.h"
-#include "JsonUtils.h"
+#include "common/CommonTransactionParams.h"
+#include "json/JsonUtils.h"
 
-#include <AccountId.h>
-#include <Key.h>
-
-#include <chrono>
-#include <cstdint>
-#include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 
-namespace Hedera::TCK
+namespace Hedera::TCK::AccountService
 {
 /**
- * Struct to hold the arguments for a `deleteAccount` function call.
+ * Struct to hold the arguments for a `deleteAccount` JSON-RPC method call.
  */
 struct DeleteAccountParams
 {
   /**
    * The ID of the account to delete.
    */
-  std::optional<AccountId> mDeleteAccountId;
+  std::optional<std::string> mDeleteAccountId;
 
   /**
    * The ID of the account to which to transfer remaining balances.
    */
-  std::optional<AccountId> mTransferAccountId;
+  std::optional<std::string> mTransferAccountId;
 
   /**
    * Any parameters common to all transaction types.
@@ -56,36 +50,26 @@ struct DeleteAccountParams
   std::optional<CommonTransactionParams> mCommonTxParams;
 };
 
-} // namespace Hedera::TCK::SdkClient::AccountClient
+} // namespace Hedera::TCK::AccountService
 
 namespace nlohmann
 {
 /**
- * JSON serializer template specialization required to convert CreateAccountParams arguments properly.
+ * JSON serializer template specialization required to convert DeleteAccountParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::DeleteAccountParams>
+struct [[maybe_unused]] adl_serializer<Hedera::TCK::AccountService::DeleteAccountParams>
 {
   /**
-   * Convert a JSON object to a CreateAccountParams.
+   * Convert a JSON object to a DeleteAccountParams.
    *
-   * @param jsonFrom The JSON object with which to fill the CreateAccountParams.
-   * @param params   The CreateAccountParams to fill with the JSON object.
+   * @param jsonFrom The JSON object with which to fill the DeleteAccountParams.
+   * @param params   The DeleteAccountParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::DeleteAccountParams& params)
+  static void from_json(const json& jsonFrom, Hedera::TCK::AccountService::DeleteAccountParams& params)
   {
-    if (auto deleteAccountIdStr = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "deleteAccountId");
-        deleteAccountIdStr.has_value())
-    {
-      params.mDeleteAccountId = Hedera::AccountId::fromString(deleteAccountIdStr.value());
-    }
-
-    if (auto transferAccountIdStr = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transferAccountId");
-        transferAccountIdStr.has_value())
-    {
-      params.mTransferAccountId = Hedera::AccountId::fromString(transferAccountIdStr.value());
-    }
-
+    params.mDeleteAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "deleteAccountId");
+    params.mTransferAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transferAccountId");
     params.mCommonTxParams =
       Hedera::TCK::getOptionalJsonParameter<Hedera::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
   }

@@ -17,30 +17,16 @@
  * limitations under the License.
  *
  */
-#include "SdkClient.h"
-#include "AccountCreateTransaction.h"
-#include "AccountDeleteTransaction.h"
-#include "AccountId.h"
-#include "AccountInfo.h"
-#include "AccountInfoQuery.h"
-#include "AccountUpdateTransaction.h"
-#include "Client.h"
-#include "EvmAddress.h"
-#include "HbarUnit.h"
-#include "KeyHelper.h"
-#include "PrivateKey.h"
-#include "Status.h"
-#include "TransactionReceipt.h"
-#include "TransactionResponse.h"
-#include "impl/HexConverter.h"
+#include "sdk/SdkClient.h"
+#include "sdk/params/ResetParams.h"
+#include "sdk/params/SetupParams.h"
 
-#include <algorithm>
-#include <chrono>
-#include <iostream>
-#include <memory>
+#include <AccountId.h>
+#include <Client.h>
+#include <PrivateKey.h>
+
 #include <nlohmann/json.hpp>
 #include <proto/basic_types.pb.h>
-#include <stdexcept>
 #include <string>
 
 namespace Hedera::TCK::SdkClient
@@ -49,14 +35,6 @@ namespace
 {
 // The Hedera C++ SDK Client the SdkClient will use to communicate with the network.
 Client mClient;
-}
-
-//-----
-nlohmann::json generateKey(const KeyRequest& params)
-{
-  nlohmann::json response;
-  response["key"] = processKeyRequest(params, response);
-  return response;
 }
 
 //-----
@@ -76,7 +54,7 @@ nlohmann::json setup(const SetupParams& params)
   if (params.nodeIp.has_value() && params.nodeAccountId.has_value() && params.mirrorNetworkIp.has_value())
   {
     mClient = Client::forNetwork({
-      {params.nodeIp.value(), Hedera::AccountId::fromString(params.nodeAccountId.value())}
+      {params.nodeIp.value(), AccountId::fromString(params.nodeAccountId.value())}
     });
     mClient.setMirrorNetwork({ params.mirrorNetworkIp.value() });
     clientType = "custom";
