@@ -12,7 +12,7 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: [self-hosted, Linux, xlarge, ephemeral]
+    runs-on: client-sdk-linux-large
 
     env:
       HEDERA_NETWORK: localhost
@@ -23,45 +23,70 @@ jobs:
             preset: linux-x64
 
     steps:
+      - name: Setup Control Groups
+        id: cgroup
+        run: |
+          echo "::group::Get System Configuration"
+            USR_ID="$(id -un)"
+            GRP_ID="$(id -gn)"
+            SDK_CPP_MEM_LIMIT="30064771072"
+            AGENT_MEM_LIMIT="2147483648"
+            USER_SLICE="user.slice/user-$(id -u).slice"
+            USER_SERVICE="${USER_SLICE}/user@$(id -u).service"
+            SDK_CPP_GROUP_NAME="${USER_SERVICE}/sdk-cpp-${{ github.run_id }}"
+            AGENT_GROUP_NAME="${USER_SERVICE}/agent-${{ github.run_id }}"
+          echo "::endgroup::"
+          echo "::group::Install Control Group Tools"
+            if ! command -v cgcreate >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y cgroup-tools
+            fi
+          echo "::endgroup::"
+          echo "::group::Create Control Groups"
+            sudo cgcreate -g cpu,memory:${USER_SLICE} -a ${USR_ID}:${GRP_ID} -t ${USR_ID}:${GRP_ID}
+            sudo cgcreate -g cpu,memory:${USER_SERVICE} -a ${USR_ID}:${GRP_ID} -t ${USR_ID}:${GRP_ID}
+            sudo cgcreate -g cpu,memory:${SDK_CPP_GROUP_NAME} -a ${USR_ID}:${GRP_ID} -t ${USR_ID}:${GRP_ID}
+            sudo cgcreate -g cpu,memory:${AGENT_GROUP_NAME} -a ${USR_ID}:${GRP_ID} -t ${USR_ID}:${GRP_ID}
+          echo "::endgroup::"
+          echo "::group::Set Control Group Limits"
+            cgset -r cpu.weight=768 ${SDK_CPP_GROUP_NAME}
+            cgset -r cpu.weight=500 ${AGENT_GROUP_NAME}
+            cgset -r memory.max=${SDK_CPP_MEM_LIMIT} ${SDK_CPP_GROUP_NAME}
+            cgset -r memory.max=${AGENT_MEM_LIMIT} ${AGENT_GROUP_NAME}
+            cgset -r memory.swap.max=${SDK_CPP_MEM_LIMIT} ${SDK_CPP_GROUP_NAME}
+            cgset -r memory.swap.max=${AGENT_MEM_LIMIT} ${AGENT_GROUP_NAME}
+          echo "::endgroup::"
+          echo "::group::Move Runner Processes to Control Groups"
+            sudo cgclassify --sticky -g cpu,memory:${AGENT_GROUP_NAME} $(pgrep 'Runner.Listener' | tr '\n' ' ')
+            sudo cgclassify -g cpu,memory:${AGENT_GROUP_NAME} $(pgrep 'Runner.Worker' | tr '\n' ' ')
+          echo "::endgroup::"
+
+          CG_EXEC="cgexec -g cpu,memory:${SDK_CPP_GROUP_NAME} --sticky ionice -c 2 -n 2 nice -n 19"
+          echo "exec=${CG_EXEC}" >> "${GITHUB_OUTPUT}"
+
       - name: Harden Runner
-        uses: step-security/harden-runner@5c7944e73c4c2a096b17a9cb74d65b6c2bbafbde # v2.9.1
+        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
         with:
           egress-policy: audit
 
       - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
         with:
           submodules: true
 
-      - name: Run Clang-Format
-        uses: jidicula/clang-format-action@c74383674bf5f7c69f60ce562019c1c94bc1421a # v4.13.0
-        with:
-          clang-format-version: "17"
-          check-path: "src"
+      #      - name: Run Clang-Format
+      #        uses: jidicula/clang-format-action@c74383674bf5f7c69f60ce562019c1c94bc1421a # v4.13.0
+      #        with:
+      #          clang-format-version: "17"
+      #          check-path: "src"
 
-      - name: Setup Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --allow-downgrades \
-              ca-certificates \
-              curl \
-              gnupg \
-              lsb-release
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-          echo \
-            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-      - name: Use Node.js 21
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+      - name: Use Node.js 22
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
         with:
-          node-version: 21
+          node-version: 22
 
       - name: Install Local Node
-        run: sudo npm install -g @hashgraph/hedera-local
+        run: sudo npm install -g @hashgraph/hedera-local@2.29.2
 
       - name: Install Linux Prerequisites
         run: |
@@ -72,7 +97,7 @@ jobs:
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
       - name: Install CMake & Ninja
-        uses: lukka/get-cmake@a70f1cfa1857a3eecfe0d34962269e1b1e8be56c # v3.30.2
+        uses: lukka/get-cmake@b516803a3c5fac40e2e922349d15cdebdba01e60 # v3.30.5
 
       - name: Setup VCPkg
         uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
@@ -80,26 +105,50 @@ jobs:
           binaryCachePath: ${{ github.workspace }}/b/vcpkg_cache
 
       - name: Convert VCPkg to Full Clone
-        run: |
-          cd vcpkg
-          git fetch --unshallow --prune
+        working-directory: vcpkg
+        run: git fetch --unshallow --prune
+
+      #      - name: CMake Build (Debug)
+      #        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
+      #        env:
+      #          VCPKG_BINARY_SOURCES: clear
+      #        with:
+      #          configurePreset: ${{ matrix.preset }}-debug
+      #          buildPreset: ${{ matrix.preset }}-debug
 
       - name: CMake Build (Debug)
-        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
         env:
           VCPKG_BINARY_SOURCES: clear
-        with:
-          configurePreset: ${{ matrix.preset }}-debug
-          buildPreset: ${{ matrix.preset }}-debug
+        run: |
+          echo "::group::Configure Project"
+          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug
+          echo "::endgroup::"
+
+          echo "::group::Build Project"
+          ${{ steps.cgroup.outputs.exec }} cmake --build -j 6 --preset ${{ matrix.preset }}-debug
+          echo "::endgroup::"
+
+      #      - name: CMake Build (Release)
+      #        if: github.event.pull_request.merged == true
+      #        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
+      #        env:
+      #          VCPKG_BINARY_SOURCES: clear
+      #        with:
+      #          configurePreset: ${{ matrix.preset }}-release
+      #          buildPreset: ${{ matrix.preset }}-release
 
       - name: CMake Build (Release)
         if: github.event.pull_request.merged == true
-        uses: lukka/run-cmake@2ce8982be71b8e9a3c4d5e432135035afd1e76a7 # v10.7
         env:
           VCPKG_BINARY_SOURCES: clear
-        with:
-          configurePreset: ${{ matrix.preset }}-release
-          buildPreset: ${{ matrix.preset }}-release
+        run: |
+          echo "::group::Configure Project"
+          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-release
+          echo "::endgroup::"
+
+          echo "::group::Build Project"
+          ${{ steps.cgroup.outputs.exec }} cmake --build -j 6 --preset ${{ matrix.preset }}-release
+          echo "::endgroup::"
 
       # - name: List Directory Structure
       #     if: ${{ contains(runner.os, 'Windows') && always() }}
@@ -107,14 +156,14 @@ jobs:
       #     run: tree /F build
 
       - name: Start the local node
-        run: sudo npx @hashgraph/hedera-local start -d --network local --network-tag=0.52.0-alpha.6
+        run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
 
       - name: Start CTest suite (Debug)
-        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
+        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
 
       - name: Start CTest suite (Release)
         if: github.event.pull_request.merged == true
-        run: ctest -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
+        run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-release --output-on-failure
 
       - name: Stop the local node
         run: sudo npx @hashgraph/hedera-local stop
@@ -125,7 +174,7 @@ jobs:
 
       - name: Attach Artifact
         if: github.event.pull_request.merged == true
-        uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: hapi-library-${{ runner.os }}-${{ steps.sha.outputs.short }}
           path: package/

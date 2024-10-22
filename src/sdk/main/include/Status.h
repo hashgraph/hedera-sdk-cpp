@@ -1539,7 +1539,159 @@ enum class Status
   /**
    * The transaction attempted to use empty `TokenReference` list.
    */
-  EMPTY_TOKEN_REFERENCE_LIST
+  EMPTY_TOKEN_REFERENCE_LIST,
+
+  /**
+   * The transaction attempted to the use an empty List of `PendingAirdropId`.
+   */
+  EMPTY_PENDING_AIRDROP_ID_LIST,
+
+  /**
+   * The transaction attempted to the same `PendingAirdropId` twice.
+   */
+  PENDING_AIRDROP_ID_REPEATED,
+
+  /**
+   * The transaction attempted to use more than the allowed number of `PendingAirdropId`.
+   */
+  PENDING_AIRDROP_ID_LIST_TOO_LONG,
+
+  /**
+   * A pending airdrop already exists for the specified NFT.
+   */
+  PENDING_NFT_AIRDROP_ALREADY_EXISTS,
+
+  /**
+   * The identified account is sender for one or more pending airdrop(s)
+   * and cannot be deleted.
+   * Requester should cancel all pending airdrops before resending
+   * this transaction.
+   */
+  ACCOUNT_HAS_PENDING_AIRDROPS,
+
+  /**
+   * Consensus throttle did not allow execution of this transaction.
+   * The transaction should be retried after a modest delay.
+   */
+  THROTTLED_AT_CONSENSUS,
+
+  /**
+   * The provided pending airdrop id is invalid.
+   * This pending airdrop MAY already be claimed or cancelled.
+   * The client SHOULD query a mirror node to determine the current status of
+   * the pending airdrop.
+   */
+  INVALID_PENDING_AIRDROP_ID,
+
+  /**
+   * The token to be airdropped has a fallback royalty fee and cannot be
+   * sent or claimed via an airdrop transaction.
+   */
+  TOKEN_AIRDROP_WITH_FALLBACK_ROYALTY,
+
+  /**
+   * This airdrop claim is for a pending airdrop with an invalid token.
+   * The token might be deleted, or the sender may not have enough tokens
+   * to fulfill the offer.
+   * The client SHOULD query mirror node to determine the status of the pending
+   * airdrop and whether the sender can fulfill the offer.
+   */
+  INVALID_TOKEN_IN_PENDING_AIRDROP,
+
+  /**
+   * A transaction failed because the consensus node identified is
+   * deleted from the address book.
+   */
+  NODE_DELETED,
+
+  /**
+   * A transaction failed because the consensus node identified is not valid or
+   * does not exist in state.
+   */
+  INVALID_NODE_ID,
+
+  /**
+   * A transaction failed because one or more entries in the list of
+   * service endpoints for the `gossip_endpoint` field is invalid.<br/>
+   * The most common cause for this response is a service endpoint that has
+   * the domain name (DNS) set rather than address and port.
+   */
+  INVALID_GOSSIP_ENDPOINT,
+
+  /**
+   * A transaction failed because the node account identifier provided
+   * does not exist or is not valid.<br/>
+   * One common source of this error is providing a node account identifier
+   * using the "alias" form rather than "numeric" form.
+   */
+  INVALID_NODE_ACCOUNT_ID,
+
+  /**
+   * A transaction failed because the description field cannot be encoded
+   * as UTF-8 or is more than 100 bytes when encoded.
+   */
+  INVALID_NODE_DESCRIPTION,
+
+  /**
+   * A transaction failed because one or more entries in the list of
+   * service endpoints for the `service_endpoint` field is invalid.<br/>
+   * The most common cause for this response is a service endpoint that has
+   * the domain name (DNS) set rather than address and port.
+   */
+  INVALID_SERVICE_ENDPOINT,
+
+  /**
+   * A transaction failed because the TLS certificate provided for the
+   * node is missing or invalid.<br/>
+   * The certificate MUST be a TLS certificate of a type permitted for gossip
+   * signatures.<br/>
+   * The value presented MUST be a UTF-8 NFKD encoding of the TLS
+   * certificate.<br/>
+   * The certificate encoded MUST be in PEM format.<br/>
+   * The `gossip_ca_certificate` field is REQUIRED and MUST NOT be empty.
+   */
+  INVALID_GOSSIP_CA_CERTIFICATE,
+
+  /**
+   * A transaction failed because the hash provided for the gRPC certificate
+   * is present but invalid.<br/>
+   * The `grpc_certificate_hash` MUST be a SHA-384 hash.<br/>
+   * The input hashed MUST be a UTF-8 NFKD encoding of the actual TLS
+   * certificate.<br/>
+   * The certificate to be encoded MUST be in PEM format.
+   */
+  INVALID_GRPC_CERTIFICATE,
+
+  /**
+   * The maximum number of nodes allowed in the address book have been created.
+   */
+  MAX_NODES_CREATED,
+
+  /**
+   * In ServiceEndpoint, domain_name and ipAddressV4 are mutually exclusive
+   */
+  IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT,
+
+  /**
+   *  Fully qualified domain name is not allowed in gossip_endpoint
+   */
+  GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN,
+
+  /**
+   * In ServiceEndpoint, domain_name size too large
+   */
+  FQDN_SIZE_TOO_LARGE,
+
+  /**
+   * ServiceEndpoint is invalid
+   */
+  INVALID_ENDPOINT,
+
+  /**
+   * The number of gossip endpoints exceeds the limit
+   */
+  GOSSIP_ENDPOINTS_EXCEEDED_LIMIT
+
 };
 
 /**

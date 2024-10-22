@@ -31,10 +31,6 @@
       "name": "nlohmann-json"
     },
     {
-      "name": "curl",
-      "version>=": "7.84.0"
-    },
-    {
       "name": "expat"
     },
     {

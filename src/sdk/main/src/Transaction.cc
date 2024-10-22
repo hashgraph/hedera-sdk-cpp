@@ -35,6 +35,9 @@
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
 #include "FreezeTransaction.h"
+#include "NodeCreateTransaction.h"
+#include "NodeDeleteTransaction.h"
+#include "NodeUpdateTransaction.h"
 #include "PrivateKey.h"
 #include "PrngTransaction.h"
 #include "PublicKey.h"
@@ -44,8 +47,11 @@
 #include "Status.h"
 #include "SystemDeleteTransaction.h"
 #include "SystemUndeleteTransaction.h"
+#include "TokenAirdropTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
+#include "TokenCancelAirdropTransaction.h"
+#include "TokenClaimAirdropTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
@@ -247,6 +253,12 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(FileUpdateTransaction(transactions));
     case proto::TransactionBody::kFreeze:
       return WrappedTransaction(FreezeTransaction(transactions));
+    case proto::TransactionBody::kNodeCreate:
+      return WrappedTransaction(NodeCreateTransaction(transactions));
+    case proto::TransactionBody::kNodeDelete:
+      return WrappedTransaction(NodeDeleteTransaction(transactions));
+    case proto::TransactionBody::kNodeUpdate:
+      return WrappedTransaction(NodeUpdateTransaction(transactions));
     case proto::TransactionBody::kUtilPrng:
       return WrappedTransaction(PrngTransaction(transactions));
     case proto::TransactionBody::kScheduleCreate:
@@ -259,10 +271,16 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(SystemDeleteTransaction(transactions));
     case proto::TransactionBody::kSystemUndelete:
       return WrappedTransaction(SystemUndeleteTransaction(transactions));
+    case proto::TransactionBody::kTokenAirdrop:
+      return WrappedTransaction(TokenAirdropTransaction(transactions));
     case proto::TransactionBody::kTokenAssociate:
       return WrappedTransaction(TokenAssociateTransaction(transactions));
     case proto::TransactionBody::kTokenBurn:
       return WrappedTransaction(TokenBurnTransaction(transactions));
+    case proto::TransactionBody::kTokenCancelAirdrop:
+      return WrappedTransaction(TokenCancelAirdropTransaction(transactions));
+    case proto::TransactionBody::kTokenClaimAirdrop:
+      return WrappedTransaction(TokenClaimAirdropTransaction(transactions));
     case proto::TransactionBody::kTokenCreation:
       return WrappedTransaction(TokenCreateTransaction(transactions));
     case proto::TransactionBody::kTokenDeletion:
@@ -355,8 +373,9 @@ std::vector<std::byte> Transaction<SdkRequestType>::toBytes() const
 template<typename SdkRequestType>
 SdkRequestType& Transaction<SdkRequestType>::sign(const std::shared_ptr<PrivateKey>& key)
 {
-  return signInternal(
-    key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
+  // clang-format off
+  return signInternal(key->getPublicKey(), [key](const std::vector<std::byte>& vec) { return key->sign(vec); }, key);
+  // clang-format on
 }
 
 //-----
@@ -1278,14 +1297,20 @@ template class Transaction<FileCreateTransaction>;
 template class Transaction<FileDeleteTransaction>;
 template class Transaction<FileUpdateTransaction>;
 template class Transaction<FreezeTransaction>;
+template class Transaction<NodeCreateTransaction>;
+template class Transaction<NodeDeleteTransaction>;
+template class Transaction<NodeUpdateTransaction>;
 template class Transaction<PrngTransaction>;
 template class Transaction<ScheduleCreateTransaction>;
 template class Transaction<ScheduleDeleteTransaction>;
 template class Transaction<ScheduleSignTransaction>;
 template class Transaction<SystemDeleteTransaction>;
 template class Transaction<SystemUndeleteTransaction>;
+template class Transaction<TokenAirdropTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;
+template class Transaction<TokenCancelAirdropTransaction>;
+template class Transaction<TokenClaimAirdropTransaction>;
 template class Transaction<TokenCreateTransaction>;
 template class Transaction<TokenDeleteTransaction>;
 template class Transaction<TokenDissociateTransaction>;

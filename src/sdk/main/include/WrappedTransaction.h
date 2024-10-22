@@ -35,14 +35,20 @@
 #include "FileDeleteTransaction.h"
 #include "FileUpdateTransaction.h"
 #include "FreezeTransaction.h"
+#include "NodeCreateTransaction.h"
+#include "NodeDeleteTransaction.h"
+#include "NodeUpdateTransaction.h"
 #include "PrngTransaction.h"
 #include "ScheduleCreateTransaction.h"
 #include "ScheduleDeleteTransaction.h"
 #include "ScheduleSignTransaction.h"
 #include "SystemDeleteTransaction.h"
 #include "SystemUndeleteTransaction.h"
+#include "TokenAirdropTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
+#include "TokenCancelAirdropTransaction.h"
+#include "TokenClaimAirdropTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
@@ -99,14 +105,20 @@ public:
                                               FileDeleteTransaction,
                                               FileUpdateTransaction,
                                               FreezeTransaction,
+                                              NodeCreateTransaction,
+                                              NodeDeleteTransaction,
+                                              NodeUpdateTransaction,
                                               PrngTransaction,
                                               ScheduleCreateTransaction,
                                               ScheduleDeleteTransaction,
                                               ScheduleSignTransaction,
                                               SystemDeleteTransaction,
                                               SystemUndeleteTransaction,
+                                              TokenAirdropTransaction,
                                               TokenAssociateTransaction,
                                               TokenBurnTransaction,
+                                              TokenCancelAirdropTransaction,
+                                              TokenClaimAirdropTransaction,
                                               TokenCreateTransaction,
                                               TokenDeleteTransaction,
                                               TokenDissociateTransaction,

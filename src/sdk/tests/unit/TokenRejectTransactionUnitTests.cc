@@ -34,6 +34,7 @@ protected:
   TokenRejectTransaction transaction;
 };
 
+//-----
 TEST_F(TokenRejectTransactionUnitTests, ConstructTokenRejectTransactionFromTransactionBodyProtobuf)
 {
   // Given
@@ -60,6 +61,7 @@ TEST_F(TokenRejectTransactionUnitTests, ConstructTokenRejectTransactionFromTrans
   EXPECT_EQ(tokenRejectTransaction.getNfts().at(0), NftId(TokenId(4, 5, 6), 0)); // Assuming serial number 0 by default
 }
 
+//-----
 TEST_F(TokenRejectTransactionUnitTests, SetOwner)
 {
   // Given
@@ -73,6 +75,7 @@ TEST_F(TokenRejectTransactionUnitTests, SetOwner)
   EXPECT_EQ(transaction.getOwner().value(), ownerId);
 }
 
+//-----
 TEST_F(TokenRejectTransactionUnitTests, SetFts)
 {
   // Given
@@ -87,6 +90,7 @@ TEST_F(TokenRejectTransactionUnitTests, SetFts)
   EXPECT_EQ(transaction.getFts().at(1), TokenId(4, 5, 6));
 }
 
+//-----
 TEST_F(TokenRejectTransactionUnitTests, SetNfts)
 {
   // Given

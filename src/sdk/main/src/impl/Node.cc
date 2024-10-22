@@ -105,6 +105,8 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
 
   switch (funcEnum)
   {
+    case proto::TransactionBody::DataCase::kNodeCreate:
+      return mAddressBookStub->createNode(&context, transaction, response);
     case proto::TransactionBody::DataCase::kConsensusCreateTopic:
       return mConsensusStub->createTopic(&context, transaction, response);
     case proto::TransactionBody::DataCase::kConsensusDeleteTopic:
@@ -159,9 +161,15 @@ grpc::Status Node::submitTransaction(proto::TransactionBody::DataCase funcEnum,
       return mFileStub->systemDelete(&context, transaction, response);
     case proto::TransactionBody::DataCase::kSystemUndelete:
       return mFileStub->systemUndelete(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenAirdrop:
+      return mTokenStub->airdropTokens(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenAssociate:
       return mTokenStub->associateTokens(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenBurn:
+      return mTokenStub->burnToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenCancelAirdrop:
+      return mTokenStub->burnToken(&context, transaction, response);
+    case proto::TransactionBody::DataCase::kTokenClaimAirdrop:
       return mTokenStub->burnToken(&context, transaction, response);
     case proto::TransactionBody::DataCase::kTokenCreation:
       return mTokenStub->createToken(&context, transaction, response);
@@ -280,6 +288,7 @@ void Node::initializeStubs()
   if (!mSmartContractStub) mSmartContractStub = proto::SmartContractService::NewStub(getChannel());
   if (!mTokenStub)         mTokenStub         = proto::TokenService::NewStub(getChannel());
   if (!mUtilStub)          mUtilStub          = proto::UtilService::NewStub(getChannel());
+  if (!mAddressBookStub)   mAddressBookStub   = proto::AddressBookService::NewStub(getChannel());
   // clang-format on
 }
 
@@ -295,6 +304,7 @@ void Node::closeStubs()
   mSmartContractStub = nullptr;
   mTokenStub = nullptr;
   mUtilStub = nullptr;
+  mAddressBookStub = nullptr;
 }
 
 } // namespace Hedera::internal

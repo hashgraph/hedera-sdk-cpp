@@ -101,6 +101,11 @@ add_library(${PROJECT_NAME} STATIC
         src/NftId.cc
         src/NodeAddress.cc
         src/NodeAddressBook.cc
+        src/NodeCreateTransaction.cc
+        src/NodeDeleteTransaction.cc
+        src/NodeUpdateTransaction.cc
+        src/PendingAirdropId.cc
+        src/PendingAirdropRecord.cc
         src/PrivateKey.cc
         src/PrngTransaction.cc
         src/ProxyStaker.cc
@@ -119,10 +124,13 @@ add_library(${PROJECT_NAME} STATIC
         src/SubscriptionHandle.cc
         src/SystemDeleteTransaction.cc
         src/SystemUndeleteTransaction.cc
+        src/TokenAirdropTransaction.cc
         src/TokenAllowance.cc
         src/TokenAssociateTransaction.cc
         src/TokenAssociation.cc
         src/TokenBurnTransaction.cc
+        src/TokenCancelAirdropTransaction.cc
+        src/TokenClaimAirdropTransaction.cc
         src/TokenCreateTransaction.cc
         src/TokenDeleteTransaction.cc
         src/TokenDissociateTransaction.cc
@@ -310,8 +318,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         absl::throw_delegate
         absl::time
         absl::time_zone)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         upb::upb
