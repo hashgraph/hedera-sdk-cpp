@@ -20,8 +20,8 @@
 #ifndef HEDERA_TCK_CPP_JSON_UTILS_H_
 #define HEDERA_TCK_CPP_JSON_UTILS_H_
 
-#include "JsonErrorType.h"
-#include "JsonRpcException.h"
+#include "json/JsonErrorType.h"
+#include "json/JsonRpcException.h"
 
 #include <nlohmann/json_fwd.hpp>
 #include <optional>

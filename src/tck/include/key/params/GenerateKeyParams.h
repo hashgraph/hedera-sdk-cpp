@@ -83,25 +83,6 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::KeyService::GenerateKeyParam
     params.mThreshold = Hedera::TCK::getOptionalJsonParameter<int>(jsonFrom, "threshold");
     params.mKeys =
       Hedera::TCK::getOptionalJsonParameter<std::vector<Hedera::TCK::KeyService::GenerateKeyParams>>(jsonFrom, "keys");
-
-    // if (jsonFrom.contains("keys"))
-    //{
-    //   if (!jsonFrom["keys"].is_array())
-    //   {
-    //     throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-    //                                         "invalid parameters: keys should be a list");
-    //   }
-    //
-    //   params.mKeys = std::vector<Hedera::TCK::KeyService::GenerateKeyParams>();
-    //   params.mKeys->reserve(jsonFrom["keys"].size());
-    //   std::for_each(jsonFrom["keys"].cbegin(),
-    //                 jsonFrom["keys"].cend(),
-    //                 [&params](const json& jsonKey)
-    //                 {
-    //                   params.mKeys->push_back(Hedera::TCK::KeyService::GenerateKeyParams());
-    //                   from_json(jsonKey, params.mKeys->back());
-    //                 });
-    // }
   }
 };
 

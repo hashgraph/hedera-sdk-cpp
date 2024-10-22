@@ -64,7 +64,7 @@ struct SetupParams
 namespace nlohmann
 {
 /**
- * JSON serializer template specialization required to convert CreateAccountParams arguments properly.
+ * JSON serializer template specialization required to convert SetupParams arguments properly.
  */
 template<>
 struct [[maybe_unused]] adl_serializer<Hedera::TCK::SdkClient::SetupParams>

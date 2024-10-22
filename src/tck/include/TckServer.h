@@ -102,8 +102,8 @@ public:
    * @param  notification The notification of which to get the handle.
    * @return The handle for the notification.
    */
-  template<typename ParamType>
-  [[maybe_unused]] NotificationHandle getHandle(void (*notification)(const ParamType&));
+  template<typename ParamsType>
+  [[maybe_unused]] NotificationHandle getHandle(void (*notification)(const ParamsType&));
 
 private:
   /**

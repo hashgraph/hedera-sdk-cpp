@@ -188,6 +188,28 @@ std::string generateKeyRecursively(const GenerateKeyParams& params, nlohmann::js
 } // namespace
 
 //-----
+const std::unordered_map<std::string, KeyType> gStringToKeyType = {
+  {"ed25519PrivateKey",         KeyType::ED25519_PRIVATE_KEY_TYPE        },
+  { "ed25519PublicKey",         KeyType::ED25519_PUBLIC_KEY_TYPE         },
+  { "ecdsaSecp256k1PrivateKey", KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE},
+  { "ecdsaSecp256k1PublicKey",  KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE },
+  { "keyList",                  KeyType::LIST_KEY_TYPE                   },
+  { "thresholdKey",             KeyType::THRESHOLD_KEY_TYPE              },
+  { "evmAddress",               KeyType::EVM_ADDRESS_KEY_TYPE            }
+};
+
+//-----
+const std::unordered_map<KeyType, std::string> gKeyTypeToString = {
+  {KeyType::ED25519_PRIVATE_KEY_TYPE,          "ed25519PrivateKey"       },
+  { KeyType::ED25519_PUBLIC_KEY_TYPE,          "ed25519PublicKey"        },
+  { KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE, "ecdsaSecp256k1PrivateKey"},
+  { KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE,  "ecdsaSecp256k1PublicKey" },
+  { KeyType::LIST_KEY_TYPE,                    "keyList"                 },
+  { KeyType::THRESHOLD_KEY_TYPE,               "thresholdKey"            },
+  { KeyType::EVM_ADDRESS_KEY_TYPE,             "evmAddress"              }
+};
+
+//-----
 nlohmann::json generateKey(const GenerateKeyParams& params)
 {
   nlohmann::json response;

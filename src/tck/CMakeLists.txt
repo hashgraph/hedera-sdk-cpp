@@ -4,7 +4,6 @@ add_executable(${TCK_SERVER_NAME}
         src/json/JsonRpcException.cc
         src/json/JsonUtils.cc
         src/key/KeyService.cc
-        src/key/KeyType.cc
         src/sdk/SdkClient.cc
         src/main.cc
         src/TckServer.cc)

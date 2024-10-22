@@ -141,15 +141,7 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CommonTransactionParams>
       Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "validTransactionDuration");
     params.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
     params.mRegenerateTransactionId = Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "regenerateTransactionId");
-
-    if (auto keys = Hedera::TCK::getOptionalJsonParameter<std::vector<std::string>>(jsonFrom, "signers");
-        keys.has_value())
-    {
-      params.mSigners = std::vector<std::string>();
-      params.mSigners->reserve(keys->size());
-      std::for_each(
-        keys->cbegin(), keys->cend(), [&params](const std::string& key) { params.mSigners->push_back(key); });
-    }
+    params.mSigners = Hedera::TCK::getOptionalJsonParameter<std::vector<std::string>>(jsonFrom, "signers");
   }
 };
 

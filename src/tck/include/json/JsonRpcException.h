@@ -20,7 +20,7 @@
 #ifndef HEDERA_TCK_CPP_JSON_RPC_EXCEPTION_H_
 #define HEDERA_TCK_CPP_JSON_RPC_EXCEPTION_H_
 
-#include "JsonErrorType.h"
+#include "json/JsonErrorType.h"
 
 #include <nlohmann/json.hpp>
 #include <stdexcept>
