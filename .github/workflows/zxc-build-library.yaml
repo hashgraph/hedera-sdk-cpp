@@ -113,8 +113,6 @@ jobs:
           git fetch --unshallow --prune
           git pull
           ./bootstrap-vcpkg.sh
-          cd ..
-          mv temporary_rename_to_hide_this_file_from_vcpkg_vcpkg.json vcpkg.json
           which ninja
           which x86_64-w64-mingw32-g++
 
