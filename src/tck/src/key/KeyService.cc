@@ -18,7 +18,6 @@
  *
  */
 #include "key/KeyService.h"
-#include "key/KeyType.h"
 #include "key/params/GenerateKeyParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"

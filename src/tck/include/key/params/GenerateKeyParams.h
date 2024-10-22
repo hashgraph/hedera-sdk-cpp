@@ -20,8 +20,8 @@
 #ifndef HEDERA_TCK_CPP_GENERATE_KEY_PARAMS_H_
 #define HEDERA_TCK_CPP_GENERATE_KEY_PARAMS_H_
 
-#include "key/KeyType.h"
 #include "json/JsonUtils.h"
+#include "key/KeyService.h"
 
 #include <nlohmann/json.hpp>
 #include <optional>
