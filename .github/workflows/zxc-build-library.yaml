@@ -112,7 +112,6 @@ jobs:
         run: |
           git fetch --unshallow --prune
           git pull
-          ./vcpkg upgrade --no-dry-run
           which ninja
           which x86_64-w64-mingw32-g++
 
