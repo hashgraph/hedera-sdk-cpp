@@ -20,8 +20,8 @@
 #ifndef HEDERA_TCK_CPP_GENERATE_KEY_PARAMS_H_
 #define HEDERA_TCK_CPP_GENERATE_KEY_PARAMS_H_
 
-#include "json/JsonUtils.h"
 #include "key/KeyService.h"
+#include "json/JsonUtils.h"
 
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -37,7 +37,7 @@ struct GenerateKeyParams
   /**
    *The type of Key to generate.
    */
-  KeyType mType;
+  KeyType mType = KeyType::KEY_TYPE_SIZE;
 
   /**
    * For ED25519Public and ECDSAsecp256k1Public types, the DER-encoded hex string private key from which to generate the

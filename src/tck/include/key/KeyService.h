@@ -25,6 +25,7 @@
 #include <memory>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
+#include <unordered_map>
 
 namespace Hedera::TCK::KeyService
 {
