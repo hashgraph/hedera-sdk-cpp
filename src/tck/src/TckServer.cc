@@ -21,6 +21,7 @@
 #include "JsonErrorType.h"
 #include "JsonRpcException.h"
 #include "JsonUtils.h"
+#include "account/params/CreateAccountParams.h"
 #include "exceptions/PrecheckStatusException.h"
 #include "exceptions/ReceiptStatusException.h"
 #include "httplib.h"
@@ -54,7 +55,7 @@ TckServer::TckServer(int port)
 }
 
 //-----
-void TckServer::add(const std::string& name, const MethodHandle& func, const std::vector<std::string>& params)
+void TckServer::add(const std::string& name, const MethodHandle& func)
 {
   // Make sure the name is valid.
   if (name.find("rpc.") != std::string::npos)
@@ -69,15 +70,10 @@ void TckServer::add(const std::string& name, const MethodHandle& func, const std
   }
 
   mMethods.try_emplace(name, func);
-
-  if (!params.empty())
-  {
-    mParameters.try_emplace(name, params);
-  }
 }
 
 //-----
-void TckServer::add(const std::string& name, const NotificationHandle& func, const std::vector<std::string>& params)
+void TckServer::add(const std::string& name, const NotificationHandle& func)
 {
   // Make sure the name is valid.
   if (name.find("rpc.") != std::string::npos)
@@ -92,11 +88,6 @@ void TckServer::add(const std::string& name, const NotificationHandle& func, con
   }
 
   mNotifications.try_emplace(name, func);
-
-  if (!params.empty())
-  {
-    mParameters.try_emplace(name, params);
-  }
 }
 
 //-----
@@ -232,19 +223,19 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       return {
         { "jsonrpc", "2.0" },
         { "id", requestId },
-        { "result", executeMethod(method, hasParams ? request["params"] : nlohmann::json::array()) }
+        { "result", executeMethod(method->second, hasParams ? request["params"] : nlohmann::json::array()) }
       };
     }
 
     // No request ID indicates a notification. Make sure the notification function exists.
-    auto notification = mNotifications.find(name);
+    /*auto notification = mNotifications.find(name);
     if (notification == mNotifications.end())
     {
       throw JsonRpcException(JsonErrorType::METHOD_NOT_FOUND, "notification not found: " + name);
     }
 
     // Execute the notification function and return a null JSON object to signify the notification executed correctly.
-    executeNotification(notification, hasParams ? request["params"] : nlohmann::json::array());
+    executeNotification(notification, hasParams ? request["params"] : nlohmann::json::array());*/
     return {};
   }
 
@@ -325,25 +316,20 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
 }
 
 //-----
-nlohmann::json TckServer::executeMethod(const std::unordered_map<std::string, MethodHandle>::const_iterator& method,
-                                        const nlohmann::json& params) const
+nlohmann::json TckServer::executeMethod(const MethodHandle& method, const nlohmann::json& params) const
 {
   try
   {
-    return method->second(normalizeParameters(method->first, params));
+    return method(params);
   }
   catch (const nlohmann::json::type_error& exception)
   {
     throw JsonRpcException(JsonErrorType::INVALID_PARAMS, "invalid parameter: " + std::string(exception.what()));
   }
-  catch (const JsonRpcException& exception)
-  {
-    throw processTypeError(method->first, exception);
-  }
 }
 
 //-----
-void TckServer::executeNotification(
+/*void TckServer::executeNotification(
   const std::unordered_map<std::string, NotificationHandle>::const_iterator& notification,
   const nlohmann::json& params) const
 {
@@ -359,51 +345,7 @@ void TckServer::executeNotification(
   {
     throw processTypeError(notification->first, exception);
   }
-}
-
-//-----
-nlohmann::json TckServer::normalizeParameters(const std::string& name, const nlohmann::json& params) const
-{
-  // If the parameters are already a list, just return it.
-  if (params.type() == nlohmann::json::value_t::array)
-  {
-    return params;
-  }
-
-  // If the parameters are an object, put them into a list.
-  if (params.type() == nlohmann::json::value_t::object)
-  {
-    if (mParameters.find(name) == mParameters.end())
-    {
-      throw JsonRpcException(JsonErrorType::INVALID_PARAMS,
-                             "invalid parameter: procedure doesn't support named parameter");
-    }
-
-    // Put each parameter into a JSON list. If a parameter doesn't exist, add a nullptr value.
-    nlohmann::json result;
-    std::for_each(mParameters.at(name).cbegin(),
-                  mParameters.at(name).cend(),
-                  [&result, &params](const std::string& param)
-                  { result.push_back(params.find(param) == params.end() ? nullptr : params.at(param)); });
-
-    return result;
-  }
-
-  // If not an array or object, throw.
-  throw JsonRpcException(JsonErrorType::INVALID_REQUEST, "invalid request: params field must be an array, object");
-}
-
-//-----
-JsonRpcException TckServer::processTypeError(const std::string& name, const JsonRpcException& exception) const
-{
-  return exception.getCode() == JsonErrorType::INVALID_PARAMS && !exception.getData().empty()
-           ? JsonRpcException(exception.getCode(),
-                              exception.getMessage() + " for parameter " +
-                                ((mParameters.find(name) != mParameters.end())
-                                   ? "\"" + mParameters.at(name)[exception.getData().get<unsigned int>()] + "\""
-                                   : std::to_string(exception.getData().get<unsigned int>())))
-           : exception;
-}
+}*/
 
 //-----
 void TckServer::setupHttpHandler()

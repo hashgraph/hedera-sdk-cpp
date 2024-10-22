@@ -17,11 +17,12 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_CREATE_ACCOUNT_PARAMS_H_
-#define HEDERA_TCK_CPP_CREATE_ACCOUNT_PARAMS_H_
+#ifndef HEDERA_TCK_CPP_UPDATE_ACCOUNT_PARAMS_H_
+#define HEDERA_TCK_CPP_UPDATE_ACCOUNT_PARAMS_H_
 
 #include "CommonTransactionParams.h"
 #include "JsonUtils.h"
+#include "KeyHelper.h"
 
 #include <AccountId.h>
 #include <Key.h>
@@ -36,57 +37,62 @@
 namespace Hedera::TCK
 {
 /**
- * Struct to hold the arguments for a `createAccount` function call.
+ * Struct to hold the arguments for an `updateAccount` function call.
  */
-struct CreateAccountParams
+struct UpdateAccountParams
 {
   /**
-   * The desired key for the account.
+   * The ID of the account to update.
+   */
+  std::optional<AccountId> mAccountId;
+
+  /**
+   * The desired new key for the account.
    */
   std::shared_ptr<Key> mKey;
 
   /**
-   * The desired initial balance for the account.
-   */
-  std::optional<int64_t> mInitialBalance;
-
-  /**
-   * Should the new account require a receiver signature?
-   */
-  std::optional<bool> mReceiverSignatureRequired;
-
-  /**
-   * The desired amount of time in seconds to renew the new account.
+   * The desired new amount of time in seconds to renew the account.
    */
   std::optional<std::chrono::seconds> mAutoRenewPeriod;
 
   /**
-   * The desired memo for the new account.
+   * The new expiration time to which to extend this account.
+   */
+  std::optional<std::chrono::system_clock::time_point> mExpirationTime;
+
+  /**
+   * Should the account now require a receiver signature?
+   */
+  std::optional<bool> mReceiverSignatureRequired;
+
+  /**
+   * The desired new memo for the account.
    */
   std::optional<std::string> mMemo;
 
   /**
-   * The desired maximum number of automatic token associations for the account.
+   * The desired new maximum number of automatic token associations for the account.
    */
   std::optional<int32_t> mMaxAutoTokenAssociations;
 
   /**
-   * The ID of the desired account to which the new account should stake.
+   * The ID of the new desired account to which the account should stake.
    */
   std::optional<AccountId> mStakedAccountId;
 
   /**
-   * The ID of the desired node to which the new account should stake.
+   * The ID of the new desired node to which the account should stake.
    */
   std::optional<int64_t> mStakedNodeId;
 
   /**
-   * Should the new account decline staking rewards?
+   * Should the account now decline staking rewards?
    */
   std::optional<bool> mDeclineStakingReward;
 
   /**
-   * The desired alias for the new account.
+   * The new desired alias for the account.
    */
   std::optional<std::string> mAlias;
 
@@ -104,7 +110,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert CreateAccountParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::CreateAccountParams>
+struct [[maybe_unused]] adl_serializer<Hedera::TCK::UpdateAccountParams>
 {
   /**
    * Convert a JSON object to a CreateAccountParams.
@@ -112,22 +118,34 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CreateAccountParams>
    * @param jsonFrom The JSON object with which to fill the CreateAccountParams.
    * @param params   The CreateAccountParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::CreateAccountParams& params)
+  static void from_json(const json& jsonFrom, Hedera::TCK::UpdateAccountParams& params)
   {
+    if (auto accountIdStr = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "accountId");
+        accountIdStr.has_value())
+    {
+      params.mAccountId = Hedera::AccountId::fromString(accountIdStr.value());
+    }
+
     if (auto keyStr = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "key"); keyStr.has_value())
     {
       params.mKey = Hedera::TCK::getHederaKey(keyStr.value());
     }
-
-    params.mInitialBalance = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "initialBalance");
-    params.mReceiverSignatureRequired =
-      Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "receiverSignatureRequired");
 
     if (auto autoRenewPeriodInt = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "autoRenewPeriod");
         autoRenewPeriodInt.has_value())
     {
       params.mAutoRenewPeriod = std::chrono::seconds(autoRenewPeriodInt.value());
     }
+
+    if (auto expirationTimeInt = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "expirationTime");
+        expirationTimeInt.has_value())
+    {
+      params.mExpirationTime =
+        std::chrono::system_clock::from_time_t(0) + std::chrono::seconds(expirationTimeInt.value());
+    }
+
+    params.mReceiverSignatureRequired =
+      Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "receiverSignatureRequired");
 
     params.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
     params.mMaxAutoTokenAssociations =
@@ -141,7 +159,6 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CreateAccountParams>
 
     params.mStakedNodeId = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "stakedNodeId");
     params.mDeclineStakingReward = Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "declineStakingReward");
-    params.mAlias = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "alias");
     params.mCommonTxParams =
       Hedera::TCK::getOptionalJsonParameter<Hedera::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
   }
@@ -149,4 +166,4 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CreateAccountParams>
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_CREATE_ACCOUNT_PARAMS_H_
+#endif // HEDERA_TCK_CPP_UPDATE_ACCOUNT_PARAMS_H_

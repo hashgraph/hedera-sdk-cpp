@@ -32,40 +32,12 @@ int main(int argc, char** argv)
                         TckServer::DEFAULT_HTTP_PORT);
 
   // Add the SDK client functions.
-  tckServer.add("createAccount",
-                getHandle(&AccountService::createAccount),
-                { "key",
-                  "initialBalance",
-                  "receiverSignatureRequired",
-                  "autoRenewPeriod",
-                  "memo",
-                  "maxAutoTokenAssociations",
-                  "stakedAccountId",
-                  "stakedNodeId",
-                  "declineStakingReward",
-                  "alias",
-                  "commonTransactionParams" });
-  tckServer.add("deleteAccount",
-                getHandle(&AccountService::deleteAccount),
-                { "deleteAccountId", "transferAccountId", "commonTransactionParams" });
-  tckServer.add("generateKey", getHandle(&SdkClient::generateKey), { "type", "fromKey", "threshold", "keys" });
-  tckServer.add("setup",
-                getHandle(&SdkClient::setup),
-                { "operatorAccountId", "operatorPrivateKey", "nodeIp", "nodeAccountId", "mirrorNetworkIp" });
-  tckServer.add("reset", getHandle(&SdkClient::reset));
-  tckServer.add("updateAccount",
-                getHandle(&AccountService::updateAccount),
-                { "accountId",
-                  "key",
-                  "autoRenewPeriod",
-                  "expirationTime",
-                  "receiverSignatureRequired",
-                  "memo",
-                  "maxAutoTokenAssociations",
-                  "stakedAccountId",
-                  "stakedNodeId",
-                  "declineStakingReward",
-                  "commonTransactionParams" });
+  tckServer.add("createAccount", tckServer.getHandle(&AccountService::createAccount));
+  tckServer.add("deleteAccount", tckServer.getHandle(&AccountService::deleteAccount));
+  tckServer.add("generateKey", tckServer.getHandle(&SdkClient::generateKey));
+  tckServer.add("setup", tckServer.getHandle(&SdkClient::setup));
+  tckServer.add("reset", tckServer.getHandle(&SdkClient::reset));
+  tckServer.add("updateAccount", tckServer.getHandle(&AccountService::updateAccount));
 
   // Start listening for requests.
   tckServer.startServer();

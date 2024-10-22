@@ -64,18 +64,6 @@ const std::unordered_map<KeyType, std::string> gKeyTypeToString = {
 };
 
 //-----
-KeyRequest::KeyRequest(const std::string& type,
-                       const std::optional<std::string>& fromKey,
-                       const std::optional<int>& threshold,
-                       const std::optional<std::vector<KeyRequest>>& keys)
-  : mType(gStringToKeyType.at(type))
-  , mFromKey(fromKey)
-  , mThreshold(threshold)
-  , mKeys(keys)
-{
-}
-
-//-----
 std::shared_ptr<Hedera::Key> getHederaKey(const std::string& key)
 {
   try

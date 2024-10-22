@@ -19,14 +19,16 @@
  */
 #include "account/AccountService.h"
 #include "CommonTransactionParams.h"
-#include "KeyHelper.h"
 #include "SdkClient.h"
 #include "account/params/CreateAccountParams.h"
+#include "account/params/UpdateAccountParams.h"
 
 #include <AccountCreateTransaction.h>
 #include <AccountDeleteTransaction.h>
 #include <AccountId.h>
 #include <AccountUpdateTransaction.h>
+#include <EvmAddress.h>
+#include <HbarUnit.h>
 #include <Status.h>
 #include <TransactionReceipt.h>
 #include <TransactionResponse.h>
@@ -40,15 +42,12 @@
 namespace Hedera::TCK::AccountService
 {
 //-----
-nlohmann::json createAccount(const CreateAccountParams& params, const SdkClient& client)
+nlohmann::json createAccount(const CreateAccountParams& params)
 {
   AccountCreateTransaction accountCreateTransaction;
   accountCreateTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
 
-  if (params.mKey.has_value())
-  {
-    accountCreateTransaction.setKey(getHederaKey(params.mKey.value()));
-  }
+  accountCreateTransaction.setKey(params.mKey);
 
   if (params.mInitialBalance.has_value())
   {
@@ -77,7 +76,7 @@ nlohmann::json createAccount(const CreateAccountParams& params, const SdkClient&
 
   if (params.mStakedAccountId.has_value())
   {
-    accountCreateTransaction.setStakedAccountId(AccountId::fromString(params.mStakedAccountId.value()));
+    accountCreateTransaction.setStakedAccountId(params.mStakedAccountId.value());
   }
 
   if (params.mStakedNodeId.has_value())
@@ -97,11 +96,11 @@ nlohmann::json createAccount(const CreateAccountParams& params, const SdkClient&
 
   if (params.mCommonTxParams.has_value())
   {
-    params.mCommonTxParams->fillOutTransaction(accountCreateTransaction, client.getClient());
+    params.mCommonTxParams->fillOutTransaction(accountCreateTransaction, SdkClient::getClient());
   }
 
   const TransactionReceipt txReceipt =
-    accountCreateTransaction.execute(client.getClient()).getReceipt(client.getClient());
+    accountCreateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
     {"accountId", txReceipt.mAccountId->toString()     },
     { "status",   gStatusToString.at(txReceipt.mStatus)}
@@ -109,110 +108,93 @@ nlohmann::json createAccount(const CreateAccountParams& params, const SdkClient&
 }
 
 //-----
-nlohmann::json deleteAccount(const std::optional<std::string>& deleteAccountId,
-                             const std::optional<std::string>& transferAccountId,
-                             const std::optional<CommonTransactionParams>& commonTxParams,
-                             const SdkClient& client)
+nlohmann::json deleteAccount(const DeleteAccountParams& params)
 {
   AccountDeleteTransaction accountDeleteTransaction;
   accountDeleteTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
 
-  if (deleteAccountId.has_value())
+  if (params.mDeleteAccountId.has_value())
   {
-    accountDeleteTransaction.setDeleteAccountId(AccountId::fromString(deleteAccountId.value()));
+    accountDeleteTransaction.setDeleteAccountId(params.mDeleteAccountId.value());
   }
 
-  if (transferAccountId.has_value())
+  if (params.mTransferAccountId.has_value())
   {
-    accountDeleteTransaction.setTransferAccountId(AccountId::fromString(transferAccountId.value()));
+    accountDeleteTransaction.setTransferAccountId(params.mTransferAccountId.value());
   }
 
-  if (commonTxParams.has_value())
+  if (params.mCommonTxParams.has_value())
   {
-    commonTxParams->fillOutTransaction(accountDeleteTransaction, client.getClient());
+    params.mCommonTxParams->fillOutTransaction(accountDeleteTransaction, SdkClient::getClient());
   }
 
   return {
     {"status",
-     gStatusToString.at(accountDeleteTransaction.execute(client.getClient()).getReceipt(client.getClient()).mStatus)}
+     gStatusToString.at(
+        accountDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
   };
 }
 
 //-----
-nlohmann::json updateAccount(const std::optional<std::string>& accountId,
-                             const std::optional<std::string>& key,
-                             const std::optional<int64_t>& autoRenewPeriod,
-                             const std::optional<int64_t>& expirationTime,
-                             const std::optional<bool>& receiverSignatureRequired,
-                             const std::optional<std::string>& memo,
-                             const std::optional<int32_t>& maxAutoTokenAssociations,
-                             const std::optional<std::string>& stakedAccountId,
-                             const std::optional<int64_t>& stakedNodeId,
-                             const std::optional<bool>& declineStakingReward,
-                             const std::optional<CommonTransactionParams>& commonTxParams,
-                             const SdkClient& client)
+nlohmann::json updateAccount(const UpdateAccountParams& params)
 {
   AccountUpdateTransaction accountUpdateTransaction;
   accountUpdateTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
 
-  if (accountId.has_value())
+  if (params.mAccountId.has_value())
   {
-    accountUpdateTransaction.setAccountId(AccountId::fromString(accountId.value()));
+    accountUpdateTransaction.setAccountId(params.mAccountId.value());
   }
 
-  if (key.has_value())
+  accountUpdateTransaction.setKey(params.mKey);
+
+  if (params.mAutoRenewPeriod.has_value())
   {
-    accountUpdateTransaction.setKey(getHederaKey(key.value()));
+    accountUpdateTransaction.setAutoRenewPeriod(std::chrono::seconds(params.mAutoRenewPeriod.value()));
   }
 
-  if (autoRenewPeriod.has_value())
+  if (params.mExpirationTime.has_value())
   {
-    accountUpdateTransaction.setAutoRenewPeriod(std::chrono::seconds(autoRenewPeriod.value()));
+    accountUpdateTransaction.setExpirationTime(params.mExpirationTime.value());
   }
 
-  if (expirationTime.has_value())
+  if (params.mReceiverSignatureRequired.has_value())
   {
-    accountUpdateTransaction.setExpirationTime(std::chrono::system_clock::from_time_t(0) +
-                                               std::chrono::seconds(expirationTime.value()));
+    accountUpdateTransaction.setReceiverSignatureRequired(params.mReceiverSignatureRequired.value());
   }
 
-  if (receiverSignatureRequired.has_value())
+  if (params.mMemo.has_value())
   {
-    accountUpdateTransaction.setReceiverSignatureRequired(receiverSignatureRequired.value());
+    accountUpdateTransaction.setAccountMemo(params.mMemo.value());
   }
 
-  if (memo.has_value())
+  if (params.mMaxAutoTokenAssociations.has_value())
   {
-    accountUpdateTransaction.setAccountMemo(memo.value());
+    accountUpdateTransaction.setMaxAutomaticTokenAssociations(params.mMaxAutoTokenAssociations.value());
   }
 
-  if (maxAutoTokenAssociations.has_value())
+  if (params.mStakedAccountId.has_value())
   {
-    accountUpdateTransaction.setMaxAutomaticTokenAssociations(maxAutoTokenAssociations.value());
+    accountUpdateTransaction.setStakedAccountId(params.mStakedAccountId.value());
   }
 
-  if (stakedAccountId.has_value())
+  if (params.mStakedNodeId.has_value())
   {
-    accountUpdateTransaction.setStakedAccountId(AccountId::fromString(stakedAccountId.value()));
+    accountUpdateTransaction.setStakedNodeId(params.mStakedNodeId.value());
   }
 
-  if (stakedNodeId.has_value())
+  if (params.mDeclineStakingReward.has_value())
   {
-    accountUpdateTransaction.setStakedNodeId(stakedNodeId.value());
+    accountUpdateTransaction.setDeclineStakingReward(params.mDeclineStakingReward.value());
   }
 
-  if (declineStakingReward.has_value())
+  if (params.mCommonTxParams.has_value())
   {
-    accountUpdateTransaction.setDeclineStakingReward(declineStakingReward.value());
-  }
-
-  if (commonTxParams.has_value())
-  {
-    commonTxParams->fillOutTransaction(accountUpdateTransaction, client.getClient());
+    params.mCommonTxParams->fillOutTransaction(accountUpdateTransaction, SdkClient::getClient());
   }
 
   const TransactionReceipt txReceipt =
-    accountUpdateTransaction.execute(client.getClient()).getReceipt(client.getClient());
+    accountUpdateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
     {"status", gStatusToString.at(txReceipt.mStatus)}
   };

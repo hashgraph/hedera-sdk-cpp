@@ -21,7 +21,9 @@
 #define HEDERA_TCK_CPP_TCK_SERVER_H_
 
 #include "JsonTypeMapper.h"
+#include "SdkClient.h"
 
+#include <functional>
 #include <httplib.h>
 #include <nlohmann/json_fwd.hpp>
 #include <string>
@@ -58,9 +60,8 @@ public:
    *
    * @param name   The name of the function.
    * @param func   The function to run.
-   * @param params The parameters to input into the function.
    */
-  void add(const std::string& name, const MethodHandle& func, const std::vector<std::string>& params = {});
+  void add(const std::string& name, const MethodHandle& func);
 
   /**
    * Add a JSON RPC notification function.
@@ -69,12 +70,102 @@ public:
    * @param func   The function to run.
    * @param params The parameters to input into the function.
    */
-  void add(const std::string& name, const NotificationHandle& func, const std::vector<std::string>& params = {});
+  void add(const std::string& name, const NotificationHandle& func);
 
   /**
    * Start listening for HTTP requests. All JSON RPC functions should be added before this is called.
    */
   void startServer();
+
+  /**
+   * Create a handle for the input method.
+   *
+   * @tparam ReturnType The type to be returned from the method.
+   * @tparam ParamTypes The parameters to pass into to method.
+   * @tparam index      The index sequence to use to get parameters.
+   * @param method The method of which to get the handle.
+   * @return The handle of the method.
+   */
+  template<typename ParamsType>
+  MethodHandle createMethodHandle(const std::function<nlohmann::json(const ParamsType&)>& method)
+  {
+    // Return the input method with additional parameter checks added. Must create a copy of method here as there are no
+    // guarantees if it will remain in scope.
+    // MethodHandle handle = [method](const nlohmann::json& params)
+    //{
+    //  if (sizeof...(ParamTypes) > 0 && !params.empty())
+    //  {
+    //    (checkParamType<std::decay_t<ParamTypes>>(index, params[index], getType<std::decay_t<ParamTypes>>()), ...);
+    //  }
+    //
+    //  return method(getParam<std::decay_t<ParamTypes>>(params, index)...);
+    //};
+    return [method](const nlohmann::json& params) { return method(params.get<ParamsType>()); };
+  }
+
+  /**
+   * Create a handle for the input notification.
+   *
+   * @tparam ReturnType The type to be returned from the notification.
+   * @tparam ParamTypes The parameters to pass into to notification.
+   * @tparam index      The index sequence to use to get parameters.
+   * @param method The notification of which to get the handle.
+   * @return The handle of the notification.
+   */
+  template<typename... ParamTypes, std::size_t... index>
+  NotificationHandle createNotificationHandle(const std::function<void(ParamTypes...)>& notification,
+                                              const std::index_sequence<index...>& /*unused*/)
+  {
+    // Return the input notification with additional parameter checks added. Must create a copy of notification here as
+    // there are no guarantees if it will remain in scope.
+    return [notification](const nlohmann::json& params)
+    {
+      if (sizeof...(ParamTypes) > 0 && !params.empty())
+      {
+        (checkParamType<std::decay_t<ParamTypes>>(index, params[index], getType<std::decay_t<ParamTypes>>()), ...);
+      }
+
+      return notification(getParam<std::decay_t<ParamTypes>>(params, index)...);
+    };
+  }
+
+  /**
+   * Create a method handle for the input method.
+   *
+   * @tparam ReturnType The type to be returned from the method.
+   * @tparam ParamTypes The parameters to pass into to method.
+   * @param method The method of which to get the handle.
+   * @return The handle for the method.
+   */
+  template<typename ParamsType>
+  MethodHandle getHandle(const std::function<nlohmann::json(const ParamsType&)>& method)
+  {
+    return createMethodHandle(method);
+  }
+  template<typename ParamsType>
+  MethodHandle getHandle(nlohmann::json (*method)(const ParamsType&))
+  {
+    return getHandle(std::function<nlohmann::json(const ParamsType&)>(method));
+  }
+
+  /**
+   * Create a handle for the input notification.
+   *
+   * @tparam ReturnType The type to be returned from the notification.
+   * @tparam ParamTypes The parameters to pass into to notification.
+   * @param notification The notification of which to get the handle.
+   * @return The handle for the notification.
+   */
+  template<typename ParamType>
+  NotificationHandle getHandle(const std::function<void(ParamType)>& notification)
+  {
+    return createNotificationHandle(notification);
+  }
+  template<typename ParamType>
+  NotificationHandle getHandle(void (*notification)(ParamType))
+  {
+    return getHandle(std::function<void(ParamType)>(notification));
+  }
 
 private:
   /**
@@ -109,9 +200,7 @@ private:
    * @return The result of the JSON RPC execution.
    * @throws JsonRpcException If there's an issue executing the method function.
    */
-  [[nodiscard]] nlohmann::json executeMethod(
-    const std::unordered_map<std::string, MethodHandle>::const_iterator& method,
-    const nlohmann::json& params) const;
+  [[nodiscard]] nlohmann::json executeMethod(const MethodHandle& method, const nlohmann::json& params) const;
 
   /**
    * Execute a notification request.
@@ -120,26 +209,8 @@ private:
    * @param params       The parameters to pass into the notification function.
    * @throws JsonRpcException If there's an issue executing the notification function.
    */
-  void executeNotification(const std::unordered_map<std::string, NotificationHandle>::const_iterator& notification,
-                           const nlohmann::json& params) const;
-
-  /**
-   * Normalize parameters to a JSON list.
-   *
-   * @param name   The name of the function.
-   * @param params The parameters to normalize.
-   * @return The parameters in a JSON list.
-   */
-  [[nodiscard]] nlohmann::json normalizeParameters(const std::string& name, const nlohmann::json& params) const;
-
-  /**
-   * Process an error thrown when trying to map JSON parameters to function inputs.
-   *
-   * @param name      The name of the function being executed that threw.
-   * @param exception The JsonRpcException that threw.
-   * @return The updated JsonRpcException.
-   */
-  [[nodiscard]] JsonRpcException processTypeError(const std::string& name, const JsonRpcException& exception) const;
+  // void executeNotification(const std::unordered_map<std::string, NotificationHandle>::const_iterator& notification,
+  //                          const nlohmann::json& params) const;
 
   /**
    * Set up the handler for the HTTP server.
@@ -155,11 +226,6 @@ private:
    * Map of function names to their corresponding notifications.
    */
   std::unordered_map<std::string, NotificationHandle> mNotifications;
-
-  /**
-   * Map of function names to the corresponding function's parameters.
-   */
-  std::unordered_map<std::string, std::vector<std::string>> mParameters;
 
   /**
    * The HTTP server to use to receive JSON requests.

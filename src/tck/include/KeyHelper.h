@@ -67,22 +67,6 @@ extern const std::unordered_map<KeyType, std::string> gKeyTypeToString;
  */
 struct KeyRequest
 {
-  KeyRequest() = default;
-
-  /**
-   * Construct with values for all fields.
-   *
-   * @param type      The type of Key to generate.
-   * @param fromKey   The associated private key for a public key, or ECDSAsecp256k1 private or public key for an EVM
-   *                  address.
-   * @param threshold The threshold of keys to sign for ThresholdKeys.
-   * @param keys      The KeyRequest information for KeyLists and ThresholdKeys.
-   */
-  KeyRequest(const std::string& type,
-             const std::optional<std::string>& fromKey,
-             const std::optional<int>& threshold,
-             const std::optional<std::vector<KeyRequest>>& keys);
-
   /**
    *The type of Key to generate.
    */

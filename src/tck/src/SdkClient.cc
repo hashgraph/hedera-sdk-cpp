@@ -43,21 +43,24 @@
 #include <stdexcept>
 #include <string>
 
-namespace Hedera::TCK
+namespace Hedera::TCK::SdkClient
 {
+namespace
+{
+// The Hedera C++ SDK Client the SdkClient will use to communicate with the network.
+Client mClient;
+}
+
 //-----
-nlohmann::json SdkClient::generateKey(const std::string& type,
-                                      const std::optional<std::string>& fromKey,
-                                      const std::optional<int>& threshold,
-                                      const std::optional<std::vector<KeyRequest>>& keys)
+nlohmann::json generateKey(const KeyRequest& params)
 {
   nlohmann::json response;
-  response["key"] = processKeyRequest({ type, fromKey, threshold, keys }, response);
+  response["key"] = processKeyRequest(params, response);
   return response;
 }
 
 //-----
-nlohmann::json SdkClient::reset()
+nlohmann::json reset(const ResetParams&)
 {
   mClient.close();
   return {
@@ -66,20 +69,16 @@ nlohmann::json SdkClient::reset()
 }
 
 //-----
-nlohmann::json SdkClient::setup(const std::string& operatorAccountId,
-                                const std::string& operatorPrivateKey,
-                                const std::optional<std::string>& nodeIp,
-                                const std::optional<std::string>& nodeAccountId,
-                                const std::optional<std::string>& mirrorNetworkIp)
+nlohmann::json setup(const SetupParams& params)
 {
   std::string clientType;
 
-  if (nodeIp.has_value() && nodeAccountId.has_value() && mirrorNetworkIp.has_value())
+  if (params.nodeIp.has_value() && params.nodeAccountId.has_value() && params.mirrorNetworkIp.has_value())
   {
     mClient = Client::forNetwork({
-      {nodeIp.value(), Hedera::AccountId::fromString(nodeAccountId.value())}
+      {params.nodeIp.value(), Hedera::AccountId::fromString(params.nodeAccountId.value())}
     });
-    mClient.setMirrorNetwork({ mirrorNetworkIp.value() });
+    mClient.setMirrorNetwork({ params.mirrorNetworkIp.value() });
     clientType = "custom";
   }
   else
@@ -88,13 +87,20 @@ nlohmann::json SdkClient::setup(const std::string& operatorAccountId,
     clientType = "testnet";
   }
 
-  mClient.setOperator(AccountId::fromString(operatorAccountId), PrivateKey::fromStringDer(operatorPrivateKey));
+  mClient.setOperator(AccountId::fromString(params.operatorAccountId),
+                      PrivateKey::fromStringDer(params.operatorPrivateKey));
   mClient.setRequestTimeout(DEFAULT_TCK_REQUEST_TIMEOUT);
 
   return {
     {"message", "Successfully setup " + clientType + " client."},
     { "status", "SUCCESS"                                      }
   };
+}
+
+//-----
+const Client& getClient()
+{
+  return mClient;
 }
 
 } // namespace Hedera::TCK::SdkClient

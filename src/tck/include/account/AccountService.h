@@ -20,10 +20,11 @@
 #ifndef HEDERA_TCK_CPP_ACCOUNT_SERVICE_H_
 #define HEDERA_TCK_CPP_ACCOUNT_SERVICE_H_
 
-#include "BaseService.h"
 #include "CommonTransactionParams.h"
 #include "SdkClient.h"
 #include "account/params/CreateAccountParams.h"
+#include "account/params/DeleteAccountParams.h"
+#include "account/params/UpdateAccountParams.h"
 
 #include <memory>
 #include <nlohmann/json_fwd.hpp>
@@ -49,17 +50,7 @@ namespace Hedera::TCK::AccountService
  * @param commonTxParams            Any parameters common to all transaction types.
  * @return A JSON response containing the created account ID and the status of the account creation.
  */
-nlohmann::json createAccount(const std::optional<std::string>& key,
-                             const std::optional<int64_t>& initialBalance,
-                             const std::optional<bool>& receiverSignatureRequired,
-                             const std::optional<int64_t>& autoRenewPeriod,
-                             const std::optional<std::string>& memo,
-                             const std::optional<int32_t>& maxAutoTokenAssociations,
-                             const std::optional<std::string>& stakedAccountId,
-                             const std::optional<int64_t>& stakedNodeId,
-                             const std::optional<bool>& declineStakingReward,
-                             const std::optional<std::string>& alias,
-                             const std::optional<CommonTransactionParams>& commonTxParams);
+nlohmann::json createAccount(const CreateAccountParams& params);
 
 /**
  * Delete an account.
@@ -69,9 +60,7 @@ nlohmann::json createAccount(const std::optional<std::string>& key,
  * @param commonTxParams    Any parameters common to all transaction types.
  * @return A JSON response containing the status of the account deletion.
  */
-nlohmann::json deleteAccount(const std::optional<std::string>& deleteAccountId,
-                             const std::optional<std::string>& transferAccountId,
-                             const std::optional<CommonTransactionParams>& commonTxParams);
+nlohmann::json deleteAccount(const DeleteAccountParams& params);
 
 /**
  * Update an account.
@@ -89,17 +78,7 @@ nlohmann::json deleteAccount(const std::optional<std::string>& deleteAccountId,
  * @param commonTxParams            Any parameters common to all transaction types.
  * @return A JSON response containing the created account ID and the status of the account creation.
  */
-nlohmann::json updateAccount(const std::optional<std::string>& accountId,
-                             const std::optional<std::string>& key,
-                             const std::optional<int64_t>& autoRenewPeriod,
-                             const std::optional<int64_t>& expirationTime,
-                             const std::optional<bool>& receiverSignatureRequired,
-                             const std::optional<std::string>& memo,
-                             const std::optional<int32_t>& maxAutoTokenAssociations,
-                             const std::optional<std::string>& stakedAccountId,
-                             const std::optional<int64_t>& stakedNodeId,
-                             const std::optional<bool>& declineStakingReward,
-                             const std::optional<CommonTransactionParams>& commonTxParams);
+nlohmann::json updateAccount(const UpdateAccountParams& params);
 
 } // namespace Hedera::TCK::AccountService
 
