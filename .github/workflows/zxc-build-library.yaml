@@ -198,25 +198,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup-msbuild
-        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
-        with:
-          msbuild-architecture: x64
+      # - name: Setup-msbuild
+      #   uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
+      #   with:
+      #     msbuild-architecture: x64
 
-      - name: Setup-perl
-        uses: shogo82148/actions-setup-perl@9c1eca9952ccc07f9ca4a2097b63df93d9d138e9 # v1.31.3
-        with:
-          perl-version: "5.32"
-          distribution: strawberry
+      # - name: Setup-perl
+      #   uses: shogo82148/actions-setup-perl@9c1eca9952ccc07f9ca4a2097b63df93d9d138e9 # v1.31.3
+      #   with:
+      #     perl-version: "5.32"
+      #     distribution: strawberry
 
-      - name: Setup-nasm
-        uses: ilammy/setup-nasm@13cbeb366c45c4379d3478cdcbadd8295feb5028 # v1.5.1
+      # - name: Setup-nasm
+      #   uses: ilammy/setup-nasm@13cbeb366c45c4379d3478cdcbadd8295feb5028 # v1.5.1
 
-      - name: Build
-        run: |
-          git submodule update --init
-          cmake --preset windows-x64-debug
-          cmake --build --preset windows-x64-debug -j 4
+      # - name: Build
+      #   run: |
+      #     git submodule update --init
+      #     cmake --preset windows-x64-debug
+      #     cmake --build --preset windows-x64-debug -j 4
+
+      - name: Install Local Node
+        run: sudo npm install -g @hashgraph/hedera-local@2.29.2
 
       - name: Start the local node
         run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
