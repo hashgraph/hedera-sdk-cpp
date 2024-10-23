@@ -216,4 +216,4 @@ jobs:
         run: |
           git submodule update --init
           cmake --preset windows-x64-debug
-          cmake --build --preset windows-x64-debug -- /m
+          cmake --build --preset windows-x64-debug
