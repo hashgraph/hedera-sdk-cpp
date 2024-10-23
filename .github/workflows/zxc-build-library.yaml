@@ -215,5 +215,5 @@ jobs:
       - name: Build
         run: |
           git submodule update --init
-          cmake --preset windows-x64-release
-          cmake --build --preset windows-x64-release
+          cmake --preset windows-x64-debug
+          cmake --build --preset windows-x64-debug
