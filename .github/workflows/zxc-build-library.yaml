@@ -218,6 +218,11 @@ jobs:
       #     cmake --preset windows-x64-debug
       #     cmake --build --preset windows-x64-debug -j 4
 
+      - name: Use Node.js 20
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+        with:
+          node-version: 20
+
       - name: Install Local Node
         run: npm install -g @hashgraph/hedera-local@2.29.2
 
