@@ -188,11 +188,6 @@ jobs:
       HEDERA_NETWORK: localhost
 
     steps:
-      - name: test npx and ctest
-        run: |
-          npx --version
-          ctest
-
       - name: Harden Runner
         uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
         with:
