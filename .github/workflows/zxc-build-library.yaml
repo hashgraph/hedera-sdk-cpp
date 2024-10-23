@@ -188,8 +188,10 @@ jobs:
       HEDERA_NETWORK: localhost
 
     steps:
-      - name: test npx
-        run: npx --version
+      - name: test npx and ctest
+        run: |
+          npx --version
+          ctest
 
       - name: Harden Runner
         uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
@@ -220,3 +222,14 @@ jobs:
           git submodule update --init
           cmake --preset windows-x64-debug
           cmake --build --preset windows-x64-debug -j 4
+
+      - name: Start the local node
+        run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
+
+      - name: Start CTest suite (Debug)
+        run: ctest -j 6 -C Debug --test-dir build/windows-x64-debug-debug --output-on-failure
+
+        #ADD CTEST RELEASE
+
+      - name: Stop the local node
+        run: sudo npx @hashgraph/hedera-local stop
