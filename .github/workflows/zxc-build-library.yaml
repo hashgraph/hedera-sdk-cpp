@@ -223,11 +223,18 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Local Node
-        run: npm install -g @hashgraph/hedera-local@2.29.2
+      # - name: Install Local Node
+      #   run: npm install -g @hashgraph/hedera-local@2.29.2
 
-      - name: Start the local node
-        run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
+      # - name: Start the local node
+      #   run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
+
+      - name: Clone hedera local node repo
+        run: |
+          git clone https://github.com/hashgraph/hedera-local-node.git
+          cd hedera-local-node
+          wsl dos2unix compose-network/mirror-node/init.sh
+          docker compose up -d
 
       - name: Start CTest suite (Debug)
         run: ctest -j 6 -C Debug --test-dir build/windows-x64-debug-debug --output-on-failure
@@ -235,4 +242,6 @@ jobs:
         #ADD CTEST RELEASE
 
       - name: Stop the local node
-        run: npx @hashgraph/hedera-local stop
+        run: |
+          cd hedera-local-node
+          docker compose down
