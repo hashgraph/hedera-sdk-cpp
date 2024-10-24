@@ -224,7 +224,9 @@ jobs:
           node-version: 20
 
       - name: Install Local Node
-        run: npm install -g @hashgraph/hedera-local@2.31.0
+        run: |
+          docker compose version
+          npm install -g @hashgraph/hedera-local@2.31.0
 
       - name: Start the local node
         run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
