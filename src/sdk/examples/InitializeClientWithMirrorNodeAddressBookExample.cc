@@ -18,11 +18,8 @@
  *
  */
 #include "AccountCreateTransaction.h"
-#include "AddressBookQuery.h"
 #include "Client.h"
 #include "ED25519PrivateKey.h"
-#include "FileId.h"
-#include "NodeAddressBook.h"
 #include "TransactionReceipt.h"
 #include "TransactionResponse.h"
 
@@ -33,17 +30,22 @@ using namespace Hedera;
 
 int main(int argc, char** argv)
 {
-  // Create a client for the Hedera network of which to get the address book.
-  Client client = Client::forTestnet();
+  dotenv::init();
+  const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
+  const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
 
-  // Query for the address book using the client.
-  const NodeAddressBook nodeAddressBook = AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(client);
+  // Initialize the client with the testnet mirror node.
+  Client client;
+  client.setOperator(operatorAccountId, operatorPrivateKey);
+  client.setMirrorNetwork({ "testnet.mirrornode.hedera.com:443" });
 
-  // Print off the received addresses contained in the address book.
-  for (const auto& nodeAddress : nodeAddressBook.getNodeAddresses())
-  {
-    std::cout << nodeAddress.toString() << std::endl;
-  }
+  // Get the address book from the mirror node and use it to populate the Client's consensus network.
+  client.populateNetworkFromMirrorNodeAddressBook();
+
+  // Attempt to execute a transaction.
+  TransactionReceipt txReceipt =
+    AccountCreateTransaction().setKey(ED25519PrivateKey::generatePrivateKey()).execute(client).getReceipt(client);
+  std::cout << "Created account " << txReceipt.mAccountId->toString() << std::endl;
 
   return 0;
 }
