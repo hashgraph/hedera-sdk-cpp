@@ -224,8 +224,7 @@ jobs:
           node-version: 20
 
       - name: Install Local Node
-        run: |
-          npm install --save "git://github.com/hashgraph/hedera-local-node#b50a2c2d5ab234a7205668f291d35844f2972b0f"
+        run: npm install -g @hashgraph/hedera-local@2.28.0
 
       - name: Start the local node
         run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
