@@ -17,16 +17,11 @@
  * limitations under the License.
  *
  */
-#include "AccountCreateTransaction.h"
 #include "AddressBookQuery.h"
 #include "Client.h"
-#include "ED25519PrivateKey.h"
 #include "FileId.h"
 #include "NodeAddressBook.h"
-#include "TransactionReceipt.h"
-#include "TransactionResponse.h"
 
-#include <dotenv.h>
 #include <iostream>
 
 using namespace Hedera;

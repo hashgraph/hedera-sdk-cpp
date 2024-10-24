@@ -24,7 +24,6 @@
 #include "exceptions/MaxAttemptsExceededException.h"
 #include "impl/MirrorNetwork.h"
 #include "impl/MirrorNode.h"
-#include "impl/Utilities.h"
 
 #include <proto/mirror/mirror_network_service.pb.h>
 #include <thread>
