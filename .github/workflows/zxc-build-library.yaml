@@ -226,6 +226,8 @@ jobs:
       - name: Install Local Node
         run: |
           docker system info --format='{{json .}}'
+          netsh int ipv4 show excludedportrange protocol=tcp
+          npm install -g @hashgraph/hedera-local@2.31.0
 
       - name: Start the local node
         run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
