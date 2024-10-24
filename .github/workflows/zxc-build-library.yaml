@@ -233,7 +233,6 @@ jobs:
         run: |
           git clone https://github.com/hashgraph/hedera-local-node.git
           cd hedera-local-node
-          wslbash.exe dos2unix compose-network/mirror-node/init.sh
           docker compose up -d
 
       - name: Start CTest suite (Debug)
