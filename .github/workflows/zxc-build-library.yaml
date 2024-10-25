@@ -188,6 +188,9 @@ jobs:
       HEDERA_NETWORK: localhost
 
     steps:
+      - name: Test Docker NCPU and MemTotal command
+        run: docker info --format '{{.NCPU}} CPU, {{.MemTotal}} bytes of memory'
+
       - name: Harden Runner
         uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
         with:
