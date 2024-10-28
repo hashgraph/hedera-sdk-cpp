@@ -167,7 +167,7 @@ Make sure to set it to the proper build folder of the binaries after building th
 
 ## Contributing to this Project
 
-Hiero welcomes participation from all developers!
+Whether you’re fixing bugs, enhancing features, or improving documentation, your contributions are important — let’s build something great together!
 
 For instructions on how to contribute to this repo, please
 review the [Contributing Guide for C++](CONTRIBUTING.md).
