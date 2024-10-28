@@ -177,7 +177,7 @@ More instructions for contribution can be found in the
 
 ## Code of Conduct
 
-Hiero uses the Linux FOundation Decentralised Trust [Code of Conduct]([https://github.com/hashgraph/.github/blob/main/CODE_OF_CONDUCT.md](https://www.lfdecentralizedtrust.org/code-of-conduct)).
+Hiero uses the Linux Foundation Decentralised Trust [Code of Conduct]([https://github.com/hashgraph/.github/blob/main/CODE_OF_CONDUCT.md](https://www.lfdecentralizedtrust.org/code-of-conduct)).
 
 ## License
 
