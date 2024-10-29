@@ -881,9 +881,9 @@ secring.*
 src/proto/*.proto
 
 ### Ignore Proto Files From Services Repo
-proto/*.proto
-proto/mirror
-proto/state
+/proto/*.proto
+/proto/mirror
+/proto/state
 
 ### Ignore Generated Package Files
 package
