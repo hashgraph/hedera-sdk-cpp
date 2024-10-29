@@ -24,7 +24,7 @@
 #include "CustomRoyaltyFee.h"
 #include "impl/Utilities.h"
 
-#include <proto/custom_fees.pb.h>
+#include <custom_fees.pb.h>
 
 namespace Hedera
 {

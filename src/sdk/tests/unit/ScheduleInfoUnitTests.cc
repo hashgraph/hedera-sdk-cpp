@@ -24,7 +24,7 @@
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <proto/schedule_get_info.pb.h>
+#include <schedule_get_info.pb.h>
 
 using namespace Hedera;
 

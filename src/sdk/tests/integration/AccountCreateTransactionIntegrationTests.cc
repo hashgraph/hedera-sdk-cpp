@@ -41,7 +41,7 @@
 #include "impl/Network.h"
 
 #include <gtest/gtest.h>
-#include <proto/transaction_body.pb.h>
+#include <transaction_body.pb.h>
 
 using namespace Hedera;
 

@@ -21,9 +21,9 @@
 #include "ContractLogInfo.h"
 #include "impl/Utilities.h"
 
+#include <contract_call_local.pb.h>
 #include <cstddef>
 #include <gtest/gtest.h>
-#include <proto/contract_call_local.pb.h>
 #include <vector>
 
 using namespace Hedera;
@@ -40,9 +40,9 @@ private:
   const ContractId mTestContractId = ContractId(1ULL);
   const std::vector<std::byte> mTestBloom = { std::byte(0x02), std::byte(0x03), std::byte(0x04) };
   const std::vector<std::vector<std::byte>> mTestTopics = {
-    {std::byte(0x05),  std::byte(0x06), std::byte(0x07)},
-    { std::byte(0x08), std::byte(0x09), std::byte(0x0A)},
-    { std::byte(0x0B), std::byte(0x0C), std::byte(0x0D)}
+    { std::byte(0x05), std::byte(0x06), std::byte(0x07) },
+    { std::byte(0x08), std::byte(0x09), std::byte(0x0A) },
+    { std::byte(0x0B), std::byte(0x0C), std::byte(0x0D) }
   };
   const std::vector<std::byte> mTestData = { std::byte(0x0E), std::byte(0x0F) };
 };

@@ -108,12 +108,12 @@
 #include <algorithm>
 #include <grpcpp/impl/codegen/status.h>
 #include <limits>
-#include <proto/query.pb.h>
-#include <proto/response.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_response.pb.h>
+#include <query.pb.h>
+#include <response.pb.h>
 #include <stdexcept>
 #include <thread>
+#include <transaction.pb.h>
+#include <transaction_response.pb.h>
 
 namespace Hedera
 {

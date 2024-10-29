@@ -33,9 +33,9 @@
 #include "impl/Utilities.h"
 
 #include <algorithm>
+#include <basic_types.pb.h>
 #include <memory>
 #include <optional>
-#include <proto/basic_types.pb.h>
 #include <string>
 #include <vector>
 
@@ -43,24 +43,24 @@ namespace Hedera::TCK
 {
 //-----
 const std::unordered_map<std::string, KeyType> gStringToKeyType = {
-  {"ed25519PrivateKey",         KeyType::ED25519_PRIVATE_KEY_TYPE        },
-  { "ed25519PublicKey",         KeyType::ED25519_PUBLIC_KEY_TYPE         },
-  { "ecdsaSecp256k1PrivateKey", KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE},
-  { "ecdsaSecp256k1PublicKey",  KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE },
-  { "keyList",                  KeyType::LIST_KEY_TYPE                   },
-  { "thresholdKey",             KeyType::THRESHOLD_KEY_TYPE              },
-  { "evmAddress",               KeyType::EVM_ADDRESS_KEY_TYPE            }
+  { "ed25519PrivateKey",        KeyType::ED25519_PRIVATE_KEY_TYPE         },
+  { "ed25519PublicKey",         KeyType::ED25519_PUBLIC_KEY_TYPE          },
+  { "ecdsaSecp256k1PrivateKey", KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE },
+  { "ecdsaSecp256k1PublicKey",  KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE  },
+  { "keyList",                  KeyType::LIST_KEY_TYPE                    },
+  { "thresholdKey",             KeyType::THRESHOLD_KEY_TYPE               },
+  { "evmAddress",               KeyType::EVM_ADDRESS_KEY_TYPE             }
 };
 
 //-----
 const std::unordered_map<KeyType, std::string> gKeyTypeToString = {
-  {KeyType::ED25519_PRIVATE_KEY_TYPE,          "ed25519PrivateKey"       },
-  { KeyType::ED25519_PUBLIC_KEY_TYPE,          "ed25519PublicKey"        },
-  { KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE, "ecdsaSecp256k1PrivateKey"},
-  { KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE,  "ecdsaSecp256k1PublicKey" },
-  { KeyType::LIST_KEY_TYPE,                    "keyList"                 },
-  { KeyType::THRESHOLD_KEY_TYPE,               "thresholdKey"            },
-  { KeyType::EVM_ADDRESS_KEY_TYPE,             "evmAddress"              }
+  { KeyType::ED25519_PRIVATE_KEY_TYPE,         "ed25519PrivateKey"        },
+  { KeyType::ED25519_PUBLIC_KEY_TYPE,          "ed25519PublicKey"         },
+  { KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE, "ecdsaSecp256k1PrivateKey" },
+  { KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE,  "ecdsaSecp256k1PublicKey"  },
+  { KeyType::LIST_KEY_TYPE,                    "keyList"                  },
+  { KeyType::THRESHOLD_KEY_TYPE,               "thresholdKey"             },
+  { KeyType::EVM_ADDRESS_KEY_TYPE,             "evmAddress"               }
 };
 
 //-----

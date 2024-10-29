@@ -22,8 +22,8 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <contract_get_info.pb.h>
 #include <gtest/gtest.h>
-#include <proto/contract_get_info.pb.h>
 
 using namespace Hedera;
 

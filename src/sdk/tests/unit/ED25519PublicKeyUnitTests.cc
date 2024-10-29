@@ -23,9 +23,9 @@
 #include "exceptions/BadKeyException.h"
 #include "impl/Utilities.h"
 
+#include <basic_types.pb.h>
 #include <gtest/gtest.h>
 #include <memory>
-#include <proto/basic_types.pb.h>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -63,7 +63,7 @@ private:
   const std::string_view openSSLCompatibleDERPublicKey =
     "302A300506032B65700321008CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D";
   const std::unordered_map<std::string_view, std::string_view> expectedPublicKeyPairs{
-    {openSSLCompatibleDERPublicKey, "8CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D"},
+    { openSSLCompatibleDERPublicKey, "8CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D" },
   };
 };
 
@@ -142,7 +142,7 @@ TEST_F(ED25519PublicKeyUnitTests, FromBytes)
   EXPECT_THROW(
     const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromBytes(concatenateVectors({
       ED25519PublicKey::DER_ENCODED_PREFIX_BYTES,
-      {std::byte(0x76), std::byte(0x47), std::byte(0x85), std::byte(0x47), std::byte(0x15), std::byte(0xD4)}
+      { std::byte(0x76), std::byte(0x47), std::byte(0x85), std::byte(0x47), std::byte(0x15), std::byte(0xD4) }
   })),
     BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =

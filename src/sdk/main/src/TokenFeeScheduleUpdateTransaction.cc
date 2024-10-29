@@ -21,9 +21,9 @@
 #include "impl/Node.h"
 
 #include <grpcpp/client_context.h>
-#include <proto/token_fee_schedule_update.pb.h>
-#include <proto/transaction.pb.h>
 #include <stdexcept>
+#include <token_fee_schedule_update.pb.h>
+#include <transaction.pb.h>
 
 namespace Hedera
 {

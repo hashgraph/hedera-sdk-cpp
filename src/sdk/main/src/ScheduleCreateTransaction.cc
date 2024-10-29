@@ -24,9 +24,9 @@
 #include "impl/TimestampConverter.h"
 
 #include <grpcpp/client_context.h>
-#include <proto/schedule_create.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <schedule_create.pb.h>
+#include <transaction.pb.h>
+#include <transaction_body.pb.h>
 
 namespace Hedera
 {

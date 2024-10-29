@@ -23,8 +23,8 @@
 #include "impl/EntityIdHelper.h"
 #include "impl/Utilities.h"
 
+#include <basic_types.pb.h>
 #include <limits>
-#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {

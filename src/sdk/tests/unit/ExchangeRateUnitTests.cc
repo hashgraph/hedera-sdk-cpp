@@ -22,8 +22,8 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <exchange_rate.pb.h>
 #include <gtest/gtest.h>
-#include <proto/exchange_rate.pb.h>
 
 using namespace Hedera;
 

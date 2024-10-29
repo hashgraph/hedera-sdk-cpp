@@ -20,8 +20,8 @@
 #include "TokenNftAllowance.h"
 #include "impl/Utilities.h"
 
-#include <proto/crypto_approve_allowance.pb.h>
-#include <proto/crypto_delete_allowance.pb.h>
+#include <crypto_approve_allowance.pb.h>
+#include <crypto_delete_allowance.pb.h>
 
 namespace Hedera
 {
