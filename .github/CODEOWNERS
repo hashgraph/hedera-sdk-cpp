@@ -2,7 +2,7 @@
 ##### Global Protection Rule ######
 ###################################
 # NOTE: This rule is overriden by the more specific rules below. This is the catch-all rule for all files not covered by the more specific rules below.
-*                                               @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
+*                                               @hashgraph/devops-ci @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
 
 #########################
 #####  Core Files  ######
@@ -11,8 +11,8 @@
 # NOTE: Must be placed last to ensure enforcement over all other rules
 
 # Protection Rules for Github Configuration Files and Actions Workflows
-/.github/                                       @hashgraph/release-engineering @hashgraph/release-engineering-managers
-/.github/workflows/                             @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
+/.github/                                       @hashgraph/devops-ci @hashgraph/release-engineering @hashgraph/release-engineering-managers
+/.github/workflows/                             @hashgraph/devops-ci @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
 
 # Cmake project files and inline plugins
 **/.clang*                                      @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
@@ -26,7 +26,7 @@
 .remarkrc                                       @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
 
 # Self-protection for root CODEOWNERS files (this file should not exist and should definitely require approval)
-/CODEOWNERS                                     @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
+/CODEOWNERS                                     @hashgraph/devops-ci @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
 
 # Protect the repository root files
 /README.md                                      @hashgraph/release-engineering @hashgraph/release-engineering-managers @hashgraph/hedera-sdk @hashgraph/hedera-sdk-cpp-maintainers @hashgraph/hedera-sdk-cpp-contributors
