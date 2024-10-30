@@ -34,13 +34,10 @@ int main(int argc, char** argv)
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
   const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
 
-  // Initialize the client with the testnet mirror node.
-  Client client;
+  // Initialize the client with the testnet mirror node. This will also get the address book from the mirror node and
+  // use it to populate the Client's consensus network.
+  Client client = Client::forMirrorNetwork({ "testnet.mirrornode.hedera.com:443" });
   client.setOperator(operatorAccountId, operatorPrivateKey);
-  client.setMirrorNetwork({ "testnet.mirrornode.hedera.com:443" });
-
-  // Get the address book from the mirror node and use it to populate the Client's consensus network.
-  client.populateNetworkFromMirrorNodeAddressBook();
 
   // Attempt to execute a transaction.
   TransactionReceipt txReceipt =

@@ -175,6 +175,18 @@ Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& netw
 }
 
 //-----
+Client Client::forMirrorNetwork(const std::vector<std::string>& mirrorNetwork)
+{
+  Client client;
+  client.setMirrorNetwork(mirrorNetwork);
+  client.mImpl->mNetwork =
+    std::make_shared<internal::Network>(internal::Network::forNetwork(internal::Network::getNetworkFromAddressBook(
+      AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(client), internal::BaseNodeAddress::PORT_NODE_PLAIN)));
+
+  return client;
+}
+
+//-----
 Client Client::forName(std::string_view name)
 {
   // clang-format off
@@ -694,17 +706,6 @@ Client& Client::setMirrorNetwork(const std::vector<std::string>& network)
   std::unique_lock lock(mImpl->mMutex);
   mImpl->mMirrorNetwork = std::make_shared<internal::MirrorNetwork>(internal::MirrorNetwork::forNetwork(network));
   return *this;
-}
-
-//-----
-void Client::populateNetworkFromMirrorNodeAddressBook()
-{
-  auto network =
-    std::make_shared<internal::Network>(internal::Network::forNetwork(internal::Network::getNetworkFromAddressBook(
-      AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(*this), internal::BaseNodeAddress::PORT_NODE_PLAIN)));
-
-  std::unique_lock lock(mImpl->mMutex);
-  mImpl->mNetwork = network;
 }
 
 //-----
