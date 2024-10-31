@@ -47,8 +47,11 @@
 #include "Status.h"
 #include "SystemDeleteTransaction.h"
 #include "SystemUndeleteTransaction.h"
+#include "TokenAirdropTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
+#include "TokenCancelAirdropTransaction.h"
+#include "TokenClaimAirdropTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
@@ -268,10 +271,16 @@ WrappedTransaction Transaction<SdkRequestType>::fromBytes(const std::vector<std:
       return WrappedTransaction(SystemDeleteTransaction(transactions));
     case proto::TransactionBody::kSystemUndelete:
       return WrappedTransaction(SystemUndeleteTransaction(transactions));
+    case proto::TransactionBody::kTokenAirdrop:
+      return WrappedTransaction(TokenAirdropTransaction(transactions));
     case proto::TransactionBody::kTokenAssociate:
       return WrappedTransaction(TokenAssociateTransaction(transactions));
     case proto::TransactionBody::kTokenBurn:
       return WrappedTransaction(TokenBurnTransaction(transactions));
+    case proto::TransactionBody::kTokenCancelAirdrop:
+      return WrappedTransaction(TokenCancelAirdropTransaction(transactions));
+    case proto::TransactionBody::kTokenClaimAirdrop:
+      return WrappedTransaction(TokenClaimAirdropTransaction(transactions));
     case proto::TransactionBody::kTokenCreation:
       return WrappedTransaction(TokenCreateTransaction(transactions));
     case proto::TransactionBody::kTokenDeletion:
@@ -1297,8 +1306,11 @@ template class Transaction<ScheduleDeleteTransaction>;
 template class Transaction<ScheduleSignTransaction>;
 template class Transaction<SystemDeleteTransaction>;
 template class Transaction<SystemUndeleteTransaction>;
+template class Transaction<TokenAirdropTransaction>;
 template class Transaction<TokenAssociateTransaction>;
 template class Transaction<TokenBurnTransaction>;
+template class Transaction<TokenCancelAirdropTransaction>;
+template class Transaction<TokenClaimAirdropTransaction>;
 template class Transaction<TokenCreateTransaction>;
 template class Transaction<TokenDeleteTransaction>;
 template class Transaction<TokenDissociateTransaction>;

@@ -27,8 +27,10 @@
 #include "CustomFractionalFee.h"
 #include "CustomRoyaltyFee.h"
 #include "JsonRpcException.h"
+#include "impl/EntityIdHelper.h"
 
 #include <nlohmann/json.hpp>
+#include <stdexcept>
 
 namespace nlohmann
 {
@@ -152,13 +154,22 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
                                             "invalid parameters: amount is REQUIRED for fixedFee fee types.");
       }
 
-      if (!jsonFrom["fixedFee"]["amount"].is_number_integer())
+      if (!jsonFrom["fixedFee"]["amount"].is_string())
       {
         throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: amount MUST be an int64.");
+                                            "invalid parameters: amount MUST be a string.");
       }
 
-      fixedFee->setAmount(jsonFrom["fixedFee"]["amount"].get<int64_t>());
+      try
+      {
+        fixedFee->setAmount(
+          Hedera::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["fixedFee"]["amount"].get<std::string>()));
+      }
+      catch (const std::invalid_argument&)
+      {
+        fixedFee->setAmount(
+          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fixedFee"]["amount"].get<std::string>()));
+      }
 
       if (jsonFrom["fixedFee"].contains("denominatingTokenId"))
       {
@@ -187,13 +198,22 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
                                             "invalid parameters: numerator is REQUIRED for fractionalFee fee types.");
       }
 
-      if (!jsonFrom["fractionalFee"]["numerator"].is_number_integer())
+      if (!jsonFrom["fractionalFee"]["numerator"].is_string())
       {
         throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: numerator MUST be an int64.");
+                                            "invalid parameters: numerator MUST be a string.");
       }
 
-      fractionalFee->setNumerator(jsonFrom["fractionalFee"]["numerator"].get<int64_t>());
+      try
+      {
+        fractionalFee->setNumerator(
+          Hedera::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["fractionalFee"]["numerator"].get<std::string>()));
+      }
+      catch (const std::invalid_argument&)
+      {
+        fractionalFee->setNumerator(
+          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["numerator"].get<std::string>()));
+      }
 
       if (!jsonFrom["fractionalFee"].contains("denominator"))
       {
@@ -201,13 +221,22 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
                                             "invalid parameters: denominator is REQUIRED for fractionalFee fee types.");
       }
 
-      if (!jsonFrom["fractionalFee"]["denominator"].is_number_integer())
+      if (!jsonFrom["fractionalFee"]["denominator"].is_string())
       {
         throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: denominator MUST be an int64.");
+                                            "invalid parameters: denominator MUST be a string.");
       }
 
-      fractionalFee->setDenominator(jsonFrom["fractionalFee"]["denominator"].get<int64_t>());
+      try
+      {
+        fractionalFee->setDenominator(Hedera::internal::EntityIdHelper::getNum<int64_t>(
+          jsonFrom["fractionalFee"]["denominator"].get<std::string>()));
+      }
+      catch (const std::invalid_argument&)
+      {
+        fractionalFee->setDenominator(
+          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["denominator"].get<std::string>()));
+      }
 
       if (!jsonFrom["fractionalFee"].contains("minimumAmount"))
       {
@@ -216,13 +245,22 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
           "invalid parameters: minimumAmount is REQUIRED for fractionalFee fee types.");
       }
 
-      if (!jsonFrom["fractionalFee"]["minimumAmount"].is_number_integer())
+      if (!jsonFrom["fractionalFee"]["minimumAmount"].is_string())
       {
         throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: minimumAmount MUST be an int64.");
+                                            "invalid parameters: minimumAmount MUST be a string.");
       }
 
-      fractionalFee->setMinimumAmount(jsonFrom["fractionalFee"]["minimumAmount"].get<int64_t>());
+      try
+      {
+        fractionalFee->setMinimumAmount(Hedera::internal::EntityIdHelper::getNum<int64_t>(
+          jsonFrom["fractionalFee"]["minimumAmount"].get<std::string>()));
+      }
+      catch (const std::invalid_argument&)
+      {
+        fractionalFee->setMinimumAmount(
+          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["minimumAmount"].get<std::string>()));
+      }
 
       if (!jsonFrom["fractionalFee"].contains("maximumAmount"))
       {
@@ -231,13 +269,22 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
           "invalid parameters: maximumAmount is REQUIRED for fractionalFee fee types.");
       }
 
-      if (!jsonFrom["fractionalFee"]["maximumAmount"].is_number_integer())
+      if (!jsonFrom["fractionalFee"]["maximumAmount"].is_string())
       {
         throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: maximumAmount MUST be an int64.");
+                                            "invalid parameters: maximumAmount MUST be a string.");
       }
 
-      fractionalFee->setMaximumAmount(jsonFrom["fractionalFee"]["maximumAmount"].get<int64_t>());
+      try
+      {
+        fractionalFee->setMaximumAmount(Hedera::internal::EntityIdHelper::getNum<int64_t>(
+          jsonFrom["fractionalFee"]["maximumAmount"].get<std::string>()));
+      }
+      catch (const std::invalid_argument&)
+      {
+        fractionalFee->setMaximumAmount(
+          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["maximumAmount"].get<std::string>()));
+      }
 
       if (!jsonFrom["fractionalFee"].contains("assessmentMethod"))
       {
@@ -274,13 +321,22 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
                                             "invalid parameters: numerator is REQUIRED for royaltyFee fee types.");
       }
 
-      if (!jsonFrom["royaltyFee"]["numerator"].is_number_integer())
+      if (!jsonFrom["royaltyFee"]["numerator"].is_string())
       {
         throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: numerator MUST be an int64.");
+                                            "invalid parameters: numerator MUST be a string.");
       }
 
-      royaltyFee->setNumerator(jsonFrom["royaltyFee"]["numerator"].get<int64_t>());
+      try
+      {
+        royaltyFee->setNumerator(
+          Hedera::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["royaltyFee"]["numerator"].get<std::string>()));
+      }
+      catch (const std::invalid_argument&)
+      {
+        royaltyFee->setNumerator(
+          Hedera::internal::EntityIdHelper::getNum(jsonFrom["royaltyFee"]["numerator"].get<std::string>()));
+      }
 
       if (!jsonFrom["royaltyFee"].contains("denominator"))
       {
@@ -288,13 +344,22 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
                                             "invalid parameters: denominator is REQUIRED for royaltyFee fee types.");
       }
 
-      if (!jsonFrom["royaltyFee"]["denominator"].is_number_integer())
+      if (!jsonFrom["royaltyFee"]["denominator"].is_string())
       {
         throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: denominator MUST be an int64.");
+                                            "invalid parameters: denominator MUST be a string.");
       }
 
-      royaltyFee->setDenominator(jsonFrom["royaltyFee"]["denominator"].get<int64_t>());
+      try
+      {
+        royaltyFee->setDenominator(
+          Hedera::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["royaltyFee"]["denominator"].get<std::string>()));
+      }
+      catch (const std::invalid_argument&)
+      {
+        royaltyFee->setDenominator(
+          Hedera::internal::EntityIdHelper::getNum(jsonFrom["royaltyFee"]["denominator"].get<std::string>()));
+      }
 
       if (jsonFrom["royaltyFee"].contains("fallbackFee"))
       {
@@ -306,13 +371,22 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
                                               "invalid parameters: amount is REQUIRED for a fallback fee.");
         }
 
-        if (!jsonFrom["royaltyFee"]["fallbackFee"]["amount"].is_number_integer())
+        if (!jsonFrom["royaltyFee"]["fallbackFee"]["amount"].is_string())
         {
           throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                              "invalid parameters: amount MUST be an int64.");
+                                              "invalid parameters: amount MUST be a string.");
         }
 
-        fallbackFee.setAmount(jsonFrom["royaltyFee"]["fallbackFee"]["amount"].get<int64_t>());
+        try
+        {
+          fallbackFee.setAmount(Hedera::internal::EntityIdHelper::getNum(
+            jsonFrom["royaltyFee"]["fallbackFee"]["amount"].get<std::string>()));
+        }
+        catch (const std::invalid_argument&)
+        {
+          fallbackFee.setAmount(Hedera::internal::EntityIdHelper::getNum<int64_t>(
+            jsonFrom["royaltyFee"]["fallbackFee"]["amount"].get<std::string>()));
+        }
 
         if (jsonFrom["royaltyFee"]["fallbackFee"].contains("denominatingTokenId"))
         {

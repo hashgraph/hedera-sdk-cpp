@@ -62,8 +62,11 @@
 #include "ScheduleSignTransaction.h"
 #include "SystemDeleteTransaction.h"
 #include "SystemUndeleteTransaction.h"
+#include "TokenAirdropTransaction.h"
 #include "TokenAssociateTransaction.h"
 #include "TokenBurnTransaction.h"
+#include "TokenCancelAirdropTransaction.h"
+#include "TokenClaimAirdropTransaction.h"
 #include "TokenCreateTransaction.h"
 #include "TokenDeleteTransaction.h"
 #include "TokenDissociateTransaction.h"
@@ -639,11 +642,20 @@ template class Executable<SystemUndeleteTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
+template class Executable<TokenAirdropTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenAssociateTransaction,
                           proto::Transaction,
                           proto::TransactionResponse,
                           TransactionResponse>;
 template class Executable<TokenBurnTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
+template class Executable<TokenCancelAirdropTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
+template class Executable<TokenClaimAirdropTransaction,
+                          proto::Transaction,
+                          proto::TransactionResponse,
+                          TransactionResponse>;
 template class Executable<TokenCreateTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenDeleteTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 template class Executable<TokenDissociateTransaction,

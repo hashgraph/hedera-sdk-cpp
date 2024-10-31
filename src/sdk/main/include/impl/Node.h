@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_NODE_H_
 #define HEDERA_SDK_CPP_IMPL_NODE_H_
 
+#include <proto/address_book_service.grpc.pb.h>
 #include <proto/consensus_service.grpc.pb.h>
 #include <proto/crypto_service.grpc.pb.h>
 #include <proto/file_service.grpc.pb.h>
@@ -235,6 +236,11 @@ private:
    * Pointer to the gRPC stub used to communicate with the utility service living on the remote node.
    */
   std::unique_ptr<proto::UtilService::Stub> mUtilStub = nullptr;
+
+  /**
+   * Pointer to the gRPC stub used to communicate with the address book service living on the remote node.
+   */
+  std::unique_ptr<proto::AddressBookService::Stub> mAddressBookStub = nullptr;
 
   /**
    * The AccountId that runs the remote node represented by this Node.
