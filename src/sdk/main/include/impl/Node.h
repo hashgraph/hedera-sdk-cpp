@@ -20,6 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_NODE_H_
 #define HEDERA_SDK_CPP_IMPL_NODE_H_
 
+#include <address_book_service.grpc.pb.h>
 #include <consensus_service.grpc.pb.h>
 #include <crypto_service.grpc.pb.h>
 #include <file_service.grpc.pb.h>
