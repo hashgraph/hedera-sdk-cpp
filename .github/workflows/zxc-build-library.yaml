@@ -23,6 +23,11 @@ jobs:
             preset: linux-x64
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        with:
+          egress-policy: audit
+
       - name: Setup Control Groups
         id: cgroup
         run: |
@@ -63,11 +68,6 @@ jobs:
 
           CG_EXEC="cgexec -g cpu,memory:${SDK_CPP_GROUP_NAME} --sticky ionice -c 2 -n 2 nice -n 19"
           echo "exec=${CG_EXEC}" >> "${GITHUB_OUTPUT}"
-
-      - name: Harden Runner
-        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
-        with:
-          egress-policy: audit
 
       - name: Checkout Code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
