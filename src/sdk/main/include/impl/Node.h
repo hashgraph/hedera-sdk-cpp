@@ -238,6 +238,11 @@ private:
   std::unique_ptr<proto::UtilService::Stub> mUtilStub = nullptr;
 
   /**
+   * Pointer to the gRPC stub used to communicate with the address book service living on the remote node.
+   */
+  std::unique_ptr<proto::AddressBookService::Stub> mAddressBookStub = nullptr;
+
+  /**
    * The AccountId that runs the remote node represented by this Node.
    */
   AccountId mAccountId;
