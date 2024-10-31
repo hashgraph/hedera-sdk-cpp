@@ -282,10 +282,8 @@ AccountId& AccountId::populateAccountEvmAddress(const Client& client)
   // build url for Mirror Node
   std::string url = "https://" + mirrorNetworks.front() + "/api/v1/accounts/0.0." + std::to_string(mAccountNum.value());
 
-  internal::HttpClient httpClient;
-
   // fetch account data for this account from Mirror Node
-  std::string response = httpClient.invokeREST(url, "GET");
+  std::string response = internal::HttpClient::invokeREST(url, "GET");
   json responseData = json::parse(response);
 
   if (responseData["account"].empty() || responseData["evm_address"].empty())
