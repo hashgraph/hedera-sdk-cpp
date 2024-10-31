@@ -511,8 +511,8 @@ nlohmann::json SdkClient::updateToken(const std::optional<std::string>& tokenId,
                                       const std::optional<std::string>& wipeKey,
                                       const std::optional<std::string>& supplyKey,
                                       const std::optional<std::string>& autoRenewAccountId,
-                                      const std::optional<int64_t>& autoRenewPeriod,
-                                      const std::optional<int64_t>& expirationTime,
+                                      const std::optional<std::string>& autoRenewPeriod,
+                                      const std::optional<std::string>& expirationTime,
                                       const std::optional<std::string>& memo,
                                       const std::optional<std::string>& feeScheduleKey,
                                       const std::optional<std::string>& pauseKey,
@@ -575,13 +575,32 @@ nlohmann::json SdkClient::updateToken(const std::optional<std::string>& tokenId,
 
   if (autoRenewPeriod.has_value())
   {
-    tokenUpdateTransaction.setAutoRenewPeriod(std::chrono::seconds(autoRenewPeriod.value()));
+    try
+    {
+      tokenUpdateTransaction.setAutoRenewPeriod(
+        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(autoRenewPeriod.value())));
+    }
+    catch (const std::invalid_argument&)
+    {
+      tokenUpdateTransaction.setAutoRenewPeriod(
+        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum(autoRenewPeriod.value())));
+    }
   }
 
   if (expirationTime.has_value())
   {
-    tokenUpdateTransaction.setExpirationTime(std::chrono::system_clock::from_time_t(0) +
-                                             std::chrono::seconds(expirationTime.value()));
+    try
+    {
+      tokenUpdateTransaction.setExpirationTime(
+        std::chrono::system_clock::from_time_t(0) +
+        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(expirationTime.value())));
+    }
+    catch (const std::invalid_argument&)
+    {
+      tokenUpdateTransaction.setExpirationTime(
+        std::chrono::system_clock::from_time_t(0) +
+        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum(expirationTime.value())));
+    }
   }
 
   if (memo.has_value())
