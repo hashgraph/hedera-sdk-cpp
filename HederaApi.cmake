@@ -54,15 +54,10 @@ file(INSTALL ${PROJECT_SOURCE_DIR}/proto/service-external-proto/sdk/ DESTINATION
 
 add_subdirectory(proto)
 
-# set(HAPI_ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/proto/${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR})
 set(HAPI_ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/proto)
 
 if (NOT EXISTS ${HAPI_ROOT_DIR})
-    set(HAPI_ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/proto)
-
-    if (NOT EXISTS ${HAPI_ROOT_DIR})
-        message(FATAL_ERROR "Failed to the HAPI_ROOT_DIR at `${HAPI_ROOT_DIR}`")
-    endif ()
+    message(FATAL_ERROR "Failed to the HAPI_ROOT_DIR at `${HAPI_ROOT_DIR}`")
 endif ()
 
 set(HAPI_INCLUDE_DIR ${HAPI_ROOT_DIR})
