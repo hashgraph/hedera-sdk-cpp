@@ -93,9 +93,9 @@ private:
     "f855ddcad2377e22259d1fcb4e0f1d35e8f2056300c15070bcbfce3759cc9d";
 
   const std::unordered_map<std::string_view, std::string_view> expectedPublicKeyPairs{
-    { legacyDERPublicKey,                        "028173079D2E996EF6B2D064FC82D5FC7094367211E28422BEC50A2F75C365F5FD" },
-    { openSSLCompatibleCompressedDERPublicKey,   "036843F5CB338BBB4CDB21B0DA4EA739D910951D6E8A5F703D313EFE31AFE788F4" },
-    { openSSLCompatibleUncompressedDERPublicKey, "03AAAC1C3AC1BEA0245B8E00CE1E2018F9EAB61B6331FBEF7266F2287750A65977" },
+    {legacyDERPublicKey,                         "028173079D2E996EF6B2D064FC82D5FC7094367211E28422BEC50A2F75C365F5FD"},
+    { openSSLCompatibleCompressedDERPublicKey,   "036843F5CB338BBB4CDB21B0DA4EA739D910951D6E8A5F703D313EFE31AFE788F4"},
+    { openSSLCompatibleUncompressedDERPublicKey, "03AAAC1C3AC1BEA0245B8E00CE1E2018F9EAB61B6331FBEF7266F2287750A65977"},
   };
 };
 
@@ -205,7 +205,7 @@ TEST_F(ECDSAsecp256k1PublicKeyUnitTests, FromBytes)
   EXPECT_THROW(
     const std::shared_ptr<ECDSAsecp256k1PublicKey> key = ECDSAsecp256k1PublicKey::fromBytes(concatenateVectors({
       ECDSAsecp256k1PublicKey::DER_ENCODED_UNCOMPRESSED_PREFIX_BYTES,
-      { std::byte(0x76), std::byte(0x47), std::byte(0x85), std::byte(0x47), std::byte(0x15), std::byte(0xd4) }
+      {std::byte(0x76), std::byte(0x47), std::byte(0x85), std::byte(0x47), std::byte(0x15), std::byte(0xd4)}
   })),
     BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ECDSAsecp256k1PublicKey> key =

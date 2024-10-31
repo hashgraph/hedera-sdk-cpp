@@ -45,9 +45,9 @@ private:
   const TokenId mTestTokenId = TokenId(1ULL, 2ULL, 3ULL);
   const uint64_t mTestAmount = 4ULL;
   const std::vector<std::vector<std::byte>> mTestMetadataList = {
-    { std::byte(0x05), std::byte(0x06), std::byte(0x07) },
-    { std::byte(0x08), std::byte(0x09), std::byte(0x0A) },
-    { std::byte(0x0B), std::byte(0x0C), std::byte(0x0D) }
+    {std::byte(0x05),  std::byte(0x06), std::byte(0x07)},
+    { std::byte(0x08), std::byte(0x09), std::byte(0x0A)},
+    { std::byte(0x0B), std::byte(0x0C), std::byte(0x0D)}
   };
 };
 
