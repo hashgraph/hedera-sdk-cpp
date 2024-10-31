@@ -22,9 +22,9 @@
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
+#include <basic_types.pb.h>
 #include <gtest/gtest.h>
 #include <limits>
-#include <proto/basic_types.pb.h>
 #include <stdexcept>
 
 using namespace Hedera;

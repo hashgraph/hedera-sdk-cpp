@@ -23,9 +23,9 @@
 #include "exceptions/BadKeyException.h"
 #include "impl/Utilities.h"
 
+#include <basic_types.pb.h>
 #include <gtest/gtest.h>
 #include <memory>
-#include <proto/basic_types.pb.h>
 #include <string>
 #include <string_view>
 #include <unordered_map>

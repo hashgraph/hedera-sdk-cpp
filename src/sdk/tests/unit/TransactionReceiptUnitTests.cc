@@ -22,7 +22,7 @@
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <proto/transaction_receipt.pb.h>
+#include <transaction_receipt.pb.h>
 
 using namespace Hedera;
 

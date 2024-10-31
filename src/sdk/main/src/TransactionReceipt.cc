@@ -24,8 +24,8 @@
 #include "impl/Utilities.h"
 
 #include <nlohmann/json.hpp>
-#include <proto/transaction_get_receipt.pb.h>
-#include <proto/transaction_receipt.pb.h>
+#include <transaction_get_receipt.pb.h>
+#include <transaction_receipt.pb.h>
 
 namespace Hedera
 {

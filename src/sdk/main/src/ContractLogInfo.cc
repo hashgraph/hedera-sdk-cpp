@@ -21,8 +21,8 @@
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
+#include <contract_call_local.pb.h>
 #include <nlohmann/json.hpp>
-#include <proto/contract_call_local.pb.h>
 
 namespace Hedera
 {

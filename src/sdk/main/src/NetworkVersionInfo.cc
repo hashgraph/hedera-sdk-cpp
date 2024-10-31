@@ -20,8 +20,8 @@
 #include "NetworkVersionInfo.h"
 #include "impl/Utilities.h"
 
+#include <network_get_version_info.pb.h>
 #include <nlohmann/json.hpp>
-#include <proto/network_get_version_info.pb.h>
 
 namespace Hedera
 {

@@ -21,10 +21,10 @@
 #include "ScheduleInfo.h"
 #include "impl/Node.h"
 
-#include <proto/query.pb.h>
-#include <proto/query_header.pb.h>
-#include <proto/response.pb.h>
-#include <proto/schedule_get_info.pb.h>
+#include <query.pb.h>
+#include <query_header.pb.h>
+#include <response.pb.h>
+#include <schedule_get_info.pb.h>
 
 namespace Hedera
 {

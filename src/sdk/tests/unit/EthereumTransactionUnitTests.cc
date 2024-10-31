@@ -27,9 +27,9 @@
 #include "impl/Utilities.h"
 
 #include <cstddef>
+#include <ethereum_transaction.pb.h>
 #include <gtest/gtest.h>
-#include <proto/ethereum_transaction.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <transaction_body.pb.h>
 #include <vector>
 
 using namespace Hedera;

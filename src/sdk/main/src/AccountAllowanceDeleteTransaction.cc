@@ -21,11 +21,11 @@
 #include "NftId.h"
 #include "impl/Node.h"
 
+#include <crypto_delete_allowance.pb.h>
 #include <grpcpp/client_context.h>
-#include <proto/crypto_delete_allowance.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_response.pb.h>
 #include <stdexcept>
+#include <transaction.pb.h>
+#include <transaction_response.pb.h>
 
 namespace Hedera
 {

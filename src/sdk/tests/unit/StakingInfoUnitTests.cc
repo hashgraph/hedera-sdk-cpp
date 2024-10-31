@@ -20,9 +20,9 @@
 #include "StakingInfo.h"
 #include "impl/TimestampConverter.h"
 
+#include <basic_types.pb.h>
 #include <chrono>
 #include <gtest/gtest.h>
-#include <proto/basic_types.pb.h>
 
 using namespace Hedera;
 

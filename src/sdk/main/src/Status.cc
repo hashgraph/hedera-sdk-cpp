@@ -19,7 +19,7 @@
  */
 #include "Status.h"
 
-#include <proto/response_code.pb.h>
+#include <response_code.pb.h>
 
 namespace Hedera
 {

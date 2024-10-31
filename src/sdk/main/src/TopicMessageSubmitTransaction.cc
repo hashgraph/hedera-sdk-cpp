@@ -21,13 +21,13 @@
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
+#include <consensus_submit_message.pb.h>
 #include <grpcpp/client_context.h>
-#include <proto/consensus_submit_message.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_body.pb.h>
-#include <proto/transaction_contents.pb.h>
 #include <stdexcept>
 #include <string>
+#include <transaction.pb.h>
+#include <transaction_body.pb.h>
+#include <transaction_contents.pb.h>
 
 namespace Hedera
 {

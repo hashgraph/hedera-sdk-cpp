@@ -206,8 +206,7 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/Utilities.cc)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR})
-target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_INCLUDE_DIR}/proto)
+target_include_directories(${PROJECT_NAME} PUBLIC ${HAPI_ROOT_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENSSL_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${log4cxx_SOURCE_DIR}/src/main/include)
@@ -219,7 +218,7 @@ if (APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE aprutil-1 apr-1)
 endif ()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE hapi::proto)
+target_link_libraries(${PROJECT_NAME} PRIVATE hapi)
 target_link_libraries(${PROJECT_NAME} PRIVATE log4cxx)
 
 if (NOT WIN32)
