@@ -20,16 +20,16 @@
 #ifndef HEDERA_SDK_CPP_IMPL_NODE_H_
 #define HEDERA_SDK_CPP_IMPL_NODE_H_
 
-#include <proto/address_book_service.grpc.pb.h>
-#include <proto/consensus_service.grpc.pb.h>
-#include <proto/crypto_service.grpc.pb.h>
-#include <proto/file_service.grpc.pb.h>
-#include <proto/freeze_service.grpc.pb.h>
-#include <proto/network_service.grpc.pb.h>
-#include <proto/schedule_service.grpc.pb.h>
-#include <proto/smart_contract_service.grpc.pb.h>
-#include <proto/token_service.grpc.pb.h>
-#include <proto/util_service.grpc.pb.h>
+#include <address_book_service.grpc.pb.h>
+#include <consensus_service.grpc.pb.h>
+#include <crypto_service.grpc.pb.h>
+#include <file_service.grpc.pb.h>
+#include <freeze_service.grpc.pb.h>
+#include <network_service.grpc.pb.h>
+#include <schedule_service.grpc.pb.h>
+#include <smart_contract_service.grpc.pb.h>
+#include <token_service.grpc.pb.h>
+#include <util_service.grpc.pb.h>
 
 #include "AccountId.h"
 #include "BaseNode.h"

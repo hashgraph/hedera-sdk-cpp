@@ -33,9 +33,9 @@
 #include "impl/Utilities.h"
 
 #include <algorithm>
+#include <basic_types.pb.h>
 #include <memory>
 #include <optional>
-#include <proto/basic_types.pb.h>
 #include <string>
 #include <vector>
 

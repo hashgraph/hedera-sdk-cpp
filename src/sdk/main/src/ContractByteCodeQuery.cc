@@ -21,10 +21,10 @@
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
-#include <proto/contract_get_bytecode.pb.h>
-#include <proto/query.pb.h>
-#include <proto/query_header.pb.h>
-#include <proto/response.pb.h>
+#include <contract_get_bytecode.pb.h>
+#include <query.pb.h>
+#include <query_header.pb.h>
+#include <response.pb.h>
 
 namespace Hedera
 {

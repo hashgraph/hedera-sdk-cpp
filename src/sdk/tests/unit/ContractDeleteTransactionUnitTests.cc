@@ -24,10 +24,10 @@
 #include "ECDSAsecp256k1PrivateKey.h"
 #include "exceptions/IllegalStateException.h"
 
+#include <contract_delete.pb.h>
 #include <gtest/gtest.h>
 #include <memory>
-#include <proto/contract_delete.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <transaction_body.pb.h>
 
 using namespace Hedera;
 

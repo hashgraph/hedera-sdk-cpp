@@ -20,7 +20,7 @@
 #include "NftId.h"
 
 #include <charconv>
-#include <proto/token_get_nft_info.pb.h>
+#include <token_get_nft_info.pb.h>
 
 namespace Hedera
 {

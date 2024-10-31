@@ -22,9 +22,9 @@
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
+#include <basic_types.pb.h>
 #include <iomanip>
 #include <memory>
-#include <proto/basic_types.pb.h>
 #include <sstream>
 
 namespace Hedera

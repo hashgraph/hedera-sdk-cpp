@@ -20,7 +20,7 @@
 #include "ContractNonceInfo.h"
 #include "impl/Utilities.h"
 
-#include <proto/contract_types.pb.h>
+#include <contract_types.pb.h>
 
 namespace Hedera
 {

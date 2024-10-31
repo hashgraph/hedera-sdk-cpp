@@ -23,7 +23,7 @@
 #include "impl/Utilities.h"
 
 #include <nlohmann/json.hpp>
-#include <proto/schedule_get_info.pb.h>
+#include <schedule_get_info.pb.h>
 
 namespace Hedera
 {

@@ -20,8 +20,8 @@
 #include "TokenNftTransfer.h"
 #include "impl/Utilities.h"
 
+#include <basic_types.pb.h>
 #include <nlohmann/json.hpp>
-#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {

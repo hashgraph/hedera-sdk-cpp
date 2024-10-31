@@ -19,7 +19,7 @@
  */
 #include "HbarAllowance.h"
 
-#include <proto/crypto_approve_allowance.pb.h>
+#include <crypto_approve_allowance.pb.h>
 
 namespace Hedera
 {

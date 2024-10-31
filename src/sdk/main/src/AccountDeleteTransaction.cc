@@ -20,10 +20,10 @@
 #include "AccountDeleteTransaction.h"
 #include "impl/Node.h"
 
+#include <crypto_delete.pb.h>
 #include <grpcpp/client_context.h>
-#include <proto/crypto_delete.pb.h>
-#include <proto/transaction.pb.h>
 #include <stdexcept>
+#include <transaction.pb.h>
 
 namespace Hedera
 {
