@@ -203,7 +203,8 @@ public:
 
       const ContractFunctionResult result = txRecord.mContractFunctionResult.value();
       const std::function<bool(const ContractFunctionResult&)> validatorFunc =
-        hasResultValidator ? mStepResultValidators.at(step) : [](const ContractFunctionResult& stepResult)
+        hasResultValidator ? mStepResultValidators.at(step)
+                           : [](const ContractFunctionResult& stepResult)
       {
         // Assume no custom validator means the function should return a success.
         const Status status =
