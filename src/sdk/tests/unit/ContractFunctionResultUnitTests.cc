@@ -26,10 +26,10 @@
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
+#include <contract_call_local.pb.h>
 #include <cstddef>
 #include <gtest/gtest.h>
 #include <limits>
-#include <proto/contract_call_local.pb.h>
 #include <string>
 #include <vector>
 

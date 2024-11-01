@@ -26,7 +26,7 @@
 
 #include <chrono>
 #include <gtest/gtest.h>
-#include <proto/transaction_record.pb.h>
+#include <transaction_record.pb.h>
 
 using namespace Hedera;
 

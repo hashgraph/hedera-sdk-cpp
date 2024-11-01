@@ -20,7 +20,7 @@
 #include "TransactionResponse.h"
 
 #include <gtest/gtest.h>
-#include <proto/transaction_response.pb.h>
+#include <transaction_response.pb.h>
 
 using namespace Hedera;
 

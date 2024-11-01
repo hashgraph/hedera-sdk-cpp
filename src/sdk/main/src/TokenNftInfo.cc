@@ -23,7 +23,7 @@
 #include "impl/Utilities.h"
 
 #include <nlohmann/json.hpp>
-#include <proto/token_get_nft_info.pb.h>
+#include <token_get_nft_info.pb.h>
 
 namespace Hedera
 {

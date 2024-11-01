@@ -63,10 +63,10 @@
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_body.pb.h>
-#include <proto/transaction_contents.pb.h>
-#include <proto/transaction_list.pb.h>
+#include <transaction.pb.h>
+#include <transaction_body.pb.h>
+#include <transaction_contents.pb.h>
+#include <transaction_list.pb.h>
 
 using namespace Hedera;
 

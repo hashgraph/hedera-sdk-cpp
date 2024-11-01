@@ -25,11 +25,11 @@
 
 #include <chrono>
 #include <cstddef>
+#include <file_append.pb.h>
 #include <gtest/gtest.h>
 #include <memory>
-#include <proto/file_append.pb.h>
-#include <proto/transaction_body.pb.h>
 #include <string>
+#include <transaction_body.pb.h>
 #include <vector>
 
 using namespace Hedera;

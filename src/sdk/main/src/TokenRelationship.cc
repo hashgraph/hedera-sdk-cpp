@@ -20,7 +20,7 @@
 
 #include "TokenRelationship.h"
 
-#include <proto/crypto_get_info.pb.h>
+#include <crypto_get_info.pb.h>
 
 using namespace Hedera;
 

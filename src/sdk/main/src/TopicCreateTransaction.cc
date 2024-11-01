@@ -21,10 +21,10 @@
 #include "impl/DurationConverter.h"
 #include "impl/Node.h"
 
+#include <consensus_create_topic.pb.h>
 #include <grpcpp/client_context.h>
-#include <proto/consensus_create_topic.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <transaction.pb.h>
+#include <transaction_body.pb.h>
 
 namespace Hedera
 {
