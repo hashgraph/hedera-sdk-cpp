@@ -22,7 +22,7 @@
 #include "CustomFractionalFee.h"
 #include "CustomRoyaltyFee.h"
 
-#include <proto/custom_fees.pb.h>
+#include <custom_fees.pb.h>
 
 namespace Hedera
 {

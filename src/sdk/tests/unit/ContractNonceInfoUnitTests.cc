@@ -21,9 +21,9 @@
 #include "ContractNonceInfo.h"
 #include "impl/Utilities.h"
 
+#include <contract_types.pb.h>
 #include <cstddef>
 #include <gtest/gtest.h>
-#include <proto/contract_types.pb.h>
 #include <vector>
 
 using namespace Hedera;

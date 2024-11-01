@@ -21,8 +21,8 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <file_get_info.pb.h>
 #include <nlohmann/json.hpp>
-#include <proto/file_get_info.pb.h>
 
 namespace Hedera
 {

@@ -20,7 +20,7 @@
 #include "Endpoint.h"
 #include "impl/Utilities.h"
 
-#include <proto/basic_types.pb.h>
+#include <basic_types.pb.h>
 
 namespace Hedera
 {
@@ -46,7 +46,14 @@ std::unique_ptr<proto::ServiceEndpoint> Endpoint::toProtobuf() const
 //-----
 std::string Endpoint::toString() const
 {
-  return mAddress.toString() + ':' + std::to_string(mPort);
+  if (!mAddress.isEmpty())
+  {
+    return mAddress.toString() + ':' + std::to_string(mPort);
+  }
+  else
+  {
+    return mDomainName + ':' + std::to_string(mPort);
+  }
 }
 
 //-----

@@ -23,8 +23,8 @@
 #include "TokenId.h"
 
 #include <gtest/gtest.h>
-#include <proto/token_cancel_airdrop.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <token_cancel_airdrop.pb.h>
+#include <transaction_body.pb.h>
 
 using namespace Hedera;
 

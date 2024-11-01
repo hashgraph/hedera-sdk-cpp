@@ -19,7 +19,7 @@
  */
 #include "impl/DurationConverter.h"
 
-#include <proto/duration.pb.h>
+#include <duration.pb.h>
 
 namespace Hedera::internal::DurationConverter
 {

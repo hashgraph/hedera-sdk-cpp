@@ -23,9 +23,9 @@
 #include "PendingAirdropRecord.h"
 #include "TokenId.h"
 
+#include <basic_types.pb.h>
 #include <gtest/gtest.h>
-#include <proto/basic_types.pb.h>
-#include <proto/transaction_record.pb.h>
+#include <transaction_record.pb.h>
 
 using namespace Hedera;
 

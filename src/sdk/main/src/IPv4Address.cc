@@ -18,6 +18,7 @@
  *
  */
 #include "IPv4Address.h"
+#include "exceptions/IllegalStateException.h"
 
 #include <stdexcept>
 
@@ -32,23 +33,41 @@ IPv4Address IPv4Address::fromBytes(const std::vector<std::byte>& bytes)
   }
 
   IPv4Address iPv4Address;
-  std::copy(bytes.cbegin(), bytes.cend(), iPv4Address.mAddress.begin());
+
+  for (const auto& byte : bytes)
+  {
+    iPv4Address.mAddress.push_back(byte);
+  }
   return iPv4Address;
 }
 
 //-----
 std::vector<std::byte> IPv4Address::toBytes() const
 {
-  return { mAddress.at(0), mAddress.at(1), mAddress.at(2), mAddress.at(3) };
+  return mAddress;
 }
 
 //-----
 std::string IPv4Address::toString() const
 {
-  return std::to_string(std::to_integer<unsigned char>(mAddress.at(0))) + '.' +
-         std::to_string(std::to_integer<unsigned char>(mAddress.at(1))) + '.' +
-         std::to_string(std::to_integer<unsigned char>(mAddress.at(2))) + '.' +
-         std::to_string(std::to_integer<unsigned char>(mAddress.at(3)));
+  if (mAddress.size() != 4)
+  {
+    throw IllegalStateException("Incorrect byte array size, should be 4 bytes but is " +
+                                std::to_string(mAddress.size()));
+  }
+  else
+  {
+    return std::to_string(std::to_integer<unsigned char>(mAddress.at(0))) + '.' +
+           std::to_string(std::to_integer<unsigned char>(mAddress.at(1))) + '.' +
+           std::to_string(std::to_integer<unsigned char>(mAddress.at(2))) + '.' +
+           std::to_string(std::to_integer<unsigned char>(mAddress.at(3)));
+  }
+}
+
+//-----
+bool IPv4Address::isEmpty() const
+{
+  return mAddress.empty();
 }
 
 } // namespace Hedera

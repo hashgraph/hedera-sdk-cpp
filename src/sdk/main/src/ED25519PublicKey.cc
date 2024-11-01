@@ -27,8 +27,8 @@
 #include "impl/openssl_utils/EVP_MD_CTX.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
+#include <basic_types.pb.h>
 #include <openssl/x509.h>
-#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {

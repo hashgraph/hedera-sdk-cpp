@@ -35,9 +35,9 @@
 #include <impl/Utilities.h>
 
 #include <algorithm>
+#include <basic_types.pb.h>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <proto/basic_types.pb.h>
 #include <string>
 
 namespace Hedera::TCK::KeyService

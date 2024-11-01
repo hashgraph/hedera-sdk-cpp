@@ -21,7 +21,7 @@
 
 #include <gtest/gtest.h>
 #include <limits>
-#include <proto/token_get_nft_info.pb.h>
+#include <token_get_nft_info.pb.h>
 
 using namespace Hedera;
 

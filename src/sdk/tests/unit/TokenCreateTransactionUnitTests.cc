@@ -34,8 +34,8 @@
 #include <chrono>
 #include <gtest/gtest.h>
 #include <memory>
-#include <proto/transaction_body.pb.h>
 #include <string>
+#include <transaction_body.pb.h>
 #include <vector>
 
 using namespace Hedera;

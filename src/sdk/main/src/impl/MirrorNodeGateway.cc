@@ -19,11 +19,10 @@
  */
 
 #include "impl/MirrorNodeGateway.h"
-#include "exceptions/CURLException.h"
 #include "exceptions/IllegalStateException.h"
+#include "impl/HttpClient.h"
 
 #include <chrono>
-#include <iostream>
 #include <string>
 #include <thread>
 
@@ -39,7 +38,6 @@ json MirrorNodeQuery(std::string_view mirrorNodeUrl, const std::vector<std::stri
   {
     bool isLocalNetwork = true;
     const std::string url = buildUrlForNetwork(mirrorNodeUrl, queryType, params, isLocalNetwork);
-    HttpClient httpClient;
 
     // this is needed because of Mirror Node update delay time
     // agreed to be handled by the user not a local network
@@ -48,7 +46,7 @@ json MirrorNodeQuery(std::string_view mirrorNodeUrl, const std::vector<std::stri
       std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
-    response = httpClient.invokeREST(url);
+    response = HttpClient::invokeREST(url);
   }
   catch (const std::exception& e)
   {

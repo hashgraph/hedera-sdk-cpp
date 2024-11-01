@@ -27,9 +27,9 @@
 #include "impl/Utilities.h"
 
 #include <chrono>
+#include <crypto_get_info.pb.h>
 #include <gtest/gtest.h>
 #include <memory>
-#include <proto/crypto_get_info.pb.h>
 #include <string>
 
 using namespace Hedera;

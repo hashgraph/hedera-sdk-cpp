@@ -21,9 +21,9 @@
 #include "impl/HexConverter.h"
 
 #include <algorithm>
+#include <basic_types.pb.h>
 #include <cstddef>
 #include <nlohmann/json.hpp>
-#include <proto/basic_types.pb.h>
 
 namespace Hedera
 {

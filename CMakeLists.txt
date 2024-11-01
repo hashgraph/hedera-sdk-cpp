@@ -19,7 +19,6 @@ find_package(absl CONFIG REQUIRED)
 find_package(upb CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(CURL CONFIG REQUIRED)
 find_package(EXPAT CONFIG REQUIRED)
 
 include(FetchContent)
