@@ -19,8 +19,8 @@
  */
 #include "AccountBalance.h"
 
+#include <crypto_get_account_balance.pb.h>
 #include <gtest/gtest.h>
-#include <proto/crypto_get_account_balance.pb.h>
 
 using namespace Hedera;
 

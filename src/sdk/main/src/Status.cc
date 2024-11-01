@@ -19,7 +19,7 @@
  */
 #include "Status.h"
 
-#include <proto/response_code.pb.h>
+#include <response_code.pb.h>
 
 namespace Hedera
 {
@@ -356,8 +356,7 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
   { proto::ResponseCodeEnum::INVALID_GOSSIP_CA_CERTIFICATE,                                  Status::INVALID_GOSSIP_CA_CERTIFICATE          },
   { proto::ResponseCodeEnum::INVALID_GRPC_CERTIFICATE,                                       Status::INVALID_GRPC_CERTIFICATE               },
   { proto::ResponseCodeEnum::MAX_NODES_CREATED,                                              Status::MAX_NODES_CREATED                      },
-  { proto::ResponseCodeEnum::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT,                        
-   Status::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT                                                                                          },
+  { proto::ResponseCodeEnum::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT,                        Status::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT},
   { proto::ResponseCodeEnum::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN,                               Status::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN       },
   { proto::ResponseCodeEnum::FQDN_SIZE_TOO_LARGE,                                            Status::FQDN_SIZE_TOO_LARGE                    },
   { proto::ResponseCodeEnum::INVALID_ENDPOINT,                                               Status::INVALID_ENDPOINT                       },
@@ -697,8 +696,7 @@ const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufRespo
   { Status::INVALID_GOSSIP_CA_CERTIFICATE,                                  proto::ResponseCodeEnum::INVALID_GOSSIP_CA_CERTIFICATE          },
   { Status::INVALID_GRPC_CERTIFICATE,                                       proto::ResponseCodeEnum::INVALID_GRPC_CERTIFICATE               },
   { Status::MAX_NODES_CREATED,                                              proto::ResponseCodeEnum::MAX_NODES_CREATED                      },
-  { Status::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT,                        
-   proto::ResponseCodeEnum::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT                                                                         },
+  { Status::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT,                        proto::ResponseCodeEnum::IP_FQDN_CANNOT_BE_SET_FOR_SAME_ENDPOINT},
   { Status::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN,                               proto::ResponseCodeEnum::GOSSIP_ENDPOINT_CANNOT_HAVE_FQDN       },
   { Status::FQDN_SIZE_TOO_LARGE,                                            proto::ResponseCodeEnum::FQDN_SIZE_TOO_LARGE                    },
   { Status::INVALID_ENDPOINT,                                               proto::ResponseCodeEnum::INVALID_ENDPOINT                       },

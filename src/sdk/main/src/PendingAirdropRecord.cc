@@ -20,8 +20,8 @@
 #include "PendingAirdropRecord.h"
 #include "PendingAirdropId.h"
 
-#include <proto/basic_types.pb.h>
-#include <proto/transaction_record.pb.h>
+#include <basic_types.pb.h>
+#include <transaction_record.pb.h>
 
 namespace Hedera
 {

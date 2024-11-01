@@ -24,10 +24,10 @@
 #include "impl/DurationConverter.h"
 #include "impl/TimestampConverter.h"
 
+#include <crypto_update.pb.h>
 #include <gtest/gtest.h>
 #include <limits>
-#include <proto/crypto_update.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <transaction_body.pb.h>
 
 using namespace Hedera;
 

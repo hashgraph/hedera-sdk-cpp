@@ -21,8 +21,8 @@
 #include "Hbar.h"
 #include "HbarAllowance.h"
 
+#include <crypto_approve_allowance.pb.h>
 #include <gtest/gtest.h>
-#include <proto/crypto_approve_allowance.pb.h>
 
 using namespace Hedera;
 

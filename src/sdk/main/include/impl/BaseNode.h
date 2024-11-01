@@ -20,7 +20,7 @@
 #ifndef HEDERA_SDK_CPP_IMPL_BASE_NODE_H_
 #define HEDERA_SDK_CPP_IMPL_BASE_NODE_H_
 
-#include <proto/basic_types.pb.h> // This is needed for Windows to build for some reason.
+#include <basic_types.pb.h> // This is needed for Windows to build for some reason.
 
 #include "BaseNodeAddress.h"
 #include "Defaults.h"

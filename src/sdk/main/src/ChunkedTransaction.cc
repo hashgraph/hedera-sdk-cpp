@@ -31,8 +31,8 @@
 #include <algorithm>
 #include <cmath>
 #include <iterator>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_contents.pb.h>
+#include <transaction.pb.h>
+#include <transaction_contents.pb.h>
 
 namespace Hedera
 {

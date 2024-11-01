@@ -19,7 +19,7 @@
  */
 #include "impl/TimestampConverter.h"
 
-#include <proto/timestamp.pb.h>
+#include <timestamp.pb.h>
 
 namespace Hedera::internal::TimestampConverter
 {

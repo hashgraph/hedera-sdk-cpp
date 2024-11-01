@@ -21,7 +21,7 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
-#include <proto/mirror/consensus_service.pb.h>
+#include <mirror/consensus_service.pb.h>
 
 #include <utility>
 

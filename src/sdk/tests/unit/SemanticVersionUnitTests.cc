@@ -20,8 +20,8 @@
 #include "SemanticVersion.h"
 #include "impl/Utilities.h"
 
+#include <basic_types.pb.h>
 #include <gtest/gtest.h>
-#include <proto/basic_types.pb.h>
 #include <string>
 
 using namespace Hedera;

@@ -19,8 +19,8 @@
  */
 #include "FileId.h"
 
+#include <basic_types.pb.h>
 #include <gtest/gtest.h>
-#include <proto/basic_types.pb.h>
 #include <stdexcept>
 
 using namespace Hedera;
