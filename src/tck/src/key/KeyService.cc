@@ -44,35 +44,6 @@ namespace Hedera::TCK::KeyService
 {
 namespace
 {
-<<<<<<< HEAD:src/tck/src/KeyHelper.cc
-}
-
-//-----
-std::shared_ptr<Hedera::Key> getHederaKey(const std::string& key)
-{
-  const std::vector<std::byte> keyBytes = internal::HexConverter::hexToBytes(key);
-  try
-  {
-    return PublicKey::fromBytesDer(keyBytes);
-  }
-  catch (const BadKeyException&)
-  {
-    try
-    {
-      return PrivateKey::fromBytesDer(keyBytes);
-    }
-    catch (const BadKeyException&)
-    {
-      proto::Key protoKey;
-      protoKey.ParseFromString(internal::Utilities::byteVectorToString(keyBytes));
-      return Hedera::Key::fromProtobuf(protoKey);
-    }
-  }
-}
-
-//-----
-std::string processKeyRequest(const KeyRequest& request, nlohmann::json& response, bool isList)
-=======
 // Process a GenerateKeyParams and return the generated key. For ED25519 or ECDSAsecp256k1 private or public key types,
 // this will be the DER-encoding of the key. For KeyList of ThresholdKey types, this will be the serialized Key protobuf
 // of the key, as well as the private keys contained in the list.
@@ -83,7 +54,6 @@ std::string processKeyRequest(const KeyRequest& request, nlohmann::json& respons
 //                 response.
 // @return The hex encoding of the generated key.
 std::string generateKeyRecursively(const GenerateKeyParams& params, nlohmann::json& response, bool isList = false)
->>>>>>> main:src/tck/src/key/KeyService.cc
 {
   // Make sure fromKey is only provided for ED25519_PUBLIC_KEY_TYPE, ECDSA_SECP256k1_PUBLIC_KEY_TYPE, or
   // EVM_ADDRESS_KEY_TYPE.
@@ -242,7 +212,9 @@ const std::unordered_map<KeyType, std::string> gKeyTypeToString = {
 nlohmann::json generateKey(const GenerateKeyParams& params)
 {
   nlohmann::json response;
-  response["key"] = generateKeyRecursively(params, response);
+  std::string key = generateKeyRecursively(params, response);
+  std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return std::tolower(c); });
+  response["key"] = key;
   return response;
 }
 

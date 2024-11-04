@@ -20,14 +20,15 @@
 #ifndef HEDERA_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
 #define HEDERA_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
 
-#include "AccountId.h"
-#include "CustomFee.h"
-#include "CustomFeeBase.h"
-#include "CustomFixedFee.h"
-#include "CustomFractionalFee.h"
-#include "CustomRoyaltyFee.h"
-#include "JsonRpcException.h"
-#include "impl/EntityIdHelper.h"
+#include "json/JsonRpcException.h"
+
+#include <AccountId.h>
+#include <CustomFee.h>
+#include <CustomFeeBase.h>
+#include <CustomFixedFee.h>
+#include <CustomFractionalFee.h>
+#include <CustomRoyaltyFee.h>
+#include <impl/EntityIdHelper.h>
 
 #include <nlohmann/json.hpp>
 #include <stdexcept>

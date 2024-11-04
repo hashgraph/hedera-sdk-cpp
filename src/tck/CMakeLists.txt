@@ -5,6 +5,7 @@ add_executable(${TCK_SERVER_NAME}
         src/json/JsonUtils.cc
         src/key/KeyService.cc
         src/sdk/SdkClient.cc
+        src/token/TokenService.cc
         src/main.cc
         src/TckServer.cc)
 

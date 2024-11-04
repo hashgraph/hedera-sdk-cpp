@@ -18,220 +18,174 @@
  *
  */
 #include "token/TokenService.h"
+#include "key/KeyService.h"
+#include "sdk/SdkClient.h"
+#include "token/params/CreateTokenParams.h"
+#include "json/JsonErrorType.h"
+#include "json/JsonRpcException.h"
 
-#include <AccountCreateTransaction.h>
-#include <AccountDeleteTransaction.h>
 #include <AccountId.h>
-#include <AccountUpdateTransaction.h>
-#include <EvmAddress.h>
-#include <HbarUnit.h>
 #include <Status.h>
+#include <TokenCreateTransaction.h>
+#include <TokenSupplyType.h>
+#include <TokenType.h>
 #include <TransactionReceipt.h>
 #include <TransactionResponse.h>
+#include <impl/EntityIdHelper.h>
+#include <impl/Utilities.h>
 
 #include <chrono>
+#include <cstdint>
 #include <nlohmann/json.hpp>
 #include <string>
 
 namespace Hedera::TCK::TokenService
 {
 //-----
-nlohmann::json createToken(const std::optional<std::string>& name,
-                           const std::optional<std::string>& symbol,
-                           const std::optional<uint32_t>& decimals,
-                           const std::optional<std::string>& initialSupply,
-                           const std::optional<std::string>& treasuryAccountId,
-                           const std::optional<std::string>& adminKey,
-                           const std::optional<std::string>& kycKey,
-                           const std::optional<std::string>& freezeKey,
-                           const std::optional<std::string>& wipeKey,
-                           const std::optional<std::string>& supplyKey,
-                           const std::optional<bool>& freezeDefault,
-                           const std::optional<std::string>& expirationTime,
-                           const std::optional<std::string>& autoRenewAccountId,
-                           const std::optional<std::string>& autoRenewPeriod,
-                           const std::optional<std::string>& memo,
-                           const std::optional<std::string>& tokenType,
-                           const std::optional<std::string>& supplyType,
-                           const std::optional<std::string>& maxSupply,
-                           const std::optional<std::string>& feeScheduleKey,
-                           const std::optional<std::vector<std::shared_ptr<CustomFee>>>& customFees,
-                           const std::optional<std::string>& pauseKey,
-                           const std::optional<std::string>& metadata,
-                           const std::optional<std::string>& metadataKey,
-                           const std::optional<CommonTransactionParams>& commonTxParams)
+nlohmann::json createToken(const CreateTokenParams& params)
 {
   TokenCreateTransaction tokenCreateTransaction;
-  tokenCreateTransaction.setGrpcDeadline(DEFAULT_TCK_REQUEST_TIMEOUT);
+  tokenCreateTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
 
-  if (name.has_value())
+  if (params.mName.has_value())
   {
-    tokenCreateTransaction.setTokenName(name.value());
+    tokenCreateTransaction.setTokenName(params.mName.value());
   }
 
-  if (symbol.has_value())
+  if (params.mSymbol.has_value())
   {
-    tokenCreateTransaction.setTokenSymbol(symbol.value());
+    tokenCreateTransaction.setTokenSymbol(params.mSymbol.value());
   }
 
-  if (decimals.has_value())
+  if (params.mDecimals.has_value())
   {
-    tokenCreateTransaction.setDecimals(decimals.value());
+    tokenCreateTransaction.setDecimals(params.mDecimals.value());
   }
 
-  if (initialSupply.has_value())
+  if (params.mInitialSupply.has_value())
   {
-    try
-    {
-      tokenCreateTransaction.setInitialSupply(Hedera::internal::EntityIdHelper::getNum<int64_t>(initialSupply.value()));
-    }
-    catch (const std::invalid_argument&)
-    {
-      tokenCreateTransaction.setInitialSupply(Hedera::internal::EntityIdHelper::getNum(initialSupply.value()));
-    }
+    tokenCreateTransaction.setInitialSupply(
+      Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mInitialSupply.value()));
   }
 
-  if (treasuryAccountId.has_value())
+  if (params.mTreasuryAccountId.has_value())
   {
-    tokenCreateTransaction.setTreasuryAccountId(AccountId::fromString(treasuryAccountId.value()));
+    tokenCreateTransaction.setTreasuryAccountId(AccountId::fromString(params.mTreasuryAccountId.value()));
   }
 
-  if (adminKey.has_value())
+  if (params.mAdminKey.has_value())
   {
-    tokenCreateTransaction.setAdminKey(getHederaKey(adminKey.value()));
+    tokenCreateTransaction.setAdminKey(KeyService::getHederaKey(params.mAdminKey.value()));
   }
 
-  if (kycKey.has_value())
+  if (params.mKycKey.has_value())
   {
-    tokenCreateTransaction.setKycKey(getHederaKey(kycKey.value()));
+    tokenCreateTransaction.setKycKey(KeyService::getHederaKey(params.mKycKey.value()));
   }
 
-  if (freezeKey.has_value())
+  if (params.mFreezeKey.has_value())
   {
-    tokenCreateTransaction.setFreezeKey(getHederaKey(freezeKey.value()));
+    tokenCreateTransaction.setFreezeKey(KeyService::getHederaKey(params.mFreezeKey.value()));
   }
 
-  if (wipeKey.has_value())
+  if (params.mWipeKey.has_value())
   {
-    tokenCreateTransaction.setWipeKey(getHederaKey(wipeKey.value()));
+    tokenCreateTransaction.setWipeKey(KeyService::getHederaKey(params.mWipeKey.value()));
   }
 
-  if (supplyKey.has_value())
+  if (params.mSupplyKey.has_value())
   {
-    tokenCreateTransaction.setSupplyKey(getHederaKey(supplyKey.value()));
+    tokenCreateTransaction.setSupplyKey(KeyService::getHederaKey(params.mSupplyKey.value()));
   }
 
-  if (freezeDefault.has_value())
+  if (params.mFreezeDefault.has_value())
   {
-    tokenCreateTransaction.setFreezeDefault(freezeDefault.value());
+    tokenCreateTransaction.setFreezeDefault(params.mFreezeDefault.value());
   }
 
-  if (expirationTime.has_value())
+  if (params.mExpirationTime.has_value())
   {
-    try
-    {
-      tokenCreateTransaction.setExpirationTime(
-        std::chrono::system_clock::from_time_t(0) +
-        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(expirationTime.value())));
-    }
-    catch (const std::invalid_argument&)
-    {
-      tokenCreateTransaction.setExpirationTime(
-        std::chrono::system_clock::from_time_t(0) +
-        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum(expirationTime.value())));
-    }
+    tokenCreateTransaction.setExpirationTime(
+      std::chrono::system_clock::from_time_t(0) +
+      std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mExpirationTime.value())));
   }
 
-  if (autoRenewAccountId.has_value())
+  if (params.mAutoRenewAccountId.has_value())
   {
-    tokenCreateTransaction.setAutoRenewAccountId(AccountId::fromString(autoRenewAccountId.value()));
+    tokenCreateTransaction.setAutoRenewAccountId(AccountId::fromString(params.mAutoRenewAccountId.value()));
   }
 
-  if (autoRenewPeriod.has_value())
+  if (params.mAutoRenewPeriod.has_value())
   {
-    try
-    {
-      tokenCreateTransaction.setAutoRenewPeriod(
-        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(autoRenewPeriod.value())));
-    }
-    catch (const std::invalid_argument&)
-    {
-      tokenCreateTransaction.setAutoRenewPeriod(
-        std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum(autoRenewPeriod.value())));
-    }
+    tokenCreateTransaction.setAutoRenewPeriod(
+      std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mAutoRenewPeriod.value())));
   }
 
-  if (memo.has_value())
+  if (params.mMemo.has_value())
   {
-    tokenCreateTransaction.setTokenMemo(memo.value());
+    tokenCreateTransaction.setTokenMemo(params.mMemo.value());
   }
 
-  if (tokenType.has_value())
+  if (params.mTokenType.has_value())
   {
-    if (tokenType.value() != "ft" && tokenType.value() != "nft")
+    if (params.mTokenType.value() != "ft" && params.mTokenType.value() != "nft")
     {
       throw JsonRpcException(JsonErrorType::INVALID_PARAMS, "invalid params: tokenType MUST be one of ft or nft.");
     }
 
-    tokenCreateTransaction.setTokenType(tokenType.value() == "ft" ? TokenType::FUNGIBLE_COMMON
-                                                                  : TokenType::NON_FUNGIBLE_UNIQUE);
+    tokenCreateTransaction.setTokenType(params.mTokenType.value() == "ft" ? TokenType::FUNGIBLE_COMMON
+                                                                          : TokenType::NON_FUNGIBLE_UNIQUE);
   }
 
-  if (supplyType.has_value())
+  if (params.mSupplyType.has_value())
   {
-    if (supplyType.value() != "infinite" && supplyType.value() != "finite")
+    if (params.mSupplyType.value() != "infinite" && params.mSupplyType.value() != "finite")
     {
       throw JsonRpcException(JsonErrorType::INVALID_PARAMS,
                              "invalid params: supplyType MUST be one of infinite or finite.");
     }
 
-    tokenCreateTransaction.setSupplyType(supplyType.value() == "finite" ? TokenSupplyType::FINITE
-                                                                        : TokenSupplyType::INFINITE);
+    tokenCreateTransaction.setSupplyType(params.mSupplyType.value() == "finite" ? TokenSupplyType::FINITE
+                                                                                : TokenSupplyType::INFINITE);
   }
 
-  if (maxSupply.has_value())
+  if (params.mMaxSupply.has_value())
   {
-    try
-    {
-      tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum<int64_t>(maxSupply.value()));
-    }
-    catch (const std::invalid_argument&)
-    {
-      tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum(maxSupply.value()));
-    }
+    tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum(params.mSupplyType.value()));
   }
 
-  if (feeScheduleKey.has_value())
+  if (params.mFeeScheduleKey.has_value())
   {
-    tokenCreateTransaction.setFeeScheduleKey(getHederaKey(feeScheduleKey.value()));
+    tokenCreateTransaction.setFeeScheduleKey(KeyService::getHederaKey(params.mFeeScheduleKey.value()));
   }
 
-  if (customFees.has_value())
+  if (params.mCustomFees.has_value())
   {
-    tokenCreateTransaction.setCustomFees(customFees.value());
+    tokenCreateTransaction.setCustomFees(params.mCustomFees.value());
   }
 
-  if (pauseKey.has_value())
+  if (params.mPauseKey.has_value())
   {
-    tokenCreateTransaction.setPauseKey(getHederaKey(pauseKey.value()));
+    tokenCreateTransaction.setPauseKey(KeyService::getHederaKey(params.mPauseKey.value()));
   }
 
-  if (metadata.has_value())
+  if (params.mMetadata.has_value())
   {
-    tokenCreateTransaction.setMetadata(internal::Utilities::stringToByteVector(metadata.value()));
+    tokenCreateTransaction.setMetadata(internal::Utilities::stringToByteVector(params.mMetadata.value()));
   }
 
-  if (metadataKey.has_value())
+  if (params.mMetadataKey.has_value())
   {
-    tokenCreateTransaction.setMetadataKey(getHederaKey(metadataKey.value()));
+    tokenCreateTransaction.setMetadataKey(KeyService::getHederaKey(params.mMetadataKey.value()));
   }
 
-  if (commonTxParams.has_value())
+  if (params.mCommonTxParams.has_value())
   {
-    commonTxParams->fillOutTransaction(tokenCreateTransaction, mClient);
+    params.mCommonTxParams->fillOutTransaction(tokenCreateTransaction, SdkClient::getClient());
   }
 
-  const TransactionReceipt txReceipt = tokenCreateTransaction.execute(mClient).getReceipt(mClient);
+  const TransactionReceipt txReceipt =
+    tokenCreateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
     {"tokenId", txReceipt.mTokenId->toString()       },
     { "status", gStatusToString.at(txReceipt.mStatus)}
