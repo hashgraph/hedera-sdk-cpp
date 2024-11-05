@@ -18,10 +18,13 @@
  *
  */
 #include "TckServer.h"
+#include "account/AccountService.h"
 #include "account/params/CreateAccountParams.h"
 #include "account/params/DeleteAccountParams.h"
 #include "account/params/UpdateAccountParams.h"
+#include "key/KeyService.h"
 #include "key/params/GenerateKeyParams.h"
+#include "sdk/SdkClient.h"
 #include "sdk/params/ResetParams.h"
 #include "sdk/params/SetupParams.h"
 #include "token/params/CreateTokenParams.h"
