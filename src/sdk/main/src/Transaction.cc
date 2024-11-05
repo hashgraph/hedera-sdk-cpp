@@ -82,12 +82,12 @@
 #include "impl/Utilities.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
 
-#include <proto/basic_types.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_body.pb.h>
-#include <proto/transaction_contents.pb.h>
-#include <proto/transaction_list.pb.h>
-#include <proto/transaction_response.pb.h>
+#include <basic_types.pb.h>
+#include <transaction.pb.h>
+#include <transaction_body.pb.h>
+#include <transaction_contents.pb.h>
+#include <transaction_list.pb.h>
+#include <transaction_response.pb.h>
 #include <vector>
 
 namespace Hedera

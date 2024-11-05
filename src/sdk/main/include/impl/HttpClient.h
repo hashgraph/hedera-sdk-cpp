@@ -20,66 +20,31 @@
 #ifndef HEDERA_SDK_CPP_IMPL_HTTP_CLIENT_H_
 #define HEDERA_SDK_CPP_IMPL_HTTP_CLIENT_H_
 
-#include <curl/curl.h>
-#include <iostream>
-#include <memory>
+#include <httplib.h>
 #include <string>
+#include <string_view>
 
-namespace Hedera::internal
+namespace Hedera::internal::HttpClient
 {
-class HttpClient
-{
-public:
-  /**
-   * Constructor for HttpClient.
-   *
-   * This constructor initializes the HttpClient and performs global libcurl initialization
-   * using CURL_GLOBAL_DEFAULT.
-   *
-   * @throw std::runtime_error If libcurl initialization fails.
-   */
-  HttpClient();
+/**
+ * Fetches data from the specified URL using the provided RPC method.
+ * @param url       The URL to fetch data from.
+ * @param rpcMethod The RPC method.
+ * @return The response data as a string.
+ */
+[[nodiscard]] std::string invokeRPC(std::string_view url, std::string_view rpcMethod);
 
-  HttpClient(const HttpClient&) = delete;            // no use case for httpClient copy
-  HttpClient& operator=(const HttpClient&) = delete; // no use case for httpClient copy
-
-  /**
-   * Destructor for HttpClient.
-   *
-   * This destructor cleans up global libcurl resources using curl_global_cleanup.
-   * It should be called when an HttpClient instance is no longer needed to release libcurl resources.
-   */
-  ~HttpClient();
-  /**
-   * Fetches data from the specified URL using the provided RPC method.
-   * @param url The URL to fetch data from.
-   * @param rpcMethod The RPC method.
-   * @return The fetched data as a string.
-   */
-  [[nodiscard]] std::string invokeRPC(const std::string& url, const std::string& rpcMethod);
-  /**
-   * This invokeREST function creates GET and POST requests.
-   *  Can be further extended for supporting other HTTP
-   *  methods or handle more advanced scenarios as needed.
-   * @param url The URL to fetch data from.
-   * @param httpMethod The HTTP method.
-   * @param requestBody The HTTP request body.
-   * @return The fetched data as a string.
-   */
-  [[nodiscard]] std::string invokeREST(const std::string& url,
-                                       const std::string& httpMethod = "GET",
-                                       const std::string& requestBody = "");
-  /**
-   * The callback function used for writing fetched data.
-   * @param contents A pointer to the fetched data.
-   * @param size The size of each element.
-   * @param nmemb The number of elements.
-   * @param output A pointer to the output string.
-   * @return The total size of the fetched data.
-   */
-private:
-  static size_t writeCallback(char* contents, size_t size, size_t nmemb, std::string* output);
-};
+/**
+ * Create a GET or POST request. Can be further extended for supporting other HTTP methods or handle more advanced
+ * scenarios as needed.
+ * @param url         The URL to which to submit the request.
+ * @param httpMethod  The HTTP method.
+ * @param requestBody The HTTP request body.
+ * @return The response data as a string.
+ */
+[[nodiscard]] std::string invokeREST(std::string_view url,
+                                     std::string_view httpMethod = "GET",
+                                     std::string_view requestBody = "");
 
 } // namespace Hedera::internal
 

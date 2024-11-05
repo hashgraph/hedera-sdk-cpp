@@ -463,33 +463,4 @@ nlohmann::json SdkClient::updateAccount(const std::optional<std::string>& accoun
   };
 }
 
-//-----
-nlohmann::json SdkClient::updateTokenFeeSchedule(
-  const std::optional<std::string>& tokenId,
-  const std::optional<std::vector<std::shared_ptr<CustomFee>>>& customFees,
-  const std::optional<CommonTransactionParams>& commonTxParams)
-{
-  TokenFeeScheduleUpdateTransaction tokenFeeScheduleUpdateTransaction;
-  tokenFeeScheduleUpdateTransaction.setGrpcDeadline(std::chrono::seconds(DEFAULT_TCK_REQUEST_TIMEOUT));
-
-  if (tokenId.has_value())
-  {
-    tokenFeeScheduleUpdateTransaction.setTokenId(TokenId::fromString(tokenId.value()));
-  }
-
-  if (customFees.has_value())
-  {
-    tokenFeeScheduleUpdateTransaction.setCustomFees(customFees.value());
-  }
-
-  if (commonTxParams.has_value())
-  {
-    commonTxParams->fillOutTransaction(tokenFeeScheduleUpdateTransaction, mClient);
-  }
-
-  return {
-    {"status", gStatusToString.at(tokenFeeScheduleUpdateTransaction.execute(mClient).getReceipt(mClient).mStatus)}
-  };
-}
-
 } // namespace Hedera::TCK::SdkClient

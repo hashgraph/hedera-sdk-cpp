@@ -23,8 +23,8 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <consensus_get_topic_info.pb.h>
 #include <nlohmann/json.hpp>
-#include <proto/consensus_get_topic_info.pb.h>
 
 namespace Hedera
 {

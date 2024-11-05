@@ -23,8 +23,8 @@
 #include "impl/Utilities.h"
 
 #include <nlohmann/json.hpp>
-#include <proto/transaction_get_record.pb.h>
-#include <proto/transaction_record.pb.h>
+#include <transaction_get_record.pb.h>
+#include <transaction_record.pb.h>
 
 namespace Hedera
 {

@@ -22,9 +22,9 @@
 #include "impl/Node.h"
 #include "impl/TimestampConverter.h"
 
-#include <proto/crypto_update.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <crypto_update.pb.h>
+#include <transaction.pb.h>
+#include <transaction_body.pb.h>
 
 namespace Hedera
 {

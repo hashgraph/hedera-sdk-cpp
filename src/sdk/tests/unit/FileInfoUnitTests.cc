@@ -22,8 +22,8 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <file_get_info.pb.h>
 #include <gtest/gtest.h>
-#include <proto/file_get_info.pb.h>
 
 using namespace Hedera;
 

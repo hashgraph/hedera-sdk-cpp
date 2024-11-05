@@ -21,8 +21,8 @@
 #include "TransactionRecord.h"
 #include "impl/Utilities.h"
 
+#include <crypto_get_account_records.pb.h>
 #include <nlohmann/json.hpp>
-#include <proto/crypto_get_account_records.pb.h>
 
 namespace Hedera
 {

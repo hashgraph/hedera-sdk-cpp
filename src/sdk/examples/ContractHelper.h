@@ -36,12 +36,12 @@
 #include "TransactionResponse.h"
 #include "impl/HexConverter.h"
 
+#include <basic_types.pb.h>
 #include <fstream>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <proto/basic_types.pb.h>
 #include <string_view>
 #include <unordered_map>
 #include <vector>

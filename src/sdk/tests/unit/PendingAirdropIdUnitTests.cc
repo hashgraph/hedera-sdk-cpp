@@ -23,8 +23,8 @@
 #include "PendingAirdropId.h"
 #include "TokenId.h"
 
+#include <basic_types.pb.h>
 #include <gtest/gtest.h>
-#include <proto/basic_types.pb.h>
 
 using namespace Hedera;
 

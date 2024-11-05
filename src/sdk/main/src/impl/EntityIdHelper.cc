@@ -33,7 +33,6 @@
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 
-#include <charconv>
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
@@ -53,19 +52,6 @@ EntityType fromSolidityAddress(const std::vector<std::byte>& address)
   return EntityType(static_cast<uint64_t>(*internal::Utilities::toTypePtr<uint32_t>(address.data())),
                     *internal::Utilities::toTypePtr<uint64_t>(address.data() + 4),
                     *internal::Utilities::toTypePtr<uint64_t>(address.data() + 12));
-}
-
-//-----
-uint64_t getNum(std::string_view str)
-{
-  uint64_t num;
-  if (auto result = std::from_chars(str.data(), str.data() + str.size(), num);
-      result.ec != std::errc() || result.ptr != str.data() + str.size())
-  {
-    throw std::invalid_argument("Input entity ID string is malformed");
-  }
-
-  return num;
 }
 
 //-----

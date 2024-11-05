@@ -56,9 +56,9 @@
 #include "exceptions/UninitializedException.h"
 #include "impl/Network.h"
 
-#include <proto/query.pb.h>
-#include <proto/query_header.pb.h>
-#include <proto/transaction.pb.h>
+#include <query.pb.h>
+#include <query_header.pb.h>
+#include <transaction.pb.h>
 
 namespace Hedera
 {
