@@ -153,7 +153,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mMaxSupply.has_value())
   {
-    tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum(params.mSupplyType.value()));
+    tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mMaxSupply.value()));
   }
 
   if (params.mFeeScheduleKey.has_value())
