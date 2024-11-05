@@ -158,16 +158,6 @@ TEST_F(CustomRoyaltyFeeUnitTests, GetSetDenominator)
 }
 
 //-----
-TEST_F(CustomRoyaltyFeeUnitTests, CannotSetDenominatorToZero)
-{
-  // Given
-  CustomRoyaltyFee customRoyaltyFee;
-
-  // When / Then
-  EXPECT_THROW(customRoyaltyFee.setDenominator(0LL), std::invalid_argument);
-}
-
-//-----
 TEST_F(CustomRoyaltyFeeUnitTests, GetSetFallbackFee)
 {
   // Given

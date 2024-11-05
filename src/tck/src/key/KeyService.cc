@@ -212,7 +212,9 @@ const std::unordered_map<KeyType, std::string> gKeyTypeToString = {
 nlohmann::json generateKey(const GenerateKeyParams& params)
 {
   nlohmann::json response;
-  response["key"] = generateKeyRecursively(params, response);
+  std::string key = generateKeyRecursively(params, response);
+  std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return std::tolower(c); });
+  response["key"] = key;
   return response;
 }
 

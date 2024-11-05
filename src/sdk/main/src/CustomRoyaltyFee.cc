@@ -91,11 +91,6 @@ CustomRoyaltyFee& CustomRoyaltyFee::setNumerator(const int64_t& numerator)
 //-----
 CustomRoyaltyFee& CustomRoyaltyFee::setDenominator(const int64_t& denominator)
 {
-  if (denominator == 0LL)
-  {
-    throw std::invalid_argument("Denominator cannot be 0");
-  }
-
   mDenominator = denominator;
   return *this;
 }

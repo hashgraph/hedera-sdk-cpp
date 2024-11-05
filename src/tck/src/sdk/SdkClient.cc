@@ -25,8 +25,8 @@
 #include <Client.h>
 #include <PrivateKey.h>
 
-#include <nlohmann/json.hpp>
 #include <basic_types.pb.h>
+#include <nlohmann/json.hpp>
 #include <string>
 
 namespace Hedera::TCK::SdkClient

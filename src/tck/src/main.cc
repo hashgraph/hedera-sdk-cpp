@@ -21,6 +21,7 @@
 #include "account/AccountService.h"
 #include "key/KeyService.h"
 #include "sdk/SdkClient.h"
+#include "token/TokenService.h"
 
 #include <impl/EntityIdHelper.h>
 
@@ -43,6 +44,9 @@ int main(int argc, char** argv)
   tckServer.add("createAccount", tckServer.getHandle(&AccountService::createAccount));
   tckServer.add("deleteAccount", tckServer.getHandle(&AccountService::deleteAccount));
   tckServer.add("updateAccount", tckServer.getHandle(&AccountService::updateAccount));
+
+  // Add the TokenService functions.
+  tckServer.add("createToken", tckServer.getHandle(&TokenService::createToken));
 
   // Start listening for requests.
   tckServer.startServer();
