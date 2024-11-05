@@ -19,7 +19,7 @@
  */
 #include "FreezeType.h"
 
-#include <proto/freeze_type.pb.h>
+#include <freeze_type.pb.h>
 
 namespace Hedera
 {

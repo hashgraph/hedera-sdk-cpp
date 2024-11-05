@@ -23,10 +23,10 @@
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
+#include <contract_create.pb.h>
 #include <grpcpp/client_context.h>
-#include <proto/contract_create.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_response.pb.h>
+#include <transaction.pb.h>
+#include <transaction_response.pb.h>
 
 namespace Hedera
 {

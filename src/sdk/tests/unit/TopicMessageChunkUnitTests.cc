@@ -22,7 +22,7 @@
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <proto/mirror/consensus_service.pb.h>
+#include <mirror/consensus_service.pb.h>
 
 using namespace Hedera;
 

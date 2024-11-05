@@ -21,9 +21,9 @@
 #include "impl/Node.h"
 
 #include <grpcpp/client_context.h>
-#include <proto/schedule_sign.pb.h>
-#include <proto/transaction.pb.h>
+#include <schedule_sign.pb.h>
 #include <stdexcept>
+#include <transaction.pb.h>
 
 namespace Hedera
 {

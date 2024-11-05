@@ -30,7 +30,7 @@
 
 #include <chrono>
 #include <grpcpp/grpcpp.h>
-#include <proto/mirror/consensus_service.grpc.pb.h>
+#include <mirror/consensus_service.grpc.pb.h>
 #include <thread>
 #include <unordered_map>
 

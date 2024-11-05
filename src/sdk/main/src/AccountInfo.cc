@@ -23,8 +23,8 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <crypto_get_info.pb.h>
 #include <nlohmann/json.hpp>
-#include <proto/crypto_get_info.pb.h>
 
 namespace Hedera
 {

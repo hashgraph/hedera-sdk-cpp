@@ -1,107 +1,64 @@
-set(HAPI_LIBRARY_HASH "cf995030036c92624f9054570f1bf4e9607610a67ccf277d17b3b80ba67e4838" CACHE STRING "Use the configured hash to verify the Hedera API protobuf library release")
-set(HAPI_LIBRARY_URL "https://github.com/hashgraph/hedera-protobufs-cpp/releases/download/v0.55.0/hapi-library-32c2a4a2.tar.gz" CACHE STRING "Use the configured URL to download the Hedera API protobuf library package")
+set(HAPI_VERSION_TAG "v0.55.0" CACHE STRING "Use the configured version tag for the Hedera API protobufs")
 
-set(HAPI_LOCAL_LIBRARY_PATH "" CACHE STRING "Overrides the configured HAPI_LIBRARY_URL setting and instead uses the local path to retrieve the artifacts")
-
-if (HAPI_LOCAL_LIBRARY_PATH STREQUAL "")
-    # Fetch the HAPI Library
-    FetchContent_Declare(
-            hapi
-            URL ${HAPI_LIBRARY_URL}
-            URL_HASH SHA256=${HAPI_LIBRARY_HASH}
-    )
-    set(FETCHCONTENT_QUIET OFF)
-    FetchContent_MakeAvailable(hapi)
-else ()
-    set(hapi_SOURCE_DIR ${HAPI_LOCAL_LIBRARY_PATH})
+if (HAPI_VERSION_TAG STREQUAL "")
+    set(HAPI_VERSION_TAG "v0.55.0")
 endif ()
 
-set(HAPI_ROOT_DIR ${hapi_SOURCE_DIR}/${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR})
+# Fetch the protobuf definitions
+FetchContent_Declare(
+        HProto
+        GIT_REPOSITORY https://github.com/hashgraph/hedera-services.git
+        GIT_TAG ${HAPI_VERSION_TAG}
+)
+set(FETCHCONTENT_QUIET OFF)
+FetchContent_MakeAvailable(HProto)
+
+# Clean and update the protobuf definitions
+set(PROTO_SRC ${PROJECT_SOURCE_DIR}/proto)
+
+# Get all .proto files in the specified directory
+file(GLOB_RECURSE PROTO_FILES ${PROTO_SRC}/*.proto)
+
+# List of files to exclude from removal
+set(EXCLUDE_FILES
+    "consensus_service.proto"
+    "mirror_network_service.proto"
+    "transaction_list.proto"
+)
+
+# Create a list to hold files to be removed
+set(FILES_TO_REMOVE "")
+
+# Iterate over all found .proto files
+foreach(PROTO_FILE ${PROTO_FILES})
+    # Get the file name without the path
+    get_filename_component(FILENAME ${PROTO_FILE} NAME)
+    
+    # Check if the file is in the exclusion list
+    list(FIND EXCLUDE_FILES ${FILENAME} INDEX)
+    
+    # If the file is not in the exclusion list, add it to the removal list
+    if (INDEX EQUAL -1)
+        list(APPEND FILES_TO_REMOVE ${PROTO_FILE})
+    endif()
+endforeach()
+
+# Remove the files that are not in the exclusion list
+if (FILES_TO_REMOVE)
+    file(REMOVE ${FILES_TO_REMOVE})
+endif()
+
+file(INSTALL ${PROJECT_SOURCE_DIR}/proto/service-external-proto/mirror/ DESTINATION ${PROTO_SRC}/mirror)
+file(INSTALL ${hproto_SOURCE_DIR}/hapi/hedera-protobufs/services/ DESTINATION ${PROTO_SRC})
+file(INSTALL ${PROJECT_SOURCE_DIR}/proto/service-external-proto/sdk/ DESTINATION ${PROTO_SRC})
+
+add_subdirectory(proto)
+
+set(HAPI_ROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/proto)
 
 if (NOT EXISTS ${HAPI_ROOT_DIR})
-    set(HAPI_ROOT_DIR ${hapi_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR})
-
-    if (NOT EXISTS ${HAPI_ROOT_DIR})
-        message(FATAL_ERROR "Failed to the HAPI_ROOT_DIR at `${HAPI_ROOT_DIR}`")
-    endif ()
+    message(FATAL_ERROR "Failed to the HAPI_ROOT_DIR at `${HAPI_ROOT_DIR}`")
 endif ()
 
-set(HAPI_INCLUDE_DIR ${HAPI_ROOT_DIR}/include)
-set(HAPI_LIB_DIR ${HAPI_ROOT_DIR}/lib)
-
-function(create_req_link_target prefix name nixlib winlib)
-    string(TOUPPER "${prefix}" prefixUpper)
-    string(TOUPPER "${name}" nameUpper)
-    if (prefix STREQUAL "")
-        set(variableName "${nameUpper}_LINK_TARGET")
-    else ()
-        set(variableName "${prefixUpper}_${nameUpper}_LINK_TARGET")
-    endif ()
-
-    set(linkTarget "${HAPI_LIB_DIR}/${nixlib}")
-    if (NOT EXISTS ${linkTarget})
-        set(linkTarget "${HAPI_LIB_DIR}/${winlib}")
-
-        if (NOT EXISTS ${linkTarget})
-            message(FATAL_ERROR "Failed to locate the ${variableName} at `${HAPI_LIB_DIR}/(${nixlib}|${winlib})`")
-        endif ()
-    endif ()
-
-    set(${variableName} ${linkTarget} PARENT_SCOPE)
-endfunction()
-
-function(create_opt_link_target prefix name nixlib winlib)
-    string(TOUPPER "${prefix}" prefixUpper)
-    string(TOUPPER "${name}" nameUpper)
-    if (prefix STREQUAL "")
-        set(variableName "${nameUpper}_LINK_TARGET")
-    else ()
-        set(variableName "${prefixUpper}_${nameUpper}_LINK_TARGET")
-    endif ()
-
-    set(linkTarget "${HAPI_LIB_DIR}/${nixlib}")
-    if (NOT EXISTS ${linkTarget})
-        set(linkTarget "${HAPI_LIB_DIR}/${winlib}")
-
-        if (NOT EXISTS ${linkTarget})
-            set(linkTarget "")
-            message(WARNING "Failed to locate the ${variableName} at `${HAPI_LIB_DIR}/(${nixlib}|${winlib})`")
-        endif ()
-    endif ()
-
-    set(${variableName} ${linkTarget} PARENT_SCOPE)
-endfunction()
-
-function(create_external_package prefix)
-    math(EXPR lastIndex "${ARGC}-1")
-    string(TOUPPER "${prefix}" prefixUpper)
-
-    # Create all the imported library targets first
-    foreach (index RANGE 1 ${lastIndex})
-        string(TOUPPER "${ARGV${index}}" nameUpper)
-        if (prefix STREQUAL "")
-            set(LIBNAME${index} "${ARGV${index}}")
-            set(LINKTARGET${index} "${nameUpper}_LINK_TARGET")
-        else ()
-            set(LIBNAME${index} "${prefix}::${ARGV${index}}")
-            set(LINKTARGET${index} "${prefixUpper}_${nameUpper}_LINK_TARGET")
-        endif ()
-
-        #        message("LIBNAME${index}=${LIBNAME${index}}")
-        #        message("LINKTARGET${index}=${LINKTARGET${index}}")
-        if (NOT ${${LINKTARGET${index}}} STREQUAL "")
-            add_library(${LIBNAME${index}} STATIC IMPORTED)
-        endif ()
-    endforeach ()
-
-    # Now import the link targets
-    foreach (index RANGE 1 ${lastIndex})
-        if (NOT ${${LINKTARGET${index}}} STREQUAL "")
-            set_target_properties(${LIBNAME${index}} PROPERTIES IMPORTED_LOCATION ${${LINKTARGET${index}}})
-        endif ()
-    endforeach ()
-endfunction()
-
-
-create_req_link_target(hapi proto libhapi.a hapi.lib)
-create_external_package(hapi proto)
+set(HAPI_INCLUDE_DIR ${HAPI_ROOT_DIR})
+set(HAPI_LIB_DIR ${HAPI_ROOT_DIR})

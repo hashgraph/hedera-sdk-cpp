@@ -21,9 +21,9 @@
 #include "impl/Node.h"
 #include "impl/Utilities.h"
 
-#include <proto/ethereum_transaction.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <ethereum_transaction.pb.h>
+#include <transaction.pb.h>
+#include <transaction_body.pb.h>
 
 namespace Hedera
 {

@@ -21,9 +21,9 @@
 #include "ContractLogInfo.h"
 #include "impl/Utilities.h"
 
+#include <contract_call_local.pb.h>
 #include <cstddef>
 #include <gtest/gtest.h>
-#include <proto/contract_call_local.pb.h>
 #include <vector>
 
 using namespace Hedera;

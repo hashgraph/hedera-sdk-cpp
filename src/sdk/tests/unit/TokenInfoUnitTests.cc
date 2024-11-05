@@ -27,7 +27,7 @@
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <proto/token_get_info.pb.h>
+#include <token_get_info.pb.h>
 
 using namespace Hedera;
 

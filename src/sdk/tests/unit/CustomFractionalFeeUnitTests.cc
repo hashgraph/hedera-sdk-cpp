@@ -22,8 +22,8 @@
 #include "FeeAssessmentMethod.h"
 #include "impl/Utilities.h"
 
+#include <custom_fees.pb.h>
 #include <gtest/gtest.h>
-#include <proto/custom_fees.pb.h>
 #include <stdexcept>
 
 using namespace Hedera;

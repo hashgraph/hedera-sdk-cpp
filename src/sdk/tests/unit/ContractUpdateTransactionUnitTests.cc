@@ -25,10 +25,10 @@
 #include "impl/DurationConverter.h"
 #include "impl/TimestampConverter.h"
 
+#include <contract_update.pb.h>
 #include <gtest/gtest.h>
 #include <limits>
-#include <proto/contract_update.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <transaction_body.pb.h>
 
 using namespace Hedera;
 

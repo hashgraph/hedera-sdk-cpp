@@ -21,9 +21,9 @@
 #include "TransactionResponse.h"
 #include "impl/Node.h"
 
-#include <proto/crypto_transfer.pb.h>
-#include <proto/response.pb.h>
-#include <proto/transaction.pb.h>
+#include <crypto_transfer.pb.h>
+#include <response.pb.h>
+#include <transaction.pb.h>
 
 namespace Hedera
 {
