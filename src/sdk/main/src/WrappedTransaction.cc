@@ -21,7 +21,7 @@
 #include "exceptions/UninitializedException.h"
 
 #include <memory>
-#include <proto/transaction_body.pb.h>
+#include <transaction_body.pb.h>
 
 namespace Hedera
 {

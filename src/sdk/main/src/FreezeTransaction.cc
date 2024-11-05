@@ -22,10 +22,10 @@
 #include "impl/TimestampConverter.h"
 #include "impl/Utilities.h"
 
+#include <freeze.pb.h>
 #include <grpcpp/client_context.h>
-#include <proto/freeze.pb.h>
-#include <proto/transaction.pb.h>
-#include <proto/transaction_body.pb.h>
+#include <transaction.pb.h>
+#include <transaction_body.pb.h>
 
 namespace Hedera
 {

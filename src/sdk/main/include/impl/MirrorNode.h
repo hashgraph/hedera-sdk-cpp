@@ -20,8 +20,8 @@
 #ifndef HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_
 #define HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_
 
-#include <proto/mirror/consensus_service.grpc.pb.h>
-#include <proto/mirror/mirror_network_service.grpc.pb.h>
+#include <mirror/consensus_service.grpc.pb.h>
+#include <mirror/mirror_network_service.grpc.pb.h>
 
 #include "BaseNode.h"
 

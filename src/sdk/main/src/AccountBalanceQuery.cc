@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-#include <proto/crypto_get_account_balance.pb.h>
+#include <crypto_get_account_balance.pb.h>
 
 #include "AccountBalance.h"
 #include "AccountBalanceQuery.h"
@@ -26,9 +26,9 @@
 #include "impl/MirrorNodeGateway.h"
 #include "impl/Node.h"
 
-#include <proto/query.pb.h>
-#include <proto/query_header.pb.h>
-#include <proto/response.pb.h>
+#include <query.pb.h>
+#include <query_header.pb.h>
+#include <response.pb.h>
 
 #include <cstddef>
 #include <string>

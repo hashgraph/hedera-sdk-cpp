@@ -22,7 +22,7 @@
 #include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
-#include <proto/network_get_version_info.pb.h>
+#include <network_get_version_info.pb.h>
 
 using namespace Hedera;
 

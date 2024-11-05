@@ -52,9 +52,8 @@ TEST_F(HttpClientIntegrationTests, GETAccountFromLocalMirrorNode)
   mUrl += accountIdStr;
 
   // When
-  internal::HttpClient httpClient;
   std::string response;
-  ASSERT_NO_THROW(response = httpClient.invokeREST(mUrl, "GET"));
+  ASSERT_NO_THROW(response = internal::HttpClient::invokeREST(mUrl, "GET"));
 
   // Then
   json responseData = json::parse(response);

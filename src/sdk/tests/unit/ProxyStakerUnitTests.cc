@@ -19,8 +19,8 @@
  */
 #include "ProxyStaker.h"
 
+#include <crypto_get_stakers.pb.h>
 #include <gtest/gtest.h>
-#include <proto/crypto_get_stakers.pb.h>
 
 using namespace Hedera;
 

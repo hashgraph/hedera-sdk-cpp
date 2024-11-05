@@ -22,10 +22,11 @@
 #include "ECDSAsecp256k1PublicKey.h"
 #include "ED25519PublicKey.h"
 #include "exceptions/BadKeyException.h"
+#include "impl/HexConverter.h"
 #include "impl/PublicKeyImpl.h"
 #include "impl/Utilities.h"
 
-#include <proto/basic_types.pb.h>
+#include <basic_types.pb.h>
 
 namespace Hedera
 {
@@ -35,17 +36,14 @@ PublicKey::~PublicKey() = default;
 //-----
 std::unique_ptr<PublicKey> PublicKey::fromStringDer(std::string_view key)
 {
-  if (key.find(ED25519PublicKey::DER_ENCODED_PREFIX_HEX) == 0UL)
+  try
   {
-    return ED25519PublicKey::fromString(key);
+    return fromBytesDer(internal::HexConverter::hexToBytes(key));
   }
-
-  else if (key.find(ECDSAsecp256k1PublicKey::DER_ENCODED_COMPRESSED_PREFIX_HEX) == 0UL)
+  catch (const std::exception&)
   {
-    return ECDSAsecp256k1PublicKey::fromString(key);
+    throw BadKeyException("Key type cannot be determined from input DER-encoded hex string");
   }
-
-  throw BadKeyException("Key type cannot be determined from input DER-encoded hex string");
 }
 
 //-----

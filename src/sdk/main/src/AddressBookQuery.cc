@@ -25,7 +25,7 @@
 #include "impl/MirrorNetwork.h"
 #include "impl/MirrorNode.h"
 
-#include <proto/mirror/mirror_network_service.pb.h>
+#include <mirror/mirror_network_service.pb.h>
 #include <thread>
 #include <vector>
 
