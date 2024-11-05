@@ -83,6 +83,16 @@ public:
   [[nodiscard]] static Client forNetwork(const std::unordered_map<std::string, AccountId>& networkMap);
 
   /**
+   * Construct a Client pre-configured for a specific mirror network. This will attempt to pull the network address
+   * book from the input mirror network and establish its consensus network with that.
+   *
+   * @param mirrorNetwork The mirror node network from which to grab the address book and initialize the Client's
+   *                      consensus network.
+   * @return A Client with the input mirror network and the corresponding address book consensus network
+   */
+  [[nodiscard]] static Client forMirrorNetwork(const std::vector<std::string>& mirrorNetwork);
+
+  /**
    * Construct a Client by a name. The name must be one of "mainnet", "testnet", or "previewnet", otherwise this will
    * throw std::invalid_argument.
    *

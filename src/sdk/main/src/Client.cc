@@ -23,6 +23,7 @@
 #include "AccountId.h"
 #include "AddressBookQuery.h"
 #include "Defaults.h"
+#include "FileId.h"
 #include "Hbar.h"
 #include "Logger.h"
 #include "NodeAddressBook.h"
@@ -170,6 +171,18 @@ Client Client::forNetwork(const std::unordered_map<std::string, AccountId>& netw
 {
   Client client;
   client.mImpl->mNetwork = std::make_shared<internal::Network>(internal::Network::forNetwork(networkMap));
+  return client;
+}
+
+//-----
+Client Client::forMirrorNetwork(const std::vector<std::string>& mirrorNetwork)
+{
+  Client client;
+  client.setMirrorNetwork(mirrorNetwork);
+  client.mImpl->mNetwork =
+    std::make_shared<internal::Network>(internal::Network::forNetwork(internal::Network::getNetworkFromAddressBook(
+      AddressBookQuery().setFileId(FileId::ADDRESS_BOOK).execute(client), internal::BaseNodeAddress::PORT_NODE_PLAIN)));
+
   return client;
 }
 
