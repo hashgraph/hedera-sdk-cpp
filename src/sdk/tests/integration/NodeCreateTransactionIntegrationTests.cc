@@ -19,6 +19,8 @@
  */
 #include "BaseIntegrationTest.h"
 #include "ED25519PrivateKey.h"
+#include "FileId.h"
+#include "FreezeTransaction.h"
 #include "NodeCreateTransaction.h"
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
@@ -33,15 +35,24 @@ class NodeCreateTransactionIntegrationTests : public BaseIntegrationTest
 {
 protected:
   [[nodiscard]] const AccountId& getAccountId() const { return mAccountId; }
+  [[nodiscard]] const FileId& getFileId() const { return mFileId; }
   [[nodiscard]] const std::vector<Endpoint>& getGossipEndpoints() const { return mGossipEndpoints; }
   [[nodiscard]] const std::vector<Endpoint>& getGrpcServiceEndpoints() const { return mGrpcServiceEndpoints; }
   [[nodiscard]] const std::vector<std::byte> getGossipCertificate() const
   {
     return internal::HexConverter::hexToBytes(mGossipCertificateDer);
   }
+  [[nodiscard]] const std::vector<std::byte> getFileHash() const
+  {
+    return internal::HexConverter::hexToBytes(mFileHash);
+  }
 
 private:
   const AccountId mAccountId = AccountId::fromString("0.0.4");
+  const FileId mFileId = FileId::fromString("0.0.150");
+  // The file hash needs to be taken from the network context to be correct
+  const std::string mFileHash =
+    "ba4584186e02c4bb77209a8fff5b2ff53dbb4c44ac84e40efb391d8bcb8b2ac3ea3d599ff33d1ac40a26985b6193629b";
   const Endpoint endpoint1 = Endpoint().setDomainName("test.com").setPort(123);
   const Endpoint endpoint2 = Endpoint().setDomainName("test2.com").setPort(123);
   const std::vector<Endpoint> mGossipEndpoints = { endpoint1, endpoint2 };
@@ -81,6 +92,22 @@ TEST_F(NodeCreateTransactionIntegrationTests, DISABLED_CanExecuteNodeCreateTrans
 
   // When / Then
   TransactionResponse txResponse;
+
+  ASSERT_NO_THROW(txResponse = FreezeTransaction()
+                                 .setFreezeType(FreezeType::PREPARE_UPGRADE)
+                                 .setFileId(getFileId())
+                                 .setFileHash(getFileHash())
+                                 .freezeWith(&getTestClient())
+                                 .execute(getTestClient()));
+
+  ASSERT_NO_THROW(txResponse = FreezeTransaction()
+                                 .setFreezeType(FreezeType::FREEZE_UPGRADE)
+                                 .setStartTime(std::chrono::system_clock::now() + std::chrono::seconds(5))
+                                 .setFileId(getFileId())
+                                 .setFileHash(getFileHash())
+                                 .freezeWith(&getTestClient())
+                                 .execute(getTestClient()));
+
   ASSERT_NO_THROW(txResponse = NodeCreateTransaction()
                                  .setAccountId(getAccountId())
                                  .setGossipEndpoints(getGossipEndpoints())
