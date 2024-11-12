@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/badge/c++-17-blue)
 ![](https://img.shields.io/badge/cmake-3.24-blue)
-[![](https://github.com/hashgraph/hiero-sdk-cpp/actions/workflows/flow-pull-request-checks.yaml/badge.svg)](https://github.com/hashgraph/hiero-sdk-cpp/actions/workflows/flow-pull-request-checks.yaml)
+[![](https://github.com/hiero-ledger/hiero-sdk-cpp/actions/workflows/flow-pull-request-checks.yaml/badge.svg)](https://github.com/hiero-ledger/hiero-sdk-cpp/actions/workflows/flow-pull-request-checks.yaml)
 
 The C++ SDK for interacting with a Hiero network.
 

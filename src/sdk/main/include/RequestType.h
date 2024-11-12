@@ -31,7 +31,7 @@ enum HederaFunctionality : int;
 namespace Hiero
 {
 /**
- * Enumeration of all queries and transactions supported by Hiero Hashgraph.
+ * Enumeration of all queries and transactions supported by Hiero.
  */
 enum class RequestType
 {
