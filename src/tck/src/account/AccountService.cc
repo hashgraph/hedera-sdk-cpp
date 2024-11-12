@@ -49,7 +49,7 @@ nlohmann::json createAccount(const CreateAccountParams& params)
 
   if (params.mKey.has_value())
   {
-    accountCreateTransaction.setKey(KeyService::getHederaKey(params.mKey.value()));
+    accountCreateTransaction.setKey(KeyService::getHieroKey(params.mKey.value()));
   }
 
   if (params.mInitialBalance.has_value())
@@ -151,7 +151,7 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
 
   if (params.mKey.has_value())
   {
-    accountUpdateTransaction.setKey(KeyService::getHederaKey(params.mKey.value()));
+    accountUpdateTransaction.setKey(KeyService::getHieroKey(params.mKey.value()));
   }
 
   if (params.mAutoRenewPeriod.has_value())

@@ -131,7 +131,7 @@ TEST_F(ContractCreateFlowIntegrationTests, ExecuteContractCreateFlowWithPublicKe
                       .setBytecode(getTestSmartContractBytecode())
                       .setAdminKey(adminKey)
                       .setGas(1000000ULL)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero."))
                       .freezeWith(getTestClient())
                       .signWith(adminKey->getPublicKey(),
                                 [&adminKey](const std::vector<std::byte>& bytes) { return adminKey->sign(bytes); })

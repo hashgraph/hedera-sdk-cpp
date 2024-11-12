@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
-#define HEDERA_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
+#ifndef HIERO_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
+#define HIERO_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
 
 #include "json/JsonUtils.h"
 
@@ -147,4 +147,4 @@ struct [[maybe_unused]] adl_serializer<Hiero::TCK::CommonTransactionParams>
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_
+#endif // HIERO_TCK_CPP_COMMON_TRANSACTION_PARAMS_H_

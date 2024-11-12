@@ -40,10 +40,10 @@ int main(int argc, char** argv)
 
   // An Account ID in shard.realm.number format, i.e. `0.0.10` with the corresponding
   // `0x000000000000000000000000000000000000000A` ethereum address.
-  const AccountId hederaFormat = AccountId::fromString("0.0.10");
-  std::cout << "Account ID: " + hederaFormat.toString() << std::endl;
-  std::cout << "Account " + hederaFormat.toString() + " corresponding Long-Zero address: "
-            << hederaFormat.toSolidityAddress() << std::endl;
+  const AccountId hieroFormat = AccountId::fromString("0.0.10");
+  std::cout << "Account ID: " + hieroFormat.toString() << std::endl;
+  std::cout << "Account " + hieroFormat.toString() + " corresponding Long-Zero address: "
+            << hieroFormat.toSolidityAddress() << std::endl;
 
   // The Hiero Long-Form Account ID: 0.0.aliasPublicKey, i.e.
   // `0.0.302D300706052B8104000A032200036847776633520568B5B4B1D074C647BE63579B3D7DC9E4B638042CB4E041C8B8`

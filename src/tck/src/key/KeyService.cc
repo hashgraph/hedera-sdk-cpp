@@ -135,7 +135,7 @@ std::string generateKeyRecursively(const GenerateKeyParams& params, nlohmann::js
       std::for_each(params.mKeys->cbegin(),
                     params.mKeys->cend(),
                     [&keyList, &response](const GenerateKeyParams& params)
-                    { keyList.push_back(getHederaKey(generateKeyRecursively(params, response, true))); });
+                    { keyList.push_back(getHieroKey(generateKeyRecursively(params, response, true))); });
 
       if (isThreshold)
       {
@@ -150,7 +150,7 @@ std::string generateKeyRecursively(const GenerateKeyParams& params, nlohmann::js
     {
       if (params.mFromKey.has_value())
       {
-        const std::shared_ptr<Key> key = getHederaKey(params.mFromKey.value());
+        const std::shared_ptr<Key> key = getHieroKey(params.mFromKey.value());
         if (const std::shared_ptr<ECDSAsecp256k1PrivateKey> privateKey =
               std::dynamic_pointer_cast<ECDSAsecp256k1PrivateKey>(key);
             privateKey)
@@ -219,7 +219,7 @@ nlohmann::json generateKey(const GenerateKeyParams& params)
 }
 
 //-----
-std::shared_ptr<Key> getHederaKey(const std::string& key)
+std::shared_ptr<Key> getHieroKey(const std::string& key)
 {
   try
   {

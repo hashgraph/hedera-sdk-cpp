@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_KEY_SERVICE_H_
-#define HEDERA_TCK_CPP_KEY_SERVICE_H_
+#ifndef HIERO_TCK_CPP_KEY_SERVICE_H_
+#define HIERO_TCK_CPP_KEY_SERVICE_H_
 
 #include <Key.h>
 
@@ -74,8 +74,8 @@ nlohmann::json generateKey(const GenerateKeyParams& params);
  * @param key The hex string from which to get the Key.
  * @return The Key of the input hex string.
  */
-std::shared_ptr<Key> getHederaKey(const std::string& key);
+std::shared_ptr<Key> getHieroKey(const std::string& key);
 
 } // namespace Hiero::TCK::KeyService
 
-#endif // HEDERA_TCK_CPP_KEY_SERVICE_H_
+#endif // HIERO_TCK_CPP_KEY_SERVICE_H_

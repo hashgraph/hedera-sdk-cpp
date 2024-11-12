@@ -292,7 +292,7 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       { "jsonrpc", "2.0" },
       { "id", requestId },
       { "error", {
-        { "code", JsonErrorType::HEDERA_ERROR },
+        { "code", JsonErrorType::HIERO_ERROR },
         { "message", "Hiero error" },
         { "data", {
           { "status", gStatusToString.at(ex.mStatus) },
@@ -310,7 +310,7 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       { "jsonrpc", "2.0" },
       { "id", requestId },
       { "error", {
-        { "code", JsonErrorType::HEDERA_ERROR },
+        { "code", JsonErrorType::HIERO_ERROR },
         { "message", "Hiero error" },
         { "data", {
           { "status", gStatusToString.at(ex.mStatus) },

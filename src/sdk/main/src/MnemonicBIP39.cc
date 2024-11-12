@@ -240,4 +240,4 @@ const std::set<unsigned long>& MnemonicBIP39::getAcceptableWordCounts() const
   return ACCEPTABLE_COUNTS;
 }
 
-} // Hedera
+} // namespace Hiero

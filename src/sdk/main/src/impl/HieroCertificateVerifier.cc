@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  */
-#include "impl/HederaCertificateVerifier.h"
+#include "impl/HieroCertificateVerifier.h"
 #include "impl/HexConverter.h"
 #include "impl/Utilities.h"
 #include "impl/openssl_utils/OpenSSLUtils.h"
@@ -27,15 +27,15 @@
 namespace Hiero::internal
 {
 //-----
-HederaCertificateVerifier::HederaCertificateVerifier(std::vector<std::byte> certificateHash)
+HieroCertificateVerifier::HieroCertificateVerifier(std::vector<std::byte> certificateHash)
   : mExpectedHash(std::move(certificateHash))
 {
 }
 
 //-----
-bool HederaCertificateVerifier::Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
-                                       std::function<void(grpc::Status)>,
-                                       grpc::Status* sync_status)
+bool HieroCertificateVerifier::Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
+                                      std::function<void(grpc::Status)>,
+                                      grpc::Status* sync_status)
 {
   if (const grpc::string_ref grpcCertificateChain = request->peer_cert_full_chain();
       mExpectedHash ==

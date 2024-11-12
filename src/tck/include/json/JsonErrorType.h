@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_JSON_ERROR_TYPE_H_
-#define HEDERA_TCK_CPP_JSON_ERROR_TYPE_H_
+#ifndef HIERO_TCK_CPP_JSON_ERROR_TYPE_H_
+#define HIERO_TCK_CPP_JSON_ERROR_TYPE_H_
 
 namespace Hiero::TCK
 {
@@ -50,9 +50,9 @@ enum class JsonErrorType : short
   /**
    * The Hiero C++ SDK failed to execute the JSON request.
    */
-  HEDERA_ERROR = -32001
+  HIERO_ERROR = -32001
 };
 
 } // namespace Hiero::TCK
 
-#endif // HEDERA_TCK_CPP_JSON_ERROR_TYPE_H_
+#endif // HIERO_TCK_CPP_JSON_ERROR_TYPE_H_

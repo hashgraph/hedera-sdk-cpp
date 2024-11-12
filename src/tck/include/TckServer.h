@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_TCK_SERVER_H_
-#define HEDERA_TCK_CPP_TCK_SERVER_H_
+#ifndef HIERO_TCK_CPP_TCK_SERVER_H_
+#define HIERO_TCK_CPP_TCK_SERVER_H_
 
 #include <functional>
 #include <httplib.h>
@@ -158,4 +158,4 @@ private:
 
 } // namespace Hiero::TCK
 
-#endif // HEDERA_TCK_CPP_TCK_SERVER_H_
+#endif // HIERO_TCK_CPP_TCK_SERVER_H_

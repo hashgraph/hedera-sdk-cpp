@@ -128,7 +128,7 @@ located in the `addressbook/` and `config/` directories. Make sure your `.env` f
 
 - `OPERATOR_ID`: The ID of the operator account.
 - `OPERATOR_KEY`: The DER-encoded hex private key of the operator account.
-- `HEDERA_NETWORK`: The Hiero network name. Must be one of `mainnet`, `testnet`, or `previewnet`.
+- `HIERO_NETWORK`: The Hiero network name. Must be one of `mainnet`, `testnet`, or `previewnet`.
 - `PASSPHRASE`: Optional variable used by `hiero-sdk-cpp-generate-private-key-from-mnemonic-example` to generate a
   private key from a mnemonic with a passphrase.
 

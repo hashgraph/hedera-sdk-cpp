@@ -19,7 +19,7 @@
  */
 #include "impl/BaseNode.h"
 #include "impl/BaseNodeAddress.h"
-#include "impl/HederaCertificateVerifier.h"
+#include "impl/HieroCertificateVerifier.h"
 #include "impl/MirrorNode.h"
 #include "impl/Node.h"
 

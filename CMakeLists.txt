@@ -23,7 +23,7 @@ find_package(EXPAT CONFIG REQUIRED)
 
 include(FetchContent)
 include(SystemLibraries.cmake)
-include(HederaApi.cmake)
+include(HieroApi.cmake)
 
 enable_testing()
 

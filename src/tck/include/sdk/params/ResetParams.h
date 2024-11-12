@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_RESET_PARAMS_H_
-#define HEDERA_TCK_CPP_RESET_PARAMS_H_
+#ifndef HIERO_TCK_CPP_RESET_PARAMS_H_
+#define HIERO_TCK_CPP_RESET_PARAMS_H_
 
 #include <nlohmann/json_fwd.hpp>
 
@@ -52,4 +52,4 @@ struct [[maybe_unused]] adl_serializer<Hiero::TCK::SdkClient::ResetParams>
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_RESET_PARAMS_H_
+#endif // HIERO_TCK_CPP_RESET_PARAMS_H_

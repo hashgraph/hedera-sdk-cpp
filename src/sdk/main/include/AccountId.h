@@ -43,7 +43,7 @@ class Client;
 namespace Hiero
 {
 /**
- * The ID for a crypto-currency account on Hedera.
+ * The ID for a crypto-currency account on Hiero.
  */
 class AccountId
 {

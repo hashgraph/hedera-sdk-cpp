@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_TOKEN_SERVICE_H_
-#define HEDERA_TCK_CPP_TOKEN_SERVICE_H_
+#ifndef HIERO_TCK_CPP_TOKEN_SERVICE_H_
+#define HIERO_TCK_CPP_TOKEN_SERVICE_H_
 
 #include <nlohmann/json_fwd.hpp>
 
@@ -39,4 +39,4 @@ nlohmann::json createToken(const CreateTokenParams& params);
 
 } // namespace Hiero::TCK::TokenService
 
-#endif // HEDERA_TCK_CPP_TOKEN_SERVICE_H_
+#endif // HIERO_TCK_CPP_TOKEN_SERVICE_H_

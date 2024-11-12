@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_JSON_RPC_EXCEPTION_H_
-#define HEDERA_TCK_CPP_JSON_RPC_EXCEPTION_H_
+#ifndef HIERO_TCK_CPP_JSON_RPC_EXCEPTION_H_
+#define HIERO_TCK_CPP_JSON_RPC_EXCEPTION_H_
 
 #include "json/JsonErrorType.h"
 
@@ -104,4 +104,4 @@ private:
 
 } // namespace Hiero::TCK
 
-#endif // HEDERA_TCK_CPP_JSON_RPC_EXCEPTION_H_
+#endif // HIERO_TCK_CPP_JSON_RPC_EXCEPTION_H_

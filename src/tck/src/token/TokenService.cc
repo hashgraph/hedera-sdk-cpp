@@ -75,27 +75,27 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mAdminKey.has_value())
   {
-    tokenCreateTransaction.setAdminKey(KeyService::getHederaKey(params.mAdminKey.value()));
+    tokenCreateTransaction.setAdminKey(KeyService::getHieroKey(params.mAdminKey.value()));
   }
 
   if (params.mKycKey.has_value())
   {
-    tokenCreateTransaction.setKycKey(KeyService::getHederaKey(params.mKycKey.value()));
+    tokenCreateTransaction.setKycKey(KeyService::getHieroKey(params.mKycKey.value()));
   }
 
   if (params.mFreezeKey.has_value())
   {
-    tokenCreateTransaction.setFreezeKey(KeyService::getHederaKey(params.mFreezeKey.value()));
+    tokenCreateTransaction.setFreezeKey(KeyService::getHieroKey(params.mFreezeKey.value()));
   }
 
   if (params.mWipeKey.has_value())
   {
-    tokenCreateTransaction.setWipeKey(KeyService::getHederaKey(params.mWipeKey.value()));
+    tokenCreateTransaction.setWipeKey(KeyService::getHieroKey(params.mWipeKey.value()));
   }
 
   if (params.mSupplyKey.has_value())
   {
-    tokenCreateTransaction.setSupplyKey(KeyService::getHederaKey(params.mSupplyKey.value()));
+    tokenCreateTransaction.setSupplyKey(KeyService::getHieroKey(params.mSupplyKey.value()));
   }
 
   if (params.mFreezeDefault.has_value())
@@ -156,7 +156,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mFeeScheduleKey.has_value())
   {
-    tokenCreateTransaction.setFeeScheduleKey(KeyService::getHederaKey(params.mFeeScheduleKey.value()));
+    tokenCreateTransaction.setFeeScheduleKey(KeyService::getHieroKey(params.mFeeScheduleKey.value()));
   }
 
   if (params.mCustomFees.has_value())
@@ -166,7 +166,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mPauseKey.has_value())
   {
-    tokenCreateTransaction.setPauseKey(KeyService::getHederaKey(params.mPauseKey.value()));
+    tokenCreateTransaction.setPauseKey(KeyService::getHieroKey(params.mPauseKey.value()));
   }
 
   if (params.mMetadata.has_value())
@@ -176,7 +176,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mMetadataKey.has_value())
   {
-    tokenCreateTransaction.setMetadataKey(KeyService::getHederaKey(params.mMetadataKey.value()));
+    tokenCreateTransaction.setMetadataKey(KeyService::getHieroKey(params.mMetadataKey.value()));
   }
 
   if (params.mCommonTxParams.has_value())

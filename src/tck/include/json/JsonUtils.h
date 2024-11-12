@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_JSON_UTILS_H_
-#define HEDERA_TCK_CPP_JSON_UTILS_H_
+#ifndef HIERO_TCK_CPP_JSON_UTILS_H_
+#define HIERO_TCK_CPP_JSON_UTILS_H_
 
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -104,4 +104,4 @@ bool hasValidId(const nlohmann::json& request);
 
 } // namespace Hiero::TCK
 
-#endif // HEDERA_TCK_CPP_JSON_UTILS_H_
+#endif // HIERO_TCK_CPP_JSON_UTILS_H_

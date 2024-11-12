@@ -26,9 +26,9 @@
 namespace Hiero
 {
 //-----
-NetworkVersionInfo::NetworkVersionInfo(const SemanticVersion& hapi, const SemanticVersion& hedera)
+NetworkVersionInfo::NetworkVersionInfo(const SemanticVersion& hapi, const SemanticVersion& hiero)
   : mProtobufVersion(hapi)
-  , mServicesVersion(hedera)
+  , mServicesVersion(hiero)
 {
 }
 

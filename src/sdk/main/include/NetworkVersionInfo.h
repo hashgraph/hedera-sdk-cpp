@@ -47,9 +47,9 @@ public:
    * Construct from a protobuf schema SemanticVersion and a Hiero services SemanticVersion.
    *
    * @param hapi   The SemanticVersion of the protobuf schema.
-   * @param hedera The SemanticVersion of the Hiero services.
+   * @param hiero The SemanticVersion of the Hiero services.
    */
-  NetworkVersionInfo(const SemanticVersion& hapi, const SemanticVersion& hedera);
+  NetworkVersionInfo(const SemanticVersion& hapi, const SemanticVersion& hiero);
 
   /**
    * Construct a NetworkVersionInfo object from a NetworkGetVersionInfoResponse protobuf object.

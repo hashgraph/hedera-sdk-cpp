@@ -53,4 +53,4 @@ std::vector<std::byte> indexToBigEndianArray(uint32_t childIndex)
   return indexVector;
 }
 
-} // namespaceHedera::internal::DerivationPathUtils
+} // namespace Hiero::internal::DerivationPathUtils

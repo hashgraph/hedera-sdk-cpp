@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_SDK_CLIENT_H_
-#define HEDERA_TCK_CPP_SDK_CLIENT_H_
+#ifndef HIERO_TCK_CPP_SDK_CLIENT_H_
+#define HIERO_TCK_CPP_SDK_CLIENT_H_
 
 #include <Client.h>
 
@@ -66,4 +66,4 @@ nlohmann::json setup(const SetupParams& params);
 
 } // namespace Hiero::TCK::SdkClient
 
-#endif // HEDERA_TCK_CPP_SDK_CLIENT_H_
+#endif // HIERO_TCK_CPP_SDK_CLIENT_H_

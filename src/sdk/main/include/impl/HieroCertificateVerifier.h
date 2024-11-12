@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HIERO_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
-#define HIERO_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
+#ifndef HIERO_SDK_CPP_IMPL_HIERO_CERTIFICATE_VERIFIER_H_
+#define HIERO_SDK_CPP_IMPL_HIERO_CERTIFICATE_VERIFIER_H_
 
 #include <grpcpp/security/credentials.h>
 #include <string>
@@ -28,7 +28,7 @@ namespace Hiero::internal
 /**
  * Custom TLS verifier which checks if node TLS cert chain matches the expected hash
  */
-class HederaCertificateVerifier : public grpc::experimental::ExternalCertificateVerifier
+class HieroCertificateVerifier : public grpc::experimental::ExternalCertificateVerifier
 {
 public:
   /**
@@ -36,7 +36,7 @@ public:
    *
    * @param certificateHash The claimed hash of the node certificate chain.
    */
-  explicit HederaCertificateVerifier(std::vector<std::byte> certificateHash);
+  explicit HieroCertificateVerifier(std::vector<std::byte> certificateHash);
 
 private:
   /**
@@ -72,4 +72,4 @@ private:
 
 } // namespace Hiero::internal
 
-#endif // HIERO_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
+#endif // HIERO_SDK_CPP_IMPL_HIERO_CERTIFICATE_VERIFIER_H_

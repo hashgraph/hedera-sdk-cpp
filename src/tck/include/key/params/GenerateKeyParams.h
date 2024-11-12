@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_GENERATE_KEY_PARAMS_H_
-#define HEDERA_TCK_CPP_GENERATE_KEY_PARAMS_H_
+#ifndef HIERO_TCK_CPP_GENERATE_KEY_PARAMS_H_
+#define HIERO_TCK_CPP_GENERATE_KEY_PARAMS_H_
 
 #include "key/KeyService.h"
 #include "json/JsonUtils.h"
@@ -88,4 +88,4 @@ struct [[maybe_unused]] adl_serializer<Hiero::TCK::KeyService::GenerateKeyParams
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_GENERATE_KEY_PARAMS_H_
+#endif // HIERO_TCK_CPP_GENERATE_KEY_PARAMS_H_

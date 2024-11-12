@@ -32,7 +32,7 @@ using namespace Hiero;
 int main(int argc, char** argv)
 {
   dotenv::init();
-  const std::string networkName = std::getenv("HEDERA_NETWORK");
+  const std::string networkName = std::getenv("HIERO_NETWORK");
 
   /*
    * Here are some ways you can construct and configure a client. A client has a network and an operator.
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
   Client mainClient = Client::forMainnet();
 
   // We can also construct a client for previewnet, testnet, or mainnet depending on the value of a network name string.
-  // If, for example, the input string equals "testnet", this client will be configured to connect to the Hedera
+  // If, for example, the input string equals "testnet", this client will be configured to connect to the Hiero
   // Testnet.
   Client namedNetworkClient = Client::forName(networkName);
 

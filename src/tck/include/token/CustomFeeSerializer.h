@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
-#define HEDERA_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
+#ifndef HIERO_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
+#define HIERO_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
 
 #include "json/JsonRpcException.h"
 
@@ -417,4 +417,4 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hiero::CustomFee>>
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_CUSTOM_FEE_PARAMS_H_
+#endif // HIERO_TCK_CPP_CUSTOM_FEE_PARAMS_H_

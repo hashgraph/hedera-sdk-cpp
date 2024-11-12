@@ -103,7 +103,7 @@ TEST_F(AccountBalanceQueryIntegrationTests, ContractId)
   ASSERT_NO_THROW(contractId =
                     ContractCreateTransaction()
                       .setGas(1000000ULL)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                       .setBytecodeFileId(fileId)
                       .setMemo(memo)
                       .execute(getTestClient())

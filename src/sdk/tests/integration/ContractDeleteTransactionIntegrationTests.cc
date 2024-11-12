@@ -98,7 +98,7 @@ TEST_F(ContractDeleteTransactionIntegrationTests, CannotDeleteContractWithNoAdmi
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
                       .setGas(1000000ULL)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
                       .mContractId.value());

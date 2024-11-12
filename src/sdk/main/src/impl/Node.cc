@@ -19,7 +19,7 @@
  */
 #include "impl/Node.h"
 #include "impl/BaseNodeAddress.h"
-#include "impl/HederaCertificateVerifier.h"
+#include "impl/HieroCertificateVerifier.h"
 
 #include <algorithm>
 #include <utility>
@@ -261,7 +261,7 @@ std::shared_ptr<grpc::ChannelCredentials> Node::getTlsChannelCredentials() const
   tlsChannelCredentialsOptions.set_verify_server_certs(false);
   tlsChannelCredentialsOptions.set_check_call_host(false);
   tlsChannelCredentialsOptions.set_certificate_verifier(
-    grpc::experimental::ExternalCertificateVerifier::Create<HederaCertificateVerifier>(mNodeCertificateHash));
+    grpc::experimental::ExternalCertificateVerifier::Create<HieroCertificateVerifier>(mNodeCertificateHash));
 
   // Feed in the root CA's file manually for Windows (this is a bug in the gRPC implementation and says here
   // https://deploy-preview-763--grpc-io.netlify.app/docs/guides/auth/#using-client-side-ssltls that this needs to be

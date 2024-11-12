@@ -37,7 +37,7 @@ namespace Hiero
 /**
  * Delete a file or smart contract - can only be done with a Hiero administrative multisignature. When it is deleted,
  * it immediately disappears from the system as seen by the user, but is still stored internally until the expiration
- * time, at which time it is truly and permanently deleted. Until that time, it can be undeleted by the Hedera
+ * time, at which time it is truly and permanently deleted. Until that time, it can be undeleted by the Hiero
  * administrative multisignature. When a smart contract is deleted, the cryptocurrency account within it continues to
  * exist, and is not affected by the expiration time here.
  *

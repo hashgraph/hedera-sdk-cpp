@@ -80,7 +80,7 @@ int main(int argc, char** argv)
   txReceipt = ContractCreateTransaction()
                 .setBytecodeFileId(fileId)
                 .setGas(500000ULL)
-                .setConstructorParameters(ContractFunctionParameters().addString("hello from hedera!").toBytes())
+                .setConstructorParameters(ContractFunctionParameters().addString("hello from hiero!").toBytes())
                 .execute(client)
                 .getReceipt(client);
   std::cout << "ContractCreateTransaction execution completed with status: " << gStatusToString.at(txReceipt.mStatus)
@@ -108,11 +108,11 @@ int main(int argc, char** argv)
   std::cout << "get_message() returned: " << contractFunctionResult.getString(0) << std::endl;
 
   // Now change the message
-  std::cout << "Calling set_message(\"hello from hedera again!\")..." << std::endl;
+  std::cout << "Calling set_message(\"hello from hiero again!\")..." << std::endl;
   txReceipt = ContractExecuteTransaction()
                 .setContractId(contractId)
                 .setGas(500000ULL)
-                .setFunction("set_message", ContractFunctionParameters().addString("hello from hedera again!"))
+                .setFunction("set_message", ContractFunctionParameters().addString("hello from hiero again!"))
                 .execute(client)
                 .getReceipt(client);
   std::cout << "ContractExecuteTransaction execution completed with status: " << gStatusToString.at(txReceipt.mStatus)

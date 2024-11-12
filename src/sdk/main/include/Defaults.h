@@ -102,7 +102,7 @@ constexpr auto DEFAULT_NETWORK_UPDATE_INITIAL_DELAY = std::chrono::seconds(10);
 /**
  * The default name of Logger types.
  */
-constexpr auto DEFAULT_LOGGER_NAME = "HEDERA_CPP_SDK_LOGGER";
+constexpr auto DEFAULT_LOGGER_NAME = "HIERO_CPP_SDK_LOGGER";
 }
 
 #endif // HIERO_SDK_CPP_DEFAULTS_H_

@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_DELETE_ACCOUNT_PARAMS_H_
-#define HEDERA_TCK_CPP_DELETE_ACCOUNT_PARAMS_H_
+#ifndef HIERO_TCK_CPP_DELETE_ACCOUNT_PARAMS_H_
+#define HIERO_TCK_CPP_DELETE_ACCOUNT_PARAMS_H_
 
 #include "common/CommonTransactionParams.h"
 #include "json/JsonUtils.h"
@@ -77,4 +77,4 @@ struct [[maybe_unused]] adl_serializer<Hiero::TCK::AccountService::DeleteAccount
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_DELETE_ACCOUNT_PARAMS_H_
+#endif // HIERO_TCK_CPP_DELETE_ACCOUNT_PARAMS_H_
