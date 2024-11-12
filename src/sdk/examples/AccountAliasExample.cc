@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 #include <dotenv.h>
 #include <iostream>
 
-using namespace Hedera;
+using namespace Hiero;
 
 int main(int argc, char** argv)
 {
@@ -40,17 +40,17 @@ int main(int argc, char** argv)
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
   const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
 
-  // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
+  // Get a client for the Hiero testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   client.setOperator(operatorAccountId, operatorPrivateKey);
 
   /*
-   * Hedera supports a form of auto account creation.
+   * Hiero supports a form of auto account creation.
    *
    * You can "create" an account by generating a private key, and then deriving the public key, without any need to
-   * interact with the Hedera network. The public key more or less acts as the user's account ID. This public key is an
-   * account's mAliasKey: a public key that aliases (or will eventually alias) to a Hedera account.
+   * interact with the Hiero network. The public key more or less acts as the user's account ID. This public key is an
+   * account's mAliasKey: a public key that aliases (or will eventually alias) to a Hiero account.
    *
    * An AccountId takes one of two forms: a normal AccountId with a null mAliasKey member takes the form 0.0.123, while
    * an AccountId with a non-null mAliasKey member takes the form
@@ -62,9 +62,9 @@ int main(int argc, char** argv)
    * transactions, however most queries and transactions involving such an AccountId won't work until Hbar has been
    * transferred to the mAliasKey account.
    *
-   * There is no record in the Hedera network of an account associated with a given mAliasKey until an amount of Hbar is
+   * There is no record in the Hiero network of an account associated with a given mAliasKey until an amount of Hbar is
    * transferred to the account. The moment that Hbar is transferred to that mAliasKey AccountId is the moment that that
-   * account actually begins to exist in the Hedera ledger.
+   * account actually begins to exist in the Hiero ledger.
    */
 
   // Generate a ED25519 private, public key pair

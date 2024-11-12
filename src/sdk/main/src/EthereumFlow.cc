@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include "TransactionResponse.h"
 #include "exceptions/IllegalStateException.h"
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TransactionResponse EthereumFlow::execute(const Client& client)
@@ -95,4 +95,4 @@ EthereumFlow& EthereumFlow::setMaxGasAllowance(const Hbar& maxGasAllowance)
   return *this;
 }
 
-} // namespace Hedera
+} // namespace Hiero

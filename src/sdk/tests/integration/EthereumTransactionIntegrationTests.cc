@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class EthereumTransactionIntegrationTests : public BaseIntegrationTest
 {
@@ -89,7 +89,7 @@ TEST_F(EthereumTransactionIntegrationTests, DISABLED_SignerNonceChangedOnEthereu
                       .setBytecodeFileId(fileId)
                       .setAdminKey(getTestClient().getOperatorPublicKey())
                       .setGas(200000ULL)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                       .setMemo(memo)
                       .execute(getTestClient())
                       .getReceipt(getTestClient())

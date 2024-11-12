@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 
 #include <stdexcept>
 
-namespace Hedera::internal::HexConverter
+namespace Hiero::internal::HexConverter
 {
 //-----
 std::string bytesToHex(const std::vector<std::byte>& bytes)
@@ -107,4 +107,4 @@ std::string base64ToHex(std::string_view base64)
   return hexString;
 }
 
-} // namespace Hedera::internal::HexConverter
+} // namespace Hiero::internal::HexConverter

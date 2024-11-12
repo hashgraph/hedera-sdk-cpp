@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TOKEN_SUPPLY_TYPE_H_
-#define HEDERA_SDK_CPP_TOKEN_SUPPLY_TYPE_H_
+#ifndef HIERO_SDK_CPP_TOKEN_SUPPLY_TYPE_H_
+#define HIERO_SDK_CPP_TOKEN_SUPPLY_TYPE_H_
 
 #include <string_view>
 #include <unordered_map>
@@ -28,7 +28,7 @@ namespace proto
 enum TokenSupplyType : int;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Possible token supply types (IWA Compatibility). Indicates how many tokens can have during its lifetime.
@@ -60,6 +60,6 @@ extern const std::unordered_map<TokenSupplyType, proto::TokenSupplyType> gTokenS
  */
 [[maybe_unused]] extern const std::unordered_map<TokenSupplyType, const char*> gTokenSupplyTypeToString;
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TOKEN_SUPPLY_TYPE_H_
+#endif // HIERO_SDK_CPP_TOKEN_SUPPLY_TYPE_H_

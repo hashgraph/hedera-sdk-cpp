@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_FEE_SCHEDULES_H_
-#define HEDERA_SDK_CPP_FEE_SCHEDULES_H_
+#ifndef HIERO_SDK_CPP_FEE_SCHEDULES_H_
+#define HIERO_SDK_CPP_FEE_SCHEDULES_H_
 
 #include "FeeSchedule.h"
 
@@ -33,7 +33,7 @@ namespace proto
 class CurrentAndNextFeeSchedule;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Two fee schedules, one being the current fee schedule and its expiration, and the other being the fee schedule to be
@@ -129,6 +129,6 @@ private:
   FeeSchedule mNextFeeSchedule;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_FEE_SCHEDULES_H_
+#endif // HIERO_SDK_CPP_FEE_SCHEDULES_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
 #include <string>
 #include <vector>
 
-namespace Hedera::TCK
+namespace Hiero::TCK
 {
 /**
  * Struct the contains the common parameters of a Transaction.
@@ -117,7 +117,7 @@ struct CommonTransactionParams
   std::optional<std::vector<std::string>> mSigners;
 };
 
-} // namespace Hedera::TCK
+} // namespace Hiero::TCK
 
 namespace nlohmann
 {
@@ -125,7 +125,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert CommonTransactionParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::CommonTransactionParams>
+struct [[maybe_unused]] adl_serializer<Hiero::TCK::CommonTransactionParams>
 {
   /**
    * Convert a JSON object to a CommonTransactionParams.
@@ -133,15 +133,15 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::CommonTransactionParams>
    * @param jsonFrom The JSON object with which to fill the CommonTransactionParams.
    * @param params   The CommonTransactionParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::CommonTransactionParams& params)
+  static void from_json(const json& jsonFrom, Hiero::TCK::CommonTransactionParams& params)
   {
-    params.mTransactionId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transactionId");
-    params.mMaxTransactionFee = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxTransactionFee");
+    params.mTransactionId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transactionId");
+    params.mMaxTransactionFee = Hiero::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxTransactionFee");
     params.mValidTransactionDuration =
-      Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "validTransactionDuration");
-    params.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
-    params.mRegenerateTransactionId = Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "regenerateTransactionId");
-    params.mSigners = Hedera::TCK::getOptionalJsonParameter<std::vector<std::string>>(jsonFrom, "signers");
+      Hiero::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "validTransactionDuration");
+    params.mMemo = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
+    params.mRegenerateTransactionId = Hiero::TCK::getOptionalJsonParameter<bool>(jsonFrom, "regenerateTransactionId");
+    params.mSigners = Hiero::TCK::getOptionalJsonParameter<std::vector<std::string>>(jsonFrom, "signers");
   }
 };
 

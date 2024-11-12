@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include <string>
 #include <unordered_map>
 
-using namespace Hedera;
+using namespace Hiero;
 
 int main(int argc, char** argv)
 {
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
   /*
    * Here are some ways you can construct and configure a client. A client has a network and an operator.
    *
-   * A Hedera network is made up of nodes -- individual servers who participate in the process of reaching consensus
+   * A Hiero network is made up of nodes -- individual servers who participate in the process of reaching consensus
    * on the order and validity of transactions on the network. Three networks you likely know of are previewnet,
    * testnet, and mainnet.
    *
@@ -72,12 +72,12 @@ int main(int argc, char** argv)
 
   // Create a Client with a custom network.
   const std::unordered_map<std::string, AccountId> network = {
-    {"2.testnet.hedera.com:50211",  AccountId(5ULL)},
-    { "3.testnet.hedera.com:50211", AccountId(6ULL)}
+    { "2.testnet.hedera.com:50211", AccountId(5ULL) },
+    { "3.testnet.hedera.com:50211", AccountId(6ULL) }
   };
   Client customClient = Client::forNetwork(network);
 
-  // Since the customClient's network is in this case a subset of the Hedera Testnet, we should set the LedgerId of the
+  // Since the customClient's network is in this case a subset of the Hiero Testnet, we should set the LedgerId of the
   // Client to testnet's LedgerId. If we don't do this, checksum validation won't work (See ValidateChecksumExample.cc).
   // You can use customClient.getLedgerId() to check the ledger ID. If you attempt to validate a checksum against a
   // client whose ledger ID is not set, an IllegalStateException will be thrown.

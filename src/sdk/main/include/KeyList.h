@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_KEYLIST_H_
-#define HEDERA_SDK_CPP_KEYLIST_H_
+#ifndef HIERO_SDK_CPP_KEYLIST_H_
+#define HIERO_SDK_CPP_KEYLIST_H_
 
 #include "Key.h"
 
@@ -33,7 +33,7 @@ class KeyList;
 class ThresholdKey;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A key list key structure where all the keys in the list are required to sign transactions that modify accounts,
@@ -189,6 +189,6 @@ private:
   uint32_t mThreshold = 0;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_KEYLIST_H_
+#endif // HIERO_SDK_CPP_KEYLIST_H_

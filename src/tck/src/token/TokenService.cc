@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace Hedera::TCK::TokenService
+namespace Hiero::TCK::TokenService
 {
 //-----
 nlohmann::json createToken(const CreateTokenParams& params)
@@ -65,7 +65,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
   if (params.mInitialSupply.has_value())
   {
     tokenCreateTransaction.setInitialSupply(
-      Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mInitialSupply.value()));
+      Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mInitialSupply.value()));
   }
 
   if (params.mTreasuryAccountId.has_value())
@@ -107,7 +107,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
   {
     tokenCreateTransaction.setExpirationTime(
       std::chrono::system_clock::from_time_t(0) +
-      std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mExpirationTime.value())));
+      std::chrono::seconds(Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mExpirationTime.value())));
   }
 
   if (params.mAutoRenewAccountId.has_value())
@@ -118,7 +118,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
   if (params.mAutoRenewPeriod.has_value())
   {
     tokenCreateTransaction.setAutoRenewPeriod(
-      std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mAutoRenewPeriod.value())));
+      std::chrono::seconds(Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mAutoRenewPeriod.value())));
   }
 
   if (params.mMemo.has_value())
@@ -151,7 +151,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mMaxSupply.has_value())
   {
-    tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum(params.mSupplyType.value()));
+    tokenCreateTransaction.setMaxSupply(Hiero::internal::EntityIdHelper::getNum(params.mSupplyType.value()));
   }
 
   if (params.mFeeScheduleKey.has_value())
@@ -187,9 +187,9 @@ nlohmann::json createToken(const CreateTokenParams& params)
   const TransactionReceipt txReceipt =
     tokenCreateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
-    {"tokenId", txReceipt.mTokenId->toString()       },
-    { "status", gStatusToString.at(txReceipt.mStatus)}
+    { "tokenId", txReceipt.mTokenId->toString()        },
+    { "status",  gStatusToString.at(txReceipt.mStatus) }
   };
 }
 
-} // namespace Hedera::TCK::TokenService
+} // namespace Hiero::TCK::TokenService

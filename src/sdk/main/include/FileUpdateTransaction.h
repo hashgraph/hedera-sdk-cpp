@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_FILE_UPDATE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_FILE_UPDATE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_FILE_UPDATE_TRANSACTION_H_
+#define HIERO_SDK_CPP_FILE_UPDATE_TRANSACTION_H_
 
 #include "FileId.h"
 #include "Key.h"
@@ -38,10 +38,10 @@ class FileUpdateTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * A transaction that updates the state of an existing file on a Hedera network. Once the transaction has been
+ * A transaction that updates the state of an existing file on a Hiero network. Once the transaction has been
  * processed, the network will be updated with the new field values of the file. If you need to access a previous state
  * of the file, you can query a mirror node.
  *
@@ -232,6 +232,6 @@ private:
   std::optional<std::string> mFileMemo;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_FILE_UPDATE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_FILE_UPDATE_TRANSACTION_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_
-#define HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_
+#ifndef HIERO_SDK_CPP_IMPL_MIRROR_NODE_H_
+#define HIERO_SDK_CPP_IMPL_MIRROR_NODE_H_
 
 #include <mirror/consensus_service.grpc.pb.h>
 #include <mirror/mirror_network_service.grpc.pb.h>
@@ -28,15 +28,15 @@
 #include <memory>
 #include <string_view>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 class BaseNodeAddress;
 }
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 /**
- * Internal utility class used to represent a mirror node on a Hedera network.
+ * Internal utility class used to represent a mirror node on a Hiero network.
  */
 class MirrorNode : public BaseNode<MirrorNode, BaseNodeAddress>
 {
@@ -111,6 +111,6 @@ private:
   std::shared_ptr<com::hedera::mirror::api::proto::NetworkService::Stub> mNetworkStub = nullptr;
 };
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal
 
-#endif // HEDERA_SDK_CPP_IMPL_MIRROR_NODE_H_
+#endif // HIERO_SDK_CPP_IMPL_MIRROR_NODE_H_

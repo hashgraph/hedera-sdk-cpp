@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,11 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace Hedera::TCK::SdkClient
+namespace Hiero::TCK::SdkClient
 {
 namespace
 {
-// The Hedera C++ SDK Client the SdkClient will use to communicate with the network.
+// The Hiero C++ SDK Client the SdkClient will use to communicate with the network.
 Client mClient;
 }
 
@@ -42,7 +42,7 @@ nlohmann::json reset(const ResetParams&)
 {
   mClient.close();
   return {
-    {"status", "SUCCESS"}
+    { "status", "SUCCESS" }
   };
 }
 
@@ -54,7 +54,7 @@ nlohmann::json setup(const SetupParams& params)
   if (params.nodeIp.has_value() && params.nodeAccountId.has_value() && params.mirrorNetworkIp.has_value())
   {
     mClient = Client::forNetwork({
-      {params.nodeIp.value(), AccountId::fromString(params.nodeAccountId.value())}
+      { params.nodeIp.value(), AccountId::fromString(params.nodeAccountId.value()) }
     });
     mClient.setMirrorNetwork({ params.mirrorNetworkIp.value() });
     clientType = "custom";
@@ -70,8 +70,8 @@ nlohmann::json setup(const SetupParams& params)
   mClient.setRequestTimeout(DEFAULT_TCK_REQUEST_TIMEOUT);
 
   return {
-    {"message", "Successfully setup " + clientType + " client."},
-    { "status", "SUCCESS"                                      }
+    { "message", "Successfully setup " + clientType + " client." },
+    { "status",  "SUCCESS"                                       }
   };
 }
 
@@ -81,4 +81,4 @@ const Client& getClient()
   return mClient;
 }
 
-} // namespace Hedera::TCK::SdkClient
+} // namespace Hiero::TCK::SdkClient

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include <thread>
 #include <utility>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 //-----
 template<typename NodeType, typename KeyType>
@@ -190,4 +190,4 @@ void BaseNode<NodeType, KeyType>::closeChannel()
 template class BaseNode<Node, AccountId>;
 template class BaseNode<MirrorNode, BaseNodeAddress>;
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal

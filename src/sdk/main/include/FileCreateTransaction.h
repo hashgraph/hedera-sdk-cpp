@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_FILE_CREATE_TRANSACTION_H_
+#define HIERO_SDK_CPP_FILE_CREATE_TRANSACTION_H_
 
 #include "Defaults.h"
 #include "Key.h"
@@ -38,11 +38,11 @@ class FileCreateTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * A transaction that creates a new file on a Hedera network. The file is referenced by its file ID which can be
- * obtained from the receipt or record once the transaction reaches consensus on a Hedera network. The file does not
+ * A transaction that creates a new file on a Hiero network. The file is referenced by its file ID which can be
+ * obtained from the receipt or record once the transaction reaches consensus on a Hiero network. The file does not
  * have a file name. If the file is too big to create with a single FileCreateTransaction(), the file can be appended
  * with the remaining content multiple times using the FileAppendTransaction().
  *
@@ -213,6 +213,6 @@ private:
   std::string mFileMemo;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_FILE_CREATE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_FILE_CREATE_TRANSACTION_H_

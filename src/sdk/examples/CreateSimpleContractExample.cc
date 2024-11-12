@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
-using namespace Hedera;
+using namespace Hiero;
 
 int main(int argc, char** argv)
 {
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
   const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
   const std::shared_ptr<PublicKey> operatorPublicKey = operatorPrivateKey->getPublicKey();
 
-  // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
+  // Get a client for the Hiero testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   client.setOperator(operatorAccountId, operatorPrivateKey);

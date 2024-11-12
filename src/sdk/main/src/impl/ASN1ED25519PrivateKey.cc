@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include "impl/ASN1ED25519PrivateKey.h"
 #include "impl/HexConverter.h"
 
-namespace Hedera::internal::asn1
+namespace Hiero::internal::asn1
 {
 ASN1ED25519PrivateKey::ASN1ED25519PrivateKey(const std::vector<std::byte>& bytes)
 {
@@ -52,4 +52,4 @@ std::vector<std::byte> ASN1ED25519PrivateKey::getKey() const
   return privateKey;
 }
 
-} // namespace Hedera::internal:asn1
+} // namespace Hiero::internal:asn1

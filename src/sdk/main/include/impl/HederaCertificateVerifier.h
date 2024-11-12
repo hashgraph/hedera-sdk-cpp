@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
-#define HEDERA_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
+#ifndef HIERO_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
+#define HIERO_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
 
 #include <grpcpp/security/credentials.h>
 #include <string>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 /**
  * Custom TLS verifier which checks if node TLS cert chain matches the expected hash
@@ -70,6 +70,6 @@ private:
   }
 };
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal
 
-#endif // HEDERA_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_
+#endif // HIERO_SDK_CPP_IMPL_HEDERA_CERTIFICATE_VERIFIER_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #include "impl/MirrorNode.h"
 #include "impl/BaseNodeAddress.h"
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 //-----
 MirrorNode::MirrorNode(const BaseNodeAddress& address)
@@ -55,4 +55,4 @@ void MirrorNode::closeStubs()
   mNetworkStub = nullptr;
 }
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal

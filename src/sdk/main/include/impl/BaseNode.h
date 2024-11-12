@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_BASE_NODE_H_
-#define HEDERA_SDK_CPP_IMPL_BASE_NODE_H_
+#ifndef HIERO_SDK_CPP_IMPL_BASE_NODE_H_
+#define HIERO_SDK_CPP_IMPL_BASE_NODE_H_
 
 #include <basic_types.pb.h> // This is needed for Windows to build for some reason.
 
@@ -30,7 +30,7 @@
 #include <grpcpp/security/credentials.h>
 #include <mutex>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 template<typename NodeType, typename KeyType>
 class BaseNode
@@ -272,6 +272,6 @@ private:
   std::shared_ptr<std::mutex> mMutex = std::make_shared<std::mutex>();
 };
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal
 
-#endif // HEDERA_SDK_CPP_IMPL_BASE_NODE_H_
+#endif // HIERO_SDK_CPP_IMPL_BASE_NODE_H_

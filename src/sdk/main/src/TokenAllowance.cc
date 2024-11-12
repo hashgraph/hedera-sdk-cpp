@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 
 #include <crypto_approve_allowance.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TokenAllowance::TokenAllowance(const TokenId& tokenId, AccountId owner, AccountId spender, uint64_t amount)
@@ -88,4 +88,4 @@ std::vector<std::byte> TokenAllowance::toBytes() const
   return internal::Utilities::stringToByteVector(toProtobuf()->SerializeAsString());
 }
 
-} // namespace Hedera
+} // namespace Hiero

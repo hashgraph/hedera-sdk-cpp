@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #include <openssl/sha.h>
 #include <stdexcept>
 
-namespace Hedera::internal::OpenSSLUtils
+namespace Hiero::internal::OpenSSLUtils
 {
 //-----
 std::vector<std::byte> computeSHA256(const std::vector<std::byte>& data)
@@ -165,4 +165,4 @@ std::vector<std::byte> getRandomBytes(int count)
   return randomBytes;
 }
 
-} // namespace Hedera::internal::OpenSSLUtils
+} // namespace Hiero::internal::OpenSSLUtils

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_FEE_SCHEDULE_H_
-#define HEDERA_SDK_CPP_FEE_SCHEDULE_H_
+#ifndef HIERO_SDK_CPP_FEE_SCHEDULE_H_
+#define HIERO_SDK_CPP_FEE_SCHEDULE_H_
 
 #include "TransactionFeeSchedule.h"
 
@@ -33,7 +33,7 @@ namespace proto
 class FeeSchedule;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A list of resource prices fee for different transactions and queries and the time period at which this fee schedule
@@ -133,6 +133,6 @@ private:
   std::chrono::system_clock::time_point mExpirationTime = std::chrono::system_clock::now();
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_FEE_SCHEDULE_H_
+#endif // HIERO_SDK_CPP_FEE_SCHEDULE_H_

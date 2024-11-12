@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <cstddef>
 #include <nlohmann/json.hpp>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 KeyList KeyList::fromProtobuf(const proto::KeyList& proto)
@@ -186,4 +186,4 @@ void KeyList::clear()
   mKeys.clear();
 }
 
-} // namespace Hedera
+} // namespace Hiero

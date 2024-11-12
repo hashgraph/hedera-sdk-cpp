@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_NETWORK_VERSION_INFO_H_
-#define HEDERA_SDK_CPP_NETWORK_VERSION_INFO_H_
+#ifndef HIERO_SDK_CPP_NETWORK_VERSION_INFO_H_
+#define HIERO_SDK_CPP_NETWORK_VERSION_INFO_H_
 
 #include "SemanticVersion.h"
 
@@ -33,7 +33,7 @@ namespace proto
 class NetworkGetVersionInfoResponse;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Contains information about the network's version.
@@ -44,10 +44,10 @@ public:
   NetworkVersionInfo() = default;
 
   /**
-   * Construct from a protobuf schema SemanticVersion and a Hedera services SemanticVersion.
+   * Construct from a protobuf schema SemanticVersion and a Hiero services SemanticVersion.
    *
    * @param hapi   The SemanticVersion of the protobuf schema.
-   * @param hedera The SemanticVersion of the Hedera services.
+   * @param hedera The SemanticVersion of the Hiero services.
    */
   NetworkVersionInfo(const SemanticVersion& hapi, const SemanticVersion& hedera);
 
@@ -103,11 +103,11 @@ public:
   SemanticVersion mProtobufVersion;
 
   /**
-   * The version of the Hedera services in use by the network.
+   * The version of the Hiero services in use by the network.
    */
   SemanticVersion mServicesVersion;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_NETWORK_VERSION_INFO_H_
+#endif // HIERO_SDK_CPP_NETWORK_VERSION_INFO_H_

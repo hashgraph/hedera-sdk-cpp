@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
+#define HIERO_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
 
 #include "TokenNftAllowance.h"
 #include "Transaction.h"
@@ -31,13 +31,13 @@ class CryptoDeleteAllowanceTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 class AccountId;
 class NftId;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A transaction called by the token owner to delete allowances for NFTs only. In order to delete an existing Hbar or
@@ -141,6 +141,6 @@ private:
   std::vector<TokenNftAllowance> mNftAllowanceDeletions;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_ACCOUNT_ALLOWANCE_DELETE_TRANSACTION_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -41,17 +41,17 @@
 #include <stdexcept>
 #include <thread>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 struct Client::ClientImpl
 {
-  // Pointer to the network object that contains all processing for sending/receiving information to/from a Hedera
+  // Pointer to the network object that contains all processing for sending/receiving information to/from a Hiero
   // network.
   std::shared_ptr<internal::Network> mNetwork = nullptr;
 
   // Pointer to the MirrorNetwork object that contains the mirror nodes for sending/receiving information to/from a
-  // Hedera mirror node.
+  // Hiero mirror node.
   std::shared_ptr<internal::MirrorNetwork> mMirrorNetwork = nullptr;
 
   // The Logger used by this Client.
@@ -1161,4 +1161,4 @@ void Client::moveClient(Client&& other)
   }
 }
 
-} // namespace Hedera
+} // namespace Hiero

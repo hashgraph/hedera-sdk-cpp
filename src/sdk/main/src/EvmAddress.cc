@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 EvmAddress EvmAddress::fromString(std::string_view address)
@@ -90,4 +90,4 @@ void EvmAddress::checkEvmAddress() const
   }
 }
 
-} // namespace Hedera
+} // namespace Hiero

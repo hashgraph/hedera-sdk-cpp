@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <custom_fees.pb.h>
 #include <nlohmann/json.hpp>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 CustomRoyaltyFee CustomRoyaltyFee::fromProtobuf(const proto::RoyaltyFee& proto)
@@ -102,4 +102,4 @@ CustomRoyaltyFee& CustomRoyaltyFee::setFallbackFee(const CustomFixedFee& fee)
   return *this;
 }
 
-} // namespace Hedera
+} // namespace Hiero

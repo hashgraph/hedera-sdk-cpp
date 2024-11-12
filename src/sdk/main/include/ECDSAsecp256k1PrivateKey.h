@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_
-#define HEDERA_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_
+#ifndef HIERO_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_
+#define HIERO_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_
 
 #include "PrivateKey.h"
 
@@ -27,12 +27,12 @@
 #include <string_view>
 #include <vector>
 
-namespace Hedera::internal::OpenSSLUtils
+namespace Hiero::internal::OpenSSLUtils
 {
 class EVP_PKEY;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A class representing an ECDSA secp256k1 private key.
@@ -208,6 +208,6 @@ private:
                                     std::vector<std::byte> chainCode = std::vector<std::byte>());
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_
+#endif // HIERO_SDK_CPP_ECDSA_SECP256K1_PRIVATE_KEY_H_

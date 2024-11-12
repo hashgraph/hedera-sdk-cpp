@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 
 #include <nlohmann/json_fwd.hpp>
 
-namespace Hedera::TCK::AccountService
+namespace Hiero::TCK::AccountService
 {
 /**
  * Forward declarations.
@@ -55,6 +55,6 @@ nlohmann::json deleteAccount(const DeleteAccountParams& params);
  */
 nlohmann::json updateAccount(const UpdateAccountParams& params);
 
-} // namespace Hedera::TCK::AccountService
+} // namespace Hiero::TCK::AccountService
 
 #endif // HEDERA_TCK_CPP_ACCOUNT_SERVICE_H_

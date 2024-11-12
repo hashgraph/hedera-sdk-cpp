@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_HTTP_CLIENT_H_
-#define HEDERA_SDK_CPP_IMPL_HTTP_CLIENT_H_
+#ifndef HIERO_SDK_CPP_IMPL_HTTP_CLIENT_H_
+#define HIERO_SDK_CPP_IMPL_HTTP_CLIENT_H_
 
 #include <httplib.h>
 #include <string>
 #include <string_view>
 
-namespace Hedera::internal::HttpClient
+namespace Hiero::internal::HttpClient
 {
 /**
  * Fetches data from the specified URL using the provided RPC method.
@@ -46,6 +46,6 @@ namespace Hedera::internal::HttpClient
                                      std::string_view httpMethod = "GET",
                                      std::string_view requestBody = "");
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal
 
-#endif // HEDERA_SDK_CPP_IMPL_HTTP_CLIENT_H_
+#endif // HIERO_SDK_CPP_IMPL_HTTP_CLIENT_H_

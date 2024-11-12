@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-namespace Hedera::TCK::TokenService
+namespace Hiero::TCK::TokenService
 {
 /**
  * Struct to hold the arguments for a `createToken` JSON-RPC method call.
@@ -174,7 +174,7 @@ struct CreateTokenParams
   std::optional<CommonTransactionParams> mCommonTxParams;
 };
 
-} // namespace Hedera::TCK::TokenService
+} // namespace Hiero::TCK::TokenService
 
 namespace nlohmann
 {
@@ -182,7 +182,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert CreateTokenParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::TokenService::CreateTokenParams>
+struct [[maybe_unused]] adl_serializer<Hiero::TCK::TokenService::CreateTokenParams>
 {
   /**
    * Convert a JSON object to a CreateTokenParams.
@@ -190,34 +190,34 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::TokenService::CreateTokenPar
    * @param jsonFrom The JSON object with which to fill the CreateTokenParams.
    * @param params   The CreateTokenParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::TokenService::CreateTokenParams& params)
+  static void from_json(const json& jsonFrom, Hiero::TCK::TokenService::CreateTokenParams& params)
   {
-    params.mName = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "name");
-    params.mSymbol = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "symbol");
-    params.mDecimals = Hedera::TCK::getOptionalJsonParameter<uint32_t>(jsonFrom, "decimals");
-    params.mInitialSupply = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "initialSupply");
-    params.mTreasuryAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "treasuryAccountId");
-    params.mAdminKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "adminKey");
-    params.mKycKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "kycKey");
-    params.mFreezeKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "freezeKey");
-    params.mWipeKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "wipeKey");
-    params.mSupplyKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "supplyKey");
-    params.mFreezeDefault = Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "freezeDefault");
-    params.mExpirationTime = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "expirationTime");
-    params.mAutoRenewAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "autoRenewAccountId");
-    params.mAutoRenewPeriod = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "autoRenewPeriod");
-    params.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
-    params.mTokenType = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "tokenType");
-    params.mSupplyType = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "supplyType");
-    params.mMaxSupply = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "maxSupply");
-    params.mFeeScheduleKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "feeScheduleKey");
+    params.mName = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "name");
+    params.mSymbol = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "symbol");
+    params.mDecimals = Hiero::TCK::getOptionalJsonParameter<uint32_t>(jsonFrom, "decimals");
+    params.mInitialSupply = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "initialSupply");
+    params.mTreasuryAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "treasuryAccountId");
+    params.mAdminKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "adminKey");
+    params.mKycKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "kycKey");
+    params.mFreezeKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "freezeKey");
+    params.mWipeKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "wipeKey");
+    params.mSupplyKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "supplyKey");
+    params.mFreezeDefault = Hiero::TCK::getOptionalJsonParameter<bool>(jsonFrom, "freezeDefault");
+    params.mExpirationTime = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "expirationTime");
+    params.mAutoRenewAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "autoRenewAccountId");
+    params.mAutoRenewPeriod = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "autoRenewPeriod");
+    params.mMemo = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
+    params.mTokenType = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "tokenType");
+    params.mSupplyType = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "supplyType");
+    params.mMaxSupply = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "maxSupply");
+    params.mFeeScheduleKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "feeScheduleKey");
     params.mCustomFees =
-      Hedera::TCK::getOptionalJsonParameter<std::vector<std::shared_ptr<Hedera::CustomFee>>>(jsonFrom, "customFees");
-    params.mPauseKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "pauseKey");
-    params.mMetadata = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "metadata");
-    params.mMetadataKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "metadataKey");
+      Hiero::TCK::getOptionalJsonParameter<std::vector<std::shared_ptr<Hiero::CustomFee>>>(jsonFrom, "customFees");
+    params.mPauseKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "pauseKey");
+    params.mMetadata = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "metadata");
+    params.mMetadataKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "metadataKey");
     params.mCommonTxParams =
-      Hedera::TCK::getOptionalJsonParameter<Hedera::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
+      Hiero::TCK::getOptionalJsonParameter<Hiero::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
   }
 };
 

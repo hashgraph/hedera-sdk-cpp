@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include <transaction_body.pb.h>
 #include <vector>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class TokenMintTransactionUnitTests : public ::testing::Test
 {
@@ -45,9 +45,9 @@ private:
   const TokenId mTestTokenId = TokenId(1ULL, 2ULL, 3ULL);
   const uint64_t mTestAmount = 4ULL;
   const std::vector<std::vector<std::byte>> mTestMetadataList = {
-    {std::byte(0x05),  std::byte(0x06), std::byte(0x07)},
-    { std::byte(0x08), std::byte(0x09), std::byte(0x0A)},
-    { std::byte(0x0B), std::byte(0x0C), std::byte(0x0D)}
+    { std::byte(0x05), std::byte(0x06), std::byte(0x07) },
+    { std::byte(0x08), std::byte(0x09), std::byte(0x0A) },
+    { std::byte(0x0B), std::byte(0x0C), std::byte(0x0D) }
   };
 };
 

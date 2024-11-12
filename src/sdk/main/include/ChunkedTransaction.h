@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_CHUNKED_TRANSACTION_H_
-#define HEDERA_SDK_CPP_CHUNKED_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_CHUNKED_TRANSACTION_H_
+#define HIERO_SDK_CPP_CHUNKED_TRANSACTION_H_
 
 #include "Defaults.h"
 #include "Transaction.h"
@@ -34,13 +34,13 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 class Client;
 class TransactionResponse;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Base class for all transactions that require being divided into chunks.
@@ -56,7 +56,7 @@ public:
    * (i.e. data.size() > mMaxChunkSize); opt to use `executeAll()` instead.
    *
    * @param client The Client to use to submit this ChunkedTransaction.
-   * @return The TransactionResponse object sent from the Hedera network that contains the result of the first chunked
+   * @return The TransactionResponse object sent from the Hiero network that contains the result of the first chunked
    *         request.
    * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
@@ -70,7 +70,7 @@ public:
    *
    * @param client The Client to use to submit this ChunkedTransaction.
    * @param timeout The desired timeout for the execution of this ChunkedTransaction.
-   * @return The TransactionResponse object sent from the Hedera network that contains the result of the first chunked
+   * @return The TransactionResponse object sent from the Hiero network that contains the result of the first chunked
    *         request.
    * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
@@ -83,7 +83,7 @@ public:
    *
    * @param client  The Client to use to submit this ChunkedTransaction.
    * @param timeout The desired timeout for the execution of this ChunkedTransaction.
-   * @return The future TransactionResponse object sent from the Hedera network that contains the result of the request.
+   * @return The future TransactionResponse object sent from the Hiero network that contains the result of the request.
    * @throws MaxAttemptsExceededException If this ChunkedTransaction attempts to execute past the number of allowable
    *                                      attempts.
    * @throws PrecheckStatusException      If this ChunkedTransaction fails its pre-check.
@@ -96,7 +96,7 @@ public:
    * Execute all chunks of this ChunkedTransaction.
    *
    * @param client The Client to use to submit this ChunkedTransaction.
-   * @return The list of TransactionResponse objects sent from the Hedera network that contains the result of the
+   * @return The list of TransactionResponse objects sent from the Hiero network that contains the result of the
    *         requests.
    * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
@@ -109,7 +109,7 @@ public:
    *
    * @param client The Client to use to submit this ChunkedTransaction.
    * @param timeout The desired timeout for the execution of this ChunkedTransaction.
-   * @return The list of TransactionResponse objects sent from the Hedera network that contains the result of the
+   * @return The list of TransactionResponse objects sent from the Hiero network that contains the result of the
    *         requests.
    * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
@@ -121,7 +121,7 @@ public:
    * Execute all chunks of this ChunkedTransaction asynchronously.
    *
    * @param client The Client to use to submit this ChunkedTransaction.
-   * @return The future list of TransactionResponse objects sent from the Hedera network that contains the result of the
+   * @return The future list of TransactionResponse objects sent from the Hiero network that contains the result of the
    *         requests.
    * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
@@ -134,7 +134,7 @@ public:
    *
    * @param client  The Client to use to submit this ChunkedTransaction.
    * @param timeout The desired timeout for the execution of this ChunkedTransaction.
-   * @return The future list of TransactionResponse objects sent from the Hedera network that contains the result of the
+   * @return The future list of TransactionResponse objects sent from the Hiero network that contains the result of the
    *         requests.
    * @throws MaxAttemptsExceededException If this Executable attempts to execute past the number of allowable attempts.
    * @throws PrecheckStatusException      If this Executable fails its pre-check.
@@ -402,6 +402,6 @@ private:
   std::unique_ptr<ChunkedTransactionImpl> mImpl;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_CHUNKED_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_CHUNKED_TRANSACTION_H_

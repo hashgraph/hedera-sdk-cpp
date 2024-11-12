@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_
-#define HEDERA_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_
+#ifndef HIERO_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_
+#define HIERO_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_
 
 #include "AccountId.h"
 #include "ContractId.h"
@@ -26,15 +26,15 @@
 
 #include <optional>
 
-namespace Hedera
+namespace Hiero
 {
 class AccountBalance;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Get the balance of a Hedera crypto-currency account. This returns only the balance, so it is a smaller and faster
+ * Get the balance of a Hiero crypto-currency account. This returns only the balance, so it is a smaller and faster
  * reply than an AccountInfoQuery.
  *
  * This query is free.
@@ -143,6 +143,6 @@ private:
   std::optional<ContractId> mContractId;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_
+#endif // HIERO_SDK_CPP_ACCOUNT_BALANCE_QUERY_H_

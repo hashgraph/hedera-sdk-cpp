@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@
 #include <chrono>
 #include <gtest/gtest.h>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class ContractCreateTransactionIntegrationTests : public BaseIntegrationTest
 {
@@ -69,7 +69,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, ExecuteContractCreateTransacti
                       .setAdminKey(operatorKey->getPublicKey())
                       .setGas(1000000ULL)
                       .setAutoRenewPeriod(autoRenewPeriod)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                       .setMemo(memo)
                       .setAutoRenewAccountId(AccountId(2ULL))
                       .setStakedAccountId(AccountId(2ULL))
@@ -122,7 +122,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, CreateContractWithNoAdminKey)
                       .setBytecodeFileId(fileId)
                       .setGas(1000000ULL)
                       .setAutoRenewPeriod(autoRenewPeriod)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                       .setMemo(memo)
                       .setAutoRenewAccountId(AccountId(2ULL))
                       .setStakedAccountId(AccountId(2ULL))
@@ -164,7 +164,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, CannotCreateContractWithNoGas)
   EXPECT_THROW(const TransactionReceipt txReceipt =
                  ContractCreateTransaction()
                    .setAdminKey(operatorKey->getPublicKey())
-                   .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                   .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                    .setBytecodeFileId(fileId)
                    .setMemo("[e2e::ContractCreateTransaction]")
                    .execute(getTestClient())
@@ -212,7 +212,7 @@ TEST_F(ContractCreateTransactionIntegrationTests, CannotCreateContractWithByteco
   EXPECT_THROW(const TransactionReceipt txReceipt =
                  ContractCreateTransaction()
                    .setGas(1000000ULL)
-                   .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                   .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                    .setMemo("[e2e::ContractCreateTransaction]")
                    .execute(getTestClient())
                    .getReceipt(getTestClient()),

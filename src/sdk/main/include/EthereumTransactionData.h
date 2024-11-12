@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_DATA_H_
-#define HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_DATA_H_
+#ifndef HIERO_SDK_CPP_ETHEREUM_TRANSACTION_DATA_H_
+#define HIERO_SDK_CPP_ETHEREUM_TRANSACTION_DATA_H_
 
 #include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Wrapper class for Ethereum data.
@@ -71,6 +71,6 @@ public:
   std::vector<std::byte> mCallData;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_DATA_H_
+#endif // HIERO_SDK_CPP_ETHEREUM_TRANSACTION_DATA_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_FEE_ASSESSMENT_METHOD_H_
-#define HEDERA_SDK_CPP_FEE_ASSESSMENT_METHOD_H_
+#ifndef HIERO_SDK_CPP_FEE_ASSESSMENT_METHOD_H_
+#define HIERO_SDK_CPP_FEE_ASSESSMENT_METHOD_H_
 
 #include <string>
 #include <unordered_map>
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * An enumeration the describes how a fee should be assessed.
@@ -48,18 +48,18 @@ enum class FeeAssessmentMethod
  * Map of FeeAssessmentMethod to its corresponding string.
  */
 const std::unordered_map<FeeAssessmentMethod, std::string> gFeeAssessmentMethodToString = {
-  {FeeAssessmentMethod::INCLUSIVE,  "INCLUSIVE"},
-  { FeeAssessmentMethod::EXCLUSIVE, "EXCLUSIVE"}
+  { FeeAssessmentMethod::INCLUSIVE, "INCLUSIVE" },
+  { FeeAssessmentMethod::EXCLUSIVE, "EXCLUSIVE" }
 };
 
 /**
  * Map of FeeAssessmentMethod string representation to its corresponding enum value.
  */
 [[maybe_unused]] const std::unordered_map<std::string, FeeAssessmentMethod> gStringToFeeAssessmentMethod = {
-  {"INCLUSIVE",  FeeAssessmentMethod::INCLUSIVE},
-  { "EXCLUSIVE", FeeAssessmentMethod::EXCLUSIVE}
+  { "INCLUSIVE", FeeAssessmentMethod::INCLUSIVE },
+  { "EXCLUSIVE", FeeAssessmentMethod::EXCLUSIVE }
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_FEE_ASSESSMENT_METHOD_H_
+#endif // HIERO_SDK_CPP_FEE_ASSESSMENT_METHOD_H_

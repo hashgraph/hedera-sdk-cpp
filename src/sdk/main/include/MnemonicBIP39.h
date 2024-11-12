@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
-#define HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
+#ifndef HIERO_SDK_CPP_MNEMONIC_BIP39_H_
+#define HIERO_SDK_CPP_MNEMONIC_BIP39_H_
 
 #include "Mnemonic.h"
 #include "PrivateKey.h"
@@ -30,7 +30,7 @@
 #include <string_view>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A standard BIP39 mnemonic.
@@ -146,6 +146,6 @@ private:
   [[nodiscard]] const std::set<unsigned long>& getAcceptableWordCounts() const override;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_MNEMONIC_BIP39_H_
+#endif // HIERO_SDK_CPP_MNEMONIC_BIP39_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ACCOUNT_ID_H_
-#define HEDERA_SDK_CPP_ACCOUNT_ID_H_
+#ifndef HIERO_SDK_CPP_ACCOUNT_ID_H_
+#define HIERO_SDK_CPP_ACCOUNT_ID_H_
 
 #include "EvmAddress.h"
 #include "PublicKey.h"
@@ -35,12 +35,12 @@ namespace proto
 class AccountID;
 }
 
-namespace Hedera
+namespace Hiero
 {
 class Client;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * The ID for a crypto-currency account on Hedera.
@@ -281,26 +281,26 @@ private:
   mutable std::string mChecksum;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
 namespace std
 {
 template<>
-struct hash<Hedera::AccountId>
+struct hash<Hiero::AccountId>
 {
   /**
    * Operator override to enable use of AccountId as map key.
    */
-  size_t operator()(const Hedera::AccountId& id) const { return hash<string>()(id.toString()); }
+  size_t operator()(const Hiero::AccountId& id) const { return hash<string>()(id.toString()); }
 };
 
 template<>
-struct less<Hedera::AccountId>
+struct less<Hiero::AccountId>
 {
   /**
    * Operator override to enable use of AccountId in a std::map, which requires fair ordering.
    */
-  bool operator()(const Hedera::AccountId& lhs, const Hedera::AccountId& rhs) const
+  bool operator()(const Hiero::AccountId& lhs, const Hiero::AccountId& rhs) const
   {
     return lhs.toString() < rhs.toString();
   }
@@ -308,4 +308,4 @@ struct less<Hedera::AccountId>
 
 } // namespace std
 
-#endif // HEDERA_SDK_CPP_ACCOUNT_ID_H_
+#endif // HIERO_SDK_CPP_ACCOUNT_ID_H_

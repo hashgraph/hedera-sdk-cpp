@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_DEFAULTS_H_
-#define HEDERA_SDK_CPP_DEFAULTS_H_
+#ifndef HIERO_SDK_CPP_DEFAULTS_H_
+#define HIERO_SDK_CPP_DEFAULTS_H_
 
 #include "Hbar.h"
 
 #include <chrono>
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * The default duration of time to try and submit a request.
@@ -105,4 +105,4 @@ constexpr auto DEFAULT_NETWORK_UPDATE_INITIAL_DELAY = std::chrono::seconds(10);
 constexpr auto DEFAULT_LOGGER_NAME = "HEDERA_CPP_SDK_LOGGER";
 }
 
-#endif // HEDERA_SDK_CPP_DEFAULTS_H_
+#endif // HIERO_SDK_CPP_DEFAULTS_H_

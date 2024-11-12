@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_PENDING_AIRDROP_ID_H_
-#define HEDERA_SDK_CPP_PENDING_AIRDROP_ID_H_
+#ifndef HIERO_SDK_CPP_PENDING_AIRDROP_ID_H_
+#define HIERO_SDK_CPP_PENDING_AIRDROP_ID_H_
 
 #include "AccountId.h"
 #include "NftId.h"
@@ -37,12 +37,12 @@ class PendingAirdropId;
 class TokenReference;
 }
 
-namespace Hedera
+namespace Hiero
 {
 class Client;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A unique, composite, identifier for a pending airdrop.
@@ -137,4 +137,4 @@ public:
 
 }
 
-#endif // HEDERA_SDK_CPP_PENDING_AIRDROP_ID_H_
+#endif // HIERO_SDK_CPP_PENDING_AIRDROP_ID_H_

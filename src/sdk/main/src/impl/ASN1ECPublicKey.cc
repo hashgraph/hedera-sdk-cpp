@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 
 #include <algorithm>
 
-namespace Hedera::internal::asn1
+namespace Hiero::internal::asn1
 {
 ASN1ECPublicKey::ASN1ECPublicKey(const std::vector<std::byte>& bytes)
 {
@@ -63,7 +63,7 @@ void ASN1ECPublicKey::populateXYcoords()
     BN_hex2bn(&yCoordBN, internal::HexConverter::bytesToHex(ecYcoord).c_str());
     // if y even pad 0x02 byte else 0x03
     ecXcoord = internal::Utilities::concatenateVectors({
-  // get x coordinate
+      // get x coordinate
       { std::byte(0x00) },
       { !BN_is_bit_set(yCoordBN, 0) ? std::byte(0x02) : std::byte(0x03) },
       { publicKey.begin() + 2, publicKey.end() - EC_KEY_LENGTH }
@@ -78,4 +78,4 @@ void ASN1ECPublicKey::populateXYcoords()
   }
 }
 
-} // namespace Hedera::internal:asn1
+} // namespace Hiero::internal:asn1

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@
 #include <string_view>
 #include <vector>
 
-using namespace Hedera;
-using namespace Hedera::internal::Utilities;
+using namespace Hiero;
+using namespace Hiero::internal::Utilities;
 
 class ED25519PublicKeyUnitTests : public ::testing::Test
 {
@@ -63,7 +63,7 @@ private:
   const std::string_view openSSLCompatibleDERPublicKey =
     "302A300506032B65700321008CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D";
   const std::unordered_map<std::string_view, std::string_view> expectedPublicKeyPairs{
-    {openSSLCompatibleDERPublicKey, "8CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D"},
+    { openSSLCompatibleDERPublicKey, "8CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D" },
   };
 };
 
@@ -142,7 +142,7 @@ TEST_F(ED25519PublicKeyUnitTests, FromBytes)
   EXPECT_THROW(
     const std::shared_ptr<ED25519PublicKey> key = ED25519PublicKey::fromBytes(concatenateVectors({
       ED25519PublicKey::DER_ENCODED_PREFIX_BYTES,
-      {std::byte(0x76), std::byte(0x47), std::byte(0x85), std::byte(0x47), std::byte(0x15), std::byte(0xD4)}
+      { std::byte(0x76), std::byte(0x47), std::byte(0x85), std::byte(0x47), std::byte(0x15), std::byte(0xD4) }
   })),
     BadKeyException);
   EXPECT_THROW(const std::shared_ptr<ED25519PublicKey> key =

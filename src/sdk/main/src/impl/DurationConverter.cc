@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 
 #include <duration.pb.h>
 
-namespace Hedera::internal::DurationConverter
+namespace Hiero::internal::DurationConverter
 {
 //----
 std::chrono::seconds fromProtobuf(const proto::Duration& duration)
@@ -37,4 +37,4 @@ proto::Duration* toProtobuf(const std::chrono::system_clock::duration& duration)
   return proto.release();
 }
 
-} // namespace Hedera::internal::DurationConverter
+} // namespace Hiero::internal::DurationConverter

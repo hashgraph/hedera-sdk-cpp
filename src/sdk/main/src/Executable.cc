@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@
 #include <transaction.pb.h>
 #include <transaction_response.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 template<typename SdkRequestType, typename ProtoRequestType, typename ProtoResponseType, typename SdkResponseType>
@@ -703,4 +703,4 @@ template class Executable<TransactionReceiptQuery, proto::Query, proto::Response
 template class Executable<TransactionRecordQuery, proto::Query, proto::Response, TransactionRecord>;
 template class Executable<TransferTransaction, proto::Transaction, proto::TransactionResponse, TransactionResponse>;
 
-} // namespace Hedera
+} // namespace Hiero

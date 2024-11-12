@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_CUSTOM_ROYALTY_FEE_H_
-#define HEDERA_SDK_CPP_CUSTOM_ROYALTY_FEE_H_
+#ifndef HIERO_SDK_CPP_CUSTOM_ROYALTY_FEE_H_
+#define HIERO_SDK_CPP_CUSTOM_ROYALTY_FEE_H_
 
 #include "CustomFeeBase.h"
 #include "CustomFixedFee.h"
@@ -30,7 +30,7 @@ namespace proto
 class RoyaltyFee;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A fee to assess during a CryptoTransfer that changes ownership of an NFT. Defines the fraction of the fungible value
@@ -145,6 +145,6 @@ private:
   std::optional<CustomFixedFee> mFallbackFee;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_CUSTOM_ROYALTY_FEE_H_
+#endif // HIERO_SDK_CPP_CUSTOM_ROYALTY_FEE_H_

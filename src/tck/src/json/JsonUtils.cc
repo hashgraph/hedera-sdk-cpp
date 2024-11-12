@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <nlohmann/json.hpp>
 #include <string_view>
 
-namespace Hedera::TCK
+namespace Hiero::TCK
 {
 //-----
 bool hasKeyType(const nlohmann::json& request, std::string_view key, nlohmann::json::value_t type)
@@ -36,4 +36,4 @@ bool hasValidId(const nlohmann::json& request)
   return request.contains("id") && (request["id"].is_number() || request["id"].is_string() || request["id"].is_null());
 }
 
-} // namespace Hedera::TCK
+} // namespace Hiero::TCK

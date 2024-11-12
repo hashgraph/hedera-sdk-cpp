@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_DATA_EIP1559_H_
-#define HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_DATA_EIP1559_H_
+#ifndef HIERO_SDK_CPP_ETHEREUM_TRANSACTION_DATA_EIP1559_H_
+#define HIERO_SDK_CPP_ETHEREUM_TRANSACTION_DATA_EIP1559_H_
 
 #include "EthereumTransactionData.h"
 
@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Wrapper class for EIP1559 Ethereum data.
@@ -100,12 +100,12 @@ public:
 
   /**
    * An 'optional' additional fee in Ethereum that is paid directly to miners in order to incentivize them to include
-   * your transaction in a block. Not used in Hedera
+   * your transaction in a block. Not used in Hiero
    */
   std::vector<std::byte> mMaxPriorityGas;
 
   /**
-   * The maximum amount, in tinybars, that the payer of the Hedera transaction is willing to pay to complete the
+   * The maximum amount, in tinybars, that the payer of the Hiero transaction is willing to pay to complete the
    * transaction.
    */
   std::vector<std::byte> mMaxGas;
@@ -146,6 +146,6 @@ public:
   std::vector<std::byte> mS;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_ETHEREUM_TRANSACTION_DATA_EIP1559_H_
+#endif // HIERO_SDK_CPP_ETHEREUM_TRANSACTION_DATA_EIP1559_H_

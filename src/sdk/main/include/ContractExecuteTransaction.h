@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_
+#define HIERO_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_
 
 #include "ContractFunctionParameters.h"
 #include "ContractId.h"
@@ -35,7 +35,7 @@ class ContractCallTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * The transaction calls a function of the given smart contract instance, giving it functionParameters as its input. The
@@ -213,6 +213,6 @@ private:
   std::vector<std::byte> mFunctionParameters;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_CONTRACT_EXECUTE_TRANSACTION_H_

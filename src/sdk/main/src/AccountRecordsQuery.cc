@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include <query_header.pb.h>
 #include <response.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 AccountRecordsQuery& AccountRecordsQuery::setAccountId(const AccountId& accountId)
@@ -75,4 +75,4 @@ proto::ResponseHeader AccountRecordsQuery::mapResponseHeader(const proto::Respon
   return response.cryptogetaccountrecords().header();
 }
 
-} // namespace Hedera
+} // namespace Hiero

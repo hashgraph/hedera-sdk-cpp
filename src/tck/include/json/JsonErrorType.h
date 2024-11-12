@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #ifndef HEDERA_TCK_CPP_JSON_ERROR_TYPE_H_
 #define HEDERA_TCK_CPP_JSON_ERROR_TYPE_H_
 
-namespace Hedera::TCK
+namespace Hiero::TCK
 {
 /**
  * Enum used to describe an error seen while handling a JSON RPC request.
@@ -48,11 +48,11 @@ enum class JsonErrorType : short
    */
   INTERNAL_ERROR = -32603,
   /**
-   * The Hedera C++ SDK failed to execute the JSON request.
+   * The Hiero C++ SDK failed to execute the JSON request.
    */
   HEDERA_ERROR = -32001
 };
 
-} // namespace Hedera::TCK
+} // namespace Hiero::TCK
 
 #endif // HEDERA_TCK_CPP_JSON_ERROR_TYPE_H_

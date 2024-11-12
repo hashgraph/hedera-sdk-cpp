@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_FEE_DATA_H_
-#define HEDERA_SDK_CPP_FEE_DATA_H_
+#ifndef HIERO_SDK_CPP_FEE_DATA_H_
+#define HIERO_SDK_CPP_FEE_DATA_H_
 
 #include "FeeComponents.h"
 #include "FeeDataType.h"
@@ -33,7 +33,7 @@ namespace proto
 class FeeData;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * The total fee charged for a transaction. It is composed of three components - a node fee that compensates the
@@ -174,11 +174,11 @@ private:
   FeeComponents mServiceData;
 
   /**
-   * The data type distinguishing between different types of FeeData, correlating to the same Hedera functionality.
+   * The data type distinguishing between different types of FeeData, correlating to the same Hiero functionality.
    */
   FeeDataType mType = FeeDataType::DEFAULT;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_FEE_DATA_H_
+#endif // HIERO_SDK_CPP_FEE_DATA_H_

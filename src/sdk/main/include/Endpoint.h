@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ENDPOINT_H_
-#define HEDERA_SDK_CPP_ENDPOINT_H_
+#ifndef HIERO_SDK_CPP_ENDPOINT_H_
+#define HIERO_SDK_CPP_ENDPOINT_H_
 
 #include "IPv4Address.h"
 
@@ -30,7 +30,7 @@ namespace proto
 class ServiceEndpoint;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A network endpoint, which contains an IPv4 address or domain name and a port.
@@ -127,6 +127,6 @@ private:
   std::string mDomainName;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_ENDPOINT_H_
+#endif // HIERO_SDK_CPP_ENDPOINT_H_

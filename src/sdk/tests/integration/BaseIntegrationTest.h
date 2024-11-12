@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_BASE_INTEGRATION_TEST_H_
-#define HEDERA_SDK_CPP_BASE_INTEGRATION_TEST_H_
+#ifndef HIERO_SDK_CPP_BASE_INTEGRATION_TEST_H_
+#define HIERO_SDK_CPP_BASE_INTEGRATION_TEST_H_
 
 #include "AccountId.h"
 #include "Client.h"
@@ -26,7 +26,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
-namespace Hedera
+namespace Hiero
 {
 
 class BaseIntegrationTest : public testing::Test
@@ -68,6 +68,6 @@ private:
     "964d4c3f6bc912a9d20e14e449721012d625aa3c8a12de41ae5519752fc89064736f6c63430006000033";
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_BASE_INTEGRATION_TEST_H_
+#endif // HIERO_SDK_CPP_BASE_INTEGRATION_TEST_H_

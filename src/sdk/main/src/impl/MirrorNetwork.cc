@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #include "impl/MirrorNode.h"
 #include "impl/Utilities.h"
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 //-----
 MirrorNetwork MirrorNetwork::forMainnet()
@@ -104,4 +104,4 @@ std::shared_ptr<MirrorNode> MirrorNetwork::createNodeFromNetworkEntry(std::strin
   return std::make_shared<MirrorNode>(address);
 }
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal

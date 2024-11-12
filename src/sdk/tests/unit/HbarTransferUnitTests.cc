@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 #include <basic_types.pb.h>
 #include <gtest/gtest.h>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class HbarTransferUnitTests : public ::testing::Test
 {
@@ -37,7 +37,7 @@ private:
   const AccountId mAccountId = AccountId(10ULL);
 };
 
-// Tests serialization of Hedera::HbarTransfer -> proto::AccountAmount.
+// Tests serialization of Hiero::HbarTransfer -> proto::AccountAmount.
 TEST_F(HbarTransferUnitTests, SerializeTransferToProtobuf)
 {
   // Given
@@ -52,7 +52,7 @@ TEST_F(HbarTransferUnitTests, SerializeTransferToProtobuf)
   EXPECT_FALSE(protoAccountAmountPtr->is_approval());
 }
 
-// Tests deserialization of proto::AccountAmount -> Hedera::HbarTransfer.
+// Tests deserialization of proto::AccountAmount -> Hiero::HbarTransfer.
 TEST_F(HbarTransferUnitTests, DeserializeTransferFromProtobuf)
 {
   // Given
@@ -72,7 +72,7 @@ TEST_F(HbarTransferUnitTests, DeserializeTransferFromProtobuf)
   EXPECT_TRUE(transfer.mIsApproved);
 }
 
-// Tests serialization & deserialization of Hedera::HbarTransfer -> proto::AccountAmount -> Hedera::HbarTransfer.
+// Tests serialization & deserialization of Hiero::HbarTransfer -> proto::AccountAmount -> Hiero::HbarTransfer.
 TEST_F(HbarTransferUnitTests, ProtoTransfer)
 {
   AccountId accountId(10ULL);

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_REQUEST_TYPE_H_
-#define HEDERA_SDK_CPP_REQUEST_TYPE_H_
+#ifndef HIERO_SDK_CPP_REQUEST_TYPE_H_
+#define HIERO_SDK_CPP_REQUEST_TYPE_H_
 
 #include <string>
 #include <unordered_map>
@@ -28,10 +28,10 @@ namespace proto
 enum HederaFunctionality : int;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Enumeration of all queries and transactions supported by Hedera Hashgraph.
+ * Enumeration of all queries and transactions supported by Hiero Hashgraph.
  */
 enum class RequestType
 {
@@ -126,6 +126,6 @@ extern const std::unordered_map<RequestType, proto::HederaFunctionality> gReques
  */
 [[maybe_unused]] extern const std::unordered_map<RequestType, std::string> gRequestTypeToString;
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_REQUEST_TYPE_H_
+#endif // HIERO_SDK_CPP_REQUEST_TYPE_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 
 #include <basic_types.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TransactionId TransactionId::withValidStart(const AccountId& accountId,
@@ -364,7 +364,7 @@ TransactionId& TransactionId::setNonce(int nonce)
 }
 
 //-----
-TransactionId::TransactionId(Hedera::AccountId accountId, const std::chrono::system_clock::time_point& validStartTime)
+TransactionId::TransactionId(Hiero::AccountId accountId, const std::chrono::system_clock::time_point& validStartTime)
   : mAccountId(std::move(accountId))
   , mValidTransactionTime(validStartTime)
 {
@@ -377,4 +377,4 @@ std::string TransactionId::getTimestampScheduleNonceString() const
          (mNonce != 0 ? ('/' + std::to_string(mNonce)) : "");
 }
 
-} // namespace Hedera
+} // namespace Hiero

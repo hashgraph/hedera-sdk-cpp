@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_SCHEDULE_ID_H_
-#define HEDERA_SDK_CPP_SCHEDULE_ID_H_
+#ifndef HIERO_SDK_CPP_SCHEDULE_ID_H_
+#define HIERO_SDK_CPP_SCHEDULE_ID_H_
 
 #include <cstddef>
 #include <memory>
@@ -31,15 +31,15 @@ namespace proto
 class ScheduleID;
 }
 
-namespace Hedera
+namespace Hiero
 {
 class Client;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * The ID for a schedule on Hedera.
+ * The ID for a schedule on Hiero.
  */
 class ScheduleId
 {
@@ -162,19 +162,19 @@ private:
   mutable std::string mChecksum;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
 namespace std
 {
 template<>
-struct hash<Hedera::ScheduleId>
+struct hash<Hiero::ScheduleId>
 {
   /**
    * Operator override to enable use of ScheduleId as map key
    */
-  size_t operator()(const Hedera::ScheduleId& id) const { return hash<string>()(id.toString()); }
+  size_t operator()(const Hiero::ScheduleId& id) const { return hash<string>()(id.toString()); }
 };
 
 } // namespace std
 
-#endif // HEDERA_SDK_CPP_SCHEDULE_ID_H_
+#endif // HIERO_SDK_CPP_SCHEDULE_ID_H_

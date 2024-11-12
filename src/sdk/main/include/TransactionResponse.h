@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TRANSACTION_RESPONSE_H_
-#define HEDERA_SDK_CPP_TRANSACTION_RESPONSE_H_
+#ifndef HIERO_SDK_CPP_TRANSACTION_RESPONSE_H_
+#define HIERO_SDK_CPP_TRANSACTION_RESPONSE_H_
 
 #include "AccountId.h"
 #include "TransactionId.h"
@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 class Client;
 class TransactionReceipt;
@@ -40,7 +40,7 @@ class TransactionRecord;
 class TransactionRecordQuery;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * When the client sends the node a transaction of any kind, the node replies with this, which simply says that the
@@ -398,6 +398,6 @@ private:
   bool mValidateStatus = true;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TRANSACTION_RESPONSE_H_
+#endif // HIERO_SDK_CPP_TRANSACTION_RESPONSE_H_

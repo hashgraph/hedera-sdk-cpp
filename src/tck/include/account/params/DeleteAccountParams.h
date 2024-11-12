@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include <optional>
 #include <string>
 
-namespace Hedera::TCK::AccountService
+namespace Hiero::TCK::AccountService
 {
 /**
  * Struct to hold the arguments for a `deleteAccount` JSON-RPC method call.
@@ -50,7 +50,7 @@ struct DeleteAccountParams
   std::optional<CommonTransactionParams> mCommonTxParams;
 };
 
-} // namespace Hedera::TCK::AccountService
+} // namespace Hiero::TCK::AccountService
 
 namespace nlohmann
 {
@@ -58,7 +58,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert DeleteAccountParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::AccountService::DeleteAccountParams>
+struct [[maybe_unused]] adl_serializer<Hiero::TCK::AccountService::DeleteAccountParams>
 {
   /**
    * Convert a JSON object to a DeleteAccountParams.
@@ -66,12 +66,12 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::AccountService::DeleteAccoun
    * @param jsonFrom The JSON object with which to fill the DeleteAccountParams.
    * @param params   The DeleteAccountParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::AccountService::DeleteAccountParams& params)
+  static void from_json(const json& jsonFrom, Hiero::TCK::AccountService::DeleteAccountParams& params)
   {
-    params.mDeleteAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "deleteAccountId");
-    params.mTransferAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transferAccountId");
+    params.mDeleteAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "deleteAccountId");
+    params.mTransferAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "transferAccountId");
     params.mCommonTxParams =
-      Hedera::TCK::getOptionalJsonParameter<Hedera::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
+      Hiero::TCK::getOptionalJsonParameter<Hiero::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
   }
 };
 

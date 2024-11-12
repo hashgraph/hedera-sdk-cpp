@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION_H_
+#define HIERO_SDK_CPP_TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION_H_
 
 #include "CustomFee.h"
 #include "TokenId.h"
@@ -33,7 +33,7 @@ class TokenFeeScheduleUpdateTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Update the custom fees for a given token. If the token does not have a fee schedule, the network response returned
@@ -158,6 +158,6 @@ private:
   std::vector<std::shared_ptr<CustomFee>> mCustomFees;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_TOKEN_FEE_SCHEDULE_UPDATE_TRANSACTION_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@
 #include <gtest/gtest.h>
 #include <transaction_body.pb.h>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class AccountCreateTransactionIntegrationTests : public BaseIntegrationTest
 {

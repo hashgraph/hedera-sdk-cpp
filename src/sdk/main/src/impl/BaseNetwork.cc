@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <thread>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 //-----
 template<typename NetworkType, typename KeyType, typename NodeType>
@@ -320,4 +320,4 @@ void BaseNetwork<NetworkType, KeyType, NodeType>::removeNodeFromNetwork(const st
 template class BaseNetwork<Network, AccountId, Node>;
 template class BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode>;
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal

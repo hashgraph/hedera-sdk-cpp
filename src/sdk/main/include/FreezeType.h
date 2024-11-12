@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_FREEZE_TYPE_H_
-#define HEDERA_SDK_CPP_FREEZE_TYPE_H_
+#ifndef HIERO_SDK_CPP_FREEZE_TYPE_H_
+#define HIERO_SDK_CPP_FREEZE_TYPE_H_
 
 #include <string_view>
 #include <unordered_map>
@@ -28,7 +28,7 @@ namespace proto
 enum FreezeType : int;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * The type of network freeze or upgrade operation to be performed. This type dictates which fields are required.
@@ -83,6 +83,6 @@ extern const std::unordered_map<FreezeType, proto::FreezeType> gFreezeTypeToProt
  */
 [[maybe_unused]] extern const std::unordered_map<FreezeType, const char*> gFreezeTypeToString;
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_FREEZE_TYPE_H_
+#endif // HIERO_SDK_CPP_FREEZE_TYPE_H_

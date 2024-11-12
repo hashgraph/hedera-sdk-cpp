@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_NODE_CREATE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_NODE_CREATE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_NODE_CREATE_TRANSACTION_H_
+#define HIERO_SDK_CPP_NODE_CREATE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "Endpoint.h"
@@ -36,7 +36,7 @@ class NodeCreateTransactionBody;
 
 namespace aproto = com::hedera::hapi::node::addressbook;
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A transaction to add a new consensus node to the network address book.
@@ -321,6 +321,6 @@ private:
   std::shared_ptr<Key> mAdminKey;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_NODE_CREATE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_NODE_CREATE_TRANSACTION_H_

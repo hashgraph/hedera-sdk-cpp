@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_CONTRACT_LOG_INFO_H_
-#define HEDERA_SDK_CPP_CONTRACT_LOG_INFO_H_
+#ifndef HIERO_SDK_CPP_CONTRACT_LOG_INFO_H_
+#define HIERO_SDK_CPP_CONTRACT_LOG_INFO_H_
 
 #include "ContractId.h"
 
@@ -33,7 +33,7 @@ namespace proto
 class ContractLoginfo;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * The log information for an event returned by a smart contract function call. One function call may return several
@@ -109,6 +109,6 @@ public:
   std::vector<std::byte> mData;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_CONTRACT_LOG_INFO_H_
+#endif // HIERO_SDK_CPP_CONTRACT_LOG_INFO_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_KEY_H_
-#define HEDERA_SDK_CPP_KEY_H_
+#ifndef HIERO_SDK_CPP_KEY_H_
+#define HIERO_SDK_CPP_KEY_H_
 
 #include <cstddef>
 #include <memory>
@@ -29,10 +29,10 @@ namespace proto
 class Key;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * A generic base class for the signing authority or key that entities in Hedera may have.
+ * A generic base class for the signing authority or key that entities in Hiero may have.
  */
 class Key
 {
@@ -81,6 +81,6 @@ protected:
   Key& operator=(Key&&) = default;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_KEY_H_
+#endif // HIERO_SDK_CPP_KEY_H_

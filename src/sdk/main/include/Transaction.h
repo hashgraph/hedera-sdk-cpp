@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TRANSACTION_H_
-#define HEDERA_SDK_CPP_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_TRANSACTION_H_
+#define HIERO_SDK_CPP_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "Executable.h"
@@ -34,7 +34,7 @@
 #include <variant>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 class PrivateKey;
 class TransactionResponse;
@@ -51,10 +51,10 @@ class TransactionBody;
 class TransactionResponse;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Base class for all transactions that can be submitted to a Hedera network.
+ * Base class for all transactions that can be submitted to a Hiero network.
  *
  * @tparam SdkRequestType The SDK request type.
  */
@@ -495,10 +495,9 @@ private:
    */
   [[nodiscard]]
   typename Executable<SdkRequestType, proto::Transaction, proto::TransactionResponse, TransactionResponse>::
-    ExecutionStatus
-    determineStatus(Status status,
-                    const Client& client,
-                    [[maybe_unused]] const proto::TransactionResponse& response) override;
+    ExecutionStatus determineStatus(Status status,
+                                    const Client& client,
+                                    [[maybe_unused]] const proto::TransactionResponse& response) override;
 
   /**
    * Derived from Executable. Perform any needed actions for this Transaction when it is being submitted.
@@ -551,6 +550,6 @@ private:
   std::unique_ptr<TransactionImpl> mImpl;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_TRANSACTION_H_

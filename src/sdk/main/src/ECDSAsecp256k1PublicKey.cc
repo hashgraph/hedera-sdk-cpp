@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@
 #include <openssl/ec.h>
 #include <openssl/x509.h>
 
-namespace Hedera
+namespace Hiero
 {
 namespace
 {
@@ -439,4 +439,4 @@ std::shared_ptr<PublicKey> ECDSAsecp256k1PublicKey::getShared() const
     std::dynamic_pointer_cast<const ECDSAsecp256k1PublicKey>(shared_from_this()));
 }
 
-} // namespace Hedera
+} // namespace Hiero

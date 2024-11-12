@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TOPIC_INFO_H_
-#define HEDERA_SDK_CPP_TOPIC_INFO_H_
+#ifndef HIERO_SDK_CPP_TOPIC_INFO_H_
+#define HIERO_SDK_CPP_TOPIC_INFO_H_
 
 #include "AccountId.h"
 #include "Key.h"
@@ -39,10 +39,10 @@ namespace proto
 class ConsensusGetTopicInfoResponse;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Response from a Hedera network when the client sends an TopicInfoQuery.
+ * Response from a Hiero network when the client sends an TopicInfoQuery.
  */
 class TopicInfo
 {
@@ -145,6 +145,6 @@ public:
   LedgerId mLedgerId;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TOPIC_INFO_H_
+#endif // HIERO_SDK_CPP_TOPIC_INFO_H_

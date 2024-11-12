@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_CLIENT_H_
-#define HEDERA_SDK_CPP_CLIENT_H_
+#ifndef HIERO_SDK_CPP_CLIENT_H_
+#define HIERO_SDK_CPP_CLIENT_H_
 
 #include <chrono>
 #include <functional>
@@ -31,7 +31,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 namespace internal
 {
@@ -48,10 +48,10 @@ class PublicKey;
 class SubscriptionHandle;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Managed client for use on the Hedera Hashgraph network.
+ * Managed client for use on the Hiero Hashgraph network.
  */
 class Client
 {
@@ -75,7 +75,7 @@ public:
   Client& operator=(Client&&) noexcept;
 
   /**
-   * Construct a Client pre-configured for a specific Hedera network.
+   * Construct a Client pre-configured for a specific Hiero network.
    *
    * @param networkMap The map with string representation of node addresses with their corresponding accountId.
    * @return A reference to this Client object with the newly-set operator account ID from the map.
@@ -102,23 +102,23 @@ public:
   [[nodiscard]] static Client forName(std::string_view name);
 
   /**
-   * Construct a Client pre-configured for Hedera Mainnet access.
+   * Construct a Client pre-configured for Hiero Mainnet access.
    *
-   * @return A Client object that is set-up to communicate with the Hedera Mainnet.
+   * @return A Client object that is set-up to communicate with the Hiero Mainnet.
    */
   [[nodiscard]] static Client forMainnet();
 
   /**
-   * Construct a Client pre-configured for Hedera Testnet access.
+   * Construct a Client pre-configured for Hiero Testnet access.
    *
-   * @return A Client object that is set-up to communicate with the Hedera Testnet.
+   * @return A Client object that is set-up to communicate with the Hiero Testnet.
    */
   [[nodiscard]] static Client forTestnet();
 
   /**
-   * Construct a Client pre-configured for Hedera Previewnet access.
+   * Construct a Client pre-configured for Hiero Previewnet access.
    *
-   * @return A Client object that is set-up to communicate with the Hedera Previewnet.
+   * @return A Client object that is set-up to communicate with the Hiero Previewnet.
    */
   [[nodiscard]] static Client forPreviewnet();
 
@@ -745,6 +745,6 @@ private:
   std::unique_ptr<ClientImpl> mImpl;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_CLIENT_H_
+#endif // HIERO_SDK_CPP_CLIENT_H_

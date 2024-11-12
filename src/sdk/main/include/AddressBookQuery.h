@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ADDRESS_BOOK_QUERY_H_
-#define HEDERA_SDK_CPP_ADDRESS_BOOK_QUERY_H_
+#ifndef HIERO_SDK_CPP_ADDRESS_BOOK_QUERY_H_
+#define HIERO_SDK_CPP_ADDRESS_BOOK_QUERY_H_
 
 #include "Defaults.h"
 #include "FileId.h"
 
 #include <chrono>
 
-namespace Hedera
+namespace Hiero
 {
 class Client;
 class NodeAddressBook;
@@ -36,7 +36,7 @@ namespace com::hedera::mirror::api::proto
 class AddressBookQuery;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A query that returns the current address book being used by the network's consensus nodes.
@@ -45,10 +45,10 @@ class AddressBookQuery
 {
 public:
   /**
-   * Submit this AddressBookQuery to a Hedera network.
+   * Submit this AddressBookQuery to a Hiero network.
    *
    * @param client The Client to use to submit this AddressBookQuery.
-   * @return The NodeAddressBook object sent from the Hedera network that contains the result of this AddressBookQuery.
+   * @return The NodeAddressBook object sent from the Hiero network that contains the result of this AddressBookQuery.
    * @throws MaxAttemptsExceededException If this AddressBookQuery attempts to execute past the number of allowable
    *                                      attempts.
    * @throws PrecheckStatusException      If this AddressBookQuery fails its pre-check.
@@ -57,11 +57,11 @@ public:
   NodeAddressBook execute(const Client& client);
 
   /**
-   * Submit this AddressBookQuery to a Hedera network with a specific timeout.
+   * Submit this AddressBookQuery to a Hiero network with a specific timeout.
    *
    * @param client  The Client to use to submit this AddressBookQuery.
    * @param timeout The desired timeout for the execution of this AddressBookQuery.
-   * @return The NodeAddressBook object sent from the Hedera network that contains the result of this AddressBookQuery.
+   * @return The NodeAddressBook object sent from the Hiero network that contains the result of this AddressBookQuery.
    * @throws MaxAttemptsExceededException If this AddressBookQuery attempts to execute past the number of allowable
    *                                      attempts.
    * @throws PrecheckStatusException      If this AddressBookQuery fails its pre-check.
@@ -159,6 +159,6 @@ private:
   std::chrono::system_clock::duration mMaxBackoff = DEFAULT_MAX_BACKOFF;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_ADDRESS_BOOK_QUERY_H_
+#endif // HIERO_SDK_CPP_ADDRESS_BOOK_QUERY_H_

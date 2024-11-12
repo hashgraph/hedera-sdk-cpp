@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TOKEN_TYPE_H_
-#define HEDERA_SDK_CPP_TOKEN_TYPE_H_
+#ifndef HIERO_SDK_CPP_TOKEN_TYPE_H_
+#define HIERO_SDK_CPP_TOKEN_TYPE_H_
 
 #include <string_view>
 #include <unordered_map>
@@ -28,7 +28,7 @@ namespace proto
 enum TokenType : int;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Possible token types (IWA Compatibility).
@@ -42,7 +42,7 @@ enum class TokenType
   /**
    * Interchangeable value with one another, where any quantity of them has the same value as another equal quantity if
    * they are in the same class. Share a single set of properties, not distinct from one another. Simply represented as
-   * a balance or quantity to a given Hedera account.
+   * a balance or quantity to a given Hiero account.
    */
   FUNGIBLE_COMMON,
   /**
@@ -67,6 +67,6 @@ extern const std::unordered_map<TokenType, proto::TokenType> gTokenTypeToProtobu
  */
 [[maybe_unused]] extern const std::unordered_map<TokenType, const char*> gTokenTypeToString;
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TOKEN_TYPE_H_
+#endif // HIERO_SDK_CPP_TOKEN_TYPE_H_

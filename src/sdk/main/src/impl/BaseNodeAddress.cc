@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 //-----
 BaseNodeAddress::BaseNodeAddress(std::string_view name, std::string_view address, unsigned int port)
@@ -86,4 +86,4 @@ std::string BaseNodeAddress::toString() const
   return (!mName.empty()) ? "in-process:" + mName : mAddress + ':' + std::to_string(mPort);
 }
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal

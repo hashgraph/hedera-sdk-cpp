@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include <filesystem>
 #include <fstream>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 //-----
 Network Network::forMainnet()
@@ -195,7 +195,7 @@ Network Network::getNetworkForLedgerId(const LedgerId& ledgerId)
 //-----
 NodeAddressBook Network::getAddressBookForLedgerId(const LedgerId& ledgerId)
 {
-  // The address book can only be fetched for known Hedera networks.
+  // The address book can only be fetched for known Hiero networks.
   if (!ledgerId.isKnownNetwork())
   {
     return {};
@@ -247,4 +247,4 @@ Network& Network::setLedgerIdInternal(const LedgerId& ledgerId, const NodeAddres
   return *this;
 }
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal

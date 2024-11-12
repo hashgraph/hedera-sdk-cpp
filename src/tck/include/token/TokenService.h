@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 
 #include <nlohmann/json_fwd.hpp>
 
-namespace Hedera::TCK::TokenService
+namespace Hiero::TCK::TokenService
 {
 /**
  * Forward declarations.
@@ -37,6 +37,6 @@ class CreateTokenParams;
  */
 nlohmann::json createToken(const CreateTokenParams& params);
 
-} // namespace Hedera::TCK::TokenService
+} // namespace Hiero::TCK::TokenService
 
 #endif // HEDERA_TCK_CPP_TOKEN_SERVICE_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 #include <chrono>
 #include <gtest/gtest.h>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class ContractCreateFlowIntegrationTests : public BaseIntegrationTest
 {
@@ -47,7 +47,7 @@ TEST_F(ContractCreateFlowIntegrationTests, ExecuteContractCreateFlow)
                                  .setBytecode(getTestSmartContractBytecode())
                                  .setAdminKey(getTestClient().getOperatorPublicKey())
                                  .setGas(1000000ULL)
-                                 .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
+                                 .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero."))
                                  .execute(getTestClient()));
 
   // Then
@@ -78,7 +78,7 @@ TEST_F(ContractCreateFlowIntegrationTests, CannotCreateContractWithFlowWithoutSi
                    .setBytecode(getTestSmartContractBytecode())
                    .setAdminKey(adminKey)
                    .setGas(1000000ULL)
-                   .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
+                   .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero."))
                    .execute(getTestClient()),
                ReceiptStatusException); // INVALID_SIGNATURE
 }
@@ -95,7 +95,7 @@ TEST_F(ContractCreateFlowIntegrationTests, ExecuteContractCreateFlowWithPrivateK
                                  .setBytecode(getTestSmartContractBytecode())
                                  .setAdminKey(adminKey)
                                  .setGas(1000000ULL)
-                                 .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera."))
+                                 .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero."))
                                  .freezeWith(getTestClient())
                                  .sign(adminKey)
                                  .execute(getTestClient()));

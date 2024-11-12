@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace Hedera::TCK::AccountService
+namespace Hiero::TCK::AccountService
 {
 //-----
 nlohmann::json createAccount(const CreateAccountParams& params)
@@ -105,8 +105,8 @@ nlohmann::json createAccount(const CreateAccountParams& params)
   const TransactionReceipt txReceipt =
     accountCreateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
-    {"accountId", txReceipt.mAccountId->toString()     },
-    { "status",   gStatusToString.at(txReceipt.mStatus)}
+    { "accountId", txReceipt.mAccountId->toString()      },
+    { "status",    gStatusToString.at(txReceipt.mStatus) }
   };
 }
 
@@ -132,9 +132,9 @@ nlohmann::json deleteAccount(const DeleteAccountParams& params)
   }
 
   return {
-    {"status",
+    { "status",
      gStatusToString.at(
-        accountDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
+        accountDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus) }
   };
 }
 
@@ -203,8 +203,8 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
   const TransactionReceipt txReceipt =
     accountUpdateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
-    {"status", gStatusToString.at(txReceipt.mStatus)}
+    { "status", gStatusToString.at(txReceipt.mStatus) }
   };
 }
 
-} // namespace Hedera::TCK::AccountService
+} // namespace Hiero::TCK::AccountService

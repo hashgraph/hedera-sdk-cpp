@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <map>
 #include <string>
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Common units of Hbar; for the most part they follow SI prefix conventions.
@@ -32,7 +32,7 @@ class HbarUnit
 {
 public:
   /**
-   * The atomic (smallest) unit of hbar, used natively by the Hedera network. It is equivalent to 1/100,000,000 hbar.
+   * The atomic (smallest) unit of hbar, used natively by the Hiero network. It is equivalent to 1/100,000,000 hbar.
    */
   static constexpr HbarUnit TINYBAR() { return { "tℏ", 1ULL }; }
 
@@ -62,7 +62,7 @@ public:
   static constexpr HbarUnit MEGABAR() { return { "Mℏ", 100000000000000ULL }; }
 
   /**
-   * Equivalent to 1 billion hbar or 100 quadrillion tinybar. The maximum hbar amount supported by Hedera in any context
+   * Equivalent to 1 billion hbar or 100 quadrillion tinybar. The maximum hbar amount supported by Hiero in any context
    * is ~92 gigabar (2^63 tinybar); use this unit sparingly.
    */
   static constexpr HbarUnit GIGABAR() { return { "Gℏ", 100000000000000000ULL }; }
@@ -104,6 +104,6 @@ private:
   const uint64_t mTinybars;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
 #endif // HBAR_UNIT_H_

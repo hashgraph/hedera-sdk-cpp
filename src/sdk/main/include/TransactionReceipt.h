@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TRANSACTION_RECEIPT_H_
-#define HEDERA_SDK_CPP_TRANSACTION_RECEIPT_H_
+#ifndef HIERO_SDK_CPP_TRANSACTION_RECEIPT_H_
+#define HIERO_SDK_CPP_TRANSACTION_RECEIPT_H_
 
 #include "AccountId.h"
 #include "ContractId.h"
@@ -43,7 +43,7 @@ class TransactionGetReceiptResponse;
 class TransactionReceipt;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * The summary of a transaction's result so far. If the transaction has not reached consensus, this result will be
@@ -264,6 +264,6 @@ public:
   std::optional<uint64_t> mNodeId;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TRANSACTION_RECEIPT_H_
+#endif // HIERO_SDK_CPP_TRANSACTION_RECEIPT_H_

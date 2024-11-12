@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,20 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_HBAR_H_
-#define HEDERA_SDK_CPP_HBAR_H_
+#ifndef HIERO_SDK_CPP_HBAR_H_
+#define HIERO_SDK_CPP_HBAR_H_
 
 #include "HbarUnit.h"
 
 #include <cmath>
 #include <regex>
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Represents a quantity of hbar.
  *
- * Implemented as a wrapper class to force handling of units. Direct interfacing with Hedera accepts amounts in tinybars
+ * Implemented as a wrapper class to force handling of units. Direct interfacing with Hiero accepts amounts in tinybars
  * however the nominal unit is hbar.
  */
 
@@ -153,6 +153,6 @@ private:
   int64_t mValueInTinybar = 0LL;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_HBAR_H_
+#endif // HIERO_SDK_CPP_HBAR_H_

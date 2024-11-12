@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
-#define HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
+#ifndef HIERO_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
+#define HIERO_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
 
 #include <cstddef>
 #include <cstdint>
@@ -27,7 +27,7 @@
 /**
  * Utility functions dealing with wallet derivation paths, as described in BIP32, BIP44, and SLIP10.
  */
-namespace Hedera::internal::DerivationPathUtils
+namespace Hiero::internal::DerivationPathUtils
 {
 /**
  * Check if an index falls into the "unhardened" or "hardened" category.
@@ -55,6 +55,6 @@ uint32_t getHardenedIndex(uint32_t index);
  */
 std::vector<std::byte> indexToBigEndianArray(uint32_t childIndex);
 
-}; // namespace Hedera::internal::DerivationPathUtils
+}; // namespace Hiero::internal::DerivationPathUtils
 
-#endif // HEDERA_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_
+#endif // HIERO_SDK_CPP_IMPL_DERIVATION_PATH_UTILS_H_

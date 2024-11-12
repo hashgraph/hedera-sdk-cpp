@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_HEX_CONVERTER_H_
-#define HEDERA_SDK_CPP_IMPL_HEX_CONVERTER_H_
+#ifndef HIERO_SDK_CPP_IMPL_HEX_CONVERTER_H_
+#define HIERO_SDK_CPP_IMPL_HEX_CONVERTER_H_
 
 #include <string>
 #include <string_view>
 #include <vector>
 
-namespace Hedera::internal::HexConverter
+namespace Hiero::internal::HexConverter
 {
 /**
  * Convert an array of bytes to a hex string.
@@ -55,6 +55,6 @@ std::vector<std::byte> hexToBytes(std::string_view hex);
  */
 std::string base64ToHex(std::string_view base64);
 
-} // namespace Hedera::internal::HexConverter
+} // namespace Hiero::internal::HexConverter
 
-#endif // HEDERA_SDK_CPP_IMPL_HEX_CONVERTER_H_
+#endif // HIERO_SDK_CPP_IMPL_HEX_CONVERTER_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <unordered_map>
 #include <vector>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class NetworkUnitTests : public ::testing::Test
 {
@@ -35,7 +35,7 @@ class NetworkUnitTests : public ::testing::Test
 TEST_F(NetworkUnitTests, ConstructForMainnet)
 {
   // Given / When
-  Hedera::internal::Network mainnetNetwork = Hedera::internal::Network::forMainnet();
+  Hiero::internal::Network mainnetNetwork = Hiero::internal::Network::forMainnet();
 
   // Then
   std::unordered_map<std::string, AccountId> networkMap;
@@ -54,7 +54,7 @@ TEST_F(NetworkUnitTests, ConstructForMainnet)
 TEST_F(NetworkUnitTests, ConstructForTestnet)
 {
   // Given / When
-  Hedera::internal::Network testnetNetwork = Hedera::internal::Network::forTestnet();
+  Hiero::internal::Network testnetNetwork = Hiero::internal::Network::forTestnet();
 
   // Then
   std::unordered_map<std::string, AccountId> networkMap;
@@ -73,7 +73,7 @@ TEST_F(NetworkUnitTests, ConstructForTestnet)
 TEST_F(NetworkUnitTests, ConstructForPreviewnet)
 {
   // Given / When
-  Hedera::internal::Network previewnetNetwork = Hedera::internal::Network::forPreviewnet();
+  Hiero::internal::Network previewnetNetwork = Hiero::internal::Network::forPreviewnet();
 
   // Then
   std::unordered_map<std::string, AccountId> networkMap;
@@ -93,12 +93,12 @@ TEST_F(NetworkUnitTests, ConstructCustomNetwork)
 {
   // Given
   const std::unordered_map<std::string, AccountId> testNetwork = {
-    {"2.testnet.hedera.com:50211",  AccountId(5ULL)},
-    { "3.testnet.hedera.com:50211", AccountId(6ULL)}
+    { "2.testnet.hedera.com:50211", AccountId(5ULL) },
+    { "3.testnet.hedera.com:50211", AccountId(6ULL) }
   };
 
   // When
-  Hedera::internal::Network customNetwork = Hedera::internal::Network::forNetwork(testNetwork);
+  Hiero::internal::Network customNetwork = Hiero::internal::Network::forNetwork(testNetwork);
 
   // Then
   std::unordered_map<std::string, AccountId> networkMap;
@@ -117,7 +117,7 @@ TEST_F(NetworkUnitTests, ConstructCustomNetwork)
 TEST_F(NetworkUnitTests, GetSetLedgerIdForMainnet)
 {
   // Given
-  Hedera::internal::Network mainnetNetwork = Hedera::internal::Network::forMainnet();
+  Hiero::internal::Network mainnetNetwork = Hiero::internal::Network::forMainnet();
 
   // When
   mainnetNetwork.setLedgerId(LedgerId::TESTNET);
@@ -132,13 +132,13 @@ TEST_F(NetworkUnitTests, GetSetLedgerIdForMainnet)
 TEST_F(NetworkUnitTests, GetSetTransportSecurity)
 {
   // Given
-  Hedera::internal::Network testnetNetwork = Hedera::internal::Network::forTestnet();
+  Hiero::internal::Network testnetNetwork = Hiero::internal::Network::forTestnet();
 
   // When
-  testnetNetwork.setTransportSecurity(Hedera::internal::TLSBehavior::DISABLE);
+  testnetNetwork.setTransportSecurity(Hiero::internal::TLSBehavior::DISABLE);
 
   // Then
-  EXPECT_EQ(testnetNetwork.isTransportSecurity(), Hedera::internal::TLSBehavior::DISABLE);
+  EXPECT_EQ(testnetNetwork.isTransportSecurity(), Hiero::internal::TLSBehavior::DISABLE);
 
   // Clean up
   testnetNetwork.close();
@@ -147,7 +147,7 @@ TEST_F(NetworkUnitTests, GetSetTransportSecurity)
 TEST_F(NetworkUnitTests, GetSetGetMaxNodesPerRequest)
 {
   // Given
-  Hedera::internal::Network testnetNetwork = Hedera::internal::Network::forTestnet();
+  Hiero::internal::Network testnetNetwork = Hiero::internal::Network::forTestnet();
 
   // When
   testnetNetwork.setMaxNodesPerRequest(10);
@@ -162,7 +162,7 @@ TEST_F(NetworkUnitTests, GetSetGetMaxNodesPerRequest)
 TEST_F(NetworkUnitTests, VerifyCertificates)
 {
   // Given
-  Hedera::internal::Network testnetNetwork = Hedera::internal::Network::forTestnet();
+  Hiero::internal::Network testnetNetwork = Hiero::internal::Network::forTestnet();
 
   // When
   testnetNetwork.setVerifyCertificates(false);

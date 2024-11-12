@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_CUSTOM_FIXED_FEE_H_
-#define HEDERA_SDK_CPP_CUSTOM_FIXED_FEE_H_
+#ifndef HIERO_SDK_CPP_CUSTOM_FIXED_FEE_H_
+#define HIERO_SDK_CPP_CUSTOM_FIXED_FEE_H_
 
 #include "CustomFeeBase.h"
 #include "Hbar.h"
@@ -32,7 +32,7 @@ namespace proto
 class FixedFee;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A fixed number of units (Hbar or token) to assess as a fee during a CryptoTransfer that transfers units of the token
@@ -137,6 +137,6 @@ private:
   std::optional<TokenId> mDenominatingTokenId;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_CUSTOM_FIXED_FEE_H_
+#endif // HIERO_SDK_CPP_CUSTOM_FIXED_FEE_H_

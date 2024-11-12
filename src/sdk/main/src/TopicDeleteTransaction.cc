@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <stdexcept>
 #include <transaction.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TopicDeleteTransaction::TopicDeleteTransaction(const proto::TransactionBody& transactionBody)
@@ -105,4 +105,4 @@ proto::ConsensusDeleteTopicTransactionBody* TopicDeleteTransaction::build() cons
   return body.release();
 }
 
-} // namespace Hedera
+} // namespace Hiero

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_EXAMPLES_CONTRACT_HELPER_H_
-#define HEDERA_SDK_CPP_EXAMPLES_CONTRACT_HELPER_H_
+#ifndef HIERO_SDK_CPP_EXAMPLES_CONTRACT_HELPER_H_
+#define HIERO_SDK_CPP_EXAMPLES_CONTRACT_HELPER_H_
 
 #include "AccountId.h"
 #include "Client.h"
@@ -46,7 +46,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * ContractHelper de-clutters SolidityPrecompileExample.
@@ -54,7 +54,7 @@ namespace Hedera
  * When we instantiate a ContractHelper, we provide it with the JSON of a compiled solidity contract which is assumed to
  * have functions named "step0()" through "stepN()".
  *
- * Each of these step functions is assumed to take no function parameters, and to return a Hedera ResponseCode which
+ * Each of these step functions is assumed to take no function parameters, and to return a Hiero ResponseCode which
  * ought to be SUCCESS -- in other words, an int32 with value 22. See
  * examples/precompile-example/HederaResponseCodes.sol.
  *
@@ -62,7 +62,7 @@ namespace Hedera
  * the user can specify a supplier for a particular step with setParameterSupplier(stepIndex, parametersSupplier), and
  * can specify an alternative validation method with setResultValidator(stepIndex, validateFunction)
  *
- * The contract is created on the Hedera network in the ContractHelper constructor, and when the user is ready to
+ * The contract is created on the Hiero network in the ContractHelper constructor, and when the user is ready to
  * execute the step functions in the contract, they should call executeSteps(firstStepToExecute, lastStepToExecute).
  */
 class ContractHelper
@@ -203,8 +203,7 @@ public:
 
       const ContractFunctionResult result = txRecord.mContractFunctionResult.value();
       const std::function<bool(const ContractFunctionResult&)> validatorFunc =
-        hasResultValidator ? mStepResultValidators.at(step)
-                           : [](const ContractFunctionResult& stepResult)
+        hasResultValidator ? mStepResultValidators.at(step) : [](const ContractFunctionResult& stepResult)
       {
         // Assume no custom validator means the function should return a success.
         const Status status =
@@ -280,6 +279,6 @@ private:
   std::unordered_map<int, AccountId> mStepFeePayers;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_EXAMPLES_CONTRACT_HELPER_H_
+#endif // HIERO_SDK_CPP_EXAMPLES_CONTRACT_HELPER_H_

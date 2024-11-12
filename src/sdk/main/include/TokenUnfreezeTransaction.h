@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TOKEN_UNFREEZE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_TOKEN_UNFREEZE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_TOKEN_UNFREEZE_TRANSACTION_H_
+#define HIERO_SDK_CPP_TOKEN_UNFREEZE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "TokenId.h"
@@ -30,7 +30,7 @@ class TokenUnfreezeAccountTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Unfreezes transfers of the specified token for the account. The transaction must be signed by the token's freeze key.
@@ -163,6 +163,6 @@ private:
   TokenId mTokenId;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TOKEN_UNFREEZE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_TOKEN_UNFREEZE_TRANSACTION_H_

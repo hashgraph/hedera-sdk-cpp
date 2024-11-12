@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@
 #include <nlohmann/json.hpp>
 #include <stdexcept>
 
-namespace Hedera::TCK
+namespace Hiero::TCK
 {
 namespace
 {
@@ -246,9 +246,9 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       }
 
       return {
-        {"jsonrpc", "2.0"                                                                  },
-        { "id",     requestId                                                              },
-        { "result", method->second(hasParams ? request["params"] : nlohmann::json::array())}
+        { "jsonrpc", "2.0"                                                                   },
+        { "id",      requestId                                                               },
+        { "result",  method->second(hasParams ? request["params"] : nlohmann::json::array()) }
       };
     }
 
@@ -268,8 +268,8 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
   catch (const JsonRpcException& ex)
   {
     nlohmann::json error = {
-      {"code",     ex.getCode()   },
-      { "message", ex.getMessage()}
+      { "code",    ex.getCode()    },
+      { "message", ex.getMessage() }
     };
 
     if (!ex.getData().is_null())
@@ -278,13 +278,13 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
     }
 
     return nlohmann::json{
-      {"jsonrpc", "2.0"    },
-      { "id",     requestId},
-      { "error",  error    }
+      { "jsonrpc", "2.0"     },
+      { "id",      requestId },
+      { "error",   error     }
     };
   }
 
-  // PrecheckStatusExceptions and ReceiptStatusExceptions should be Hedera errors.
+  // PrecheckStatusExceptions and ReceiptStatusExceptions should be Hiero errors.
   catch (const ReceiptStatusException& ex)
   {
     // clang-format off
@@ -293,7 +293,7 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       { "id", requestId },
       { "error", {
         { "code", JsonErrorType::HEDERA_ERROR },
-        { "message", "Hedera error" },
+        { "message", "Hiero error" },
         { "data", {
           { "status", gStatusToString.at(ex.mStatus) },
           { "message", ex.what() }
@@ -311,7 +311,7 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       { "id", requestId },
       { "error", {
         { "code", JsonErrorType::HEDERA_ERROR },
-        { "message", "Hedera error" },
+        { "message", "Hiero error" },
         { "data", {
           { "status", gStatusToString.at(ex.mStatus) },
           { "message", ex.what() }
@@ -369,4 +369,4 @@ template TckServer::MethodHandle TckServer::getHandle<SdkClient::SetupParams>(
 template TckServer::MethodHandle TckServer::getHandle<TokenService::CreateTokenParams>(
   nlohmann::json (*method)(const TokenService::CreateTokenParams&));
 
-} // namespace Hedera::TCK
+} // namespace Hiero::TCK

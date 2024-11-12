@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include <optional>
 #include <string>
 
-namespace Hedera::TCK::AccountService
+namespace Hiero::TCK::AccountService
 {
 /**
  * Struct to hold the arguments for a `createAccount` JSON-RPC method call.
@@ -91,7 +91,7 @@ struct CreateAccountParams
   std::optional<CommonTransactionParams> mCommonTxParams;
 };
 
-} // namespace Hedera::TCK::AccountService
+} // namespace Hiero::TCK::AccountService
 
 namespace nlohmann
 {
@@ -99,7 +99,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert CreateAccountParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::AccountService::CreateAccountParams>
+struct [[maybe_unused]] adl_serializer<Hiero::TCK::AccountService::CreateAccountParams>
 {
   /**
    * Convert a JSON object to a CreateAccountParams.
@@ -107,22 +107,22 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::AccountService::CreateAccoun
    * @param jsonFrom The JSON object with which to fill the CreateAccountParams.
    * @param params   The CreateAccountParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::AccountService::CreateAccountParams& params)
+  static void from_json(const json& jsonFrom, Hiero::TCK::AccountService::CreateAccountParams& params)
   {
-    params.mKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "key");
-    params.mInitialBalance = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "initialBalance");
+    params.mKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "key");
+    params.mInitialBalance = Hiero::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "initialBalance");
     params.mReceiverSignatureRequired =
-      Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "receiverSignatureRequired");
-    params.mAutoRenewPeriod = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "autoRenewPeriod");
-    params.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
+      Hiero::TCK::getOptionalJsonParameter<bool>(jsonFrom, "receiverSignatureRequired");
+    params.mAutoRenewPeriod = Hiero::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "autoRenewPeriod");
+    params.mMemo = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
     params.mMaxAutoTokenAssociations =
-      Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxAutoTokenAssociations");
-    params.mStakedAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "stakedAccountId");
-    params.mStakedNodeId = Hedera::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "stakedNodeId");
-    params.mDeclineStakingReward = Hedera::TCK::getOptionalJsonParameter<bool>(jsonFrom, "declineStakingReward");
-    params.mAlias = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "alias");
+      Hiero::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxAutoTokenAssociations");
+    params.mStakedAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "stakedAccountId");
+    params.mStakedNodeId = Hiero::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "stakedNodeId");
+    params.mDeclineStakingReward = Hiero::TCK::getOptionalJsonParameter<bool>(jsonFrom, "declineStakingReward");
+    params.mAlias = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "alias");
     params.mCommonTxParams =
-      Hedera::TCK::getOptionalJsonParameter<Hedera::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
+      Hiero::TCK::getOptionalJsonParameter<Hiero::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
   }
 };
 

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include <thread>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 NodeAddressBook AddressBookQuery::execute(const Client& client)
@@ -133,4 +133,4 @@ com::hedera::mirror::api::proto::AddressBookQuery AddressBookQuery::build() cons
   return addressBookQuery;
 }
 
-} // namespace Hedera
+} // namespace Hiero

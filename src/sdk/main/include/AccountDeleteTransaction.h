@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_
+#define HIERO_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "Transaction.h"
@@ -31,7 +31,7 @@ class CryptoDeleteTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Mark an account as deleted, moving all its current hbars to another account. It will remain in the ledger, marked as
@@ -154,6 +154,6 @@ private:
   std::optional<AccountId> mTransferAccountId;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_ACCOUNT_DELETE_TRANSACTION_H_

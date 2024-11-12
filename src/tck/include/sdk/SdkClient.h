@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <chrono>
 #include <nlohmann/json_fwd.hpp>
 
-namespace Hedera::TCK::SdkClient
+namespace Hiero::TCK::SdkClient
 {
 /**
  * Forward declarations.
@@ -58,12 +58,12 @@ nlohmann::json reset(const ResetParams& params);
 nlohmann::json setup(const SetupParams& params);
 
 /**
- * Get the Hedera C++ SDK client this SdkClient is using to execute requests.
+ * Get the Hiero C++ SDK client this SdkClient is using to execute requests.
  *
- * @return Reference to the Hedera C++ SDK client this SdkClient is using to execute requests.
+ * @return Reference to the Hiero C++ SDK client this SdkClient is using to execute requests.
  */
 [[nodiscard]] const Client& getClient();
 
-} // namespace Hedera::TCK::SdkClient
+} // namespace Hiero::TCK::SdkClient
 
 #endif // HEDERA_TCK_CPP_SDK_CLIENT_H_

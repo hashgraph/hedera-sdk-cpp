@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_OPENSSL_UTILS_ECDSA_SIG_H_
-#define HEDERA_SDK_CPP_IMPL_OPENSSL_UTILS_ECDSA_SIG_H_
+#ifndef HIERO_SDK_CPP_IMPL_OPENSSL_UTILS_ECDSA_SIG_H_
+#define HIERO_SDK_CPP_IMPL_OPENSSL_UTILS_ECDSA_SIG_H_
 
 #include "impl/openssl_utils/OpenSSLObjectWrapper.h"
 
 #include <openssl/ecdsa.h>
 
-namespace Hedera::internal::OpenSSLUtils
+namespace Hiero::internal::OpenSSLUtils
 {
 /**
  * Wrapper class for the OpenSSL ECDSA_SIG object.
@@ -52,6 +52,6 @@ public:
   }
 };
 
-} // namespace Hedera::internal::OpenSSLUtils
+} // namespace Hiero::internal::OpenSSLUtils
 
-#endif // HEDERA_SDK_CPP_IMPL_OPENSSL_UTILS_ECDSA_SIG_H_
+#endif // HIERO_SDK_CPP_IMPL_OPENSSL_UTILS_ECDSA_SIG_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <nlohmann/json.hpp>
 #include <token_get_nft_info.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TokenNftInfo TokenNftInfo::fromProtobuf(const proto::TokenNftInfo& proto)
@@ -115,4 +115,4 @@ std::ostream& operator<<(std::ostream& os, const TokenNftInfo& info)
   return os;
 }
 
-} // namespace Hedera
+} // namespace Hiero

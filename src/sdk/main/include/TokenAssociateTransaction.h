@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TOKEN_ASSOCIATE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_TOKEN_ASSOCIATE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_TOKEN_ASSOCIATE_TRANSACTION_H_
+#define HIERO_SDK_CPP_TOKEN_ASSOCIATE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "TokenId.h"
@@ -33,14 +33,14 @@ class TokenAssociateTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Associates the provided Hedera account with the provided Hedera token(s). Hedera accounts must be associated with a
+ * Associates the provided Hiero account with the provided Hiero token(s). Hiero accounts must be associated with a
  * fungible or non-fungible token first before you can transfer tokens to that account. When you transfer a custom
  * fungible or non-fungible token to the alias account ID, the token association step is skipped and the account will
  * automatically be associated with the token upon creation. In the case of a NON_FUNGIBLE token type, once an account
- * is associated, it can hold any number of NFTs (serial numbers) of that token type. The Hedera account that is
+ * is associated, it can hold any number of NFTs (serial numbers) of that token type. The Hiero account that is
  * associated with a token is required to sign the transaction.
  *
  *  - If the provided account is not found, the transaction will resolve to INVALID_ACCOUNT_ID.
@@ -175,6 +175,6 @@ private:
   std::vector<TokenId> mTokenIds;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TOKEN_ASSOCIATE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_TOKEN_ASSOCIATE_TRANSACTION_H_

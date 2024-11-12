@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_SEMANTIC_VERSION_H_
-#define HEDERA_SDK_CPP_SEMANTIC_VERSION_H_
+#ifndef HIERO_SDK_CPP_SEMANTIC_VERSION_H_
+#define HIERO_SDK_CPP_SEMANTIC_VERSION_H_
 
 #include <cstddef>
 #include <memory>
@@ -31,10 +31,10 @@ namespace proto
 class SemanticVersion;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Hedera follows semantic versioning for both the HAPI protobufs and the Services software. This type allows the
+ * Hiero follows semantic versioning for both the HAPI protobufs and the Services software. This type allows the
  * getVersionInfo query in the NetworkService to return the deployed versions of both protobufs and software on the node
  * answering the query.
  */
@@ -126,6 +126,6 @@ public:
   std::string mBuild;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_SEMANTIC_VERSION_H_
+#endif // HIERO_SDK_CPP_SEMANTIC_VERSION_H_

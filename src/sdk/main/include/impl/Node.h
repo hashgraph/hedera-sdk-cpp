@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_NODE_H_
-#define HEDERA_SDK_CPP_IMPL_NODE_H_
+#ifndef HIERO_SDK_CPP_IMPL_NODE_H_
+#define HIERO_SDK_CPP_IMPL_NODE_H_
 
 #include <address_book_service.grpc.pb.h>
 #include <consensus_service.grpc.pb.h>
@@ -39,15 +39,15 @@
 #include <string_view>
 #include <vector>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 class BaseNodeAddress;
 }
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 /**
- * Internal utility class used to represent a node on a Hedera network.
+ * Internal utility class used to represent a node on a Hiero network.
  */
 class Node : public BaseNode<Node, AccountId>
 {
@@ -258,6 +258,6 @@ private:
   bool mVerifyCertificates = false;
 };
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal
 
-#endif // HEDERA_SDK_CPP_IMPL_NODE_H_
+#endif // HIERO_SDK_CPP_IMPL_NODE_H_

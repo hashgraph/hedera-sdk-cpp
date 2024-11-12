@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include <transaction_get_receipt.pb.h>
 #include <transaction_receipt.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TransactionReceipt TransactionReceipt::fromProtobuf(const proto::TransactionGetReceiptResponse& proto,
@@ -309,4 +309,4 @@ void TransactionReceipt::validateStatus() const
   }
 }
 
-} // namespace Hedera
+} // namespace Hiero

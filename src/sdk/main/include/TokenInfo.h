@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_TOKEN_INFO_H_
-#define HEDERA_SDK_CPP_TOKEN_INFO_H_
+#ifndef HIERO_SDK_CPP_TOKEN_INFO_H_
+#define HIERO_SDK_CPP_TOKEN_INFO_H_
 
 #include "AccountId.h"
 #include "CustomFee.h"
@@ -42,10 +42,10 @@ namespace proto
 class TokenInfo;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Response from a Hedera network when the client sends an TokenInfoQuery.
+ * Response from a Hiero network when the client sends an TokenInfoQuery.
  */
 class TokenInfo
 {
@@ -155,14 +155,14 @@ public:
   std::shared_ptr<Key> mSupplyKey = nullptr;
 
   /**
-   * The default freeze status (FreezeNotApplicable, Frozen, or Unfrozen) of Hedera accounts relative to this token.
+   * The default freeze status (FreezeNotApplicable, Frozen, or Unfrozen) of Hiero accounts relative to this token.
    * Uninitialized if mFreezeKey is empty, \c TRUE if mFreezeKey is set and mDefaultFreeze is set to true, or \c FALSE
    * if mFreezeKey is set and mDefaultFreeze is set to false.
    */
   std::optional<bool> mDefaultFreezeStatus;
 
   /**
-   * The default KYC status (KycNotApplicable or Revoked) of Hedera accounts relative to this token. KycNotApplicable if
+   * The default KYC status (KycNotApplicable or Revoked) of Hiero accounts relative to this token. KycNotApplicable if
    * mKycKey is not set, otherwise \c FALSE (no way to have the default KYC status be Granted (or \c TRUE)).
    */
   std::optional<bool> mDefaultKycStatus;
@@ -246,6 +246,6 @@ public:
   std::shared_ptr<Key> mMetadataKey = nullptr;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_TOKEN_INFO_H_
+#endif // HIERO_SDK_CPP_TOKEN_INFO_H_

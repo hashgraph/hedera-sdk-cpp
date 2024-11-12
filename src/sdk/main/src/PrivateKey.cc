@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
 #include <transaction.pb.h>
 #include <transaction_contents.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 PrivateKey::~PrivateKey() = default;
@@ -288,4 +288,4 @@ internal::OpenSSLUtils::EVP_PKEY PrivateKey::getInternalKey() const
   return mImpl->mKey;
 }
 
-} // namespace Hedera
+} // namespace Hiero

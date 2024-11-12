@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_DURATION_CONVERTER_H_
-#define HEDERA_SDK_CPP_IMPL_DURATION_CONVERTER_H_
+#ifndef HIERO_SDK_CPP_IMPL_DURATION_CONVERTER_H_
+#define HIERO_SDK_CPP_IMPL_DURATION_CONVERTER_H_
 
 #include <chrono>
 #include <memory>
@@ -28,7 +28,7 @@ namespace proto
 class Duration;
 }
 
-namespace Hedera::internal::DurationConverter
+namespace Hiero::internal::DurationConverter
 {
 /**
  * Get the duration in seconds represented by a Duration protobuf object.
@@ -46,6 +46,6 @@ std::chrono::seconds fromProtobuf(const proto::Duration& duration);
  */
 proto::Duration* toProtobuf(const std::chrono::system_clock::duration& duration);
 
-} // namespace Hedera::internal::DurationConverter
+} // namespace Hiero::internal::DurationConverter
 
-#endif // HEDERA_SDK_CPP_IMPL_DURATION_CONVERTER_H_
+#endif // HIERO_SDK_CPP_IMPL_DURATION_CONVERTER_H_

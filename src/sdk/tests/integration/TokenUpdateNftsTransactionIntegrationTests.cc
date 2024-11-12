@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace Hedera;
+using namespace Hiero;
 
 /**
  * @notice Integration-HIP-657
@@ -160,7 +160,7 @@ TEST_F(TokenUpdateNftsTransactionIntegrationTests, UpdateNFTMetadata)
 }
 
 //-----
-// Would need to be looked at by Hedera Services teams. It Is disabled as it is no longer failing
+// Would need to be looked at by Hiero Services teams. It Is disabled as it is no longer failing
 TEST_F(TokenUpdateNftsTransactionIntegrationTests, DISABLED_CannotUpdateNFTMetadataWhenNotSignedWithMetadataKey)
 {
   // Given

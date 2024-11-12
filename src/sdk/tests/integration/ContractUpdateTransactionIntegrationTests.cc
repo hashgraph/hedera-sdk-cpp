@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@
 #include <chrono>
 #include <gtest/gtest.h>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class ContractUpdateTransactionIntegrationTests : public BaseIntegrationTest
 {
@@ -68,7 +68,7 @@ TEST_F(ContractUpdateTransactionIntegrationTests, ExecuteContractUpdateTransacti
                       .setBytecodeFileId(fileId)
                       .setAdminKey(operatorKey->getPublicKey())
                       .setGas(1000000ULL)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                       .setAutoRenewAccountId(AccountId(2ULL))
                       .setStakedAccountId(AccountId(2ULL))
                       .execute(getTestClient())
@@ -137,7 +137,7 @@ TEST_F(ContractUpdateTransactionIntegrationTests, CannotModifyImmutableContract)
                     ContractCreateTransaction()
                       .setBytecodeFileId(fileId)
                       .setGas(1000000ULL)
-                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hedera.").toBytes())
+                      .setConstructorParameters(ContractFunctionParameters().addString("Hello from Hiero.").toBytes())
                       .execute(getTestClient())
                       .getReceipt(getTestClient())
                       .mContractId.value());

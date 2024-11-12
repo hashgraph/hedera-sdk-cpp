@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 #include <token_revoke_kyc.pb.h>
 #include <transaction.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TokenRevokeKycTransaction::TokenRevokeKycTransaction(const proto::TransactionBody& transactionBody)
@@ -121,4 +121,4 @@ proto::TokenRevokeKycTransactionBody* TokenRevokeKycTransaction::build() const
   return body.release();
 }
 
-} // namespace Hedera
+} // namespace Hiero

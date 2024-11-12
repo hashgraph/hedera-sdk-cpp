@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 using json = nlohmann::json;
 using namespace std;
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 void BaseIntegrationTest::SetUp()
@@ -45,4 +45,4 @@ void BaseIntegrationTest::SetUp()
       .get<std::string>());
 }
 
-} // namespace Hedera
+} // namespace Hiero

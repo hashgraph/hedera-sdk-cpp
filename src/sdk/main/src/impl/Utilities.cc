@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 
 using json = nlohmann::json;
 
-namespace Hedera::internal::Utilities
+namespace Hiero::internal::Utilities
 {
 //-----
 bool isPrefixOf(const std::vector<std::byte>& bytes, const std::vector<std::byte>& prefix)
@@ -129,4 +129,4 @@ json fromConfigFile(std::string_view path)
   return jsonObj;
 }
 
-} // namespace Hedera::internal::Utilities
+} // namespace Hiero::internal::Utilities

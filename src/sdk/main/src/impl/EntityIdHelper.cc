@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace Hedera::internal::EntityIdHelper
+namespace Hiero::internal::EntityIdHelper
 {
 //-----
 template<typename EntityType>
@@ -125,7 +125,7 @@ std::string checksum(std::string_view address, const LedgerId& ledgerId)
   // Step 2: Construct a byte array containing the ledger ID, followed by six zero bytes.
   const std::vector<std::byte> ledgerIdArray = Utilities::concatenateVectors({
     ledgerId.toBytes(),
-    {std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0)}
+    { std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0) }
   });
 
   // Step 3: Get the weighted sum of all the digits, modded by p3. Also get the sums of the digits in the array of
@@ -282,4 +282,4 @@ template TokenId            fromSolidityAddress<TokenId>            (const std::
 template TopicId            fromSolidityAddress<TopicId>            (const std::vector<std::byte>&);
 // clang-format on
 
-} // namespace Hedera::internal::EntityIdHelper
+} // namespace Hiero::internal::EntityIdHelper

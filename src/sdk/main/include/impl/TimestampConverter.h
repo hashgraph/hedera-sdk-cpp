@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_
-#define HEDERA_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_
+#ifndef HIERO_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_
+#define HIERO_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_
 
 #include <chrono>
 #include <memory>
@@ -30,7 +30,7 @@ class Timestamp;
 class TimestampSeconds;
 }
 
-namespace Hedera::internal::TimestampConverter
+namespace Hiero::internal::TimestampConverter
 {
 /**
  * Get the time point represented by a Timestamp protobuf object.
@@ -72,6 +72,6 @@ proto::TimestampSeconds* toSecondsProtobuf(const std::chrono::system_clock::time
  */
 [[nodiscard]] std::string toString(const std::chrono::system_clock::time_point& timestamp);
 
-} // namespace Hedera::internal::TimestampConverter
+} // namespace Hiero::internal::TimestampConverter
 
-#endif // HEDERA_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_
+#endif // HIERO_SDK_CPP_IMPL_TIMESTAMP_CONVERTER_H_

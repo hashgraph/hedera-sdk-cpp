@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <exchange_rate.pb.h>
 #include <nlohmann/json.hpp>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 ExchangeRates::ExchangeRates(const ExchangeRate& current, const ExchangeRate& next)
@@ -77,4 +77,4 @@ std::ostream& operator<<(std::ostream& os, const ExchangeRates& rates)
   return os;
 }
 
-} // namespace Hedera
+} // namespace Hiero

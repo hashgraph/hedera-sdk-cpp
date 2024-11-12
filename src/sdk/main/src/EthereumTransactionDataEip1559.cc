@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 
 #include <stdexcept>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 EthereumTransactionDataEip1559::EthereumTransactionDataEip1559(std::vector<std::byte> chainId,
@@ -122,4 +122,4 @@ std::string EthereumTransactionDataEip1559::toString() const
          "\nmR: " + internal::HexConverter::bytesToHex(mR) + "\nmS: " + internal::HexConverter::bytesToHex(mS);
 }
 
-} // namespace Hedera
+} // namespace Hiero

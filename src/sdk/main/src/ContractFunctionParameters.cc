@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace Hedera
+namespace Hiero
 {
 namespace
 {
@@ -67,7 +67,7 @@ const std::vector<std::byte> NEGATIVE_PADDING(31, std::byte(0xFF));
 {
   const std::vector<std::byte>& padding = negative ? NEGATIVE_PADDING : POSITIVE_PADDING;
   return internal::Utilities::concatenateVectors({
-    {padding.cbegin(), padding.cbegin() + getPaddingAmount(bytes)},
+    { padding.cbegin(), padding.cbegin() + getPaddingAmount(bytes) },
     bytes
   });
 }
@@ -81,7 +81,7 @@ const std::vector<std::byte> NEGATIVE_PADDING(31, std::byte(0xFF));
 [[nodiscard]] std::vector<std::byte> rightPad(const std::vector<std::byte>& bytes, bool = false)
 {
   return internal::Utilities::concatenateVectors({
-    bytes, {POSITIVE_PADDING.cbegin(), POSITIVE_PADDING.cbegin() + getPaddingAmount(bytes)}
+    bytes, { POSITIVE_PADDING.cbegin(), POSITIVE_PADDING.cbegin() + getPaddingAmount(bytes) }
   });
 }
 
@@ -532,4 +532,4 @@ std::vector<std::byte> ContractFunctionParameters::toBytes(std::string_view name
   return internal::Utilities::concatenateVectors({ functionBytes, paramsBytes, dynamicBytes });
 }
 
-} // namespace Hedera
+} // namespace Hiero

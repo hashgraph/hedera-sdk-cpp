@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_CONTRACT_CREATE_TRANSACTION_H_
-#define HEDERA_SDK_CPP_CONTRACT_CREATE_TRANSACTION_H_
+#ifndef HIERO_SDK_CPP_CONTRACT_CREATE_TRANSACTION_H_
+#define HIERO_SDK_CPP_CONTRACT_CREATE_TRANSACTION_H_
 
 #include "AccountId.h"
 #include "FileId.h"
@@ -40,7 +40,7 @@ class ContractCreateTransactionBody;
 class TransactionBody;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Start a new smart contract instance. After the instance is created, the ContractId for it is in the receipt, and can
@@ -421,7 +421,7 @@ private:
   Hbar mInitialBalance = Hbar(0LL);
 
   /**
-   * A Hedera smart contract instance is charged to extend its expiration date every renew period. If it doesn't have
+   * A Hiero smart contract instance is charged to extend its expiration date every renew period. If it doesn't have
    * enough balance, it extends as long as possible. If the balance is zero when it expires, then the smart contract
    * instance is deleted.
    */
@@ -465,6 +465,6 @@ private:
   bool mDeclineStakingReward = false;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_CONTRACT_CREATE_TRANSACTION_H_
+#endif // HIERO_SDK_CPP_CONTRACT_CREATE_TRANSACTION_H_

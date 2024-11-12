@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 
 #include <custom_fees.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 std::unique_ptr<CustomFee> CustomFee::fromProtobuf(const proto::CustomFee& proto)
@@ -94,4 +94,4 @@ std::unique_ptr<proto::CustomFee> CustomFee::initProtobuf() const
   return fee;
 }
 
-} // namespace Hedera
+} // namespace Hiero

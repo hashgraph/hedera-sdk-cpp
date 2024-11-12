@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include "impl/ASN1ECKey.h"
 #include "impl/HexConverter.h"
 
-namespace Hedera::internal::asn1
+namespace Hiero::internal::asn1
 {
 void ASN1ECKey::decode(const std::vector<std::byte>& bytes)
 {
@@ -58,4 +58,4 @@ const std::vector<std::byte> ASN1ECKey::get(const std::byte tag) const
     throw BadKeyException("Data not decoded properly for input PEM/DER EC KEY bytes!");
 }
 
-} // namespace Hedera::internal:asn1
+} // namespace Hiero::internal:asn1

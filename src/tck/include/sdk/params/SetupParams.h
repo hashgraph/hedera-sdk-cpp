@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include <optional>
 #include <string>
 
-namespace Hedera::TCK::SdkClient
+namespace Hiero::TCK::SdkClient
 {
 /**
  * Struct to hold the arguments for a `setup` JSON-RPC method call.
@@ -59,7 +59,7 @@ struct SetupParams
   std::optional<std::string> mirrorNetworkIp;
 };
 
-} // namespace Hedera::TCK::SdkClient
+} // namespace Hiero::TCK::SdkClient
 
 namespace nlohmann
 {
@@ -67,7 +67,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert SetupParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::SdkClient::SetupParams>
+struct [[maybe_unused]] adl_serializer<Hiero::TCK::SdkClient::SetupParams>
 {
   /**
    * Convert a JSON object to a SetupParams.
@@ -75,13 +75,13 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::SdkClient::SetupParams>
    * @param jsonFrom The JSON object with which to fill the SetupParams.
    * @param params   The SetupParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::SdkClient::SetupParams& params)
+  static void from_json(const json& jsonFrom, Hiero::TCK::SdkClient::SetupParams& params)
   {
-    params.operatorAccountId = Hedera::TCK::getRequiredJsonParameter<std::string>(jsonFrom, "operatorAccountId");
-    params.operatorPrivateKey = Hedera::TCK::getRequiredJsonParameter<std::string>(jsonFrom, "operatorPrivateKey");
-    params.nodeIp = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "nodeIp");
-    params.nodeAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "nodeAccountId");
-    params.mirrorNetworkIp = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "mirrorNetworkIp");
+    params.operatorAccountId = Hiero::TCK::getRequiredJsonParameter<std::string>(jsonFrom, "operatorAccountId");
+    params.operatorPrivateKey = Hiero::TCK::getRequiredJsonParameter<std::string>(jsonFrom, "operatorPrivateKey");
+    params.nodeIp = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "nodeIp");
+    params.nodeAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "nodeAccountId");
+    params.mirrorNetworkIp = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "mirrorNetworkIp");
   }
 };
 

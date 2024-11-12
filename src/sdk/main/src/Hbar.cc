@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace Const
 const std::regex FROM_STRING_PATTERN("^((?:\\+|\\-)?\\d+(?:\\.\\d+)?)(\\ (tℏ|μℏ|mℏ|ℏ|kℏ|Mℏ|Gℏ))?$");
 }
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 std::string Hbar::toString() const
@@ -106,4 +106,4 @@ HbarUnit Hbar::getUnit(const std::string& symbolString)
                               "\" was not recognized");
 }
 
-} // namespace Hedera
+} // namespace Hiero

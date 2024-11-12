@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_STATUS_H_
-#define HEDERA_SDK_CPP_STATUS_H_
+#ifndef HIERO_SDK_CPP_STATUS_H_
+#define HIERO_SDK_CPP_STATUS_H_
 
 #include <string_view>
 #include <unordered_map>
@@ -28,7 +28,7 @@ namespace proto
 enum ResponseCodeEnum : int;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Enumeration of possible transaction status types.
@@ -659,7 +659,7 @@ enum class Status
   /**
    * For every chunk, the payer account that is part of initialTransactionID must match the Payer Account of this
    * transaction. The entire initialTransactionID should match the transactionID of the first chunk, but this is not
-   * checked or enforced by Hedera except when the chunk number is 1.
+   * checked or enforced by Hiero except when the chunk number is 1.
    */
   INVALID_CHUNK_TRANSACTION_ID,
 
@@ -1709,6 +1709,6 @@ extern const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtob
  */
 [[maybe_unused]] extern const std::unordered_map<Status, std::string> gStatusToString;
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_STATUS_H_
+#endif // HIERO_SDK_CPP_STATUS_H_

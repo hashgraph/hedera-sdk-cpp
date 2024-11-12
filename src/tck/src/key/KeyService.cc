@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace Hedera::TCK::KeyService
+namespace Hiero::TCK::KeyService
 {
 namespace
 {
@@ -188,24 +188,24 @@ std::string generateKeyRecursively(const GenerateKeyParams& params, nlohmann::js
 
 //-----
 const std::unordered_map<std::string, KeyType> gStringToKeyType = {
-  {"ed25519PrivateKey",         KeyType::ED25519_PRIVATE_KEY_TYPE        },
-  { "ed25519PublicKey",         KeyType::ED25519_PUBLIC_KEY_TYPE         },
-  { "ecdsaSecp256k1PrivateKey", KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE},
-  { "ecdsaSecp256k1PublicKey",  KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE },
-  { "keyList",                  KeyType::LIST_KEY_TYPE                   },
-  { "thresholdKey",             KeyType::THRESHOLD_KEY_TYPE              },
-  { "evmAddress",               KeyType::EVM_ADDRESS_KEY_TYPE            }
+  { "ed25519PrivateKey",        KeyType::ED25519_PRIVATE_KEY_TYPE         },
+  { "ed25519PublicKey",         KeyType::ED25519_PUBLIC_KEY_TYPE          },
+  { "ecdsaSecp256k1PrivateKey", KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE },
+  { "ecdsaSecp256k1PublicKey",  KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE  },
+  { "keyList",                  KeyType::LIST_KEY_TYPE                    },
+  { "thresholdKey",             KeyType::THRESHOLD_KEY_TYPE               },
+  { "evmAddress",               KeyType::EVM_ADDRESS_KEY_TYPE             }
 };
 
 //-----
 const std::unordered_map<KeyType, std::string> gKeyTypeToString = {
-  {KeyType::ED25519_PRIVATE_KEY_TYPE,          "ed25519PrivateKey"       },
-  { KeyType::ED25519_PUBLIC_KEY_TYPE,          "ed25519PublicKey"        },
-  { KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE, "ecdsaSecp256k1PrivateKey"},
-  { KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE,  "ecdsaSecp256k1PublicKey" },
-  { KeyType::LIST_KEY_TYPE,                    "keyList"                 },
-  { KeyType::THRESHOLD_KEY_TYPE,               "thresholdKey"            },
-  { KeyType::EVM_ADDRESS_KEY_TYPE,             "evmAddress"              }
+  { KeyType::ED25519_PRIVATE_KEY_TYPE,         "ed25519PrivateKey"        },
+  { KeyType::ED25519_PUBLIC_KEY_TYPE,          "ed25519PublicKey"         },
+  { KeyType::ECDSA_SECP256k1_PRIVATE_KEY_TYPE, "ecdsaSecp256k1PrivateKey" },
+  { KeyType::ECDSA_SECP256k1_PUBLIC_KEY_TYPE,  "ecdsaSecp256k1PublicKey"  },
+  { KeyType::LIST_KEY_TYPE,                    "keyList"                  },
+  { KeyType::THRESHOLD_KEY_TYPE,               "thresholdKey"             },
+  { KeyType::EVM_ADDRESS_KEY_TYPE,             "evmAddress"               }
 };
 
 //-----
@@ -235,9 +235,9 @@ std::shared_ptr<Key> getHederaKey(const std::string& key)
     {
       proto::Key protoKey;
       protoKey.ParseFromString(internal::Utilities::byteVectorToString(internal::HexConverter::hexToBytes(key)));
-      return Hedera::Key::fromProtobuf(protoKey);
+      return Hiero::Key::fromProtobuf(protoKey);
     }
   }
 }
 
-} // namespace Hedera::TCK
+} // namespace Hiero::TCK

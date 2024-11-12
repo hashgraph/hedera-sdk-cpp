@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_IMPL_MIRROR_NETWORK_H_
-#define HEDERA_SDK_CPP_IMPL_MIRROR_NETWORK_H_
+#ifndef HIERO_SDK_CPP_IMPL_MIRROR_NETWORK_H_
+#define HIERO_SDK_CPP_IMPL_MIRROR_NETWORK_H_
 
 #include "BaseNetwork.h"
 #include "BaseNodeAddress.h"
@@ -28,34 +28,34 @@
 #include <unordered_map>
 #include <vector>
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 class MirrorNode;
 }
 
-namespace Hedera::internal
+namespace Hiero::internal
 {
 class MirrorNetwork : public BaseNetwork<MirrorNetwork, BaseNodeAddress, MirrorNode>
 {
 public:
   /**
-   * Construct a MirrorNetwork that is pre-configured for Hedera Mainnet access.
+   * Construct a MirrorNetwork that is pre-configured for Hiero Mainnet access.
    *
-   * @return A MirrorNetwork object that is set-up to communicate with the Hedera Mainnet.
+   * @return A MirrorNetwork object that is set-up to communicate with the Hiero Mainnet.
    */
   [[nodiscard]] static MirrorNetwork forMainnet();
 
   /**
-   * Construct a MirrorNetwork that is pre-configured for Hedera Testnet access.
+   * Construct a MirrorNetwork that is pre-configured for Hiero Testnet access.
    *
-   * @return A MirrorNetwork object that is set-up to communicate with the Hedera Testnet.
+   * @return A MirrorNetwork object that is set-up to communicate with the Hiero Testnet.
    */
   [[nodiscard]] static MirrorNetwork forTestnet();
 
   /**
-   * Construct a MirrorNetwork that is pre-configured for Hedera Previewnet access.
+   * Construct a MirrorNetwork that is pre-configured for Hiero Previewnet access.
    *
-   * @return A MirrorNetwork object that is set-up to communicate with the Hedera Previewnet.
+   * @return A MirrorNetwork object that is set-up to communicate with the Hiero Previewnet.
    */
   [[nodiscard]] static MirrorNetwork forPreviewnet();
 
@@ -102,6 +102,6 @@ private:
                                                                        const BaseNodeAddress& /*key*/) const override;
 };
 
-} // namespace Hedera::internal
+} // namespace Hiero::internal
 
-#endif // HEDERA_SDK_CPP_IMPL_MIRROR_NETWORK_H_
+#endif // HIERO_SDK_CPP_IMPL_MIRROR_NETWORK_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include <stdexcept>
 #include <string>
 
-using namespace Hedera;
+using namespace Hiero;
 
 int main(int argc, char** argv)
 {
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
   const std::shared_ptr<PrivateKey> operatorPrivateKey = ED25519PrivateKey::fromString(std::getenv("OPERATOR_KEY"));
 
-  // Get a client for the Hedera testnet, and set the operator account ID and key such that all generated transactions
+  // Get a client for the Hiero testnet, and set the operator account ID and key such that all generated transactions
   // will be paid for by this account and be signed by this key.
   Client client = Client::forTestnet();
   client.setOperator(operatorAccountId, operatorPrivateKey);
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
    * You can use accountId.getChecksum() to get the checksum of an AccountId object that was constructed using
    * fromString(). This will be the checksum from the input string. fromString() will merely parse the string and
    * create an AccountId object with the expected shard, realm, num, and checksum values. fromString() will NOT verify
-   * that the AccountId maps to a valid account on the Hedera network, and it will not verify the checksum.
+   * that the AccountId maps to a valid account on the Hiero network, and it will not verify the checksum.
    *
    * To verify a checksum, call accountId.validateChecksum(client).  If the checksum is invalid, validateChecksum() will
    * throw a BadEntityIdException, otherwise it will return normally.

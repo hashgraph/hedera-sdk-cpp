@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class FileAppendTransactionIntegrationTests : public BaseIntegrationTest
 {
@@ -192,7 +192,7 @@ TEST_F(FileAppendTransactionIntegrationTests, ExecuteFileAppendTransaction)
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
-  ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hedera is great!"));
+  ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hiero is great!"));
   ASSERT_NO_THROW(appendedContents = internal::Utilities::stringToByteVector(" It is also awesome!"));
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey() })
@@ -230,7 +230,7 @@ TEST_F(FileAppendTransactionIntegrationTests, CanAppendLargeContents)
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
-  ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hedera is great! "));
+  ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hiero is great! "));
   ASSERT_NO_THROW(appendedContents = internal::Utilities::stringToByteVector(getContent()));
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey() })
@@ -266,7 +266,7 @@ TEST_F(FileAppendTransactionIntegrationTests, SerializeDeserializeExecute)
   ASSERT_NO_THROW(
     operatorKey = ED25519PrivateKey::fromString(
       "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
-  ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hedera is great! "));
+  ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hiero is great! "));
   ASSERT_NO_THROW(appendedContents = internal::Utilities::stringToByteVector(getContent()));
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey() })
@@ -311,7 +311,7 @@ TEST_F(FileAppendTransactionIntegrationTests, FreezeSignSerializeDeserializeAndC
 
   const TransactionType expectedType = TransactionType::FILE_APPEND_TRANSACTION;
 
-  ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hedera is great! "));
+  ASSERT_NO_THROW(origContents = internal::Utilities::stringToByteVector("Hiero is great! "));
   ASSERT_NO_THROW(appendedContents = internal::Utilities::stringToByteVector(getContent()));
   ASSERT_NO_THROW(fileId = FileCreateTransaction()
                              .setKeys({ operatorKey->getPublicKey() })

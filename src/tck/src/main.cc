@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@
 
 #include <impl/EntityIdHelper.h>
 
-using namespace Hedera::TCK;
+using namespace Hiero::TCK;
 
 int main(int argc, char** argv)
 {
   // Initialize the TCK server with the port number.
-  TckServer tckServer((argc > 1) ? static_cast<int>(Hedera::internal::EntityIdHelper::getNum(argv[1])) : // NOLINT
+  TckServer tckServer((argc > 1) ? static_cast<int>(Hiero::internal::EntityIdHelper::getNum(argv[1])) : // NOLINT
                         TckServer::DEFAULT_HTTP_PORT);
 
   // Add the SDK client functions.

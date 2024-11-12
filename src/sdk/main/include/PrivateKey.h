@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_PRIVATE_KEY_H_
-#define HEDERA_SDK_CPP_PRIVATE_KEY_H_
+#ifndef HIERO_SDK_CPP_PRIVATE_KEY_H_
+#define HIERO_SDK_CPP_PRIVATE_KEY_H_
 
 #include "Key.h"
 
@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace Hedera
+namespace Hiero
 {
 template<typename SdkRequestType>
 class Transaction;
@@ -38,12 +38,12 @@ class PublicKey;
 class WrappedTransaction;
 }
 
-namespace Hedera::internal::OpenSSLUtils
+namespace Hiero::internal::OpenSSLUtils
 {
 class EVP_PKEY;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * A generic class representing a private key.
@@ -195,6 +195,6 @@ private:
   std::unique_ptr<PrivateKeyImpl> mImpl;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_PRIVATE_KEY_H_
+#endif // HIERO_SDK_CPP_PRIVATE_KEY_H_

@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <basic_types.pb.h>
 #include <transaction_record.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 PendingAirdropRecord::PendingAirdropRecord(PendingAirdropId pendingAirdropId, uint64_t amount)
@@ -64,4 +64,4 @@ std::string PendingAirdropRecord::toString() const
   return mPendingAirdropId.toString() + " " + std::to_string(mAmount);
 }
 
-} // namespace Hedera
+} // namespace Hiero

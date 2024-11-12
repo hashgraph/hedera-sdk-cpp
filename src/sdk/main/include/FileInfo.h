@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_FILE_INFO_H_
-#define HEDERA_SDK_CPP_FILE_INFO_H_
+#ifndef HIERO_SDK_CPP_FILE_INFO_H_
+#define HIERO_SDK_CPP_FILE_INFO_H_
 
 #include "FileId.h"
 #include "KeyList.h"
@@ -37,7 +37,7 @@ namespace proto
 class FileGetInfoResponse_FileInfo;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * Contains information about a file instance.
@@ -127,6 +127,6 @@ public:
   LedgerId mLedgerId;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_FILE_INFO_H_
+#endif // HIERO_SDK_CPP_FILE_INFO_H_
