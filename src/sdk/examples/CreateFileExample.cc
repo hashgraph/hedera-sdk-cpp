@@ -48,7 +48,7 @@ int main(int argc, char** argv)
   client.setOperator(operatorAccountId, operatorPrivateKey);
 
   // The file is required to be a byte array, you can easily use the bytes of a file instead.
-  std::string fileStringContents = "Hiero hashgraph is great!";
+  std::string fileStringContents = "Hiero is great!";
 
   const FileId fileId = FileCreateTransaction()
                           .setKeys({ client.getOperatorPublicKey() })
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
   std::cout << std::endl;
 
   // Update file contents
-  std::string fileStringContentsUpdated = "Hiero hashgraph is great! Updated contents.";
+  std::string fileStringContentsUpdated = "Hiero is great! Updated contents.";
   std::cout << "Updating file contents! " << std::endl;
   TransactionReceipt txReceipt = FileUpdateTransaction()
                                    .setFileId(fileId)

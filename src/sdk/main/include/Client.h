@@ -51,7 +51,7 @@ class SubscriptionHandle;
 namespace Hiero
 {
 /**
- * Managed client for use on the Hiero Hashgraph network.
+ * Managed client for use on the Hiero network.
  */
 class Client
 {

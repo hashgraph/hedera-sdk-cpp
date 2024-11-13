@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   // Create a new file.
   const FileId fileId = FileCreateTransaction()
                           .setKeys({ client.getOperatorPublicKey() })
-                          .setContents(internal::Utilities::stringToByteVector("Hiero Hashgraph is great!"))
+                          .setContents(internal::Utilities::stringToByteVector("Hiero is great!"))
                           .execute(client)
                           .getReceipt(client)
                           .mFileId.value();
