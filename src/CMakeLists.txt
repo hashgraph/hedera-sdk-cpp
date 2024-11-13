@@ -1,5 +1,5 @@
 add_subdirectory(sdk)
-# Add optional TCK subdirectory build
+# Optional TCK build
 option(BUILD_TCK "Build the TCK tests" OFF)
 
 if(BUILD_TCK)
