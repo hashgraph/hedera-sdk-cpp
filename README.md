@@ -46,27 +46,54 @@ git clone https://github.com/hiero-ledger/hiero-sdk-cpp.git
 cd hiero-sdk-cpp
 ```
 
-3. Complete the following tasks within your project directory for the build you want
+3. You can configure and build the project for various platforms using CMake presets. Additionally, optional components like TCK and Tests can be included in the build using flags.
 
 ```sh
 # Ensure the VCPkg Submodule is initialized
 git submodule update --init
 
 # Windows (x64) Build
-cmake --preset windows-x64-release
+cmake --preset windows-x64-release -DBUILD_TCK=ON -DBUILD_TESTS=ON
 cmake --build --preset windows-x64-release
 
 # Linux (x64) Build
-cmake --preset linux-x64-release
+cmake --preset linux-x64-release -DBUILD_TCK=ON -DBUILD_TESTS=ON
 cmake --build --preset linux-x64-release
 
 # MacOS (Intel x64) Build
-cmake --preset macos-x64-release
+cmake --preset macos-x64-release -DBUILD_TCK=ON -DBUILD_TESTS=ON
 cmake --build --preset macos-x64-release
 
 # MacOS (Aarch64) Build
-cmake --preset macos-arm64-release
+cmake --preset macos-arm64-release -DBUILD_TCK=ON -DBUILD_TESTS=ON
 cmake --build --preset macos-arm64-release
+```
+
+Optional Build Flags
+The project supports the following optional flags to include or exclude specific components:
+
+`BUILD_TCK`
+
+```
+Description: Controls whether the TCK tests are included in the build.
+Default: OFF
+Enable: Add -DBUILD_TCK=ON during configuration.
+```
+
+`BUILD_TESTS`
+
+```
+Description: Controls whether the test suite is included in the build.
+Default: OFF
+Enable: Add -DBUILD_TESTS=ON during configuration.
+```
+
+`BUILD_EXAMPLES`
+
+```
+Description: Controls whether the user examples are included in the build.
+Default: OFF
+Enable: Add -DBUILD_EXAMPLES=ON during configuration.
 ```
 
 ## Testing
@@ -177,7 +204,7 @@ More instructions for contribution can be found in the
 
 ## Code of Conduct
 
-Hiero uses the Linux Foundation Decentralised Trust [Code of Conduct]([https://github.com/hashgraph/.github/blob/main/CODE_OF_CONDUCT.md](https://www.lfdecentralizedtrust.org/code-of-conduct)).
+Hiero uses the Linux Foundation Decentralised Trust [Code of Conduct](<[https://github.com/hashgraph/.github/blob/main/CODE_OF_CONDUCT.md](https://www.lfdecentralizedtrust.org/code-of-conduct)>).
 
 ## License
 
