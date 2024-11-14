@@ -88,6 +88,14 @@ Default: OFF
 Enable: Add -DBUILD_TESTS=ON during configuration.
 ```
 
+`BUILD_EXAMPLES`
+
+```
+Description: Controls whether the user examples are included in the build.
+Default: OFF
+Enable: Add -DBUILD_EXAMPLES=ON during configuration.
+```
+
 ## Testing
 
 To run all SDK tests (for Release or Debug builds):
