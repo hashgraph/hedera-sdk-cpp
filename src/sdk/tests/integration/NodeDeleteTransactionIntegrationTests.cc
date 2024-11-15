@@ -29,7 +29,7 @@
 
 using namespace Hedera;
 
-class NodeUpdateTransactionIntegrationTests : public BaseIntegrationTest
+class NodeDeleteTransactionIntegrationTests : public BaseIntegrationTest
 {
 protected:
   [[nodiscard]] const uint64_t& getNodeId() const { return mNodeId; }
@@ -48,7 +48,7 @@ private:
 };
 
 //-----
-TEST_F(NodeUpdateTransactionIntegrationTests, CanExecuteNodeUpdateTransaction)
+TEST_F(NodeDeleteTransactionIntegrationTests, CanExecuteNodeDeleteTransaction)
 {
   // Given / When / Then
   TransactionResponse txResponse;
