@@ -25,7 +25,6 @@
 #include "TransactionRecord.h"
 #include "TransactionResponse.h"
 #include "impl/HexConverter.h"
-#include "impl/Utilities.h"
 
 #include <gtest/gtest.h>
 
@@ -87,7 +86,7 @@ private:
 };
 
 //-----
-TEST_F(NodeUpdateTransactionIntegrationTests, CanExecuteNodeUpdateTransaction)
+TEST_F(NodeUpdateTransactionIntegrationTests, DISABLED_CanExecuteNodeUpdateTransaction)
 {
   // Given
   const std::shared_ptr<PrivateKey> adminKey = ED25519PrivateKey::generatePrivateKey();

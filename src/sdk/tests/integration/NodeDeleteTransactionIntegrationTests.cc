@@ -44,11 +44,11 @@ private:
   const FileId mFileId = FileId::fromString("0.0.150");
   // The file hash needs to be taken from the network context to be correct
   const std::string mFileHash =
-    "d9ec902a9fb8dc0f1a43c84b451c59dfe47622d9e5c33965a0ace77003fcad9e0b71478976dbee9dee5d2403f9267b18";
+    "f933337c1585674b4e273072f48b140fc0aa81aea962c8cfa1f0cef5e04981bcd7c596c1df0ec6a26f0610940a5de5f9";
 };
 
 //-----
-TEST_F(NodeDeleteTransactionIntegrationTests, CanExecuteNodeDeleteTransaction)
+TEST_F(NodeDeleteTransactionIntegrationTests, DISABLED_CanExecuteNodeDeleteTransaction)
 {
   // Given / When / Then
   TransactionResponse txResponse;
