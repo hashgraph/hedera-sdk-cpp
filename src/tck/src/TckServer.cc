@@ -18,16 +18,13 @@
  *
  */
 #include "TckServer.h"
-#include "account/AccountService.h"
 #include "account/params/CreateAccountParams.h"
 #include "account/params/DeleteAccountParams.h"
 #include "account/params/UpdateAccountParams.h"
-#include "key/KeyService.h"
 #include "key/params/GenerateKeyParams.h"
-#include "sdk/SdkClient.h"
 #include "sdk/params/ResetParams.h"
 #include "sdk/params/SetupParams.h"
-#include "token/TokenService.h"
+#include "token/params/AssociateTokenParams.h"
 #include "token/params/CreateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -366,6 +363,8 @@ template TckServer::MethodHandle TckServer::getHandle<SdkClient::ResetParams>(
 template TckServer::MethodHandle TckServer::getHandle<SdkClient::SetupParams>(
   nlohmann::json (*method)(const SdkClient::SetupParams&));
 
+template TckServer::MethodHandle TckServer::getHandle<TokenService::AssociateTokenParams>(
+  nlohmann::json (*method)(const TokenService::AssociateTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::CreateTokenParams>(
   nlohmann::json (*method)(const TokenService::CreateTokenParams&));
 

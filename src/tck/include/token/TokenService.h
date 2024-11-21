@@ -27,7 +27,16 @@ namespace Hedera::TCK::TokenService
 /**
  * Forward declarations.
  */
+class AssociateTokenParams;
 class CreateTokenParams;
+
+/**
+ * Associate an account with tokens.
+ *
+ * @param params The parameters to use to associate the account and tokens.
+ * @return A JSON response containing the status of the token association.
+ */
+nlohmann::json associateToken(const AssociateTokenParams& params);
 
 /**
  * Create a token.
