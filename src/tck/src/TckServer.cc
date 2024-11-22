@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "TckServer.h"
-#include "account/AccountService.h"
 #include "account/params/CreateAccountParams.h"
 #include "account/params/DeleteAccountParams.h"
 #include "account/params/UpdateAccountParams.h"
-#include "key/KeyService.h"
 #include "key/params/GenerateKeyParams.h"
-#include "sdk/SdkClient.h"
 #include "sdk/params/ResetParams.h"
 #include "sdk/params/SetupParams.h"
-#include "token/TokenService.h"
 #include "token/params/CreateTokenParams.h"
+#include "token/params/PauseTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
 #include "json/JsonUtils.h"
@@ -350,5 +347,7 @@ template TckServer::MethodHandle TckServer::getHandle<SdkClient::SetupParams>(
 
 template TckServer::MethodHandle TckServer::getHandle<TokenService::CreateTokenParams>(
   nlohmann::json (*method)(const TokenService::CreateTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::PauseTokenParams>(
+  nlohmann::json (*method)(const TokenService::PauseTokenParams&));
 
 } // namespace Hiero::TCK

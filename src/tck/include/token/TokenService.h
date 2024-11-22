@@ -9,7 +9,8 @@ namespace Hiero::TCK::TokenService
 /**
  * Forward declarations.
  */
-class CreateTokenParams;
+struct CreateTokenParams;
+struct PauseTokenParams;
 
 /**
  * Create a token.
@@ -18,6 +19,14 @@ class CreateTokenParams;
  * @return A JSON response containing the created token ID and the status of the token creation.
  */
 nlohmann::json createToken(const CreateTokenParams& params);
+
+/**
+ * Pause a token.
+ *
+ * @param params The parameters to use to pause a token.
+ * @return A JSON response containing the status of the token pause.
+ */
+nlohmann::json pauseToken(const PauseTokenParams& params);
 
 } // namespace Hiero::TCK::TokenService
 
