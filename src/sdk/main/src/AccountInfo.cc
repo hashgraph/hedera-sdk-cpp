@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include <crypto_get_info.pb.h>
 #include <nlohmann/json.hpp>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 AccountInfo AccountInfo::fromProtobuf(const proto::CryptoGetInfoResponse_AccountInfo& proto)
@@ -197,4 +197,4 @@ std::ostream& operator<<(std::ostream& os, const AccountInfo& info)
   return os;
 }
 
-} // namespace Hedera
+} // namespace Hiero

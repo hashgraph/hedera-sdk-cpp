@@ -15,7 +15,7 @@ jobs:
     runs-on: hiero-client-sdk-linux-large
 
     env:
-      HEDERA_NETWORK: localhost
+      HIERO_NETWORK: localhost
     strategy:
       matrix:
         include:

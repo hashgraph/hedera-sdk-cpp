@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@
 #include <string_view>
 #include <vector>
 
-using namespace Hedera;
-using namespace Hedera::internal::Utilities;
+using namespace Hiero;
+using namespace Hiero::internal::Utilities;
 
 class ED25519PrivateKeyUnitTests : public ::testing::Test
 {
@@ -69,12 +69,12 @@ private:
     "KEY-----";
 
   const std::unordered_map<std::string_view, std::pair<std::string_view, std::string_view>> expectedPrivateKeyPairs{
-    {openSSLCompatiblePrivateKey,
+    { openSSLCompatiblePrivateKey,
      { "FEB858A4A69600A5EEF2D9C76F7FB84FC0B6627F29E0AB17E160F640C267D404",
-        "8CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D" }},
+        "8CCD31B53D1835B467AAC795DAB19B274DD3B37E3DAF12FCEC6BC02BAC87B53D" } },
     { unencryptedPemPrivateKey,
      { "E81B8DA1E012A17B3D8D2DD9D51FD95534BB5311A0A8A2FDFCB00E5CDEE25BE5",
-        "F7B9AA4A8E4EEE94E4277DFE757D8D7CDE027E7CD5349B7D8E6EE21C9B9395BE" }},
+        "F7B9AA4A8E4EEE94E4277DFE757D8D7CDE027E7CD5349B7D8E6EE21C9B9395BE" } },
   };
 };
 
