@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef HEDERA_SDK_CPP_MIRRORNODEROUTER_H
-#define HEDERA_SDK_CPP_MIRRORNODEROUTER_H
+#ifndef HIERO_SDK_CPP_MIRRORNODEROUTER_H
+#define HIERO_SDK_CPP_MIRRORNODEROUTER_H
 
 #include <string>
 #include <string_view>
@@ -27,7 +27,7 @@
 /**
  * Namespace for the internal classes related to the Mirror Node Gateway.
  */
-namespace Hedera::internal::MirrorNodeGateway
+namespace Hiero::internal::MirrorNodeGateway
 {
 /**
  * Represents different mirror node query types.
@@ -63,6 +63,6 @@ private:
   };
 };
 
-} // namespace Hedera::internal::MirrorNodeGateway
+} // namespace Hiero::internal::MirrorNodeGateway
 
-#endif // HEDERA_SDK_CPP_MIRRORNODEROUTER_H
+#endif // HIERO_SDK_CPP_MIRRORNODEROUTER_H

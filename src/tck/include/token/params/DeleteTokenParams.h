@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_TCK_CPP_DELETE_TOKEN_PARAMS_H_
-#define HEDERA_TCK_CPP_DELETE_TOKEN_PARAMS_H_
+#ifndef HIERO_TCK_CPP_DELETE_TOKEN_PARAMS_H_
+#define HIERO_TCK_CPP_DELETE_TOKEN_PARAMS_H_
 
 #include "common/CommonTransactionParams.h"
 #include "json/JsonUtils.h"
@@ -27,7 +27,7 @@
 #include <optional>
 #include <string>
 
-namespace Hedera::TCK::TokenService
+namespace Hiero::TCK::TokenService
 {
 /**
  * Struct to hold the arguments for a `deleteToken` JSON-RPC method call.
@@ -53,7 +53,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert DeleteTokenParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::TokenService::DeleteTokenParams>
+struct [[maybe_unused]] adl_serializer<Hiero::TCK::TokenService::DeleteTokenParams>
 {
   /**
    * Convert a JSON object to a DeleteTokenParams.
@@ -61,14 +61,14 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::TokenService::DeleteTokenPar
    * @param jsonFrom The JSON object with which to fill the DeleteTokenParams.
    * @param params   The DeleteTokenParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::TokenService::DeleteTokenParams& params)
+  static void from_json(const json& jsonFrom, Hiero::TCK::TokenService::DeleteTokenParams& params)
   {
-    params.mTokenId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "tokenId");
+    params.mTokenId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "tokenId");
     params.mCommonTxParams =
-      Hedera::TCK::getOptionalJsonParameter<Hedera::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
+      Hiero::TCK::getOptionalJsonParameter<Hiero::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
   }
 };
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_DELETE_TOKEN_PARAMS_H_
+#endif // HIERO_TCK_CPP_DELETE_TOKEN_PARAMS_H_

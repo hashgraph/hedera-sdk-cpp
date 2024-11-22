@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2023 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2023 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 
 using json = nlohmann::json;
 
-namespace Hedera::internal::MirrorNodeGateway
+namespace Hiero::internal::MirrorNodeGateway
 {
 //-----
 json MirrorNodeQuery(std::string_view mirrorNodeUrl, const std::vector<std::string>& params, std::string_view queryType)

@@ -15,7 +15,7 @@ jobs:
     runs-on: hiero-client-sdk-linux-large
 
     env:
-      HEDERA_NETWORK: localhost
+      HIERO_NETWORK: localhost
     strategy:
       matrix:
         include:
@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
         with:
           egress-policy: audit
 
@@ -97,7 +97,7 @@ jobs:
         run: mkdir -p "${{ github.workspace }}/b/vcpkg_cache"
 
       - name: Install CMake & Ninja
-        uses: lukka/get-cmake@b516803a3c5fac40e2e922349d15cdebdba01e60 # v3.30.5
+        uses: lukka/get-cmake@71b7adfe2603f48bb9ed50d2b01a72499ae94885 # v3.31.0
 
       - name: Setup VCPkg
         uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
@@ -121,7 +121,7 @@ jobs:
           VCPKG_BINARY_SOURCES: clear
         run: |
           echo "::group::Configure Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug
+          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-debug -DBUILD_TESTS=ON
           echo "::endgroup::"
 
           echo "::group::Build Project"
@@ -143,7 +143,7 @@ jobs:
           VCPKG_BINARY_SOURCES: clear
         run: |
           echo "::group::Configure Project"
-          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-release
+          ${{ steps.cgroup.outputs.exec }} cmake --preset ${{ matrix.preset }}-release -DBUILD_TESTS=ON
           echo "::endgroup::"
 
           echo "::group::Build Project"

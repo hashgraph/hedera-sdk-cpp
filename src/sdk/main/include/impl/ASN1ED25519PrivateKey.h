@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @brief This file defines the Hedera C++ SDK's ASN1ED25519PrivateKey class, derived from ASN1ECKey.
+ * @brief This file defines the Hiero C++ SDK's ASN1ED25519PrivateKey class, derived from ASN1ECKey.
  */
 
-#ifndef HEDERA_SDK_CPP_IMPL_ASN1_ED25519_PRIVATE_KEY_H_
-#define HEDERA_SDK_CPP_IMPL_ASN1_ED25519_PRIVATE_KEY_H_
+#ifndef HIERO_SDK_CPP_IMPL_ASN1_ED25519_PRIVATE_KEY_H_
+#define HIERO_SDK_CPP_IMPL_ASN1_ED25519_PRIVATE_KEY_H_
 
 #include "ASN1ECKey.h"
 
-namespace Hedera::internal::asn1
+namespace Hiero::internal::asn1
 {
 // The ASN.1 algorithm identifier prefix bytes for an EC ED25519PrivateKey
 const std::vector<std::byte> ASN1_EDPRK_PREFIX_BYTES = {
@@ -65,6 +65,6 @@ private:
   ASN1ED25519PrivateKey() = default;
 };
 
-} // namespace Hedera::internal:asn1
+} // namespace Hiero::internal:asn1
 
-#endif // HEDERA_SDK_CPP_IMPL_ASN1_ED25519_PRIVATE_KEY_H_
+#endif // HIERO_SDK_CPP_IMPL_ASN1_ED25519_PRIVATE_KEY_H_

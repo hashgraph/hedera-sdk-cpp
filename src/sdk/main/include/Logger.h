@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_LOGGER_H_
-#define HEDERA_SDK_CPP_LOGGER_H_
+#ifndef HIERO_SDK_CPP_LOGGER_H_
+#define HIERO_SDK_CPP_LOGGER_H_
 
 #include "Defaults.h"
 
@@ -26,10 +26,10 @@
 #include <memory>
 #include <string_view>
 
-namespace Hedera
+namespace Hiero
 {
 /**
- * Logger class used by the Hedera C++ SDK. In essence, it's a wrapper for a log4cxx logger instance and provides easier
+ * Logger class used by the Hiero C++ SDK. In essence, it's a wrapper for a log4cxx logger instance and provides easier
  * usage.
  */
 class Logger
@@ -147,6 +147,6 @@ private:
   LoggingLevel mPreviousLevel = LoggingLevel::TRACE;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
-#endif // HEDERA_SDK_CPP_LOGGER_H_
+#endif // HIERO_SDK_CPP_LOGGER_H_
