@@ -3,14 +3,17 @@
 #include "key/KeyService.h"
 #include "sdk/SdkClient.h"
 #include "token/params/CreateTokenParams.h"
+#include "token/params/UnpauseTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
 
 #include <AccountId.h>
 #include <Status.h>
 #include <TokenCreateTransaction.h>
+#include <TokenId.h>
 #include <TokenSupplyType.h>
 #include <TokenType.h>
+#include <TokenUnpauseTransaction.h>
 #include <TransactionReceipt.h>
 #include <TransactionResponse.h>
 #include <impl/EntityIdHelper.h>
@@ -169,9 +172,33 @@ nlohmann::json createToken(const CreateTokenParams& params)
   const TransactionReceipt txReceipt =
     tokenCreateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
-    { "tokenId", txReceipt.mTokenId->toString()        },
-    { "status",  gStatusToString.at(txReceipt.mStatus) }
+    {"tokenId", txReceipt.mTokenId->toString()       },
+    { "status", gStatusToString.at(txReceipt.mStatus)}
   };
 }
+
+//-----
+nlohmann::json unpauseToken(const UnpauseTokenParams& params)
+{
+  TokenUnpauseTransaction tokenUnpauseTransaction;
+  tokenUnpauseTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
+
+  if (params.mTokenId.has_value())
+  {
+    tokenUnpauseTransaction.setTokenId(TokenId::fromString(params.mTokenId.value()));
+  }
+
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(tokenUnpauseTransaction, SdkClient::getClient());
+  }
+
+  return
+  {
+    {
+      "status", gStatusToString.at(
+                  tokenUnpauseTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)
+    }
+  }
 
 } // namespace Hiero::TCK::TokenService
