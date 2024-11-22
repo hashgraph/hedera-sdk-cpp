@@ -1,24 +1,6 @@
-/*-
- *
- * Hedera C++ SDK
- *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-#ifndef HEDERA_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
-#define HEDERA_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
+// SPDX-License-Identifier: Apache-2.0
+#ifndef HIERO_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
+#define HIERO_TCK_CPP_CUSTOM_FEE_SERIALIZER_H_
 
 #include "json/JsonRpcException.h"
 
@@ -39,7 +21,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert CustomFee arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
+struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hiero::CustomFee>>
 {
   /**
    * Convert a CustomFee to a JSON object.
@@ -47,12 +29,12 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
    * @param jsonTo The JSON object to fill with the CustomFee.
    * @param fee    The CustomFee with which to fill the JSON object.
    */
-  static void to_json(json& jsonTo, const std::shared_ptr<Hedera::CustomFee>& fee)
+  static void to_json(json& jsonTo, const std::shared_ptr<Hiero::CustomFee>& fee)
   {
     jsonTo["feeCollectorAccountId"] = fee->getFeeCollectorAccountId().toString();
     jsonTo["feeCollectorsExempt"] = fee->getAllCollectorsAreExempt();
 
-    if (const std::shared_ptr<Hedera::CustomFixedFee> fixedFee = std::dynamic_pointer_cast<Hedera::CustomFixedFee>(fee);
+    if (const std::shared_ptr<Hiero::CustomFixedFee> fixedFee = std::dynamic_pointer_cast<Hiero::CustomFixedFee>(fee);
         fixedFee)
     {
       jsonTo["fixedFee"] = {
@@ -64,11 +46,11 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
       }
     }
 
-    else if (const std::shared_ptr<Hedera::CustomFractionalFee> fractionalFee =
-               std::dynamic_pointer_cast<Hedera::CustomFractionalFee>(fee);
+    else if (const std::shared_ptr<Hiero::CustomFractionalFee> fractionalFee =
+               std::dynamic_pointer_cast<Hiero::CustomFractionalFee>(fee);
              fractionalFee)
     {
-      std::string assessmentMethod = Hedera::gFeeAssessmentMethodToString.at(fractionalFee->getAssessmentMethod());
+      std::string assessmentMethod = Hiero::gFeeAssessmentMethodToString.at(fractionalFee->getAssessmentMethod());
       std::transform(assessmentMethod.begin(),
                      assessmentMethod.end(),
                      assessmentMethod.begin(),
@@ -84,8 +66,8 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
 
     else
     {
-      const std::shared_ptr<Hedera::CustomRoyaltyFee> royaltyFee =
-        std::dynamic_pointer_cast<Hedera::CustomRoyaltyFee>(fee);
+      const std::shared_ptr<Hiero::CustomRoyaltyFee> royaltyFee =
+        std::dynamic_pointer_cast<Hiero::CustomRoyaltyFee>(fee);
 
       jsonTo["royaltyFee"] = {
         {"numerator",    royaltyFee->getNumerator()  },
@@ -112,76 +94,75 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
    * @param jsonFrom The JSON object with which to fill the CustomFee.
    * @param fee      The CustomFee to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, std::shared_ptr<Hedera::CustomFee>& fee)
+  static void from_json(const json& jsonFrom, std::shared_ptr<Hiero::CustomFee>& fee)
   {
     if (!jsonFrom.contains("feeCollectorAccountId"))
     {
-      throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                          "invalid parameters: feeCollectorAccountId is REQUIRED.");
+      throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                         "invalid parameters: feeCollectorAccountId is REQUIRED.");
     }
 
     if (!jsonFrom["feeCollectorAccountId"].is_string())
     {
-      throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                          "invalid parameters: feeCollectorAccountId MUST be a string.");
+      throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                         "invalid parameters: feeCollectorAccountId MUST be a string.");
     }
 
-    const Hedera::AccountId feeCollectorAccountId =
-      Hedera::AccountId::fromString(jsonFrom["feeCollectorAccountId"].get<std::string>());
+    const Hiero::AccountId feeCollectorAccountId =
+      Hiero::AccountId::fromString(jsonFrom["feeCollectorAccountId"].get<std::string>());
 
     if (!jsonFrom.contains("feeCollectorsExempt"))
     {
-      throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                          "invalid parameters: feeCollectorsExempt is REQUIRED.");
+      throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                         "invalid parameters: feeCollectorsExempt is REQUIRED.");
     }
 
     if (!jsonFrom["feeCollectorsExempt"].is_boolean())
     {
-      throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                          "invalid parameters: feeCollectorsExempt MUST be a boolean.");
+      throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                         "invalid parameters: feeCollectorsExempt MUST be a boolean.");
     }
 
     const bool feeCollectorsExempt = jsonFrom["feeCollectorsExempt"].get<bool>();
 
     if (jsonFrom.contains("fixedFee"))
     {
-      auto fixedFee = std::make_shared<Hedera::CustomFixedFee>();
+      auto fixedFee = std::make_shared<Hiero::CustomFixedFee>();
       fixedFee->setFeeCollectorAccountId(feeCollectorAccountId);
       fixedFee->setAllCollectorsAreExempt(feeCollectorsExempt);
 
       if (!jsonFrom["fixedFee"].contains("amount"))
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: amount is REQUIRED for fixedFee fee types.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: amount is REQUIRED for fixedFee fee types.");
       }
 
       if (!jsonFrom["fixedFee"]["amount"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: amount MUST be a string.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: amount MUST be a string.");
       }
 
       try
       {
         fixedFee->setAmount(
-          Hedera::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["fixedFee"]["amount"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["fixedFee"]["amount"].get<std::string>()));
       }
       catch (const std::invalid_argument&)
       {
-        fixedFee->setAmount(
-          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fixedFee"]["amount"].get<std::string>()));
+        fixedFee->setAmount(Hiero::internal::EntityIdHelper::getNum(jsonFrom["fixedFee"]["amount"].get<std::string>()));
       }
 
       if (jsonFrom["fixedFee"].contains("denominatingTokenId"))
       {
         if (!jsonFrom["fixedFee"]["denominatingTokenId"].is_string())
         {
-          throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                              "invalid parameters: denominatingTokenId MUST be a string.");
+          throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                             "invalid parameters: denominatingTokenId MUST be a string.");
         }
 
         fixedFee->setDenominatingTokenId(
-          Hedera::TokenId::fromString(jsonFrom["fixedFee"]["denominatingTokenId"].get<std::string>()));
+          Hiero::TokenId::fromString(jsonFrom["fixedFee"]["denominatingTokenId"].get<std::string>()));
       }
 
       fee = fixedFee;
@@ -189,115 +170,115 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
 
     else if (jsonFrom.contains("fractionalFee"))
     {
-      auto fractionalFee = std::make_shared<Hedera::CustomFractionalFee>();
+      auto fractionalFee = std::make_shared<Hiero::CustomFractionalFee>();
       fractionalFee->setFeeCollectorAccountId(feeCollectorAccountId);
       fractionalFee->setAllCollectorsAreExempt(feeCollectorsExempt);
 
       if (!jsonFrom["fractionalFee"].contains("numerator"))
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: numerator is REQUIRED for fractionalFee fee types.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: numerator is REQUIRED for fractionalFee fee types.");
       }
 
       if (!jsonFrom["fractionalFee"]["numerator"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: numerator MUST be a string.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: numerator MUST be a string.");
       }
 
       try
       {
         fractionalFee->setNumerator(
-          Hedera::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["fractionalFee"]["numerator"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["fractionalFee"]["numerator"].get<std::string>()));
       }
       catch (const std::invalid_argument&)
       {
         fractionalFee->setNumerator(
-          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["numerator"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["numerator"].get<std::string>()));
       }
 
       if (!jsonFrom["fractionalFee"].contains("denominator"))
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: denominator is REQUIRED for fractionalFee fee types.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: denominator is REQUIRED for fractionalFee fee types.");
       }
 
       if (!jsonFrom["fractionalFee"]["denominator"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: denominator MUST be a string.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: denominator MUST be a string.");
       }
 
       try
       {
-        fractionalFee->setDenominator(Hedera::internal::EntityIdHelper::getNum<int64_t>(
+        fractionalFee->setDenominator(Hiero::internal::EntityIdHelper::getNum<int64_t>(
           jsonFrom["fractionalFee"]["denominator"].get<std::string>()));
       }
       catch (const std::invalid_argument&)
       {
         fractionalFee->setDenominator(
-          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["denominator"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["denominator"].get<std::string>()));
       }
 
       if (!jsonFrom["fractionalFee"].contains("minimumAmount"))
       {
-        throw Hedera::TCK::JsonRpcException(
-          Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+        throw Hiero::TCK::JsonRpcException(
+          Hiero::TCK::JsonErrorType::INVALID_PARAMS,
           "invalid parameters: minimumAmount is REQUIRED for fractionalFee fee types.");
       }
 
       if (!jsonFrom["fractionalFee"]["minimumAmount"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: minimumAmount MUST be a string.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: minimumAmount MUST be a string.");
       }
 
       try
       {
-        fractionalFee->setMinimumAmount(Hedera::internal::EntityIdHelper::getNum<int64_t>(
+        fractionalFee->setMinimumAmount(Hiero::internal::EntityIdHelper::getNum<int64_t>(
           jsonFrom["fractionalFee"]["minimumAmount"].get<std::string>()));
       }
       catch (const std::invalid_argument&)
       {
         fractionalFee->setMinimumAmount(
-          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["minimumAmount"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["minimumAmount"].get<std::string>()));
       }
 
       if (!jsonFrom["fractionalFee"].contains("maximumAmount"))
       {
-        throw Hedera::TCK::JsonRpcException(
-          Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+        throw Hiero::TCK::JsonRpcException(
+          Hiero::TCK::JsonErrorType::INVALID_PARAMS,
           "invalid parameters: maximumAmount is REQUIRED for fractionalFee fee types.");
       }
 
       if (!jsonFrom["fractionalFee"]["maximumAmount"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: maximumAmount MUST be a string.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: maximumAmount MUST be a string.");
       }
 
       try
       {
-        fractionalFee->setMaximumAmount(Hedera::internal::EntityIdHelper::getNum<int64_t>(
+        fractionalFee->setMaximumAmount(Hiero::internal::EntityIdHelper::getNum<int64_t>(
           jsonFrom["fractionalFee"]["maximumAmount"].get<std::string>()));
       }
       catch (const std::invalid_argument&)
       {
         fractionalFee->setMaximumAmount(
-          Hedera::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["maximumAmount"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum(jsonFrom["fractionalFee"]["maximumAmount"].get<std::string>()));
       }
 
       if (!jsonFrom["fractionalFee"].contains("assessmentMethod"))
       {
-        throw Hedera::TCK::JsonRpcException(
-          Hedera::TCK::JsonErrorType::INVALID_PARAMS,
+        throw Hiero::TCK::JsonRpcException(
+          Hiero::TCK::JsonErrorType::INVALID_PARAMS,
           "invalid parameters: assessmentMethod is REQUIRED for fractionalFee fee types.");
       }
 
       if (!jsonFrom["fractionalFee"]["assessmentMethod"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: assessmentMethod MUST be a string.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: assessmentMethod MUST be a string.");
       }
 
       std::string assessmentMethod = jsonFrom["fractionalFee"]["assessmentMethod"].get<std::string>();
@@ -305,87 +286,87 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
                      assessmentMethod.end(),
                      assessmentMethod.begin(),
                      [](unsigned char c) { return std::toupper(c); });
-      fractionalFee->setAssessmentMethod(Hedera::gStringToFeeAssessmentMethod.at(assessmentMethod));
+      fractionalFee->setAssessmentMethod(Hiero::gStringToFeeAssessmentMethod.at(assessmentMethod));
 
       fee = fractionalFee;
     }
 
     else if (jsonFrom.contains("royaltyFee"))
     {
-      auto royaltyFee = std::make_shared<Hedera::CustomRoyaltyFee>();
+      auto royaltyFee = std::make_shared<Hiero::CustomRoyaltyFee>();
       royaltyFee->setFeeCollectorAccountId(feeCollectorAccountId);
       royaltyFee->setAllCollectorsAreExempt(feeCollectorsExempt);
 
       if (!jsonFrom["royaltyFee"].contains("numerator"))
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: numerator is REQUIRED for royaltyFee fee types.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: numerator is REQUIRED for royaltyFee fee types.");
       }
 
       if (!jsonFrom["royaltyFee"]["numerator"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: numerator MUST be a string.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: numerator MUST be a string.");
       }
 
       try
       {
         royaltyFee->setNumerator(
-          Hedera::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["royaltyFee"]["numerator"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["royaltyFee"]["numerator"].get<std::string>()));
       }
       catch (const std::invalid_argument&)
       {
         royaltyFee->setNumerator(
-          Hedera::internal::EntityIdHelper::getNum(jsonFrom["royaltyFee"]["numerator"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum(jsonFrom["royaltyFee"]["numerator"].get<std::string>()));
       }
 
       if (!jsonFrom["royaltyFee"].contains("denominator"))
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: denominator is REQUIRED for royaltyFee fee types.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: denominator is REQUIRED for royaltyFee fee types.");
       }
 
       if (!jsonFrom["royaltyFee"]["denominator"].is_string())
       {
-        throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                            "invalid parameters: denominator MUST be a string.");
+        throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                           "invalid parameters: denominator MUST be a string.");
       }
 
       try
       {
         royaltyFee->setDenominator(
-          Hedera::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["royaltyFee"]["denominator"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum<int64_t>(jsonFrom["royaltyFee"]["denominator"].get<std::string>()));
       }
       catch (const std::invalid_argument&)
       {
         royaltyFee->setDenominator(
-          Hedera::internal::EntityIdHelper::getNum(jsonFrom["royaltyFee"]["denominator"].get<std::string>()));
+          Hiero::internal::EntityIdHelper::getNum(jsonFrom["royaltyFee"]["denominator"].get<std::string>()));
       }
 
       if (jsonFrom["royaltyFee"].contains("fallbackFee"))
       {
-        Hedera::CustomFixedFee fallbackFee;
+        Hiero::CustomFixedFee fallbackFee;
 
         if (!jsonFrom["royaltyFee"]["fallbackFee"].contains("amount"))
         {
-          throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                              "invalid parameters: amount is REQUIRED for a fallback fee.");
+          throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                             "invalid parameters: amount is REQUIRED for a fallback fee.");
         }
 
         if (!jsonFrom["royaltyFee"]["fallbackFee"]["amount"].is_string())
         {
-          throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                              "invalid parameters: amount MUST be a string.");
+          throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                             "invalid parameters: amount MUST be a string.");
         }
 
         try
         {
-          fallbackFee.setAmount(Hedera::internal::EntityIdHelper::getNum(
+          fallbackFee.setAmount(Hiero::internal::EntityIdHelper::getNum(
             jsonFrom["royaltyFee"]["fallbackFee"]["amount"].get<std::string>()));
         }
         catch (const std::invalid_argument&)
         {
-          fallbackFee.setAmount(Hedera::internal::EntityIdHelper::getNum<int64_t>(
+          fallbackFee.setAmount(Hiero::internal::EntityIdHelper::getNum<int64_t>(
             jsonFrom["royaltyFee"]["fallbackFee"]["amount"].get<std::string>()));
         }
 
@@ -393,11 +374,11 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
         {
           if (!jsonFrom["royaltyFee"]["fallbackFee"]["denominatingTokenId"].is_string())
           {
-            throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                                "invalid parameters: denominatingTokenId MUST be a string.");
+            throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                               "invalid parameters: denominatingTokenId MUST be a string.");
           }
 
-          fallbackFee.setDenominatingTokenId(Hedera::TokenId::fromString(
+          fallbackFee.setDenominatingTokenId(Hiero::TokenId::fromString(
             jsonFrom["royaltyFee"]["fallbackFee"]["denominatingTokenId"].get<std::string>()));
         }
 
@@ -409,13 +390,13 @@ struct [[maybe_unused]] adl_serializer<std::shared_ptr<Hedera::CustomFee>>
 
     else
     {
-      throw Hedera::TCK::JsonRpcException(Hedera::TCK::JsonErrorType::INVALID_PARAMS,
-                                          "invalid parameters: fee MUST contain one of fixedFee, fractionalFee, or "
-                                          "royaltyFee.");
+      throw Hiero::TCK::JsonRpcException(Hiero::TCK::JsonErrorType::INVALID_PARAMS,
+                                         "invalid parameters: fee MUST contain one of fixedFee, fractionalFee, or "
+                                         "royaltyFee.");
     }
   }
 };
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_CUSTOM_FEE_PARAMS_H_
+#endif // HIERO_TCK_CPP_CUSTOM_FEE_PARAMS_H_

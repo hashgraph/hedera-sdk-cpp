@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #include <query_header.pb.h>
 #include <response.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 ContractCallQuery& ContractCallQuery::setFunction(std::string_view name, const ContractFunctionParameters& parameters)
@@ -110,4 +110,4 @@ proto::ResponseHeader ContractCallQuery::mapResponseHeader(const proto::Response
   return response.contractcalllocal().header();
 }
 
-} // namespace Hedera
+} // namespace Hiero

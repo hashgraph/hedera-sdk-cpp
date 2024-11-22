@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@
 #include <dotenv.h>
 #include <iostream>
 
-using namespace Hedera;
+using namespace Hiero;
 
 int main(int argc, char** argv)
 {
   dotenv::init();
   const AccountId operatorAccountId = AccountId::fromString(std::getenv("OPERATOR_ID"));
 
-  // Get a client for the Hedera testnet
+  // Get a client for the Hiero testnet
   Client client = Client::forTestnet();
 
   // Because AccountBalanceQuery is a free query, we can make it without setting an operator on the client.

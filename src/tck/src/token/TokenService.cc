@@ -1,22 +1,4 @@
-/*-
- *
- * Hedera C++ SDK
- *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+// SPDX-License-Identifier: Apache-2.0
 #include "token/TokenService.h"
 #include "key/KeyService.h"
 #include "sdk/SdkClient.h"
@@ -41,7 +23,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace Hedera::TCK::TokenService
+namespace Hiero::TCK::TokenService
 {
 //-----
 nlohmann::json createToken(const CreateTokenParams& params)
@@ -67,7 +49,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
   if (params.mInitialSupply.has_value())
   {
     tokenCreateTransaction.setInitialSupply(
-      Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mInitialSupply.value()));
+      Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mInitialSupply.value()));
   }
 
   if (params.mTreasuryAccountId.has_value())
@@ -77,27 +59,27 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mAdminKey.has_value())
   {
-    tokenCreateTransaction.setAdminKey(KeyService::getHederaKey(params.mAdminKey.value()));
+    tokenCreateTransaction.setAdminKey(KeyService::getHieroKey(params.mAdminKey.value()));
   }
 
   if (params.mKycKey.has_value())
   {
-    tokenCreateTransaction.setKycKey(KeyService::getHederaKey(params.mKycKey.value()));
+    tokenCreateTransaction.setKycKey(KeyService::getHieroKey(params.mKycKey.value()));
   }
 
   if (params.mFreezeKey.has_value())
   {
-    tokenCreateTransaction.setFreezeKey(KeyService::getHederaKey(params.mFreezeKey.value()));
+    tokenCreateTransaction.setFreezeKey(KeyService::getHieroKey(params.mFreezeKey.value()));
   }
 
   if (params.mWipeKey.has_value())
   {
-    tokenCreateTransaction.setWipeKey(KeyService::getHederaKey(params.mWipeKey.value()));
+    tokenCreateTransaction.setWipeKey(KeyService::getHieroKey(params.mWipeKey.value()));
   }
 
   if (params.mSupplyKey.has_value())
   {
-    tokenCreateTransaction.setSupplyKey(KeyService::getHederaKey(params.mSupplyKey.value()));
+    tokenCreateTransaction.setSupplyKey(KeyService::getHieroKey(params.mSupplyKey.value()));
   }
 
   if (params.mFreezeDefault.has_value())
@@ -109,7 +91,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
   {
     tokenCreateTransaction.setExpirationTime(
       std::chrono::system_clock::from_time_t(0) +
-      std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mExpirationTime.value())));
+      std::chrono::seconds(Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mExpirationTime.value())));
   }
 
   if (params.mAutoRenewAccountId.has_value())
@@ -120,7 +102,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
   if (params.mAutoRenewPeriod.has_value())
   {
     tokenCreateTransaction.setAutoRenewPeriod(
-      std::chrono::seconds(Hedera::internal::EntityIdHelper::getNum<int64_t>(params.mAutoRenewPeriod.value())));
+      std::chrono::seconds(Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mAutoRenewPeriod.value())));
   }
 
   if (params.mMemo.has_value())
@@ -153,12 +135,12 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mMaxSupply.has_value())
   {
-    tokenCreateTransaction.setMaxSupply(Hedera::internal::EntityIdHelper::getNum(params.mSupplyType.value()));
+    tokenCreateTransaction.setMaxSupply(Hiero::internal::EntityIdHelper::getNum(params.mSupplyType.value()));
   }
 
   if (params.mFeeScheduleKey.has_value())
   {
-    tokenCreateTransaction.setFeeScheduleKey(KeyService::getHederaKey(params.mFeeScheduleKey.value()));
+    tokenCreateTransaction.setFeeScheduleKey(KeyService::getHieroKey(params.mFeeScheduleKey.value()));
   }
 
   if (params.mCustomFees.has_value())
@@ -168,7 +150,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mPauseKey.has_value())
   {
-    tokenCreateTransaction.setPauseKey(KeyService::getHederaKey(params.mPauseKey.value()));
+    tokenCreateTransaction.setPauseKey(KeyService::getHieroKey(params.mPauseKey.value()));
   }
 
   if (params.mMetadata.has_value())
@@ -178,7 +160,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mMetadataKey.has_value())
   {
-    tokenCreateTransaction.setMetadataKey(KeyService::getHederaKey(params.mMetadataKey.value()));
+    tokenCreateTransaction.setMetadataKey(KeyService::getHieroKey(params.mMetadataKey.value()));
   }
 
   if (params.mCommonTxParams.has_value())
@@ -222,4 +204,4 @@ nlohmann::json updateTokenFeeSchedule(const UpdateTokenFeeScheduleParams& params
   };
 }
 
-} // namespace Hedera::TCK::TokenService
+} // namespace Hiero::TCK::TokenService

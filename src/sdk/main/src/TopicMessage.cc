@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 
 #include <utility>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TopicMessage::TopicMessage(const std::chrono::system_clock::time_point& lastConsensusTimestamp,
@@ -83,4 +83,4 @@ TopicMessage TopicMessage::ofMany(const std::vector<com::hedera::mirror::api::pr
            transactionId };
 }
 
-} // namespace Hedera
+} // namespace Hiero
