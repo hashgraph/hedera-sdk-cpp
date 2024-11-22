@@ -24,7 +24,7 @@ nlohmann::json reset(const ResetParams&)
 {
   mClient.close();
   return {
-    { "status", "SUCCESS" }
+    {"status", "SUCCESS"}
   };
 }
 
@@ -36,7 +36,7 @@ nlohmann::json setup(const SetupParams& params)
   if (params.nodeIp.has_value() && params.nodeAccountId.has_value() && params.mirrorNetworkIp.has_value())
   {
     mClient = Client::forNetwork({
-      { params.nodeIp.value(), AccountId::fromString(params.nodeAccountId.value()) }
+      {params.nodeIp.value(), AccountId::fromString(params.nodeAccountId.value())}
     });
     mClient.setMirrorNetwork({ params.mirrorNetworkIp.value() });
     clientType = "custom";
@@ -52,8 +52,8 @@ nlohmann::json setup(const SetupParams& params)
   mClient.setRequestTimeout(DEFAULT_TCK_REQUEST_TIMEOUT);
 
   return {
-    { "message", "Successfully setup " + clientType + " client." },
-    { "status",  "SUCCESS"                                       }
+    {"message", "Successfully setup " + clientType + " client."},
+    { "status", "SUCCESS"                                      }
   };
 }
 

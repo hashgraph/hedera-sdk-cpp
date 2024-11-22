@@ -207,8 +207,8 @@ nlohmann::json createToken(const CreateTokenParams& params)
   const TransactionReceipt txReceipt =
     tokenCreateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
-    { "tokenId", txReceipt.mTokenId->toString()        },
-    { "status",  gStatusToString.at(txReceipt.mStatus) }
+    {"tokenId", txReceipt.mTokenId->toString()       },
+    { "status", gStatusToString.at(txReceipt.mStatus)}
   };
 }
 

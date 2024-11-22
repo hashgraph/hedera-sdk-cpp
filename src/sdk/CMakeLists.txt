@@ -3,7 +3,7 @@ option(BUILD_EXAMPLES "Build the example builds" OFF)
 
 if(BUILD_EXAMPLES)
     message(STATUS "Including examples in the build.")
-    add_subdirectory(tests)
+    add_subdirectory(examples)
 else()
     message(STATUS "Examples are not included in the build.")
 endif()
