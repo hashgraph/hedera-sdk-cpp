@@ -1,22 +1,4 @@
-/*-
- *
- * Hedera C++ SDK
- *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+// SPDX-License-Identifier: Apache-2.0
 #include "AccountId.h"
 #include "Client.h"
 #include "ECDSAsecp256k1PrivateKey.h"
@@ -29,7 +11,7 @@
 #include <transaction_body.pb.h>
 #include <vector>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class TokenMintTransactionUnitTests : public ::testing::Test
 {
@@ -45,9 +27,9 @@ private:
   const TokenId mTestTokenId = TokenId(1ULL, 2ULL, 3ULL);
   const uint64_t mTestAmount = 4ULL;
   const std::vector<std::vector<std::byte>> mTestMetadataList = {
-    {std::byte(0x05),  std::byte(0x06), std::byte(0x07)},
-    { std::byte(0x08), std::byte(0x09), std::byte(0x0A)},
-    { std::byte(0x0B), std::byte(0x0C), std::byte(0x0D)}
+    { std::byte(0x05), std::byte(0x06), std::byte(0x07) },
+    { std::byte(0x08), std::byte(0x09), std::byte(0x0A) },
+    { std::byte(0x0B), std::byte(0x0C), std::byte(0x0D) }
   };
 };
 

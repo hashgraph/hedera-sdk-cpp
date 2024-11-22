@@ -1,24 +1,6 @@
-/*-
- *
- * Hedera C++ SDK
- *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-#ifndef HEDERA_TCK_CPP_UPDATE_TOKEN_PARAMS_H_
-#define HEDERA_TCK_CPP_UPDATE_TOKEN_PARAMS_H_
+// SPDX-License-Identifier: Apache-2.0
+#ifndef HIERO_TCK_CPP_UPDATE_TOKEN_PARAMS_H_
+#define HIERO_TCK_CPP_UPDATE_TOKEN_PARAMS_H_
 
 #include "common/CommonTransactionParams.h"
 #include "token/CustomFeeSerializer.h"
@@ -28,7 +10,7 @@
 #include <optional>
 #include <string>
 
-namespace Hedera::TCK::TokenService
+namespace Hiero::TCK::TokenService
 {
 /**
  * Struct to hold the arguments for a `updateToken` JSON-RPC method call.
@@ -127,7 +109,7 @@ struct UpdateTokenParams
   std::optional<CommonTransactionParams> mCommonTxParams;
 };
 
-} // namespace Hedera::TCK::TokenService
+} // namespace Hiero::TCK::TokenService
 
 namespace nlohmann
 {
@@ -135,7 +117,7 @@ namespace nlohmann
  * JSON serializer template specialization required to convert UpdateTokenParams arguments properly.
  */
 template<>
-struct [[maybe_unused]] adl_serializer<Hedera::TCK::TokenService::UpdateTokenParams>
+struct [[maybe_unused]] adl_serializer<Hiero::TCK::TokenService::UpdateTokenParams>
 {
   /**
    * Convert a JSON object to a UpdateTokenParams.
@@ -143,30 +125,30 @@ struct [[maybe_unused]] adl_serializer<Hedera::TCK::TokenService::UpdateTokenPar
    * @param jsonFrom The JSON object with which to fill the UpdateTokenParams.
    * @param params   The UpdateTokenParams to fill with the JSON object.
    */
-  static void from_json(const json& jsonFrom, Hedera::TCK::TokenService::UpdateTokenParams& params)
+  static void from_json(const json& jsonFrom, Hiero::TCK::TokenService::UpdateTokenParams& params)
   {
-    params.mTokenId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "tokenId");
-    params.mSymbol = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "symbol");
-    params.mName = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "name");
-    params.mTreasuryAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "treasuryAccountId");
-    params.mAdminKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "adminKey");
-    params.mKycKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "kycKey");
-    params.mFreezeKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "freezeKey");
-    params.mWipeKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "wipeKey");
-    params.mSupplyKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "supplyKey");
-    params.mAutoRenewAccountId = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "autoRenewAccountId");
-    params.mAutoRenewPeriod = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "autoRenewPeriod");
-    params.mExpirationTime = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "expirationTime");
-    params.mMemo = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
-    params.mFeeScheduleKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "feeScheduleKey");
-    params.mPauseKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "pauseKey");
-    params.mMetadata = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "metadata");
-    params.mMetadataKey = Hedera::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "metadataKey");
+    params.mTokenId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "tokenId");
+    params.mSymbol = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "symbol");
+    params.mName = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "name");
+    params.mTreasuryAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "treasuryAccountId");
+    params.mAdminKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "adminKey");
+    params.mKycKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "kycKey");
+    params.mFreezeKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "freezeKey");
+    params.mWipeKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "wipeKey");
+    params.mSupplyKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "supplyKey");
+    params.mAutoRenewAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "autoRenewAccountId");
+    params.mAutoRenewPeriod = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "autoRenewPeriod");
+    params.mExpirationTime = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "expirationTime");
+    params.mMemo = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
+    params.mFeeScheduleKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "feeScheduleKey");
+    params.mPauseKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "pauseKey");
+    params.mMetadata = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "metadata");
+    params.mMetadataKey = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "metadataKey");
     params.mCommonTxParams =
-      Hedera::TCK::getOptionalJsonParameter<Hedera::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
+      Hiero::TCK::getOptionalJsonParameter<Hiero::TCK::CommonTransactionParams>(jsonFrom, "commonTransactionParams");
   }
 };
 
 } // namespace nlohmann
 
-#endif // HEDERA_TCK_CPP_UPDATE_TOKEN_PARAMS_H_
+#endif // HIERO_TCK_CPP_UPDATE_TOKEN_PARAMS_H_

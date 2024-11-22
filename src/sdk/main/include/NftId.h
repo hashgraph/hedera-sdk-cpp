@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  * limitations under the License.
  *
  */
-#ifndef HEDERA_SDK_CPP_NFT_ID_H_
-#define HEDERA_SDK_CPP_NFT_ID_H_
+#ifndef HIERO_SDK_CPP_NFT_ID_H_
+#define HIERO_SDK_CPP_NFT_ID_H_
 
 #include "TokenId.h"
 
@@ -30,7 +30,7 @@ namespace proto
 class NftID;
 }
 
-namespace Hedera
+namespace Hiero
 {
 /**
  * The ID of a non-fungible token (NFT).
@@ -98,19 +98,19 @@ public:
   uint64_t mSerialNum = 0ULL;
 };
 
-} // namespace Hedera
+} // namespace Hiero
 
 namespace std
 {
 template<>
-struct hash<Hedera::NftId>
+struct hash<Hiero::NftId>
 {
   /**
    * Operator override to enable use of NftId as map key.
    */
-  size_t operator()(const Hedera::NftId& id) const { return hash<string>()(id.toString()); }
+  size_t operator()(const Hiero::NftId& id) const { return hash<string>()(id.toString()); }
 };
 
 } // namespace std
 
-#endif // HEDERA_SDK_CPP_NFT_ID_H_
+#endif // HIERO_SDK_CPP_NFT_ID_H_

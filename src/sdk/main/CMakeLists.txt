@@ -191,7 +191,7 @@ add_library(${PROJECT_NAME} STATIC
         src/impl/DerivationPathUtils.cc
         src/impl/DurationConverter.cc
         src/impl/EntityIdHelper.cc
-        src/impl/HederaCertificateVerifier.cc
+        src/impl/HieroCertificateVerifier.cc
         src/impl/HexConverter.cc
         src/impl/HttpClient.cc
         src/impl/MirrorNetwork.cc
