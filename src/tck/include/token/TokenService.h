@@ -9,8 +9,9 @@ namespace Hiero::TCK::TokenService
 /**
  * Forward declarations.
  */
-class CreateTokenParams;
-class UpdateTokenParams;
+struct CreateTokenParams;
+struct DeleteTokenParams;
+struct UpdateTokenParams;
 
 /**
  * Create a token.
@@ -19,6 +20,14 @@ class UpdateTokenParams;
  * @return A JSON response containing the created token ID and the status of the token creation.
  */
 nlohmann::json createToken(const CreateTokenParams& params);
+
+/**
+ * Delete a token.
+ *
+ * @param params The parameters to use to delete a token.
+ * @return A JSON response containing the status of the token deletion.
+ */
+nlohmann::json deleteToken(const DeleteTokenParams& params);
 
 /**
  * Update a token.
