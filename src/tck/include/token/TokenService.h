@@ -11,6 +11,7 @@ namespace Hiero::TCK::TokenService
  */
 class CreateTokenParams;
 class DeleteTokenParams;
+struct DissociateTokenParams;
 
 /**
  * Create a token.
@@ -27,6 +28,14 @@ nlohmann::json createToken(const CreateTokenParams& params);
  * @return A JSON response containing the status of the token deletion.
  */
 nlohmann::json deleteToken(const DeleteTokenParams& params);
+
+/**
+ * Dissociate an account from tokens.
+ *
+ * @param params The parameters to use to dissociate the account.
+ * @return A JSON response containing the status of the account dissociation.
+ */
+nlohmann::json dissociateToken(const DissociateTokenParams& params);
 
 } // namespace Hiero::TCK::TokenService
 

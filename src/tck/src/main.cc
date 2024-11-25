@@ -30,6 +30,7 @@ int main(int argc, char** argv)
   // Add the TokenService functions.
   tckServer.add("createToken", tckServer.getHandle(&TokenService::createToken));
   tckServer.add("deleteToken", tckServer.getHandle(&TokenService::deleteToken));
+  tckServer.add("dissociateToken", tckServer.getHandle(&TokenService::dissociateToken));
 
   // Start listening for requests.
   tckServer.startServer();
