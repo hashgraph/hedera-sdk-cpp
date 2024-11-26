@@ -7,6 +7,7 @@
 #include "sdk/params/ResetParams.h"
 #include "sdk/params/SetupParams.h"
 #include "token/params/CreateTokenParams.h"
+#include "token/params/DeleteTokenParams.h"
 #include "token/params/UpdateTokenFeeScheduleParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -225,9 +226,9 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       }
 
       return {
-        { "jsonrpc", "2.0"                                                                   },
-        { "id",      requestId                                                               },
-        { "result",  method->second(hasParams ? request["params"] : nlohmann::json::array()) }
+        {"jsonrpc", "2.0"                                                                  },
+        { "id",     requestId                                                              },
+        { "result", method->second(hasParams ? request["params"] : nlohmann::json::array())}
       };
     }
 
@@ -247,8 +248,8 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
   catch (const JsonRpcException& ex)
   {
     nlohmann::json error = {
-      { "code",    ex.getCode()    },
-      { "message", ex.getMessage() }
+      {"code",     ex.getCode()   },
+      { "message", ex.getMessage()}
     };
 
     if (!ex.getData().is_null())
@@ -257,9 +258,9 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
     }
 
     return nlohmann::json{
-      { "jsonrpc", "2.0"     },
-      { "id",      requestId },
-      { "error",   error     }
+      {"jsonrpc", "2.0"    },
+      { "id",     requestId},
+      { "error",  error    }
     };
   }
 
@@ -347,6 +348,8 @@ template TckServer::MethodHandle TckServer::getHandle<SdkClient::SetupParams>(
 
 template TckServer::MethodHandle TckServer::getHandle<TokenService::CreateTokenParams>(
   nlohmann::json (*method)(const TokenService::CreateTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::DeleteTokenParams>(
+  nlohmann::json (*method)(const TokenService::DeleteTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::UpdateTokenFeeScheduleParams>(
   nlohmann::json (*method)(const TokenService::UpdateTokenFeeScheduleParams&));
 

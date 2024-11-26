@@ -3,6 +3,7 @@
 #include "key/KeyService.h"
 #include "sdk/SdkClient.h"
 #include "token/params/CreateTokenParams.h"
+#include "token/params/DeleteTokenParams.h"
 #include "token/params/UpdateTokenFeeScheduleParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -10,7 +11,9 @@
 #include <AccountId.h>
 #include <Status.h>
 #include <TokenCreateTransaction.h>
+#include <TokenDeleteTransaction.h>
 #include <TokenFeeScheduleUpdateTransaction.h>
+#include <TokenId.h>
 #include <TokenSupplyType.h>
 #include <TokenType.h>
 #include <TransactionReceipt.h>
@@ -173,6 +176,29 @@ nlohmann::json createToken(const CreateTokenParams& params)
   return {
     {"tokenId", txReceipt.mTokenId->toString()       },
     { "status", gStatusToString.at(txReceipt.mStatus)}
+  };
+}
+
+//-----
+nlohmann::json deleteToken(const DeleteTokenParams& params)
+{
+  TokenDeleteTransaction tokenDeleteTransaction;
+  tokenDeleteTransaction.setGrpcDeadline(std::chrono::seconds(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (params.mTokenId.has_value())
+  {
+    tokenDeleteTransaction.setTokenId(TokenId::fromString(params.mTokenId.value()));
+  }
+
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(tokenDeleteTransaction, SdkClient::getClient());
+  }
+
+  return {
+    {"status",
+     gStatusToString.at(
+        tokenDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
   };
 }
 
