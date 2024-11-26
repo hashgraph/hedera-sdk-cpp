@@ -1492,6 +1492,11 @@ enum class Status
   INVALID_METADATA_KEY,
 
   /**
+   * Metadata key is not set on token.
+   */
+  TOKEN_HAS_NO_METADATA_KEY,
+
+  /**
    * Token Metadata is not provided
    */
   MISSING_TOKEN_METADATA,
