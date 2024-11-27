@@ -12,8 +12,8 @@ namespace Hiero::TCK::SdkClient
 /**
  * Forward declarations.
  */
-class ResetParams;
-class SetupParams;
+struct ResetParams;
+struct SetupParams;
 
 /**
  * The default amount of time the SdkClient should wait for a gRPC request.

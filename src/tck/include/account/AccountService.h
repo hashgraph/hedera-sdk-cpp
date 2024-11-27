@@ -9,9 +9,9 @@ namespace Hiero::TCK::AccountService
 /**
  * Forward declarations.
  */
-class CreateAccountParams;
-class DeleteAccountParams;
-class UpdateAccountParams;
+struct CreateAccountParams;
+struct DeleteAccountParams;
+struct UpdateAccountParams;
 
 /**
  * Create an account.

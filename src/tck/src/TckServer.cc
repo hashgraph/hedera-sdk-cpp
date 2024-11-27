@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
+// Windows build requires this to be included first for some reason.
+#include <Transaction.h> // NOLINT
+
 #include "TckServer.h"
 #include "account/params/CreateAccountParams.h"
 #include "account/params/DeleteAccountParams.h"
