@@ -1,27 +1,9 @@
-/*-
- *
- * Hedera C++ SDK
- *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+// SPDX-License-Identifier: Apache-2.0
 #include "Status.h"
 
 #include <response_code.pb.h>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeToStatus = {
@@ -332,6 +314,7 @@ const std::unordered_map<proto::ResponseCodeEnum, Status> gProtobufResponseCodeT
   { proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE,                                           Status::ACCOUNT_IS_IMMUTABLE                   },
   { proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED,                                         Status::ALIAS_ALREADY_ASSIGNED                 },
   { proto::ResponseCodeEnum::INVALID_METADATA_KEY,                                           Status::INVALID_METADATA_KEY                   },
+  { proto::ResponseCodeEnum::TOKEN_HAS_NO_METADATA_KEY,                                      Status::TOKEN_HAS_NO_METADATA_KEY              },
   { proto::ResponseCodeEnum::MISSING_TOKEN_METADATA,                                         Status::MISSING_TOKEN_METADATA                 },
   { proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS,                                         Status::MISSING_SERIAL_NUMBERS                 },
   { proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS,                                  Status::INVALID_MAX_AUTO_ASSOCIATIONS          },
@@ -672,6 +655,7 @@ const std::unordered_map<Status, proto::ResponseCodeEnum> gStatusToProtobufRespo
   { Status::ACCOUNT_IS_IMMUTABLE,                                           proto::ResponseCodeEnum::ACCOUNT_IS_IMMUTABLE                   },
   { Status::ALIAS_ALREADY_ASSIGNED,                                         proto::ResponseCodeEnum::ALIAS_ALREADY_ASSIGNED                 },
   { Status::INVALID_METADATA_KEY,                                           proto::ResponseCodeEnum::INVALID_METADATA_KEY                   },
+  { Status::TOKEN_HAS_NO_METADATA_KEY,                                      proto::ResponseCodeEnum::TOKEN_HAS_NO_METADATA_KEY              },
   { Status::MISSING_TOKEN_METADATA,                                         proto::ResponseCodeEnum::MISSING_TOKEN_METADATA                 },
   { Status::MISSING_SERIAL_NUMBERS,                                         proto::ResponseCodeEnum::MISSING_SERIAL_NUMBERS                 },
   { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  proto::ResponseCodeEnum::INVALID_MAX_AUTO_ASSOCIATIONS          },
@@ -994,6 +978,7 @@ const std::unordered_map<Status, std::string> gStatusToString = {
   { Status::ACCOUNT_IS_IMMUTABLE,                                           "ACCOUNT_IS_IMMUTABLE"                              },
   { Status::ALIAS_ALREADY_ASSIGNED,                                         "ALIAS_ALREADY_ASSIGNED"                            },
   { Status::INVALID_METADATA_KEY,                                           "INVALID_METADATA_KEY"                              },
+  { Status::TOKEN_HAS_NO_METADATA_KEY,                                      "TOKEN_HAS_NO_METADATA_KEY"                         },
   { Status::MISSING_TOKEN_METADATA,                                         "MISSING_TOKEN_METADATA"                            },
   { Status::MISSING_SERIAL_NUMBERS,                                         "MISSING_SERIAL_NUMBERS"                            },
   { Status::INVALID_MAX_AUTO_ASSOCIATIONS,                                  "INVALID_MAX_AUTO_ASSOCIATIONS"                     },
@@ -1025,4 +1010,4 @@ const std::unordered_map<Status, std::string> gStatusToString = {
   { Status::GOSSIP_ENDPOINTS_EXCEEDED_LIMIT,                                "GOSSIP_ENDPOINTS_EXCEEDED_LIMIT"                   }
 };
 
-} // namespace Hedera
+} // namespace Hiero

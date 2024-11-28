@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #include <basic_types.pb.h>
 #include <nlohmann/json.hpp>
 
-namespace Hedera
+namespace Hiero
 {
 //-----
 TokenNftTransfer::TokenNftTransfer(NftId nftId, AccountId sender, AccountId receiver, bool approved)
@@ -94,4 +94,4 @@ std::ostream& operator<<(std::ostream& os, const TokenNftTransfer& transfer)
   return os;
 }
 
-} // namespace Hedera
+} // namespace Hiero

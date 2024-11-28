@@ -1,8 +1,8 @@
 /*-
  *
- * Hedera C++ SDK
+ * Hiero C++ SDK
  *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
+ * Copyright (C) 2020 - 2024 Hiero
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@
 #include <string_view>
 #include <vector>
 
-using namespace Hedera;
-using namespace Hedera::internal::Utilities;
+using namespace Hiero;
+using namespace Hiero::internal::Utilities;
 
 class ED25519PublicKeyUnitTests : public ::testing::Test
 {

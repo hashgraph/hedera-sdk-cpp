@@ -1,33 +1,17 @@
-/*-
- *
- * Hedera C++ SDK
- *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-#ifndef HEDERA_TCK_CPP_TOKEN_SERVICE_H_
-#define HEDERA_TCK_CPP_TOKEN_SERVICE_H_
+// SPDX-License-Identifier: Apache-2.0
+#ifndef HIERO_TCK_CPP_TOKEN_SERVICE_H_
+#define HIERO_TCK_CPP_TOKEN_SERVICE_H_
 
 #include <nlohmann/json_fwd.hpp>
 
-namespace Hedera::TCK::TokenService
+namespace Hiero::TCK::TokenService
 {
 /**
  * Forward declarations.
  */
-class CreateTokenParams;
+struct CreateTokenParams;
+struct DeleteTokenParams;
+struct UpdateTokenParams;
 
 /**
  * Create a token.
@@ -37,6 +21,22 @@ class CreateTokenParams;
  */
 nlohmann::json createToken(const CreateTokenParams& params);
 
-} // namespace Hedera::TCK::TokenService
+/**
+ * Delete a token.
+ *
+ * @param params The parameters to use to delete a token.
+ * @return A JSON response containing the status of the token deletion.
+ */
+nlohmann::json deleteToken(const DeleteTokenParams& params);
 
-#endif // HEDERA_TCK_CPP_TOKEN_SERVICE_H_
+/**
+ * Update a token.
+ *
+ * @param params The parameters to use to update a token.
+ * @return A JSON response containing the status of the token update.
+ */
+nlohmann::json updateToken(const UpdateTokenParams& params);
+
+} // namespace Hiero::TCK::TokenService
+
+#endif // HIERO_TCK_CPP_TOKEN_SERVICE_H_

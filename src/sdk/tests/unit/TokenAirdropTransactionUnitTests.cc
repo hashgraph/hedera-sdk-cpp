@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include <token_airdrop.pb.h>
 
-using namespace Hedera;
+using namespace Hiero;
 
 class TokenAirdropTransactionUnitTests : public ::testing::Test
 {

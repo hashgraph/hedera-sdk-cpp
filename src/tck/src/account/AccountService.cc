@@ -1,22 +1,4 @@
-/*-
- *
- * Hedera C++ SDK
- *
- * Copyright (C) 2020 - 2024 Hedera Hashgraph, LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+// SPDX-License-Identifier: Apache-2.0
 #include "account/AccountService.h"
 #include "account/params/CreateAccountParams.h"
 #include "account/params/DeleteAccountParams.h"
@@ -39,7 +21,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-namespace Hedera::TCK::AccountService
+namespace Hiero::TCK::AccountService
 {
 //-----
 nlohmann::json createAccount(const CreateAccountParams& params)
@@ -49,7 +31,7 @@ nlohmann::json createAccount(const CreateAccountParams& params)
 
   if (params.mKey.has_value())
   {
-    accountCreateTransaction.setKey(KeyService::getHederaKey(params.mKey.value()));
+    accountCreateTransaction.setKey(KeyService::getHieroKey(params.mKey.value()));
   }
 
   if (params.mInitialBalance.has_value())
@@ -151,7 +133,7 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
 
   if (params.mKey.has_value())
   {
-    accountUpdateTransaction.setKey(KeyService::getHederaKey(params.mKey.value()));
+    accountUpdateTransaction.setKey(KeyService::getHieroKey(params.mKey.value()));
   }
 
   if (params.mAutoRenewPeriod.has_value())
@@ -207,4 +189,4 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
   };
 }
 
-} // namespace Hedera::TCK::AccountService
+} // namespace Hiero::TCK::AccountService
