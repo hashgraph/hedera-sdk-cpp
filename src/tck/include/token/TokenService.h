@@ -12,6 +12,7 @@ namespace Hiero::TCK::TokenService
 struct CreateTokenParams;
 struct DeleteTokenParams;
 struct UpdateTokenFeeScheduleParams;
+struct UpdateTokenParams;
 
 /**
  * Create a token.
@@ -36,6 +37,14 @@ nlohmann::json deleteToken(const DeleteTokenParams& params);
  * @return A JSON response containing the status of the fee schedule update.
  */
 nlohmann::json updateTokenFeeSchedule(const UpdateTokenFeeScheduleParams& params);
+
+/**
+ * Update a token.
+ *
+ * @param params The parameters to use to update a token.
+ * @ return A JSON response containing the status of the token update.
+ */
+nlohmann::json updateToken(const UpdateTokenParams& params);
 
 } // namespace Hiero::TCK::TokenService
 

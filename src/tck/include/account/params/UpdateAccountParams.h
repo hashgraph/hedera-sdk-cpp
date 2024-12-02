@@ -99,7 +99,7 @@ struct [[maybe_unused]] adl_serializer<Hiero::TCK::AccountService::UpdateAccount
       Hiero::TCK::getOptionalJsonParameter<bool>(jsonFrom, "receiverSignatureRequired");
     params.mMemo = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "memo");
     params.mMaxAutoTokenAssociations =
-      Hiero::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "maxAutoTokenAssociations");
+      Hiero::TCK::getOptionalJsonParameter<int32_t>(jsonFrom, "maxAutoTokenAssociations");
     params.mStakedAccountId = Hiero::TCK::getOptionalJsonParameter<std::string>(jsonFrom, "stakedAccountId");
     params.mStakedNodeId = Hiero::TCK::getOptionalJsonParameter<int64_t>(jsonFrom, "stakedNodeId");
     params.mDeclineStakingReward = Hiero::TCK::getOptionalJsonParameter<bool>(jsonFrom, "declineStakingReward");

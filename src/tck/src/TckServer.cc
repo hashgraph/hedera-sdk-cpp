@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
+// Windows build requires this to be included first for some reason.
+#include <Transaction.h> // NOLINT
+
 #include "TckServer.h"
 #include "account/params/CreateAccountParams.h"
 #include "account/params/DeleteAccountParams.h"
@@ -9,6 +12,7 @@
 #include "token/params/CreateTokenParams.h"
 #include "token/params/DeleteTokenParams.h"
 #include "token/params/UpdateTokenFeeScheduleParams.h"
+#include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
 #include "json/JsonUtils.h"
@@ -352,5 +356,7 @@ template TckServer::MethodHandle TckServer::getHandle<TokenService::DeleteTokenP
   nlohmann::json (*method)(const TokenService::DeleteTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::UpdateTokenFeeScheduleParams>(
   nlohmann::json (*method)(const TokenService::UpdateTokenFeeScheduleParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::UpdateTokenParams>(
+  nlohmann::json (*method)(const TokenService::UpdateTokenParams&));
 
 } // namespace Hiero::TCK

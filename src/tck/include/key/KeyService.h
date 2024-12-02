@@ -14,7 +14,7 @@ namespace Hiero::TCK::KeyService
 /**
  * Forward declarations.
  */
-class GenerateKeyParams;
+struct GenerateKeyParams;
 
 /**
  * Enumeration of the possible types of Keys the SDK server can generate.
