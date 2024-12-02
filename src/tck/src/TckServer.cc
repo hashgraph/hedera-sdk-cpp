@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
+// Windows build requires this to be included first for some reason.
+#include <Transaction.h> // NOLINT
+
 #include "TckServer.h"
 #include "account/params/CreateAccountParams.h"
 #include "account/params/DeleteAccountParams.h"
@@ -7,7 +10,9 @@
 #include "sdk/params/ResetParams.h"
 #include "sdk/params/SetupParams.h"
 #include "token/params/CreateTokenParams.h"
+#include "token/params/DeleteTokenParams.h"
 #include "token/params/PauseTokenParams.h"
+#include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
 #include "json/JsonUtils.h"
@@ -225,9 +230,9 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
       }
 
       return {
-        { "jsonrpc", "2.0"                                                                   },
-        { "id",      requestId                                                               },
-        { "result",  method->second(hasParams ? request["params"] : nlohmann::json::array()) }
+        {"jsonrpc", "2.0"                                                                  },
+        { "id",     requestId                                                              },
+        { "result", method->second(hasParams ? request["params"] : nlohmann::json::array())}
       };
     }
 
@@ -247,8 +252,8 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
   catch (const JsonRpcException& ex)
   {
     nlohmann::json error = {
-      { "code",    ex.getCode()    },
-      { "message", ex.getMessage() }
+      {"code",     ex.getCode()   },
+      { "message", ex.getMessage()}
     };
 
     if (!ex.getData().is_null())
@@ -257,9 +262,9 @@ nlohmann::json TckServer::handleSingleRequest(const nlohmann::json& request)
     }
 
     return nlohmann::json{
-      { "jsonrpc", "2.0"     },
-      { "id",      requestId },
-      { "error",   error     }
+      {"jsonrpc", "2.0"    },
+      { "id",     requestId},
+      { "error",  error    }
     };
   }
 
@@ -347,7 +352,11 @@ template TckServer::MethodHandle TckServer::getHandle<SdkClient::SetupParams>(
 
 template TckServer::MethodHandle TckServer::getHandle<TokenService::CreateTokenParams>(
   nlohmann::json (*method)(const TokenService::CreateTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::DeleteTokenParams>(
+  nlohmann::json (*method)(const TokenService::DeleteTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::PauseTokenParams>(
   nlohmann::json (*method)(const TokenService::PauseTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::UpdateTokenParams>(
+  nlohmann::json (*method)(const TokenService::UpdateTokenParams&));
 
 } // namespace Hiero::TCK

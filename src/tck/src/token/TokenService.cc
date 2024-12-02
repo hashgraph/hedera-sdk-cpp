@@ -3,17 +3,21 @@
 #include "key/KeyService.h"
 #include "sdk/SdkClient.h"
 #include "token/params/CreateTokenParams.h"
+#include "token/params/DeleteTokenParams.h"
 #include "token/params/PauseTokenParams.h"
+#include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
 
 #include <AccountId.h>
 #include <Status.h>
 #include <TokenCreateTransaction.h>
+#include <TokenDeleteTransaction.h>
 #include <TokenId.h>
 #include <TokenPauseTransaction.h>
 #include <TokenSupplyType.h>
 #include <TokenType.h>
+#include <TokenUpdateTransaction.h>
 #include <TransactionReceipt.h>
 #include <TransactionResponse.h>
 #include <impl/EntityIdHelper.h>
@@ -136,7 +140,7 @@ nlohmann::json createToken(const CreateTokenParams& params)
 
   if (params.mMaxSupply.has_value())
   {
-    tokenCreateTransaction.setMaxSupply(Hiero::internal::EntityIdHelper::getNum(params.mSupplyType.value()));
+    tokenCreateTransaction.setMaxSupply(Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mMaxSupply.value()));
   }
 
   if (params.mFeeScheduleKey.has_value())
@@ -178,6 +182,29 @@ nlohmann::json createToken(const CreateTokenParams& params)
 }
 
 //-----
+nlohmann::json deleteToken(const DeleteTokenParams& params)
+{
+  TokenDeleteTransaction tokenDeleteTransaction;
+  tokenDeleteTransaction.setGrpcDeadline(std::chrono::seconds(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (params.mTokenId.has_value())
+  {
+    tokenDeleteTransaction.setTokenId(TokenId::fromString(params.mTokenId.value()));
+  }
+
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(tokenDeleteTransaction, SdkClient::getClient());
+  }
+
+  return {
+    {"status",
+     gStatusToString.at(
+        tokenDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
+  };
+}
+
+//-----
 nlohmann::json pauseToken(const PauseTokenParams& params)
 {
   TokenPauseTransaction tokenPauseTransaction;
@@ -197,6 +224,112 @@ nlohmann::json pauseToken(const PauseTokenParams& params)
     {"status",
      gStatusToString.at(
         tokenPauseTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
+  };
+}
+
+//-----
+nlohmann::json updateToken(const UpdateTokenParams& params)
+{
+  TokenUpdateTransaction tokenUpdateTransaction;
+  tokenUpdateTransaction.setGrpcDeadline(std::chrono::seconds(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (params.mTokenId.has_value())
+  {
+    tokenUpdateTransaction.setTokenId(TokenId::fromString(params.mTokenId.value()));
+  }
+
+  if (params.mSymbol.has_value())
+  {
+    tokenUpdateTransaction.setTokenSymbol(params.mSymbol.value());
+  }
+
+  if (params.mName.has_value())
+  {
+    tokenUpdateTransaction.setTokenName(params.mName.value());
+  }
+
+  if (params.mTreasuryAccountId.has_value())
+  {
+    tokenUpdateTransaction.setTreasuryAccountId(AccountId::fromString(params.mTreasuryAccountId.value()));
+  }
+
+  if (params.mAdminKey.has_value())
+  {
+    tokenUpdateTransaction.setAdminKey(KeyService::getHieroKey(params.mAdminKey.value()));
+  }
+
+  if (params.mKycKey.has_value())
+  {
+    tokenUpdateTransaction.setKycKey(KeyService::getHieroKey(params.mKycKey.value()));
+  }
+
+  if (params.mFreezeKey.has_value())
+  {
+    tokenUpdateTransaction.setFreezeKey(KeyService::getHieroKey(params.mFreezeKey.value()));
+  }
+
+  if (params.mWipeKey.has_value())
+  {
+    tokenUpdateTransaction.setWipeKey(KeyService::getHieroKey(params.mWipeKey.value()));
+  }
+
+  if (params.mSupplyKey.has_value())
+  {
+    tokenUpdateTransaction.setSupplyKey(KeyService::getHieroKey(params.mSupplyKey.value()));
+  }
+
+  if (params.mAutoRenewAccountId.has_value())
+  {
+    tokenUpdateTransaction.setAutoRenewAccountId(AccountId::fromString(params.mAutoRenewAccountId.value()));
+  }
+
+  if (params.mAutoRenewPeriod.has_value())
+  {
+    tokenUpdateTransaction.setAutoRenewPeriod(
+      std::chrono::seconds(Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mAutoRenewPeriod.value())));
+  }
+
+  if (params.mExpirationTime.has_value())
+  {
+    tokenUpdateTransaction.setExpirationTime(
+      std::chrono::system_clock::from_time_t(0) +
+      std::chrono::seconds(Hiero::internal::EntityIdHelper::getNum<int64_t>(params.mExpirationTime.value())));
+  }
+
+  if (params.mMemo.has_value())
+  {
+    tokenUpdateTransaction.setTokenMemo(params.mMemo.value());
+  }
+
+  if (params.mFeeScheduleKey.has_value())
+  {
+    tokenUpdateTransaction.setFeeScheduleKey(KeyService::getHieroKey(params.mFeeScheduleKey.value()));
+  }
+
+  if (params.mPauseKey.has_value())
+  {
+    tokenUpdateTransaction.setPauseKey(KeyService::getHieroKey(params.mPauseKey.value()));
+  }
+
+  if (params.mMetadata.has_value())
+  {
+    tokenUpdateTransaction.setMetadata(internal::Utilities::stringToByteVector(params.mMetadata.value()));
+  }
+
+  if (params.mMetadataKey.has_value())
+  {
+    tokenUpdateTransaction.setMetadataKey(KeyService::getHieroKey(params.mMetadataKey.value()));
+  }
+
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(tokenUpdateTransaction, SdkClient::getClient());
+  }
+
+  return {
+    {"status",
+     gStatusToString.at(
+        tokenUpdateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
   };
 }
 

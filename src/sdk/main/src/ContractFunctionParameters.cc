@@ -49,7 +49,7 @@ const std::vector<std::byte> NEGATIVE_PADDING(31, std::byte(0xFF));
 {
   const std::vector<std::byte>& padding = negative ? NEGATIVE_PADDING : POSITIVE_PADDING;
   return internal::Utilities::concatenateVectors({
-    { padding.cbegin(), padding.cbegin() + getPaddingAmount(bytes) },
+    {padding.cbegin(), padding.cbegin() + getPaddingAmount(bytes)},
     bytes
   });
 }
@@ -63,7 +63,7 @@ const std::vector<std::byte> NEGATIVE_PADDING(31, std::byte(0xFF));
 [[nodiscard]] std::vector<std::byte> rightPad(const std::vector<std::byte>& bytes, bool = false)
 {
   return internal::Utilities::concatenateVectors({
-    bytes, { POSITIVE_PADDING.cbegin(), POSITIVE_PADDING.cbegin() + getPaddingAmount(bytes) }
+    bytes, {POSITIVE_PADDING.cbegin(), POSITIVE_PADDING.cbegin() + getPaddingAmount(bytes)}
   });
 }
 

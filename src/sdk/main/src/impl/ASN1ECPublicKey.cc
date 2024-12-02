@@ -45,7 +45,7 @@ void ASN1ECPublicKey::populateXYcoords()
     BN_hex2bn(&yCoordBN, internal::HexConverter::bytesToHex(ecYcoord).c_str());
     // if y even pad 0x02 byte else 0x03
     ecXcoord = internal::Utilities::concatenateVectors({
-      // get x coordinate
+  // get x coordinate
       { std::byte(0x00) },
       { !BN_is_bit_set(yCoordBN, 0) ? std::byte(0x02) : std::byte(0x03) },
       { publicKey.begin() + 2, publicKey.end() - EC_KEY_LENGTH }
