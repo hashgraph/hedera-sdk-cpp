@@ -2,7 +2,7 @@
 #ifndef HIERO_SDK_CPP_STATUS_H_
 #define HIERO_SDK_CPP_STATUS_H_
 
-#include <string_view>
+#include <string>
 #include <unordered_map>
 
 namespace proto
@@ -1490,6 +1490,11 @@ enum class Status
    * ECDSA(secp256k1) public keys.
    */
   INVALID_METADATA_KEY,
+
+  /**
+   * Metadata key is not set on token.
+   */
+  TOKEN_HAS_NO_METADATA_KEY,
 
   /**
    * Token Metadata is not provided

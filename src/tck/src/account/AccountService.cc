@@ -87,8 +87,8 @@ nlohmann::json createAccount(const CreateAccountParams& params)
   const TransactionReceipt txReceipt =
     accountCreateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
-    { "accountId", txReceipt.mAccountId->toString()      },
-    { "status",    gStatusToString.at(txReceipt.mStatus) }
+    {"accountId", txReceipt.mAccountId->toString()     },
+    { "status",   gStatusToString.at(txReceipt.mStatus)}
   };
 }
 
@@ -114,9 +114,9 @@ nlohmann::json deleteAccount(const DeleteAccountParams& params)
   }
 
   return {
-    { "status",
+    {"status",
      gStatusToString.at(
-        accountDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus) }
+        accountDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
   };
 }
 
@@ -185,7 +185,7 @@ nlohmann::json updateAccount(const UpdateAccountParams& params)
   const TransactionReceipt txReceipt =
     accountUpdateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient());
   return {
-    { "status", gStatusToString.at(txReceipt.mStatus) }
+    {"status", gStatusToString.at(txReceipt.mStatus)}
   };
 }
 
