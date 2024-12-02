@@ -107,7 +107,7 @@ std::string checksum(std::string_view address, const LedgerId& ledgerId)
   // Step 2: Construct a byte array containing the ledger ID, followed by six zero bytes.
   const std::vector<std::byte> ledgerIdArray = Utilities::concatenateVectors({
     ledgerId.toBytes(),
-    { std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0) }
+    {std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0), std::byte(0x0)}
   });
 
   // Step 3: Get the weighted sum of all the digits, modded by p3. Also get the sums of the digits in the array of
