@@ -5,6 +5,7 @@
 #include "token/params/AssociateTokenParams.h"
 #include "token/params/CreateTokenParams.h"
 #include "token/params/DeleteTokenParams.h"
+#include "token/params/DissociateTokenParams.h"
 #include "token/params/FreezeTokenParams.h"
 #include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
@@ -15,6 +16,7 @@
 #include <TokenAssociateTransaction.h>
 #include <TokenCreateTransaction.h>
 #include <TokenDeleteTransaction.h>
+#include <TokenDissociateTransaction.h>
 #include <TokenFreezeTransaction.h>
 #include <TokenId.h>
 #include <TokenSupplyType.h>
@@ -238,6 +240,40 @@ nlohmann::json deleteToken(const DeleteTokenParams& params)
     {"status",
      gStatusToString.at(
         tokenDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
+  };
+}
+
+//-----
+nlohmann::json dissociateToken(const DissociateTokenParams& params)
+{
+  TokenDissociateTransaction tokenDissociateTransaction;
+  tokenDissociateTransaction.setGrpcDeadline(std::chrono::seconds(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (params.mAccountId.has_value())
+  {
+    tokenDissociateTransaction.setAccountId(AccountId::fromString(params.mAccountId.value()));
+  }
+
+  if (params.mTokenIds.has_value())
+  {
+    std::vector<TokenId> tokenIds;
+    for (const std::string& tokenId : params.mTokenIds.value())
+    {
+      tokenIds.push_back(TokenId::fromString(tokenId));
+    }
+
+    tokenDissociateTransaction.setTokenIds(tokenIds);
+  }
+
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(tokenDissociateTransaction, SdkClient::getClient());
+  }
+
+  return {
+    {"status",
+     gStatusToString.at(
+        tokenDissociateTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
   };
 }
 
