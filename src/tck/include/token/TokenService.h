@@ -11,6 +11,7 @@ namespace Hiero::TCK::TokenService
  */
 struct CreateTokenParams;
 struct DeleteTokenParams;
+struct FreezeTokenParams;
 struct UpdateTokenParams;
 
 /**
@@ -28,6 +29,14 @@ nlohmann::json createToken(const CreateTokenParams& params);
  * @return A JSON response containing the status of the token deletion.
  */
 nlohmann::json deleteToken(const DeleteTokenParams& params);
+
+/**
+ * Freeze a token on an account.
+ *
+ * @params The parameters to use to freeze a token.
+ * @return A JSON response containing the status of the token freeze.
+ */
+nlohmann::json freezeToken(const FreezeTokenParams& params);
 
 /**
  * Update a token.
