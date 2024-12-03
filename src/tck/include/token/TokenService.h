@@ -14,6 +14,7 @@ struct CreateTokenParams;
 struct DeleteTokenParams;
 struct DissociateTokenParams;
 struct FreezeTokenParams;
+struct UnfreezeTokenParams;
 struct UpdateTokenParams;
 
 /**
@@ -55,6 +56,14 @@ nlohmann::json dissociateToken(const DissociateTokenParams& params);
  * @return A JSON response containing the status of the token freeze.
  */
 nlohmann::json freezeToken(const FreezeTokenParams& params);
+
+/**
+ * Unfreeze a token from an account.
+ *
+ * @params The parameters to use to unfreeze a token.
+ * @return A JSON response containing the status of the token unfreeze.
+ */
+nlohmann::json unfreezeToken(const UnfreezeTokenParams& params);
 
 /**
  * Update a token.
