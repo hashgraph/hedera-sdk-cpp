@@ -15,6 +15,7 @@
 #include "token/params/DissociateTokenParams.h"
 #include "token/params/FreezeTokenParams.h"
 #include "token/params/GrantTokenKycParams.h"
+#include "token/params/PauseTokenParams.h"
 #include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -365,6 +366,8 @@ template TckServer::MethodHandle TckServer::getHandle<TokenService::FreezeTokenP
   nlohmann::json (*method)(const TokenService::FreezeTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::GrantTokenKycParams>(
   nlohmann::json (*method)(const TokenService::GrantTokenKycParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::PauseTokenParams>(
+  nlohmann::json (*method)(const TokenService::PauseTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::UpdateTokenParams>(
   nlohmann::json (*method)(const TokenService::UpdateTokenParams&));
 

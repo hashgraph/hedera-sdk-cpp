@@ -34,6 +34,7 @@ int main(int argc, char** argv)
   tckServer.add("dissociateToken", tckServer.getHandle(&TokenService::dissociateToken));
   tckServer.add("freezeToken", tckServer.getHandle(&TokenService::freezeToken));
   tckServer.add("grantTokenKyc", tckServer.getHandle(&TokenService::grantTokenKyc));
+  tckServer.add("pauseToken", tckServer.getHandle(&TokenService::pauseToken));
   tckServer.add("updateToken", tckServer.getHandle(&TokenService::updateToken));
 
   // Start listening for requests.
