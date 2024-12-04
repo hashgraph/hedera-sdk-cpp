@@ -16,6 +16,7 @@ struct DissociateTokenParams;
 struct FreezeTokenParams;
 struct GrantTokenKycParams;
 struct PauseTokenParams;
+struct RevokeTokenKycParams;
 struct UpdateTokenParams;
 
 /**
@@ -74,6 +75,14 @@ nlohmann::json grantTokenKyc(const GrantTokenKycParams& params);
  * @return A JSON response containing the status of the token pause.
  */
 nlohmann::json pauseToken(const PauseTokenParams& params);
+
+/**
+ * Revoke KYC of a token from an account.
+ *
+ * @param params The parameters to use to revoke KYC.
+ * @return A JSON response containing the status of the token KYC revoke.
+ */
+nlohmann::json revokeTokenKyc(const RevokeTokenKycParams& params);
 
 /**
  * Update a token.
