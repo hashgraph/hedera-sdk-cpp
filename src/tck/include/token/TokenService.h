@@ -11,6 +11,7 @@ namespace Hiero::TCK::TokenService
  */
 struct CreateTokenParams;
 struct DeleteTokenParams;
+struct GrantTokenKycParams;
 struct UpdateTokenParams;
 
 /**
@@ -28,6 +29,14 @@ nlohmann::json createToken(const CreateTokenParams& params);
  * @return A JSON response containing the status of the token deletion.
  */
 nlohmann::json deleteToken(const DeleteTokenParams& params);
+
+/**
+ * Grant KYC of a token to an account.
+ *
+ * @param params The parameters to use to grant KYC.
+ * @return A JSON response containing the status of the token KYC grant.
+ */
+nlohmann::json grantTokenKyc(const GrantTokenKycParams& params);
 
 /**
  * Update a token.

@@ -4,6 +4,7 @@
 #include "sdk/SdkClient.h"
 #include "token/params/CreateTokenParams.h"
 #include "token/params/DeleteTokenParams.h"
+#include "token/params/GrantTokenKycParams.h"
 #include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -12,6 +13,7 @@
 #include <Status.h>
 #include <TokenCreateTransaction.h>
 #include <TokenDeleteTransaction.h>
+#include <TokenGrantKycTransaction.h>
 #include <TokenId.h>
 #include <TokenSupplyType.h>
 #include <TokenType.h>
@@ -199,6 +201,34 @@ nlohmann::json deleteToken(const DeleteTokenParams& params)
     {"status",
      gStatusToString.at(
         tokenDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
+  };
+}
+
+//-----
+nlohmann::json grantTokenKyc(const GrantTokenKycParams& params)
+{
+  TokenGrantKycTransaction tokenGrantKycTransaction;
+  tokenGrantKycTransaction.setGrpcDeadline(std::chrono::seconds(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT));
+
+  if (params.mTokenId.has_value())
+  {
+    tokenGrantKycTransaction.setTokenId(TokenId::fromString(params.mTokenId.value()));
+  }
+
+  if (params.mAccountId.has_value())
+  {
+    tokenGrantKycTransaction.setAccountId(AccountId::fromString(params.mAccountId.value()));
+  }
+
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(tokenGrantKycTransaction, SdkClient::getClient());
+  }
+
+  return {
+    {"status",
+     gStatusToString.at(
+        tokenGrantKycTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
   };
 }
 
