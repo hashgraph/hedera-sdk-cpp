@@ -2,7 +2,7 @@
 #ifndef HIERO_SDK_CPP_STATUS_H_
 #define HIERO_SDK_CPP_STATUS_H_
 
-#include <string_view>
+#include <string>
 #include <unordered_map>
 
 namespace proto
