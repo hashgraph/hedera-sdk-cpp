@@ -166,7 +166,7 @@ TEST_F(ScheduleCreateTransactionIntegrationTests, CannotScheduleTwoIdenticalTran
 }
 
 //-----
-TEST_F(ScheduleCreateTransactionIntegrationTests, CanSignSchedule)
+TEST_F(ScheduleCreateTransactionIntegrationTests, CanSignScheduleAndWaitForExpiry)
 {
   // Given
   std::shared_ptr<PrivateKey> operatorKey;
@@ -191,6 +191,7 @@ TEST_F(ScheduleCreateTransactionIntegrationTests, CanSignSchedule)
   TransactionReceipt txReceipt;
   EXPECT_NO_THROW(txReceipt = ScheduleCreateTransaction()
                                 .setScheduledTransaction(scheduledTransaction)
+                                .setWaitForExpiry(true)
                                 .setExpirationTime(std::chrono::system_clock::now() + std::chrono::hours(24))
                                 .setAdminKey(operatorKey)
                                 .setPayerAccountId(AccountId(2ULL))

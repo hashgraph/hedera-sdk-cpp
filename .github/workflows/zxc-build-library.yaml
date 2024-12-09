@@ -156,7 +156,7 @@ jobs:
       #     run: tree /F build
 
       - name: Start the local node
-        run: npx hedera start --verbose=trace --detached --network-tag=0.54.0-alpha.5
+        run: npx hedera start --verbose=trace --detached --network-tag=0.57.0
 
       - name: Start CTest suite (Debug)
         run: ${{ steps.cgroup.outputs.exec }} ctest -j 6 -C Debug --test-dir build/${{ matrix.preset }}-debug --output-on-failure
