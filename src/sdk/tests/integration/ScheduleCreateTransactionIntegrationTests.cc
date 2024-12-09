@@ -164,3 +164,146 @@ TEST_F(ScheduleCreateTransactionIntegrationTests, CannotScheduleTwoIdenticalTran
                                                          .execute(getTestClient())
                                                          .getReceipt(getTestClient()));
 }
+
+//-----
+TEST_F(ScheduleCreateTransactionIntegrationTests, CanSignSchedule)
+{
+  // Given
+  std::shared_ptr<PrivateKey> operatorKey;
+  std::shared_ptr<PrivateKey> newKey;
+  ASSERT_NO_THROW(
+    operatorKey = ED25519PrivateKey::fromString(
+      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+  ASSERT_NO_THROW(newKey = ED25519PrivateKey::generatePrivateKey());
+
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = AccountCreateTransaction()
+                                .setKey(newKey)
+                                .setInitialBalance(Hbar(10LL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient())
+                                .mAccountId.value());
+
+  const WrappedTransaction scheduledTransaction(
+    TransferTransaction().addHbarTransfer(accountId, Hbar(-5LL)).addHbarTransfer(AccountId(2ULL), Hbar(5LL)));
+
+  // When
+  TransactionReceipt txReceipt;
+  EXPECT_NO_THROW(txReceipt = ScheduleCreateTransaction()
+                                .setScheduledTransaction(scheduledTransaction)
+                                .setExpirationTime(std::chrono::system_clock::now() + std::chrono::hours(24))
+                                .setAdminKey(operatorKey)
+                                .setPayerAccountId(AccountId(2ULL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+
+  // Then
+  ASSERT_TRUE(txReceipt.mScheduleId.has_value());
+  const ScheduleId scheduleId = txReceipt.mScheduleId.value();
+
+  ScheduleInfo scheduleInfo;
+  EXPECT_NO_THROW(scheduleInfo =
+                    ScheduleInfoQuery().setScheduleId(txReceipt.mScheduleId.value()).execute(getTestClient()));
+
+  EXPECT_NO_THROW(txReceipt = ScheduleSignTransaction()
+                                .setScheduleId(scheduleId)
+                                .freezeWith(&getTestClient())
+                                .sign(newKey)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+
+  // Clean up
+  ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
+                                .setDeleteAccountId(accountId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .freezeWith(&getTestClient())
+                                .sign(newKey)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+}
+
+//-----
+TEST_F(ScheduleCreateTransactionIntegrationTests, CannotScheduleOneYearIntoTheFuture)
+{
+  // Given
+  std::shared_ptr<PrivateKey> operatorKey;
+  std::shared_ptr<PrivateKey> newKey;
+  ASSERT_NO_THROW(
+    operatorKey = ED25519PrivateKey::fromString(
+      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+  ASSERT_NO_THROW(newKey = ED25519PrivateKey::generatePrivateKey());
+
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = AccountCreateTransaction()
+                                .setKey(newKey)
+                                .setInitialBalance(Hbar(10LL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient())
+                                .mAccountId.value());
+
+  const WrappedTransaction scheduledTransaction(
+    TransferTransaction().addHbarTransfer(accountId, Hbar(-5LL)).addHbarTransfer(AccountId(2ULL), Hbar(5LL)));
+
+  // When / Then
+  TransactionReceipt txReceipt;
+  EXPECT_THROW(txReceipt = ScheduleCreateTransaction()
+                             .setScheduledTransaction(scheduledTransaction)
+                             .setExpirationTime(std::chrono::system_clock::now() + std::chrono::hours(8760))
+                             .setAdminKey(operatorKey)
+                             .setPayerAccountId(AccountId(2ULL))
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient()),
+               ReceiptStatusException);
+
+  // Clean up
+  ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
+                                .setDeleteAccountId(accountId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .freezeWith(&getTestClient())
+                                .sign(newKey)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+}
+
+//-----
+TEST_F(ScheduleCreateTransactionIntegrationTests, CannotScheduleInThePast)
+{
+  // Given
+  std::shared_ptr<PrivateKey> operatorKey;
+  std::shared_ptr<PrivateKey> newKey;
+  ASSERT_NO_THROW(
+    operatorKey = ED25519PrivateKey::fromString(
+      "302e020100300506032b65700422042091132178e72057a1d7528025956fe39b0b847f200ab59b2fdd367017f3087137"));
+  ASSERT_NO_THROW(newKey = ED25519PrivateKey::generatePrivateKey());
+
+  AccountId accountId;
+  ASSERT_NO_THROW(accountId = AccountCreateTransaction()
+                                .setKey(newKey)
+                                .setInitialBalance(Hbar(10LL))
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient())
+                                .mAccountId.value());
+
+  const WrappedTransaction scheduledTransaction(
+    TransferTransaction().addHbarTransfer(accountId, Hbar(-5LL)).addHbarTransfer(AccountId(2ULL), Hbar(5LL)));
+
+  // When / Then
+  TransactionReceipt txReceipt;
+  EXPECT_THROW(txReceipt = ScheduleCreateTransaction()
+                             .setScheduledTransaction(scheduledTransaction)
+                             .setExpirationTime(std::chrono::system_clock::now() - std::chrono::hours(24))
+                             .setAdminKey(operatorKey)
+                             .setPayerAccountId(AccountId(2ULL))
+                             .execute(getTestClient())
+                             .getReceipt(getTestClient()),
+               ReceiptStatusException);
+
+  // Clean up
+  ASSERT_NO_THROW(txReceipt = AccountDeleteTransaction()
+                                .setDeleteAccountId(accountId)
+                                .setTransferAccountId(AccountId(2ULL))
+                                .freezeWith(&getTestClient())
+                                .sign(newKey)
+                                .execute(getTestClient())
+                                .getReceipt(getTestClient()));
+}
