@@ -11,6 +11,8 @@ namespace Hiero::TCK::TokenService
  */
 struct CreateTokenParams;
 struct DeleteTokenParams;
+struct PauseTokenParams;
+struct UnpauseTokenParams;
 struct UpdateTokenParams;
 
 /**
@@ -28,6 +30,22 @@ nlohmann::json createToken(const CreateTokenParams& params);
  * @return A JSON response containing the status of the token deletion.
  */
 nlohmann::json deleteToken(const DeleteTokenParams& params);
+
+/**
+ * Pause a token.
+ *
+ * @param params The parameters to use to pause a token.
+ * @return A JSON response containing the status of the token pause.
+ */
+nlohmann::json pauseToken(const PauseTokenParams& params);
+
+/**
+ * Unpause a token.
+ *
+ * @param params The parameters to use to unpause a token.
+ * @return A JSON response containing the status of the token unpause.
+ */
+nlohmann::json unpauseToken(const UnpauseTokenParams& params);
 
 /**
  * Update a token.
