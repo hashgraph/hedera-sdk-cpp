@@ -18,6 +18,7 @@
 
 #include <dotenv.h>
 #include <iostream>
+#include <thread>
 
 using namespace Hiero;
 
