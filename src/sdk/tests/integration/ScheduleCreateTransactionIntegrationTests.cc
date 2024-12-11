@@ -16,6 +16,8 @@
 #include "exceptions/ReceiptStatusException.h"
 #include "impl/Utilities.h"
 
+#include <thread>
+
 #include <gtest/gtest.h>
 
 using namespace Hiero;
