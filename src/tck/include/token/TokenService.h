@@ -9,9 +9,18 @@ namespace Hiero::TCK::TokenService
 /**
  * Forward declarations.
  */
+struct BurnTokenParams;
 struct CreateTokenParams;
 struct DeleteTokenParams;
 struct UpdateTokenParams;
+
+/**
+ * Burn a token.
+ *
+ * @param params The parameters to use to burn a token.
+ * @return A JSON response containing the status of the token burn and the new total supply of the token.
+ */
+nlohmann::json burnToken(const BurnTokenParams& params);
 
 /**
  * Create a token.
