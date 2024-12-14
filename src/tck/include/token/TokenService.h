@@ -42,7 +42,6 @@ nlohmann::json createToken(const CreateTokenParams& params);
 nlohmann::json deleteToken(const DeleteTokenParams& params);
 
 /**
-<<<<<<< HEAD
  * Dissociate an account from tokens.
  *
  * @param params The parameters to use to dissociate the account.
