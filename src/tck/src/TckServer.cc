@@ -11,6 +11,8 @@
 #include "sdk/params/SetupParams.h"
 #include "token/params/CreateTokenParams.h"
 #include "token/params/DeleteTokenParams.h"
+#include "token/params/PauseTokenParams.h"
+#include "token/params/UnpauseTokenParams.h"
 #include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -353,6 +355,10 @@ template TckServer::MethodHandle TckServer::getHandle<TokenService::CreateTokenP
   nlohmann::json (*method)(const TokenService::CreateTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::DeleteTokenParams>(
   nlohmann::json (*method)(const TokenService::DeleteTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::PauseTokenParams>(
+  nlohmann::json (*method)(const TokenService::PauseTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::UnpauseTokenParams>(
+  nlohmann::json (*method)(const TokenService::UnpauseTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::UpdateTokenParams>(
   nlohmann::json (*method)(const TokenService::UpdateTokenParams&));
 

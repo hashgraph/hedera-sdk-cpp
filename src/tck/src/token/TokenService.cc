@@ -4,6 +4,8 @@
 #include "sdk/SdkClient.h"
 #include "token/params/CreateTokenParams.h"
 #include "token/params/DeleteTokenParams.h"
+#include "token/params/PauseTokenParams.h"
+#include "token/params/UnpauseTokenParams.h"
 #include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -13,8 +15,10 @@
 #include <TokenCreateTransaction.h>
 #include <TokenDeleteTransaction.h>
 #include <TokenId.h>
+#include <TokenPauseTransaction.h>
 #include <TokenSupplyType.h>
 #include <TokenType.h>
+#include <TokenUnpauseTransaction.h>
 #include <TokenUpdateTransaction.h>
 #include <TransactionReceipt.h>
 #include <TransactionResponse.h>
@@ -199,6 +203,52 @@ nlohmann::json deleteToken(const DeleteTokenParams& params)
     {"status",
      gStatusToString.at(
         tokenDeleteTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
+  };
+}
+
+//-----
+nlohmann::json pauseToken(const PauseTokenParams& params)
+{
+  TokenPauseTransaction tokenPauseTransaction;
+  tokenPauseTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
+
+  if (params.mTokenId.has_value())
+  {
+    tokenPauseTransaction.setTokenId(TokenId::fromString(params.mTokenId.value()));
+  }
+
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(tokenPauseTransaction, SdkClient::getClient());
+  }
+
+  return {
+    {"status",
+     gStatusToString.at(
+        tokenPauseTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
+  };
+}
+
+//-----
+nlohmann::json unpauseToken(const UnpauseTokenParams& params)
+{
+  TokenUnpauseTransaction tokenUnpauseTransaction;
+  tokenUnpauseTransaction.setGrpcDeadline(SdkClient::DEFAULT_TCK_REQUEST_TIMEOUT);
+
+  if (params.mTokenId.has_value())
+  {
+    tokenUnpauseTransaction.setTokenId(TokenId::fromString(params.mTokenId.value()));
+  }
+
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(tokenUnpauseTransaction, SdkClient::getClient());
+  }
+
+  return {
+    {"status",
+     gStatusToString.at(
+        tokenUnpauseTransaction.execute(SdkClient::getClient()).getReceipt(SdkClient::getClient()).mStatus)}
   };
 }
 
