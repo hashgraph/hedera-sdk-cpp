@@ -9,9 +9,22 @@ namespace Hiero::TCK::TokenService
 /**
  * Forward declarations.
  */
+struct AssociateTokenParams;
 struct CreateTokenParams;
 struct DeleteTokenParams;
+struct DissociateTokenParams;
+struct FreezeTokenParams;
+struct PauseTokenParams;
+struct UnfreezeTokenParams;
 struct UpdateTokenParams;
+
+/**
+ * Associate an account with tokens.
+ *
+ * @param params The parameters to use to associate the account and tokens.
+ * @return A JSON response containing the status of the token association.
+ */
+nlohmann::json associateToken(const AssociateTokenParams& params);
 
 /**
  * Create a token.
@@ -28,6 +41,38 @@ nlohmann::json createToken(const CreateTokenParams& params);
  * @return A JSON response containing the status of the token deletion.
  */
 nlohmann::json deleteToken(const DeleteTokenParams& params);
+
+/**
+ * Dissociate an account from tokens.
+ *
+ * @param params The parameters to use to dissociate the account.
+ * @ return A JSON response containing the status of the account dissociation.
+ */
+nlohmann::json dissociateToken(const DissociateTokenParams& params);
+
+/**
+ * Freeze a token on an account.
+ *
+ * @params The parameters to use to freeze a token.
+ * @return A JSON response containing the status of the token freeze.
+ */
+nlohmann::json freezeToken(const FreezeTokenParams& params);
+
+/**
+ * Pause a token.
+ *
+ * @param params The parameters to use to pause a token.
+ * @return A JSON response containing the status of the token pause.
+ */
+nlohmann::json pauseToken(const PauseTokenParams& params);
+
+/**
+ * Unfreeze a token from an account.
+ *
+ * @params The parameters to use to unfreeze a token.
+ * @return A JSON response containing the status of the token unfreeze.
+ */
+nlohmann::json unfreezeToken(const UnfreezeTokenParams& params);
 
 /**
  * Update a token.
