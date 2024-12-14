@@ -9,8 +9,13 @@
 #include "key/params/GenerateKeyParams.h"
 #include "sdk/params/ResetParams.h"
 #include "sdk/params/SetupParams.h"
+#include "token/params/AssociateTokenParams.h"
 #include "token/params/CreateTokenParams.h"
 #include "token/params/DeleteTokenParams.h"
+#include "token/params/DissociateTokenParams.h"
+#include "token/params/FreezeTokenParams.h"
+#include "token/params/GrantTokenKycParams.h"
+#include "token/params/PauseTokenParams.h"
 #include "token/params/UpdateTokenParams.h"
 #include "json/JsonErrorType.h"
 #include "json/JsonRpcException.h"
@@ -349,10 +354,20 @@ template TckServer::MethodHandle TckServer::getHandle<SdkClient::ResetParams>(
 template TckServer::MethodHandle TckServer::getHandle<SdkClient::SetupParams>(
   nlohmann::json (*method)(const SdkClient::SetupParams&));
 
+template TckServer::MethodHandle TckServer::getHandle<TokenService::AssociateTokenParams>(
+  nlohmann::json (*method)(const TokenService::AssociateTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::CreateTokenParams>(
   nlohmann::json (*method)(const TokenService::CreateTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::DeleteTokenParams>(
   nlohmann::json (*method)(const TokenService::DeleteTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::DissociateTokenParams>(
+  nlohmann::json (*method)(const TokenService::DissociateTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::FreezeTokenParams>(
+  nlohmann::json (*method)(const TokenService::FreezeTokenParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::GrantTokenKycParams>(
+  nlohmann::json (*method)(const TokenService::GrantTokenKycParams&));
+template TckServer::MethodHandle TckServer::getHandle<TokenService::PauseTokenParams>(
+  nlohmann::json (*method)(const TokenService::PauseTokenParams&));
 template TckServer::MethodHandle TckServer::getHandle<TokenService::UpdateTokenParams>(
   nlohmann::json (*method)(const TokenService::UpdateTokenParams&));
 
