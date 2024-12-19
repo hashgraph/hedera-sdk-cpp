@@ -77,6 +77,11 @@ nlohmann::json approveAllowance(const ApproveAllowanceParams& params)
     }
   }
 
+  if (params.mCommonTxParams.has_value())
+  {
+    params.mCommonTxParams->fillOutTransaction(accountAllowanceApproveTransaction, SdkClient::getClient());
+  }
+
   return {
     {"status",
      gStatusToString.at(
