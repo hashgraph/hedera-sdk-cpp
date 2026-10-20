@@ -7,6 +7,13 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/10697/badge)](https://bestpractices.coreinfrastructure.org/projects/10697)
 [![License](https://img.shields.io/badge/license-apache2-blue.svg)](LICENSE)
 
+> [!WARNING]
+> The Hiero C++ SDK currently has no active committers or maintainers. Open issues and pull requests are not being reviewed on a regular schedule, and releases are not planned.
+>
+> **Using this SDK:** treat it as unsupported for now. Bug fixes and new network features may not arrive. To report a security vulnerability, do not open a public issue. Use [GitHub's private reporting form](https://github.com/hiero-ledger/hiero-sdk-cpp/security/advisories/new) and see the [Hiero security policy](https://github.com/hiero-ledger/.github/blob/main/SECURITY.md).
+>
+> **Contributing or maintaining:** help is welcome. Pull requests may wait a long time, so please comment on an existing issue before starting work. To help maintain this SDK, see how [committers and maintainers are added](https://github.com/hiero-ledger/governance) or join the [Hiero SDK Community Call](https://zoom-lfx.platform.linuxfoundation.org/meeting/94709702244?password=bcba4892-928c-47e0-9a21-e1abca95f7d3).
+
 The C++ SDK for interacting with a [Hiero](https://hiero.org) network.
 
 ## Table of Contents
