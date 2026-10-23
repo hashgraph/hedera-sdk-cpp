@@ -198,7 +198,6 @@ jobs:
         id: solo
         uses: hiero-ledger/hiero-solo-action@c982fe02b37db2a25a6a5e61139d9fe5d0917cff # v0.26.0
         with:
-          soloVersion: v0.72.0
           installMirrorNode: true
           mirrorNodeVersion: v0.153.0
           hieroVersion: v0.73.0
